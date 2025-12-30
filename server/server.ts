@@ -1,3 +1,12 @@
+// ULTRA-EARLY DEBUG: Check if Railway is injecting vars BEFORE any imports
+console.log("🔍 ULTRA-EARLY CHECK (antes de imports):");
+console.log("ENV KEY NAMES:", Object.keys(process.env).filter(k => k.includes("KEY")));
+console.log("GEMINI_API_KEY present:", Boolean(process.env.GEMINI_API_KEY));
+console.log("API_KEY present:", Boolean(process.env.API_KEY));
+console.log("Raw GEMINI_API_KEY:", process.env.GEMINI_API_KEY?.substring(0, 10));
+console.log("Raw API_KEY:", process.env.API_KEY?.substring(0, 10));
+console.log("=".repeat(60) + "\n");
+
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
