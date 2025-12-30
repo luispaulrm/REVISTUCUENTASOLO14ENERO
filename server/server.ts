@@ -19,8 +19,17 @@ console.log("🚀 AUDIT SERVER STARTING");
 console.log(`Port: ${port}`);
 const envKeys = Object.keys(process.env);
 console.log(`Available Env Vars: ${envKeys.join(', ')}`);
-const startupKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
-console.log(`API Key injected: ${startupKey ? 'YES (starts with ' + startupKey.substring(0, 4) + ')' : 'MISSING ❌'}`);
+
+// Función para limpiar la clave (quitar prefijos como "API_KEY=" si se pegaron por error)
+const cleanKey = (k: string) => k.replace(/^API_KEY\s*=\s*/i, '').trim();
+
+const rawKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+const startupKey = cleanKey(rawKey);
+
+console.log(`API Key status: ${startupKey ? 'YES (starts with ' + startupKey.substring(0, 4) + ')' : 'MISSING ❌'}`);
+if (rawKey !== startupKey) {
+    console.log(`[FIX] Note: Key prefix "API_KEY=" was automatically stripped.`);
+}
 console.log("=".repeat(50) + "\n");
 
 
@@ -30,7 +39,10 @@ app.use(express.json({ limit: '50mb' }));
 const upload = multer({ storage: multer.memoryStorage() });
 
 // Helper para obtener la API Key de forma robusta
-const getApiKey = () => process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+const getApiKey = () => {
+    const k = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+    return k.replace(/^API_KEY\s*=\s*/i, '').trim();
+};
 
 const billingSchema = {
     type: "object",
