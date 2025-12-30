@@ -1,0 +1,7 @@
+{
+  "name": "ClinicBill Audit Extractor",
+  "description": "A sophisticated medical billing data extractor that cleans noise, categorizes expenses, and audits totals for clinical accounts using Gemini 3 Pro.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
