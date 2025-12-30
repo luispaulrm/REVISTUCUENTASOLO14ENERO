@@ -6,6 +6,22 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+console.log("\n" + "=".repeat(50));
+console.log("🚀 AUDIT SERVER BOOTSTRAP");
+const allKeys = Object.keys(process.env).sort();
+const filteredKeys = allKeys.filter(k =>
+    k.includes('API') || k.includes('GEMINI') || k.includes('KEY') || k.includes('VITE')
+);
+console.log(`[ENV_CHECK] Total Vars: ${allKeys.length}`);
+console.log(`[ENV_CHECK] Relevant Vars (API/GEMINI/KEY/VITE): ${filteredKeys.length > 0 ? filteredKeys.join(', ') : 'NONE'}`);
+if (filteredKeys.length > 0) {
+    filteredKeys.forEach(k => {
+        const val = process.env[k] || '';
+        console.log(`  -> ${k}: ${val.substring(0, 5)}... (len: ${val.length})`);
+    });
+}
+console.log("=".repeat(50) + "\n");
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -13,31 +29,6 @@ dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
-
-console.log("\n" + "=".repeat(50));
-console.log("🚀 AUDIT SERVER STARTING");
-console.log(`Port: ${port}`);
-
-// Listar todas las variables que empiecen con API o GEMINI para detectar errores de tipeo
-const allVars = Object.keys(process.env);
-const relevantVars = allVars.filter(k => k.includes('API') || k.includes('GEMINI') || k.includes('KEY'));
-console.log(`[DEBUG] Relevant Env Vars Found: ${relevantVars.length > 0 ? relevantVars.join(', ') : 'NONE FOUND'}`);
-
-// Función para limpiar la clave (quitar prefijos como "API_KEY=" si se pegaron por error)
-const cleanKey = (k: string) => k ? k.replace(/^API_KEY\s*=\s*/i, '').trim() : '';
-
-const rawKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
-const startupKey = cleanKey(rawKey);
-
-console.log(`[DEBUG] RAW KEY detectada: ${rawKey ? 'SI (empieza con ' + rawKey.substring(0, 10) + '...)' : 'NO'}`);
-console.log(`[DEBUG] FINAL KEY procesada: ${startupKey ? 'SI (empieza con ' + startupKey.substring(0, 10) + '...)' : 'NO'}`);
-console.log(`API Key status: ${startupKey ? 'YES ✅' : 'MISSING ❌'}`);
-
-if (rawKey !== startupKey && rawKey) {
-    console.log(`[FIX] Note: Key prefix "API_KEY=" was automatically stripped.`);
-}
-console.log("=".repeat(50) + "\n");
-
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
