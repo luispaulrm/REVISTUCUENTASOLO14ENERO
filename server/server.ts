@@ -2,7 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -285,6 +290,14 @@ app.post('/api/extract', async (req, res) => {
         sendUpdate({ type: 'error', message: error.message || 'Internal Server Error' });
         res.end();
     }
+});
+
+// Servir archivos estáticos del frontend
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Manejar cualquier otra ruta con el index.html del frontend
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 app.listen(port, () => {
