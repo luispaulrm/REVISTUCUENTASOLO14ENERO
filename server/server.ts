@@ -19,9 +19,8 @@ app.use(express.json({ limit: '50mb' }));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-const key = process.env.GEMINI_API_KEY || '';
-console.log(`[INIT] GEMINI_API_KEY is ${key ? 'present (starts with ' + key.substring(0, 4) + '...)' : 'MISSING'}`);
-const genAI = new GoogleGenerativeAI(key);
+// Helper para obtener la API Key de forma robusta
+const getApiKey = () => process.env.GEMINI_API_KEY || process.env.API_KEY || '';
 
 const billingSchema = {
     type: "object",
@@ -99,11 +98,20 @@ app.post('/api/extract', async (req, res) => {
         const { image, mimeType } = req.body;
         console.log(`[REQUEST] Processing image style: ${mimeType}`);
 
+        const apiKey = getApiKey();
+        console.log(`[AUTH] API Key status: ${apiKey ? 'Found (Starts with ' + apiKey.substring(0, 4) + '...)' : 'MISSING'}`);
+
         if (!image || !mimeType) {
             console.error(`[ERROR] Missing payload: image=${!!image}, mimeType=${mimeType}`);
             return res.status(400).json({ error: 'Missing image data or mimeType' });
         }
 
+        if (!apiKey) {
+            console.error(`[CRITICAL] Cannot proceed without API Key`);
+            return res.status(500).json({ error: 'Server configuration error: Gemini API Key not found' });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
             model: "gemini-3-flash-preview",
             generationConfig: {
