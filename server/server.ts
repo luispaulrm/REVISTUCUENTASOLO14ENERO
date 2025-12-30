@@ -5,7 +5,14 @@ console.log("GEMINI_API_KEY present:", Boolean(process.env.GEMINI_API_KEY));
 console.log("API_KEY present:", Boolean(process.env.API_KEY));
 console.log("Raw GEMINI_API_KEY:", process.env.GEMINI_API_KEY?.substring(0, 10));
 console.log("Raw API_KEY:", process.env.API_KEY?.substring(0, 10));
-console.log("=".repeat(60) + "\n");
+console.log("=".repeat(60));
+
+console.log("\n=== RAILWAY CONTEXT ===");
+console.log("SERVICE:", process.env.RAILWAY_SERVICE_NAME);
+console.log("ENV:", process.env.RAILWAY_ENVIRONMENT_NAME);
+console.log("PROJECT:", process.env.RAILWAY_PROJECT_NAME);
+console.log("=======================\n");
+
 
 import express from 'express';
 import cors from 'cors';
