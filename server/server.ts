@@ -17,17 +17,23 @@ const port = process.env.PORT || 5000;
 console.log("\n" + "=".repeat(50));
 console.log("🚀 AUDIT SERVER STARTING");
 console.log(`Port: ${port}`);
-const envKeys = Object.keys(process.env);
-console.log(`Available Env Vars: ${envKeys.join(', ')}`);
+
+// Listar todas las variables que empiecen con API o GEMINI para detectar errores de tipeo
+const allVars = Object.keys(process.env);
+const relevantVars = allVars.filter(k => k.includes('API') || k.includes('GEMINI') || k.includes('KEY'));
+console.log(`[DEBUG] Relevant Env Vars Found: ${relevantVars.length > 0 ? relevantVars.join(', ') : 'NONE FOUND'}`);
 
 // Función para limpiar la clave (quitar prefijos como "API_KEY=" si se pegaron por error)
-const cleanKey = (k: string) => k.replace(/^API_KEY\s*=\s*/i, '').trim();
+const cleanKey = (k: string) => k ? k.replace(/^API_KEY\s*=\s*/i, '').trim() : '';
 
 const rawKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
 const startupKey = cleanKey(rawKey);
 
-console.log(`API Key status: ${startupKey ? 'YES (starts with ' + startupKey.substring(0, 4) + ')' : 'MISSING ❌'}`);
-if (rawKey !== startupKey) {
+console.log(`[DEBUG] RAW KEY detectada: ${rawKey ? 'SI (empieza con ' + rawKey.substring(0, 10) + '...)' : 'NO'}`);
+console.log(`[DEBUG] FINAL KEY procesada: ${startupKey ? 'SI (empieza con ' + startupKey.substring(0, 10) + '...)' : 'NO'}`);
+console.log(`API Key status: ${startupKey ? 'YES ✅' : 'MISSING ❌'}`);
+
+if (rawKey !== startupKey && rawKey) {
     console.log(`[FIX] Note: Key prefix "API_KEY=" was automatically stripped.`);
 }
 console.log("=".repeat(50) + "\n");
