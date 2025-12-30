@@ -19,7 +19,9 @@ app.use(express.json({ limit: '50mb' }));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const key = process.env.GEMINI_API_KEY || '';
+console.log(`[INIT] GEMINI_API_KEY is ${key ? 'present (starts with ' + key.substring(0, 4) + '...)' : 'MISSING'}`);
+const genAI = new GoogleGenerativeAI(key);
 
 const billingSchema = {
     type: "object",
@@ -95,8 +97,10 @@ app.post('/api/extract', async (req, res) => {
 
     try {
         const { image, mimeType } = req.body;
+        console.log(`[REQUEST] Processing image style: ${mimeType}`);
 
         if (!image || !mimeType) {
+            console.error(`[ERROR] Missing payload: image=${!!image}, mimeType=${mimeType}`);
             return res.status(400).json({ error: 'Missing image data or mimeType' });
         }
 
@@ -145,6 +149,7 @@ app.post('/api/extract', async (req, res) => {
         for await (const chunk of resultStream.stream) {
             const chunkText = chunk.text();
             fullText += chunkText;
+            console.log(`[CHUNK] Received chunk: ${chunkText.length} chars (Total: ${fullText.length})`);
             // Enviar el texto extraído en tiempo real al log del frontend
             sendUpdate({ type: 'chunk', text: chunkText });
 
@@ -176,9 +181,10 @@ app.post('/api/extract', async (req, res) => {
 
         console.log(`\n[DEBUG] Extracción finalizada. Longitud total texto: ${fullText.length} caracteres.`);
         if (fullText.length === 0) {
-            console.error("[ERROR] Gemini devolvió un texto vacío.");
+            console.warn("[WARN] Gemini devolvió un texto vacío.");
         }
 
+        console.log(`[PROCESS] Starting data parsing for ${fullText.length} chars...`);
         const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
         const sectionsMap = new Map();
         let currentSectionName = "SECCION_DESCONOCIDA";
@@ -277,11 +283,14 @@ app.post('/api/extract', async (req, res) => {
             clinicStatedTotal: clinicGrandTotalField || sumOfSections
         };
 
+        console.log(`[SUCCESS] Audit data prepared. Sections: ${sectionsMap.size}. Total: ${auditData.clinicStatedTotal}`);
+
         // Enviar resultado final
         sendUpdate({
             type: 'final',
             data: auditData
         });
+        console.log(`[RESPONSE] Final update sent.`);
 
         res.end();
 
