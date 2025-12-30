@@ -1,19 +1,3 @@
-// ULTRA-EARLY DEBUG: Check if Railway is injecting vars BEFORE any imports
-console.log("🔍 ULTRA-EARLY CHECK (antes de imports):");
-console.log("ENV KEY NAMES:", Object.keys(process.env).filter(k => k.includes("KEY")));
-console.log("GEMINI_API_KEY present:", Boolean(process.env.GEMINI_API_KEY));
-console.log("API_KEY present:", Boolean(process.env.API_KEY));
-console.log("Raw GEMINI_API_KEY:", process.env.GEMINI_API_KEY?.substring(0, 10));
-console.log("Raw API_KEY:", process.env.API_KEY?.substring(0, 10));
-console.log("=".repeat(60));
-
-console.log("\n=== RAILWAY CONTEXT ===");
-console.log("SERVICE:", process.env.RAILWAY_SERVICE_NAME);
-console.log("ENV:", process.env.RAILWAY_ENVIRONMENT_NAME);
-console.log("PROJECT:", process.env.RAILWAY_PROJECT_NAME);
-console.log("=======================\n");
-
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -22,26 +6,39 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config();
+
+// Environment Check - After dotenv initialization
 console.log("\n" + "=".repeat(50));
 console.log("🚀 AUDIT SERVER BOOTSTRAP");
+console.log("\n=== RAILWAY CONTEXT ===");
+console.log("SERVICE:", process.env.RAILWAY_SERVICE_NAME || "N/A");
+console.log("ENV:", process.env.RAILWAY_ENVIRONMENT_NAME || "N/A");
+console.log("PROJECT:", process.env.RAILWAY_PROJECT_NAME || "N/A");
+console.log("=======================\n");
+
 const allKeys = Object.keys(process.env).sort();
 const filteredKeys = allKeys.filter(k =>
     k.includes('API') || k.includes('GEMINI') || k.includes('KEY') || k.includes('VITE')
 );
 console.log(`[ENV_CHECK] Total Vars: ${allKeys.length}`);
 console.log(`[ENV_CHECK] Relevant Vars (API/GEMINI/KEY/VITE): ${filteredKeys.length > 0 ? filteredKeys.join(', ') : 'NONE'}`);
-if (filteredKeys.length > 0) {
-    filteredKeys.forEach(k => {
-        const val = process.env[k] || '';
-        console.log(`  -> ${k}: ${val.substring(0, 5)}... (len: ${val.length})`);
-    });
+
+// Check specifically for GEMINI_API_KEY
+const geminiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.API_KEY;
+if (geminiKey) {
+    console.log(`✅ GEMINI_API_KEY: SET ✓ (ends with ...${geminiKey.slice(-4)})`);
+} else if (apiKey) {
+    console.log(`⚠️  GEMINI_API_KEY: Not set, but API_KEY is available`);
+    console.log(`✅ API_KEY: SET ✓ (ends with ...${apiKey.slice(-4)})`);
+} else {
+    console.log(`❌ GEMINI_API_KEY: MISSING ❌`);
 }
 console.log("=".repeat(50) + "\n");
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
