@@ -14,6 +14,14 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
+console.log("\n" + "=".repeat(50));
+console.log("🚀 AUDIT SERVER STARTING");
+console.log(`Port: ${port}`);
+const startupKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+console.log(`API Key injected: ${startupKey ? 'YES (starts with ' + startupKey.substring(0, 4) + ')' : 'MISSING ❌'}`);
+console.log("=".repeat(50) + "\n");
+
+
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 

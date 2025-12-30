@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "tsx server/server.ts",
+    "server": "cd server && tsx server.ts"
   },
   "dependencies": {
     "react-dom": "^19.2.3",
