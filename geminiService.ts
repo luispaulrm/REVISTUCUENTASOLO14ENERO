@@ -79,8 +79,10 @@ export async function extractBillingData(
 
     for (const line of lines) {
       if (!line.trim()) continue;
+      console.log(`[FRONTEND] Parsing line: ${line.substring(0, 50)}...`);
       try {
         const update = JSON.parse(line);
+        console.log(`[FRONTEND] Received type: ${update.type}`);
         if (update.type === 'usage') {
           latestUsage = update.usage;
           onUsageUpdate?.(update.usage);
