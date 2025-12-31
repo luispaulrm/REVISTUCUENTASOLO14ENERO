@@ -27,7 +27,7 @@ export function PAMResults({ data }: PAMResultsProps) {
 
     React.useEffect(() => {
         try {
-            const saved = localStorage.getItem('bill_audit_result');
+            const saved = localStorage.getItem('clinic_audit_result');
             if (saved) {
                 setBillData(JSON.parse(saved));
             }
