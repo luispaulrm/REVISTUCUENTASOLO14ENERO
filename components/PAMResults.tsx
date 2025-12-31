@@ -84,16 +84,41 @@ export function PAMResults({ data }: PAMResultsProps) {
             };
         }).filter(g => g.gap > 100).sort((a, b) => b.gap - a.gap);
 
-        // Buscar ítems críticos faltantes
+        // Buscar ítems críticos faltantes o con valor cero
         const billItems = billData.sections.flatMap(s => s.items);
         const pamItems = data.folios.flatMap(f => f.desglosePorPrestador.flatMap(p => p.items));
 
-        const missingInPam = billItems.filter(bi => {
+        const detectionResults = billItems.map(bi => {
+            const description = bi.description.toUpperCase();
             const codeMatch = bi.description.match(/\d{2}-\d{2}-\d{3}/);
-            if (!codeMatch) return true;
-            const cleanBillCode = codeMatch[0].replace(/-/g, '');
-            return !pamItems.some(pi => pi.codigoGC.replace(/-/g, '').includes(cleanBillCode));
-        }).sort((a, b) => b.total - a.total).slice(0, 5);
+            const cleanBillCode = codeMatch ? codeMatch[0].replace(/-/g, '') : null;
+
+            // Buscar en PAM por código o descripción similar
+            const foundInPam = pamItems.find(pi => {
+                const cleanPamCode = pi.codigoGC.replace(/-/g, '');
+                const pamDesc = pi.descripcion.toUpperCase();
+                return (cleanBillCode && cleanPamCode.includes(cleanBillCode)) ||
+                    (description.length > 10 && pamDesc.includes(description.substring(0, 15)));
+            });
+
+            const isMissing = !foundInPam;
+            const isZeroValue = foundInPam && (parseInt(foundInPam.valorTotal.replace(/[^\d]/g, '')) || 0) === 0;
+
+            // Clasificar según hallazgos del usuario
+            let type: 'OMISSION' | 'ZERO_VALUE' | 'COVERED' = 'COVERED';
+            if (isMissing) type = 'OMISSION';
+            else if (isZeroValue) type = 'ZERO_VALUE';
+
+            return { item: bi, type, foundInPam };
+        }).filter(d => d.type !== 'COVERED');
+
+        // Filtrar top 5 y calcular total detectado
+        const missingOrZero = detectionResults
+            .sort((a, b) => b.item.total - a.item.total)
+            .slice(0, 8);
+
+        const totalDetected = detectionResults.reduce((sum, d) => sum + d.item.total, 0);
+        const isExactMatch = Math.abs(totalDetected - diff) < 100;
 
         return (
             <div className="mt-12 space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
@@ -109,8 +134,8 @@ export function PAMResults({ data }: PAMResultsProps) {
                                 <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em]">Contraste Cuenta Clínica vs Coberturas PAM</p>
                             </div>
                         </div>
-                        <div className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${absDiff > 100000 ? 'bg-rose-500/20 border-rose-500/50 text-rose-400' : 'bg-amber-500/20 border-amber-500/50 text-amber-400'}`}>
-                            {absDiff > 100000 ? '🔴 Alarma de Discrepancia' : '🟡 Desviación Moderada'}
+                        <div className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${isExactMatch ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : (absDiff > 100000 ? 'bg-rose-500/20 border-rose-500/50 text-rose-400' : 'bg-amber-500/20 border-amber-500/50 text-amber-400')}`}>
+                            {isExactMatch ? '✅ Calce Exacto Detectado' : (absDiff > 100000 ? '🔴 Alarma de Discrepancia' : '🟡 Desviación Moderada')}
                         </div>
                     </div>
 
@@ -129,10 +154,12 @@ export function PAMResults({ data }: PAMResultsProps) {
                                 <ShieldCheck size={14} /> {data.folios.length} Folios Procesados
                             </div>
                         </div>
-                        <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 flex flex-col justify-center">
-                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Brecha de Cobertura</p>
-                            <p className="text-3xl font-mono font-black text-slate-900">${diff.toLocaleString()}</p>
-                            <p className="text-[10px] font-bold text-indigo-600 mt-2 italic">"{((diff / billData.clinicStatedTotal) * 100).toFixed(1)}% de la cuenta sin respaldo en PAM"</p>
+                        <div className={`p-6 rounded-3xl border flex flex-col justify-center ${isExactMatch ? 'bg-emerald-50 border-emerald-100' : 'bg-indigo-50 border-indigo-100'}`}>
+                            <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isExactMatch ? 'text-emerald-600' : 'text-indigo-400'}`}>Brecha Detectada: ${diff.toLocaleString()}</p>
+                            <p className="text-3xl font-mono font-black text-slate-900">${totalDetected.toLocaleString()}</p>
+                            <p className={`text-[10px] font-bold mt-2 italic ${isExactMatch ? 'text-emerald-700' : 'text-indigo-600'}`}>
+                                {isExactMatch ? '¡Bingo! El 100% de la diferencia ha sido identificada.' : `"${((diff / billData.clinicStatedTotal) * 100).toFixed(1)}% de la cuenta sin respaldo en PAM"`}
+                            </p>
                         </div>
                     </div>
 
@@ -161,34 +188,33 @@ export function PAMResults({ data }: PAMResultsProps) {
                                         </div>
                                     </div>
                                 ))}
-                                {categoryGaps.length === 0 && (
-                                    <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
-                                        <p className="text-xs font-bold text-emerald-700">Todas las secciones están conciliadas.</p>
-                                    </div>
-                                )}
                             </div>
                         </div>
 
                         {/* TOP DISCREPANCIAS */}
                         <div>
                             <h3 className="text-sm font-black text-slate-800 uppercase tracking-tighter mb-4 flex items-center gap-2">
-                                <ShieldAlert size={16} className="text-rose-500" /> Top 5 Servicios Omitidos en PAM
+                                <ShieldAlert size={16} className="text-rose-500" /> Hallazgos Forenses de la Cuenta
                             </h3>
                             <div className="space-y-3">
-                                {missingInPam.map((item, idx) => (
+                                {missingOrZero.map((d, idx) => (
                                     <div key={idx} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-all group">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-500">
-                                                #{item.index}
+                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black ${d.type === 'ZERO_VALUE' ? 'bg-amber-50 text-amber-600 group-hover:bg-amber-100' : 'bg-slate-50 text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-500'}`}>
+                                                #{d.item.index}
                                             </div>
-                                            <div className="max-w-[180px]">
-                                                <p className="text-[11px] font-bold text-slate-700 truncate">{item.description}</p>
-                                                <p className="text-[9px] text-slate-400 uppercase font-black">Cod: {item.description.match(/\d{2}-\d{2}-\d{3}-\d{2}/)?.[0] || 'S/C'}</p>
+                                            <div className="max-w-[200px]">
+                                                <p className="text-[11px] font-bold text-slate-700 truncate">{d.item.description}</p>
+                                                <p className={`text-[9px] font-black uppercase ${d.type === 'ZERO_VALUE' ? 'text-amber-600' : 'text-slate-400'}`}>
+                                                    {d.type === 'ZERO_VALUE' ? 'Valorizado en $0 (Sugerencia: Día Cama)' : `Ítem no encontrado en PAM`}
+                                                </p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs font-black text-slate-900">${item.total.toLocaleString()}</p>
-                                            <p className="text-[8px] font-black text-rose-500 uppercase">Sin Respaldo</p>
+                                            <p className="text-xs font-black text-slate-900">${d.item.total.toLocaleString()}</p>
+                                            <p className={`text-[8px] font-black uppercase ${d.type === 'ZERO_VALUE' ? 'text-amber-500' : 'text-rose-500'}`}>
+                                                {d.type === 'ZERO_VALUE' ? 'Excluido' : 'Sin Respaldo'}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
@@ -198,15 +224,17 @@ export function PAMResults({ data }: PAMResultsProps) {
 
                     <div className="bg-slate-900 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                         <div className="flex items-start gap-4">
-                            <div className="mt-1 w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center text-amber-500 shrink-0">
-                                <Info size={18} />
+                            <div className={`mt-1 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isExactMatch ? 'bg-emerald-500/20 text-emerald-500' : 'bg-amber-500/20 text-amber-500'}`}>
+                                {isExactMatch ? <CheckCircle2 size={18} /> : <Info size={18} />}
                             </div>
                             <div>
                                 <h4 className="text-sm font-black text-white uppercase tracking-tight">Dictamen Técnico de Conciliación</h4>
                                 <p className="text-xs text-slate-400 leading-relaxed mt-1">
-                                    Se ha detectado una fuga de valor de <span className="text-white font-bold">${diff.toLocaleString()}</span>.
-                                    Esto sugiere que el PAM subido no corresponde al 100% de la facturación o existen rechazos técnicos de la Isapre que no han sido debidamente apelados.
-                                    Se recomienda revisar la sección <span className="text-indigo-400 font-bold">"{categoryGaps[0]?.name || 'más afectada'}"</span> donde se concentra el mayor desfase.
+                                    {isExactMatch ? (
+                                        <>Se ha logrado un <span className="text-emerald-400 font-bold">CALCE EXACTO</span> de la diferencia de <span className="text-white font-bold">${diff.toLocaleString()}</span>. Los ítems detallados anteriormente (Consultas, Inyecciones y Omisiones) explican matemáticamente la brecha entre la facturación clínica y la cobertura Isapre.</>
+                                    ) : (
+                                        <>Se ha identificado una brecha de <span className="text-white font-bold">${diff.toLocaleString()}</span>. Hemos detectado <span className="text-indigo-400 font-bold">${totalDetected.toLocaleString()}</span> en servicios omitidos o sin cobertura. Restan <span className="text-rose-400 font-bold">${(diff - totalDetected).toLocaleString()}</span> por identificar mediante auditoría manual.</>
+                                    )}
                                 </p>
                             </div>
                         </div>
