@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   FileSearch,
@@ -17,14 +18,20 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   FileJson,
-  FileType
+  FileType,
+  Pill
 } from 'lucide-react';
 import { AppStatus, ExtractedAccount, UsageMetrics } from './types';
 import { extractBillingData } from './geminiService';
+import { extractPamData, PamDocument } from './pamService';
 import { AuditSummary } from './components/AuditSummary';
 import { ExtractionResults } from './components/ExtractionResults';
+import { PAMResults } from './components/PAMResults';
+
+type DocumentType = 'bill' | 'pam';
 
 const App: React.FC = () => {
+  const [documentType, setDocumentType] = useState<DocumentType>('bill');
   const [status, setStatus] = useState<AppStatus>(() => {
     try {
       const saved = localStorage.getItem('clinic_audit_status');

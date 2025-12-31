@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { GeminiService } from '../services/gemini.service';
-import { PAM_PROMPT } from '../prompts/pam.prompt';
+import { GeminiService } from '../services/gemini.service.js';
+import { PAM_PROMPT } from '../prompts/pam.prompt.js';
 
 // Helper para obtener env vars (reutilizado del server.ts)
 function envGet(k: string) {
