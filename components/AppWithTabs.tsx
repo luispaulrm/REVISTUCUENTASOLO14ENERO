@@ -13,63 +13,33 @@ export function AppWithTabs() {
     };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
+        <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-indigo-500 selection:text-white">
             {/* Tab Navigation */}
-            <div style={{
-                background: 'white',
-                borderBottom: '2px solid #e2e8f0',
-                position: 'sticky',
-                top: 0,
-                zIndex: 100
-            }}>
-                <div style={{
-                    maxWidth: '1200px',
-                    margin: '0 auto',
-                    display: 'flex',
-                    gap: '0.5rem',
-                    padding: '0.5rem 1rem'
-                }}>
-                    <button
-                        onClick={() => handleTabChange('bill')}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.5rem',
-                            fontSize: '0.875rem',
-                            fontWeight: 'bold',
-                            borderRadius: '8px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            background: activeTab === 'bill' ? '#4f46e5' : 'transparent',
-                            color: activeTab === 'bill' ? 'white' : '#64748b',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <Receipt size={18} />
-                        Cuentas Clínicas
-                    </button>
+            <div className="sticky top-0 z-[100] bg-slate-950/80 backdrop-blur-md border-b border-slate-900 shadow-2xl">
+                <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                    <div className="flex bg-slate-900/50 p-1 rounded-xl border border-slate-800">
+                        <button
+                            onClick={() => handleTabChange('bill')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'bill'
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20'
+                                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'
+                                }`}
+                        >
+                            <Receipt size={16} />
+                            Cuentas Clínicas
+                        </button>
 
-                    <button
-                        onClick={() => handleTabChange('pam')}
-                        style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            padding: '0.75rem 1.5rem',
-                            fontSize: '0.875rem',
-                            fontWeight: 'bold',
-                            borderRadius: '8px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            background: activeTab === 'pam' ? '#7c3aed' : 'transparent',
-                            color: activeTab === 'pam' ? 'white' : '#64748b',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <ShieldCheck size={18} />
-                        PAM (Coberturas)
-                    </button>
+                        <button
+                            onClick={() => handleTabChange('pam')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'pam'
+                                    ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/20'
+                                    : 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'
+                                }`}
+                        >
+                            <ShieldCheck size={16} />
+                            PAM (Coberturas)
+                        </button>
+                    </div>
                 </div>
             </div>
 

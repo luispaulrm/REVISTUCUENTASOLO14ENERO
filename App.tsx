@@ -231,18 +231,18 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#f8fafc]">
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50 print:hidden shadow-sm">
+    <div className="min-h-screen flex flex-col bg-slate-950">
+      <header className="bg-transparent border-b border-slate-900/50 sticky top-0 z-50 print:hidden backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg border border-slate-800">
               <FileSearch size={22} />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-slate-900 leading-none flex items-center gap-2">
+              <h1 className="text-lg font-bold text-white leading-none flex items-center gap-2">
                 ClinicAudit
-                <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-400 font-mono">{VERSION}</span>
-                <span className="text-xs text-slate-900 font-black ml-2 uppercase tracking-tight">Actualizado: {LAST_MODIFIED}</span>
+                <span className="text-[9px] bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 text-slate-400 font-mono">{VERSION}</span>
+                <span className="text-xs text-slate-500 font-black ml-2 uppercase tracking-tight">Actualizado: {LAST_MODIFIED}</span>
               </h1>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Universal Extractor</p>
             </div>
@@ -274,23 +274,59 @@ const App: React.FC = () => {
 
       <main className="flex-grow max-w-6xl mx-auto w-full p-4 md:p-8">
         {status === AppStatus.IDLE && (
-          <div className="max-w-2xl mx-auto text-center py-20 animate-in fade-in zoom-in-95">
-            <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-8">
-              <Upload size={36} />
-            </div>
-            <h2 className="text-3xl font-black text-slate-900 mb-4">Analizador Universal de Cuentas</h2>
-            <p className="text-slate-600 mb-10">Sube cualquier factura o cuenta clínica para extraer y auditar los gastos automáticamente.</p>
+          <div className="max-w-2xl mx-auto mt-20 text-center space-y-12 animate-in fade-in zoom-in-95 duration-700">
 
-            <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-indigo-50/50 transition-all">
-              <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
-              <div className="flex flex-col items-center p-6 text-center">
-                <div className="p-4 bg-slate-50 rounded-2xl mb-4 text-slate-400">
+            <div className="space-y-4">
+              <div className="inline-flex items-center justify-center p-4 bg-slate-900 rounded-full mb-6 border border-slate-800 shadow-2xl shadow-indigo-900/10 hover:scale-105 transition-transform duration-500">
+                <UploadCloud size={48} className="text-white" />
+              </div>
+              <h2 className="text-4xl font-black text-white tracking-tighter">
+                Analizador Universal de Cuentas
+              </h2>
+              <p className="text-slate-400 text-lg max-w-lg mx-auto leading-relaxed">
+                Sube cualquier factura o cuenta clínica para extraer y auditar los gastos automáticamente.
+              </p>
+            </div>
+
+            <div
+              {...getRootProps()}
+              className={`
+                group relative border-2 border-dashed rounded-3xl p-16 transition-all duration-500 cursor-pointer
+                hover:border-indigo-500 hover:bg-slate-900/80
+                ${isDragActive ? 'border-indigo-500 bg-indigo-950/20 scale-[1.02]' : 'border-slate-800 bg-slate-900/30'}
+              `}
+            >
+              <input {...getInputProps()} />
+              <div className="relative z-10 flex flex-col items-center gap-4">
+                <div className={`p-4 rounded-2xl transition-all duration-300 ${isDragActive ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-white'}`}>
                   <FileText size={32} />
                 </div>
-                <p className="text-sm font-bold text-indigo-600">Haz clic para subir la cuenta</p>
-                <p className="text-xs text-slate-400 mt-1">Soporta fotos, capturas y PDFs</p>
+                <div className="space-y-1">
+                  <p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">
+                    {isDragActive ? 'Suelta el archivo aquí...' : 'Haz clic para subir la cuenta'}
+                  </p>
+                  <p className="text-sm text-slate-500 font-medium">Soporta fotos, capturas y PDFs</p>
+                </div>
               </div>
-            </label>
+
+              {/* Decorative Elements */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 opacity-60">
+              <span className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2">
+                <ShieldCheck size={12} /> Privacy First
+              </span>
+              <span className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2">
+                <Zap size={12} /> Gemini 2.0 Flash
+              </span>
+              <span className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2">
+                <Code2 size={12} /> High Speed
+              </span>
+            </div>
           </div>
         )}
 
