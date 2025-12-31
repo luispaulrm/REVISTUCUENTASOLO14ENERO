@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   FileSearch,
@@ -17,14 +18,20 @@ import {
   ArrowUpRight,
   ArrowDownLeft,
   FileJson,
-  FileType
+  FileType,
+  Pill
 } from 'lucide-react';
 import { AppStatus, ExtractedAccount, UsageMetrics } from './types';
 import { extractBillingData } from './geminiService';
+import { extractPamData, PamDocument } from './pamService';
 import { AuditSummary } from './components/AuditSummary';
 import { ExtractionResults } from './components/ExtractionResults';
+import { PAMResults } from './components/PAMResults';
+
+type DocumentType = 'bill' | 'pam';
 
 const App: React.FC = () => {
+  const [documentType, setDocumentType] = useState<DocumentType>('bill');
   const [status, setStatus] = useState<AppStatus>(() => {
     try {
       const saved = localStorage.getItem('clinic_audit_status');
@@ -41,24 +48,55 @@ const App: React.FC = () => {
   const [filePreview, setFilePreview] = useState<string | null>(() => {
     try { return localStorage.getItem('clinic_audit_preview'); } catch { return null; }
   });
-  const [logs, setLogs] = useState<string[]>([]);
-  const [progress, setProgress] = useState(0);
-  const [seconds, setSeconds] = useState(0);
-  const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
+  const [logs, setLogs] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('clinic_audit_logs');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [progress, setProgress] = useState(() => {
+    try {
+      return Number(localStorage.getItem('clinic_audit_progress')) || 0;
+    } catch { return 0; }
+  });
+  const [seconds, setSeconds] = useState(() => {
+    try {
+      return Number(localStorage.getItem('clinic_audit_seconds')) || 0;
+    } catch { return 0; }
+  });
+  const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(() => {
+    try {
+      const saved = localStorage.getItem('clinic_audit_usage');
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  });
   const [isExporting, setIsExporting] = useState(false);
 
   const timerRef = useRef<number | null>(null);
   const progressRef = useRef<number | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const handleStopAnalysis = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      addLog('[SISTEMA] ✋ Análisis detenido manualmente por el usuario.');
+    }
+  };
 
   useEffect(() => {
     try {
       localStorage.setItem('clinic_audit_status', status);
       if (result) localStorage.setItem('clinic_audit_result', JSON.stringify(result));
       if (filePreview && filePreview.length < 1500000) localStorage.setItem('clinic_audit_preview', filePreview);
+      localStorage.setItem('clinic_audit_logs', JSON.stringify(logs));
+      localStorage.setItem('clinic_audit_progress', progress.toString());
+      localStorage.setItem('clinic_audit_seconds', seconds.toString());
+      if (realTimeUsage) localStorage.setItem('clinic_audit_usage', JSON.stringify(realTimeUsage));
     } catch (e) { }
-  }, [status, result, filePreview]);
+  }, [status, result, filePreview, logs, progress, seconds, realTimeUsage]);
 
   useEffect(() => {
     if (logEndRef.current) logEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -112,14 +150,32 @@ const App: React.FC = () => {
       const base64Data = e.target?.result as string;
       setFilePreview(base64Data);
       const pureBase64 = base64Data.split(',')[1];
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      const timeoutId = setTimeout(() => {
+        if (status === AppStatus.PROCESSING) {
+          addLog('[SYSTEM] ⚠️ Timeout excedido (60s). Cancelando extracción...');
+          controller.abort();
+        }
+      }, 60000);
+
       try {
         setStatus(AppStatus.PROCESSING);
-        const data = await extractBillingData(pureBase64, file.type, addLog, setRealTimeUsage);
+        const data = await extractBillingData(pureBase64, file.type, addLog, setRealTimeUsage, controller.signal);
         setResult(data);
         setStatus(AppStatus.SUCCESS);
       } catch (err: any) {
+        if (err.name === 'AbortError') {
+          setStatus(AppStatus.IDLE);
+          return;
+        }
         setError(err.message || 'Error procesando la cuenta clínica.');
         setStatus(AppStatus.ERROR);
+      } finally {
+        clearTimeout(timeoutId);
+        abortControllerRef.current = null;
       }
     };
     reader.readAsDataURL(file);
@@ -294,6 +350,13 @@ const App: React.FC = () => {
                 </span>
               </h3>
               <p className="text-slate-500 mt-2">Analizando estructura y auditando cálculos matemáticos.</p>
+
+              <button
+                onClick={handleStopAnalysis}
+                className="mt-8 px-5 py-2.5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl active:scale-95 flex items-center gap-2 mx-auto"
+              >
+                <X size={14} strokeWidth={3} /> DETENER ANÁLISIS
+              </button>
             </div>
 
             <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-6">
