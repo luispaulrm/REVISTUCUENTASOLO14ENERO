@@ -15,33 +15,43 @@ if (process.env.NODE_ENV !== 'production') {
     dotenv.config();
 }
 
-// Read API key directly (no filtering needed)
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+// ✅ Railway-compatible env access (Object.keys can fail in some runtimes)
+function envGet(k: string) {
+    const v = process.env[k];
+    return typeof v === "string" ? v : undefined;
+}
 
 // Environment Check
 console.log("\n" + "=".repeat(50));
 console.log("🚀 AUDIT SERVER BOOTSTRAP");
 console.log("\n=== RAILWAY CONTEXT ===");
-console.log("SERVICE:", process.env.RAILWAY_SERVICE_NAME || "N/A");
-console.log("ENV:", process.env.RAILWAY_ENVIRONMENT_NAME || "N/A");
-console.log("PROJECT:", process.env.RAILWAY_PROJECT_NAME || "N/A");
+console.log("SERVICE:", envGet("RAILWAY_SERVICE_NAME") || "N/A");
+console.log("ENV:", envGet("RAILWAY_ENVIRONMENT_NAME") || "N/A");
+console.log("PROJECT:", envGet("RAILWAY_PROJECT_NAME") || "N/A");
 console.log("=======================\n");
 
-console.log(`[ENV_CHECK] Total Vars: ${Object.keys(process.env).length}`);
-console.log(`[ENV_CHECK] NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+const ENV_KEYS = Object.getOwnPropertyNames(process.env);
+console.log("[ENV_CHECK] Total Vars:", ENV_KEYS.length);
+console.log("[ENV_CHECK] Keys sample:", ENV_KEYS.slice(0, 30));
+console.log("[ENV_CHECK] NODE_ENV:", envGet("NODE_ENV") || "development");
+console.log("[ENV_CHECK] has PORT:", Boolean(envGet("PORT")));
+console.log("[ENV_CHECK] has RAILWAY_PROJECT_ID:", Boolean(envGet("RAILWAY_PROJECT_ID")));
 
-// Direct key check (no filtering)
-if (GEMINI_API_KEY) {
+// Read API key with Railway-compatible method
+const GEMINI_API_KEY = envGet("GEMINI_API_KEY") || envGet("API_KEY") || '';
+console.log("[ENV_CHECK] GEMINI KEY PRESENT:", Boolean(GEMINI_API_KEY));
+
+if (!GEMINI_API_KEY) {
+    console.error("❌ GEMINI_API_KEY NOT FOUND (checked GEMINI_API_KEY + API_KEY)");
+} else {
     console.log(`✅ GEMINI_API_KEY LOADED`);
     console.log(`   Key preview: ${GEMINI_API_KEY.substring(0, 8)}...${GEMINI_API_KEY.slice(-4)}`);
-} else {
-    console.error(`❌ GEMINI_API_KEY NOT FOUND`);
-    console.error(`   Available keys:`, Object.keys(process.env).filter(k => k.includes('KEY')));
 }
 console.log("=".repeat(50) + "\n");
 
 const app = express();
-const port = process.env.PORT || 5000;
+// ✅ Railway requires listening to process.env.PORT
+const PORT = Number(envGet("PORT") || 5000);
 
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -346,6 +356,6 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-app.listen(port, () => {
-    console.log(`Backend server running on http://localhost:${port}`);
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Backend server running on port ${PORT}`);
 });
