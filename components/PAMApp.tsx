@@ -438,8 +438,76 @@ export default function PAMApp() {
                 )}
 
                 {status === AppStatus.SUCCESS && pamResult && (
-                    <div className="animate-in fade-in slide-in-from-bottom-6 duration-500" ref={reportRef}>
-                        <PAMResults data={pamResult} />
+                    <div className="animate-in fade-in slide-in-from-bottom-6 duration-500">
+                        <div className="flex flex-col lg:flex-row gap-8">
+                            <div className="flex-grow">
+                                <div ref={reportRef}>
+                                    <PAMResults data={pamResult} />
+                                </div>
+                            </div>
+
+                            <aside className="w-full lg:w-80 space-y-6 print:hidden">
+                                {/* PANEL DE METRICAS DE TOKENS */}
+                                {realTimeUsage && (
+                                    <div className="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg">
+                                                <Timer size={14} />
+                                            </div>
+                                            <h4 className="font-bold text-xs uppercase tracking-widest text-slate-600">Audit IA Info</h4>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <div className="flex items-center justify-between text-xs">
+                                                <span className="text-slate-400 flex items-center gap-1.5"><Download size={12} /> Entrada</span>
+                                                <span className="font-mono font-bold text-slate-700">{realTimeUsage.promptTokens} <span className="text-[9px] text-slate-300">TK</span></span>
+                                            </div>
+                                            <div className="flex items-center justify-between text-xs">
+                                                <span className="text-slate-400 flex items-center gap-1.5"><Upload size={12} /> Salida</span>
+                                                <span className="font-mono font-bold text-slate-700">{realTimeUsage.candidatesTokens} <span className="text-[9px] text-slate-300">TK</span></span>
+                                            </div>
+                                            <div className="h-px bg-slate-100"></div>
+                                            <div className="flex items-center justify-between text-xs">
+                                                <span className="text-slate-600 font-bold uppercase tracking-tighter">Total Tokens</span>
+                                                <span className="font-mono font-black text-purple-600">{realTimeUsage.totalTokens}</span>
+                                            </div>
+                                            <div className="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <ShieldCheck size={14} className="text-emerald-600" />
+                                                    <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-tighter">Costo Análisis</span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="font-mono font-bold text-emerald-700 text-sm block">${realTimeUsage.estimatedCostCLP} CLP</span>
+                                                    <span className="font-mono text-[9px] text-emerald-600/60 block">${realTimeUsage.estimatedCost.toFixed(4)} USD</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-xl">
+                                    <h4 className="font-bold text-sm uppercase tracking-widest mb-4">Exportar Resultados</h4>
+                                    <div className="space-y-3">
+                                        <button
+                                            onClick={downloadPdf}
+                                            disabled={isExporting}
+                                            className="w-full flex items-center justify-center gap-3 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                                        >
+                                            {isExporting ? <Loader2 size={18} className="animate-spin" /> : <FileDown size={18} />}
+                                            {isExporting ? 'DESCARGAR PDF' : 'DESCARGAR PDF'}
+                                        </button>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <button onClick={() => downloadData('json')} className="flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-bold transition-colors">
+                                                <FileText size={14} /> JSON
+                                            </button>
+                                            <button onClick={() => downloadData('md')} className="flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-bold transition-colors">
+                                                <FileText size={14} /> MD
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
                     </div>
                 )}
             </main>
