@@ -205,40 +205,36 @@ export default function PAMApp() {
 
     return (
         <div className="min-h-screen flex flex-col bg-[#f8fafc]">
-            <header className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white py-6">
-                <div className="max-w-6xl mx-auto px-4 flex items-center justify-between">
+            <header className="bg-white border-b border-slate-200 sticky top-0 z-50 print:hidden shadow-sm">
+                <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <ShieldCheck size={32} />
+                        <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <ShieldCheck size={22} />
+                        </div>
                         <div>
-                            <h1 className="text-2xl font-bold flex items-center gap-2">
-                                Análisis de PAM
-                                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded border border-white/20 font-mono">{VERSION}</span>
+                            <h1 className="text-lg font-bold text-slate-900 leading-none flex items-center gap-2">
+                                PAM A.I.
+                                <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-400 font-mono">{VERSION}</span>
+                                <span className="text-xs text-slate-900 font-black ml-2 uppercase tracking-tight">Actualizado: {LAST_MODIFIED}</span>
                             </h1>
-                            <p className="text-sm opacity-100 font-black uppercase tracking-tight">Actualizado: {LAST_MODIFIED} — Coberturas Isapre</p>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Isapre Audit Engine</p>
                         </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                         {status === AppStatus.SUCCESS && (
-                            <div className="flex items-center gap-2 mr-4 border-r border-white/20 pr-4">
-                                <button onClick={() => downloadData('json')} className="p-2 hover:bg-white/10 rounded-lg text-white/80 transition-colors" title="Exportar JSON">
-                                    <Download size={20} />
-                                </button>
-                                <button onClick={() => downloadData('md')} className="p-2 hover:bg-white/10 rounded-lg text-white/80 transition-colors" title="Exportar Markdown">
-                                    <FileDown size={20} />
-                                </button>
-                                <button onClick={downloadPdf} disabled={isExporting} className="flex items-center gap-2 px-4 py-2 bg-white text-purple-700 rounded-lg text-xs font-black hover:bg-white/90 transition-all shadow-lg active:scale-95 disabled:opacity-50">
-                                    {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
-                                    {isExporting ? 'GENERANDO...' : 'REPORTES PDF'}
-                                </button>
-                            </div>
+                            <button onClick={downloadPdf} disabled={isExporting} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700 transition-all shadow-md disabled:opacity-50">
+                                {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+                                {isExporting ? 'GENERANDO...' : 'EXPORTAR PDF'}
+                            </button>
                         )}
                         {status !== AppStatus.IDLE && (
                             <button
                                 onClick={clearSession}
-                                className="flex items-center gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition-colors border border-white/10"
+                                className="p-2 text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-2"
+                                title="Nueva Auditoría"
                             >
-                                <Trash2 size={18} />
-                                Nuevo
+                                <span className="hidden md:inline text-[10px] font-bold uppercase">Nueva Auditoría</span>
+                                <Trash2 size={20} />
                             </button>
                         )}
                     </div>
@@ -268,70 +264,126 @@ export default function PAMApp() {
                 )}
 
                 {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (
-                    <div className="max-w-xl mx-auto py-10">
-                        <div className="text-center mb-10">
-                            <Loader2 size={64} className="text-purple-600 animate-spin mx-auto mb-6" />
-                            <h3 className="text-2xl font-black text-slate-900 flex items-center justify-center gap-3">
-                                Analizando Coberturas Isapre
-                                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-full text-xs font-mono">
-                                    <Timer size={12} /> {formatTime(seconds)}
-                                </span>
-                            </h3>
-                            <p className="text-slate-500 mt-2">Extrayendo desgloses de bonificación y copagos...</p>
-
-                            <button
-                                onClick={handleStop}
-                                className="mt-8 px-6 py-2.5 bg-rose-50 text-rose-600 border border-rose-200 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all shadow-sm active:scale-95 flex items-center gap-2 mx-auto"
-                            >
-                                <X size={14} strokeWidth={3} /> Detener Análisis
-                            </button>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-6">
-                            {realTimeUsage && (
-                                <div className="grid grid-cols-3 gap-4 p-4 bg-purple-50/50 rounded-2xl border border-purple-100">
-                                    <div className="text-center">
-                                        <p className="text-xs font-bold text-purple-400 uppercase">Entrada</p>
-                                        <p className="text-sm font-mono font-bold text-purple-600">{realTimeUsage.promptTokens}</p>
-                                    </div>
-                                    <div className="text-center border-x border-purple-100">
-                                        <p className="text-xs font-bold text-purple-400 uppercase">Salida</p>
-                                        <p className="text-sm font-mono font-bold text-purple-700">{realTimeUsage.candidatesTokens}</p>
-                                    </div>
-                                    <div className="text-center">
-                                        <p className="text-xs font-bold text-purple-400 uppercase">Costo</p>
-                                        <p className="text-sm font-mono font-bold text-emerald-600">${realTimeUsage.estimatedCostCLP} CLP</p>
-                                    </div>
+                    <div className="max-w-4xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                        {/* SPACEX STYLE TELEMETRY CONTAINER */}
+                        <div className="bg-white rounded-t-3xl border-x border-t border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden relative">
+                            {/* HEADER STRIP */}
+                            <div className="bg-slate-950 text-white px-6 py-3 flex justify-between items-center">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+                                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] font-mono">
+                                        PAM TELEMETRY
+                                    </span>
                                 </div>
-                            )}
-
-                            <div className="space-y-2">
-                                <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                    <span>Procesamiento IA</span>
-                                    <span>{Math.round(progress)}% completado</span>
-                                </div>
-                                <div className="w-full bg-slate-100 h-4 rounded-full overflow-hidden border border-slate-200 p-0.5">
-                                    <div
-                                        className="bg-purple-600 h-full rounded-full transition-all duration-300 flex items-center justify-end px-2"
-                                        style={{ width: `${progress}%` }}
-                                    >
-                                        {progress > 15 && <div className="w-1 h-1 bg-white/50 rounded-full animate-pulse"></div>}
-                                    </div>
+                                <div className="text-[10px] font-mono text-slate-400">
+                                    ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
                                 </div>
                             </div>
 
-                            <div className="bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
-                                <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center gap-2">
-                                    <Terminal size={12} className="text-slate-500" />
-                                    <span className="text-xs font-mono font-bold text-slate-500 uppercase">Log de Ejecución</span>
+                            {/* MAIN METRICS GRID */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100 border-b border-slate-100">
+                                {/* T+ TIMER */}
+                                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-purple-500 transition-colors">
+                                        Mission Time
+                                    </span>
+                                    <div className="font-mono text-3xl font-black text-slate-900 tracking-tighter">
+                                        T+{formatTime(seconds)}
+                                    </div>
                                 </div>
-                                <div className="p-4 h-64 overflow-y-auto font-mono text-xs space-y-1.5 bg-black/50">
+
+                                {/* PROGRESS PERCENTAGE */}
+                                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-purple-500 transition-colors">
+                                        Trajectory
+                                    </span>
+                                    <div className="font-mono text-3xl font-black text-slate-900 tracking-tighter flex items-baseline gap-1">
+                                        {Math.round(progress)}
+                                        <span className="text-sm font-bold text-slate-400">%</span>
+                                    </div>
+                                </div>
+
+                                {/* TOKEN USAGE */}
+                                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-purple-500 transition-colors">
+                                        Data Payload
+                                    </span>
+                                    <div className="font-mono text-2xl font-black text-slate-900 tracking-tighter flex items-center gap-2">
+                                        {realTimeUsage ? (
+                                            <>
+                                                <ShieldCheck size={16} className="text-purple-500" />
+                                                {realTimeUsage.totalTokens}
+                                            </>
+                                        ) : (
+                                            <span className="animate-pulse text-slate-300">---</span>
+                                        )}
+                                    </div>
+                                    <span className="text-[8px] font-mono text-slate-400 mt-1">TOKENS PROCESSED</span>
+                                </div>
+
+                                {/* COST */}
+                                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-purple-500 transition-colors">
+                                        Est. Cost
+                                    </span>
+                                    <div className="font-mono text-2xl font-black text-slate-900 tracking-tighter">
+                                        {realTimeUsage ? `$${realTimeUsage.estimatedCostCLP}` : '$0'}
+                                    </div>
+                                    <span className="text-[8px] font-mono text-slate-400 mt-1">CLP CURRENCY</span>
+                                </div>
+                            </div>
+
+                            {/* PROGRESS BAR STRIP */}
+                            <div className="h-1 w-full bg-slate-100 relative overflow-hidden">
+                                <div
+                                    className="absolute top-0 left-0 h-full bg-purple-600 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(147,51,234,0.5)]"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+
+                            {/* LOGS WINDOW */}
+                            <div className="bg-slate-50 p-0 h-48 overflow-hidden relative group">
+                                <div className="absolute top-0 left-0 w-full h-full pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] z-10" />
+
+                                <div className="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <Terminal size={12} className="text-slate-400" />
+                                        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">System Logs</span>
+                                    </div>
+                                    <div className="flex gap-1.5">
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                                    </div>
+                                </div>
+
+                                <div className="p-4 h-full overflow-y-auto font-mono text-[10px] space-y-1.5 pb-12">
                                     {logs.map((log, i) => (
-                                        <div key={i} className="text-slate-300">{log}</div>
+                                        <div key={i} className="flex gap-3 items-start py-0.5 border-l-2 border-transparent pl-2 hover:bg-white/50 transition-colors">
+                                            <span className="opacity-40 w-8 shrink-0 text-right text-slate-400 font-normal">
+                                                {new Date().toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}
+                                            </span>
+                                            <span className="text-slate-600 break-all">{log.replace(/^\[.*?\]/, '').trim()}</span>
+                                        </div>
                                     ))}
                                     <div ref={logEndRef} />
                                 </div>
                             </div>
+                        </div>
+
+                        {/* ABORT BUTTON */}
+                        <div className="mt-8 text-center">
+                            <button
+                                onClick={handleStop}
+                                className="group relative inline-flex items-center justify-center overflow-hidden rounded-lg px-8 py-3 font-medium text-slate-600 transition duration-300 hover:text-rose-600"
+                            >
+                                <span className="absolute inset-0 flex items-center justify-center">
+                                    <span className="absolute inset-0 h-full w-full rounded-lg opacity-0 transition duration-300 group-hover:bg-rose-50 group-hover:opacity-100"></span>
+                                </span>
+                                <span className="relative flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                                    <X size={14} strokeWidth={3} /> Abort Sequence
+                                </span>
+                            </button>
                         </div>
                     </div>
                 )}

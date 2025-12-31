@@ -295,91 +295,126 @@ const App: React.FC = () => {
         )}
 
         {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (
-          <div className="max-w-xl mx-auto py-10">
-            <div className="text-center mb-10">
-              <div className="relative inline-block mb-6">
-                <Loader2 size={64} className="text-indigo-600 animate-spin mx-auto" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-[10px] font-bold text-indigo-600">{Math.round(progress)}%</span>
-                </div>
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 flex items-center justify-center gap-3">
-                Extrayendo Datos
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 rounded-full text-xs font-mono text-slate-500 border border-slate-200 shadow-sm">
-                  <Timer size={12} /> {formatTime(seconds)}
-                </span>
-              </h3>
-              <p className="text-slate-500 mt-2">Analizando estructura y auditando cálculos matemáticos.</p>
+          <div className="max-w-4xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
 
-              <button
-                onClick={handleStopAnalysis}
-                className="mt-8 px-5 py-2.5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-600 transition-all shadow-xl active:scale-95 flex items-center gap-2 mx-auto"
-              >
-                <X size={14} strokeWidth={3} /> DETENER ANÁLISIS
-              </button>
-            </div>
+            {/* SPACEX STYLE TELEMETRY CONTAINER */}
+            <div className="bg-white rounded-t-3xl border-x border-t border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden relative">
 
-            <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-xl space-y-6">
-              {/* PANEL DE TOKENS EN TIEMPO REAL */}
-              {realTimeUsage && (
-                <div className="grid grid-cols-3 gap-4 p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100 animate-in fade-in slide-in-from-top-2 duration-300">
-                  <div className="text-center">
-                    <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Entrada</p>
-                    <p className="text-sm font-mono font-black text-indigo-500">{realTimeUsage.promptTokens}</p>
-                  </div>
-                  <div className="text-center border-x border-indigo-100">
-                    <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Salida</p>
-                    <p className="text-sm font-mono font-black text-indigo-700">{realTimeUsage.candidatesTokens}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest">Costo Est</p>
-                    <p className="text-sm font-mono font-black text-emerald-600">${realTimeUsage.estimatedCostCLP} CLP</p>
-                  </div>
-                </div>
-              )}
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                  <span>Procesamiento IA</span>
-                  <span>{Math.round(progress)}% completado</span>
-                </div>
-                <div className="w-full bg-slate-100 h-4 rounded-full overflow-hidden border border-slate-200 p-0.5">
-                  <div
-                    className="bg-indigo-600 h-full rounded-full transition-all duration-300 flex items-center justify-end px-2"
-                    style={{ width: `${progress}%` }}
-                  >
-                    {progress > 15 && <div className="w-1 h-1 bg-white/50 rounded-full animate-pulse"></div>}
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-slate-950 rounded-xl overflow-hidden border border-slate-800">
-                <div className="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between">
-                  <span className="text-[10px] font-mono font-bold text-slate-500 uppercase flex items-center gap-2">
-                    <Terminal size={12} /> Log de Ejecución
+              {/* HEADER STRIP */}
+              <div className="bg-slate-950 text-white px-6 py-3 flex justify-between items-center">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] font-mono">
+                    LIVE TELEMETRY
                   </span>
-                  <span className="text-[10px] font-mono text-indigo-400">{formatTime(seconds)} s</span>
                 </div>
-                <div className="p-4 h-64 overflow-y-auto font-mono text-[11px] space-y-1.5 bg-black/50">
+                <div className="text-[10px] font-mono text-slate-400">
+                  ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
+                </div>
+              </div>
+
+              {/* MAIN METRICS GRID */}
+              <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100 border-b border-slate-100">
+
+                {/* T+ TIMER */}
+                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors">
+                    Mission Time
+                  </span>
+                  <div className="font-mono text-3xl font-black text-slate-900 tracking-tighter">
+                    T+{formatTime(seconds)}
+                  </div>
+                </div>
+
+                {/* PROGRESS PERCENTAGE */}
+                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors">
+                    Trajectory
+                  </span>
+                  <div className="font-mono text-3xl font-black text-slate-900 tracking-tighter flex items-baseline gap-1">
+                    {Math.round(progress)}
+                    <span className="text-sm font-bold text-slate-400">%</span>
+                  </div>
+                </div>
+
+                {/* TOKEN USAGE */}
+                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors">
+                    Data Payload
+                  </span>
+                  <div className="font-mono text-2xl font-black text-slate-900 tracking-tighter flex items-center gap-2">
+                    {realTimeUsage ? (
+                      <>
+                        <ArrowDownLeft size={16} className="text-emerald-500" />
+                        {realTimeUsage.totalTokens}
+                      </>
+                    ) : (
+                      <span className="animate-pulse text-slate-300">---</span>
+                    )}
+                  </div>
+                  <span className="text-[8px] font-mono text-slate-400 mt-1">TOKENS PROCESSED</span>
+                </div>
+
+                {/* CURRENT STAGE */}
+                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors">
+                    Est. Cost
+                  </span>
+                  <div className="font-mono text-2xl font-black text-slate-900 tracking-tighter">
+                    {realTimeUsage ? `$${realTimeUsage.estimatedCostCLP}` : '$0'}
+                  </div>
+                  <span className="text-[8px] font-mono text-slate-400 mt-1">CLP CURRENCY</span>
+                </div>
+              </div>
+
+              {/* PROGRESS BAR STRIP */}
+              <div className="h-1 w-full bg-slate-100 relative overflow-hidden">
+                <div
+                  className="absolute top-0 left-0 h-full bg-indigo-600 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(79,70,229,0.5)]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              {/* LOGS WINDOW */}
+              <div className="bg-slate-50 p-0 h-48 overflow-hidden relative group">
+                <div className="absolute top-0 left-0 w-full h-full pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] z-10" />
+
+                <div className="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center">
+                  <div className="flex items-center gap-2">
+                    <Terminal size={12} className="text-slate-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">System Logs</span>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                  </div>
+                </div>
+
+                <div className="p-4 h-full overflow-y-auto font-mono text-[10px] space-y-1.5 pb-12">
                   {logs.map((log, i) => {
                     const isWarn = log.includes('[WARN]');
                     const isApi = log.includes('[API]');
                     const isAudit = log.includes('[AUDIT]');
                     const isSection = log.includes('[SECTION]');
-                    const isSystem = log.includes('[SYSTEM]');
+                    const isSystem = log.includes('[SISTEMA]');
 
-                    let textColor = 'text-slate-300';
-                    if (isWarn) textColor = 'text-rose-400 font-bold';
-                    else if (isApi) textColor = 'text-indigo-400';
-                    else if (isAudit) textColor = 'text-emerald-400';
-                    else if (isSection) textColor = 'text-amber-400 italic';
-                    else if (isSystem) textColor = 'text-sky-400 font-bold';
+                    let textColor = 'text-slate-500';
+                    let borderLeft = 'border-l-2 border-transparent pl-2';
+
+                    if (isWarn) { textColor = 'text-amber-600'; borderLeft = 'border-l-2 border-amber-400 pl-2 bg-amber-50/50'; }
+                    else if (isApi) { textColor = 'text-indigo-600'; borderLeft = 'border-l-2 border-indigo-400 pl-2 bg-indigo-50/50'; }
+                    else if (isAudit) { textColor = 'text-emerald-600'; borderLeft = 'border-l-2 border-emerald-400 pl-2 bg-emerald-50/50'; }
+                    else if (isSection) { textColor = 'text-slate-800 font-bold'; borderLeft = 'border-l-2 border-slate-800 pl-2 bg-slate-100'; }
+                    else if (isSystem) { textColor = 'text-sky-600 font-bold'; borderLeft = 'border-l-2 border-sky-400 pl-2 bg-sky-50/50'; }
 
                     return (
-                      <div key={i} className="flex gap-2">
-                        <span className="opacity-30 w-6 shrink-0 text-right text-slate-500">{i + 1}</span>
-                        <span className={textColor}>
-                          {log}
+                      <div key={i} className={`flex gap-3 items-start py-0.5 ${borderLeft} transition-all`}>
+                        <span className="opacity-40 w-8 shrink-0 text-right text-slate-400 font-normal">
+                          {log.match(/\[(.*?)\]/)?.[1] || '00:00:00'}
+                        </span>
+                        <span className={`${textColor} break-all`}>
+                          {log.replace(/^\[.*?\]/, '').trim()}
                         </span>
                       </div>
                     );
@@ -388,6 +423,22 @@ const App: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            {/* ABORT BUTTON */}
+            <div className="mt-8 text-center">
+              <button
+                onClick={handleStopAnalysis}
+                className="group relative inline-flex items-center justify-center overflow-hidden rounded-lg px-8 py-3 font-medium text-slate-600 transition duration-300 hover:text-rose-600"
+              >
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <span className="absolute inset-0 h-full w-full rounded-lg opacity-0 transition duration-300 group-hover:bg-rose-50 group-hover:opacity-100"></span>
+                </span>
+                <span className="relative flex items-center gap-2 text-xs font-black uppercase tracking-widest">
+                  <X size={14} strokeWidth={3} /> Abort Sequence
+                </span>
+              </button>
+            </div>
+
           </div>
         )}
 
