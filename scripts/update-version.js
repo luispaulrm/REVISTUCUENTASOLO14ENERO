@@ -19,14 +19,31 @@ try {
         let newPatch = parseInt(patch) + 1;
         const newVersion = `v${major}.${minor}.${newPatch}`;
 
-        // Create new timestamp
+        // Create new timestamp using Chilean Time
         const now = new Date();
-        const day = now.getDate().toString().padStart(2, '0');
-        const month = (now.getMonth() + 1).toString().padStart(2, '0');
-        const year = now.getFullYear();
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const newTimestamp = `${day}/${month}/${year} ${hours}:${minutes} (Chile)`;
+        const formatter = new Intl.DateTimeFormat('es-CL', {
+            timeZone: 'America/Santiago',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+
+        // formatter.format(now) returns something like "31-12-2025, 15:50" or "31/12/2025 15:50" depending on environment
+        // We want strict format "DD/MM/YYYY HH:mm (Chile)"
+
+        const parts = formatter.formatToParts(now);
+        const getPart = (type) => parts.find(p => p.type === type)?.value || '';
+
+        const day = getPart('day');
+        const month = getPart('month');
+        const year = getPart('year');
+        const hour = getPart('hour');
+        const minute = getPart('minute');
+
+        const newTimestamp = `${day}/${month}/${year} ${hour}:${minute} (Chile)`;
 
         // Replace in content
         content = content.replace(
