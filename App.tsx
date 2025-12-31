@@ -301,119 +301,149 @@ const App: React.FC = () => {
             <div className="bg-white rounded-t-3xl border-x border-t border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden relative">
 
               {/* HEADER STRIP */}
-              <div className="bg-slate-950 text-white px-6 py-3 flex justify-between items-center">
+              <div className="bg-slate-950 text-white px-6 py-4 flex justify-between items-center border-b border-slate-900">
                 <div className="flex items-center gap-3">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] font-mono">
+                  <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_#3b82f6]" />
+                  <span className="text-xs font-bold uppercase tracking-[0.25em] font-mono text-slate-100">
                     LIVE TELEMETRY
                   </span>
                 </div>
-                <div className="text-[10px] font-mono text-slate-400">
+                <div className="text-[10px] font-mono text-slate-500">
                   ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
                 </div>
               </div>
 
               {/* MAIN METRICS GRID */}
-              <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100 border-b border-slate-100">
+              <div className="grid grid-cols-2 lg:grid-cols-5 divide-x divide-slate-100 border-b border-slate-100">
 
                 {/* T+ TIMER */}
-                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors">
+                <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-blue-600 transition-colors">
                     Mission Time
                   </span>
-                  <div className="font-mono text-3xl font-black text-slate-900 tracking-tighter">
+                  <div className="font-mono text-4xl font-black text-slate-900 tracking-tighter">
                     T+{formatTime(seconds)}
                   </div>
                 </div>
 
-                {/* PROGRESS PERCENTAGE */}
-                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors">
-                    Trajectory
-                  </span>
-                  <div className="font-mono text-3xl font-black text-slate-900 tracking-tighter flex items-baseline gap-1">
-                    {Math.round(progress)}
-                    <span className="text-sm font-bold text-slate-400">%</span>
+                {/* TRAJECTORY (Circular Gauge) */}
+                <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                  <div className="relative w-24 h-24">
+                    {/* Outer Ring */}
+                    <svg className="w-full h-full transform -rotate-90">
+                      <circle cx="48" cy="48" r="40" className="text-slate-100 stroke-current" strokeWidth="6" fill="transparent" />
+                      <circle cx="48" cy="48" r="40" className="text-blue-600 stroke-current" strokeWidth="6" fill="transparent"
+                        strokeDasharray={251.2} strokeDashoffset={251.2 - (251.2 * progress) / 100} strokeLinecap="round" />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-2xl font-black font-mono text-slate-900 leading-none">{Math.round(progress)}</span>
+                      <span className="text-[10px] font-bold text-slate-400 leading-none">%</span>
+                    </div>
                   </div>
+                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-2">Trajectory</span>
                 </div>
 
-                {/* TOKEN USAGE */}
-                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors">
-                    Data Payload
-                  </span>
-                  <div className="font-mono text-2xl font-black text-slate-900 tracking-tighter flex items-center gap-2">
-                    {realTimeUsage ? (
-                      <>
-                        <ArrowDownLeft size={16} className="text-emerald-500" />
-                        {realTimeUsage.totalTokens}
-                      </>
-                    ) : (
-                      <span className="animate-pulse text-slate-300">---</span>
-                    )}
+                {/* TOKEN GAUGES CONTAINER */}
+                <div className="col-span-2 grid grid-cols-3 divide-x divide-slate-50">
+                  {/* INPUT TOKENS */}
+                  <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                    <div className="relative w-16 h-16">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle cx="32" cy="32" r="28" className="text-slate-100 stroke-current" strokeWidth="4" fill="transparent" />
+                        <circle cx="32" cy="32" r="28" className="text-cyan-500 stroke-current" strokeWidth="4" fill="transparent"
+                          strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.promptTokens || 0) / 100000)} strokeLinecap="round" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-xs font-bold font-mono text-slate-700">{realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '-'}</span>
+                      </div>
+                    </div>
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mt-2">Input</span>
                   </div>
-                  <span className="text-[8px] font-mono text-slate-400 mt-1">TOKENS PROCESSED</span>
+
+                  {/* OUTPUT TOKENS */}
+                  <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                    <div className="relative w-16 h-16">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle cx="32" cy="32" r="28" className="text-slate-100 stroke-current" strokeWidth="4" fill="transparent" />
+                        <circle cx="32" cy="32" r="28" className="text-purple-500 stroke-current" strokeWidth="4" fill="transparent"
+                          strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.candidatesTokens || 0) / 20000)} strokeLinecap="round" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-xs font-bold font-mono text-slate-700">{realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '-'}</span>
+                      </div>
+                    </div>
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mt-2">Output</span>
+                  </div>
+
+                  {/* TOTAL TOKENS */}
+                  <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                    <div className="relative w-16 h-16">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle cx="32" cy="32" r="28" className="text-slate-100 stroke-current" strokeWidth="4" fill="transparent" />
+                        <circle cx="32" cy="32" r="28" className="text-blue-600 stroke-current" strokeWidth="4" fill="transparent"
+                          strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.totalTokens || 0) / 120000)} strokeLinecap="round" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-xs font-bold font-mono text-slate-900">{realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '-'}</span>
+                      </div>
+                    </div>
+                    <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mt-2">Total</span>
+                  </div>
                 </div>
 
                 {/* CURRENT STAGE */}
-                <div className="p-6 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
-                  <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-indigo-500 transition-colors">
+                <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-blue-600 transition-colors">
                     Est. Cost
                   </span>
-                  <div className="font-mono text-2xl font-black text-slate-900 tracking-tighter">
+                  <div className="font-mono text-3xl font-black text-slate-900 tracking-tighter">
                     {realTimeUsage ? `$${realTimeUsage.estimatedCostCLP}` : '$0'}
                   </div>
-                  <span className="text-[8px] font-mono text-slate-400 mt-1">CLP CURRENCY</span>
+                  <span className="text-[9px] font-mono text-slate-400 mt-2">CLP CURRENCY</span>
                 </div>
               </div>
 
-              {/* PROGRESS BAR STRIP */}
+              {/* PROGRESS BAR STRIP (Still useful as a total progress redundant indicator) */}
               <div className="h-1 w-full bg-slate-100 relative overflow-hidden">
                 <div
-                  className="absolute top-0 left-0 h-full bg-indigo-600 transition-all duration-300 ease-out shadow-[0_0_10px_rgba(79,70,229,0.5)]"
+                  className="absolute top-0 left-0 h-full bg-blue-600 transition-all duration-300 ease-out shadow-[0_0_15px_rgba(37,99,235,0.6)]"
                   style={{ width: `${progress}%` }}
                 />
               </div>
 
               {/* LOGS WINDOW */}
-              <div className="bg-slate-50 p-0 h-48 overflow-hidden relative group">
-                <div className="absolute top-0 left-0 w-full h-full pointer-events-none shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] z-10" />
+              <div className="bg-slate-50 p-0 h-[500px] overflow-hidden relative group border-t border-slate-200">
+                <div className="absolute top-0 left-0 w-full h-full pointer-events-none shadow-[inset_0_0_30px_rgba(0,0,0,0.03)] z-10" />
 
-                <div className="px-4 py-2 border-b border-slate-200 bg-white flex justify-between items-center">
+                <div className="px-6 py-3 border-b border-slate-200 bg-white flex justify-between items-center">
                   <div className="flex items-center gap-2">
-                    <Terminal size={12} className="text-slate-400" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">System Logs</span>
+                    <Terminal size={14} className="text-blue-500" />
+                    <span className="text-xs font-bold uppercase tracking-widest text-slate-600">System Logs</span>
                   </div>
-                  <div className="flex gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-300" />
+                  <div className="flex gap-2">
+                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                    <div className="w-2 h-2 rounded-full bg-slate-200" />
                   </div>
                 </div>
 
-                <div className="p-4 h-full overflow-y-auto font-mono text-[10px] space-y-1.5 pb-12">
+                <div className="p-6 h-full overflow-y-auto font-mono text-sm space-y-2 pb-20">
                   {logs.map((log, i) => {
                     const isWarn = log.includes('[WARN]');
                     const isApi = log.includes('[API]');
-                    const isAudit = log.includes('[AUDIT]');
-                    const isSection = log.includes('[SECTION]');
                     const isSystem = log.includes('[SISTEMA]');
 
-                    let textColor = 'text-slate-500';
-                    let borderLeft = 'border-l-2 border-transparent pl-2';
-
-                    if (isWarn) { textColor = 'text-amber-600'; borderLeft = 'border-l-2 border-amber-400 pl-2 bg-amber-50/50'; }
-                    else if (isApi) { textColor = 'text-indigo-600'; borderLeft = 'border-l-2 border-indigo-400 pl-2 bg-indigo-50/50'; }
-                    else if (isAudit) { textColor = 'text-emerald-600'; borderLeft = 'border-l-2 border-emerald-400 pl-2 bg-emerald-50/50'; }
-                    else if (isSection) { textColor = 'text-slate-800 font-bold'; borderLeft = 'border-l-2 border-slate-800 pl-2 bg-slate-100'; }
-                    else if (isSystem) { textColor = 'text-sky-600 font-bold'; borderLeft = 'border-l-2 border-sky-400 pl-2 bg-sky-50/50'; }
-
                     return (
-                      <div key={i} className={`flex gap-3 items-start py-0.5 ${borderLeft} transition-all`}>
-                        <span className="opacity-40 w-8 shrink-0 text-right text-slate-400 font-normal">
-                          {log.match(/\[(.*?)\]/)?.[1] || '00:00:00'}
+                      <div key={i} className="flex gap-4 items-start py-1 border-l-[3px] border-transparent hover:border-blue-200 hover:bg-white transition-colors pl-3 -ml-3">
+                        <span className="opacity-50 w-20 shrink-0 text-right text-slate-400 font-bold text-xs pt-0.5">
+                          {log.match(/\[(.*?)\]/)?.[1] || new Date().toLocaleTimeString()}
                         </span>
-                        <span className={`${textColor} break-all`}>
+                        <span className={`break-words flex-1 leading-snug ${log.includes('Error') ? 'text-rose-600 font-bold' :
+                          isWarn ? 'text-amber-600 font-bold' :
+                            isApi ? 'text-blue-600' :
+                              isSystem ? 'text-slate-500 italic' :
+                                'text-slate-700'
+                          }`}>
                           {log.replace(/^\[.*?\]/, '').trim()}
                         </span>
                       </div>
