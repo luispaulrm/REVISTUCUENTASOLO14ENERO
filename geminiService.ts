@@ -1,45 +1,9 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
 import { ExtractedAccount, BillingItem, BillingSection, UsageMetrics } from "./types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Note: All Gemini API calls are handled by the backend at /api/extract
+// The frontend only needs to communicate with our Express server
 
-const billingSchema = {
-  type: Type.OBJECT,
-  properties: {
-    clinicName: { type: Type.STRING },
-    patientName: { type: Type.STRING },
-    invoiceNumber: { type: Type.STRING },
-    date: { type: Type.STRING },
-    currency: { type: Type.STRING, description: "Currency symbol or code, e.g., CLP" },
-    sections: {
-      type: Type.ARRAY,
-      items: {
-        type: Type.OBJECT,
-        properties: {
-          category: { type: Type.STRING, description: "Categoría (Ej: Pabellón, Insumos, Farmacia)" },
-          items: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                description: { type: Type.STRING },
-                quantity: { type: Type.NUMBER },
-                unitPrice: { type: Type.NUMBER, description: "Precio unitario (preferiblemente bruto/ISA)" },
-                total: { type: Type.NUMBER, description: "Valor Total del ítem incluyendo IVA/Impuestos (Valor ISA)" }
-              },
-              required: ["description", "total"]
-            }
-          },
-          sectionTotal: { type: Type.NUMBER, description: "Total declarado por la clínica para la sección" }
-        },
-        required: ["category", "items", "sectionTotal"]
-      }
-    },
-    clinicStatedTotal: { type: Type.NUMBER, description: "El Gran Total final de la cuenta" }
-  },
-  required: ["clinicName", "sections", "clinicStatedTotal"]
-};
 
 export async function extractBillingData(
   imageData: string,
