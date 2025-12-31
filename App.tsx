@@ -129,6 +129,9 @@ const App: React.FC = () => {
         setStatus(AppStatus.PROCESSING);
         const data = await extractBillingData(pureBase64, file.type, addLog, setRealTimeUsage, controller.signal);
         setResult(data);
+        // Save to localStorage for cross-audit with PAM
+        localStorage.setItem('clinic_audit_result', JSON.stringify(data));
+        addLog('[SISTEMA] 💾 Resultados guardados para auditoría cruzada con PAM.');
         setStatus(AppStatus.SUCCESS);
       } catch (err: any) {
         if (err.name === 'AbortError') {
