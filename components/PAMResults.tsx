@@ -50,119 +50,168 @@ export function PAMResults({ data }: PAMResultsProps) {
         if (!billData) return null;
 
         const diff = billData.clinicStatedTotal - data.global.totalValor;
-        if (Math.abs(diff) < 10) return null; // Diferencia despreciable
+        const absDiff = Math.abs(diff);
+        if (absDiff < 10) return (
+            <div className="mt-12 bg-white rounded-[2.5rem] border border-emerald-100 p-8 flex items-center gap-6 shadow-sm">
+                <div className="w-16 h-16 bg-emerald-100 rounded-3xl flex items-center justify-center text-emerald-600">
+                    <CheckCircle2 size={32} />
+                </div>
+                <div>
+                    <h2 className="text-xl font-black text-slate-900">Cuentas Sincronizadas</h2>
+                    <p className="text-sm text-slate-500 font-medium">Los totales de la Cuenta Clínica (${billData.clinicStatedTotal.toLocaleString()}) coinciden con la valorización del PAM.</p>
+                </div>
+            </div>
+        );
 
-        // Buscar ítems en la cuenta que no están en el PAM
+        // Análisis de brechas por categoría
+        const categoryGaps = billData.sections.map(sec => {
+            const pamSectionItems = data.folios.flatMap(f => f.desglosePorPrestador.flatMap(p => p.items));
+            const billItemsInSec = sec.items;
+
+            const pamValForSec = billItemsInSec.reduce((sum, bi) => {
+                const codeMatch = bi.description.match(/\d{2}-\d{2}-\d{3}/);
+                if (!codeMatch) return sum;
+                const cleanBillCode = codeMatch[0].replace(/-/g, '');
+                const foundInPam = pamSectionItems.find(pi => pi.codigoGC.replace(/-/g, '').includes(cleanBillCode));
+                return sum + (foundInPam ? parseInt(foundInPam.valorTotal.replace(/[^\d]/g, '')) || 0 : 0);
+            }, 0);
+
+            return {
+                name: sec.category,
+                billTotal: sec.sectionTotal,
+                pamTotal: pamValForSec,
+                gap: sec.sectionTotal - pamValForSec
+            };
+        }).filter(g => g.gap > 100).sort((a, b) => b.gap - a.gap);
+
+        // Buscar ítems críticos faltantes
         const billItems = billData.sections.flatMap(s => s.items);
         const pamItems = data.folios.flatMap(f => f.desglosePorPrestador.flatMap(p => p.items));
 
         const missingInPam = billItems.filter(bi => {
-            // Intentar extraer código de la descripción: 01-01-301-00
             const codeMatch = bi.description.match(/\d{2}-\d{2}-\d{3}/);
-            if (!codeMatch) return true; // Si no tiene código, asumimos que es un hallazgo potencial si el monto es alto
-
+            if (!codeMatch) return true;
             const cleanBillCode = codeMatch[0].replace(/-/g, '');
-            return !pamItems.some(pi => {
-                const cleanPamCode = pi.codigoGC.replace(/-/g, '');
-                return cleanPamCode.includes(cleanBillCode);
-            });
+            return !pamItems.some(pi => pi.codigoGC.replace(/-/g, '').includes(cleanBillCode));
         }).sort((a, b) => b.total - a.total).slice(0, 5);
 
         return (
-            <div className="mt-12 bg-white rounded-[2.5rem] border-2 border-indigo-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
-                <div className="bg-gradient-to-r from-slate-900 to-indigo-950 p-8 text-white">
-                    <div className="flex items-center gap-4 mb-2">
-                        <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                            <FileSearch size={24} />
-                        </div>
-                        <div>
-                            <h2 className="text-2xl font-black tracking-tight">Hallazgos de Auditoría Cruzada</h2>
-                            <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em]">Diferencia Detectada entre Cuenta y PAM</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="p-8 space-y-8">
-                    <div className="grid md:grid-cols-2 gap-8 items-center border-b border-slate-100 pb-8">
-                        <div>
-                            <p className="text-slate-500 text-sm font-medium leading-relaxed">
-                                El sistema ha comparado automáticamente los datos de la <span className="text-indigo-600 font-bold">Cuenta Clínica</span> con las <span className="text-purple-600 font-bold">Coberturas PAM</span> procesadas. Se detectó una discrepancia inconsistente que requiere su atención.
-                            </p>
-                            <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 flex items-center gap-2">
-                                    <ShieldAlert size={12} className="text-indigo-500" /> Origen de la Inconsistencia Matemática
-                                </p>
-                                <p className="text-xs text-slate-600 italic">
-                                    "La diferencia total de <span className="font-bold text-slate-900">${diff.toLocaleString()}</span> proviene principalmente de servicios detallados en la cuenta que no fueron valorizados ni bonificados en este programa médico."
-                                </p>
+            <div className="mt-12 space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+                {/* PANEL DE CONCILIACIÓN MAESTRO */}
+                <div className="bg-white rounded-[2.5rem] border-2 border-indigo-100 shadow-xl overflow-hidden">
+                    <div className="bg-gradient-to-r from-slate-900 to-indigo-950 p-8 text-white flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                                <ArrowRightLeft size={24} />
+                            </div>
+                            <div>
+                                <h2 className="text-2xl font-black tracking-tight">Consola de Conciliación de Auditoría</h2>
+                                <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em]">Contraste Cuenta Clínica vs Coberturas PAM</p>
                             </div>
                         </div>
-
-                        <div className="bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-8 opacity-10 text-indigo-900">
-                                <DollarSign size={80} />
-                            </div>
-                            <div className="relative z-10 flex flex-col gap-4">
-                                <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-indigo-100/50">
-                                    <span className="text-xs font-bold text-slate-500 uppercase">Total Cuenta Clínica</span>
-                                    <span className="text-lg font-mono font-black text-slate-900">${billData.clinicStatedTotal.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-indigo-100/50">
-                                    <span className="text-xs font-bold text-slate-500 uppercase">Total Valorizado PAM</span>
-                                    <span className="text-lg font-mono font-black text-slate-900">${data.global.totalValor.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center bg-indigo-600 p-4 rounded-2xl shadow-lg shadow-indigo-200">
-                                    <span className="text-xs font-bold text-white/80 uppercase">Diferencia Sin Cobertura</span>
-                                    <span className="text-xl font-mono font-black text-white">${diff.toLocaleString()}</span>
-                                </div>
-                            </div>
+                        <div className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${absDiff > 100000 ? 'bg-rose-500/20 border-rose-500/50 text-rose-400' : 'bg-amber-500/20 border-amber-500/50 text-amber-400'}`}>
+                            {absDiff > 100000 ? '🔴 Alarma de Discrepancia' : '🟡 Desviación Moderada'}
                         </div>
                     </div>
 
-                    <div>
-                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tighter mb-4 flex items-center gap-2">
-                            <Search size={16} className="text-indigo-500" /> Servicios Críticos No Encontrados en PAM
-                        </h3>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            {missingInPam.map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-md transition-all group">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500">
-                                            {idx + 1}
+                    <div className="p-8 grid md:grid-cols-3 gap-8 border-b border-slate-100">
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Facturado Clínica</p>
+                            <p className="text-3xl font-mono font-black text-slate-900">${billData.clinicStatedTotal.toLocaleString()}</p>
+                            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-400">
+                                <Receipt size={14} /> Factura #{billData.invoiceNumber}
+                            </div>
+                        </div>
+                        <div className="space-y-1">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Valorizado PAM</p>
+                            <p className="text-3xl font-mono font-black text-indigo-600">${data.global.totalValor.toLocaleString()}</p>
+                            <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-400">
+                                <ShieldCheck size={14} /> {data.folios.length} Folios Procesados
+                            </div>
+                        </div>
+                        <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100 flex flex-col justify-center">
+                            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">Brecha de Cobertura</p>
+                            <p className="text-3xl font-mono font-black text-slate-900">${diff.toLocaleString()}</p>
+                            <p className="text-[10px] font-bold text-indigo-600 mt-2 italic">"{((diff / billData.clinicStatedTotal) * 100).toFixed(1)}% de la cuenta sin respaldo en PAM"</p>
+                        </div>
+                    </div>
+
+                    <div className="p-8 grid md:grid-cols-2 gap-8">
+                        {/* MAPA DE BRECHA POR CATEGORÍA */}
+                        <div>
+                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-tighter mb-4 flex items-center gap-2">
+                                <Layers size={16} className="text-indigo-500" /> Mapa de Fuga de Valor por Sección
+                            </h3>
+                            <div className="space-y-3">
+                                {categoryGaps.map((gap, idx) => (
+                                    <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="text-xs font-bold text-slate-700">{gap.name}</span>
+                                            <span className="text-xs font-black text-rose-600">-${gap.gap.toLocaleString()}</span>
                                         </div>
-                                        <div>
-                                            <p className="text-xs font-bold text-slate-700 line-clamp-1 truncate max-w-[200px]">{item.description}</p>
-                                            <p className="text-[10px] text-slate-400 font-mono">Ítem #{item.index}</p>
+                                        <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                                            <div
+                                                className="bg-indigo-500 h-full rounded-full"
+                                                style={{ width: `${Math.min((gap.pamTotal / gap.billTotal) * 100, 100)}%` }}
+                                            />
+                                        </div>
+                                        <div className="flex justify-between mt-1.5">
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Cubierto: ${gap.pamTotal.toLocaleString()}</span>
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">Facturado: ${gap.billTotal.toLocaleString()}</span>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-black text-slate-900">${item.total.toLocaleString()}</p>
-                                        <p className="text-[9px] font-black text-rose-500 uppercase">Sin Bono</p>
+                                ))}
+                                {categoryGaps.length === 0 && (
+                                    <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100 text-center">
+                                        <p className="text-xs font-bold text-emerald-700">Todas las secciones están conciliadas.</p>
                                     </div>
-                                </div>
-                            ))}
-                        </div>
-                        {missingInPam.length === 0 && (
-                            <div className="p-8 text-center bg-emerald-50 rounded-3xl border border-emerald-100">
-                                <CheckCircle2 className="mx-auto text-emerald-500 mb-2" />
-                                <p className="text-sm font-bold text-emerald-700">No se detectaron ítems faltantes significativos.</p>
+                                )}
                             </div>
-                        )}
+                        </div>
+
+                        {/* TOP DISCREPANCIAS */}
+                        <div>
+                            <h3 className="text-sm font-black text-slate-800 uppercase tracking-tighter mb-4 flex items-center gap-2">
+                                <ShieldAlert size={16} className="text-rose-500" /> Top 5 Servicios Omitidos en PAM
+                            </h3>
+                            <div className="space-y-3">
+                                {missingInPam.map((item, idx) => (
+                                    <div key={idx} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:shadow-md transition-all group">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-rose-50 group-hover:text-rose-500">
+                                                #{item.index}
+                                            </div>
+                                            <div className="max-w-[180px]">
+                                                <p className="text-[11px] font-bold text-slate-700 truncate">{item.description}</p>
+                                                <p className="text-[9px] text-slate-400 uppercase font-black">Cod: {item.description.match(/\d{2}-\d{2}-\d{3}-\d{2}/)?.[0] || 'S/C'}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs font-black text-slate-900">${item.total.toLocaleString()}</p>
+                                            <p className="text-[8px] font-black text-rose-500 uppercase">Sin Respaldo</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="bg-amber-50 rounded-3xl p-6 border border-amber-100 flex flex-col md:flex-row items-center gap-6">
-                        <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                                <ShieldCheck size={20} className="text-amber-600" />
-                                <h4 className="text-sm font-black text-amber-900 uppercase">Protocolo de Auditoría Sugerido</h4>
+                    <div className="bg-slate-900 p-6 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div className="flex items-start gap-4">
+                            <div className="mt-1 w-8 h-8 bg-amber-500/20 rounded-lg flex items-center justify-center text-amber-500 shrink-0">
+                                <Info size={18} />
                             </div>
-                            <p className="text-xs text-amber-800 font-medium leading-relaxed">
-                                Es necesario verificar si estas prestaciones corresponden a excepciones del plan o si deben ser reclamadas.
-                                Especial atención a <span className="font-bold underline">servicios integrados</span> (como inyecciones) que a menudo ya están cubiertos por el valor del día cama según Norma Técnica.
-                            </p>
+                            <div>
+                                <h4 className="text-sm font-black text-white uppercase tracking-tight">Dictamen Técnico de Conciliación</h4>
+                                <p className="text-xs text-slate-400 leading-relaxed mt-1">
+                                    Se ha detectado una fuga de valor de <span className="text-white font-bold">${diff.toLocaleString()}</span>.
+                                    Esto sugiere que el PAM subido no corresponde al 100% de la facturación o existen rechazos técnicos de la Isapre que no han sido debidamente apelados.
+                                    Se recomienda revisar la sección <span className="text-indigo-400 font-bold">"{categoryGaps[0]?.name || 'más afectada'}"</span> donde se concentra el mayor desfase.
+                                </p>
+                            </div>
                         </div>
-                        <button className="whitespace-nowrap px-6 py-3 bg-amber-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-700 transition-colors shadow-lg shadow-amber-200 flex items-center gap-2">
-                            <ArrowRightLeft size={16} /> Profundizar Análisis
+                        <button className="whitespace-nowrap px-8 py-3 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-950/20 flex items-center gap-2 active:scale-95">
+                            <FileSearch size={16} /> Descargar Informe Conciliado
                         </button>
                     </div>
                 </div>
