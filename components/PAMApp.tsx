@@ -177,7 +177,7 @@ export default function PAMApp() {
             content = JSON.stringify(pamResult, null, 2);
         } else {
             content = `# REPORTE DE COBERTURAS PAM\n\n`;
-            pamResult.forEach((folio, idx) => {
+            pamResult.folios.forEach((folio, idx) => {
                 content += `## FOLIO: ${folio.folioPAM} (${idx + 1})\n`;
                 content += `- **Prestador Principal:** ${folio.prestadorPrincipal}\n`;
                 content += `- **Periodo:** ${folio.periodoCobro}\n`;

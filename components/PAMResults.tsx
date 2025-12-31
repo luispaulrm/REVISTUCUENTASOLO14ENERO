@@ -1,5 +1,6 @@
 import React from 'react';
 import { PamDocument, FolioPAM } from '../pamService';
+import { ExtractedAccount } from '../types';
 import {
     User,
     Calendar,
@@ -11,7 +12,10 @@ import {
     ArrowRightLeft,
     TrendingDown,
     DollarSign,
-    Layers
+    Layers,
+    Search,
+    FileSearch,
+    ShieldAlert
 } from 'lucide-react';
 
 interface PAMResultsProps {
@@ -19,6 +23,19 @@ interface PAMResultsProps {
 }
 
 export function PAMResults({ data }: PAMResultsProps) {
+    const [billData, setBillData] = React.useState<ExtractedAccount | null>(null);
+
+    React.useEffect(() => {
+        try {
+            const saved = localStorage.getItem('bill_audit_result');
+            if (saved) {
+                setBillData(JSON.parse(saved));
+            }
+        } catch (e) {
+            console.error("Error loading bill results for cross-audit:", e);
+        }
+    }, []);
+
     if (!data || !data.folios || data.folios.length === 0) {
         return (
             <div className="p-8 text-center bg-white rounded-3xl border border-slate-200">
@@ -28,8 +45,133 @@ export function PAMResults({ data }: PAMResultsProps) {
         );
     }
 
+    // Lógica de Auditoría Forense Cruzada
+    const renderCrossAudit = () => {
+        if (!billData) return null;
+
+        const diff = billData.clinicStatedTotal - data.global.totalValor;
+        if (Math.abs(diff) < 10) return null; // Diferencia despreciable
+
+        // Buscar ítems en la cuenta que no están en el PAM
+        const billItems = billData.sections.flatMap(s => s.items);
+        const pamItems = data.folios.flatMap(f => f.desglosePorPrestador.flatMap(p => p.items));
+
+        const missingInPam = billItems.filter(bi => {
+            // Intentar extraer código de la descripción: 01-01-301-00
+            const codeMatch = bi.description.match(/\d{2}-\d{2}-\d{3}/);
+            if (!codeMatch) return true; // Si no tiene código, asumimos que es un hallazgo potencial si el monto es alto
+
+            const cleanBillCode = codeMatch[0].replace(/-/g, '');
+            return !pamItems.some(pi => {
+                const cleanPamCode = pi.codigoGC.replace(/-/g, '');
+                return cleanPamCode.includes(cleanBillCode);
+            });
+        }).sort((a, b) => b.total - a.total).slice(0, 5);
+
+        return (
+            <div className="mt-12 bg-white rounded-[2.5rem] border-2 border-indigo-100 shadow-xl overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
+                <div className="bg-gradient-to-r from-slate-900 to-indigo-950 p-8 text-white">
+                    <div className="flex items-center gap-4 mb-2">
+                        <div className="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                            <FileSearch size={24} />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black tracking-tight">Hallazgos de Auditoría Cruzada</h2>
+                            <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em]">Diferencia Detectada entre Cuenta y PAM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-8 space-y-8">
+                    <div className="grid md:grid-cols-2 gap-8 items-center border-b border-slate-100 pb-8">
+                        <div>
+                            <p className="text-slate-500 text-sm font-medium leading-relaxed">
+                                El sistema ha comparado automáticamente los datos de la <span className="text-indigo-600 font-bold">Cuenta Clínica</span> con las <span className="text-purple-600 font-bold">Coberturas PAM</span> procesadas. Se detectó una discrepancia inconsistente que requiere su atención.
+                            </p>
+                            <div className="mt-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 flex items-center gap-2">
+                                    <ShieldAlert size={12} className="text-indigo-500" /> Origen de la Inconsistencia Matemática
+                                </p>
+                                <p className="text-xs text-slate-600 italic">
+                                    "La diferencia total de <span className="font-bold text-slate-900">${diff.toLocaleString()}</span> proviene principalmente de servicios detallados en la cuenta que no fueron valorizados ni bonificados en este programa médico."
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-indigo-50/50 p-6 rounded-[2rem] border border-indigo-100 relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 text-indigo-900">
+                                <DollarSign size={80} />
+                            </div>
+                            <div className="relative z-10 flex flex-col gap-4">
+                                <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-indigo-100/50">
+                                    <span className="text-xs font-bold text-slate-500 uppercase">Total Cuenta Clínica</span>
+                                    <span className="text-lg font-mono font-black text-slate-900">${billData.clinicStatedTotal.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border border-indigo-100/50">
+                                    <span className="text-xs font-bold text-slate-500 uppercase">Total Valorizado PAM</span>
+                                    <span className="text-lg font-mono font-black text-slate-900">${data.global.totalValor.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-indigo-600 p-4 rounded-2xl shadow-lg shadow-indigo-200">
+                                    <span className="text-xs font-bold text-white/80 uppercase">Diferencia Sin Cobertura</span>
+                                    <span className="text-xl font-mono font-black text-white">${diff.toLocaleString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 className="text-sm font-black text-slate-800 uppercase tracking-tighter mb-4 flex items-center gap-2">
+                            <Search size={16} className="text-indigo-500" /> Servicios Críticos No Encontrados en PAM
+                        </h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {missingInPam.map((item, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-indigo-200 hover:shadow-md transition-all group">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-500">
+                                            {idx + 1}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-slate-700 line-clamp-1 truncate max-w-[200px]">{item.description}</p>
+                                            <p className="text-[10px] text-slate-400 font-mono">Ítem #{item.index}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-sm font-black text-slate-900">${item.total.toLocaleString()}</p>
+                                        <p className="text-[9px] font-black text-rose-500 uppercase">Sin Bono</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        {missingInPam.length === 0 && (
+                            <div className="p-8 text-center bg-emerald-50 rounded-3xl border border-emerald-100">
+                                <CheckCircle2 className="mx-auto text-emerald-500 mb-2" />
+                                <p className="text-sm font-bold text-emerald-700">No se detectaron ítems faltantes significativos.</p>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="bg-amber-50 rounded-3xl p-6 border border-amber-100 flex flex-col md:flex-row items-center gap-6">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                                <ShieldCheck size={20} className="text-amber-600" />
+                                <h4 className="text-sm font-black text-amber-900 uppercase">Protocolo de Auditoría Sugerido</h4>
+                            </div>
+                            <p className="text-xs text-amber-800 font-medium leading-relaxed">
+                                Es necesario verificar si estas prestaciones corresponden a excepciones del plan o si deben ser reclamadas.
+                                Especial atención a <span className="font-bold underline">servicios integrados</span> (como inyecciones) que a menudo ya están cubiertos por el valor del día cama según Norma Técnica.
+                            </p>
+                        </div>
+                        <button className="whitespace-nowrap px-6 py-3 bg-amber-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-700 transition-colors shadow-lg shadow-amber-200 flex items-center gap-2">
+                            <ArrowRightLeft size={16} /> Profundizar Análisis
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <div className="pam-results-container space-y-12">
+        <div className="pam-results-container space-y-12 pb-20">
             {/* DASHBOARD GLOBAL DE AUDITORÍA */}
             <div className="global-dashboard bg-indigo-950 text-white rounded-[2.5rem] p-8 shadow-2xl border border-white/10 overflow-hidden relative">
                 <div className="absolute top-0 right-0 p-12 opacity-5">
@@ -85,11 +227,19 @@ export function PAMResults({ data }: PAMResultsProps) {
                     <FolioCard key={fIdx} folio={folio} index={fIdx + 1} />
                 ))}
             </div>
+
+            {/* HALLAZGOS DE AUDITORÍA CRUZADA */}
+            {renderCrossAudit()}
         </div>
     );
 }
 
-function FolioCard({ folio, index }: { folio: FolioPAM; index: number }) {
+interface FolioCardProps {
+    folio: FolioPAM;
+    index: number;
+}
+
+function FolioCard({ folio, index }: FolioCardProps) {
     return (
         <div className="folio-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             {/* Header del Folio */}
