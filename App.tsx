@@ -33,44 +33,14 @@ type DocumentType = 'bill' | 'pam';
 
 const App: React.FC = () => {
   const [documentType, setDocumentType] = useState<DocumentType>('bill');
-  const [status, setStatus] = useState<AppStatus>(() => {
-    try {
-      const saved = localStorage.getItem('clinic_audit_status');
-      return (saved as AppStatus) || AppStatus.IDLE;
-    } catch { return AppStatus.IDLE; }
-  });
+  const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<ExtractedAccount | null>(() => {
-    try {
-      const saved = localStorage.getItem('clinic_audit_result');
-      return saved ? JSON.parse(saved) : null;
-    } catch { return null; }
-  });
-  const [filePreview, setFilePreview] = useState<string | null>(() => {
-    try { return localStorage.getItem('clinic_audit_preview'); } catch { return null; }
-  });
-  const [logs, setLogs] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('clinic_audit_logs');
-      return saved ? JSON.parse(saved) : [];
-    } catch { return []; }
-  });
-  const [progress, setProgress] = useState(() => {
-    try {
-      return Number(localStorage.getItem('clinic_audit_progress')) || 0;
-    } catch { return 0; }
-  });
-  const [seconds, setSeconds] = useState(() => {
-    try {
-      return Number(localStorage.getItem('clinic_audit_seconds')) || 0;
-    } catch { return 0; }
-  });
-  const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(() => {
-    try {
-      const saved = localStorage.getItem('clinic_audit_usage');
-      return saved ? JSON.parse(saved) : null;
-    } catch { return null; }
-  });
+  const [result, setResult] = useState<ExtractedAccount | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [logs, setLogs] = useState<string[]>([]);
+  const [progress, setProgress] = useState(0);
+  const [seconds, setSeconds] = useState(0);
+  const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
   const timerRef = useRef<number | null>(null);
@@ -86,18 +56,6 @@ const App: React.FC = () => {
       addLog('[SISTEMA] ✋ Análisis detenido manualmente por el usuario.');
     }
   };
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('clinic_audit_status', status);
-      if (result) localStorage.setItem('clinic_audit_result', JSON.stringify(result));
-      if (filePreview && filePreview.length < 1500000) localStorage.setItem('clinic_audit_preview', filePreview);
-      localStorage.setItem('clinic_audit_logs', JSON.stringify(logs));
-      localStorage.setItem('clinic_audit_progress', progress.toString());
-      localStorage.setItem('clinic_audit_seconds', seconds.toString());
-      if (realTimeUsage) localStorage.setItem('clinic_audit_usage', JSON.stringify(realTimeUsage));
-    } catch (e) { }
-  }, [status, result, filePreview, logs, progress, seconds, realTimeUsage]);
 
   useEffect(() => {
     if (logEndRef.current) logEndRef.current.scrollIntoView({ behavior: 'smooth' });

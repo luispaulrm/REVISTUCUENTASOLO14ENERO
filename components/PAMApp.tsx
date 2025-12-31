@@ -13,40 +13,13 @@ enum AppStatus {
 }
 
 export default function PAMApp() {
-    const [status, setStatus] = useState<AppStatus>(() => {
-        try {
-            return (localStorage.getItem('pam_audit_status') as AppStatus) || AppStatus.IDLE;
-        } catch { return AppStatus.IDLE; }
-    });
+    const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
     const [error, setError] = useState<string | null>(null);
-    const [pamResult, setPamResult] = useState<PamDocument | null>(() => {
-        try {
-            const saved = localStorage.getItem('pam_audit_result');
-            return saved ? JSON.parse(saved) : null;
-        } catch { return null; }
-    });
-    const [logs, setLogs] = useState<string[]>(() => {
-        try {
-            const saved = localStorage.getItem('pam_audit_logs');
-            return saved ? JSON.parse(saved) : [];
-        } catch { return []; }
-    });
-    const [progress, setProgress] = useState(() => {
-        try {
-            return Number(localStorage.getItem('pam_audit_progress')) || 0;
-        } catch { return 0; }
-    });
-    const [seconds, setSeconds] = useState(() => {
-        try {
-            return Number(localStorage.getItem('pam_audit_seconds')) || 0;
-        } catch { return 0; }
-    });
-    const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(() => {
-        try {
-            const saved = localStorage.getItem('pam_audit_usage');
-            return saved ? JSON.parse(saved) : null;
-        } catch { return null; }
-    });
+    const [pamResult, setPamResult] = useState<PamDocument | null>(null);
+    const [logs, setLogs] = useState<string[]>([]);
+    const [progress, setProgress] = useState(0);
+    const [seconds, setSeconds] = useState(0);
+    const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
 
     const [isExporting, setIsExporting] = useState(false);
     const timerRef = useRef<number | null>(null);
@@ -64,21 +37,12 @@ export default function PAMApp() {
     };
 
     useEffect(() => {
-        try {
-            localStorage.setItem('pam_audit_status', status);
-            if (pamResult) localStorage.setItem('pam_audit_result', JSON.stringify(pamResult));
-            localStorage.setItem('pam_audit_logs', JSON.stringify(logs));
-            localStorage.setItem('pam_audit_progress', progress.toString());
-            localStorage.setItem('pam_audit_seconds', seconds.toString());
-            if (realTimeUsage) localStorage.setItem('pam_audit_usage', JSON.stringify(realTimeUsage));
-        } catch (e) { }
-    }, [status, pamResult, logs, progress, seconds, realTimeUsage]);
-
-    useEffect(() => {
         if (logEndRef.current) {
             logEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [logs]);
+
+
 
     useEffect(() => {
         if (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) {
