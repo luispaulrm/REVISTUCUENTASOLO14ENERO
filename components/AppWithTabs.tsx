@@ -6,15 +6,10 @@ import { ShieldCheck, Receipt } from 'lucide-react';
 type DocumentType = 'bill' | 'pam';
 
 export function AppWithTabs() {
-    const [activeTab, setActiveTab] = useState<DocumentType>(() => {
-        try {
-            return (localStorage.getItem('app_active_tab') as DocumentType) || 'bill';
-        } catch { return 'bill'; }
-    });
+    const [activeTab, setActiveTab] = useState<DocumentType>('bill');
 
     const handleTabChange = (tab: DocumentType) => {
         setActiveTab(tab);
-        try { localStorage.setItem('app_active_tab', tab); } catch (e) { }
     };
 
     return (
@@ -80,8 +75,12 @@ export function AppWithTabs() {
 
             {/* Content */}
             <div>
-                {activeTab === 'bill' && <App />}
-                {activeTab === 'pam' && <PAMApp />}
+                <div style={{ display: activeTab === 'bill' ? 'block' : 'none' }}>
+                    <App />
+                </div>
+                <div style={{ display: activeTab === 'pam' ? 'block' : 'none' }}>
+                    <PAMApp />
+                </div>
             </div>
         </div>
     );
