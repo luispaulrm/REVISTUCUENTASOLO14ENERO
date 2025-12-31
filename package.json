@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && npm run build:server",
+    "build:server": "echo 'Server uses TypeScript, no build needed'",
     "preview": "vite preview",
     "start": "tsx server/server.ts",
     "server": "tsx server/server.ts"
