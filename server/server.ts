@@ -9,9 +9,16 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
+// ⚠️ CRITICAL: Only load dotenv in development
+// Railway injects env vars natively, dotenv.config() interferes
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config();
+}
 
-// Environment Check - After dotenv initialization
+// Read API key directly (no filtering needed)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+
+// Environment Check
 console.log("\n" + "=".repeat(50));
 console.log("🚀 AUDIT SERVER BOOTSTRAP");
 console.log("\n=== RAILWAY CONTEXT ===");
@@ -20,23 +27,16 @@ console.log("ENV:", process.env.RAILWAY_ENVIRONMENT_NAME || "N/A");
 console.log("PROJECT:", process.env.RAILWAY_PROJECT_NAME || "N/A");
 console.log("=======================\n");
 
-const allKeys = Object.keys(process.env).sort();
-const filteredKeys = allKeys.filter(k =>
-    k.includes('API') || k.includes('GEMINI') || k.includes('KEY') || k.includes('VITE')
-);
-console.log(`[ENV_CHECK] Total Vars: ${allKeys.length}`);
-console.log(`[ENV_CHECK] Relevant Vars (API/GEMINI/KEY/VITE): ${filteredKeys.length > 0 ? filteredKeys.join(', ') : 'NONE'}`);
+console.log(`[ENV_CHECK] Total Vars: ${Object.keys(process.env).length}`);
+console.log(`[ENV_CHECK] NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
 
-// Check specifically for GEMINI_API_KEY
-const geminiKey = process.env.GEMINI_API_KEY;
-const apiKey = process.env.API_KEY;
-if (geminiKey) {
-    console.log(`✅ GEMINI_API_KEY: SET ✓ (ends with ...${geminiKey.slice(-4)})`);
-} else if (apiKey) {
-    console.log(`⚠️  GEMINI_API_KEY: Not set, but API_KEY is available`);
-    console.log(`✅ API_KEY: SET ✓ (ends with ...${apiKey.slice(-4)})`);
+// Direct key check (no filtering)
+if (GEMINI_API_KEY) {
+    console.log(`✅ GEMINI_API_KEY LOADED`);
+    console.log(`   Key preview: ${GEMINI_API_KEY.substring(0, 8)}...${GEMINI_API_KEY.slice(-4)}`);
 } else {
-    console.log(`❌ GEMINI_API_KEY: MISSING ❌`);
+    console.error(`❌ GEMINI_API_KEY NOT FOUND`);
+    console.error(`   Available keys:`, Object.keys(process.env).filter(k => k.includes('KEY')));
 }
 console.log("=".repeat(50) + "\n");
 
@@ -48,11 +48,8 @@ app.use(express.json({ limit: '50mb' }));
 
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Helper para obtener la API Key de forma robusta
-const getApiKey = () => {
-    const k = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
-    return k.replace(/^API_KEY\s*=\s*/i, '').trim();
-};
+// Helper para obtener la API Key
+const getApiKey = () => GEMINI_API_KEY;
 
 const billingSchema = {
     type: "object",
