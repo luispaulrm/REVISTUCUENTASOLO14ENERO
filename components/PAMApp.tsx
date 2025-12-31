@@ -208,13 +208,13 @@ export default function PAMApp() {
             <header className="bg-transparent border-b border-slate-200 sticky top-0 z-50 print:hidden backdrop-blur-sm">
                 <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <ShieldCheck size={22} />
                         </div>
                         <div>
                             <h1 className="text-lg font-bold text-slate-900 leading-none flex items-center gap-2">
                                 PAM A.I.
-                                <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-400 font-mono">{VERSION}</span>
+                                <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-500 font-mono">{VERSION}</span>
                                 <span className="text-xs text-slate-900 font-black ml-2 uppercase tracking-tight">Actualizado: {LAST_MODIFIED}</span>
                             </h1>
                             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Isapre Audit Engine</p>
@@ -222,7 +222,7 @@ export default function PAMApp() {
                     </div>
                     <div className="flex items-center gap-2">
                         {status === AppStatus.SUCCESS && (
-                            <button onClick={downloadPdf} disabled={isExporting} className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold hover:bg-purple-700 transition-all shadow-md disabled:opacity-50">
+                            <button onClick={downloadPdf} disabled={isExporting} className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-all shadow-md disabled:opacity-50">
                                 {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
                                 {isExporting ? 'GENERANDO...' : 'EXPORTAR PDF'}
                             </button>
@@ -244,19 +244,19 @@ export default function PAMApp() {
             <main className="flex-grow max-w-6xl mx-auto w-full p-8">
                 {status === AppStatus.IDLE && (
                     <div className="max-w-2xl mx-auto text-center py-20">
-                        <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 mx-auto mb-8 border border-purple-100 shadow-xl">
+                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center text-slate-900 mx-auto mb-8 border border-slate-100 shadow-xl">
                             <Upload size={36} />
                         </div>
                         <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Analizar Documentos PAM</h2>
                         <p className="text-slate-500 mb-10">Sube Programas de Atención Médica para extraer y auditar folios, bonos y copagos.</p>
 
-                        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-purple-50/30 hover:border-purple-300 transition-all group">
+                        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-slate-50 hover:border-slate-900 transition-all group">
                             <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
                             <div className="flex flex-col items-center p-6">
-                                <div className="p-4 bg-slate-50 rounded-2xl mb-4 text-slate-400 group-hover:text-purple-600 group-hover:bg-purple-100 transition-colors">
+                                <div className="p-4 bg-slate-50 rounded-2xl mb-4 text-slate-400 group-hover:text-slate-900 group-hover:bg-slate-200 transition-colors">
                                     <FileText size={32} />
                                 </div>
-                                <p className="text-sm font-bold text-slate-600 group-hover:text-purple-600 transition-colors">Haz clic para subir PAM</p>
+                                <p className="text-sm font-bold text-slate-600 group-hover:text-slate-900 transition-colors">Haz clic para subir PAM</p>
                                 <p className="text-xs text-slate-400 mt-1">Soporta fotos, capturas y PDFs</p>
                             </div>
                         </label>
@@ -281,7 +281,7 @@ export default function PAMApp() {
 
                             <div className="p-6 h-full overflow-y-auto font-mono text-xs space-y-2 pb-20 bg-white custom-scrollbar">
                                 {logs.map((log, i) => (
-                                    <div key={i} className="flex gap-4 items-start py-1.5 border-l-2 border-transparent hover:border-purple-200 hover:bg-purple-50 transition-colors pl-3 -ml-3">
+                                    <div key={i} className="flex gap-4 items-start py-1.5 border-l-2 border-transparent hover:border-slate-300 hover:bg-slate-50 transition-colors pl-3 -ml-3">
                                         <span className="opacity-40 w-24 shrink-0 text-right text-slate-400 font-bold text-[10px] pt-0.5 font-sans">
                                             {new Date().toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}
                                         </span>
@@ -305,7 +305,7 @@ export default function PAMApp() {
                                 <div className="flex flex-col">
                                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Time</span>
                                     <div className="font-mono text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                                        <Timer size={18} className="text-purple-500" />
+                                        <Timer size={18} className="text-slate-500" />
                                         T+{formatTime(seconds)}
                                     </div>
                                 </div>
@@ -347,7 +347,7 @@ export default function PAMApp() {
                                 <div className="w-px h-8 bg-slate-800"></div>
                                 <div className="flex flex-col items-center">
                                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Payload</span>
-                                    <span className="font-mono text-sm font-bold text-purple-400">
+                                    <span className="font-mono text-sm font-bold text-slate-400">
                                         {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
                                     </span>
                                 </div>
@@ -378,7 +378,7 @@ export default function PAMApp() {
                         <div className="text-rose-500 text-6xl mb-6">⚠️</div>
                         <h3 className="text-2xl font-black text-slate-900 mb-2">Error de Extracción</h3>
                         <p className="text-slate-500 mb-8">{error}</p>
-                        <button onClick={clearSession} className="px-6 py-3 bg-purple-600 text-white rounded-xl font-bold">
+                        <button onClick={clearSession} className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold">
                             REINTENTAR
                         </button>
                     </div>

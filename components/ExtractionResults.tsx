@@ -116,9 +116,9 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                       </div>
                     </div>
                   )}
-                  <div className="overflow-x-auto rounded-xl border border-slate-900">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200">
                     <table className="w-full text-xs text-left">
-                      <thead className="bg-slate-900 text-slate-500 uppercase tracking-tighter font-black">
+                      <thead className="bg-slate-950 text-white uppercase tracking-tighter font-black">
                         <tr>
                           <th className="px-4 py-3 w-10">#</th>
                           <th className="px-2 py-3">Descripción del Ítem</th>
@@ -127,28 +127,28 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                           <th className="px-4 py-3 text-right w-32">Total ISA</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-900">
+                      <tbody className="divide-y divide-slate-200">
                         {section.items.map((item, iIdx) => (
-                          <tr key={iIdx} className={`group hover:bg-slate-900/50 transition-colors ${item.hasCalculationError ? 'bg-amber-950/10' : ''}`}>
-                            <td className="px-4 py-3 text-slate-600 font-mono text-[10px] font-bold">
+                          <tr key={iIdx} className={`group hover:bg-slate-50 transition-colors ${item.hasCalculationError ? 'bg-amber-50' : ''}`}>
+                            <td className="px-4 py-3 text-slate-900 font-mono text-[10px] font-bold">
                               {item.index || iIdx + 1}
                             </td>
-                            <td className="px-2 py-3 text-slate-300 font-medium">
+                            <td className="px-2 py-3 text-slate-700 font-medium">
                               <div className="flex items-center gap-2">
                                 {item.description}
                                 {item.hasCalculationError && (
                                   <div className="group relative">
-                                    <Info size={14} className="text-amber-500 cursor-help" />
-                                    <div className="hidden group-hover:block absolute left-0 top-5 z-50 w-72 p-4 bg-black text-slate-300 text-[10px] rounded-2xl shadow-2xl border border-slate-800 leading-relaxed animate-in fade-in zoom-in-95">
-                                      <p className="font-black text-amber-400 mb-2 uppercase tracking-widest flex items-center gap-2">
+                                    <Info size={14} className="text-amber-600 cursor-help" />
+                                    <div className="hidden group-hover:block absolute left-0 top-5 z-50 w-72 p-4 bg-white text-slate-600 text-[10px] rounded-2xl shadow-xl border border-slate-200 leading-relaxed animate-in fade-in zoom-in-95">
+                                      <p className="font-black text-amber-600 mb-2 uppercase tracking-widest flex items-center gap-2">
                                         <EyeOff size={12} /> Alerta de Trazabilidad
                                       </p>
-                                      <div className="space-y-1 font-mono text-slate-400">
+                                      <div className="space-y-1 font-mono text-slate-500">
                                         <p>Fórmula: {item.quantity} × {formatCurrency(item.unitPrice)}</p>
-                                        <p className="text-emerald-500 font-bold">Esperado: {formatCurrency(item.calculatedTotal)}</p>
-                                        <p className="text-rose-500 font-bold">En Cuenta: {formatCurrency(item.total)}</p>
+                                        <p className="text-emerald-600 font-bold">Esperado: {formatCurrency(item.calculatedTotal)}</p>
+                                        <p className="text-rose-600 font-bold">En Cuenta: {formatCurrency(item.total)}</p>
                                       </div>
-                                      <p className="mt-3 text-slate-500 italic border-t border-slate-800 pt-2">
+                                      <p className="mt-3 text-slate-400 italic border-t border-slate-100 pt-2">
                                         Diferencia esperada por la aplicación de IVA, Impuestos Específicos o Recargos Legales sobre el valor neto.
                                       </p>
                                     </div>
@@ -156,24 +156,24 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                                 )}
                               </div>
                             </td>
-                            <td className="py-3 text-center text-slate-500 font-bold font-mono">{item.quantity}</td>
-                            <td className="py-3 text-right text-slate-500 font-mono">{formatCurrency(item.unitPrice)}</td>
-                            <td className={`px-4 py-3 text-right font-black font-mono text-sm ${item.hasCalculationError ? 'text-amber-500' : 'text-slate-100'}`}>
+                            <td className="py-3 text-center text-slate-600 font-bold font-mono">{item.quantity}</td>
+                            <td className="py-3 text-right text-slate-600 font-mono">{formatCurrency(item.unitPrice)}</td>
+                            <td className={`px-4 py-3 text-right font-black font-mono text-sm ${item.hasCalculationError ? 'text-amber-600' : 'text-slate-900'}`}>
                               {formatCurrency(item.total)}
                             </td>
                           </tr>
                         ))}
                       </tbody>
-                      <tfoot className="bg-slate-900/50 border-t-2 border-slate-900">
+                      <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                         <tr>
-                          <td colSpan={3} className="px-4 py-4 text-right font-black text-slate-500 uppercase tracking-widest text-[10px]">Total Real Auditado (Suma de ítems)</td>
-                          <td className={`px-4 py-4 text-right font-black text-base ${section.hasSectionError ? 'text-rose-500' : 'text-white'}`}>
+                          <td colSpan={3} className="px-4 py-4 text-right font-black text-slate-400 uppercase tracking-widest text-[10px]">Total Real Auditado (Suma de ítems)</td>
+                          <td className={`px-4 py-4 text-right font-black text-base ${section.hasSectionError ? 'text-rose-600' : 'text-slate-900'}`}>
                             {formatCurrency(section.calculatedSectionTotal)}
                           </td>
                         </tr>
                         {section.hasSectionError && (
-                          <tr className={section.isUnjustifiedCharge ? 'bg-rose-950/20' : 'bg-amber-950/20'}>
-                            <td colSpan={4} className={`px-4 py-2 text-center text-[9px] font-black uppercase tracking-[0.2em] ${section.isUnjustifiedCharge ? 'text-rose-500' : 'text-amber-500'}`}>
+                          <tr className={section.isUnjustifiedCharge ? 'bg-rose-50' : 'bg-amber-50'}>
+                            <td colSpan={4} className={`px-4 py-2 text-center text-[9px] font-black uppercase tracking-[0.2em] ${section.isUnjustifiedCharge ? 'text-rose-600' : 'text-amber-600'}`}>
                               {section.isUnjustifiedCharge
                                 ? 'Detectada discrepancia crítica: La clínica cobra más de lo respaldado en los ítems.'
                                 : section.isTaxConfusion

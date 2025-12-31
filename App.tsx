@@ -240,7 +240,7 @@ const App: React.FC = () => {
       <header className="bg-transparent border-b border-slate-900/50 sticky top-0 z-50 print:hidden backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
+            <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg shadow-slate-200">
               <FileSearch size={22} />
             </div>
             <div>
@@ -257,7 +257,7 @@ const App: React.FC = () => {
               <button
                 onClick={downloadPdf}
                 disabled={isExporting}
-                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 transition-all shadow-md disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-all shadow-md disabled:opacity-50"
               >
                 {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
                 {isExporting ? 'GENERANDO...' : 'EXPORTAR PDF'}
@@ -282,8 +282,8 @@ const App: React.FC = () => {
           <div className="max-w-2xl mx-auto mt-20 text-center space-y-12 animate-in fade-in zoom-in-95 duration-700">
 
             <div className="space-y-4">
-              <div className="inline-flex items-center justify-center p-4 bg-indigo-50 rounded-full mb-6 border border-indigo-100 shadow-2xl shadow-indigo-900/10 hover:scale-105 transition-transform duration-500">
-                <UploadCloud size={48} className="text-indigo-600" />
+              <div className="inline-flex items-center justify-center p-4 bg-slate-50 rounded-full mb-6 border border-slate-200 shadow-2xl shadow-black/5 hover:scale-105 transition-transform duration-500">
+                <UploadCloud size={48} className="text-slate-900" />
               </div>
               <h2 className="text-4xl font-black text-slate-900 tracking-tighter">
                 Analizador Universal de Cuentas
@@ -294,7 +294,7 @@ const App: React.FC = () => {
             </div>
 
             <label
-              className="group relative border-2 border-dashed border-slate-300 bg-white rounded-3xl p-16 transition-all duration-500 cursor-pointer block hover:border-indigo-500 hover:bg-slate-50"
+              className="group relative border-2 border-dashed border-slate-300 bg-white rounded-3xl p-16 transition-all duration-500 cursor-pointer block hover:border-slate-900 hover:bg-slate-50"
             >
               <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
               <div className="relative z-10 flex flex-col items-center gap-4">
