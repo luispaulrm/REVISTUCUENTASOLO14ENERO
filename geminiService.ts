@@ -4,12 +4,12 @@ import { ExtractedAccount, BillingItem, BillingSection, UsageMetrics } from "./t
 // Note: All Gemini API calls are handled by the backend at /api/extract
 // The frontend only needs to communicate with our Express server
 
-
 export async function extractBillingData(
   imageData: string,
   mimeType: string,
   onLog?: (msg: string) => void,
-  onUsageUpdate?: (usage: UsageMetrics) => void
+  onUsageUpdate?: (usage: UsageMetrics) => void,
+  signal?: AbortSignal
 ): Promise<ExtractedAccount> {
   onLog?.(`[SYSTEM] Iniciando Protocolo de Auditoría vía Streaming.`);
   onLog?.(`[SYSTEM] Conectando con el motor de IA...`);
@@ -18,6 +18,7 @@ export async function extractBillingData(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ image: imageData, mimeType: mimeType }),
+    signal
   });
 
   if (!response.ok) {
@@ -33,38 +34,45 @@ export async function extractBillingData(
   let partialBuffer = '';
   let latestUsage: UsageMetrics | null = null;
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-    partialBuffer += decoder.decode(value, { stream: true });
-    const lines = partialBuffer.split('\n');
-    partialBuffer = lines.pop() || ''; // Guardar la línea incompleta
+      partialBuffer += decoder.decode(value, { stream: true });
+      const lines = partialBuffer.split('\n');
+      partialBuffer = lines.pop() || ''; // Guardar la línea incompleta
 
-    for (const line of lines) {
-      if (!line.trim()) continue;
-      console.log(`[FRONTEND] Parsing line: ${line.substring(0, 50)}...`);
-      try {
-        const update = JSON.parse(line);
-        console.log(`[FRONTEND] Received type: ${update.type}`);
-        if (update.type === 'usage') {
-          latestUsage = update.usage;
-          onUsageUpdate?.(update.usage);
-          onLog?.(`[API] Entorno: ${update.usage.promptTokens} | Salida: ${update.usage.candidatesTokens} | Total: ${update.usage.totalTokens} | Costo Est: $${update.usage.estimatedCostCLP} CLP`);
-        } else if (update.type === 'chunk') {
-          // Mostrar el texto extraído directamente en la terminal
-          onLog?.(update.text);
-        } else if (update.type === 'progress') {
-          // Mantener un latido silencioso o loguear tamaño
-        } else if (update.type === 'final') {
-          resultData = update.data;
-        } else if (update.type === 'error') {
-          throw new Error(update.message);
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const update = JSON.parse(line);
+          if (update.type === 'usage') {
+            latestUsage = update.usage;
+            onUsageUpdate?.(update.usage);
+            onLog?.(`[API] Entorno: ${update.usage.promptTokens} | Salida: ${update.usage.candidatesTokens} | Total: ${update.usage.totalTokens} | Costo Est: $${update.usage.estimatedCostCLP} CLP`);
+          } else if (update.type === 'chunk') {
+            onLog?.(update.text);
+          } else if (update.type === 'progress') {
+            // Heartbeat
+          } else if (update.type === 'final') {
+            resultData = update.data;
+          } else if (update.type === 'error') {
+            throw new Error(update.message);
+          }
+        } catch (e) {
+          console.error("Error parsing NDJSON line:", e);
         }
-      } catch (e) {
-        console.error("Error parsing NDJSON line:", e);
       }
     }
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      onLog?.('[SYSTEM] ✋ Análisis detenido por el usuario.');
+      throw err;
+    }
+    throw err;
+  } finally {
+    reader.releaseLock();
   }
 
   if (!resultData) throw new Error('No se recibió el resultado final de la auditoría');
@@ -144,7 +152,6 @@ export async function extractBillingData(
     onLog?.(`[WARN] Discrepancia detectada: ${(finalExtractedTotal - clinicStatedTotal).toFixed(0)} CLP.`);
   }
 
-  // Reutilizar la última métrica de uso recibida si está disponible
   return {
     ...resultData,
     sections: auditedSections,

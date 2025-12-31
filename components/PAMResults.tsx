@@ -1,155 +1,193 @@
 import React from 'react';
-import { PamDocument } from './pamService';
-import { FileText, User, Calendar, Pill, Activity } from 'lucide-react';
+import { PamDocument, FolioPAM } from '../pamService';
+import {
+    User,
+    Calendar,
+    Receipt,
+    Info,
+    CheckCircle2,
+    AlertCircle,
+    ShieldCheck,
+    ArrowRightLeft,
+    TrendingDown,
+    DollarSign,
+    Layers
+} from 'lucide-react';
 
 interface PAMResultsProps {
     data: PamDocument;
 }
 
 export function PAMResults({ data }: PAMResultsProps) {
+    if (!data || !data.folios || data.folios.length === 0) {
+        return (
+            <div className="p-8 text-center bg-white rounded-3xl border border-slate-200">
+                <AlertCircle size={48} className="mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500 font-bold">No se encontraron folios PAM en el documento.</p>
+            </div>
+        );
+    }
+
     return (
-        <div className="pam-results">
-            {/* Header con información del paciente */}
-            <div className="pam-header" style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                padding: '2rem',
-                borderRadius: '12px',
-                color: 'white',
-                marginBottom: '2rem'
-            }}>
-                <h2 style={{ margin: 0, marginBottom: '1rem', fontSize: '1.8rem' }}>
-                    📋 Plan Anual de Medicamentos
-                </h2>
+        <div className="pam-results-container space-y-12">
+            {/* DASHBOARD GLOBAL DE AUDITORÍA */}
+            <div className="global-dashboard bg-indigo-950 text-white rounded-[2.5rem] p-8 shadow-2xl border border-white/10 overflow-hidden relative">
+                <div className="absolute top-0 right-0 p-12 opacity-5">
+                    <Layers size={200} />
+                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                            <User size={18} />
-                            <strong>Paciente:</strong>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                            <TrendingDown size={24} />
                         </div>
-                        <div style={{ paddingLeft: '1.8rem' }}>{data.patient}</div>
-                        {data.rut !== 'N/A' && <div style={{ paddingLeft: '1.8rem', fontSize: '0.9rem', opacity: 0.9 }}>RUT: {data.rut}</div>}
+                        <div>
+                            <h2 className="text-2xl font-black tracking-tight">Dashboard Consolidado de PAM</h2>
+                            <p className="text-indigo-300 text-xs font-bold uppercase tracking-widest">Resumen General de la Cuenta</p>
+                        </div>
                     </div>
 
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                            <Activity size={18} />
-                            <strong>Médico:</strong>
+                    <div className="grid md:grid-cols-4 gap-6">
+                        <div className="stat-card bg-white/5 p-5 rounded-3xl border border-white/10">
+                            <p className="text-[10px] font-black text-indigo-300 uppercase mb-2">Total Valor (100%)</p>
+                            <p className="text-2xl font-mono font-black">${data.global.totalValor.toLocaleString()}</p>
                         </div>
-                        <div style={{ paddingLeft: '1.8rem' }}>{data.doctor}</div>
-                        {data.specialty !== 'N/A' && <div style={{ paddingLeft: '1.8rem', fontSize: '0.9rem', opacity: 0.9 }}>{data.specialty}</div>}
+                        <div className="stat-card bg-white/5 p-5 rounded-3xl border border-white/10">
+                            <p className="text-[10px] font-black text-emerald-400 uppercase mb-2">Bonificación Total</p>
+                            <p className="text-2xl font-mono font-black text-emerald-400">-${data.global.totalBonif.toLocaleString()}</p>
+                        </div>
+                        <div className="stat-card bg-indigo-600 p-5 rounded-3xl shadow-xl shadow-indigo-950/50">
+                            <p className="text-[10px] font-black text-white/70 uppercase mb-2">Copago Consolidado</p>
+                            <p className="text-2xl font-mono font-black text-white">${data.global.totalCopago.toLocaleString()}</p>
+                        </div>
+                        <div className={`stat-card p-5 rounded-3xl border ${data.global.cuadra ? 'bg-emerald-500/20 border-emerald-500/40' : 'bg-rose-500/20 border-rose-500/40'}`}>
+                            <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Estado de Auditoría</p>
+                            <p className={`text-sm font-black tracking-tight ${data.global.cuadra ? 'text-emerald-400' : 'text-rose-400'}`}>
+                                {data.global.auditoriaStatus}
+                            </p>
+                        </div>
                     </div>
 
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                            <Calendar size={18} />
-                            <strong>Fecha:</strong>
+                    {!data.global.cuadra && (
+                        <div className="mt-6 p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl flex items-center gap-4 animate-pulse">
+                            <AlertCircle className="text-rose-400" />
+                            <p className="text-xs font-bold text-rose-300">
+                                Atención: Se detectó una diferencia de <span className="text-white text-sm font-black">${data.global.discrepancia.toLocaleString()}</span> en el copago total consolidado. Revise los folios individuales.
+                            </p>
                         </div>
-                        <div style={{ paddingLeft: '1.8rem' }}>{data.date}</div>
-                    </div>
+                    )}
+                </div>
+            </div>
 
+            {/* LISTADO DE FOLIOS INDIVIDUALES */}
+            <div className="space-y-8">
+                {data.folios.map((folio, fIdx) => (
+                    <FolioCard key={fIdx} folio={folio} index={fIdx + 1} />
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function FolioCard({ folio, index }: { folio: FolioPAM; index: number }) {
+    return (
+        <div className="folio-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            {/* Header del Folio */}
+            <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-indigo-100">
+                        #{index}
+                    </div>
                     <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                            <FileText size={18} />
-                            <strong>Vigencia:</strong>
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                            Folio PAM: {folio.folioPAM}
+                            {!folio.resumen.cuadra && (
+                                <span className="bg-rose-100 text-rose-600 text-[10px] px-2 py-0.5 rounded-full border border-rose-200 uppercase font-black">Inconsistente</span>
+                            )}
+                        </h3>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                            <Calendar size={12} /> {folio.periodoCobro}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex flex-col md:flex-row gap-3">
+                    <div className="bg-white px-4 py-2 rounded-xl border border-slate-200 flex items-center gap-3">
+                        <User size={18} className="text-indigo-500" />
+                        <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase leading-none mb-1">Prestador Principal</p>
+                            <p className="text-sm font-bold text-slate-800 leading-none">{folio.prestadorPrincipal}</p>
                         </div>
-                        <div style={{ paddingLeft: '1.8rem' }}>{data.validity}</div>
                     </div>
                 </div>
             </div>
 
-            {/* Diagnóstico */}
-            {data.diagnosis && data.diagnosis !== 'N/A' && (
-                <div style={{
-                    background: '#fef3c7',
-                    border: '2px solid #f59e0b',
-                    borderRadius: '8px',
-                    padding: '1rem',
-                    marginBottom: '2rem'
-                }}>
-                    <strong style={{ color: '#92400e' }}>🏥 Diagnóstico:</strong>
-                    <p style={{ margin: '0.5rem 0 0 0', color: '#78350f' }}>{data.diagnosis}</p>
-                </div>
-            )}
-
-            {/* Tabla de Medicamentos */}
-            <div style={{ marginBottom: '2rem' }}>
-                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
-                    <Pill size={24} />
-                    Medicamentos Prescritos ({data.totalMedications})
-                </h3>
-
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
-                        <thead>
-                            <tr style={{ background: '#f3f4f6', borderBottom: '2px solid #d1d5db' }}>
-                                <th style={{ padding: '0.75rem', textAlign: 'left' }}>#</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left' }}>Medicamento</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left' }}>Dosis</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left' }}>Frecuencia</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left' }}>Duración</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left' }}>Cantidad</th>
-                                <th style={{ padding: '0.75rem', textAlign: 'left' }}>Observaciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.medications.map((med, idx) => (
-                                <tr key={idx} style={{
-                                    borderBottom: '1px solid #e5e7eb',
-                                    background: idx % 2 === 0 ? 'white' : '#f9fafb'
-                                }}>
-                                    <td style={{ padding: '0.75rem' }}>{med.index}</td>
-                                    <td style={{ padding: '0.75rem' }}>
-                                        <strong>{med.name}</strong>
-                                        <br />
-                                        <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                                            {med.concentration} - {med.form}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '0.75rem' }}>{med.dose}</td>
-                                    <td style={{ padding: '0.75rem' }}>{med.frequency}</td>
-                                    <td style={{ padding: '0.75rem' }}>{med.duration}</td>
-                                    <td style={{ padding: '0.75rem' }}>{med.totalQuantity}</td>
-                                    <td style={{ padding: '0.75rem', fontSize: '0.85rem', color: '#6b7280' }}>
-                                        {med.observations || '-'}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {/* Métricas de IA */}
-            {data.usage && (
-                <div style={{
-                    background: '#e0f2fe',
-                    border: '2px solid #0ea5e9',
-                    borderRadius: '8px',
-                    padding: '1rem',
-                    marginTop: '2rem'
-                }}>
-                    <h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>📊 Métricas de IA</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
-                        <div>
-                            <div style={{ fontSize: '0.85rem', color: '#075985' }}>Tokens Entrada</div>
-                            <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#0c4a6e' }}>{data.usage.promptTokens}</div>
+            {/* Desglose por Prestadores */}
+            <div className="p-6 space-y-8">
+                {folio.desglosePorPrestador.map((prestador, pIdx) => (
+                    <div key={pIdx} className="prestador-section">
+                        <div className="flex items-center justify-between mb-4">
+                            <h4 className="flex items-center gap-2 text-sm font-black text-slate-800 uppercase tracking-tight">
+                                <Receipt size={16} className="text-slate-400" />
+                                Prestador: <span className="text-indigo-600">{prestador.nombrePrestador}</span>
+                            </h4>
                         </div>
-                        <div>
-                            <div style={{ fontSize: '0.85rem', color: '#075985' }}>Tokens Salida</div>
-                            <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#0c4a6e' }}>{data.usage.candidatesTokens}</div>
-                        </div>
-                        <div>
-                            <div style={{ fontSize: '0.85rem', color: '#075985' }}>Total Tokens</div>
-                            <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#0c4a6e' }}>{data.usage.totalTokens}</div>
-                        </div>
-                        <div>
-                            <div style={{ fontSize: '0.85rem', color: '#075985' }}>Costo Estimado</div>
-                            <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#0c4a6e' }}>${data.usage.estimatedCostCLP} CLP</div>
+
+                        <div className="overflow-x-auto rounded-2xl border border-slate-100">
+                            <table className="w-full text-left border-collapse min-w-[800px]">
+                                <thead>
+                                    <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                        <th className="px-4 py-3">Código/G/C</th>
+                                        <th className="px-4 py-3">Descripción</th>
+                                        <th className="px-4 py-3 text-center">Cant</th>
+                                        <th className="px-4 py-3 text-right">Valor Total ($)</th>
+                                        <th className="px-4 py-3 text-right">Bonif. ($)</th>
+                                        <th className="px-4 py-3 text-right font-black">Copago ($)</th>
+                                        <th className="px-4 py-3 text-center">Audit</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm">
+                                    {(prestador.items || []).map((item, iIdx) => (
+                                        <tr key={iIdx} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-4 py-2.5 font-mono text-xs text-slate-500">{item.codigoGC}</td>
+                                            <td className="px-4 py-2.5 font-bold text-slate-700">{item.descripcion}</td>
+                                            <td className="px-4 py-2.5 text-center font-bold text-slate-600">{item.cantidad}</td>
+                                            <td className="px-4 py-2.5 text-right font-mono text-slate-600">{item.valorTotal}</td>
+                                            <td className="px-4 py-2.5 text-right font-mono text-emerald-600">{item.bonificacion}</td>
+                                            <td className="px-4 py-2.5 text-right font-mono font-black text-slate-900">{item.copago}</td>
+                                            <td className="px-4 py-2.5 text-center">
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-black ${item._audit === '✅ OK' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>
+                                                    {item._audit}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                ))}
+            </div>
+
+            {/* Sub-Resumen del Folio */}
+            <div className="p-6 bg-slate-50 border-t border-slate-100 grid md:grid-cols-3 gap-6">
+                <div className="bg-white p-4 rounded-2xl border border-slate-200">
+                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Copago Calculado (Suma)</p>
+                    <p className="text-xl font-mono font-black text-slate-900">${folio.resumen.totalCopagoCalculado?.toLocaleString()}</p>
                 </div>
-            )}
+                <div className="bg-white p-4 rounded-2xl border border-slate-200">
+                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Copago Declarado</p>
+                    <p className="text-xl font-mono font-black text-slate-900">${folio.resumen.totalCopagoDeclarado}</p>
+                </div>
+                <div className={`p-4 rounded-2xl border ${folio.resumen.cuadra ? 'bg-emerald-50 border-emerald-100' : 'bg-rose-50 border-rose-100'}`}>
+                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Auditoría de Folio</p>
+                    <div className="flex items-center gap-2">
+                        {folio.resumen.cuadra ? <CheckCircle2 size={16} className="text-emerald-500" /> : <AlertCircle size={16} className="text-rose-500" />}
+                        <p className={`text-xs font-bold ${folio.resumen.cuadra ? 'text-emerald-700' : 'text-rose-700'}`}>
+                            {folio.resumen.auditoriaStatus}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

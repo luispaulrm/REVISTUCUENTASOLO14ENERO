@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import App from '../App';
 import PAMApp from './PAMApp';
-import { Pill, Receipt } from 'lucide-react';
+import { ShieldCheck, Receipt } from 'lucide-react';
 
 type DocumentType = 'bill' | 'pam';
 
 export function AppWithTabs() {
-    const [activeTab, setActiveTab] = useState<DocumentType>('bill');
+    const [activeTab, setActiveTab] = useState<DocumentType>(() => {
+        try {
+            return (localStorage.getItem('app_active_tab') as DocumentType) || 'bill';
+        } catch { return 'bill'; }
+    });
+
+    const handleTabChange = (tab: DocumentType) => {
+        setActiveTab(tab);
+        try { localStorage.setItem('app_active_tab', tab); } catch (e) { }
+    };
 
     return (
         <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
@@ -26,7 +35,7 @@ export function AppWithTabs() {
                     padding: '0.5rem 1rem'
                 }}>
                     <button
-                        onClick={() => setActiveTab('bill')}
+                        onClick={() => handleTabChange('bill')}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -47,7 +56,7 @@ export function AppWithTabs() {
                     </button>
 
                     <button
-                        onClick={() => setActiveTab('pam')}
+                        onClick={() => handleTabChange('pam')}
                         style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -63,8 +72,8 @@ export function AppWithTabs() {
                             transition: 'all 0.2s'
                         }}
                     >
-                        <Pill size={18} />
-                        PAM (Medicamentos)
+                        <ShieldCheck size={18} />
+                        PAM (Coberturas)
                     </button>
                 </div>
             </div>

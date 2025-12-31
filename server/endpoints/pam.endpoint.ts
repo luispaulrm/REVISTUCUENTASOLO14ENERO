@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { GeminiService } from '../services/gemini.service.js';
-import { PAM_PROMPT } from '../prompts/pam.prompt.js';
+import { PAM_PROMPT, PAM_ANALYSIS_SCHEMA } from '../prompts/pam.prompt.js';
 
 // Helper para obtener env vars (reutilizado del server.ts)
 function envGet(k: string) {
@@ -9,7 +9,7 @@ function envGet(k: string) {
 }
 
 export async function handlePamExtraction(req: Request, res: Response) {
-    console.log('[PAM] New PAM extraction request');
+    console.log('[PAM] New PAM extraction request (Structured JSON Array)');
 
     // Setup streaming response
     res.setHeader('Content-Type', 'application/x-ndjson');
@@ -38,10 +38,16 @@ export async function handlePamExtraction(req: Request, res: Response) {
         const gemini = new GeminiService(apiKey);
         let fullText = "";
 
-        // Streaming de Gemini
-        console.log('[PAM] Starting Gemini extraction...');
+        // Llamada a Gemini con Schema
+        console.log('[PAM] Starting Gemini extraction with PAM_ANALYSIS_SCHEMA...');
 
-        for await (const chunk of await gemini.extractWithStream(image, mimeType, PAM_PROMPT)) {
+        const stream = await gemini.extractWithStream(image, mimeType, PAM_PROMPT, {
+            responseMimeType: 'application/json',
+            responseSchema: PAM_ANALYSIS_SCHEMA,
+            maxTokens: 30000
+        });
+
+        for await (const chunk of stream) {
             fullText += chunk.text;
 
             // Enviar chunk al frontend
@@ -69,85 +75,137 @@ export async function handlePamExtraction(req: Request, res: Response) {
 
         console.log(`[PAM] Extraction complete: ${fullText.length} chars`);
 
-        // Parsear resultado
-        const pamData = parsePamText(fullText);
+        // Convertir el texto acumulado a JSON
+        try {
+            const cleanedText = fullText.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+            const rawPamData: any[] = JSON.parse(cleanedText);
 
-        // Enviar resultado final
-        sendUpdate({
-            type: 'final',
-            data: pamData
-        });
+            // --- CONSOLIDACIÓN DE FOLIOS DUPLICADOS ---
+            // A veces Gemini emite el mismo folio varias veces si está fragmentado pág por pág
+            const mergedFoliosMap = new Map<string, any>();
+
+            rawPamData.forEach(item => {
+                const id = item.folioPAM;
+                if (!id) return;
+
+                if (mergedFoliosMap.has(id)) {
+                    const existing = mergedFoliosMap.get(id);
+                    // Combinar desgloses
+                    existing.desglosePorPrestador = [
+                        ...(existing.desglosePorPrestador || []),
+                        ...(item.desglosePorPrestador || [])
+                    ];
+                    // Si el nuevo tiene un periodo o prestador más completo, podrías actualizarlo
+                    // Pero lo más importante es el acumulado de items
+                } else {
+                    mergedFoliosMap.set(id, { ...item });
+                }
+            });
+
+            const pamData = Array.from(mergedFoliosMap.values());
+
+            // --- VALIDACIÓN ARITMÉTICA GLOBAL ---
+            let globalValor = 0;
+            let globalBonif = 0;
+            let globalCopago = 0;
+            let globalDeclarado = 0;
+
+            const parseMoney = (val: string | number) => {
+                if (!val) return 0;
+                if (typeof val === 'number') return val;
+                return parseInt(val.replace(/[^\d]/g, '')) || 0;
+            };
+
+            const validatedFolios = pamData.map(folio => {
+                let calcTotalValor = 0;
+                let calcTotalBonif = 0;
+                let calcTotalCopago = 0;
+
+                folio.desglosePorPrestador = (folio.desglosePorPrestador || []).map((prestador: any) => {
+                    let pValor = 0, pBonif = 0, pCopago = 0;
+
+                    prestador.items = (prestador.items || []).map((item: any) => {
+                        const vt = parseMoney(item.valorTotal);
+                        const bn = parseMoney(item.bonificacion);
+                        const cp = parseMoney(item.copago);
+
+                        pValor += vt;
+                        pBonif += bn;
+                        pCopago += cp;
+
+                        const expected = vt - bn;
+                        const itemAudit = Math.abs(expected - cp) > 10 ? '❌ ERROR' : '✅ OK';
+                        return { ...item, _audit: itemAudit };
+                    });
+
+                    calcTotalValor += pValor;
+                    calcTotalBonif += pBonif;
+                    calcTotalCopago += pCopago;
+
+                    return {
+                        ...prestador,
+                        _totals: { valor: pValor, bonif: pBonif, copago: pCopago }
+                    };
+                });
+
+                const declaredCopago = parseMoney(folio.resumen?.totalCopagoDeclarado || "");
+                const diff = Math.abs(calcTotalCopago - declaredCopago);
+
+                // Si cuadra con un margen de 20 pesos (común en redondeos de Isapre)
+                const isCorrect = diff <= 50;
+                const auditStatus = isCorrect
+                    ? '✅ Totales cuadran'
+                    : `⚠️ Diferencia detectada: Suma Calc $${calcTotalCopago.toLocaleString()} vs Declarado $${declaredCopago.toLocaleString()}`;
+
+                // Acumular globales
+                globalValor += calcTotalValor;
+                globalBonif += calcTotalBonif;
+                globalCopago += calcTotalCopago;
+                globalDeclarado += declaredCopago;
+
+                return {
+                    ...folio,
+                    resumen: {
+                        ...(folio.resumen || {}),
+                        totalCopagoCalculado: calcTotalCopago,
+                        auditoriaStatus: auditStatus,
+                        cuadra: isCorrect
+                    }
+                };
+            });
+
+            const globalDiff = Math.abs(globalCopago - globalDeclarado);
+            const globalAuditStatus = globalDiff > 50
+                ? `❌ La cuenta consolidada NO CUADRA por $${globalDiff.toLocaleString()}`
+                : `✅ TODO CUADRA: Total consolidado $${globalCopago.toLocaleString()}`;
+
+            // Enviar resultado final estructurado
+            sendUpdate({
+                type: 'final',
+                data: {
+                    folios: validatedFolios,
+                    global: {
+                        totalValor: globalValor,
+                        totalBonif: globalBonif,
+                        totalCopago: globalCopago,
+                        totalCopagoDeclarado: globalDeclarado,
+                        cuadra: globalDiff <= 50,
+                        discrepancia: globalDiff,
+                        auditoriaStatus: globalAuditStatus
+                    }
+                }
+            });
+
+        } catch (parseError) {
+            console.error('[PAM] JSON Parse Error:', parseError);
+            throw new Error('No se pudo procesar la respuesta estructurada.');
+        }
 
         res.end();
 
     } catch (error: any) {
-        console.error('[PAM] Error:', error);
+        console.error('[PAM] Error en endpoint PAM:', error);
         sendUpdate({ type: 'error', message: error.message || 'Internal Server Error' });
         res.end();
     }
-}
-
-// Parser específico para PAM
-function parsePamText(text: string): any {
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-
-    // Extraer metadata
-    let patient = "N/A";
-    let rut = "N/A";
-    let doctor = "N/A";
-    let specialty = "N/A";
-    let date = "N/A";
-    let validity = "N/A";
-    let diagnosis = "N/A";
-
-    const medications: any[] = [];
-    let currentSection = "";
-
-    for (const line of lines) {
-        if (line.startsWith('PATIENT:')) {
-            patient = line.replace('PATIENT:', '').trim();
-        } else if (line.startsWith('RUT:')) {
-            rut = line.replace('RUT:', '').trim();
-        } else if (line.startsWith('DOCTOR:')) {
-            doctor = line.replace('DOCTOR:', '').trim();
-        } else if (line.startsWith('SPECIALTY:')) {
-            specialty = line.replace('SPECIALTY:', '').trim();
-        } else if (line.startsWith('DATE:')) {
-            date = line.replace('DATE:', '').trim();
-        } else if (line.startsWith('VALIDITY:')) {
-            validity = line.replace('VALIDITY:', '').trim();
-        } else if (line.startsWith('DIAGNOSIS:')) {
-            diagnosis = line.replace('DIAGNOSIS:', '').trim();
-        } else if (line.startsWith('SECTION:')) {
-            currentSection = line.replace('SECTION:', '').trim();
-        } else if (line.includes('|')) {
-            // Parsear medicamento
-            const cols = line.split('|').map(c => c.trim());
-            if (cols.length >= 8) {
-                medications.push({
-                    index: parseInt(cols[0]) || medications.length + 1,
-                    name: cols[1],
-                    concentration: cols[2],
-                    form: cols[3],
-                    dose: cols[4],
-                    frequency: cols[5],
-                    duration: cols[6],
-                    totalQuantity: cols[7],
-                    observations: cols[8] || ""
-                });
-            }
-        }
-    }
-
-    return {
-        patient,
-        rut,
-        doctor,
-        specialty,
-        date,
-        validity,
-        diagnosis,
-        medications,
-        totalMedications: medications.length
-    };
 }

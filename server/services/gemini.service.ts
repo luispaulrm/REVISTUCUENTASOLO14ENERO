@@ -20,12 +20,18 @@ export class GeminiService {
         image: string,
         mimeType: string,
         prompt: string,
-        maxTokens: number = 30000
+        config: {
+            maxTokens?: number;
+            responseMimeType?: string;
+            responseSchema?: any;
+        } = {}
     ): Promise<AsyncIterable<StreamChunk>> {
         const model = this.client.getGenerativeModel({
             model: "gemini-3-flash-preview",
             generationConfig: {
-                maxOutputTokens: maxTokens
+                maxOutputTokens: config.maxTokens || 30000,
+                responseMimeType: config.responseMimeType,
+                responseSchema: config.responseSchema,
             }
         });
 
