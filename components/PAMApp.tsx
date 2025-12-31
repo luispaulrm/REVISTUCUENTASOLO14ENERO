@@ -256,7 +256,7 @@ export default function PAMApp() {
                                 Análisis de PAM
                                 <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded border border-white/20 font-mono">{VERSION}</span>
                             </h1>
-                            <p className="text-xs opacity-90 font-medium">Actualizado: {LAST_MODIFIED} — Coberturas Isapre</p>
+                            <p className="text-sm opacity-100 font-black uppercase tracking-tight">Actualizado: {LAST_MODIFIED} — Coberturas Isapre</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">

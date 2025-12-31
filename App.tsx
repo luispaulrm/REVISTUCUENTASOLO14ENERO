@@ -284,7 +284,7 @@ const App: React.FC = () => {
               <h1 className="text-lg font-bold text-slate-900 leading-none flex items-center gap-2">
                 ClinicAudit
                 <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-400 font-mono">{VERSION}</span>
-                <span className="text-[10px] text-slate-400 font-medium ml-2">Actualizado: {LAST_MODIFIED}</span>
+                <span className="text-xs text-slate-900 font-black ml-2 uppercase tracking-tight">Actualizado: {LAST_MODIFIED}</span>
               </h1>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Universal Extractor</p>
             </div>
