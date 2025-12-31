@@ -19,7 +19,12 @@ import {
   ArrowDownLeft,
   FileJson,
   FileType,
-  Pill
+  Pill,
+  UploadCloud,
+  ShieldCheck,
+  Code2,
+  Settings,
+  Key
 } from 'lucide-react';
 import { AppStatus, ExtractedAccount, UsageMetrics } from './types';
 import { extractBillingData } from './geminiService';
@@ -288,22 +293,17 @@ const App: React.FC = () => {
               </p>
             </div>
 
-            <div
-              {...getRootProps()}
-              className={`
-                group relative border-2 border-dashed rounded-3xl p-16 transition-all duration-500 cursor-pointer
-                hover:border-indigo-500 hover:bg-slate-900/80
-                ${isDragActive ? 'border-indigo-500 bg-indigo-950/20 scale-[1.02]' : 'border-slate-800 bg-slate-900/30'}
-              `}
+            <label
+              className="group relative border-2 border-dashed border-slate-800 bg-slate-900/30 rounded-3xl p-16 transition-all duration-500 cursor-pointer block hover:border-indigo-500 hover:bg-slate-900/80"
             >
-              <input {...getInputProps()} />
+              <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
               <div className="relative z-10 flex flex-col items-center gap-4">
-                <div className={`p-4 rounded-2xl transition-all duration-300 ${isDragActive ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-white'}`}>
+                <div className="p-4 rounded-2xl transition-all duration-300 bg-slate-800 text-slate-400 group-hover:bg-slate-700 group-hover:text-white">
                   <FileText size={32} />
                 </div>
                 <div className="space-y-1">
                   <p className="text-lg font-bold text-slate-300 group-hover:text-white transition-colors">
-                    {isDragActive ? 'Suelta el archivo aquí...' : 'Haz clic para subir la cuenta'}
+                    Haz clic para subir la cuenta
                   </p>
                   <p className="text-sm text-slate-500 font-medium">Soporta fotos, capturas y PDFs</p>
                 </div>
@@ -314,7 +314,7 @@ const App: React.FC = () => {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
               </div>
-            </div>
+            </label>
 
             <div className="flex flex-wrap items-center justify-center gap-3 opacity-60">
               <span className="px-3 py-1 bg-slate-900 border border-slate-800 rounded-lg text-[10px] font-bold uppercase text-slate-500 tracking-widest flex items-center gap-2">
