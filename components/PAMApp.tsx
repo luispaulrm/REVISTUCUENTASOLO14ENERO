@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Loader2, FileText, Trash2, ShieldCheck, Timer, Terminal, Download, Printer, FileDown, X } from 'lucide-react';
+import { Upload, Loader2, FileText, Trash2, ShieldCheck, Timer, Terminal, Download, Printer, FileDown, X, ArrowDownLeft, ArrowUpRight, Zap, Coins } from 'lucide-react';
 import { extractPamData, PamDocument, UsageMetrics } from '../pamService';
 import { PAMResults } from './PAMResults';
 import { VERSION, LAST_MODIFIED } from '../version';
@@ -204,8 +204,8 @@ export default function PAMApp() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-[#f8fafc]">
-            <header className="bg-white border-b border-slate-200 sticky top-0 z-50 print:hidden shadow-sm">
+        <div className="min-h-screen flex flex-col bg-slate-50 relative pb-32">
+            <header className="bg-transparent border-b border-slate-200 sticky top-0 z-50 print:hidden backdrop-blur-sm">
                 <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center text-white shadow-lg">
@@ -244,187 +244,134 @@ export default function PAMApp() {
             <main className="flex-grow max-w-6xl mx-auto w-full p-8">
                 {status === AppStatus.IDLE && (
                     <div className="max-w-2xl mx-auto text-center py-20">
-                        <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mx-auto mb-8">
+                        <div className="w-20 h-20 bg-purple-50 rounded-full flex items-center justify-center text-purple-600 mx-auto mb-8 border border-purple-100 shadow-xl">
                             <Upload size={36} />
                         </div>
-                        <h2 className="text-3xl font-black text-slate-900 mb-4">Analizar Documentos PAM</h2>
-                        <p className="text-slate-600 mb-10">Sube Programas de Atención Médica para extraer y auditar folios, bonos y copagos.</p>
+                        <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Analizar Documentos PAM</h2>
+                        <p className="text-slate-500 mb-10">Sube Programas de Atención Médica para extraer y auditar folios, bonos y copagos.</p>
 
-                        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-purple-300 rounded-3xl bg-white cursor-pointer hover:bg-purple-50/50 transition-all">
+                        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-purple-50/30 hover:border-purple-300 transition-all group">
                             <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
                             <div className="flex flex-col items-center p-6">
-                                <div className="p-4 bg-purple-50 rounded-2xl mb-4">
-                                    <FileText size={32} className="text-purple-600" />
+                                <div className="p-4 bg-slate-50 rounded-2xl mb-4 text-slate-400 group-hover:text-purple-600 group-hover:bg-purple-100 transition-colors">
+                                    <FileText size={32} />
                                 </div>
-                                <p className="text-sm font-bold text-purple-600">Haz clic para subir PAM</p>
+                                <p className="text-sm font-bold text-slate-600 group-hover:text-purple-600 transition-colors">Haz clic para subir PAM</p>
                                 <p className="text-xs text-slate-400 mt-1">Soporta fotos, capturas y PDFs</p>
                             </div>
                         </label>
                     </div>
                 )}
 
-                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (
+                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (<>
                     <div className="max-w-4xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                        {/* SPACEX STYLE TELEMETRY CONTAINER (DARK MODE) */}
-                        <div className="bg-slate-950 rounded-t-3xl border-x border-t border-slate-800 shadow-2xl shadow-black overflow-hidden relative">
-                            {/* HEADER STRIP */}
-                            <div className="bg-black text-white px-6 py-4 flex justify-between items-center border-b border-slate-900">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-slate-100 animate-pulse shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-                                    <span className="text-xs font-bold uppercase tracking-[0.25em] font-mono text-slate-100">
-                                        PAM TELEMETRY
-                                    </span>
+                        {/* LOGS WINDOW (Light Mode) */}
+                        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden h-[600px] flex flex-col relative group">
+                            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Terminal size={16} className="text-slate-400" />
+                                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">PAM Logs</span>
                                 </div>
-                                <div className="text-[10px] font-mono text-slate-500">
-                                    ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
+                                <div className="flex gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                                    <div className="w-2 h-2 rounded-full bg-slate-200" />
                                 </div>
                             </div>
 
-                            {/* MAIN METRICS GRID */}
-                            <div className="grid grid-cols-2 lg:grid-cols-5 divide-x divide-slate-900 border-b border-slate-900">
-                                {/* T+ TIMER */}
-                                <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 group-hover:text-white transition-colors">
-                                        Mission Time
-                                    </span>
-                                    <div className="font-mono text-4xl font-black text-white tracking-tighter">
+                            <div className="p-6 h-full overflow-y-auto font-mono text-xs space-y-2 pb-20 bg-white custom-scrollbar">
+                                {logs.map((log, i) => (
+                                    <div key={i} className="flex gap-4 items-start py-1.5 border-l-2 border-transparent hover:border-purple-200 hover:bg-purple-50 transition-colors pl-3 -ml-3">
+                                        <span className="opacity-40 w-24 shrink-0 text-right text-slate-400 font-bold text-[10px] pt-0.5 font-sans">
+                                            {new Date().toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}
+                                        </span>
+                                        <span className={`break-words flex-1 leading-relaxed ${log.includes('[SISTEMA]') ? 'text-slate-400 italic' : 'text-slate-600'
+                                            }`}>
+                                            {log.replace(/^\[.*?\]/, '').trim()}
+                                        </span>
+                                    </div>
+                                ))}
+                                <div ref={logEndRef} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* SPACEX FOOTER (PAM EDITION) */}
+                    <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb">
+                        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+
+                            {/* 1. MISSION TIME */}
+                            <div className="flex items-center gap-4 border-r border-slate-800 pr-8 h-full">
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Time</span>
+                                    <div className="font-mono text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                                        <Timer size={18} className="text-purple-500" />
                                         T+{formatTime(seconds)}
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* TRAJECTORY (Circular Gauge - Monochrome) */}
-                                <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
-                                    <div className="relative w-24 h-24">
-                                        {/* Outer Ring */}
-                                        <svg className="w-full h-full transform -rotate-90">
-                                            <circle cx="48" cy="48" r="40" className="text-slate-900 stroke-current" strokeWidth="6" fill="transparent" />
-                                            <circle cx="48" cy="48" r="40" className="text-white stroke-current" strokeWidth="6" fill="transparent"
-                                                strokeDasharray={251.2} strokeDashoffset={251.2 - (251.2 * progress) / 100} strokeLinecap="round" />
-                                        </svg>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className="text-2xl font-black font-mono text-white leading-none">{Math.round(progress)}</span>
-                                            <span className="text-[10px] font-bold text-slate-500 leading-none">%</span>
-                                        </div>
-                                    </div>
-                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mt-2">Trajectory</span>
-                                </div>
-
-                                {/* TOKEN GAUGES CONTAINER */}
-                                <div className="col-span-2 grid grid-cols-3 divide-x divide-slate-900">
-                                    {/* INPUT TOKENS */}
-                                    <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
-                                        <div className="relative w-16 h-16">
-                                            <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="32" cy="32" r="28" className="text-slate-900 stroke-current" strokeWidth="4" fill="transparent" />
-                                                <circle cx="32" cy="32" r="28" className="text-slate-400 stroke-current" strokeWidth="4" fill="transparent"
-                                                    strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.promptTokens || 0) / 100000)} strokeLinecap="round" />
-                                            </svg>
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-xs font-bold font-mono text-slate-300">{realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '-'}</span>
-                                            </div>
-                                        </div>
-                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500 mt-2">Input</span>
-                                    </div>
-
-                                    {/* OUTPUT TOKENS */}
-                                    <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
-                                        <div className="relative w-16 h-16">
-                                            <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="32" cy="32" r="28" className="text-slate-900 stroke-current" strokeWidth="4" fill="transparent" />
-                                                <circle cx="32" cy="32" r="28" className="text-slate-200 stroke-current" strokeWidth="4" fill="transparent"
-                                                    strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.candidatesTokens || 0) / 20000)} strokeLinecap="round" />
-                                            </svg>
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-xs font-bold font-mono text-slate-300">{realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '-'}</span>
-                                            </div>
-                                        </div>
-                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500 mt-2">Output</span>
-                                    </div>
-
-                                    {/* TOTAL TOKENS */}
-                                    <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
-                                        <div className="relative w-16 h-16">
-                                            <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="32" cy="32" r="28" className="text-slate-900 stroke-current" strokeWidth="4" fill="transparent" />
-                                                <circle cx="32" cy="32" r="28" className="text-white stroke-current" strokeWidth="4" fill="transparent"
-                                                    strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.totalTokens || 0) / 120000)} strokeLinecap="round" />
-                                            </svg>
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-xs font-bold font-mono text-white">{realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '-'}</span>
-                                            </div>
-                                        </div>
-                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500 mt-2">Total</span>
+                            {/* 2. TRAJECTORY */}
+                            <div className="flex items-center gap-4 px-8 border-r border-slate-800 h-full min-w-[200px]">
+                                <div className="relative w-12 h-12">
+                                    <svg className="w-full h-full transform -rotate-90">
+                                        <circle cx="24" cy="24" r="20" className="text-slate-800 stroke-current" strokeWidth="4" fill="transparent" />
+                                        <circle cx="24" cy="24" r="20" className="text-white stroke-current" strokeWidth="4" fill="transparent"
+                                            strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * progress) / 100} strokeLinecap="round" />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-[10px] font-bold font-mono text-white">{Math.round(progress)}%</span>
                                     </div>
                                 </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
+                                    <span className="text-xs font-bold text-slate-300">Analysis Mode</span>
+                                </div>
+                            </div>
 
-                                {/* COST */}
-                                <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 group-hover:text-white transition-colors">
-                                        Est. Cost
+                            {/* 3. TOKEN METRICS */}
+                            <div className="flex items-center gap-8 px-8 flex-1 justify-center h-full">
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Input</span>
+                                    <span className="font-mono text-sm font-bold text-slate-300">
+                                        {realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '0.0k'}
                                     </span>
-                                    <div className="font-mono text-3xl font-black text-white tracking-tighter">
-                                        {realTimeUsage ? `$${realTimeUsage.estimatedCostCLP}` : '$0'}
-                                    </div>
-                                    <span className="text-[9px] font-mono text-slate-500 mt-2">CLP CURRENCY</span>
+                                </div>
+                                <div className="w-px h-8 bg-slate-800"></div>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Output</span>
+                                    <span className="font-mono text-sm font-bold text-white">
+                                        {realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                    </span>
+                                </div>
+                                <div className="w-px h-8 bg-slate-800"></div>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Payload</span>
+                                    <span className="font-mono text-sm font-bold text-purple-400">
+                                        {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* PROGRESS BAR STRIP (Monochrome) */}
-                            <div className="h-0.5 w-full bg-slate-900 relative overflow-hidden">
-                                <div
-                                    className="absolute top-0 left-0 h-full bg-white transition-all duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                                    style={{ width: `${progress}%` }}
-                                />
-                            </div>
-
-                            {/* LOGS WINDOW (Dark Mode) */}
-                            <div className="bg-black p-0 h-[500px] overflow-hidden relative group border-t border-slate-900">
-                                <div className="absolute top-0 left-0 w-full h-full pointer-events-none shadow-[inset_0_0_30px_rgba(0,0,0,0.5)] z-10" />
-
-                                <div className="px-6 py-3 border-b border-slate-900 bg-slate-950 flex justify-between items-center">
-                                    <div className="flex items-center gap-2">
-                                        <Terminal size={14} className="text-slate-400" />
-                                        <span className="text-xs font-bold uppercase tracking-widest text-slate-400">System Logs</span>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-                                    </div>
+                            {/* 4. COST & ABORT */}
+                            <div className="flex items-center gap-6 pl-8 border-l border-slate-800 h-full">
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Est. Cost</span>
+                                    <span className="font-mono text-xl font-black text-white tracking-tight">
+                                        ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'} <span className="text-[10px] text-slate-600 font-sans">CLP</span>
+                                    </span>
                                 </div>
-
-                                <div className="p-6 h-full overflow-y-auto font-mono text-sm space-y-2 pb-20 bg-black">
-                                    {logs.map((log, i) => (
-                                        <div key={i} className="flex gap-4 items-start py-1 border-l-[3px] border-transparent hover:border-slate-600 hover:bg-slate-900 transition-colors pl-3 -ml-3">
-                                            <span className="opacity-50 w-20 shrink-0 text-right text-slate-500 font-bold text-xs pt-0.5">
-                                                {new Date().toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}
-                                            </span>
-                                            <span className="text-slate-300 break-words flex-1 leading-snug">
-                                                {log.replace(/^\[.*?\]/, '').trim()}
-                                            </span>
-                                        </div>
-                                    ))}
-                                    <div ref={logEndRef} />
-                                </div>
+                                <button
+                                    onClick={handleStop}
+                                    className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
+                                    title="ABORT SEQUENCE"
+                                >
+                                    <X size={18} />
+                                </button>
                             </div>
-                        </div>
-
-                        {/* ABORT BUTTON */}
-                        <div className="mt-8 text-center">
-                            <button
-                                onClick={handleStop}
-                                className="group relative inline-flex items-center justify-center overflow-hidden rounded-lg px-8 py-3 font-medium text-slate-600 transition duration-300 hover:text-rose-600"
-                            >
-                                <span className="absolute inset-0 flex items-center justify-center">
-                                    <span className="absolute inset-0 h-full w-full rounded-lg opacity-0 transition duration-300 group-hover:bg-rose-50 group-hover:opacity-100"></span>
-                                </span>
-                                <span className="relative flex items-center gap-2 text-xs font-black uppercase tracking-widest">
-                                    <X size={14} strokeWidth={3} /> Abort Sequence
-                                </span>
-                            </button>
                         </div>
                     </div>
-                )}
+                </>)}
 
                 {status === AppStatus.ERROR && (
                     <div className="max-w-md mx-auto py-20 text-center">
