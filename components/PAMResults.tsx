@@ -286,6 +286,7 @@ function FolioCard({ folio, index }: FolioCardProps) {
                             <table className="w-full text-left border-collapse min-w-[800px]">
                                 <thead>
                                     <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                        <th className="px-4 py-3 w-10">#</th>
                                         <th className="px-4 py-3">Código/G/C</th>
                                         <th className="px-4 py-3">Descripción</th>
                                         <th className="px-4 py-3 text-center">Cant</th>
@@ -298,6 +299,7 @@ function FolioCard({ folio, index }: FolioCardProps) {
                                 <tbody className="text-sm">
                                     {(prestador.items || []).map((item, iIdx) => (
                                         <tr key={iIdx} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/50 transition-colors">
+                                            <td className="px-4 py-2.5 text-slate-400 font-mono text-[10px] font-bold">{iIdx + 1}</td>
                                             <td className="px-4 py-2.5 font-mono text-xs text-slate-500">{item.codigoGC}</td>
                                             <td className="px-4 py-2.5 font-bold text-slate-700">{item.descripcion}</td>
                                             <td className="px-4 py-2.5 text-center font-bold text-slate-600">{item.cantidad}</td>

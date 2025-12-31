@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Loader2, FileText, Trash2, ShieldCheck, Timer, Terminal, Download, Printer, FileDown, X } from 'lucide-react';
 import { extractPamData, PamDocument, UsageMetrics } from '../pamService';
 import { PAMResults } from './PAMResults';
+import { VERSION, LAST_MODIFIED } from '../version';
 
 enum AppStatus {
     IDLE = 'idle',
@@ -251,8 +252,11 @@ export default function PAMApp() {
                     <div className="flex items-center gap-3">
                         <ShieldCheck size={32} />
                         <div>
-                            <h1 className="text-2xl font-bold">Análisis de PAM</h1>
-                            <p className="text-sm opacity-90">Programas de Atención Médica (Coberturas)</p>
+                            <h1 className="text-2xl font-bold flex items-center gap-2">
+                                Análisis de PAM
+                                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded border border-white/20 font-mono">{VERSION}</span>
+                            </h1>
+                            <p className="text-xs opacity-90 font-medium">Actualizado: {LAST_MODIFIED} — Coberturas Isapre</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
