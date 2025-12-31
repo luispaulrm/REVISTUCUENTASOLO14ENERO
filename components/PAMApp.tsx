@@ -265,12 +265,12 @@ export default function PAMApp() {
 
                 {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (
                     <div className="max-w-4xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                        {/* SPACEX STYLE TELEMETRY CONTAINER */}
-                        <div className="bg-white rounded-t-3xl border-x border-t border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden relative">
+                        {/* SPACEX STYLE TELEMETRY CONTAINER (DARK MODE) */}
+                        <div className="bg-slate-950 rounded-t-3xl border-x border-t border-slate-800 shadow-2xl shadow-black overflow-hidden relative">
                             {/* HEADER STRIP */}
-                            <div className="bg-slate-950 text-white px-6 py-4 flex justify-between items-center border-b border-slate-900">
+                            <div className="bg-black text-white px-6 py-4 flex justify-between items-center border-b border-slate-900">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_#3b82f6]" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-slate-100 animate-pulse shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
                                     <span className="text-xs font-bold uppercase tracking-[0.25em] font-mono text-slate-100">
                                         PAM TELEMETRY
                                     </span>
@@ -281,125 +281,125 @@ export default function PAMApp() {
                             </div>
 
                             {/* MAIN METRICS GRID */}
-                            <div className="grid grid-cols-2 lg:grid-cols-5 divide-x divide-slate-100 border-b border-slate-100">
+                            <div className="grid grid-cols-2 lg:grid-cols-5 divide-x divide-slate-900 border-b border-slate-900">
                                 {/* T+ TIMER */}
-                                <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-blue-600 transition-colors">
+                                <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 group-hover:text-white transition-colors">
                                         Mission Time
                                     </span>
-                                    <div className="font-mono text-4xl font-black text-slate-900 tracking-tighter">
+                                    <div className="font-mono text-4xl font-black text-white tracking-tighter">
                                         T+{formatTime(seconds)}
                                     </div>
                                 </div>
 
-                                {/* TRAJECTORY (Circular Gauge) */}
-                                <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                                {/* TRAJECTORY (Circular Gauge - Monochrome) */}
+                                <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
                                     <div className="relative w-24 h-24">
                                         {/* Outer Ring */}
                                         <svg className="w-full h-full transform -rotate-90">
-                                            <circle cx="48" cy="48" r="40" className="text-slate-100 stroke-current" strokeWidth="6" fill="transparent" />
-                                            <circle cx="48" cy="48" r="40" className="text-blue-600 stroke-current" strokeWidth="6" fill="transparent"
+                                            <circle cx="48" cy="48" r="40" className="text-slate-900 stroke-current" strokeWidth="6" fill="transparent" />
+                                            <circle cx="48" cy="48" r="40" className="text-white stroke-current" strokeWidth="6" fill="transparent"
                                                 strokeDasharray={251.2} strokeDashoffset={251.2 - (251.2 * progress) / 100} strokeLinecap="round" />
                                         </svg>
                                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className="text-2xl font-black font-mono text-slate-900 leading-none">{Math.round(progress)}</span>
-                                            <span className="text-[10px] font-bold text-slate-400 leading-none">%</span>
+                                            <span className="text-2xl font-black font-mono text-white leading-none">{Math.round(progress)}</span>
+                                            <span className="text-[10px] font-bold text-slate-500 leading-none">%</span>
                                         </div>
                                     </div>
-                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-400 mt-2">Trajectory</span>
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500 mt-2">Trajectory</span>
                                 </div>
 
                                 {/* TOKEN GAUGES CONTAINER */}
-                                <div className="col-span-2 grid grid-cols-3 divide-x divide-slate-50">
+                                <div className="col-span-2 grid grid-cols-3 divide-x divide-slate-900">
                                     {/* INPUT TOKENS */}
-                                    <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                                    <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
                                         <div className="relative w-16 h-16">
                                             <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="32" cy="32" r="28" className="text-slate-100 stroke-current" strokeWidth="4" fill="transparent" />
-                                                <circle cx="32" cy="32" r="28" className="text-cyan-500 stroke-current" strokeWidth="4" fill="transparent"
+                                                <circle cx="32" cy="32" r="28" className="text-slate-900 stroke-current" strokeWidth="4" fill="transparent" />
+                                                <circle cx="32" cy="32" r="28" className="text-slate-400 stroke-current" strokeWidth="4" fill="transparent"
                                                     strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.promptTokens || 0) / 100000)} strokeLinecap="round" />
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-xs font-bold font-mono text-slate-700">{realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '-'}</span>
+                                                <span className="text-xs font-bold font-mono text-slate-300">{realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '-'}</span>
                                             </div>
                                         </div>
-                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mt-2">Input</span>
+                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500 mt-2">Input</span>
                                     </div>
 
                                     {/* OUTPUT TOKENS */}
-                                    <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                                    <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
                                         <div className="relative w-16 h-16">
                                             <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="32" cy="32" r="28" className="text-slate-100 stroke-current" strokeWidth="4" fill="transparent" />
-                                                <circle cx="32" cy="32" r="28" className="text-purple-500 stroke-current" strokeWidth="4" fill="transparent"
+                                                <circle cx="32" cy="32" r="28" className="text-slate-900 stroke-current" strokeWidth="4" fill="transparent" />
+                                                <circle cx="32" cy="32" r="28" className="text-slate-200 stroke-current" strokeWidth="4" fill="transparent"
                                                     strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.candidatesTokens || 0) / 20000)} strokeLinecap="round" />
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-xs font-bold font-mono text-slate-700">{realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '-'}</span>
+                                                <span className="text-xs font-bold font-mono text-slate-300">{realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '-'}</span>
                                             </div>
                                         </div>
-                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mt-2">Output</span>
+                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500 mt-2">Output</span>
                                     </div>
 
                                     {/* TOTAL TOKENS */}
-                                    <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
+                                    <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
                                         <div className="relative w-16 h-16">
                                             <svg className="w-full h-full transform -rotate-90">
-                                                <circle cx="32" cy="32" r="28" className="text-slate-100 stroke-current" strokeWidth="4" fill="transparent" />
-                                                <circle cx="32" cy="32" r="28" className="text-blue-600 stroke-current" strokeWidth="4" fill="transparent"
+                                                <circle cx="32" cy="32" r="28" className="text-slate-900 stroke-current" strokeWidth="4" fill="transparent" />
+                                                <circle cx="32" cy="32" r="28" className="text-white stroke-current" strokeWidth="4" fill="transparent"
                                                     strokeDasharray={175.9} strokeDashoffset={175.9 - (175.9 * (realTimeUsage?.totalTokens || 0) / 120000)} strokeLinecap="round" />
                                             </svg>
                                             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                                <span className="text-xs font-bold font-mono text-slate-900">{realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '-'}</span>
+                                                <span className="text-xs font-bold font-mono text-white">{realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '-'}</span>
                                             </div>
                                         </div>
-                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-400 mt-2">Total</span>
+                                        <span className="text-[8px] font-bold uppercase tracking-widest text-slate-500 mt-2">Total</span>
                                     </div>
                                 </div>
 
                                 {/* COST */}
-                                <div className="p-4 flex flex-col items-center justify-center bg-white group hover:bg-slate-50 transition-colors">
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2 group-hover:text-blue-600 transition-colors">
+                                <div className="p-4 flex flex-col items-center justify-center bg-slate-950 group hover:bg-slate-900 transition-colors">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 group-hover:text-white transition-colors">
                                         Est. Cost
                                     </span>
-                                    <div className="font-mono text-3xl font-black text-slate-900 tracking-tighter">
+                                    <div className="font-mono text-3xl font-black text-white tracking-tighter">
                                         {realTimeUsage ? `$${realTimeUsage.estimatedCostCLP}` : '$0'}
                                     </div>
-                                    <span className="text-[9px] font-mono text-slate-400 mt-2">CLP CURRENCY</span>
+                                    <span className="text-[9px] font-mono text-slate-500 mt-2">CLP CURRENCY</span>
                                 </div>
                             </div>
 
-                            {/* PROGRESS BAR STRIP */}
-                            <div className="h-1.5 w-full bg-slate-100 relative overflow-hidden">
+                            {/* PROGRESS BAR STRIP (Monochrome) */}
+                            <div className="h-0.5 w-full bg-slate-900 relative overflow-hidden">
                                 <div
-                                    className="absolute top-0 left-0 h-full bg-blue-600 transition-all duration-300 ease-out shadow-[0_0_15px_rgba(37,99,235,0.6)]"
+                                    className="absolute top-0 left-0 h-full bg-white transition-all duration-300 ease-out shadow-[0_0_10px_rgba(255,255,255,0.5)]"
                                     style={{ width: `${progress}%` }}
                                 />
                             </div>
 
-                            {/* LOGS WINDOW */}
-                            <div className="bg-slate-50 p-0 h-[500px] overflow-hidden relative group border-t border-slate-200">
-                                <div className="absolute top-0 left-0 w-full h-full pointer-events-none shadow-[inset_0_0_30px_rgba(0,0,0,0.03)] z-10" />
+                            {/* LOGS WINDOW (Dark Mode) */}
+                            <div className="bg-black p-0 h-[500px] overflow-hidden relative group border-t border-slate-900">
+                                <div className="absolute top-0 left-0 w-full h-full pointer-events-none shadow-[inset_0_0_30px_rgba(0,0,0,0.5)] z-10" />
 
-                                <div className="px-6 py-3 border-b border-slate-200 bg-white flex justify-between items-center">
+                                <div className="px-6 py-3 border-b border-slate-900 bg-slate-950 flex justify-between items-center">
                                     <div className="flex items-center gap-2">
-                                        <Terminal size={14} className="text-blue-500" />
-                                        <span className="text-xs font-bold uppercase tracking-widest text-slate-600">System Logs</span>
+                                        <Terminal size={14} className="text-slate-400" />
+                                        <span className="text-xs font-bold uppercase tracking-widest text-slate-400">System Logs</span>
                                     </div>
                                     <div className="flex gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-slate-200" />
-                                        <div className="w-2 h-2 rounded-full bg-slate-200" />
-                                        <div className="w-2 h-2 rounded-full bg-slate-200" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
                                     </div>
                                 </div>
 
-                                <div className="p-6 h-full overflow-y-auto font-mono text-sm space-y-2 pb-20">
+                                <div className="p-6 h-full overflow-y-auto font-mono text-sm space-y-2 pb-20 bg-black">
                                     {logs.map((log, i) => (
-                                        <div key={i} className="flex gap-4 items-start py-1 border-l-[3px] border-transparent hover:border-blue-200 hover:bg-white transition-colors pl-3 -ml-3">
-                                            <span className="opacity-50 w-20 shrink-0 text-right text-slate-400 font-bold text-xs pt-0.5">
+                                        <div key={i} className="flex gap-4 items-start py-1 border-l-[3px] border-transparent hover:border-slate-600 hover:bg-slate-900 transition-colors pl-3 -ml-3">
+                                            <span className="opacity-50 w-20 shrink-0 text-right text-slate-500 font-bold text-xs pt-0.5">
                                                 {new Date().toLocaleTimeString([], { hour12: false, minute: '2-digit', second: '2-digit' })}
                                             </span>
-                                            <span className="text-slate-700 break-words flex-1 leading-snug">
+                                            <span className="text-slate-300 break-words flex-1 leading-snug">
                                                 {log.replace(/^\[.*?\]/, '').trim()}
                                             </span>
                                         </div>
@@ -447,60 +447,60 @@ export default function PAMApp() {
                             </div>
 
                             <aside className="w-full lg:w-80 space-y-6 print:hidden">
-                                {/* PANEL DE METRICAS DE TOKENS */}
+                                {/* PANEL DE METRICAS DE TOKENS (DARK MODE) */}
                                 {realTimeUsage && (
-                                    <div className="bg-white border border-slate-200 p-6 rounded-3xl shadow-sm">
+                                    <div className="bg-slate-950 border border-slate-800 p-6 rounded-3xl shadow-xl">
                                         <div className="flex items-center gap-2 mb-4">
-                                            <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg">
+                                            <div className="p-1.5 bg-slate-900 text-white rounded-lg border border-slate-800">
                                                 <Timer size={14} />
                                             </div>
-                                            <h4 className="font-bold text-xs uppercase tracking-widest text-slate-600">Audit IA Info</h4>
+                                            <h4 className="font-bold text-xs uppercase tracking-widest text-slate-400">Audit IA Info</h4>
                                         </div>
 
                                         <div className="space-y-4">
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="text-slate-400 flex items-center gap-1.5"><Download size={12} /> Entrada</span>
-                                                <span className="font-mono font-bold text-slate-700">{realTimeUsage.promptTokens} <span className="text-[9px] text-slate-300">TK</span></span>
+                                                <span className="text-slate-500 flex items-center gap-1.5"><Download size={12} /> Entrada</span>
+                                                <span className="font-mono font-bold text-slate-300">{realTimeUsage.promptTokens} <span className="text-[9px] text-slate-600">TK</span></span>
                                             </div>
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="text-slate-400 flex items-center gap-1.5"><Upload size={12} /> Salida</span>
-                                                <span className="font-mono font-bold text-slate-700">{realTimeUsage.candidatesTokens} <span className="text-[9px] text-slate-300">TK</span></span>
+                                                <span className="text-slate-500 flex items-center gap-1.5"><Upload size={12} /> Salida</span>
+                                                <span className="font-mono font-bold text-slate-300">{realTimeUsage.candidatesTokens} <span className="text-[9px] text-slate-600">TK</span></span>
                                             </div>
-                                            <div className="h-px bg-slate-100"></div>
+                                            <div className="h-px bg-slate-900"></div>
                                             <div className="flex items-center justify-between text-xs">
-                                                <span className="text-slate-600 font-bold uppercase tracking-tighter">Total Tokens</span>
-                                                <span className="font-mono font-black text-purple-600">{realTimeUsage.totalTokens}</span>
+                                                <span className="text-slate-500 font-bold uppercase tracking-tighter">Total Tokens</span>
+                                                <span className="font-mono font-black text-white">{realTimeUsage.totalTokens}</span>
                                             </div>
-                                            <div className="mt-4 p-3 bg-emerald-50 border border-emerald-100 rounded-xl flex items-center justify-between">
+                                            <div className="mt-4 p-3 bg-black border border-slate-900 rounded-xl flex items-center justify-between">
                                                 <div className="flex items-center gap-2">
-                                                    <ShieldCheck size={14} className="text-emerald-600" />
-                                                    <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-tighter">Costo Análisis</span>
+                                                    <ShieldCheck size={14} className="text-slate-400" />
+                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Costo Análisis</span>
                                                 </div>
                                                 <div className="text-right">
-                                                    <span className="font-mono font-bold text-emerald-700 text-sm block">${realTimeUsage.estimatedCostCLP} CLP</span>
-                                                    <span className="font-mono text-[9px] text-emerald-600/60 block">${realTimeUsage.estimatedCost.toFixed(4)} USD</span>
+                                                    <span className="font-mono font-bold text-white text-sm block">${realTimeUsage.estimatedCostCLP} CLP</span>
+                                                    <span className="font-mono text-[9px] text-slate-600 block">${realTimeUsage.estimatedCost.toFixed(4)} USD</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 )}
 
-                                <div className="bg-slate-900 text-white p-6 rounded-3xl shadow-xl">
-                                    <h4 className="font-bold text-sm uppercase tracking-widest mb-4">Exportar Resultados</h4>
+                                <div className="bg-black text-white p-6 rounded-3xl shadow-xl border border-slate-900">
+                                    <h4 className="font-bold text-sm uppercase tracking-widest mb-4 text-slate-400">Exportar Resultados</h4>
                                     <div className="space-y-3">
                                         <button
                                             onClick={downloadPdf}
                                             disabled={isExporting}
-                                            className="w-full flex items-center justify-center gap-3 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                                            className="w-full flex items-center justify-center gap-3 py-3 bg-white hover:bg-slate-200 text-black rounded-xl text-sm font-bold transition-all disabled:opacity-50"
                                         >
                                             {isExporting ? <Loader2 size={18} className="animate-spin" /> : <FileDown size={18} />}
                                             {isExporting ? 'DESCARGAR PDF' : 'DESCARGAR PDF'}
                                         </button>
                                         <div className="grid grid-cols-2 gap-2">
-                                            <button onClick={() => downloadData('json')} className="flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-bold transition-colors">
+                                            <button onClick={() => downloadData('json')} className="flex items-center justify-center gap-2 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-bold transition-colors border border-slate-800">
                                                 <FileText size={14} /> JSON
                                             </button>
-                                            <button onClick={() => downloadData('md')} className="flex items-center justify-center gap-2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-[10px] font-bold transition-colors">
+                                            <button onClick={() => downloadData('md')} className="flex items-center justify-center gap-2 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-bold transition-colors border border-slate-800">
                                                 <FileText size={14} /> MD
                                             </button>
                                         </div>
