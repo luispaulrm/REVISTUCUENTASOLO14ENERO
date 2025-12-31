@@ -69,10 +69,13 @@ export async function extractPamData(
     mimeType: string,
     onLog?: (msg: string) => void,
     onUsageUpdate?: (usage: UsageMetrics) => void,
+    onProgress?: (progress: number) => void,
     signal?: AbortSignal
 ): Promise<PamExtractionResult> {
     onLog?.('[SYSTEM] Iniciando análisis de Coberturas PAM...');
+    onProgress?.(5);
     onLog?.('[SYSTEM] Aplicando esquema de bonificación Isapre/Aseguradora...');
+    onProgress?.(10);
 
     const response = await fetch('/api/extract-pam', {
         method: 'POST',
@@ -93,6 +96,8 @@ export async function extractPamData(
     let resultData: PamDocument | null = null;
     let partialBuffer = '';
     let latestUsage: UsageMetrics | null = null;
+    let totalReceived = 0;
+    const EXPECTED_SIZE = 8000;
 
     try {
         while (true) {
@@ -117,9 +122,14 @@ export async function extractPamData(
                             break;
 
                         case 'chunk':
+                            totalReceived += update.text?.length || 0;
+                            // Progreso proporcional entre 15% y 85%
+                            const chunkProgress = Math.min(15 + (totalReceived / EXPECTED_SIZE) * 70, 85);
+                            onProgress?.(chunkProgress);
                             break;
 
                         case 'final':
+                            onProgress?.(95);
                             resultData = update.data;
                             break;
 

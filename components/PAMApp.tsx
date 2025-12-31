@@ -86,12 +86,6 @@ export default function PAMApp() {
                 setSeconds(0);
                 timerRef.current = window.setInterval(() => setSeconds(s => s + 1), 1000);
             }
-            if (!progressRef.current) {
-                setProgress(0);
-                progressRef.current = window.setInterval(() => {
-                    setProgress(p => (p < 98 ? p + 0.3 : p));
-                }, 200);
-            }
         } else {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
@@ -149,7 +143,7 @@ export default function PAMApp() {
                 }, 60000);
 
                 try {
-                    const result = await extractPamData(pureBase64, file.type, addLog, setRealTimeUsage, controller.signal);
+                    const result = await extractPamData(pureBase64, file.type, addLog, setRealTimeUsage, setProgress, controller.signal);
                     setPamResult(result.data);
                     setStatus(AppStatus.SUCCESS);
                 } catch (err: any) {
