@@ -89,7 +89,12 @@ export function PAMResults({ data }: PAMResultsProps) {
     );
 }
 
-function FolioCard({ folio, index }: { folio: FolioPAM; index: number }) {
+interface FolioCardProps {
+    folio: FolioPAM;
+    index: number;
+}
+
+function FolioCard({ folio, index }: FolioCardProps) {
     return (
         <div className="folio-card bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             {/* Header del Folio */}
