@@ -1,5 +1,5 @@
 <<<<<<< HEAD
-export const VERSION = "v1.9.38";
+export const VERSION = "v1.9.39";
 export const LAST_MODIFIED = "02/01/2026 20:14 (Chile)";
 =======
 export const VERSION = "v1.9.56";
