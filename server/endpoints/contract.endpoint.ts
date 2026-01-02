@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { GeminiService } from '../services/gemini.service.js';
-import { CONTRACT_PROMPT } from '../prompts/contract.prompt.js';
+import { analyzeContract } from '../services/contractEngine.service.js';
 
 // Helper para obtener env vars
 function envGet(k: string) {
@@ -9,9 +8,9 @@ function envGet(k: string) {
 }
 
 export async function handleContractExtraction(req: Request, res: Response) {
-    console.log('[CONTRACT] New Contract extraction request (TURBO PROTOCOL)');
+    console.log('[CONTRACT] New Forensic Analysis Request (Independent Engine v2.0)');
 
-    // Setup streaming response
+    // Setup streaming response for logs
     res.setHeader('Content-Type', 'application/x-ndjson');
     res.setHeader('Transfer-Encoding', 'chunked');
 
@@ -20,7 +19,7 @@ export async function handleContractExtraction(req: Request, res: Response) {
     };
 
     try {
-        const { image, mimeType } = req.body;
+        const { image, mimeType, originalname } = req.body;
 
         if (!image || !mimeType) {
             console.error('[CONTRACT] Missing payload');
@@ -33,87 +32,38 @@ export async function handleContractExtraction(req: Request, res: Response) {
             return res.status(500).json({ error: 'API Key not configured' });
         }
 
-        const gemini = new GeminiService(apiKey);
-        let fullText = "";
-
-        console.log('[CONTRACT] Starting Gemini TURBO extraction...');
-
-        // IMPORTANT: Removed responseMimeType: 'application/json' to allow raw delimited text (Faster)
-        const stream = await gemini.extractWithStream(image, mimeType, CONTRACT_PROMPT, {
-            maxTokens: 40000
-        });
-
-        for await (const chunk of stream) {
-            fullText += chunk.text;
-            sendUpdate({ type: 'chunk', text: chunk.text });
-
-            if (chunk.usageMetadata) {
-                const usage = chunk.usageMetadata;
-                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-pro-preview", usage.promptTokenCount, usage.candidatesTokenCount);
-
-                sendUpdate({
-                    type: 'usage',
-                    usage: {
-                        promptTokens: usage.promptTokenCount,
-                        candidatesTokens: usage.candidatesTokenCount,
-                        totalTokens: usage.totalTokenCount,
-                        estimatedCost,
-                        estimatedCostCLP
-                    }
-                });
-            }
-        }
-
-        console.log(`[CONTRACT] Raw string complete: ${fullText.length} chars. Parsing...`);
-
-        // PARSER TURBO V7.0
-        const lines = fullText.split('\n').filter(l => l.trim());
-        const result: any = {
-            reglas: [],
-            coberturas: [],
-            diseno_ux: {
-                nombre_isapre: 'DESCONOCIDA',
-                titulo_plan: 'PLAN DETECTADO',
-                subtitulo_plan: ''
-            }
+        // Convert base64 to Buffer for the engine
+        const buffer = Buffer.from(image, 'base64');
+        const file = {
+            buffer,
+            mimetype: mimeType,
+            originalname: originalname || 'documento.pdf'
         };
 
-        for (const line of lines) {
-            const parts = line.split('|').map(p => p.trim());
-            const prefix = parts[0]?.toUpperCase();
-
-            if (prefix === 'METADATA') {
-                parts.forEach(p => {
-                    if (p.startsWith('ISAPRE:')) result.diseno_ux.nombre_isapre = p.replace('ISAPRE:', '').trim();
-                    if (p.startsWith('PLAN:')) result.diseno_ux.titulo_plan = p.replace('PLAN:', '').trim();
-                    if (p.startsWith('SUB:')) result.diseno_ux.subtitulo_plan = p.replace('SUB:', '').trim();
-                });
-            } else if (prefix === 'RULE') {
-                // Format: RULE|[Pagina]|[Seccion]|[Categoria]|[Extracto]
-                result.reglas.push({
-                    'PÁGINA ORIGEN': parts[1] || 'N/A',
-                    'CÓDIGO/SECCIÓN': parts[2] || 'REGLA',
-                    'SUBCATEGORÍA': parts[3] || 'General',
-                    'VALOR EXTRACTO LITERAL DETALLADO': parts.slice(4).join('|') || 'Sin extracto'
-                });
-            } else if (prefix === 'COBER') {
-                // Format: COBER|[Prestacion]|[Modalidad]|[Percent]|[Copago]|[Tope1]|[Tope2]|[Restriccion]|[Anclajes]
-                const restriction = parts[7] || '';
-                result.coberturas.push({
-                    'PRESTACIÓN CLAVE': parts[1] || '---',
-                    'MODALIDAD/RED': parts[2] || '---',
-                    '% BONIFICACIÓN': parts[3] || '---',
-                    'COPAGO FIJO': parts[4] || '---',
-                    'TOPE LOCAL 1 (VAM/EVENTO)': parts[5] || '---',
-                    'TOPE LOCAL 2 (ANUAL/UF)': parts[6] || '---',
-                    'RESTRICCIÓN Y CONDICIONAMIENTO': restriction.length > 2 ? restriction : 'Sin restricciones capturadas',
-                    'ANCLAJES': parts[8] ? parts[8].split(';').map(a => a.trim()) : []
-                });
+        // Execute Independent Engine
+        const result = await analyzeContract(
+            file,
+            apiKey,
+            (logMsg) => sendUpdate({ type: 'chunk', text: logMsg + '\n' }),
+            {
+                // Custom options if needed
             }
+        );
+
+        // Send Metrics update
+        if (result.metrics) {
+            sendUpdate({
+                type: 'usage',
+                usage: {
+                    promptTokens: result.metrics.tokenUsage.input,
+                    candidatesTokens: result.metrics.tokenUsage.output,
+                    totalTokens: result.metrics.tokenUsage.total,
+                    estimatedCostCLP: Math.round(result.metrics.tokenUsage.costClp)
+                }
+            });
         }
 
-        console.log(`[CONTRACT] Parse complete: ${result.reglas.length} rules, ${result.coberturas.length} coverages.`);
-
+        // Send Final Data
         sendUpdate({
             type: 'final',
             data: result
@@ -122,8 +72,8 @@ export async function handleContractExtraction(req: Request, res: Response) {
         res.end();
 
     } catch (error: any) {
-        console.error('[CONTRACT] Protocol Error:', error);
-        sendUpdate({ type: 'error', message: error.message || 'Internal Server Error' });
+        console.error('[CONTRACT] Independent Engine Error:', error);
+        sendUpdate({ type: 'error', message: error.message || 'Internal Server Error during forensic analysis' });
         res.end();
     }
 }

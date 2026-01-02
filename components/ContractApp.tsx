@@ -3,7 +3,7 @@ import { Upload, Loader2, FileText, Trash2, ShieldCheck, Timer, Terminal, Printe
 import { extractContractData } from '../contractService';
 import { Contract, UsageMetrics, AppStatus } from '../types';
 import { ContractResults } from './ContractResults';
-import { VERSION, LAST_MODIFIED } from '../version';
+import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
 
 export default function ContractApp() {
     const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
@@ -163,7 +163,12 @@ export default function ContractApp() {
                         <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-8 border border-slate-200 shadow-xl">
                             <Upload size={36} />
                         </div>
-                        <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight underline decoration-indigo-500 underline-offset-8">Módulo de Contratos</h2>
+                        <h2 className="text-3xl font-black text-slate-900 mb-2 tracking-tight underline decoration-indigo-500 underline-offset-8">Módulo de Contratos</h2>
+                        <div className="flex items-center justify-center gap-2 mb-6">
+                            <span className="text-[10px] bg-indigo-50 text-indigo-600 border border-indigo-100 px-2 py-0.5 rounded-full font-black uppercase tracking-widest flex items-center gap-1.5">
+                                <Zap size={10} /> Engine: {AI_MODEL}
+                            </span>
+                        </div>
                         <p className="text-slate-500 mb-10">Sube tu Plan de Salud Isapre para extraer términos legales y coberturas de forma forense.</p>
 
                         <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-slate-50 hover:border-indigo-500 transition-all group">
