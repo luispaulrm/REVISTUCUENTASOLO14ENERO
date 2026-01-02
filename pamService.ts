@@ -47,6 +47,7 @@ export interface PamDocument {
         cuadra: boolean;
         discrepancia: number;
         auditoriaStatus: string;
+        totalItems?: number;
     };
 }
 

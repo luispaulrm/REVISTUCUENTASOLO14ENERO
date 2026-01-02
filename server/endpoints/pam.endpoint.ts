@@ -108,6 +108,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
             let globalBonif = 0;
             let globalCopago = 0;
             let globalDeclarado = 0;
+            let globalTotalItems = 0;
 
             const parseMoney = (val: string | number) => {
                 if (!val) return 0;
@@ -162,6 +163,10 @@ export async function handlePamExtraction(req: Request, res: Response) {
                 globalCopago += calcTotalCopago;
                 globalDeclarado += declaredCopago;
 
+                // Sumar items de este folio
+                const folioItemsCount = folio.desglosePorPrestador?.reduce((acc: number, p: any) => acc + (p.items?.length || 0), 0) || 0;
+                globalTotalItems += folioItemsCount;
+
                 return {
                     ...folio,
                     resumen: {
@@ -190,7 +195,8 @@ export async function handlePamExtraction(req: Request, res: Response) {
                         totalCopagoDeclarado: globalDeclarado,
                         cuadra: globalDiff <= 50,
                         discrepancia: globalDiff,
-                        auditoriaStatus: globalAuditStatus
+                        auditoriaStatus: globalAuditStatus,
+                        totalItems: globalTotalItems
                     }
                 }
             });

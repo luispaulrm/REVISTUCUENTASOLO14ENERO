@@ -268,7 +268,7 @@ export function PAMResults({ data }: PAMResultsProps) {
                         </div>
                     </div>
 
-                    <div className="grid md:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-5 gap-6">
                         <div className="stat-card bg-white/5 p-5 rounded-3xl border border-white/10">
                             <p className="text-[10px] font-black text-indigo-300 uppercase mb-2">Total Valor (100%)</p>
                             <p className="text-2xl font-mono font-black">${data.global.totalValor.toLocaleString()}</p>
@@ -280,6 +280,12 @@ export function PAMResults({ data }: PAMResultsProps) {
                         <div className="stat-card bg-indigo-600 p-5 rounded-3xl shadow-xl shadow-indigo-950/50">
                             <p className="text-[10px] font-black text-white/70 uppercase mb-2">Copago Consolidado</p>
                             <p className="text-2xl font-mono font-black text-white">${data.global.totalCopago.toLocaleString()}</p>
+                        </div>
+                        <div className="stat-card bg-white/5 p-5 rounded-3xl border border-white/10">
+                            <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Ítems Auditados</p>
+                            <p className="text-2xl font-mono font-black text-white">
+                                {data.global.totalItems || 0}
+                            </p>
                         </div>
                         <div className={`stat-card p-5 rounded-3xl border ${data.global.cuadra ? 'bg-emerald-500/20 border-emerald-500/40' : 'bg-rose-500/20 border-rose-500/40'}`}>
                             <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Estado de Auditoría</p>
