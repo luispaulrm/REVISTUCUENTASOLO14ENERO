@@ -184,6 +184,28 @@ export function ContractResults({ data }: Props) {
                             <Download size={14} />
                             Exportar JSON
                         </button>
+                        {/* UF REFERENCE BADGE */}
+                        {(() => {
+                            const ufRule = safeReglas.find(r =>
+                                getFuzzy(r, ['categoria', 'SUBCATEGORÍA']).includes('UF') ||
+                                getFuzzy(r, ['seccion', 'CÓDIGO/SECCIÓN']).includes('UF')
+                            );
+                            if (ufRule) {
+                                const ufText = getFuzzy(ufRule, ['texto', 'VALOR EXTRACTO LITERAL DETALLADO']);
+                                const match = ufText.match(/\$[\d.]+/);
+                                if (match) {
+                                    return (
+                                        <div className="flex items-center gap-2 px-3 py-1 bg-cyan-50 text-cyan-800 border border-cyan-200 rounded-full shadow-sm">
+                                            <Scale size={12} className="text-cyan-600" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">
+                                                UF Ref: {match[0]}
+                                            </span>
+                                        </div>
+                                    )
+                                }
+                            }
+                            return null;
+                        })()}
                         {displayUsage && <TokenStatsBadge metadata={displayUsage} />}
                     </div>
                 </div>
