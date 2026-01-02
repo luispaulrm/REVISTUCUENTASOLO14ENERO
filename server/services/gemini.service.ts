@@ -27,7 +27,7 @@ export class GeminiService {
         } = {}
     ): Promise<AsyncIterable<StreamChunk>> {
         const model = this.client.getGenerativeModel({
-            model: "gemini-3-flash-preview",
+            model: "gemini-3-pro-preview",
             generationConfig: {
                 maxOutputTokens: config.maxTokens || 64000,
                 responseMimeType: config.responseMimeType,
