@@ -1,6 +1,4 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import path from "path";
-import { existsSync } from "fs";
 import {
     ContractAnalysisResult,
     ContractAnalysisOptions,
@@ -21,9 +19,6 @@ import {
 // HELPER FUNCTIONS
 // ============================================================================
 
-/**
- * Convert UploadedFile to Gemini file part format
- */
 function fileToGenerativePart(file: UploadedFile) {
     return {
         inlineData: {
@@ -33,16 +28,6 @@ function fileToGenerativePart(file: UploadedFile) {
     };
 }
 
-/**
- * Sleep utility for retry backoff
- */
-function sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Safe JSON parsing with error handling
- */
 function safeJsonParse<T>(text: string): T {
     const cleaned = text
         .trim()
@@ -59,29 +44,27 @@ function safeJsonParse<T>(text: string): T {
             const repaired = jsonrepair(cleaned);
             return JSON.parse(repaired);
         } catch (repairError: any) {
-            console.error('[ContractEngine] jsonrepair also failed:', repairError.message);
+            console.error('[ContractEngine] jsonrepair failed:', repairError.message);
             throw new Error(`Invalid JSON response: ${error.message}`);
         }
     }
 }
 
-/**
- * Extract text from PDF using pdfjs-dist (Node.js compatible)
- */
-async function extractTextFromPdf(file: UploadedFile, maxPages: number): Promise<string> {
+async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<string> {
     try {
-        // En Node.js con pdfjs-dist, necesitamos importar así
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
-
         const data = new Uint8Array(file.buffer);
         const loadingTask = pdfjsLib.getDocument({ data, disableFontFace: true });
         const pdf = await loadingTask.promise;
 
         const pagesToScan = Math.min(pdf.numPages, Number.isFinite(maxPages) ? maxPages : pdf.numPages);
-        console.log(`[ContractEngine] 📘 PDF cargado: ${pdf.numPages} páginas totales. Escaneando primeras ${pagesToScan}.`);
+        log(`[ContractEngine] 📗 PDF cargado: ${pdf.numPages} páginas totales (Escaneando primeras ${pagesToScan}).`);
         let formattedText = '';
 
         for (let pageNumber = 1; pageNumber <= pagesToScan; pageNumber++) {
+            // Log más frecuente para documentos largos
+            log(`[ContractEngine] 📄 Escaneando contenido: Página ${pageNumber}/${pagesToScan}...`);
+
             const page = await pdf.getPage(pageNumber);
             const textContent = await page.getTextContent();
             const pageText = (textContent?.items || [])
@@ -97,106 +80,33 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number): Promise
 
         return formattedText.trim();
     } catch (error) {
-        console.warn('[ContractEngine] PDF text extraction failed, will use vision-only:', error);
+        log(`[ContractEngine] ⚠️ Error en extracción de texto (OCR): ${error instanceof Error ? error.message : 'Error desconocido'}`);
         return '';
     }
 }
 
-/**
- * Repair invalid JSON using Gemini
- */
 async function repairJsonWithGemini(
     genAI: GoogleGenerativeAI,
     schema: any,
-    invalidText: string
+    invalidText: string,
+    log: (msg: string) => void
 ): Promise<string> {
-    const repairPrompt = `
-La siguiente respuesta JSON es inválida. Por favor, corrígela y devuelve SOLO el JSON válido (sin markdown, sin explicaciones):
-
-${invalidText}
-
-IMPORTANTE:
-- Escapa comillas dobles dentro de strings con \\\\"
-- No uses comas finales (trailing commas)
-- Asegura que el JSON sea válido y cumpla con el schema
-- Responde SOLO con el JSON corregido
-`;
-
+    log('[ContractEngine] 🔧 Detectada estructura JSON dañada. Solicitando reparación mecánica...');
+    const repairPrompt = `La respuesta JSON de un contrato de salud es inválida. Corrígela preservando TODOS los datos y devuelve SOLO el JSON válido:\n\n${invalidText}`;
     try {
         const model = genAI.getGenerativeModel({ model: CONTRACT_FAST_MODEL });
         const result = await model.generateContent(repairPrompt);
         return result.response.text() || invalidText;
     } catch (error) {
-        console.error('[ContractEngine] JSON repair failed:', error);
+        log(`[ContractEngine] ❌ Error en reparación: ${error instanceof Error ? error.message : 'Error fatal'}`);
         return invalidText;
     }
 }
 
-/**
- * Execute Gemini API call with retry and fallback logic
- */
-async function executeGeminiCall(
-    genAI: GoogleGenerativeAI,
-    modelName: string,
-    params: any,
-    retries: number = CONTRACT_DEFAULT_RETRIES,
-    fallbackModel: string | null = null
-): Promise<any> {
-    let lastError: any = null;
-
-    for (let attempt = 0; attempt < retries; attempt++) {
-        try {
-            console.log(`[ContractEngine] Attempt ${attempt + 1}/${retries} with model ${modelName}`);
-
-            const model = genAI.getGenerativeModel({
-                model: modelName,
-                generationConfig: params.config
-            });
-
-            const result = await model.generateContent(params.contents.parts);
-
-            if (!result || !result.response) {
-                throw new Error('Empty response from Gemini API');
-            }
-
-            return result.response;
-        } catch (error: any) {
-            lastError = error;
-            console.warn(`[ContractEngine] Attempt ${attempt + 1} failed:`, error.message);
-
-            if (attempt < retries - 1) {
-                const backoffMs = Math.pow(2, attempt) * 1000;
-                console.log(`[ContractEngine] Retrying in ${backoffMs}ms...`);
-                await sleep(backoffMs);
-            }
-        }
-    }
-
-    if (fallbackModel && fallbackModel !== modelName) {
-        console.log(`[ContractEngine] All retries failed. Trying fallback model: ${fallbackModel}`);
-        try {
-            const model = genAI.getGenerativeModel({
-                model: fallbackModel,
-                generationConfig: params.config
-            });
-            const result = await model.generateContent(params.contents.parts);
-            return result.response;
-        } catch (error: any) {
-            console.error(`[ContractEngine] Fallback model also failed:`, error.message);
-            throw lastError || error;
-        }
-    }
-
-    throw lastError || new Error('All retry attempts failed');
-}
-
 // ============================================================================
-// CORE ANALYSIS FUNCTIONS
+// CORE ANALYSIS FUNCTIONS (ULTRA-RESILIENT STREAMING)
 // ============================================================================
 
-/**
- * Analyze a single contract document
- */
 async function analyzeSingleContract(
     file: UploadedFile,
     apiKey: string,
@@ -208,7 +118,6 @@ async function analyzeSingleContract(
         maxOutputTokens = CONTRACT_MAX_OUTPUT_TOKENS,
         ocrMaxPages = CONTRACT_OCR_MAX_PAGES,
         modelName = CONTRACT_REASONING_MODEL,
-        retries = CONTRACT_DEFAULT_RETRIES,
     } = options;
 
     const log = (m: string) => {
@@ -217,120 +126,127 @@ async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log('[ContractEngine] 🚀 INICIANDO ANÁLISIS FORENSE DE CONTRATO');
-    log(`[ContractEngine] 📄 Archivo: ${file.originalname || 'unknown'}`);
-    log(`[ContractEngine] 📊 Tamaño: ${(file.buffer.length / 1024).toFixed(2)} KB`);
-    log(`[ContractEngine] 🎯 Modelo: ${modelName}`);
+    log('[ContractEngine v3.0] 🚀 MODO DE TRANSMISIÓN ULTRA-RESILIENTE');
+    log(`[ContractEngine] 📄 Archivo: ${file.originalname || 'documento.pdf'}`);
+    log(`[ContractEngine] ⚖️ Peso: ${(file.buffer.length / 1024 / 1024).toFixed(2)} MB`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const filePart = fileToGenerativePart(file);
 
-    let extractedText = '';
-    try {
-        log('[ContractEngine] 🔍 Fase 1/4: Extracción de texto (OCR Híbrido)...');
-        extractedText = await extractTextFromPdf(file, ocrMaxPages);
-        if (extractedText) {
-            log(`[ContractEngine] ✅ OCR completado: ${extractedText.length} caracteres extraídos`);
-        } else {
-            log('[ContractEngine] ⚠️  OCR vacío, usando solo análisis visual');
+    log('[ContractEngine] 🔍 Fase 1/4 (OCR): Analizando estructura física...');
+    const extractedText = await extractTextFromPdf(file, ocrMaxPages, log);
+
+    log('[ContractEngine] 🧠 Fase 2/4 (STREAM): Solicitando auditoría forense...');
+    log('[ContractEngine] ⏳ LA IA ESTÁ PROCESANDO 50+ PÁGINAS. NO CIERRE LA VENTANA.');
+
+    const model = genAI.getGenerativeModel({
+        model: modelName,
+        generationConfig: {
+            maxOutputTokens,
+            temperature: 0,
         }
-    } catch (error) {
-        log(`[ContractEngine] ⚠️  Extracción de texto falló: ${error instanceof Error ? error.message : error}`);
-    }
+    });
+
+    const contents = [
+        filePart,
+        ...(extractedText ? [{ text: `\n[MANDATO DE CONTEXTO: TEXTO PDF EXTRAÍDO]\n${extractedText}\n[FIN TEXTO EXTRAÍDO]` }] : []),
+        { text: CONTRACT_ANALYSIS_PROMPT },
+    ];
+
+    // Heartbeat Interval (Every 10 seconds to avoid connection drop)
+    let sessionActive = true;
+    let dotCounter = 0;
+    const heartbeat = setInterval(() => {
+        if (!sessionActive) return;
+        dotCounter++;
+        const dots = '.'.repeat((dotCounter % 3) + 1);
+        log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: Procesando bloques de coberturas${dots}`);
+    }, 10000);
+
+    let responseText = '';
+    let usageMetadata: any = null;
 
     try {
-        log('[ContractEngine] 🧠 Fase 2/4: Análisis Gemini Pro (Mando Imperativo)...');
+        const streamingResult = await model.generateContentStream(contents);
 
-        const response = await executeGeminiCall(
-            genAI,
-            modelName,
-            {
-                contents: {
-                    parts: [
-                        filePart,
-                        ...(extractedText ? [{ text: `\n[MANDATO DE CONTEXTO: TEXTO PDF EXTRAÍDO]\n${extractedText}\n[FIN TEXTO EXTRAÍDO]` }] : []),
-                        { text: CONTRACT_ANALYSIS_PROMPT },
-                    ]
-                },
-                config: {
-                    maxOutputTokens,
-                    temperature: 0,
-                    // Note: We avoid responseMimeType: 'application/json' for older models if needed, 
-                    // but here we use it as requested.
-                },
-            },
-            retries,
-            CONTRACT_FAST_MODEL
-        );
-
-        const responseText = response.text();
-        if (!responseText) throw new Error("Gemini API returned an empty response.");
-
-        log(`[ContractEngine] 📦 Respuesta recibida: ${responseText.length} caracteres`);
-
-        let result: ContractAnalysisResult | null = null;
-        let lastText = responseText;
-
-        log('[ContractEngine] 🔧 Fase 3/4: Validación y Reparación JSON...');
-
-        for (let attempt = 0; attempt <= 2; attempt++) {
+        for await (const chunk of streamingResult.stream) {
             try {
-                result = safeJsonParse<ContractAnalysisResult>(lastText);
-                log(`[ContractEngine] ✅ JSON validado (intento ${attempt + 1})`);
-                break;
-            } catch (parseError: any) {
-                if (attempt === 2) throw new Error(`Fallback JSON repair failed: ${parseError.message}`);
-                log(`[ContractEngine] ⚠️  JSON inválido (intento ${attempt + 1}/3). Reparando...`);
-                lastText = await repairJsonWithGemini(genAI, CONTRACT_ANALYSIS_SCHEMA, lastText);
+                const chunkText = chunk.text();
+                responseText += chunkText;
+
+                // Progress signal every 1000 characters
+                if (responseText.length % 5000 < 500) {
+                    log(`[ContractEngine] 📥 Recibidos ${(responseText.length / 1024).toFixed(1)} KB de datos forenses...`);
+                }
+            } catch (chunkError) {
+                // Handle cases where chunk might be a safety block
+                console.warn('[ContractEngine] Chunk rejected or safety filter triggered:', chunkError);
             }
         }
 
-        if (!result) throw new Error("Failed to parse contract analysis result.");
+        const response = await streamingResult.response;
+        usageMetadata = response.usageMetadata;
+        sessionActive = false;
+        clearInterval(heartbeat);
 
-        // Metrics and Cost calculation
-        const usage = response.usageMetadata;
-        if (usage) {
-            const inputTokens = usage.promptTokenCount || 0;
-            const outputTokens = usage.candidatesTokenCount || 0;
-
-            // Tarifas Gemini 3 Flash (User config)
-            const inputRate = 0.50;
-            const outputRate = 3.00;
-            const USD_TO_CLP = 980;
-            const costClp = ((inputTokens / 1_000_000) * inputRate + (outputTokens / 1_000_000) * outputRate) * USD_TO_CLP;
-
-            log(`[ContractEngine] 📊 Tokens: [I: ${inputTokens} | O: ${outputTokens}] - Costo Est: $${Math.round(costClp)} CLP`);
-
-            result.metrics = {
-                executionTimeMs: Date.now() - startTime,
-                tokenUsage: {
-                    input: inputTokens,
-                    output: outputTokens,
-                    total: usage.totalTokenCount || (inputTokens + outputTokens),
-                    costClp: costClp
-                }
-            };
-        }
-
-        result.executionTimeMs = Date.now() - startTime;
-        log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        log(`[ContractEngine] ✅ ANÁLISIS COMPLETADO EN ${(result.executionTimeMs / 1000).toFixed(1)}s`);
-        log(`[ContractEngine]    - Prestaciones: ${result.coberturas?.length || 0}`);
-        log(`[ContractEngine]    - Isapre: ${result.diseno_ux?.nombre_isapre}`);
-        log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-        return result;
-
-    } catch (err: any) {
-        log(`[ContractEngine] ❌ ERROR CRÍTICO: ${err.message}`);
-        throw err;
+    } catch (error: any) {
+        sessionActive = false;
+        clearInterval(heartbeat);
+        log(`[ContractEngine] ❌ ERROR CRÍTICO EN TRANSMISIÓN: ${error.message}`);
+        throw error;
     }
+
+    log(`[ContractEngine] ✅ Recepción finalizada (${(responseText.length / 1024).toFixed(1)} KB)`);
+    log('[ContractEngine] 🔧 Fase 3/4 (VALIDACIÓN): Reconstruyendo JSON...');
+
+    let result: ContractAnalysisResult | null = null;
+    let lastText = responseText;
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+            result = safeJsonParse<ContractAnalysisResult>(lastText);
+            log(`[ContractEngine] ✅ Estructura JSON validada con éxito.`);
+            break;
+        } catch (parseError) {
+            if (attempt === 3) throw new Error("No se pudo reconstruir el JSON tras 3 intentos.");
+            log(`[ContractEngine] ⚠️ Error de estructura (Intento ${attempt}/3). Reparando...`);
+            lastText = await repairJsonWithGemini(genAI, CONTRACT_ANALYSIS_SCHEMA, lastText, log);
+        }
+    }
+
+    if (!result) throw new Error("Fallo crítico en la generación de resultados del contrato.");
+
+    // Final Metrics
+    if (usageMetadata) {
+        const promptTokens = usageMetadata.promptTokenCount || 0;
+        const candidatesTokens = usageMetadata.candidatesTokenCount || 0;
+        const inputRate = 0.50;
+        const outputRate = 3.00;
+        const costClp = ((promptTokens / 1_000_000) * inputRate + (candidatesTokens / 1_000_000) * outputRate) * 980;
+
+        log(`[ContractEngine] 📊 MÉTRICAS FINALES: ${promptTokens + candidatesTokens} tokens | Costo Est: $${Math.round(costClp)} CLP`);
+
+        result.metrics = {
+            executionTimeMs: Date.now() - startTime,
+            tokenUsage: {
+                input: promptTokens,
+                output: candidatesTokens,
+                total: usageMetadata.totalTokenCount || (promptTokens + candidatesTokens),
+                costClp: costClp
+            }
+        };
+    }
+
+    result.executionTimeMs = Date.now() - startTime;
+    log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    log(`[ContractEngine] ✅ PROCESAMIENTO EXITOSO EN ${(result.executionTimeMs / 1000).toFixed(1)}s`);
+    log(`[ContractEngine]    - Coberturas extraídas: ${result.coberturas?.length || 0}`);
+    log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    return result;
 }
 
-/**
- * Public Entry Point
- */
 export async function analyzeContract(
     file: UploadedFile,
     apiKey: string,

@@ -12,6 +12,7 @@ export default function ContractApp() {
     const [logs, setLogs] = useState<string[]>([]);
     const [progress, setProgress] = useState(0);
     const [seconds, setSeconds] = useState(0);
+    const [heartbeat, setHeartbeat] = useState(0);
     const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
 
     const [isExporting, setIsExporting] = useState(false);
@@ -85,10 +86,11 @@ export default function ContractApp() {
 
                 const timeoutId = setTimeout(() => {
                     if (status === AppStatus.PROCESSING) {
-                        addLog('[SISTEMA] ⚠️ Tiempo de espera agotado (90s). Cancelando...');
+                        addLog('[SISTEMA] ⚠️ AVISO: El análisis lleva 10 minutos. Es posible que el servidor haya terminado pero la conexión se haya degradado. Verifica si los resultados aparecen pronto.');
                         controller.abort();
                     }
-                }, 90000);
+                }, 600000);
+
 
                 try {
                     const result = await extractContractData(pureBase64, file.type, addLog, setRealTimeUsage, setProgress, controller.signal);

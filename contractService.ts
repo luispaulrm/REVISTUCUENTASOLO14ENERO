@@ -38,7 +38,7 @@ export async function extractContractData(
     let partialBuffer = '';
     let latestUsage: UsageMetrics | null = null;
     let totalReceived = 0;
-    const EXPECTED_SIZE = 15000; // Contratos suelen ser más largos
+    const EXPECTED_SIZE = 60000; // Contratos suelen ser más largos
 
     try {
         while (true) {
