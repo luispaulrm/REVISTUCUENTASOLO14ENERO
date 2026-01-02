@@ -58,15 +58,31 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
     // 1. Verificación de Secciones Críticas (Inteligente)
     const normalizeText = (text: string) => text.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
+    // Helper para obtener valor insensible a mayúsculas/acentos en las keys
+    const getValue = (obj: any, candidates: string[]) => {
+        if (!obj) return '';
+        // 1. Direct match
+        for (const key of candidates) {
+            if (obj[key]) return obj[key];
+        }
+        // 2. Fuzzy match keys
+        const objKeys = Object.keys(obj);
+        for (const key of candidates) {
+            const normalizedTarget = normalizeText(key);
+            const foundKey = objKeys.find(k => normalizeText(k) === normalizedTarget);
+            if (foundKey && obj[foundKey]) return obj[foundKey];
+        }
+        return '';
+    };
+
     // Unir todo el texto de prestaciones para búsqueda global
     const allPrestacionText = normalizeText(coberturas.map(c =>
-        (c['PRESTACIÓN CLAVE'] || '').toString()
+        getValue(c, ['PRESTACIÓN CLAVE', 'PRESTACION CLAVE', 'PRESTACION', 'GLOSA', 'NOMBRE']).toString()
     ).join(' '));
 
     const missingSections: string[] = [];
 
     Object.entries(SECTION_ALIASES).forEach(([sectionName, aliases]) => {
-        // Verificar si ALGUNO de los alias está presente
         const isPresent = aliases.some(alias => allPrestacionText.includes(alias));
         if (!isPresent) {
             missingSections.push(sectionName);
@@ -83,37 +99,32 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
         });
     }
 
-    // 2. Verificación de Completitud de Datos (Bonificación en columna O en texto)
+    // 2. Verificación de Completitud de Datos (Scan Global de Bonificación)
     let emptyBonif = 0;
-    let emptyTope = 0;
 
     coberturas.forEach(c => {
-        const item = c as any;
-        const colBonif = item['% BONIFICACIÓN'] || item['PORCENTAJE COBERTURA'] || item['BONIFICACION'] || item['%'];
+        // Convertir toda la fila a string para buscar el % en cualquier lado (Tope, Bonificación, Texto)
+        const rowString = JSON.stringify(c).toUpperCase();
+        const hasPercentage = rowString.match(/\d+(\.|,)?\d* ?%/); // Match "100%", "90 %", "3.5%"
+        const hasBonifKeyword = rowString.includes('BONIFICACION') || rowString.includes('CUBIERTO') || rowString.includes('COPAGO');
 
-        // Si no está en columna, buscar en el texto de restricciones
-        const textRestriccion = normalizeText(item['RESTRICCIÓN Y CONDICIONAMIENTO'] || '');
-        const textFound = textRestriccion.includes('BONIFICACION') || textRestriccion.match(/\d+%/);
-
-        if ((!colBonif || colBonif === '-') && !textFound) {
+        if (!hasPercentage && !hasBonifKeyword) {
             emptyBonif++;
         }
-        const tope = item['TOPE LOCAL 2 (ANUAL/UF)'] || item['TOPE ANUAL'];
-        if (!tope || tope === '-') emptyTope++;
     });
 
     if (emptyBonif > (totalRows * 0.5)) {
         score -= 20;
         issues.push({
             severity: 'warning',
-            message: 'No se detectó porcentaje de bonificación (ni en columna ni en texto) en >50% de las filas.',
+            message: 'No se detectó porcentaje de bonificación en >50% de las filas.',
             deduction: 20
         });
     }
 
     // 3. Verificación de "Alucinación de Estructura" (Filas muy cortas o basura)
     const suspiciousRows = coberturas.filter(c =>
-        (c['PRESTACIÓN CLAVE'] || '').length < 3
+        (getValue(c, ['PRESTACIÓN CLAVE', 'PRESTACION CLAVE', 'PRESTACION', 'GLOSA', 'NOMBRE']) || '').length < 3
     ).length;
 
     if (suspiciousRows > 0) {
@@ -126,7 +137,6 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
         });
     }
 
-    // Normalización del Score
     score = Math.max(0, Math.min(100, score));
 
     // Determinar Estado
