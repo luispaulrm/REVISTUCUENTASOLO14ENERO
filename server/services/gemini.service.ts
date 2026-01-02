@@ -63,4 +63,44 @@ export class GeminiService {
             };
         }
     }
+
+    /**
+     * Calcula el costo estimado basado en el modelo y el uso de tokens.
+     * Basado en las nuevas tarifas de Gemini 3.
+     */
+    static calculateCost(modelName: string, promptTokens: number, candidatesTokens: number) {
+        // Precios por 1 millón de tokens
+        const pricing = {
+            'gemini-3-pro-preview': {
+                inputLow: 2.00, // <= 200K
+                inputHigh: 4.00, // > 200K
+                outputLow: 12.00, // <= 200K
+                outputHigh: 18.00 // > 200K
+            },
+            'gemini-3-flash-preview': {
+                input: 0.50,
+                output: 3.00
+            }
+        };
+
+        const totalTokens = promptTokens + candidatesTokens;
+        let estimatedCost = 0;
+
+        if (modelName.includes('pro')) {
+            const p = pricing['gemini-3-pro-preview'];
+            const rateInput = totalTokens > 200000 ? p.inputHigh : p.inputLow;
+            const rateOutput = totalTokens > 200000 ? p.outputHigh : p.outputLow;
+
+            estimatedCost = (promptTokens / 1000000) * rateInput + (candidatesTokens / 1000000) * rateOutput;
+        } else {
+            // Default to Flash pricing if not Pro
+            const p = pricing['gemini-3-flash-preview'];
+            estimatedCost = (promptTokens / 1000000) * p.input + (candidatesTokens / 1000000) * p.output;
+        }
+
+        return {
+            estimatedCost,
+            estimatedCostCLP: Math.round(estimatedCost * 980) // Tasa de cambio aproximada
+        };
+    }
 }

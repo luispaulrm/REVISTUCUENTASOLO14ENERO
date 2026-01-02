@@ -5,6 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GeminiService } from './services/gemini.service.js';
 import { handlePamExtraction } from './endpoints/pam.endpoint.js';
 import { handleContractExtraction } from './endpoints/contract.endpoint.js';
 
@@ -217,9 +218,7 @@ app.post('/api/extract', async (req, res) => {
                 const candidatesTokens = usage.candidatesTokenCount || 0;
                 const totalTokens = usage.totalTokenCount || 0;
 
-                const inputCost = (promptTokens / 1000000) * 0.10;
-                const outputCost = (candidatesTokens / 1000000) * 0.40;
-                const estimatedCost = inputCost + outputCost;
+                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-pro-preview", promptTokens, candidatesTokens);
 
                 sendUpdate({
                     type: 'usage',
@@ -228,7 +227,7 @@ app.post('/api/extract', async (req, res) => {
                         candidatesTokens,
                         totalTokens,
                         estimatedCost,
-                        estimatedCostCLP: Math.round(estimatedCost * 980)
+                        estimatedCostCLP
                     }
                 });
             } else {

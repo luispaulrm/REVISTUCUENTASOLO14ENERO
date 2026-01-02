@@ -56,9 +56,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
             // Enviar métricas si disponibles
             if (chunk.usageMetadata) {
                 const usage = chunk.usageMetadata;
-                const inputCost = (usage.promptTokenCount / 1000000) * 0.10;
-                const outputCost = (usage.candidatesTokenCount / 1000000) * 0.40;
-                const estimatedCost = inputCost + outputCost;
+                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-pro-preview", usage.promptTokenCount, usage.candidatesTokenCount);
 
                 sendUpdate({
                     type: 'usage',
@@ -67,7 +65,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
                         candidatesTokens: usage.candidatesTokenCount,
                         totalTokens: usage.totalTokenCount,
                         estimatedCost,
-                        estimatedCostCLP: Math.round(estimatedCost * 980)
+                        estimatedCostCLP
                     }
                 });
             }

@@ -130,7 +130,7 @@ export default function ContractApp() {
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 relative pb-32">
             <header className="bg-transparent border-b border-slate-200 sticky top-0 z-50 print:hidden backdrop-blur-sm">
-                <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                <div className="max-w-[1800px] mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                             <Scale size={22} />
@@ -157,7 +157,7 @@ export default function ContractApp() {
                 </div>
             </header>
 
-            <main className="flex-grow max-w-6xl mx-auto w-full p-8">
+            <main className="flex-grow max-w-[1800px] mx-auto w-full p-6 sm:p-10">
                 {status === AppStatus.IDLE && (
                     <div className="max-w-2xl mx-auto text-center py-20">
                         <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-8 border border-slate-200 shadow-xl">
@@ -200,39 +200,80 @@ export default function ContractApp() {
                             </div>
                         </div>
 
-                        {/* SpaceX Real-time Dashboard */}
-                        <div className="fixed bottom-0 left-0 w-full bg-slate-900 text-white z-[200] border-t border-slate-800 shadow-2xl p-6">
-                            <div className="max-w-6xl mx-auto flex items-center justify-between">
-                                <div className="flex items-center gap-8 border-r border-slate-800 pr-8">
+                        {/* SPACEX FOOTER (CONTRACT EDITION) */}
+                        <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb">
+                            <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
+
+                                {/* 1. MISSION TIME */}
+                                <div className="flex items-center gap-4 border-r border-slate-800 pr-8 h-full">
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase mb-1">Elapsed Time</span>
-                                        <div className="text-2xl font-black font-mono">T+{formatTime(seconds)}</div>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase mb-1">Analysis</span>
-                                        <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest animate-pulse">Running Mandate...</div>
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Elapsed Time</span>
+                                        <div className="font-mono text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                                            <Timer size={18} className="text-indigo-500" />
+                                            T+{formatTime(seconds)}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex-1 px-12">
-                                    <div className="flex justify-between items-center mb-2">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase">Extraction Progress</span>
-                                        <span className="text-[10px] font-mono font-bold text-indigo-400">{Math.round(progress)}%</span>
+                                {/* 2. TRAJECTORY (GAUGE) */}
+                                <div className="flex items-center gap-4 px-8 border-r border-slate-800 h-full min-w-[200px]">
+                                    <div className="relative w-12 h-12">
+                                        <svg className="w-full h-full transform -rotate-90">
+                                            <circle cx="24" cy="24" r="20" className="text-slate-800 stroke-current" strokeWidth="4" fill="transparent" />
+                                            <circle cx="24" cy="24" r="20" className="text-white stroke-current" strokeWidth="4" fill="transparent"
+                                                strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * progress) / 100} strokeLinecap="round" />
+                                        </svg>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="text-[10px] font-bold font-mono text-white">{Math.round(progress)}%</span>
+                                        </div>
                                     </div>
-                                    <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
-                                        <div className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
+                                        <span className="text-xs font-bold text-slate-300">Forensic Scan</span>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center gap-6 pl-8 border-l border-slate-800">
+                                {/* 3. TOKEN METRICS */}
+                                <div className="flex items-center gap-8 px-8 flex-1 justify-center h-full">
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Input Tokens</span>
+                                        <span className="font-mono text-sm font-bold text-slate-300">
+                                            {realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                        </span>
+                                    </div>
+                                    <div className="w-px h-8 bg-slate-800"></div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Output Tokens</span>
+                                        <span className="font-mono text-sm font-bold text-white">
+                                            {realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                        </span>
+                                    </div>
+                                    <div className="w-px h-8 bg-slate-800"></div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Payload</span>
+                                        <span className="font-mono text-sm font-bold text-indigo-400">
+                                            {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* 4. COST & ABORT */}
+                                <div className="flex items-center gap-6 pl-8 border-l border-slate-800 h-full">
                                     <div className="flex flex-col items-end">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase mb-1">Estimated Cost</span>
-                                        <div className="text-xl font-black font-mono">${realTimeUsage?.estimatedCostCLP || 0} <span className="text-[10px]">CLP</span></div>
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Est. Cost</span>
+                                        <span className="font-mono text-xl font-black text-white tracking-tight">
+                                            ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'} <span className="text-[10px] text-slate-600 font-sans">CLP</span>
+                                        </span>
                                     </div>
-                                    <button onClick={handleStop} className="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all">
+                                    <button
+                                        onClick={handleStop}
+                                        className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
+                                        title="ABORT SEQUENCE"
+                                    >
                                         <X size={18} />
                                     </button>
                                 </div>
+
                             </div>
                         </div>
                     </div>

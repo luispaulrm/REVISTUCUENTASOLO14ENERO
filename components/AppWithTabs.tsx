@@ -17,7 +17,7 @@ export function AppWithTabs() {
         <div className="min-h-screen bg-white text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
             {/* Tab Navigation */}
             <div className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
-                <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                <div className="max-w-[1800px] mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
                         <button
                             onClick={() => handleTabChange('bill')}

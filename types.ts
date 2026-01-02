@@ -43,16 +43,21 @@ export interface ExtractedAccount {
 }
 
 export interface ContractRegla {
-  clausula: string;
-  pagina_origen: string;
+  'PÁGINA ORIGEN': string;
+  'CÓDIGO/SECCIÓN': string;
+  'SUBCATEGORÍA': string;
+  'VALOR EXTRACTO LITERAL DETALLADO': string;
 }
 
 export interface ContractCobertura {
-  prestacion: string;
-  modalidad_red: string;
-  tope_local_1: string;
-  tope_local_2?: string;
-  restriccion_condicionamiento: string;
+  'PRESTACIÓN CLAVE': string;
+  'MODALIDAD/RED': string;
+  '% BONIFICACIÓN': string;
+  'COPAGO FIJO': string;
+  'TOPE LOCAL 1 (VAM/EVENTO)': string;
+  'TOPE LOCAL 2 (ANUAL/UF)': string;
+  'RESTRICCIÓN Y CONDICIONAMIENTO': string;
+  'ANCLAJES'?: string[];
 }
 
 export interface Contract {

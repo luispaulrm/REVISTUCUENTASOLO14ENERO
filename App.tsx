@@ -241,7 +241,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 relative pb-32">
       <header className="bg-transparent border-b border-slate-900/50 sticky top-0 z-50 print:hidden backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="max-w-[1800px] mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg shadow-slate-200">
               <FileSearch size={22} />
@@ -284,7 +284,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="flex-grow max-w-6xl mx-auto w-full p-4 md:p-8">
+      <main className="flex-grow max-w-[1800px] mx-auto w-full p-6 sm:p-10">
         {status === AppStatus.IDLE && (
           <div className="max-w-2xl mx-auto mt-20 text-center space-y-12 animate-in fade-in zoom-in-95 duration-700">
 
@@ -384,7 +384,7 @@ const App: React.FC = () => {
 
           {/* SPACEX FOOTER (FIXED TELEMETRY) */}
           <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb">
-            <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
 
               {/* 1. MISSION TIME */}
               <div className="flex items-center gap-4 border-r border-slate-800 pr-8 h-full">
