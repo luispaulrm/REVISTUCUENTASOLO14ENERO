@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { Search, Info, AlertTriangle, ShieldCheck, Scale, Download } from 'lucide-react';
-import { Contract, UsageMetrics } from '../types';
+import { evaluateContractQuality } from '../utils/contractVerifier';
 
 interface Props {
     data: Contract;
 }
 
 const TokenStatsBadge: React.FC<{ metadata?: any }> = ({ metadata }) => {
+    // ... (keep existing TokenStatsBadge)
     if (!metadata) return null;
 
     // Normalizar métricas del motor v2.0
@@ -39,11 +38,22 @@ export function ContractResults({ data }: Props) {
     // Extraer métricas si vienen con otro nombre del motor v2.0
     const displayUsage = data?.usage || (data as any)?.metrics?.tokenUsage || (data as any)?.usageMetadata;
 
+    // Calcular Calidad del Contrato
+    const quality = evaluateContractQuality(data);
+
+    // Determinar colores del badge según score
+    const getScoreColor = (score: number) => {
+        if (score >= 90) return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+        if (score >= 70) return 'bg-amber-100 text-amber-700 border-amber-200';
+        return 'bg-rose-100 text-rose-700 border-rose-200';
+    };
+
     // Conteo para los badges de las pestañas
     const totalCoberturas = data?.coberturas?.length || 0;
     const totalReglas = data?.reglas?.length || 0;
 
     const handleDownloadJson = () => {
+        // ... (existing logic)
         const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -55,8 +65,9 @@ export function ContractResults({ data }: Props) {
         URL.revokeObjectURL(url);
     };
 
-    // Helper ultra-resiliente para obtener valores de objetos con llaves que pueden variar
+    // Helper ultra-resiliente...
     const getFuzzy = (target: any, keys: string[]) => {
+        // ... (existing getFuzzy)
         if (!target) return '';
         for (const k of keys) {
             // Intento búsqueda exacta
@@ -93,6 +104,14 @@ export function ContractResults({ data }: Props) {
                     <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                             <span className="text-[10px] bg-blue-50 text-blue-600 font-black px-2 py-0.5 rounded border border-blue-100 uppercase tracking-widest">Módulo de Auditoría Contractual</span>
+
+                            {/* BADGE DE CALIDAD */}
+                            <div className={`flex items-center gap-2 px-2 py-0.5 rounded border ${getScoreColor(quality.score)}`}>
+                                <ShieldCheck size={10} />
+                                <span className="text-[10px] font-black uppercase tracking-widest">
+                                    Integridad: {quality.score}% ({quality.status === 'EXCELLENT' ? 'Óptima' : quality.status === 'GOOD' ? 'Buena' : 'Revisar'})
+                                </span>
+                            </div>
                         </div>
                         <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-1">
                             {data?.diseno_ux?.nombre_isapre || 'Cargando...'}
@@ -100,6 +119,13 @@ export function ContractResults({ data }: Props) {
                         <p className="text-sm font-bold text-slate-500 uppercase tracking-tight">
                             {data?.diseno_ux?.titulo_plan} {data?.diseno_ux?.subtitulo_plan ? `| ${data.diseno_ux.subtitulo_plan}` : ''}
                         </p>
+
+                        {/* ALERTAS DE CALIDAD SI NO ES PERFECTO */}
+                        {quality.issues.length > 0 && (
+                            <div className="mt-2 text-[10px] text-slate-400 font-medium">
+                                {quality.issues.length} observacion(es) detectada(s).
+                            </div>
+                        )}
                     </div>
                     <div className="flex items-center gap-4">
                         <button
