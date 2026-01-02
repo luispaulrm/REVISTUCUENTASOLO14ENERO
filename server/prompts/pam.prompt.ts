@@ -61,6 +61,11 @@ Es común que un mismo **Folio PAM** esté subdividido en varias hojas o seccion
 - Suma todos los items de ese folio aunque aparezcan en imágenes/páginas distintas.
 - Identifica cada Prestador dentro de ese folio y agrégalos al array \`desglosePorPrestador\`.
 
+**REGLA DE EXHAUSTIVIDAD (CRÍTICA):**
+- Debes extraer **TODOS** los ítems listados en el documento, **INCLUSO SI EL COPAGO ES $0 O LA BONIFICACIÓN ES $0**.
+- **PROHIBIDO OMITIR ÍTEMS.** Si aparece en la lista, debe estar en el JSON.
+- A veces los ítems con Copago 0 son fundamentales para el historial clínico (ej. exámenes, días cama), por lo que es obligatorio incluirlos.
+
 **REGLA DE AISLAMIENTO:** Solo extrae datos de "Folio PAM" o "Bono". Ignora la Cuenta Paciente Definitiva.
 
 **PROCESO DE EXTRACCIÓN:**

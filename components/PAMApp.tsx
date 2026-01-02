@@ -397,7 +397,9 @@ export default function PAMApp() {
                         <div className="flex flex-col lg:flex-row gap-8">
                             <div className="flex-grow">
                                 <div ref={reportRef}>
-                                    <PAMResults data={pamResult} />
+                                    <ErrorBoundary>
+                                        <PAMResults data={pamResult} />
+                                    </ErrorBoundary>
                                 </div>
                             </div>
 
@@ -468,4 +470,42 @@ export default function PAMApp() {
             </main>
         </div>
     );
+}
+
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
+    constructor(props: { children: React.ReactNode }) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error: Error) {
+        return { hasError: true, error };
+    }
+
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+        console.error("PAM Error Boundary caught:", error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return (
+                <div className="p-8 bg-rose-50 border border-rose-200 rounded-3xl text-center">
+                    <h3 className="text-xl font-black text-rose-600 mb-2">Error de Renderizado</h3>
+                    <p className="text-slate-600 text-sm mb-4">Ocurrió un problema visualizando los resultados PAM.</p>
+                    <pre className="text-left bg-white p-4 rounded-xl border border-rose-100 text-[10px] text-rose-500 overflow-auto max-h-40">
+                        {this.state.error?.message}
+                    </pre>
+                    <button
+                        onClick={() => this.setState({ hasError: false, error: null })} // Reset
+                        onClickCapture={() => window.location.reload()} // Hard reset option
+                        className="mt-4 px-6 py-2 bg-rose-600 text-white rounded-xl font-bold text-xs uppercase"
+                    >
+                        Recargar Página
+                    </button>
+                </div>
+            );
+        }
+
+        return this.props.children;
+    }
 }

@@ -137,8 +137,12 @@ export async function extractPamData(
                         case 'error':
                             throw new Error(update.message);
                     }
-                } catch (e) {
+                } catch (e: any) {
                     console.error("Error parsing NDJSON:", e);
+                    // Critical: if it was a throw from the switch (e.g. type error), re-throw to abort stream
+                    if (e.message && !e.message.includes('JSON')) {
+                        throw e;
+                    }
                 }
             }
         }

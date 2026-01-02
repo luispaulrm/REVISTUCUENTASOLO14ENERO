@@ -8,6 +8,7 @@ import {
     Info,
     CheckCircle2,
     AlertCircle,
+    AlertTriangle,
     ShieldCheck,
     ArrowRightLeft,
     TrendingDown,
@@ -30,12 +31,26 @@ export function PAMResults({ data }: PAMResultsProps) {
         try {
             const saved = localStorage.getItem('clinic_audit_result');
             if (saved) {
-                setBillData(JSON.parse(saved));
+                const parsedBill = JSON.parse(saved);
+
+                // Heurística de Auto-Limpieza: 
+                // Si hay un descalce masivo (>50%), asumimos que es basura de una sesión anterior y no preguntamos.
+                const diff = Math.abs(parsedBill.clinicStatedTotal - data.global.totalValor);
+                const isMassiveMismatch = diff > (parsedBill.clinicStatedTotal * 0.5);
+
+                if (isMassiveMismatch) {
+                    // Borrado Silencioso
+                    console.log("[PAM] Auto-limpiando datos de cuenta clínica previos (Descalce > 50%)");
+                    localStorage.removeItem('clinic_audit_result');
+                    setBillData(null);
+                } else {
+                    setBillData(parsedBill);
+                }
             }
         } catch (e) {
             console.error("Error loading bill results for cross-audit:", e);
         }
-    }, []);
+    }, [data]);
 
     if (!data || !data.folios || data.folios.length === 0) {
         return (
@@ -57,34 +72,6 @@ export function PAMResults({ data }: PAMResultsProps) {
 
         const diff = billData.clinicStatedTotal - data.global.totalValor;
         const absDiff = Math.abs(diff);
-
-        // Heurística de Seguridad: Si la diferencia es mayor al 50% del total, probablemente es otra cuenta
-        const isLikelyMismatch = absDiff > (billData.clinicStatedTotal * 0.5);
-
-        if (isLikelyMismatch) {
-            return (
-                <div className="mt-12 bg-amber-50 rounded-[2.5rem] border border-amber-100 p-8 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-bottom-4">
-                    <div className="flex items-center gap-6">
-                        <div className="w-16 h-16 bg-amber-100 rounded-3xl flex items-center justify-center text-amber-600">
-                            <AlertTriangle size={32} />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-black text-slate-900">¿Posible Descalce de Documentos?</h2>
-                            <p className="text-sm text-slate-600 font-medium max-w-xl">
-                                Estás comparando una Cuenta Clínica de <span className="font-bold text-slate-900">${billData.clinicStatedTotal.toLocaleString()}</span> con un PAM de <span className="font-bold text-slate-900">${data.global.totalValor.toLocaleString()}</span>.
-                                La diferencia es muy grande; podría tratarse de documentos distintos.
-                            </p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={clearBillData}
-                        className="px-6 py-3 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 rounded-xl font-bold text-xs uppercase tracking-widest transition-colors shadow-sm"
-                    >
-                        Desvincular Datos Anteriores
-                    </button>
-                </div>
-            );
-        }
 
         if (absDiff < 10) return (
             <div className="mt-12 bg-white rounded-[2.5rem] border border-emerald-100 p-8 flex items-center justify-between shadow-sm">
