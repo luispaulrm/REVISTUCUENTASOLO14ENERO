@@ -355,15 +355,21 @@ app.post('/api/extract', async (req, res) => {
             if (isClinicTotalLine) {
                 sectionObj.sectionTotal = total;
             } else {
-                sectionObj.items.push({
-                    index: parseInt(idxStr) || globalIndex++,
-                    description: fullDescription,
-                    quantity: quantity,
-                    unitPrice: unitPrice,
-                    total: total,
-                    calculatedTotal: calcTotal,
-                    hasCalculationError: hasError
-                });
+                // Filter out header rows that crept in
+                const isHeaderArtifact = fullDescription.includes("[Descripción]") ||
+                    (fullDescription.includes("Descripción") && fullDescription.includes("Código"));
+
+                if (!isHeaderArtifact) {
+                    sectionObj.items.push({
+                        index: parseInt(idxStr) || globalIndex++,
+                        description: fullDescription,
+                        quantity: quantity,
+                        unitPrice: unitPrice,
+                        total: total,
+                        calculatedTotal: calcTotal,
+                        hasCalculationError: hasError
+                    });
+                }
             }
         }
 
