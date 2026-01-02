@@ -56,7 +56,8 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
         score -= penalty;
         issues.push({
             severity: 'warning',
-            message: `Posible ausencia de secciones clave: ${missingSections.join(', ')}`
+            message: `Faltan secciones clave: ${missingSections.join(', ')}. Estructura incompleta.`,
+            deduction: penalty
         });
     }
 
@@ -65,13 +66,21 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
     let emptyTope = 0;
 
     coberturas.forEach(c => {
-        if (!c['% BONIFICACIÓN'] || c['% BONIFICACIÓN'] === '-') emptyBonif++;
-        if (!c['TOPE LOCAL 2 (ANUAL/UF)'] || c['TOPE LOCAL 2 (ANUAL/UF)'] === '-') emptyTope++;
+        const item = c as any;
+        const bonif = item['% BONIFICACIÓN'] || item['PORCENTAJE COBERTURA'] || item['BONIFICACION'];
+        const tope = item['TOPE LOCAL 2 (ANUAL/UF)'] || item['TOPE ANUAL'];
+
+        if (!bonif || bonif === '-') emptyBonif++;
+        if (!tope || tope === '-') emptyTope++;
     });
 
     if (emptyBonif > (totalRows * 0.5)) {
         score -= 20;
-        issues.push({ severity: 'warning', message: 'Más del 50% de las filas no tienen porcentaje de bonificación detectado.' });
+        issues.push({
+            severity: 'warning',
+            message: 'No se detectó columna de "Bonificación" o "Porcentaje" válida en >50% de las filas.',
+            deduction: 20
+        });
     }
 
     // 3. Verificación de "Alucinación de Estructura" (Filas muy cortas o basura)
@@ -80,8 +89,13 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
     ).length;
 
     if (suspiciousRows > 0) {
-        score -= (suspiciousRows * 5);
-        issues.push({ severity: 'info', message: `Se detectaron ${suspiciousRows} filas con descripciones sospechosamente cortas.` });
+        const penalty = suspiciousRows * 5;
+        score -= penalty;
+        issues.push({
+            severity: 'info',
+            message: `Se detectaron ${suspiciousRows} filas con descripciones sospechosamente cortas (posible basura).`,
+            deduction: penalty
+        });
     }
 
     // Normalización del Score

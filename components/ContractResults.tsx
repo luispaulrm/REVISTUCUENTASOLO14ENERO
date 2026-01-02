@@ -125,8 +125,15 @@ export function ContractResults({ data }: Props) {
 
                         {/* ALERTAS DE CALIDAD SI NO ES PERFECTO */}
                         {quality.issues.length > 0 && (
-                            <div className="mt-2 text-[10px] text-slate-400 font-medium">
-                                {quality.issues.length} observacion(es) detectada(s).
+                            <div className="mt-3 space-y-1">
+                                {quality.issues.map((issue, idx) => (
+                                    <div key={idx} className="flex items-start gap-2 text-[10px] font-medium leading-tight">
+                                        <span className="text-rose-600 font-bold whitespace-nowrap">
+                                            [{issue.deduction ? `-${issue.deduction}%` : 'ALERTA'}]
+                                        </span>
+                                        <span className="text-slate-500">{issue.message}</span>
+                                    </div>
+                                ))}
                             </div>
                         )}
                     </div>
