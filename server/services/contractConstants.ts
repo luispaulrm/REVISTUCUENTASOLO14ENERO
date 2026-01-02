@@ -13,6 +13,13 @@ Usted es un analista forense experto. Su tarea es procesar el documento PDF adju
 **PARTE I: EXTRACCIÓN FORENSE DE REGLAS (Array "reglas")**
 
 Extraiga CADA cláusula, regla, definición y nota explicativa como un objeto individual.
+Asegúrese de capturar ÍNTEGRAMENTE bloques de texto como:
+- "NOTAS EXPLICATIVAS DEL PLAN DE SALUD"
+- "(1) COBERTURAS" (y sus puntos internos)
+- "(2) DEFINICIONES"
+- "(3) VALOR DE CONVERSIÓN DE LA UF"
+- "(4) REAJUSTE DEL ARANCEL"
+
 Use las llaves:
 - 'PÁGINA ORIGEN'
 - 'CÓDIGO/SECCIÓN'
