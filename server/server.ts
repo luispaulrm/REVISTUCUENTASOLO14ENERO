@@ -107,12 +107,12 @@ const EXTRACTION_PROMPT = `
     Las clínicas en Chile usan formatos confusos para ocultar el costo real. 
     A menudo presentan una columna "Valor" (Neto) y mucho después una columna "Valor ISA" (Bruto con IVA).
     
-    REGLA DE ORO DE TRAZABILIDAD:
-    - NUMERA LOS ÍTEMS: Cada ítem debe tener un campo 'index' comenzando desde 1 para toda la cuenta. Esto permite al usuario verificar si se saltó algún ítem.
-    - NO AGRUPES SECCIONES. Si la clínica lista "Materiales Clínicos 1", "Materiales Clínicos 2" y "Farmacia" por separado con sus propios subtotales, DEBES extraerlos como secciones independientes en el JSON. La trazabilidad debe ser exacta al documento.
-    - unitPrice: Debe ser el valor de la columna 'Precio' (VALOR NETO UNITARIO).
-    - total: Debe ser el valor de la columna 'Valor Isa' (VALOR TOTAL CON IMPUESTOS Y RECARGOS).
-    - RECUERDA: La diferencia entre Cantidad * Precio y Valor Isa corresponde a IVA, Impuestos Específicos o Recargos Legales vigentes en Chile. Esto es correcto y esperado.
+    REGLA DE ORO DE TRAZABILIDAD Y MATEMÁTICA:
+    - NUMERA LOS ÍTEMS: Cada ítem debe tener un campo 'index' comenzando desde 1 para toda la cuenta.
+    - NO AGRUPES SECCIONES: Extrae cada sección por separado como aparece en el papel.
+    - PRIORIZA VALOR ISA: Usa siempre la columna de valor final bruto (con IVA) para el campo 'total'.
+    - CONSISTENCIA: El campo 'unitPrice' DEBE ser consistente con el 'total'. Si el documento solo da el precio neto unitario, CALCULA el 'unitPrice' como (total / quantity) para que la auditoría sea perfecta (unitPrice * quantity = total).
+    - RECUERDA: Toda la auditoría se realiza en valores BRUTOS (con IVA incluido) para que coincida con lo que se reporta a la Isapre y el total final de la cuenta.
 
     REGLA DE RECONCILIACIÓN MATEMÁTICA (AUDITORÍA INTERNA):
     - ANTES DE ESCRIBIR CADA SECCIÓN: Realiza un cálculo silencioso. Suma los valores de la columna 'Valor Isa' de todos los ítems que planeas extraer para esa sección.
