@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Info, AlertTriangle, ShieldCheck, Scale } from 'lucide-react';
+import { Search, Info, AlertTriangle, ShieldCheck, Scale, Download } from 'lucide-react';
 import { Contract, UsageMetrics } from '../types';
 
 interface Props {
@@ -42,6 +42,18 @@ export function ContractResults({ data }: Props) {
     // Conteo para los badges de las pestañas
     const totalCoberturas = data?.coberturas?.length || 0;
     const totalReglas = data?.reglas?.length || 0;
+
+    const handleDownloadJson = () => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `auditoria_contrato_${data?.diseno_ux?.nombre_isapre || 'isapre'}_${new Date().getTime()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
     // Helper ultra-resiliente para obtener valores de objetos con llaves que pueden variar
     const getFuzzy = (target: any, keys: string[]) => {
@@ -89,7 +101,16 @@ export function ContractResults({ data }: Props) {
                             {data?.diseno_ux?.titulo_plan} {data?.diseno_ux?.subtitulo_plan ? `| ${data.diseno_ux.subtitulo_plan}` : ''}
                         </p>
                     </div>
-                    {displayUsage && <TokenStatsBadge metadata={displayUsage} />}
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={handleDownloadJson}
+                            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-md active:scale-95"
+                        >
+                            <Download size={14} />
+                            Exportar JSON
+                        </button>
+                        {displayUsage && <TokenStatsBadge metadata={displayUsage} />}
+                    </div>
                 </div>
 
                 {/* Tabs Minimalistas */}
