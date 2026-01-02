@@ -45,7 +45,27 @@ export async function handleContractExtraction(req: Request, res: Response) {
         const result = await analyzeSingleContract(
             file,
             apiKey,
-            (logMsg) => sendUpdate({ type: 'chunk', text: logMsg + '\n' }),
+            (logMsg) => {
+                if (logMsg.startsWith('@@METRICS@@')) {
+                    try {
+                        const metrics = JSON.parse(logMsg.replace('@@METRICS@@', ''));
+                        sendUpdate({
+                            type: 'usage',
+                            usage: {
+                                promptTokens: metrics.input,
+                                candidatesTokens: metrics.output,
+                                totalTokens: metrics.input + metrics.output,
+                                estimatedCostCLP: Math.round(metrics.cost)
+                            }
+                        });
+                    } catch (e) {
+                        // Fallback if parsing fails
+                        console.error('Error parsing metrics', e);
+                    }
+                } else {
+                    sendUpdate({ type: 'chunk', text: logMsg + '\n' });
+                }
+            },
             {
                 // Custom options if needed
             }

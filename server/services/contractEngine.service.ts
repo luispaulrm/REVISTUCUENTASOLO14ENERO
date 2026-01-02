@@ -179,15 +179,17 @@ export async function analyzeSingleContract(
         model: AI_CONFIG.ACTIVE_MODEL,
         systemInstruction: CONTRACT_ANALYSIS_PROMPT,
         generationConfig: { maxOutputTokens, temperature: 0 },
-        safetySettings: SAFETY_SETTINGS
+        safetySettings: SAFETY_SETTINGS,
+    }, {
+        timeout: 180000 // 3 minutes timeout to prevent infinite hangs
     });
 
     const userPrompt = `
     [DOCUMENTO A ANALIZAR]
-    METADATOS VERIFICADOS: El documento PDF original contiene ${totalPages} páginas.
+    METADATOS VERIFICADOS: El documento original contiene ${totalPages} páginas.
     INSTRUCCIÓN DE COBERTURA: Usted DEBE procesar y extraer información hasta la PÁGINA ${totalPages}.
     
-    ${extractedText ? `Texto OCR extraído:\n${extractedText}` : 'Use el PDF adjunto para el análisis forense.'}
+    Use el documento adjunto para el análisis forense estructurado.
     
     [MANDATO FINAL]
     Siga estrictamente el mandato de exhaustividad del sistema y genere el JSON final.
@@ -195,23 +197,80 @@ export async function analyzeSingleContract(
     `;
 
     const contents = [
-        filePart,
-        { text: userPrompt },
+        {
+            role: 'user',
+            parts: [
+                filePart,
+                { text: userPrompt }
+            ]
+        }
     ];
 
     let sessionActive = true;
     let secondsSinceStar = 0;
     let chunksReceived = 0;
 
-    const streamResult = await model.generateContentStream({ contents });
-    let fullText = '';
+    // Estimate input tokens to save a heavy API call (approx 4000 per page for contracts)
+    const inputTokens = totalPages * 4000;
+    log(`[ContractEngine] 🔢 Tokens de Entrada (Est.): ${inputTokens}`);
 
-    for await (const chunk of streamResult.stream) {
-        const chunkText = chunk.text();
-        fullText += chunkText;
-        chunksReceived++;
-        if (chunksReceived % 2 === 0) {
-            log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: DESCARGANDO (${chunksReceived}s)`);
+    log('[ContractEngine] 🚀 Iniciando stream con Auto-Retry...');
+    let fullText = '';
+    const MAX_RETRIES = 2;
+
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+            if (attempt > 1) {
+                log(`[ContractEngine] 🔄 Reintentando (Intento ${attempt}/${MAX_RETRIES})...`);
+            }
+
+            const streamResult = await model.generateContentStream({ contents });
+            log('[ContractEngine] 📡 Stream conectado. Esperando primer chunk...');
+
+            for await (const chunk of streamResult.stream) {
+                const chunkText = chunk.text();
+                fullText += chunkText;
+                chunksReceived++;
+
+                // Always log first chunk to confirm aliveness
+                if (chunksReceived === 1) {
+                    log('[ContractEngine] 🐣 Primer chunk recibido!');
+                }
+
+                // Emitting Real-Time Metrics every ~2 seconds (assuming chunks come fast)
+                if (chunksReceived % 2 === 0) {
+                    log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: DESCARGANDO (${chunksReceived} chunks)`);
+
+                    // Calculate real-time metrics
+                    const currentOutputTokens = Math.ceil(fullText.length / 4);
+                    const currentCost = calculatePrice(inputTokens, currentOutputTokens).costCLP;
+
+                    // Special log format for endpoint interception
+                    log(`@@METRICS@@${JSON.stringify({
+                        input: inputTokens,
+                        output: currentOutputTokens,
+                        cost: currentCost
+                    })}`);
+                }
+            }
+
+            // If success, break loop
+            break;
+
+        } catch (streamError: any) {
+            const isAbort = streamError.message.includes('aborted') || streamError.name === 'AbortError' || streamError.message.includes('AbortError');
+
+            if (isAbort && attempt < MAX_RETRIES) {
+                log(`[ContractEngine] ⚠️ Timeout detectado en intento ${attempt}. Reintentando automáticamente en 2s...`);
+                // Reset for retry
+                fullText = '';
+                chunksReceived = 0;
+                await new Promise(r => setTimeout(r, 2000));
+                continue;
+            } else {
+                log(`[ContractEngine] ❌ Error CRÍTICO en stream (Intento ${attempt}): ${streamError.message}`);
+                throw streamError;
+            }
         }
     }
 
@@ -233,13 +292,14 @@ export async function analyzeSingleContract(
 
     log(`[ContractEngine] ✅ Auditoría estructurada correctamente.`);
 
-    const inputTokens = (await model.countTokens({ contents })).totalTokens;
     // Estimate output tokens since streaming doesn't give it directly in all versions, or use usageMetadata if available
     const outputTokens = Math.ceil(fullText.length / 4); // Rough approximation if usageMetadata missing
     const totalTokens = inputTokens + outputTokens;
-    const estimatedCost = calculatePrice(AI_CONFIG.ACTIVE_MODEL, inputTokens, outputTokens);
 
-    log(`[ContractEngine] 📊 Resumen: ${totalTokens} tokens | Costo Est: $${Math.round(estimatedCost)} CLP`);
+    // RE-APPLYING PRICE FIX
+    const priceData = calculatePrice(inputTokens, outputTokens);
+
+    log(`[ContractEngine] 📊 Resumen: ${totalTokens} tokens | Costo Est: $${priceData.costCLP} CLP`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     const result: ContractAnalysisResult = {
@@ -250,7 +310,7 @@ export async function analyzeSingleContract(
                 input: inputTokens,
                 output: outputTokens,
                 total: totalTokens,
-                costClp: estimatedCost
+                costClp: priceData.costCLP
             }
         }
     };
