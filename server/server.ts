@@ -327,9 +327,71 @@ app.post('/api/extract', async (req, res) => {
             }
         }
 
-        for (const sec of sectionsMap.values()) {
+        // ... After parsing lines Loop ...
+
+        // --- AUTO-RECONCILIATION LOOP ---
+        console.log(`[AUDIT] Starting Mathematical Verification...`);
+        const sectionsArray = Array.from(sectionsMap.values());
+
+        // Notify frontend that we are entering verification phase
+        sendUpdate({ type: 'status', message: 'Verificando cuadratura matemática...' });
+
+        // Instantiate Gemini Service for repairs if needed
+        const geminiService = new GeminiService(apiKey);
+
+        for (const sec of sectionsArray) {
+            // Recalculate sum of items
+            const sumItems = sec.items.reduce((acc: number, item: any) => acc + item.total, 0);
+
+            // If sectionTotal is 0 (maybe not found), try to assume it from items, but if it IS found, trust it.
             if (sec.sectionTotal === 0 && sec.items.length > 0) {
-                sec.sectionTotal = sec.items.reduce((sum: number, item: any) => sum + item.total, 0);
+                sec.sectionTotal = sumItems;
+                continue;
+            }
+
+            const diff = sec.sectionTotal - sumItems;
+
+            // Tolerance threshold (e.g., $1000 CLP to avoid minor rounding noise, but user complained about $400k)
+            if (Math.abs(diff) > 1000) {
+                console.warn(`[DISCREPANCY] Section "${sec.category}": Declared $${sec.sectionTotal} vs Items Sum $${sumItems}. Diff: $${diff}`);
+
+                // Trigger Repair
+                sendUpdate({ type: 'status', message: `⚠️ Discrepancia en "${sec.category}". Intentando auto-corrección...` });
+
+                try {
+                    console.log(`[REPAIR] Requesting repair for section: ${sec.category}`);
+                    const repairedItems = await geminiService.repairSection(
+                        image,
+                        mimeType,
+                        sec.category,
+                        sec.sectionTotal,
+                        sumItems
+                    );
+
+                    if (repairedItems && repairedItems.length > 0) {
+                        const newSum = repairedItems.reduce((acc: number, item: any) => acc + (item.total || 0), 0);
+                        const newDiff = sec.sectionTotal - newSum;
+
+                        if (Math.abs(newDiff) < Math.abs(diff)) {
+                            console.log(`[REPAIR SUCCESS] Section "${sec.category}" fixed. New Diff: $${newDiff}`);
+                            // Update section with repaired items
+                            sec.items = repairedItems.map((item: any) => ({
+                                ...item,
+                                // Ensure robust typing
+                                total: item.total || 0,
+                                unitPrice: item.unitPrice || 0,
+                                quantity: item.quantity || 1,
+                                hasCalculationError: Math.abs((item.unitPrice * item.quantity) - item.total) > 10
+                            }));
+                            sendUpdate({ type: 'status', message: `✅ Corrección exitosa en "${sec.category}"` });
+                        } else {
+                            console.warn(`[REPAIR FAILED] New items didn't solve the issue. Keeping original.`);
+                            sendUpdate({ type: 'status', message: `❌ No se pudo corregir "${sec.category}" automáticamente.` });
+                        }
+                    }
+                } catch (repairError) {
+                    console.error(`[REPAIR ERROR] Failed to repair section ${sec.category}`, repairError);
+                }
             }
         }
 

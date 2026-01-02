@@ -65,6 +65,72 @@ export class GeminiService {
     }
 
     /**
+     * Executes a targeted repair tailored for a specific section discrepancy.
+     */
+    async repairSection(
+        image: string,
+        mimeType: string,
+        sectionName: string,
+        declaredTotal: number,
+        calculatedTotal: number
+    ): Promise<any[]> {
+        const diff = declaredTotal - calculatedTotal;
+        const prompt = `
+        ACT AS A CLINICAL BILL AUDIT SPECIALIST.
+        
+        ISSUE:
+        In the section "${sectionName}", you previously extracted items that sum up to $${calculatedTotal.toLocaleString('es-CL')}.
+        However, the document clearly states that the TOTAL for this section should be $${declaredTotal.toLocaleString('es-CL')}.
+        
+        There is a DISCREPANCY of $${diff.toLocaleString('es-CL')} (Missing or Misread Items).
+        
+        YOUR TASK:
+        1. Re-scan ONLY the section "${sectionName}" in the provided image.
+        2. Find the items that explain this difference. It might be:
+           - A missing item you skipped.
+           - An item where you read a digit wrongly (e.g. read 6 as 8).
+           - An item where you read the Unit Price instead of the Total Price.
+        3. Output the COMPLETE correct list of items for this section.
+        
+        OUTPUT FORMAT: A plain JSON array of objects.
+        [
+          { "index": 1, "description": "...", "quantity": 1, "unitPrice": 100, "total": 100 },
+          ...
+        ]
+        
+        IMPORTANT:
+        - Return ONLY the JSON array. No markdown formatting.
+        - Ensure the new list sums up EXACTLY to $${declaredTotal.toLocaleString('es-CL')}.
+        `;
+
+        const model = this.client.getGenerativeModel({
+            model: "gemini-3-pro-preview",
+            generationConfig: {
+                maxOutputTokens: 8000,
+                responseMimeType: "application/json"
+            }
+        });
+
+        const result = await model.generateContent([
+            { text: prompt },
+            {
+                inlineData: {
+                    data: image,
+                    mimeType: mimeType
+                }
+            }
+        ]);
+
+        const text = result.response.text();
+        try {
+            return JSON.parse(text);
+        } catch (e) {
+            console.error("Failed to parse repair JSON", e);
+            return [];
+        }
+    }
+
+    /**
      * Calcula el costo estimado basado en el modelo y el uso de tokens.
      * Basado en las nuevas tarifas de Gemini 3.
      */
