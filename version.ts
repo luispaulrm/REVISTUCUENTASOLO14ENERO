@@ -1,2 +1,2 @@
-export const VERSION = "v1.5.17";
-export const LAST_MODIFIED = "31/12/2025 18:26 (Chile)";
+export const VERSION = "v1.5.19";
+export const LAST_MODIFIED = "01/01/2026 22:33 (Chile)";
