@@ -113,7 +113,8 @@ const EXTRACTION_PROMPT = `
     - PRIORIZA VALORES BRUTOS (VALOR ISA): La auditoría se basa en el costo real final.
     - CONSISTENCIA MATEMÁTICA OBLIGATORIA: Antes de escribir cada línea, verifica que (unitPrice * quantity = total).
     - NORMALIZACIÓN: Si el documento muestra un Precio Neto pero el Total es Bruto (con IVA), DEBES extraer el unitPrice como (Total / Cantidad). El objetivo es que Price * Qty NUNCA de error de cálculo.
-    - HONORARIOS FRACCIONARIOS: Presta extrema atención a cantidades como 0.1 o 0.25. El 'total' DEBE ser proporcional (ej: 0.1 * 4.000.000 = 400.000). Prohibido alucinar el total de la cirugía completa en líneas de porcentaje.
+    - HONORARIOS FRACCIONARIOS (0.1, 0.25, etc.): El 'total' DEBE ser proporcional (ej: 0.1 * 4.000.000 = 400.000). Prohibido alucinar el total de la cirugía completa en líneas de porcentaje.
+    - BLOQUE DE CÁLCULO: En el formato de salida, DEBES incluir el resultado de tu multiplicación en la columna de verificación.
 
     REGLA DE RECONCILIACIÓN MATEMÁTICA (AUDITORÍA INTERNA):
     - ANTES DE ESCRIBIR CADA SECCIÓN: Realiza un cálculo silencioso. Suma los valores de la columna 'Valor Isa' de todos los ítems que planeas extraer para esa sección.
@@ -184,7 +185,7 @@ app.post('/api/extract', async (req, res) => {
           DATE: ...
           GRAND_TOTAL: ...
           SECTION: [Nombre Exacto Sección]
-          [Index]|[Código]|[Descripción]|[Cant]|[PrecioUnit]|[Total]
+          [Index]|[Código]|[Descripción]|[Cant]|[PrecioUnit]|[Verif: Cant*Precio]|[Total]
           SECTION: [Siguiente Sección...]
           ...
         `;
@@ -291,7 +292,10 @@ app.post('/api/extract', async (req, res) => {
             const desc = cols[2];
             const qtyStr = cols[3];
             const unitPriceStr = cols[4];
-            const totalStr = cols[5];
+            // En el nuevo formato v1.6.3:
+            // cols[5] es la verificación Cant * Precio
+            // cols[6] es el total final
+            const totalStr = cols.length >= 7 ? cols[6] : cols[5];
 
             const isClinicTotalLine = desc?.toUpperCase().includes("TOTAL SECCIÓN") || desc?.toUpperCase().includes("SUBTOTAL");
             const total = parseInt((totalStr || "0").replace(/\./g, '')) || 0;
@@ -305,6 +309,9 @@ app.post('/api/extract', async (req, res) => {
                 sectionObj = sectionsMap.get("SECCIONES_GENERALES");
             }
 
+            const calcTotal = Math.round(unitPrice * quantity);
+            const hasError = Math.abs(total - calcTotal) > 1;
+
             if (isClinicTotalLine) {
                 sectionObj.sectionTotal = total;
             } else {
@@ -314,8 +321,8 @@ app.post('/api/extract', async (req, res) => {
                     quantity: quantity,
                     unitPrice: unitPrice,
                     total: total,
-                    calculatedTotal: total,
-                    hasCalculationError: false
+                    calculatedTotal: calcTotal,
+                    hasCalculationError: hasError
                 });
             }
         }
