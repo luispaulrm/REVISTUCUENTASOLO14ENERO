@@ -66,6 +66,7 @@ export async function extractContractData(
                             totalReceived += update.text?.length || 0;
                             const chunkProgress = Math.min(15 + (totalReceived / EXPECTED_SIZE) * 70, 85);
                             onProgress?.(chunkProgress);
+                            if (update.text) onLog?.(update.text.trim());
                             break;
 
                         case 'final':

@@ -13,6 +13,7 @@ export async function handleContractExtraction(req: Request, res: Response) {
     // Setup streaming response for logs
     res.setHeader('Content-Type', 'application/x-ndjson');
     res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('X-Accel-Buffering', 'no'); // Prevent buffering in proxies like Nginx/Railway
 
     const sendUpdate = (data: any) => {
         res.write(JSON.stringify(data) + '\n');

@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import {
     ContractAnalysisResult,
     ContractAnalysisOptions,
@@ -9,15 +9,18 @@ import {
     CONTRACT_ANALYSIS_SCHEMA,
     CONTRACT_ANALYSIS_PROMPT,
     CONTRACT_OCR_MAX_PAGES,
-    CONTRACT_MAX_OUTPUT_TOKENS,
     CONTRACT_FAST_MODEL,
     CONTRACT_REASONING_MODEL,
-    CONTRACT_DEFAULT_RETRIES
 } from './contractConstants.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function fileToGenerativePart(file: UploadedFile) {
     return {
@@ -52,26 +55,48 @@ function safeJsonParse<T>(text: string): T {
 
 async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<string> {
     try {
+        log(`[ContractEngine] 🔍 Escaneando PDF: ${file.originalname}...`);
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+
+        // Resolve standard fonts path for Node.js - MUST end with a slash / 
+        // We use a trailing slash explicitly as PDFJS is picky about this.
+        let fontPath = path.join(__dirname, '../node_modules/pdfjs-dist/standard_fonts/');
+        // Ensure it ends with a slash regardless of OS joins
+        if (!fontPath.endsWith('/') && !fontPath.endsWith('\\')) fontPath += '/';
+        const standardFontDataUrl = fontPath;
+
         const data = new Uint8Array(file.buffer);
-        const loadingTask = pdfjsLib.getDocument({ data, disableFontFace: true });
+        const loadingTask = pdfjsLib.getDocument({
+            data,
+            disableFontFace: true,
+            standardFontDataUrl
+        });
         const pdf = await loadingTask.promise;
 
         const pagesToScan = Math.min(pdf.numPages, Number.isFinite(maxPages) ? maxPages : pdf.numPages);
-        log(`[ContractEngine] 📗 PDF cargado: ${pdf.numPages} páginas totales (Escaneando primeras ${pagesToScan}).`);
+        log(`[ContractEngine] 📗 PDF cargado (${pdf.numPages} págs). Procesando ${pagesToScan}.`);
+
         let formattedText = '';
 
         for (let pageNumber = 1; pageNumber <= pagesToScan; pageNumber++) {
-            // Log más frecuente para documentos largos
-            log(`[ContractEngine] 📄 Escaneando contenido: Página ${pageNumber}/${pagesToScan}...`);
+            log(`[ContractEngine] 📄 OCR Página ${pageNumber}/${pagesToScan}...`);
 
-            const page = await pdf.getPage(pageNumber);
-            const textContent = await page.getTextContent();
-            const pageText = (textContent?.items || [])
-                .map((item: any) => item?.str || '')
-                .join('\n')
-                .replace(/\s+/g, ' ')
-                .trim();
+            const pagePromise = pdf.getPage(pageNumber).then(async (page) => {
+                const textContent = await page.getTextContent();
+                return (textContent?.items || [])
+                    .map((item: any) => item?.str || '')
+                    .join('\n')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+            });
+
+            const pageText = await Promise.race([
+                pagePromise,
+                new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout de lectura')), 25000))
+            ]).catch(err => {
+                log(`[ContractEngine] ⚠️ Error pág ${pageNumber}: ${err.message}`);
+                return '';
+            });
 
             if (pageText) {
                 formattedText += `\n--- PÁGINA ${pageNumber} ---\n${pageText}\n`;
@@ -80,7 +105,7 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
 
         return formattedText.trim();
     } catch (error) {
-        log(`[ContractEngine] ⚠️ Error en extracción de texto (OCR): ${error instanceof Error ? error.message : 'Error desconocido'}`);
+        log(`[ContractEngine] ❌ Error en OCR: ${error instanceof Error ? error.message : 'Error fatal'}`);
         return '';
     }
 }
@@ -91,21 +116,28 @@ async function repairJsonWithGemini(
     invalidText: string,
     log: (msg: string) => void
 ): Promise<string> {
-    log('[ContractEngine] 🔧 Detectada estructura JSON dañada. Solicitando reparación mecánica...');
-    const repairPrompt = `La respuesta JSON de un contrato de salud es inválida. Corrígela preservando TODOS los datos y devuelve SOLO el JSON válido:\n\n${invalidText}`;
+    log('[ContractEngine] 🔧 Solicitando reparación estructural Pro...');
+    const repairPrompt = `JSON INVÁLIDO:\n${invalidText}\n\nDevuelve SOLO el JSON corregido:`;
     try {
         const model = genAI.getGenerativeModel({ model: CONTRACT_FAST_MODEL });
         const result = await model.generateContent(repairPrompt);
         return result.response.text() || invalidText;
     } catch (error) {
-        log(`[ContractEngine] ❌ Error en reparación: ${error instanceof Error ? error.message : 'Error fatal'}`);
+        log(`[ContractEngine] ⚠️ Reparación fallida.`);
         return invalidText;
     }
 }
 
 // ============================================================================
-// CORE ANALYSIS FUNCTIONS (ULTRA-RESILIENT STREAMING)
+// CORE ANALYSIS FUNCTIONS
 // ============================================================================
+
+const SAFETY_SETTINGS = [
+    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+];
 
 async function analyzeSingleContract(
     file: UploadedFile,
@@ -115,7 +147,7 @@ async function analyzeSingleContract(
 ): Promise<ContractAnalysisResult> {
     const startTime = Date.now();
     const {
-        maxOutputTokens = CONTRACT_MAX_OUTPUT_TOKENS,
+        maxOutputTokens = 40000,
         ocrMaxPages = CONTRACT_OCR_MAX_PAGES,
         modelName = CONTRACT_REASONING_MODEL,
     } = options;
@@ -126,43 +158,51 @@ async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log('[ContractEngine v3.0] 🚀 MODO DE TRANSMISIÓN ULTRA-RESILIENTE');
-    log(`[ContractEngine] 📄 Archivo: ${file.originalname || 'documento.pdf'}`);
-    log(`[ContractEngine] ⚖️ Peso: ${(file.buffer.length / 1024 / 1024).toFixed(2)} MB`);
+    log(`[ContractEngine v3.8] 🛡️ MOTOR ULTRA-RESILIENTE PRO`);
+    log(`[ContractEngine] 📄 Modelo: Gemini 3 Pro (High-End)`);
+    log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const filePart = fileToGenerativePart(file);
 
-    log('[ContractEngine] 🔍 Fase 1/4 (OCR): Analizando estructura física...');
+    // FASE 1: OCR
     const extractedText = await extractTextFromPdf(file, ocrMaxPages, log);
 
-    log('[ContractEngine] 🧠 Fase 2/4 (STREAM): Solicitando auditoría forense...');
-    log('[ContractEngine] ⏳ LA IA ESTÁ PROCESANDO 50+ PÁGINAS. NO CIERRE LA VENTANA.');
+    // FASE 2: AI (Using System Instruction for performance)
+    log(`[ContractEngine] ⚡ Solicitando auditoría forense Pro...`);
+    log(`[ContractEngine] ⏳ RAZONANDO: Espere mientras el modelo Pro aplica las reglas forenses.`);
 
     const model = genAI.getGenerativeModel({
         model: modelName,
-        generationConfig: {
-            maxOutputTokens,
-            temperature: 0,
-        }
+        systemInstruction: CONTRACT_ANALYSIS_PROMPT, // Move prompt to system instructions
+        generationConfig: { maxOutputTokens, temperature: 0 },
+        safetySettings: SAFETY_SETTINGS
     });
+
+    const userPrompt = `
+    [DOCUMENTO A ANALIZAR]
+    ${extractedText ? `Texto OCR extraído:\n${extractedText}` : 'Use el PDF adjunto para el análisis forense.'}
+    
+    [MANDATO FINAL]
+    Siga estrictamente el mandato de exhaustividad del sistema y genere el JSON final.
+    `;
 
     const contents = [
         filePart,
-        ...(extractedText ? [{ text: `\n[MANDATO DE CONTEXTO: TEXTO PDF EXTRAÍDO]\n${extractedText}\n[FIN TEXTO EXTRAÍDO]` }] : []),
-        { text: CONTRACT_ANALYSIS_PROMPT },
+        { text: userPrompt },
     ];
 
-    // Heartbeat Interval (Every 10 seconds to avoid connection drop)
     let sessionActive = true;
-    let dotCounter = 0;
+    let secondsSinceStar = 0;
+    let chunksReceived = 0;
+
     const heartbeat = setInterval(() => {
         if (!sessionActive) return;
-        dotCounter++;
-        const dots = '.'.repeat((dotCounter % 3) + 1);
-        log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: Procesando bloques de coberturas${dots}`);
-    }, 10000);
+        secondsSinceStar += 4;
+        const phase = chunksReceived > 0 ? "DESCARGANDO" : "PROCESANDO REGLAS";
+        log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: ${phase} (${secondsSinceStar}s)`);
+    }, 4000);
 
     let responseText = '';
     let usageMetadata: any = null;
@@ -172,16 +212,19 @@ async function analyzeSingleContract(
 
         for await (const chunk of streamingResult.stream) {
             try {
+                chunksReceived++;
                 const chunkText = chunk.text();
                 responseText += chunkText;
 
-                // Progress signal every 1000 characters
-                if (responseText.length % 5000 < 500) {
-                    log(`[ContractEngine] 📥 Recibidos ${(responseText.length / 1024).toFixed(1)} KB de datos forenses...`);
+                if (chunksReceived === 1) {
+                    log('[ContractEngine] 📦 PRIMER BYTE RECIBIDO: El modelo Pro está escribiendo.');
                 }
-            } catch (chunkError) {
-                // Handle cases where chunk might be a safety block
-                console.warn('[ContractEngine] Chunk rejected or safety filter triggered:', chunkError);
+
+                if (chunksReceived % 20 === 0) {
+                    log(`[ContractEngine] 📥 Progreso de descarga: ${(responseText.length / 1024).toFixed(1)} KB...`);
+                }
+            } catch (chunkError: any) {
+                console.warn('[ContractEngine] Stream chunk error:', chunkError.message);
             }
         }
 
@@ -193,39 +236,37 @@ async function analyzeSingleContract(
     } catch (error: any) {
         sessionActive = false;
         clearInterval(heartbeat);
-        log(`[ContractEngine] ❌ ERROR CRÍTICO EN TRANSMISIÓN: ${error.message}`);
-        throw error;
+        log(`[ContractEngine] ❌ Error en motor Pro: ${error.message}`);
+        if (!responseText) throw error;
     }
 
-    log(`[ContractEngine] ✅ Recepción finalizada (${(responseText.length / 1024).toFixed(1)} KB)`);
-    log('[ContractEngine] 🔧 Fase 3/4 (VALIDACIÓN): Reconstruyendo JSON...');
+    log(`[ContractEngine] ✅ Recepción completa.`);
+    log('[ContractEngine] 🔧 Validando estructura final...');
 
     let result: ContractAnalysisResult | null = null;
     let lastText = responseText;
 
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    for (let attempt = 1; attempt <= 2; attempt++) {
         try {
             result = safeJsonParse<ContractAnalysisResult>(lastText);
-            log(`[ContractEngine] ✅ Estructura JSON validada con éxito.`);
+            log(`[ContractEngine] ✅ Auditoría estructurada correctamente.`);
             break;
         } catch (parseError) {
-            if (attempt === 3) throw new Error("No se pudo reconstruir el JSON tras 3 intentos.");
-            log(`[ContractEngine] ⚠️ Error de estructura (Intento ${attempt}/3). Reparando...`);
+            if (attempt === 2) throw new Error("JSON ilegible tras reparación.");
+            log(`[ContractEngine] ⚠️ Corrigiendo estructura...`);
             lastText = await repairJsonWithGemini(genAI, CONTRACT_ANALYSIS_SCHEMA, lastText, log);
         }
     }
 
-    if (!result) throw new Error("Fallo crítico en la generación de resultados del contrato.");
+    if (!result) throw new Error("Fallo en generación v3.5.");
 
     // Final Metrics
     if (usageMetadata) {
         const promptTokens = usageMetadata.promptTokenCount || 0;
         const candidatesTokens = usageMetadata.candidatesTokenCount || 0;
-        const inputRate = 0.50;
-        const outputRate = 3.00;
-        const costClp = ((promptTokens / 1_000_000) * inputRate + (candidatesTokens / 1_000_000) * outputRate) * 980;
+        const costClp = ((promptTokens / 1_000_000) * 1.5 + (candidatesTokens / 1_000_000) * 4.5) * 980;
 
-        log(`[ContractEngine] 📊 MÉTRICAS FINALES: ${promptTokens + candidatesTokens} tokens | Costo Est: $${Math.round(costClp)} CLP`);
+        log(`[ContractEngine] 📊 Resumen: ${promptTokens + candidatesTokens} tokens | Costo Est: $${Math.round(costClp)} CLP`);
 
         result.metrics = {
             executionTimeMs: Date.now() - startTime,
@@ -240,8 +281,7 @@ async function analyzeSingleContract(
 
     result.executionTimeMs = Date.now() - startTime;
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine] ✅ PROCESAMIENTO EXITOSO EN ${(result.executionTimeMs / 1000).toFixed(1)}s`);
-    log(`[ContractEngine]    - Coberturas extraídas: ${result.coberturas?.length || 0}`);
+    log(`[ContractEngine] ✅ ÉXITO EN ${(result.executionTimeMs / 1000).toFixed(1)}s`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     return result;
