@@ -15,7 +15,8 @@ import {
     Layers,
     Search,
     FileSearch,
-    ShieldAlert
+    ShieldAlert,
+    Trash2
 } from 'lucide-react';
 
 interface PAMResultsProps {
@@ -45,21 +46,63 @@ export function PAMResults({ data }: PAMResultsProps) {
         );
     }
 
+    const clearBillData = () => {
+        localStorage.removeItem('clinic_audit_result');
+        setBillData(null);
+    };
+
     // Lógica de Auditoría Forense Cruzada
     const renderCrossAudit = () => {
         if (!billData) return null;
 
         const diff = billData.clinicStatedTotal - data.global.totalValor;
         const absDiff = Math.abs(diff);
+
+        // Heurística de Seguridad: Si la diferencia es mayor al 50% del total, probablemente es otra cuenta
+        const isLikelyMismatch = absDiff > (billData.clinicStatedTotal * 0.5);
+
+        if (isLikelyMismatch) {
+            return (
+                <div className="mt-12 bg-amber-50 rounded-[2.5rem] border border-amber-100 p-8 flex items-center justify-between shadow-sm animate-in fade-in slide-in-from-bottom-4">
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 bg-amber-100 rounded-3xl flex items-center justify-center text-amber-600">
+                            <AlertTriangle size={32} />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900">¿Posible Descalce de Documentos?</h2>
+                            <p className="text-sm text-slate-600 font-medium max-w-xl">
+                                Estás comparando una Cuenta Clínica de <span className="font-bold text-slate-900">${billData.clinicStatedTotal.toLocaleString()}</span> con un PAM de <span className="font-bold text-slate-900">${data.global.totalValor.toLocaleString()}</span>.
+                                La diferencia es muy grande; podría tratarse de documentos distintos.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={clearBillData}
+                        className="px-6 py-3 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 rounded-xl font-bold text-xs uppercase tracking-widest transition-colors shadow-sm"
+                    >
+                        Desvincular Datos Anteriores
+                    </button>
+                </div>
+            );
+        }
+
         if (absDiff < 10) return (
-            <div className="mt-12 bg-white rounded-[2.5rem] border border-emerald-100 p-8 flex items-center gap-6 shadow-sm">
-                <div className="w-16 h-16 bg-emerald-100 rounded-3xl flex items-center justify-center text-emerald-600">
-                    <CheckCircle2 size={32} />
+            <div className="mt-12 bg-white rounded-[2.5rem] border border-emerald-100 p-8 flex items-center justify-between shadow-sm">
+                <div className="flex items-center gap-6">
+                    <div className="w-16 h-16 bg-emerald-100 rounded-3xl flex items-center justify-center text-emerald-600">
+                        <CheckCircle2 size={32} />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-black text-slate-900">Cuentas Sincronizadas</h2>
+                        <p className="text-sm text-slate-500 font-medium">Los totales de la Cuenta Clínica (${billData.clinicStatedTotal.toLocaleString()}) coinciden con la valorización del PAM.</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 className="text-xl font-black text-slate-900">Cuentas Sincronizadas</h2>
-                    <p className="text-sm text-slate-500 font-medium">Los totales de la Cuenta Clínica (${billData.clinicStatedTotal.toLocaleString()}) coinciden con la valorización del PAM.</p>
-                </div>
+                <button
+                    onClick={clearBillData}
+                    className="text-[10px] font-bold text-slate-400 hover:text-rose-500 uppercase tracking-widest transition-colors"
+                >
+                    Desvincular
+                </button>
             </div>
         );
 
@@ -133,7 +176,12 @@ export function PAMResults({ data }: PAMResultsProps) {
                             </div>
                             <div>
                                 <h2 className="text-2xl font-black tracking-tight">Consola de Conciliación de Auditoría</h2>
-                                <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em]">Contraste Cuenta Clínica vs Coberturas PAM</p>
+                                <p className="text-indigo-300 text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                                    Contraste Cuenta Clínica vs Coberturas PAM
+                                    <button onClick={clearBillData} className="ml-2 hover:text-white text-indigo-400 transition-colors" title="Desvincular datos de cuenta clínica">
+                                        <Trash2 size={12} />
+                                    </button>
+                                </p>
                             </div>
                         </div>
                         <div className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${isExactMatch ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : (absDiff > 100000 ? 'bg-rose-500/20 border-rose-500/50 text-rose-400' : 'bg-amber-500/20 border-amber-500/50 text-amber-400')}`}>
