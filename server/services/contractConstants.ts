@@ -15,10 +15,12 @@ Usted es un analista forense experto. Su tarea es procesar el documento PDF adju
 Extraiga CADA cláusula, regla, definición y nota explicativa como un objeto individual.
 Asegúrese de capturar ÍNTEGRAMENTE bloques de texto como:
 - "NOTAS EXPLICATIVAS DEL PLAN DE SALUD"
-- "(1) COBERTURAS" (y sus puntos internos)
+- "(1) COBERTURAS" (y sus puntos internos 1.1, 1.2, etc.)
 - "(2) DEFINICIONES"
 - "(3) VALOR DE CONVERSIÓN DE LA UF"
 - "(4) REAJUSTE DEL ARANCEL"
+- Cláusulas finales (5.X, 6.X) como "Segunda Opinión", "Divergencias", "Modificación de Contrato".
+- TODAS las notas al pie numeradas o con asteriscos.
 
 Use las llaves:
 - 'PÁGINA ORIGEN'
