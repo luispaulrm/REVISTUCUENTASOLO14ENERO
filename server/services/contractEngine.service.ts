@@ -208,6 +208,10 @@ export async function analyzeSingleContract(
     let secondsSinceStar = 0;
     let chunksReceived = 0;
 
+    // Calcublate input tokens early for real-time reporting
+    const inputTokens = (await model.countTokens({ contents })).totalTokens;
+    log(`[ContractEngine] 🔢 Tokens de Entrada: ${inputTokens}`);
+
     const streamResult = await model.generateContentStream({ contents });
     let fullText = '';
 
@@ -215,8 +219,21 @@ export async function analyzeSingleContract(
         const chunkText = chunk.text();
         fullText += chunkText;
         chunksReceived++;
+
+        // Emitting Real-Time Metrics every ~2 seconds (assuming chunks come fast)
         if (chunksReceived % 2 === 0) {
             log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: DESCARGANDO (${chunksReceived}s)`);
+
+            // Calculate real-time metrics
+            const currentOutputTokens = Math.ceil(fullText.length / 4);
+            const currentCost = calculatePrice(inputTokens, currentOutputTokens).costCLP;
+
+            // Special log format for endpoint interception
+            log(`@@METRICS@@${JSON.stringify({
+                input: inputTokens,
+                output: currentOutputTokens,
+                cost: currentCost
+            })}`);
         }
     }
 
@@ -238,7 +255,6 @@ export async function analyzeSingleContract(
 
     log(`[ContractEngine] ✅ Auditoría estructurada correctamente.`);
 
-    const inputTokens = (await model.countTokens({ contents })).totalTokens;
     // Estimate output tokens since streaming doesn't give it directly in all versions, or use usageMetadata if available
     const outputTokens = Math.ceil(fullText.length / 4); // Rough approximation if usageMetadata missing
     const totalTokens = inputTokens + outputTokens;
