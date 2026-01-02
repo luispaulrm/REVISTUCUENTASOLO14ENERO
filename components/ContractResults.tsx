@@ -1,3 +1,6 @@
+import React, { useState } from 'react';
+import { Search, Info, AlertTriangle, ShieldCheck, Scale, Download } from 'lucide-react';
+import { Contract, UsageMetrics } from '../types';
 import { evaluateContractQuality } from '../utils/contractVerifier';
 
 interface Props {
