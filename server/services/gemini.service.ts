@@ -27,7 +27,7 @@ export class GeminiService {
         } = {}
     ): Promise<AsyncIterable<StreamChunk>> {
         const model = this.client.getGenerativeModel({
-            model: "gemini-3-pro-preview",
+            model: "gemini-3-flash-preview",
             generationConfig: {
                 maxOutputTokens: config.maxTokens || 64000,
                 responseMimeType: config.responseMimeType,
@@ -104,7 +104,7 @@ export class GeminiService {
         `;
 
         const model = this.client.getGenerativeModel({
-            model: "gemini-3-pro-preview",
+            model: "gemini-3-flash-preview",
             generationConfig: {
                 maxOutputTokens: 8000,
                 responseMimeType: "application/json"
@@ -159,14 +159,17 @@ export class GeminiService {
 
             estimatedCost = (promptTokens / 1000000) * rateInput + (candidatesTokens / 1000000) * rateOutput;
         } else {
-            // Default to Flash pricing if not Pro
+            // Default to Flash pricing (gemini-3-flash-preview)
             const p = pricing['gemini-3-flash-preview'];
             estimatedCost = (promptTokens / 1000000) * p.input + (candidatesTokens / 1000000) * p.output;
         }
 
         return {
+            promptTokens,
+            candidatesTokens,
+            totalTokens,
             estimatedCost,
-            estimatedCostCLP: Math.round(estimatedCost * 980) // Tasa de cambio aproximada
+            estimatedCostCLP: Math.ceil(estimatedCost * 980) // Approximate USD->CLP rate
         };
     }
 }
