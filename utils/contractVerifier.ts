@@ -44,11 +44,16 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
     const totalRows = coberturas.length;
 
     // 1. Verificación de Secciones Críticas
-    const prestacionText = coberturas.map(c =>
-        (c['PRESTACIÓN CLAVE'] || '').toUpperCase()
-    ).join(' ');
+    const normalizeText = (text: string) => text.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
-    const missingSections = CRITICAL_SECTIONS.filter(keyword => !prestacionText.includes(keyword));
+    const prestacionText = normalizeText(coberturas.map(c =>
+        (c['PRESTACIÓN CLAVE'] || '').toString()
+    ).join(' '));
+
+    const missingSections = CRITICAL_SECTIONS.filter(keyword => {
+        const normalizedKeyword = normalizeText(keyword);
+        return !prestacionText.includes(normalizedKeyword);
+    });
 
     if (missingSections.length > 0) {
         // Penalización fuerte por secciones vitales faltantes

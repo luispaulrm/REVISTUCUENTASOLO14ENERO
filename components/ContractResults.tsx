@@ -34,6 +34,45 @@ const TokenStatsBadge: React.FC<{ metadata?: any }> = ({ metadata }) => {
     );
 };
 
+const SmartValueBadge: React.FC<{ value: string }> = ({ value }) => {
+    if (!value || value === '-' || value === 'N/A' || value === 'SIN TOPE') {
+        return <span className="text-slate-300 font-bold">-</span>;
+    }
+
+    const cleanVal = value.toString();
+
+    if (cleanVal.includes('$')) {
+        return (
+            <span className="inline-flex items-center px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-black tracking-tighter shadow-sm whitespace-nowrap">
+                {cleanVal}
+            </span>
+        );
+    }
+
+    if (cleanVal.includes('UF')) {
+        return (
+            <span className="inline-flex items-center px-2 py-1 rounded bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-black tracking-tighter shadow-sm whitespace-nowrap">
+                {cleanVal}
+            </span>
+        );
+    }
+
+    if (cleanVal.includes('VAM') || cleanVal.includes('AC3')) {
+        return (
+            <span className="inline-flex items-center px-2 py-1 rounded bg-violet-50 text-violet-700 border border-violet-100 text-[10px] font-black tracking-tighter whitespace-nowrap">
+                {cleanVal}
+            </span>
+        );
+    }
+
+    // Default / Porcentaje
+    return (
+        <span className="text-xs font-bold text-slate-700">
+            {cleanVal}
+        </span>
+    );
+};
+
 export function ContractResults({ data }: Props) {
     const [activeTab, setActiveTab] = useState<'coberturas' | 'reglas'>('coberturas');
     const [searchTerm, setSearchTerm] = useState('');
