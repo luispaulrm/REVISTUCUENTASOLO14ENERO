@@ -19,6 +19,14 @@ Use las llaves:
 - 'SUBCATEGORÍA'
 - 'VALOR EXTRACTO LITERAL DETALLADO'
 
+**RESTRICCIONES NEGATIVAS (IMPORTANTE):**
+NO extraiga como "reglas" la información específica del caso actual.
+❌ IGNORAR: Nombres de pacientes, médicos, instituciones o diagnósticos.
+❌ IGNORAR: Totales monetarios de facturas, bonificaciones específicas del caso o copagos calculados.
+❌ IGNORAR: Fechas, folios de bonos o números de factura.
+✅ SÓLO EXTRAER: Condiciones generales del plan, topes teóricos (UF/Veces), exclusiones contractuales y notas al pie genéricas.
+
+
 ---
 **PARTE II: ANÁLISIS DE COBERTURA (Array "coberturas")**
 
@@ -42,15 +50,18 @@ PARA CADA UNA de las filas que represente una prestación en las tablas de cober
    b. **Internacional**: 
       - 'TOPE LOCAL 1 (VAM/EVENTO)': Use valor de columna internacional.
 
-**Paso 4: Síntesis de Restricciones Obligatoria (CRÍTICO).**
+**Paso 4: Síntesis de Restricciones Obligatoria (CRÍTICO - NO RESUMIR).**
    a. Para CADA registro:
       i. Inicie contenedor de texto 'RESTRICCIÓN Y CONDICIONAMIENTO'.
-      ii. **Notas Vinculadas:** Agregue texto COMPLETO de notas al pie (ej. \`(**)\`).
-      iii. **Condición de Malla:** SI aplica malla, AGREGUE OBLIGATORIAMENTE su texto (ej. 'Excepto 60%...').
-      iv. **Consolide:** Combine con separador " | ".
+      ii. **Notas Vinculadas:** Agregue texto IDÉNTICO y COMPLETO de notas al pie, asteriscos (*) o números (1).
+      iii. **Condición de Malla:** SI aplica malla, COPY-PASTE OBLIGATORIO de TODO el texto (ej. 'Excepto 60%...').
+      iv. **Texto Largo:** Si el texto es largo, NO LO CORTES. Incluye absolutamente todo.
+      v. **Consolide:** Combine con separador " | ".
 
-**⚠️ REGLA CRÍTICA DE MALLA VISUAL:**
-Si hay un recuadro que dice "Excepto 60%...", DEBES incluirlo en 'RESTRICCIÓN Y CONDICIONAMIENTO'. Omitirlo es ERROR CRÍTICO.
+**⚠️ REGLA CRÍTICA DE CAPTURA DE TEXTO:**
+Si la celda de observaciones/restricciones tiene texto, COPIALO VERBATIM. 
+Prohibido usar resúmenes o "ver anexo" sin incluir el contenido de la nota al pie si está disponible en la página.
+Si hay texto como "Excepto 60% SIN TOPE en Clínica Las Condes...", ESTE DEBE APARECER ENTERO.
 
 ---
 **VERIFICACIÓN FINAL:**
