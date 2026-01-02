@@ -35,6 +35,7 @@ export interface ExtractedAccount {
   sections: BillingSection[];
   clinicStatedTotal: number;
   extractedTotal: number; // sum of all sections
+  totalItems: number; // count of all captured rows
   isBalanced: boolean;
   discrepancy: number;
   currency: string;
