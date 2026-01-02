@@ -59,8 +59,8 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
         // Resolve standard fonts path for Node.js - MUST end with a slash / 
-        // We use a trailing slash explicitly as PDFJS is picky about this.
-        let fontPath = path.join(__dirname, '../node_modules/pdfjs-dist/standard_fonts/');
+        // Since this file is in server/services/, we go up twice to reach the root node_modules.
+        let fontPath = path.join(__dirname, '../../node_modules/pdfjs-dist/standard_fonts/');
         // Ensure it ends with a slash regardless of OS joins
         if (!fontPath.endsWith('/') && !fontPath.endsWith('\\')) fontPath += '/';
         const standardFontDataUrl = fontPath;
