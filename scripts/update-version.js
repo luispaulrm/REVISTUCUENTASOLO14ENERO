@@ -3,6 +3,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import { execSync } from 'child_process';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -56,6 +58,23 @@ try {
 
         fs.writeFileSync(versionFilePath, content);
         console.log(`✅ Version updated to ${newVersion} at ${newTimestamp}`);
+
+        // --- GIT AUTOMATION ---
+        try {
+            console.log('📦 Committing and pushing version update...');
+            // Need to change directory to project root for git commands
+            const projectRoot = path.join(__dirname, '..');
+
+            execSync(`git add "${versionFilePath}"`, { stdio: 'inherit', cwd: projectRoot });
+            execSync(`git commit -m "chore: bump version to ${newVersion} [skip ci]"`, { stdio: 'inherit', cwd: projectRoot });
+            execSync('git push', { stdio: 'inherit', cwd: projectRoot });
+
+            console.log('🚀 Successfully pushed version update to GitHub');
+        } catch (gitError) {
+            console.error('⚠️ Failed to auto-push to GitHub:', gitError.message);
+            // Don't fail the build script just because push failed
+        }
+
     } else {
         console.error('❌ Could not find version pattern in version.ts');
     }
