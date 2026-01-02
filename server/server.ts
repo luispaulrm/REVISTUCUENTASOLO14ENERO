@@ -110,9 +110,10 @@ const EXTRACTION_PROMPT = `
     REGLA DE ORO DE TRAZABILIDAD Y MATEMÁTICA:
     - NUMERA LOS ÍTEMS: Cada ítem debe tener un campo 'index' comenzando desde 1 para toda la cuenta.
     - NO AGRUPES SECCIONES: Extrae cada sección por separado como aparece en el papel.
-    - PRIORIZA VALOR ISA: Usa siempre la columna de valor final bruto (con IVA) para el campo 'total'.
-    - CONSISTENCIA: El campo 'unitPrice' DEBE ser consistente con el 'total'. Si el documento solo da el precio neto unitario, CALCULA el 'unitPrice' como (total / quantity) para que la auditoría sea perfecta (unitPrice * quantity = total).
-    - RECUERDA: Toda la auditoría se realiza en valores BRUTOS (con IVA incluido) para que coincida con lo que se reporta a la Isapre y el total final de la cuenta.
+    - PRIORIZA VALORES BRUTOS (VALOR ISA): La auditoría se basa en el costo real final.
+    - CONSISTENCIA MATEMÁTICA OBLIGATORIA: Antes de escribir cada línea, verifica que (unitPrice * quantity = total).
+    - NORMALIZACIÓN: Si el documento muestra un Precio Neto pero el Total es Bruto (con IVA), DEBES extraer el unitPrice como (Total / Cantidad). El objetivo es que Price * Qty NUNCA de error de cálculo.
+    - HONORARIOS FRACCIONARIOS: Presta extrema atención a cantidades como 0.1 o 0.25. El 'total' DEBE ser proporcional (ej: 0.1 * 4.000.000 = 400.000). Prohibido alucinar el total de la cirugía completa en líneas de porcentaje.
 
     REGLA DE RECONCILIACIÓN MATEMÁTICA (AUDITORÍA INTERNA):
     - ANTES DE ESCRIBIR CADA SECCIÓN: Realiza un cálculo silencioso. Suma los valores de la columna 'Valor Isa' de todos los ítems que planeas extraer para esa sección.
