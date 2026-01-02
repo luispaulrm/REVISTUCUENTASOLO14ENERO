@@ -144,21 +144,16 @@ export async function extractBillingData(
 
   const clinicStatedTotal = Number(resultData.clinicStatedTotal || 0);
   const isBalanced = Math.abs(finalExtractedTotal - clinicStatedTotal) < 10;
-
-  onLog?.(`[SYSTEM] Cuadratura Final: ${finalExtractedTotal} (Auditor) vs ${clinicStatedTotal} (Documento)`);
-  if (isBalanced) {
-    onLog?.(`[SYSTEM] Auditoría completada con éxito.`);
-  } else {
-    onLog?.(`[WARN] Discrepancia detectada: ${(finalExtractedTotal - clinicStatedTotal).toFixed(0)} CLP.`);
-  }
+  const totalItemsCount = auditedSections.reduce((acc, s) => acc + s.items.length, 0);
 
   return {
     ...resultData,
     sections: auditedSections,
     clinicStatedTotal,
     extractedTotal: Number(finalExtractedTotal.toFixed(2)),
+    totalItems: totalItemsCount,
     isBalanced,
-    discrepancy: Number((finalExtractedTotal - clinicStatedTotal).toFixed(2)),
+    discrepancy: Number((finalExtractedTotal - clinicStatedTotal).toFixed(0)),
     currency: resultData.currency || 'CLP',
     usage: latestUsage
   };
