@@ -4,11 +4,12 @@ import { extractContractData } from '../contractService';
 import { Contract, UsageMetrics, AppStatus } from '../types';
 import { ContractResults } from './ContractResults';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
+import { CONSALUD_EJEMPLO } from '../mocks';
 
 export default function ContractApp() {
     const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
     const [error, setError] = useState<string | null>(null);
-    const [contractResult, setContractResult] = useState<Contract | null>(null);
+    const [contractResult, setContractResult] = useState<Contract | null>(CONSALUD_EJEMPLO as any);
     const [logs, setLogs] = useState<string[]>([]);
     const [progress, setProgress] = useState(0);
     const [seconds, setSeconds] = useState(0);
