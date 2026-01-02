@@ -149,21 +149,21 @@ export function ContractResults({ data }: Props) {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="bg-slate-50 text-[10px] text-slate-500 font-black uppercase tracking-widest border-b border-slate-200">
-                                            <th className="px-4 py-3 w-24">Página</th>
-                                            <th className="px-4 py-3 w-56">Sección</th>
-                                            <th className="px-4 py-3 w-40">Categoría</th>
-                                            <th className="px-4 py-3">Extracto Literal Mandatorio</th>
+                                        <tr className="bg-slate-50 text-xs text-slate-500 font-black uppercase tracking-widest border-b border-slate-200">
+                                            <th className="px-4 py-4 w-24">Página</th>
+                                            <th className="px-4 py-4 w-56">Sección</th>
+                                            <th className="px-4 py-4 w-40">Categoría</th>
+                                            <th className="px-4 py-4">Extracto Literal Mandatorio</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 text-slate-950">
                                         {safeReglas.map((rule, idx) => (
                                             <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-4 py-3 font-mono text-[10px] text-slate-500 align-top">{getFuzzy(rule, ['pagina', 'PÁGINA ORIGEN'])}</td>
-                                                <td className="px-4 py-3 font-black text-slate-950 text-xs align-top uppercase">{getFuzzy(rule, ['seccion', 'CÓDIGO/SECCIÓN'])}</td>
-                                                <td className="px-4 py-3 text-slate-900 text-[10px] font-black uppercase align-top tracking-tighter">{getFuzzy(rule, ['categoria', 'SUBCATEGORÍA'])}</td>
-                                                <td className="px-4 py-3">
-                                                    <div className="text-[11px] text-black leading-relaxed font-sans bg-white p-4 rounded-lg border-2 border-slate-900 italic shadow-sm">
+                                                <td className="px-4 py-4 font-mono text-xs text-slate-500 align-top">{getFuzzy(rule, ['pagina', 'PÁGINA ORIGEN'])}</td>
+                                                <td className="px-4 py-4 font-black text-slate-950 text-sm align-top uppercase">{getFuzzy(rule, ['seccion', 'CÓDIGO/SECCIÓN'])}</td>
+                                                <td className="px-4 py-4 text-slate-900 text-xs font-black uppercase align-top tracking-tighter">{getFuzzy(rule, ['categoria', 'SUBCATEGORÍA'])}</td>
+                                                <td className="px-4 py-4">
+                                                    <div className="text-[13px] text-black leading-relaxed font-sans bg-white p-4 rounded-lg border-2 border-slate-900 italic shadow-sm">
                                                         "{getFuzzy(rule, ['texto', 'VALOR EXTRACTO LITERAL DETALLADO'])}"
                                                     </div>
                                                 </td>
@@ -180,52 +180,52 @@ export function ContractResults({ data }: Props) {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left border-collapse min-w-[1400px]">
                                     <thead>
-                                        <tr className="bg-slate-950 text-[10px] text-white font-black uppercase tracking-tighter border-b border-black">
-                                            <th className="px-4 py-4 border-r border-slate-800 w-[280px]">Prestación Clave</th>
-                                            <th className="px-2 py-4 border-r border-slate-800 text-center w-24">Modalidad</th>
-                                            <th className="px-2 py-4 border-r border-slate-800 text-center w-20">Bonif.</th>
-                                            <th className="px-2 py-4 border-r border-slate-800 text-center w-20">Copago</th>
-                                            <th className="px-2 py-4 border-r border-slate-800 text-center w-28">Tope Local 1</th>
-                                            <th className="px-2 py-4 border-r border-slate-800 text-center w-28">Tope Local 2</th>
-                                            <th className="px-6 py-4 min-w-[600px]">Restricciones y Notas (Evidencia Forense)</th>
+                                        <tr className="bg-slate-950 text-xs text-white font-black uppercase tracking-tighter border-b border-black">
+                                            <th className="px-4 py-5 border-r border-slate-800 w-[280px]">Prestación Clave</th>
+                                            <th className="px-2 py-5 border-r border-slate-800 text-center w-24">Modalidad</th>
+                                            <th className="px-2 py-5 border-r border-slate-800 text-center w-20">Bonif.</th>
+                                            <th className="px-2 py-5 border-r border-slate-800 text-center w-20">Copago</th>
+                                            <th className="px-2 py-5 border-r border-slate-800 text-center w-28">Tope Local 1</th>
+                                            <th className="px-2 py-5 border-r border-slate-800 text-center w-28">Tope Local 2</th>
+                                            <th className="px-6 py-5 min-w-[600px]">Restricciones y Notas (Evidencia Forense)</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-200">
                                         {filteredCoberturas.map((coverage, idx) => (
                                             <tr key={idx} className={`hover:bg-blue-50/20 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/10'}`}>
-                                                <td className="px-4 py-4 border-r border-slate-100 align-top">
-                                                    <div className="font-black text-black text-[10px] uppercase leading-tight mb-1">
+                                                <td className="px-4 py-5 border-r border-slate-100 align-top">
+                                                    <div className="font-black text-black text-xs uppercase leading-tight mb-1">
                                                         {getFuzzy(coverage, ['prestacion', 'PRESTACIÓN CLAVE'])}
                                                     </div>
                                                     {getFuzzy(coverage, ['anclajes', 'ANCLAJES']) !== '-' && Array.isArray(getFuzzy(coverage, ['anclajes', 'ANCLAJES'])) && (
                                                         <div className="flex flex-wrap gap-1">
                                                             {getFuzzy(coverage, ['anclajes', 'ANCLAJES']).map((a: string, i: number) => (
-                                                                <span key={i} className="text-[8px] font-black text-slate-500 bg-slate-100 px-1 rounded">[{a}]</span>
+                                                                <span key={i} className="text-[10px] font-black text-slate-500 bg-slate-100 px-1 rounded">[{a}]</span>
                                                             ))}
                                                         </div>
                                                     )}
                                                 </td>
-                                                <td className="px-2 py-3 text-center align-top border-r border-slate-100">
-                                                    <span className="text-[9px] font-black text-slate-800 uppercase tracking-tighter">{getFuzzy(coverage, ['modalidad', 'MODALIDAD/RED'])}</span>
+                                                <td className="px-2 py-4 text-center align-top border-r border-slate-100">
+                                                    <span className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">{getFuzzy(coverage, ['modalidad', 'MODALIDAD/RED'])}</span>
                                                 </td>
-                                                <td className="px-2 py-3 text-center align-top border-r border-slate-100">
-                                                    <span className="text-xs font-black text-black">{getFuzzy(coverage, ['bonificacion', '% BONIFICACIÓN'])}</span>
+                                                <td className="px-2 py-4 text-center align-top border-r border-slate-100">
+                                                    <span className="text-sm font-black text-black">{getFuzzy(coverage, ['bonificacion', '% BONIFICACIÓN'])}</span>
                                                 </td>
-                                                <td className="px-2 py-3 text-center align-top border-r border-slate-100">
-                                                    <span className="text-[9px] font-black text-slate-700 tracking-tight">{getFuzzy(coverage, ['copago', 'COPAGO FIJO'])}</span>
+                                                <td className="px-2 py-4 text-center align-top border-r border-slate-100">
+                                                    <span className="text-[11px] font-black text-slate-700 tracking-tight">{getFuzzy(coverage, ['copago', 'COPAGO FIJO'])}</span>
                                                 </td>
-                                                <td className="px-2 py-3 text-center align-top border-r border-slate-100">
-                                                    <div className="text-[9px] font-black text-black bg-slate-100 py-1 px-1.5 rounded-md border border-slate-200 inline-block min-w-full">
+                                                <td className="px-2 py-4 text-center align-top border-r border-slate-100">
+                                                    <div className="text-[11px] font-black text-black bg-slate-100 py-1 px-1.5 rounded-md border border-slate-200 inline-block min-w-full">
                                                         {getFuzzy(coverage, ['tope_1', 'TOPE LOCAL 1 (VAM/EVENTO)'])}
                                                     </div>
                                                 </td>
-                                                <td className="px-2 py-3 text-center align-top border-r border-slate-100">
-                                                    <div className="text-[9px] font-black text-slate-900 bg-slate-50 py-1 px-1.5 rounded-md border border-slate-200 inline-block min-w-full">
+                                                <td className="px-2 py-4 text-center align-top border-r border-slate-100">
+                                                    <div className="text-[11px] font-black text-slate-900 bg-slate-50 py-1 px-1.5 rounded-md border border-slate-200 inline-block min-w-full">
                                                         {getFuzzy(coverage, ['tope_2', 'TOPE LOCAL 2 (ANUAL/UF)'])}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3 align-top">
-                                                    <div className="text-[10px] text-black leading-relaxed font-bold whitespace-pre-wrap">
+                                                <td className="px-4 py-4 align-top">
+                                                    <div className="text-xs text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
                                                         {getFuzzy(coverage, ['restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO'])}
                                                     </div>
                                                 </td>
