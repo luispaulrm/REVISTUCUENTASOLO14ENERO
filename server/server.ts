@@ -190,6 +190,7 @@ app.post('/api/extract', async (req, res) => {
           GRAND_TOTAL: ...
           SECTION: [Nombre Exacto Sección]
           [Index]|[Código]|[Descripción]|[Cant]|[PrecioUnit]|[Verif: Cant*Precio]|[Total]
+          SECTION_TOTAL: [Subtotal Declarado por la Clínica para esta Sección]
           SECTION: [Siguiente Sección...]
           ...
         `;
@@ -305,6 +306,19 @@ app.post('/api/extract', async (req, res) => {
                 if (!sectionsMap.has(currentSectionName)) {
                     sectionsMap.set(currentSectionName, { category: currentSectionName, items: [], sectionTotal: 0 });
                 }
+                continue;
+            }
+
+            if (line.startsWith('SECTION_TOTAL:')) {
+                const rawVal = line.replace('SECTION_TOTAL:', '').trim();
+                // Parse similarly to Grand Total
+                const numericOnly = rawVal.replace(/[^\d]/g, '');
+                const secTotal = parseInt(numericOnly) || 0;
+
+                if (sectionsMap.has(currentSectionName)) {
+                    sectionsMap.get(currentSectionName).sectionTotal = secTotal;
+                }
+                console.log(`[PARSER] Found explicit SECTION_TOTAL for "${currentSectionName}": ${secTotal}`);
                 continue;
             }
 
