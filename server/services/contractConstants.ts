@@ -19,7 +19,9 @@ Asegúrese de capturar ÍNTEGRAMENTE bloques de texto como:
 - "(2) DEFINICIONES"
 - "(3) VALOR DE CONVERSIÓN DE LA UF"
 - "(4) REAJUSTE DEL ARANCEL"
-- Cláusulas finales (5.X, 6.X) como "Segunda Opinión", "Divergencias", "Modificación de Contrato".
+- Cláusulas finales numéricas: DEBE extraer TODO (5.7, 5.8, etc.) hasta el final del texto.
+- OBLIGATORIO: Busque y extraiga "5.7" (Término/Modificación) y "5.8" (Reglas especiales sobre modificación). NO SE DETENGA ANTES.
+- Cláusulas de "Segunda Opinión", "Divergencias", "Modificación de Contrato".
 - TODAS las notas al pie numeradas o con asteriscos.
 
 Use las llaves:
@@ -74,6 +76,13 @@ PARA CADA UNA de las filas que represente una prestación en las tablas de cober
       iii. **Condición de Malla:** SI aplica malla, COPY-PASTE OBLIGATORIO de TODO el texto (ej. 'Excepto 60%...').
       iv. **Texto Largo:** Si el texto es largo, COPIALO ÍNTEGRAMENTE. PROHIBIDO usar "..." o cortar oraciones.
       v. **Consolide:** Combine con separador " | ".
+
+**PARTE IV: AUTO-AUDITORÍA DE CIERRE (MENTAL - CRÍTICO)**
+Antes de cerrar el objeto JSON, revise visualmente la **ÚLTIMA PÁGINA** del documento PDF.
+1. ¿Existen cláusulas numeradas al final (ej. 5.7, 5.8, 6.1, 7.X)?
+2. ¿Existen firmas o notas finales?
+Si la respuesta es SÍ, **DEBE** agregarlas al array "reglas".
+**NO FINALICE** hasta haber extraído el último carácter legible del documento.
 
 **⚠️ REGLA CRÍTICA DE CAPTURA DE TEXTO:**
 Si la celda de observaciones/restricciones tiene texto, COPIALO VERBATIM. 

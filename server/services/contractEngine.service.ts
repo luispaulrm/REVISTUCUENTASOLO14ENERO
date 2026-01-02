@@ -54,7 +54,7 @@ function safeJsonParse<T>(text: string): T {
     }
 }
 
-async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<string> {
+async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<{ text: string, totalPages: number }> {
     try {
         log(`[ContractEngine] 🔍 Escaneando PDF: ${file.originalname}...`);
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
@@ -105,10 +105,10 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
             }
         }
 
-        return formattedText.trim();
+        return { text: formattedText.trim(), totalPages: pdf.numPages };
     } catch (error) {
         log(`[ContractEngine] ❌ Error en OCR: ${error instanceof Error ? error.message : 'Error fatal'}`);
-        return '';
+        return { text: '', totalPages: 0 };
     }
 }
 
@@ -141,7 +141,7 @@ const SAFETY_SETTINGS = [
     { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
 ];
 
-async function analyzeSingleContract(
+export async function analyzeSingleContract(
     file: UploadedFile,
     apiKey: string,
     onLog?: (msg: string) => void,
@@ -169,7 +169,7 @@ async function analyzeSingleContract(
     const filePart = fileToGenerativePart(file);
 
     // FASE 1: OCR
-    const extractedText = await extractTextFromPdf(file, ocrMaxPages, log);
+    const { text: extractedText, totalPages } = await extractTextFromPdf(file, ocrMaxPages, log);
 
     // FASE 2: AI (Using System Instruction for performance)
     log(`[ContractEngine] ⚡ Solicitando auditoría forense ${AI_CONFIG.MODEL_LABEL}...`);
@@ -184,10 +184,14 @@ async function analyzeSingleContract(
 
     const userPrompt = `
     [DOCUMENTO A ANALIZAR]
+    METADATOS VERIFICADOS: El documento PDF original contiene ${totalPages} páginas.
+    INSTRUCCIÓN DE COBERTURA: Usted DEBE procesar y extraer información hasta la PÁGINA ${totalPages}.
+    
     ${extractedText ? `Texto OCR extraído:\n${extractedText}` : 'Use el PDF adjunto para el análisis forense.'}
     
     [MANDATO FINAL]
     Siga estrictamente el mandato de exhaustividad del sistema y genere el JSON final.
+    Confirme explícitamente haber revisado hasta la página ${totalPages}.
     `;
 
     const contents = [
@@ -199,101 +203,60 @@ async function analyzeSingleContract(
     let secondsSinceStar = 0;
     let chunksReceived = 0;
 
-    const heartbeat = setInterval(() => {
-        if (!sessionActive) return;
-        secondsSinceStar += 4;
-        const phase = chunksReceived > 0 ? "DESCARGANDO" : "PROCESANDO REGLAS";
-        log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: ${phase} (${secondsSinceStar}s)`);
-    }, 4000);
+    const streamResult = await model.generateContentStream({ contents });
+    let fullText = '';
 
-    let responseText = '';
-    let usageMetadata: any = null;
-
-    try {
-        const streamingResult = await model.generateContentStream(contents);
-
-        for await (const chunk of streamingResult.stream) {
-            try {
-                chunksReceived++;
-                const chunkText = chunk.text();
-                responseText += chunkText;
-
-                if (chunksReceived === 1) {
-                    log('[ContractEngine] 📦 PRIMER BYTE RECIBIDO: El modelo Flash está escribiendo.');
-                }
-
-                if (chunksReceived % 20 === 0) {
-                    log(`[ContractEngine] 📥 Progreso de descarga: ${(responseText.length / 1024).toFixed(1)} KB...`);
-                }
-            } catch (chunkError: any) {
-                console.warn('[ContractEngine] Stream chunk error:', chunkError.message);
-            }
+    for await (const chunk of streamResult.stream) {
+        const chunkText = chunk.text();
+        fullText += chunkText;
+        chunksReceived++;
+        if (chunksReceived % 2 === 0) {
+            log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: DESCARGANDO (${chunksReceived}s)`);
         }
-
-        const response = await streamingResult.response;
-        usageMetadata = response.usageMetadata;
-        sessionActive = false;
-        clearInterval(heartbeat);
-
-    } catch (error: any) {
-        sessionActive = false;
-        clearInterval(heartbeat);
-        log(`[ContractEngine] ❌ Error en motor Flash: ${error.message}`);
-        if (!responseText) throw error;
     }
 
     log(`[ContractEngine] ✅ Recepción completa.`);
-    log('[ContractEngine] 🔧 Validando estructura final...');
+    log(`[ContractEngine] 🔧 Validando estructura final...`);
 
-    let result: ContractAnalysisResult | null = null;
-    let lastText = responseText;
-
-    for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-            result = safeJsonParse<ContractAnalysisResult>(lastText);
-            log(`[ContractEngine] ✅ Auditoría estructurada correctamente.`);
-            break;
-        } catch (parseError) {
-            if (attempt === 2) throw new Error("JSON ilegible tras reparación.");
-            log(`[ContractEngine] ⚠️ Corrigiendo estructura...`);
-            lastText = await repairJsonWithGemini(genAI, CONTRACT_ANALYSIS_SCHEMA, lastText, log);
-        }
+    let parsedResult: any;
+    try {
+        parsedResult = safeJsonParse(fullText);
+    } catch (parseError) {
+        log(`[ContractEngine] ⚠️ Estructura rota. Intentando reparación...`);
+        const repairedJson = await repairJsonWithGemini(genAI, CONTRACT_ANALYSIS_SCHEMA, fullText, log);
+        parsedResult = safeJsonParse(repairedJson);
     }
 
-    if (!result) throw new Error("Fallo en generación v3.5.");
+    if (!parsedResult || (!parsedResult.reglas && !parsedResult.coberturas)) {
+        throw new Error('Respuesta del modelo incompleta o estructura inválida.');
+    }
 
-    // Final Metrics
-    if (usageMetadata) {
-        const promptTokens = usageMetadata.promptTokenCount || 0;
-        const candidatesTokens = usageMetadata.candidatesTokenCount || 0;
-        const { costCLP } = calculatePrice(promptTokens, candidatesTokens);
+    log(`[ContractEngine] ✅ Auditoría estructurada correctamente.`);
 
-        log(`[ContractEngine] 📊 Resumen: ${promptTokens + candidatesTokens} tokens | Costo Est: $${costCLP} CLP`);
+    const inputTokens = (await model.countTokens({ contents })).totalTokens;
+    // Estimate output tokens since streaming doesn't give it directly in all versions, or use usageMetadata if available
+    const outputTokens = Math.ceil(fullText.length / 4); // Rough approximation if usageMetadata missing
+    const totalTokens = inputTokens + outputTokens;
+    const estimatedCost = calculatePrice(AI_CONFIG.ACTIVE_MODEL, inputTokens, outputTokens);
 
-        result.metrics = {
+    log(`[ContractEngine] 📊 Resumen: ${totalTokens} tokens | Costo Est: $${Math.round(estimatedCost)} CLP`);
+    log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    const result: ContractAnalysisResult = {
+        ...parsedResult,
+        metrics: {
             executionTimeMs: Date.now() - startTime,
             tokenUsage: {
-                input: promptTokens,
-                output: candidatesTokens,
-                total: usageMetadata.totalTokenCount || (promptTokens + candidatesTokens),
-                costClp: costCLP
+                input: inputTokens,
+                output: outputTokens,
+                total: totalTokens,
+                costClp: estimatedCost
             }
-        };
-    }
+        }
+    };
 
-    result.executionTimeMs = Date.now() - startTime;
-    log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine] ✅ ÉXITO EN ${(result.executionTimeMs / 1000).toFixed(1)}s`);
+    log(`[ContractEngine] ✅ ÉXITO EN ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     return result;
-}
-
-export async function analyzeContract(
-    file: UploadedFile,
-    apiKey: string,
-    onLog?: (msg: string) => void,
-    options: ContractAnalysisOptions = {}
-): Promise<ContractAnalysisResult> {
-    return analyzeSingleContract(file, apiKey, onLog, options);
 }
