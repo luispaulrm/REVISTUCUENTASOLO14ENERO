@@ -446,6 +446,10 @@ const App: React.FC = () => {
                   <span className="font-mono text-xl font-black text-white tracking-tight">
                     ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'} <span className="text-[10px] text-slate-600 font-sans">CLP</span>
                   </span>
+                  <div className="flex items-center gap-1 mt-1">
+                    <ShieldCheck size={10} className="text-emerald-500" />
+                    <span className="text-[9px] font-bold text-emerald-500 uppercase">Conciliado: Modelo y Precios</span>
+                  </div>
                 </div>
                 <button
                   onClick={handleStopAnalysis}
