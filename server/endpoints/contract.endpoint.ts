@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { analyzeContract } from '../services/contractEngine.service.js';
+import { analyzeSingleContract } from '../services/contractEngine.service.js';
 
 // Helper para obtener env vars
 function envGet(k: string) {
@@ -42,7 +42,7 @@ export async function handleContractExtraction(req: Request, res: Response) {
         };
 
         // Execute Independent Engine
-        const result = await analyzeContract(
+        const result = await analyzeSingleContract(
             file,
             apiKey,
             (logMsg) => sendUpdate({ type: 'chunk', text: logMsg + '\n' }),
