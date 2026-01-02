@@ -92,11 +92,18 @@ export default function ContractApp() {
 
                 try {
                     const result = await extractContractData(pureBase64, file.type, addLog, setRealTimeUsage, setProgress, controller.signal);
-                    setContractResult(result.data);
+
+                    // Asegurar que las métricas finales se incluyan en el objeto
+                    const finalData = {
+                        ...result.data,
+                        usage: result.usage || (result.data as any).metrics?.tokenUsage
+                    };
+
+                    setContractResult(finalData);
                     setStatus(AppStatus.SUCCESS);
 
                     // Persistir el contrato para auditoría cruzada
-                    localStorage.setItem('contract_audit_result', JSON.stringify(result.data));
+                    localStorage.setItem('contract_audit_result', JSON.stringify(finalData));
                     addLog('[SISTEMA] ✅ Contrato persistido localmente para auditoría cruzada.');
 
                 } catch (err: any) {

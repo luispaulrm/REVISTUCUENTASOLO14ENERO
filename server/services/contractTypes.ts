@@ -8,20 +8,20 @@ export interface UsageMetadata {
 
 export interface ContractAnalysisResult {
     reglas: Array<{
-        'PÁGINA ORIGEN': string;
-        'CÓDIGO/SECCIÓN': string;
-        'SUBCATEGORÍA': string;
-        'VALOR EXTRACTO LITERAL DETALLADO': string;
+        'pagina': string;
+        'seccion': string;
+        'categoria': string;
+        'texto': string;
     }>;
     coberturas: Array<{
-        'PRESTACIÓN CLAVE': string;
-        'MODALIDAD/RED': string;
-        '% BONIFICACIÓN': string;
-        'COPAGO FIJO': string;
-        'TOPE LOCAL 1 (VAM/EVENTO)': string;
-        'TOPE LOCAL 2 (ANUAL/UF)': string;
-        'RESTRICCIÓN Y CONDICIONAMIENTO': string;
-        'ANCLAJES': string[];
+        'prestacion': string;
+        'modalidad': string;
+        'bonificacion': string;
+        'copago': string;
+        'tope_1': string;
+        'tope_2': string;
+        'restriccion': string;
+        'anclajes': string[];
     }>;
     diseno_ux: {
         nombre_isapre: string;

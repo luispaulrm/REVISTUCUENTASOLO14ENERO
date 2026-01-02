@@ -6,21 +6,27 @@ interface Props {
     data: Contract;
 }
 
-const TokenStatsBadge: React.FC<{ metadata?: UsageMetrics }> = ({ metadata }) => {
+const TokenStatsBadge: React.FC<{ metadata?: any }> = ({ metadata }) => {
     if (!metadata) return null;
+
+    // Normalizar métricas del motor v2.0
+    const promptTokens = metadata.promptTokens ?? metadata.promptTokenCount ?? metadata.input ?? 0;
+    const candidatesTokens = metadata.candidatesTokens ?? metadata.candidatesTokenCount ?? metadata.output ?? 0;
+    const costClp = metadata.estimatedCostCLP ?? metadata.costClp ?? 0;
+
     return (
         <div className="flex gap-4 p-2 bg-slate-50 rounded border border-slate-200">
             <div className="flex flex-col">
                 <span className="text-[8px] font-black text-slate-400 uppercase">Input Tokens</span>
-                <span className="text-xs font-mono font-bold text-slate-600">{metadata.promptTokens}</span>
+                <span className="text-xs font-mono font-bold text-slate-600">{(promptTokens / 1000).toFixed(1)}k</span>
             </div>
             <div className="flex flex-col">
                 <span className="text-[8px] font-black text-slate-400 uppercase">Output Tokens</span>
-                <span className="text-xs font-mono font-bold text-slate-600">{metadata.candidatesTokens}</span>
+                <span className="text-xs font-mono font-bold text-slate-600">{(candidatesTokens / 1000).toFixed(1)}k</span>
             </div>
             <div className="flex flex-col">
                 <span className="text-[8px] font-black text-slate-400 uppercase">Costo Est.</span>
-                <span className="text-xs font-mono font-bold text-emerald-600">${metadata.estimatedCostCLP} CLP</span>
+                <span className="text-xs font-mono font-bold text-emerald-600">${Math.round(costClp)} CLP</span>
             </div>
         </div>
     );
@@ -30,10 +36,42 @@ export function ContractResults({ data }: Props) {
     const [activeTab, setActiveTab] = useState<'coberturas' | 'reglas'>('coberturas');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const filteredCoberturas = data.coberturas.filter(c =>
-        c['PRESTACIÓN CLAVE'].toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c['RESTRICCIÓN Y CONDICIONAMIENTO'].toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    // Extraer métricas si vienen con otro nombre del motor v2.0
+    const displayUsage = data?.usage || (data as any)?.metrics?.tokenUsage || (data as any)?.usageMetadata;
+
+    // Conteo para los badges de las pestañas
+    const totalCoberturas = data?.coberturas?.length || 0;
+    const totalReglas = data?.reglas?.length || 0;
+
+    // Helper ultra-resiliente para obtener valores de objetos con llaves que pueden variar
+    const getFuzzy = (target: any, keys: string[]) => {
+        if (!target) return '';
+        for (const k of keys) {
+            // Intento búsqueda exacta
+            if (target[k] !== undefined && target[k] !== null && target[k] !== '') return target[k];
+
+            // Intento búsqueda insensible a mayúsculas y acentos
+            const normalizedK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '');
+            const foundKey = Object.keys(target).find(tk => {
+                const normalizedTK = tk.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '');
+                return normalizedTK === normalizedK;
+            });
+
+            if (foundKey && target[foundKey] !== undefined && target[foundKey] !== null && target[foundKey] !== '') {
+                return target[foundKey];
+            }
+        }
+        return '-';
+    };
+
+    const safeCoberturas = data?.coberturas || [];
+    const filteredCoberturas = safeCoberturas.filter(c => {
+        const prestacion = getFuzzy(c, ['prestacion', 'PRESTACIÓN CLAVE', 'PRESTACION CLAVE']).toString().toLowerCase();
+        const restriccion = getFuzzy(c, ['restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'RESTRICCION']).toString().toLowerCase();
+        return prestacion.includes(searchTerm.toLowerCase()) || restriccion.includes(searchTerm.toLowerCase());
+    });
+
+    const safeReglas = data?.reglas || [];
 
     return (
         <div className="space-y-6 print:space-y-4 font-sans max-w-full overflow-hidden">
@@ -45,28 +83,30 @@ export function ContractResults({ data }: Props) {
                             <span className="text-[10px] bg-blue-50 text-blue-600 font-black px-2 py-0.5 rounded border border-blue-100 uppercase tracking-widest">Módulo de Auditoría Contractual</span>
                         </div>
                         <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter leading-none mb-1">
-                            {data.diseno_ux?.nombre_isapre || 'Cargando...'}
+                            {data?.diseno_ux?.nombre_isapre || 'Cargando...'}
                         </h2>
                         <p className="text-sm font-bold text-slate-500 uppercase tracking-tight">
-                            {data.diseno_ux?.titulo_plan} {data.diseno_ux?.subtitulo_plan ? `| ${data.diseno_ux.subtitulo_plan}` : ''}
+                            {data?.diseno_ux?.titulo_plan} {data?.diseno_ux?.subtitulo_plan ? `| ${data.diseno_ux.subtitulo_plan}` : ''}
                         </p>
                     </div>
-                    <TokenStatsBadge metadata={data.usage} />
+                    {displayUsage && <TokenStatsBadge metadata={displayUsage} />}
                 </div>
 
                 {/* Tabs Minimalistas */}
                 <div className="flex bg-slate-50 border-b border-slate-100 print:hidden items-center">
                     <button
                         onClick={() => setActiveTab('coberturas')}
-                        className={`px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-r border-slate-100 ${activeTab === 'coberturas' ? 'bg-white text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-r border-slate-100 flex items-center gap-2 ${activeTab === 'coberturas' ? 'bg-white text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Malla de Cobertura
+                        <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full text-[9px]">{totalCoberturas}</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('reglas')}
-                        className={`px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-r border-slate-100 ${activeTab === 'reglas' ? 'bg-white text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
+                        className={`px-8 py-4 text-[10px] font-black uppercase tracking-widest transition-all border-r border-slate-100 flex items-center gap-2 ${activeTab === 'reglas' ? 'bg-white text-slate-900' : 'text-slate-400 hover:text-slate-600'}`}
                     >
                         Extractos Literales
+                        <span className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full text-[9px]">{totalReglas}</span>
                     </button>
                     <div className="flex-grow flex justify-end px-6">
                         <div className="relative w-64 group">
@@ -96,14 +136,14 @@ export function ContractResults({ data }: Props) {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 text-slate-950">
-                                        {data.reglas.map((rule, idx) => (
+                                        {safeReglas.map((rule, idx) => (
                                             <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                                                <td className="px-4 py-3 font-mono text-[10px] text-slate-500 align-top">{rule['PÁGINA ORIGEN']}</td>
-                                                <td className="px-4 py-3 font-black text-slate-950 text-xs align-top uppercase">{rule['CÓDIGO/SECCIÓN']}</td>
-                                                <td className="px-4 py-3 text-slate-900 text-[10px] font-black uppercase align-top tracking-tighter">{rule['SUBCATEGORÍA']}</td>
+                                                <td className="px-4 py-3 font-mono text-[10px] text-slate-500 align-top">{getFuzzy(rule, ['pagina', 'PÁGINA ORIGEN'])}</td>
+                                                <td className="px-4 py-3 font-black text-slate-950 text-xs align-top uppercase">{getFuzzy(rule, ['seccion', 'CÓDIGO/SECCIÓN'])}</td>
+                                                <td className="px-4 py-3 text-slate-900 text-[10px] font-black uppercase align-top tracking-tighter">{getFuzzy(rule, ['categoria', 'SUBCATEGORÍA'])}</td>
                                                 <td className="px-4 py-3">
                                                     <div className="text-[11px] text-black leading-relaxed font-sans bg-white p-4 rounded-lg border-2 border-slate-900 italic shadow-sm">
-                                                        "{rule['VALOR EXTRACTO LITERAL DETALLADO']}"
+                                                        "{getFuzzy(rule, ['texto', 'VALOR EXTRACTO LITERAL DETALLADO'])}"
                                                     </div>
                                                 </td>
                                             </tr>
@@ -134,38 +174,38 @@ export function ContractResults({ data }: Props) {
                                             <tr key={idx} className={`hover:bg-blue-50/20 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/10'}`}>
                                                 <td className="px-4 py-4 border-r border-slate-100 align-top">
                                                     <div className="font-black text-black text-[10px] uppercase leading-tight mb-1">
-                                                        {coverage['PRESTACIÓN CLAVE']}
+                                                        {getFuzzy(coverage, ['prestacion', 'PRESTACIÓN CLAVE'])}
                                                     </div>
-                                                    {coverage['ANCLAJES'] && (
+                                                    {getFuzzy(coverage, ['anclajes', 'ANCLAJES']) !== '-' && Array.isArray(getFuzzy(coverage, ['anclajes', 'ANCLAJES'])) && (
                                                         <div className="flex flex-wrap gap-1">
-                                                            {coverage['ANCLAJES'].map((a, i) => (
+                                                            {getFuzzy(coverage, ['anclajes', 'ANCLAJES']).map((a: string, i: number) => (
                                                                 <span key={i} className="text-[8px] font-black text-slate-500 bg-slate-100 px-1 rounded">[{a}]</span>
                                                             ))}
                                                         </div>
                                                     )}
                                                 </td>
                                                 <td className="px-2 py-3 text-center align-top border-r border-slate-100">
-                                                    <span className="text-[9px] font-black text-slate-800 uppercase tracking-tighter">{coverage['MODALIDAD/RED']}</span>
+                                                    <span className="text-[9px] font-black text-slate-800 uppercase tracking-tighter">{getFuzzy(coverage, ['modalidad', 'MODALIDAD/RED'])}</span>
                                                 </td>
                                                 <td className="px-2 py-3 text-center align-top border-r border-slate-100">
-                                                    <span className="text-xs font-black text-black">{coverage['% BONIFICACIÓN']}</span>
+                                                    <span className="text-xs font-black text-black">{getFuzzy(coverage, ['bonificacion', '% BONIFICACIÓN'])}</span>
                                                 </td>
                                                 <td className="px-2 py-3 text-center align-top border-r border-slate-100">
-                                                    <span className="text-[9px] font-black text-slate-700 tracking-tight">{coverage['COPAGO FIJO']}</span>
+                                                    <span className="text-[9px] font-black text-slate-700 tracking-tight">{getFuzzy(coverage, ['copago', 'COPAGO FIJO'])}</span>
                                                 </td>
                                                 <td className="px-2 py-3 text-center align-top border-r border-slate-100">
                                                     <div className="text-[9px] font-black text-black bg-slate-100 py-1 px-1.5 rounded-md border border-slate-200 inline-block min-w-full">
-                                                        {coverage['TOPE LOCAL 1 (VAM/EVENTO)']}
+                                                        {getFuzzy(coverage, ['tope_1', 'TOPE LOCAL 1 (VAM/EVENTO)'])}
                                                     </div>
                                                 </td>
                                                 <td className="px-2 py-3 text-center align-top border-r border-slate-100">
                                                     <div className="text-[9px] font-black text-slate-900 bg-slate-50 py-1 px-1.5 rounded-md border border-slate-200 inline-block min-w-full">
-                                                        {coverage['TOPE LOCAL 2 (ANUAL/UF)']}
+                                                        {getFuzzy(coverage, ['tope_2', 'TOPE LOCAL 2 (ANUAL/UF)'])}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3 align-top">
                                                     <div className="text-[10px] text-black leading-relaxed font-bold whitespace-pre-wrap">
-                                                        {coverage['RESTRICCIÓN Y CONDICIONAMIENTO']}
+                                                        {getFuzzy(coverage, ['restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO'])}
                                                     </div>
                                                 </td>
                                             </tr>
@@ -183,7 +223,7 @@ export function ContractResults({ data }: Props) {
                 <div className="flex items-center gap-6">
                     <span className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        Auditor v1.7.4
+                        Auditor {data?.diseno_ux?.layout || 'v2.0'}
                     </span>
                     <span>|</span>
                     <span>Generado: {new Date().toLocaleString()}</span>

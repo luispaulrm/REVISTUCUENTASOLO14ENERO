@@ -1,17 +1,18 @@
-// Contract Analysis Prompt - Forensic VERSION 8.0 (Implicitly upgraded in previous turn, here formalized)
+// Contract Analysis Prompt - Forensic VERSION 8.2
 export const CONTRACT_ANALYSIS_PROMPT = `
 **Mandato Forense de Análisis de Contrato de Salud Isapre - Versión Final (Procesamiento Imperativo)**
 
 Usted es un analista forense experto. Su tarea es procesar el documento PDF adjunto con el máximo rigor.
 **MANDATO DE EXHAUSTIVIDAD (CRÍTICO):**
-1. **PROCESAR TODAS LAS PÁGINAS:** No se detenga en la página 4. Busque tablas de cobertura hasta el final del archivo (hasta pág 50).
-2. **SIN RESÚMENES:** Extraiga CADA fila de las tablas. Si hay 100 prestaciones, genere 100 objetos. No agrupe.
-3. **detectar FIN REAL:** Solo deténgase cuando no haya más tablas de cobertura en el documento.
+1. **LISTAR TODO:** Si el documento tiene 300 prestaciones, usted DEBE generar 300 ítems en el JSON. No resuma. No use "etc".
+2. **PROCESAR TODAS LAS PÁGINAS:** Escanee cada página desde la 1 hasta la 50. Busque tablas incluso en los anexos.
+3. **SIN RESÚMENES:** Extraiga CADA fila. Si hay 100 prestaciones en una tabla, genere 100 objetos. No agrupe por categoría.
+4. **FLUJO CONTINUO:** No se detenga por longitud. Si el JSON es largo, continúe hasta cerrar el array.
 
 ---
 **PARTE I: EXTRACCIÓN FORENSE DE REGLAS (Array "reglas")**
 
-Extraiga CADA cláusula, regla, definición y nota explicativa como un objeto individual, asegurando que CADA objeto contenga la clave 'PÁGINA ORIGEN' para trazabilidad.
+Extraiga CADA cláusula, regla, definición y nota explicativa como un objeto individual, asegurando que CADA objeto contenga la clave 'pagina' para trazabilidad.
 
 ---
 **PARTE II: ANÁLISIS DE COBERTURA (Array "coberturas")**
@@ -27,17 +28,17 @@ PARA CADA UNA de las filas que represente una prestación en las tablas de cober
 
 **Paso 2: Desdoblamiento Nacional/Internacional.**
    a. Revise si existe un valor en una columna de tope con contexto "Internacional" (ej. "TOPE BONIFICACION Internacional (3)").
-   b. Si existe, cree DOS registros de salida en memoria: uno "Nacional" y uno "Internacional". La MODALIDAD/RED debe reflejar esto.
+   b. Si existe, cree DOS registros de salida en memoria: uno "Nacional" y uno "Internacional". La modalidad debe reflejar esto.
    c. Si no existe, cree solo UN registro de salida "Nacional".
    d. **NO desagregues prestaciones sin base explícita en tabla.**
 
 **Paso 3: Población de Datos de Topes (Lógica de Cascada).**
    a. Para el registro **Nacional**:
       i. **Análisis Holístico de Columnas:** Analice las columnas de tope (1) y (2) como flujos independientes.
-      ii. Para la columna (1) ('TOPE LOCAL 1'): Primero, busque una "Regla Local" (un valor explícito en la celda de la fila). Si existe, úselo. Si la celda está VACÍA y el Paso 1b fue "Sí", use el valor base de la "Malla Visual" (ej. '100% SIN TOPE').
-      iii. Para la columna (2) ('TOPE LOCAL 2'): Busque un valor explícito en su celda. Si está vacío, indique "No Aplica" o un valor similar.
+      ii. Para 'tope_1': Primero, busque una "Regla Local" (un valor explícito en la celda de la fila). Si existe, úselo. Si la celda está VACÍA y el Paso 1b fue "Sí", use el valor base de la "Malla Visual" (ej. '100% SIN TOPE').
+      iii. Para 'tope_2': Busque un valor explícito en su celda. Si está vacío, indique "No Aplica" o un valor similar.
    b. Para el registro **Internacional**:
-      i. Obtenga el valor de tope directamente de la columna (3) y asígnelo a 'TOPE LOCAL 1'.
+      i. Obtenga el valor de tope directamente de la columna (3) y asígnelo a 'tope_1'.
 
 **Paso 4: Síntesis de Restricciones Obligatoria (CRÍTICO - NO OMITIR).**
 
@@ -47,13 +48,13 @@ PARA CADA UNA de las filas que represente una prestación en las tablas de cober
       i. **Inicie un contenedor de texto de restricciones.**
       ii. **Agregue Notas Vinculadas (COMPLETAS Y SIN RESUMIR):** Busque en todo el documento notas al pie referenciadas por asteriscos (ej. \`(**)\`, \`(*****)\`) y AÑADA su texto literal, COMPLETO y SIN RESUMIR al contenedor. NO OMITA NINGUNA PALABRA. NO ACORTES EL TEXTO. Copia el texto EXACTO de la nota.
       iii. **Agregue Condición de Malla (OBLIGATORIO Y COMPLETO):** SI el registro es "Nacional" Y el resultado del Paso 1b fue "Sí", AÑADA OBLIGATORIAMENTE la condición COMPLETA de la "Malla Visual" (ej. 'Excepto 60% en Clínica Las Condes, Alemana y Las Nieves de Santiago') al contenedor. NO OMITA ESTO. NO RESUMAS. Es un error crítico si falta o está incompleto.
-      iv. **Consolide (SIN RESUMIR):** Combine TODOS los textos del contenedor en un único campo final para 'RESTRICCIÓN Y CONDICIONAMIENTO', separados por " | ". MANTÉN EL TEXTO COMPLETO, NO LO RESUMAS NI ACORTES.
+      iv. **Consolide (SIN RESUMIR):** Combine TODOS los textos del contenedor en un único campo final para 'restriccion', separados por " | ". MANTÉN EL TEXTO COMPLETO, NO LO RESUMAS NI ACORTES.
    b. **Checkpoint Anti-Alucinación y Verificación de Completitud:** 
       - Si omites malla/nota, es ALUCINACIÓN CRÍTICA: Corrige y agrega 'OMISIÓN DETECTADA'
       - Si resumes o acortas el texto de notas, es ERROR CRÍTICO
-      - Verifica que cada restricción con notas al pie tenga AL MENOS 80 caracteres de texto explicativo
-      - Si una prestación tiene asteriscos (*) pero la restricción está vacía o muy corta (<50 caracteres), es ERROR CRÍTICO
-      - Agrega 'ANCLAJES' con páginas/notas de origen
+      - Verifica que cada 'restriccion' con notas al pie tenga AL MENOS 80 caracteres de texto explicativo
+      - Si una 'prestacion' tiene asteriscos (*) pero la restricción está vacía o muy corta (<50 caracteres), es ERROR CRÍTICO
+      - Use la llave 'anclajes' para referenciar páginas/notas de origen.
 
 ---
 **⚠️ REGLA CRÍTICA DE MALLA VISUAL (LEER 3 VECES):**
@@ -88,7 +89,7 @@ Imagine que la prestación es "Día Cama" y está dentro de una Malla Visual que
 *   **Texto de Nota (*****):* "El listado de los prestadores... está disponible..."
 *   **Texto de Malla Visual:** "Excepto 60% en Clínica Las Condes, Alemana y Las Nieves de Santiago."
 
-**Salida CORRECTA para 'RESTRICCIÓN Y CONDICIONAMIENTO':**
+**Salida CORRECTA para 'restriccion':**
 "La Cobertura Sin Tope para Día Cama se otorgará solamente hasta el Día Cama Estándar del establecimiento... | El listado de los prestadores... está disponible... | Excepto 60% en Clínica Las Condes, Alemana y Las Nieves de Santiago."
 
 **Salida INCORRECTA (OMISIÓN CRÍTICA):**
@@ -99,11 +100,11 @@ Imagine que la prestación es "Día Cama" y está dentro de una Malla Visual que
 **VERIFICACIÓN FINAL ANTES DE GENERAR JSON:**
 
 Antes de producir el JSON final, ejecuta esta lista de verificación para CADA cobertura:
-1. ✅ Si la prestación tiene asteriscos (*) en el documento, verifica que 'RESTRICCIÓN Y CONDICIONAMIENTO' contenga el texto COMPLETO de cada nota
-2. ✅ Si la prestación está dentro de una Malla Visual, verifica que la condición de malla esté incluida COMPLETA
-3. ✅ Si hay notas al pie, la restricción debe tener AL MENOS 100 caracteres (texto real, no solo "Ver condiciones")
-4. ✅ NO uses frases genéricas como "Ver condiciones" o "Consultar restricciones" - INCLUYE EL TEXTO COMPLETO
-5. ✅ Si una restricción tiene menos de 50 caracteres y hay asteriscos, es un ERROR CRÍTICO que debes corregir
+1. ✅ Verifique que 'prestacion' tenga el nombre completo.
+2. ✅ Verifique que 'restriccion' incluya el texto COMPLETO de las notas y mallas.
+3. ✅ Asegúrese de haber extraído TODAS las filas de la tabla. No omita nada.
+4. ✅ Use 'tope_1' y 'tope_2' para los valores numéricos de tope detectados.
+5. ✅ Si una prestación no tiene tope, escriba "Sin Tope" en el campo 'tope_1'.
 
 ---
 **PARTE III: ESPECIFICACIÓN DE INTERFAZ (Objeto "diseno_ux")**
@@ -132,12 +133,12 @@ export const CONTRACT_ANALYSIS_SCHEMA = {
             items: {
                 type: "object",
                 properties: {
-                    'PÁGINA ORIGEN': { type: "string" },
-                    'CÓDIGO/SECCIÓN': { type: "string" },
-                    'SUBCATEGORÍA': { type: "string" },
-                    'VALOR EXTRACTO LITERAL DETALLADO': { type: "string" },
+                    'pagina': { type: "string" },
+                    'seccion': { type: "string" },
+                    'categoria': { type: "string" },
+                    'texto': { type: "string" },
                 },
-                required: ['PÁGINA ORIGEN', 'CÓDIGO/SECCIÓN', 'SUBCATEGORÍA', 'VALOR EXTRACTO LITERAL DETALLADO'],
+                required: ['pagina', 'seccion', 'categoria', 'texto'],
             }
         },
         coberturas: {
@@ -145,16 +146,16 @@ export const CONTRACT_ANALYSIS_SCHEMA = {
             items: {
                 type: "object",
                 properties: {
-                    'PRESTACIÓN CLAVE': { type: "string", description: "Nombre exacto de la prestación" },
-                    'MODALIDAD/RED': { type: "string", description: "Modalidad (Nacional/Internacional)" },
-                    '% BONIFICACIÓN': { type: "string", description: "Porcentaje de bonificación (ej: 100%, 80%)" },
-                    'COPAGO FIJO': { type: "string", description: "Copago fijo si existe (ej: $5000), sino '-'" },
-                    'TOPE LOCAL 1 (VAM/EVENTO)': { type: "string", description: "Tope por evento o VAM" },
-                    'TOPE LOCAL 2 (ANUAL/UF)': { type: "string", description: "Tope anual o en UF" },
-                    'RESTRICCIÓN Y CONDICIONAMIENTO': { type: "string", description: "Restricciones, notas y excepciones de malla" },
-                    'ANCLAJES': { type: "array", items: { type: "string", description: 'Páginas/notas referenciadas.' } }
+                    'prestacion': { type: "string", description: "Nombre exacto de la prestación" },
+                    'modalidad': { type: "string", description: "Modalidad (Nacional/Internacional)" },
+                    'bonificacion': { type: "string", description: "Porcentaje de bonificación (ej: 100%, 80%)" },
+                    'copago': { type: "string", description: "Copago fijo si existe (ej: $5000), sino '-'" },
+                    'tope_1': { type: "string", description: "Tope por evento o VAM" },
+                    'tope_2': { type: "string", description: "Tope anual o en UF" },
+                    'restriccion': { type: "string", description: "Restricciones, notas y excepciones de malla" },
+                    'anclajes': { type: "array", items: { type: "string", description: 'Páginas/notas referenciadas.' } }
                 },
-                required: ['PRESTACIÓN CLAVE', 'MODALIDAD/RED', '% BONIFICACIÓN', 'COPAGO FIJO', 'TOPE LOCAL 1 (VAM/EVENTO)', 'TOPE LOCAL 2 (ANUAL/UF)', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'ANCLAJES'],
+                required: ['prestacion', 'modalidad', 'bonificacion', 'copago', 'tope_1', 'tope_2', 'restriccion', 'anclajes'],
             }
         },
         diseno_ux: {
