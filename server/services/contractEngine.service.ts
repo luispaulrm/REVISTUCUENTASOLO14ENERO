@@ -159,8 +159,8 @@ async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine v4.1] 🛡️ MOTOR PRO ESTABLE`);
-    log(`[ContractEngine] 📄 Modelo: Gemini 3 Pro`);
+    log(`[ContractEngine v4.1] 🛡️ MOTOR FLASH ESTABLE`);
+    log(`[ContractEngine] 📄 Modelo: Gemini 3 Flash`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
@@ -171,11 +171,11 @@ async function analyzeSingleContract(
     const extractedText = await extractTextFromPdf(file, ocrMaxPages, log);
 
     // FASE 2: AI (Using System Instruction for performance)
-    log(`[ContractEngine] ⚡ Solicitando auditoría forense Pro...`);
-    log(`[ContractEngine] ⏳ RAZONANDO: Espere mientras el modelo Pro aplica las reglas forenses.`);
+    log(`[ContractEngine] ⚡ Solicitando auditoría forense Flash...`);
+    log(`[ContractEngine] ⏳ RAZONANDO: Espere mientras el modelo Flash aplica las reglas forenses.`);
 
     const model = genAI.getGenerativeModel({
-        model: 'gemini-3-pro-preview', // Hardcode or use constant, but must be Pro
+        model: 'gemini-3-flash-preview', // Switch to Flash
         systemInstruction: CONTRACT_ANALYSIS_PROMPT,
         generationConfig: { maxOutputTokens, temperature: 0 },
         safetySettings: SAFETY_SETTINGS
@@ -218,7 +218,7 @@ async function analyzeSingleContract(
                 responseText += chunkText;
 
                 if (chunksReceived === 1) {
-                    log('[ContractEngine] 📦 PRIMER BYTE RECIBIDO: El modelo Pro está escribiendo.');
+                    log('[ContractEngine] 📦 PRIMER BYTE RECIBIDO: El modelo Flash está escribiendo.');
                 }
 
                 if (chunksReceived % 20 === 0) {
@@ -237,7 +237,7 @@ async function analyzeSingleContract(
     } catch (error: any) {
         sessionActive = false;
         clearInterval(heartbeat);
-        log(`[ContractEngine] ❌ Error en motor Pro: ${error.message}`);
+        log(`[ContractEngine] ❌ Error en motor Flash: ${error.message}`);
         if (!responseText) throw error;
     }
 
@@ -265,7 +265,7 @@ async function analyzeSingleContract(
     if (usageMetadata) {
         const promptTokens = usageMetadata.promptTokenCount || 0;
         const candidatesTokens = usageMetadata.candidatesTokenCount || 0;
-        const costClp = ((promptTokens / 1_000_000) * 1.5 + (candidatesTokens / 1_000_000) * 4.5) * 980;
+        const costClp = ((promptTokens / 1_000_000) * 0.50 + (candidatesTokens / 1_000_000) * 3.00) * 980;
 
         log(`[ContractEngine] 📊 Resumen: ${promptTokens + candidatesTokens} tokens | Costo Est: $${Math.round(costClp)} CLP`);
 

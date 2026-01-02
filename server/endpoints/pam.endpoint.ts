@@ -56,7 +56,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
             // Enviar métricas si disponibles
             if (chunk.usageMetadata) {
                 const usage = chunk.usageMetadata;
-                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-pro-preview", usage.promptTokenCount, usage.candidatesTokenCount);
+                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-flash-preview", usage.promptTokenCount, usage.candidatesTokenCount);
 
                 sendUpdate({
                     type: 'usage',

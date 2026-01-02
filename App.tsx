@@ -328,7 +328,7 @@ const App: React.FC = () => {
                 <ShieldCheck size={12} /> Privacy First
               </span>
               <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                <Zap size={12} /> Gemini 2.0 Flash
+                <Zap size={12} /> Gemini 3 Flash
               </span>
               <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-bold uppercase text-slate-400 tracking-widest flex items-center gap-2">
                 <Code2 size={12} /> High Speed

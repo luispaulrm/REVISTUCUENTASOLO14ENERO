@@ -121,5 +121,5 @@ export const CONTRACT_ANALYSIS_SCHEMA = {
 export const CONTRACT_OCR_MAX_PAGES = 50;
 export const CONTRACT_MAX_OUTPUT_TOKENS = 70000;
 export const CONTRACT_FAST_MODEL = 'gemini-3-flash-preview';
-export const CONTRACT_REASONING_MODEL = 'gemini-3-pro-preview';
+export const CONTRACT_REASONING_MODEL = 'gemini-3-flash-preview';
 export const CONTRACT_DEFAULT_RETRIES = 3;

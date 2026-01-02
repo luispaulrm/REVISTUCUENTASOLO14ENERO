@@ -218,7 +218,7 @@ app.post('/api/extract', async (req, res) => {
                 const candidatesTokens = usage.candidatesTokenCount || 0;
                 const totalTokens = usage.totalTokenCount || 0;
 
-                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-pro-preview", promptTokens, candidatesTokens);
+                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-flash-preview", promptTokens, candidatesTokens);
 
                 sendUpdate({
                     type: 'usage',
