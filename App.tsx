@@ -32,7 +32,7 @@ import { extractPamData, PamDocument } from './pamService';
 import { AuditSummary } from './components/AuditSummary';
 import { ExtractionResults } from './components/ExtractionResults';
 import { PAMResults } from './components/PAMResults';
-import { VERSION, LAST_MODIFIED } from './version';
+import { VERSION, LAST_MODIFIED, AI_MODEL } from './version';
 
 type DocumentType = 'bill' | 'pam';
 
@@ -252,7 +252,11 @@ const App: React.FC = () => {
                 <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-500 font-mono">{VERSION}</span>
                 <span className="text-xs text-slate-400 font-black ml-2 uppercase tracking-tight">Actualizado: {LAST_MODIFIED}</span>
               </h1>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">Universal Extractor</p>
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1 flex items-center gap-2">
+                Universal Extractor
+                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                <span className="text-slate-500">{AI_MODEL}</span>
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">

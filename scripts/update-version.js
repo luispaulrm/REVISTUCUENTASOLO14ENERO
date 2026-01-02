@@ -45,7 +45,6 @@ try {
 
         const newTimestamp = `${day}/${month}/${year} ${hour}:${minute} (Chile)`;
 
-        // Replace in content
         content = content.replace(
             /export const VERSION = ".*";/,
             `export const VERSION = "${newVersion}";`
