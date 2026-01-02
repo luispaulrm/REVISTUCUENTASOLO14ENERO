@@ -195,8 +195,13 @@ export async function analyzeSingleContract(
     `;
 
     const contents = [
-        filePart,
-        { text: userPrompt },
+        {
+            role: 'user',
+            parts: [
+                filePart,
+                { text: userPrompt }
+            ]
+        }
     ];
 
     let sessionActive = true;
@@ -237,9 +242,11 @@ export async function analyzeSingleContract(
     // Estimate output tokens since streaming doesn't give it directly in all versions, or use usageMetadata if available
     const outputTokens = Math.ceil(fullText.length / 4); // Rough approximation if usageMetadata missing
     const totalTokens = inputTokens + outputTokens;
-    const estimatedCost = calculatePrice(AI_CONFIG.ACTIVE_MODEL, inputTokens, outputTokens);
 
-    log(`[ContractEngine] 📊 Resumen: ${totalTokens} tokens | Costo Est: $${Math.round(estimatedCost)} CLP`);
+    // RE-APPLYING PRICE FIX
+    const priceData = calculatePrice(inputTokens, outputTokens);
+
+    log(`[ContractEngine] 📊 Resumen: ${totalTokens} tokens | Costo Est: $${priceData.costCLP} CLP`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     const result: ContractAnalysisResult = {
@@ -250,7 +257,7 @@ export async function analyzeSingleContract(
                 input: inputTokens,
                 output: outputTokens,
                 total: totalTokens,
-                costClp: estimatedCost
+                costClp: priceData.costCLP
             }
         }
     };
