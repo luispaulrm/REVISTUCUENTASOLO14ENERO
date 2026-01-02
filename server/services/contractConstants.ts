@@ -26,6 +26,12 @@ Use las llaves:
 - 'SUBCATEGORÍA'
 - 'VALOR EXTRACTO LITERAL DETALLADO'
 
+**PROHIBICIONES ABSOLUTAS DE RESUMEN (CRITICO):**
+❌ PROHIBIDO usar elipsis ("..."), puntos suspensivos o resúmenes.
+❌ PROHIBIDO truncar párrafos largos. Extraiga CADA PALABRA del texto original.
+❌ Si una nota explicativa tiene 500 palabras, el campo 'VALOR EXTRACTO LITERAL DETALLADO' DEBE tener esas mismas 500 palabras.
+✅ COPY-PASTE EXACTO E ÍNTEGRO de todo el contenido textual.
+
 **RESTRICCIONES NEGATIVAS (IMPORTANTE):**
 NO extraiga como "reglas" la información específica del caso actual.
 ❌ IGNORAR: Nombres de pacientes, médicos, instituciones o diagnósticos.
@@ -64,12 +70,12 @@ PARA CADA UNA de las filas que represente una prestación en las tablas de cober
       i. Inicie contenedor de texto 'RESTRICCIÓN Y CONDICIONAMIENTO'.
       ii. **Notas Vinculadas:** Agregue texto IDÉNTICO y COMPLETO de notas al pie, asteriscos (*) o números (1).
       iii. **Condición de Malla:** SI aplica malla, COPY-PASTE OBLIGATORIO de TODO el texto (ej. 'Excepto 60%...').
-      iv. **Texto Largo:** Si el texto es largo, NO LO CORTES. Incluye absolutamente todo.
+      iv. **Texto Largo:** Si el texto es largo, COPIALO ÍNTEGRAMENTE. PROHIBIDO usar "..." o cortar oraciones.
       v. **Consolide:** Combine con separador " | ".
 
 **⚠️ REGLA CRÍTICA DE CAPTURA DE TEXTO:**
 Si la celda de observaciones/restricciones tiene texto, COPIALO VERBATIM. 
-Prohibido usar resúmenes o "ver anexo" sin incluir el contenido de la nota al pie si está disponible en la página.
+Prohibido usar resúmenes o "ver anexo" sin incluir el contenido, ni usar elipsis "...".
 Si hay texto como "Excepto 60% SIN TOPE en Clínica Las Condes...", ESTE DEBE APARECER ENTERO.
 
 ---
