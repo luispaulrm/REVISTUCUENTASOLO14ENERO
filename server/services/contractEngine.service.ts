@@ -212,29 +212,41 @@ export async function analyzeSingleContract(
     const inputTokens = (await model.countTokens({ contents })).totalTokens;
     log(`[ContractEngine] 🔢 Tokens de Entrada: ${inputTokens}`);
 
-    const streamResult = await model.generateContentStream({ contents });
+    log('[ContractEngine] 🚀 Iniciando stream...');
     let fullText = '';
+    try {
+        const streamResult = await model.generateContentStream({ contents });
+        log('[ContractEngine] 📡 Stream conectado. Esperando primer chunk...');
 
-    for await (const chunk of streamResult.stream) {
-        const chunkText = chunk.text();
-        fullText += chunkText;
-        chunksReceived++;
+        for await (const chunk of streamResult.stream) {
+            const chunkText = chunk.text();
+            fullText += chunkText;
+            chunksReceived++;
 
-        // Emitting Real-Time Metrics every ~2 seconds (assuming chunks come fast)
-        if (chunksReceived % 2 === 0) {
-            log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: DESCARGANDO (${chunksReceived}s)`);
+            // Always log first chunk to confirm aliveness
+            if (chunksReceived === 1) {
+                log('[ContractEngine] 🐣 Primer chunk recibido!');
+            }
 
-            // Calculate real-time metrics
-            const currentOutputTokens = Math.ceil(fullText.length / 4);
-            const currentCost = calculatePrice(inputTokens, currentOutputTokens).costCLP;
+            // Emitting Real-Time Metrics every ~2 seconds (assuming chunks come fast)
+            if (chunksReceived % 2 === 0) {
+                log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: DESCARGANDO (${chunksReceived} chunks)`);
 
-            // Special log format for endpoint interception
-            log(`@@METRICS@@${JSON.stringify({
-                input: inputTokens,
-                output: currentOutputTokens,
-                cost: currentCost
-            })}`);
+                // Calculate real-time metrics
+                const currentOutputTokens = Math.ceil(fullText.length / 4);
+                const currentCost = calculatePrice(inputTokens, currentOutputTokens).costCLP;
+
+                // Special log format for endpoint interception
+                log(`@@METRICS@@${JSON.stringify({
+                    input: inputTokens,
+                    output: currentOutputTokens,
+                    cost: currentCost
+                })}`);
+            }
         }
+    } catch (streamError: any) {
+        log(`[ContractEngine] ❌ Error CRÍTICO en stream: ${streamError.message}`);
+        throw streamError;
     }
 
     log(`[ContractEngine] ✅ Recepción completa.`);
