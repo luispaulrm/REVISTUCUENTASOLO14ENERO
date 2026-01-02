@@ -448,7 +448,7 @@ const App: React.FC = () => {
                   </span>
                   <div className="flex items-center gap-1 mt-1">
                     <ShieldCheck size={10} className="text-emerald-500" />
-                    <span className="text-[9px] font-bold text-emerald-500 uppercase">Conciliado: Modelo y Precios</span>
+                    <span className="text-[9px] font-bold text-emerald-500 uppercase">Conciliado: {AI_MODEL}</span>
                   </div>
                 </div>
                 <button

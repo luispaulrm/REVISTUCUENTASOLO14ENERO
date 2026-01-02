@@ -40,8 +40,10 @@ PARA CADA UNA de las filas que represente una prestación en las tablas de cober
 
 **Paso 2: Desdoblamiento Nacional/Internacional.**
    a. Revise si existe un valor en una columna de tope con contexto "Internacional".
-   b. Si existe, cree DOS registros: uno "Nacional" y uno "Internacional".
-   c. Si no, solo "Nacional".
+   b. Si existe, cree DOS registros: 
+      - Uno con 'MODALIDAD/RED': "NACIONAL"
+      - Uno con 'MODALIDAD/RED': "INTERNACIONAL"
+   c. Si no, solo cree uno con 'MODALIDAD/RED': "NACIONAL" (o "LIBRE ELECCIÓN" si aplica).
 
 **Paso 3: Población de Datos de Topes.**
    a. **Nacional**: 
@@ -68,6 +70,7 @@ Si hay texto como "Excepto 60% SIN TOPE en Clínica Las Condes...", ESTE DEBE AP
 1. ✅ 'PRESTACIÓN CLAVE' tiene nombre completo.
 2. ✅ 'RESTRICCIÓN Y CONDICIONAMIENTO' incluye notas y mallas completas.
 3. ✅ 'TOPE LOCAL 1 (VAM/EVENTO)' y 'TOPE LOCAL 2 (ANUAL/UF)' capturan los valores.
+4. ✅ 'MODALIDAD/RED' distingue explícitamente "Nacional" o "Internacional".
 
 ---
 **PARTE III: ESPECIFICACIÓN DE INTERFAZ (Objeto "diseno_ux")**

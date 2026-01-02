@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Upload, Loader2, FileText, Trash2, ShieldCheck, Timer, Terminal, Download, Printer, FileDown, X, ArrowDownLeft, ArrowUpRight, Zap, Coins } from 'lucide-react';
 import { extractPamData, PamDocument, UsageMetrics } from '../pamService';
 import { PAMResults } from './PAMResults';
-import { VERSION, LAST_MODIFIED } from '../version';
+import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
 
 enum AppStatus {
     IDLE = 'idle',
@@ -364,6 +364,10 @@ export default function PAMApp() {
                                     <span className="font-mono text-xl font-black text-white tracking-tight">
                                         ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'} <span className="text-[10px] text-slate-600 font-sans">CLP</span>
                                     </span>
+                                    <div className="flex items-center gap-1 mt-1">
+                                        <ShieldCheck size={10} className="text-emerald-500" />
+                                        <span className="text-[9px] font-bold text-emerald-500 uppercase">Conciliado: {AI_MODEL}</span>
+                                    </div>
                                 </div>
                                 <button
                                     onClick={handleStop}
