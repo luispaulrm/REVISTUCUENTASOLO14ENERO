@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import App from '../App';
 import PAMApp from './PAMApp';
-import { ShieldCheck, Receipt } from 'lucide-react';
+import ContractApp from './ContractApp';
+import { ShieldCheck, Receipt, Scale } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam';
+type DocumentType = 'bill' | 'pam' | 'contract';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -39,6 +40,17 @@ export function AppWithTabs() {
                             <ShieldCheck size={16} />
                             PAM (Coberturas)
                         </button>
+
+                        <button
+                            onClick={() => handleTabChange('contract')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'contract'
+                                ? 'bg-slate-900 text-white shadow-lg shadow-slate-200'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                        >
+                            <Scale size={16} />
+                            Contratos
+                        </button>
                     </div>
                 </div>
             </div>
@@ -50,6 +62,9 @@ export function AppWithTabs() {
                 </div>
                 <div style={{ display: activeTab === 'pam' ? 'block' : 'none' }}>
                     <PAMApp />
+                </div>
+                <div style={{ display: activeTab === 'contract' ? 'block' : 'none' }}>
+                    <ContractApp />
                 </div>
             </div>
         </div>

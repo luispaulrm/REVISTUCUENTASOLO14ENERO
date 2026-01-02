@@ -1,0 +1,260 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Upload, Loader2, FileText, Trash2, ShieldCheck, Timer, Terminal, Printer, X, Scale, Zap, Info, AlertTriangle } from 'lucide-react';
+import { extractContractData } from '../contractService';
+import { Contract, UsageMetrics, AppStatus } from '../types';
+import { ContractResults } from './ContractResults';
+import { VERSION, LAST_MODIFIED } from '../version';
+
+export default function ContractApp() {
+    const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
+    const [error, setError] = useState<string | null>(null);
+    const [contractResult, setContractResult] = useState<Contract | null>(null);
+    const [logs, setLogs] = useState<string[]>([]);
+    const [progress, setProgress] = useState(0);
+    const [seconds, setSeconds] = useState(0);
+    const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
+
+    const [isExporting, setIsExporting] = useState(false);
+    const timerRef = useRef<number | null>(null);
+    const progressRef = useRef<number | null>(null);
+    const logEndRef = useRef<HTMLDivElement>(null);
+    const reportRef = useRef<HTMLDivElement>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    const handleStop = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+            addLog('[SISTEMA] 🛑 Análisis cancelado por el usuario.');
+        }
+    };
+
+    useEffect(() => {
+        if (logEndRef.current) {
+            logEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [logs]);
+
+    useEffect(() => {
+        if (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) {
+            if (!timerRef.current) {
+                setSeconds(0);
+                timerRef.current = window.setInterval(() => setSeconds(s => s + 1), 1000);
+            }
+        } else {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+            if (status === AppStatus.SUCCESS) setProgress(100);
+        }
+    }, [status]);
+
+    const formatTime = (totalSeconds: number) => {
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const addLog = (msg: string) => {
+        const timestamp = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const formattedMsg = `[${timestamp}] ${msg}`;
+        setLogs(prev => [...prev, formattedMsg]);
+    };
+
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setStatus(AppStatus.UPLOADING);
+        setError(null);
+        setContractResult(null);
+        setLogs([]);
+        setRealTimeUsage(null);
+        addLog(`[SISTEMA] Contrato recibido: ${file.name}`);
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const base64Data = e.target?.result as string;
+            const pureBase64 = base64Data.split(',')[1];
+
+            try {
+                setStatus(AppStatus.PROCESSING);
+                const controller = new AbortController();
+                abortControllerRef.current = controller;
+
+                const timeoutId = setTimeout(() => {
+                    if (status === AppStatus.PROCESSING) {
+                        addLog('[SISTEMA] ⚠️ Tiempo de espera agotado (90s). Cancelando...');
+                        controller.abort();
+                    }
+                }, 90000);
+
+                try {
+                    const result = await extractContractData(pureBase64, file.type, addLog, setRealTimeUsage, setProgress, controller.signal);
+                    setContractResult(result.data);
+                    setStatus(AppStatus.SUCCESS);
+
+                    // Persistir el contrato para auditoría cruzada
+                    localStorage.setItem('contract_audit_result', JSON.stringify(result.data));
+                    addLog('[SISTEMA] ✅ Contrato persistido localmente para auditoría cruzada.');
+
+                } catch (err: any) {
+                    if (err.name === 'AbortError') {
+                        setStatus(AppStatus.IDLE);
+                        return;
+                    }
+                    throw err;
+                } finally {
+                    clearTimeout(timeoutId);
+                    abortControllerRef.current = null;
+                }
+            } catch (err: any) {
+                setError(err.message || 'Error procesando el contrato.');
+                setStatus(AppStatus.ERROR);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const clearSession = () => {
+        setStatus(AppStatus.IDLE);
+        setContractResult(null);
+        setError(null);
+        setLogs([]);
+        setSeconds(0);
+        setProgress(0);
+        setRealTimeUsage(null);
+    };
+
+    return (
+        <div className="min-h-screen flex flex-col bg-slate-50 relative pb-32">
+            <header className="bg-transparent border-b border-slate-200 sticky top-0 z-50 print:hidden backdrop-blur-sm">
+                <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                            <Scale size={22} />
+                        </div>
+                        <div>
+                            <h1 className="text-lg font-bold text-slate-900 leading-none flex items-center gap-2">
+                                LEGAL FORENSIC
+                                <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-500 font-mono">{VERSION}</span>
+                            </h1>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Contract Analysis Module</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {status !== AppStatus.IDLE && (
+                            <button
+                                onClick={clearSession}
+                                className="p-2 text-slate-400 hover:text-rose-500 transition-colors flex items-center gap-2"
+                            >
+                                <span className="hidden md:inline text-[10px] font-bold uppercase">Nuevo Contrato</span>
+                                <Trash2 size={20} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </header>
+
+            <main className="flex-grow max-w-6xl mx-auto w-full p-8">
+                {status === AppStatus.IDLE && (
+                    <div className="max-w-2xl mx-auto text-center py-20">
+                        <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-8 border border-slate-200 shadow-xl">
+                            <Upload size={36} />
+                        </div>
+                        <h2 className="text-3xl font-black text-slate-900 mb-4 tracking-tight underline decoration-indigo-500 underline-offset-8">Módulo de Contratos</h2>
+                        <p className="text-slate-500 mb-10">Sube tu Plan de Salud Isapre para extraer términos legales y coberturas de forma forense.</p>
+
+                        <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-slate-50 hover:border-indigo-500 transition-all group">
+                            <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
+                            <div className="flex flex-col items-center p-6">
+                                <div className="p-4 bg-slate-50 rounded-2xl mb-4 text-slate-400 group-hover:text-indigo-600 group-hover:bg-indigo-50 transition-colors">
+                                    <FileText size={32} />
+                                </div>
+                                <p className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">Cargar Contrato (PDF/Imagen)</p>
+                                <p className="text-xs text-slate-400 mt-1">Análisis por Mandato Imperativo</p>
+                            </div>
+                        </label>
+                    </div>
+                )}
+
+                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (
+                    <div className="max-w-4xl mx-auto py-12">
+                        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden h-[600px] flex flex-col relative">
+                            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                                <div className="flex items-center gap-2">
+                                    <Terminal size={16} className="text-slate-400" />
+                                    <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Forensic Execution Log</span>
+                                </div>
+                            </div>
+                            <div className="p-6 h-full overflow-y-auto font-mono text-[11px] space-y-2 bg-white scrollbar-thin">
+                                {logs.map((log, i) => (
+                                    <div key={i} className="flex gap-4 items-start py-1 transition-colors pl-3 hover:bg-slate-50 border-l-2 border-transparent">
+                                        <span className={`break-words flex-1 ${log.includes('[SISTEMA]') ? 'text-indigo-500 font-bold' : 'text-slate-600'}`}>
+                                            {log}
+                                        </span>
+                                    </div>
+                                ))}
+                                <div ref={logEndRef} />
+                            </div>
+                        </div>
+
+                        {/* SpaceX Real-time Dashboard */}
+                        <div className="fixed bottom-0 left-0 w-full bg-slate-900 text-white z-[200] border-t border-slate-800 shadow-2xl p-6">
+                            <div className="max-w-6xl mx-auto flex items-center justify-between">
+                                <div className="flex items-center gap-8 border-r border-slate-800 pr-8">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase mb-1">Elapsed Time</span>
+                                        <div className="text-2xl font-black font-mono">T+{formatTime(seconds)}</div>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase mb-1">Analysis</span>
+                                        <div className="text-xs font-bold text-indigo-400 uppercase tracking-widest animate-pulse">Running Mandate...</div>
+                                    </div>
+                                </div>
+
+                                <div className="flex-1 px-12">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase">Extraction Progress</span>
+                                        <span className="text-[10px] font-mono font-bold text-indigo-400">{Math.round(progress)}%</span>
+                                    </div>
+                                    <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+                                        <div className="h-full bg-indigo-500 transition-all duration-500" style={{ width: `${progress}%` }}></div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-6 pl-8 border-l border-slate-800">
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase mb-1">Estimated Cost</span>
+                                        <div className="text-xl font-black font-mono">${realTimeUsage?.estimatedCostCLP || 0} <span className="text-[10px]">CLP</span></div>
+                                    </div>
+                                    <button onClick={handleStop} className="w-10 h-10 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 hover:bg-rose-500 hover:text-white transition-all">
+                                        <X size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {status === AppStatus.ERROR && (
+                    <div className="max-w-md mx-auto py-20 text-center">
+                        <AlertTriangle className="text-rose-500 mx-auto mb-6" size={64} />
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">Error Forense</h3>
+                        <p className="text-slate-500 mb-8">{error}</p>
+                        <button onClick={clearSession} className="px-10 py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all">
+                            VOLVER A INTENTAR
+                        </button>
+                    </div>
+                )}
+
+                {status === AppStatus.SUCCESS && contractResult && (
+                    <div className="animate-in fade-in duration-700">
+                        <ContractResults data={contractResult} />
+                    </div>
+                )}
+            </main>
+        </div>
+    );
+}

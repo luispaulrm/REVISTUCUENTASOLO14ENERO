@@ -110,6 +110,10 @@ export default function PAMApp() {
                     const result = await extractPamData(pureBase64, file.type, addLog, setRealTimeUsage, setProgress, controller.signal);
                     setPamResult(result.data);
                     setStatus(AppStatus.SUCCESS);
+
+                    // Persistir PAM para auditoría cruzada
+                    localStorage.setItem('pam_audit_result', JSON.stringify(result.data));
+                    addLog('[SISTEMA] ✅ Resultados PAM guardados para auditoría cruzada.');
                 } catch (err: any) {
                     if (err.name === 'AbortError') {
                         setStatus(AppStatus.IDLE);

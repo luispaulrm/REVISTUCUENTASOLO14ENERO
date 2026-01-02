@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { handlePamExtraction } from './endpoints/pam.endpoint.js';
+import { handleContractExtraction } from './endpoints/contract.endpoint.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -366,6 +367,7 @@ app.post('/api/extract', async (req, res) => {
 // ========== PAM ENDPOINT (NEW) ==========
 // Endpoint para análisis de documentos PAM
 app.post('/api/extract-pam', handlePamExtraction);
+app.post('/api/extract-contract', handleContractExtraction);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../dist')));

@@ -42,6 +42,33 @@ export interface ExtractedAccount {
   usage?: UsageMetrics;
 }
 
+export interface ContractRegla {
+  clausula: string;
+  pagina_origen: string;
+}
+
+export interface ContractCobertura {
+  prestacion: string;
+  modalidad_red: string;
+  tope_local_1: string;
+  tope_local_2?: string;
+  restriccion_condicionamiento: string;
+}
+
+export interface Contract {
+  diseno_ux: {
+    nombre_isapre: string;
+    titulo_plan: string;
+    subtitulo_plan: string;
+    layout: string;
+    funcionalidad: string;
+    salida_json: string;
+  };
+  reglas: ContractRegla[];
+  coberturas: ContractCobertura[];
+  usage?: UsageMetrics;
+}
+
 export enum AppStatus {
   IDLE = 'IDLE',
   UPLOADING = 'UPLOADING',
