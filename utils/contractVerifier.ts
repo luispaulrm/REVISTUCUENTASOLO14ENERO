@@ -94,7 +94,7 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
         score -= penalty;
         issues.push({
             severity: 'warning',
-            message: `Faltan secciones clave: ${missingSections.join(', ')}. Estructura incompleta.`,
+            message: `Faltan secciones clave: ${missingSections.join(', ')}. Estructura del contrato incompleta o extracción parcial.`,
             deduction: penalty
         });
     }
