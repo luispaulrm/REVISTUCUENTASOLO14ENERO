@@ -106,7 +106,17 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
         // Convertir toda la fila a string para buscar el % en cualquier lado (Tope, Bonificación, Texto)
         const rowString = JSON.stringify(c).toUpperCase();
         const hasPercentage = rowString.match(/\d+(\.|,)?\d* ?%/); // Match "100%", "90 %", "3.5%"
-        const hasBonifKeyword = rowString.includes('BONIFICACION') || rowString.includes('CUBIERTO') || rowString.includes('COPAGO');
+
+        // Keywords que indican presencia de datos válidos (Bonificación, Copago, Moneda, Tope)
+        const hasBonifKeyword = rowString.includes('BONIFICACION') ||
+            rowString.includes('CUBIERTO') ||
+            rowString.includes('COPAGO') ||
+            rowString.includes('SIN TOPE') ||
+            rowString.includes('UF') ||
+            rowString.includes('V.A.') ||
+            rowString.includes('VAM') ||
+            rowString.includes('AC3') ||
+            rowString.includes('$');
 
         if (!hasPercentage && !hasBonifKeyword) {
             emptyBonif++;
@@ -117,7 +127,7 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
         score -= 20;
         issues.push({
             severity: 'warning',
-            message: 'No se detectó porcentaje de bonificación en >50% de las filas.',
+            message: 'No se detectó información de cobertura válida (%, UF, Topes) en >50% de las filas.',
             deduction: 20
         });
     }
