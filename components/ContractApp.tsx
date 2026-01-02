@@ -15,6 +15,7 @@ export default function ContractApp() {
     const [seconds, setSeconds] = useState(0);
     const [heartbeat, setHeartbeat] = useState(0);
     const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
+    const [fileName, setFileName] = useState<string>('');
 
     const [isExporting, setIsExporting] = useState(false);
     const timerRef = useRef<number | null>(null);
@@ -71,6 +72,7 @@ export default function ContractApp() {
         setStatus(AppStatus.UPLOADING);
         setError(null);
         setContractResult(null);
+        setFileName(file.name);
         setLogs([]);
         setRealTimeUsage(null);
         addLog(`[SISTEMA] Contrato recibido: ${file.name}`);
@@ -244,7 +246,9 @@ export default function ContractApp() {
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
-                                        <span className="text-xs font-bold text-slate-300">Forensic Scan</span>
+                                        <span className="text-xs font-bold text-slate-300 truncate max-w-[200px]" title={fileName}>
+                                            {fileName || "Forensic Scan"}
+                                        </span>
                                     </div>
                                 </div>
 
