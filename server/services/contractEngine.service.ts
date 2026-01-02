@@ -12,6 +12,7 @@ import {
     CONTRACT_FAST_MODEL,
     CONTRACT_REASONING_MODEL,
 } from './contractConstants.js';
+import { AI_CONFIG, calculatePrice } from '../config/ai.config.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -159,8 +160,8 @@ async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine v4.1] 🛡️ MOTOR FLASH ESTABLE`);
-    log(`[ContractEngine] 📄 Modelo: Gemini 3 Flash`);
+    log(`[ContractEngine v4.1] 🛡️ MOTOR ${AI_CONFIG.MODEL_LABEL.toUpperCase()} ESTABLE`);
+    log(`[ContractEngine] 📄 Modelo: ${AI_CONFIG.ACTIVE_MODEL}`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
@@ -171,11 +172,11 @@ async function analyzeSingleContract(
     const extractedText = await extractTextFromPdf(file, ocrMaxPages, log);
 
     // FASE 2: AI (Using System Instruction for performance)
-    log(`[ContractEngine] ⚡ Solicitando auditoría forense Flash...`);
-    log(`[ContractEngine] ⏳ RAZONANDO: Espere mientras el modelo Flash aplica las reglas forenses.`);
+    log(`[ContractEngine] ⚡ Solicitando auditoría forense ${AI_CONFIG.MODEL_LABEL}...`);
+    log(`[ContractEngine] ⏳ RAZONANDO: Espere mientras el modelo ${AI_CONFIG.MODEL_LABEL} aplica las reglas forenses.`);
 
     const model = genAI.getGenerativeModel({
-        model: 'gemini-3-flash-preview', // Switch to Flash
+        model: AI_CONFIG.ACTIVE_MODEL,
         systemInstruction: CONTRACT_ANALYSIS_PROMPT,
         generationConfig: { maxOutputTokens, temperature: 0 },
         safetySettings: SAFETY_SETTINGS
@@ -265,9 +266,9 @@ async function analyzeSingleContract(
     if (usageMetadata) {
         const promptTokens = usageMetadata.promptTokenCount || 0;
         const candidatesTokens = usageMetadata.candidatesTokenCount || 0;
-        const costClp = ((promptTokens / 1_000_000) * 0.50 + (candidatesTokens / 1_000_000) * 3.00) * 980;
+        const { costCLP } = calculatePrice(promptTokens, candidatesTokens);
 
-        log(`[ContractEngine] 📊 Resumen: ${promptTokens + candidatesTokens} tokens | Costo Est: $${Math.round(costClp)} CLP`);
+        log(`[ContractEngine] 📊 Resumen: ${promptTokens + candidatesTokens} tokens | Costo Est: $${costCLP} CLP`);
 
         result.metrics = {
             executionTimeMs: Date.now() - startTime,
@@ -275,7 +276,7 @@ async function analyzeSingleContract(
                 input: promptTokens,
                 output: candidatesTokens,
                 total: usageMetadata.totalTokenCount || (promptTokens + candidatesTokens),
-                costClp: costClp
+                costClp: costCLP
             }
         };
     }

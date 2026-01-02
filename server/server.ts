@@ -6,6 +6,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GeminiService } from './services/gemini.service.js';
+import { ParserService } from "./services/parser.service.js";
+import { AI_CONFIG } from "./config/ai.config.js";
 import { handlePamExtraction } from './endpoints/pam.endpoint.js';
 import { handleContractExtraction } from './endpoints/contract.endpoint.js';
 
@@ -163,7 +165,7 @@ app.post('/api/extract', async (req, res) => {
 
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({
-            model: "gemini-3-flash-preview",
+            model: AI_CONFIG.ACTIVE_MODEL,
             generationConfig: {
                 maxOutputTokens: 64000
             }
@@ -218,7 +220,7 @@ app.post('/api/extract', async (req, res) => {
                 const candidatesTokens = usage.candidatesTokenCount || 0;
                 const totalTokens = usage.totalTokenCount || 0;
 
-                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-flash-preview", promptTokens, candidatesTokens);
+                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(AI_CONFIG.ACTIVE_MODEL, promptTokens, candidatesTokens);
 
                 sendUpdate({
                     type: 'usage',

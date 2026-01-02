@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { AI_CONFIG, calculatePrice } from '../config/ai.config.js';
 
 export interface StreamChunk {
     text: string;
@@ -27,7 +28,7 @@ export class GeminiService {
         } = {}
     ): Promise<AsyncIterable<StreamChunk>> {
         const model = this.client.getGenerativeModel({
-            model: "gemini-3-flash-preview",
+            model: AI_CONFIG.ACTIVE_MODEL,
             generationConfig: {
                 maxOutputTokens: config.maxTokens || 64000,
                 responseMimeType: config.responseMimeType,
@@ -104,7 +105,7 @@ export class GeminiService {
         `;
 
         const model = this.client.getGenerativeModel({
-            model: "gemini-3-flash-preview",
+            model: AI_CONFIG.ACTIVE_MODEL,
             generationConfig: {
                 maxOutputTokens: 8000,
                 responseMimeType: "application/json"
@@ -135,41 +136,17 @@ export class GeminiService {
      * Basado en las nuevas tarifas de Gemini 3.
      */
     static calculateCost(modelName: string, promptTokens: number, candidatesTokens: number) {
-        // Precios por 1 millón de tokens
-        const pricing = {
-            'gemini-3-pro-preview': {
-                inputLow: 2.00, // <= 200K
-                inputHigh: 4.00, // > 200K
-                outputLow: 12.00, // <= 200K
-                outputHigh: 18.00 // > 200K
-            },
-            'gemini-3-flash-preview': {
-                input: 0.50,
-                output: 3.00
-            }
-        };
+        // We ignore modelName argument to enforce Single Source of Truth from Config
+        // or check if it matches AI_CONFIG.ACTIVE_MODEL
 
-        const totalTokens = promptTokens + candidatesTokens;
-        let estimatedCost = 0;
-
-        if (modelName.includes('pro')) {
-            const p = pricing['gemini-3-pro-preview'];
-            const rateInput = totalTokens > 200000 ? p.inputHigh : p.inputLow;
-            const rateOutput = totalTokens > 200000 ? p.outputHigh : p.outputLow;
-
-            estimatedCost = (promptTokens / 1000000) * rateInput + (candidatesTokens / 1000000) * rateOutput;
-        } else {
-            // Default to Flash pricing (gemini-3-flash-preview)
-            const p = pricing['gemini-3-flash-preview'];
-            estimatedCost = (promptTokens / 1000000) * p.input + (candidatesTokens / 1000000) * p.output;
-        }
+        const { costUSD, costCLP } = calculatePrice(promptTokens, candidatesTokens);
 
         return {
             promptTokens,
             candidatesTokens,
-            totalTokens,
-            estimatedCost,
-            estimatedCostCLP: Math.ceil(estimatedCost * 980) // Approximate USD->CLP rate
+            totalTokens: promptTokens + candidatesTokens,
+            estimatedCost: costUSD,
+            estimatedCostCLP: costCLP
         };
     }
 }

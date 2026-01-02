@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { GeminiService } from '../services/gemini.service.js';
 import { PAM_PROMPT, PAM_ANALYSIS_SCHEMA } from '../prompts/pam.prompt.js';
+import { AI_CONFIG } from '../config/ai.config.js';
 
 // Helper para obtener env vars (reutilizado del server.ts)
 function envGet(k: string) {
@@ -56,7 +57,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
             // Enviar métricas si disponibles
             if (chunk.usageMetadata) {
                 const usage = chunk.usageMetadata;
-                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost("gemini-3-flash-preview", usage.promptTokenCount, usage.candidatesTokenCount);
+                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(AI_CONFIG.ACTIVE_MODEL, usage.promptTokenCount, usage.candidatesTokenCount);
 
                 sendUpdate({
                     type: 'usage',
