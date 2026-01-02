@@ -29,7 +29,7 @@ export class GeminiService {
         const model = this.client.getGenerativeModel({
             model: "gemini-3-flash-preview",
             generationConfig: {
-                maxOutputTokens: config.maxTokens || 30000,
+                maxOutputTokens: config.maxTokens || 64000,
                 responseMimeType: config.responseMimeType,
                 responseSchema: config.responseSchema,
             }

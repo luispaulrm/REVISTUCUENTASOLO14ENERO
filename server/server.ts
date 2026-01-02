@@ -155,7 +155,7 @@ app.post('/api/extract', async (req, res) => {
         const model = genAI.getGenerativeModel({
             model: "gemini-3-flash-preview",
             generationConfig: {
-                maxOutputTokens: 30000
+                maxOutputTokens: 64000
             }
         });
 
