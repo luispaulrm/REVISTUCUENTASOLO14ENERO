@@ -58,12 +58,13 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
         log(`[ContractEngine] 🔍 Escaneando PDF: ${file.originalname}...`);
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
-        // Resolve standard fonts path for Node.js - MUST end with a slash / 
-        // Since this file is in server/services/, we go up twice to reach the root node_modules.
-        let fontPath = path.join(__dirname, '../../node_modules/pdfjs-dist/standard_fonts/');
-        // Ensure it ends with a slash regardless of OS joins
-        if (!fontPath.endsWith('/') && !fontPath.endsWith('\\')) fontPath += '/';
+        // Resolve absolute path to standard fonts
+        const fontPathRaw = path.resolve(__dirname, '../../node_modules/pdfjs-dist/standard_fonts');
+        // Convert to absolute path with forward slashes and a TRAILING SLASH
+        const fontPath = fontPathRaw.replace(/\\/g, '/') + '/';
         const standardFontDataUrl = fontPath;
+
+        log(`[ContractEngine] 📄 Cargando fuentes: ${standardFontDataUrl}`);
 
         const data = new Uint8Array(file.buffer);
         const loadingTask = pdfjsLib.getDocument({
@@ -158,8 +159,8 @@ async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine v3.8] 🛡️ MOTOR ULTRA-RESILIENTE PRO`);
-    log(`[ContractEngine] 📄 Modelo: Gemini 3 Pro (High-End)`);
+    log(`[ContractEngine v4.1] 🛡️ MOTOR PRO ESTABLE`);
+    log(`[ContractEngine] 📄 Modelo: Gemini 3 Pro`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
@@ -174,8 +175,8 @@ async function analyzeSingleContract(
     log(`[ContractEngine] ⏳ RAZONANDO: Espere mientras el modelo Pro aplica las reglas forenses.`);
 
     const model = genAI.getGenerativeModel({
-        model: modelName,
-        systemInstruction: CONTRACT_ANALYSIS_PROMPT, // Move prompt to system instructions
+        model: 'gemini-3-pro-preview', // Hardcode or use constant, but must be Pro
+        systemInstruction: CONTRACT_ANALYSIS_PROMPT,
         generationConfig: { maxOutputTokens, temperature: 0 },
         safetySettings: SAFETY_SETTINGS
     });
