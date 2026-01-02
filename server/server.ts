@@ -254,7 +254,31 @@ app.post('/api/extract', async (req, res) => {
 
         for (const line of lines) {
             if (line.startsWith('GRAND_TOTAL:')) {
-                clinicGrandTotalField = parseInt(line.replace('GRAND_TOTAL:', '').trim().replace(/\./g, '')) || 0;
+                // Remove all non-numeric characters for safety, but consider comma as decimal if needed?
+                // Standard Chilean format: 691.287.600 -> 691287600
+                // Sometimes Gemini output: 691,287,600 or 691287600
+                // "1.000,00" -> 1000
+
+                const rawVal = line.replace('GRAND_TOTAL:', '').trim();
+                // Strategy: remove dots, then regex for digits. 
+                // However, if comma exists, it might be decimal.
+                // Given clinical bills in CLP are usually integers, we can strip mostly everything.
+                // Note: If Gemini puts "691.287.600,00", stripping dots -> "691287600,00". ParseInt handles it.
+                // If Gemini puts "6.912.876" (thinking in millions with bad formatting?), we need heuristics.
+
+                clinicGrandTotalField = parseInt(rawVal.replace(/\./g, '').replace(/,/g, '.')) || 0;
+                // Example: "691.287.600" -> "691287600" -> 691287600 (OK)
+                // Example: "691,287,600" -> "691.287.600" -> 691 (BAD if parseInt stops)
+
+                // Better approach: Remove non-digits? No, we need to respect decimals if present.
+                // But CLP bills rarely have decimals.
+                // Let's use a simpler "clean non-digits" approach for Grand Total usually works for CLP integers.
+                const numericOnly = rawVal.replace(/[^\d]/g, '');
+                if (numericOnly.length > 0) {
+                    clinicGrandTotalField = parseInt(numericOnly);
+                }
+
+                console.log(`[PARSER] Raw GRAND_TOTAL: "${rawVal}" -> Parsed: ${clinicGrandTotalField}`);
                 continue;
             }
             if (line.startsWith('CLINIC:')) {
@@ -396,6 +420,17 @@ app.post('/api/extract', async (req, res) => {
         }
 
         const sumOfSections = Array.from(sectionsMap.values()).reduce((acc: number, s: any) => acc + s.sectionTotal, 0);
+
+        // --- MAGNITUDE SANITY CHECK ---
+        // If Stated Total is ~1/100 of Sum of Sections, it's likely a decimal reading error (e.g. 6.9M vs 690M).
+        // Tolerance: 20% variance to be safe?
+        if (clinicGrandTotalField > 0 && sumOfSections > 0) {
+            const ratio = sumOfSections / clinicGrandTotalField;
+            if (ratio > 80 && ratio < 120) {
+                console.warn(`[AUDIT] Detected likely magnitude error (Reading 1/100 of expected). Stated: ${clinicGrandTotalField}, SectionsSum: ${sumOfSections}. Auto-correcting Stated Total x100.`);
+                clinicGrandTotalField = clinicGrandTotalField * 100;
+            }
+        }
 
         const auditData = {
             clinicName: clinicName,
