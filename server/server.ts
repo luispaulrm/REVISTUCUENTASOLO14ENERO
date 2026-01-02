@@ -422,15 +422,32 @@ app.post('/api/extract', async (req, res) => {
         const sumOfSections = Array.from(sectionsMap.values()).reduce((acc: number, s: any) => acc + s.sectionTotal, 0);
 
         // --- MAGNITUDE SANITY CHECK ---
-        // If Stated Total is ~1/100 of Sum of Sections, it's likely a decimal reading error (e.g. 6.9M vs 690M).
-        // Tolerance: 20% variance to be safe?
+        // Scenario: Gemini reads "452.075,00" as 45207500 (x100 inflation) for items.
+        // But reads "Total: 6.912.876" correctly or differently.
+        // If Sum is ~100x Stated Total, we should SCALE DOWN the items, not scale up the total.
         if (clinicGrandTotalField > 0 && sumOfSections > 0) {
             const ratio = sumOfSections / clinicGrandTotalField;
             if (ratio > 80 && ratio < 120) {
-                console.warn(`[AUDIT] Detected likely magnitude error (Reading 1/100 of expected). Stated: ${clinicGrandTotalField}, SectionsSum: ${sumOfSections}. Auto-correcting Stated Total x100.`);
-                clinicGrandTotalField = clinicGrandTotalField * 100;
+                console.warn(`[AUDIT] Detected likely magnitude error (Items Sum is 100x Stated Total). Sum: ${sumOfSections}, Stated: ${clinicGrandTotalField}. Scaling down ALL items by 100.`);
+
+                // Fix every item in every section
+                for (const section of sectionsMap.values()) {
+                    section.items.forEach((item: any) => {
+                        item.unitPrice = item.unitPrice / 100;
+                        item.total = item.total / 100;
+                        item.calculatedTotal = item.calculatedTotal / 100;
+                    });
+                    // Recalculate section total
+                    section.sectionTotal = section.sectionTotal / 100;
+                }
+
+                // Update the Sum variable for the audit report
+                // (Note: We don't update clinicGrandTotalField, we assume it was correct)
             }
         }
+
+        // Re-calculate sum after potential fix
+        const finalSumOfSections = Array.from(sectionsMap.values()).reduce((acc: number, s: any) => acc + s.sectionTotal, 0);
 
         const auditData = {
             clinicName: clinicName,
@@ -439,7 +456,7 @@ app.post('/api/extract', async (req, res) => {
             date: billingDate,
             currency: "CLP",
             sections: Array.from(sectionsMap.values()),
-            clinicStatedTotal: clinicGrandTotalField || sumOfSections
+            clinicStatedTotal: clinicGrandTotalField || finalSumOfSections
         };
 
         console.log(`[SUCCESS] Audit data prepared. Sections: ${sectionsMap.size}. Total: ${auditData.clinicStatedTotal}`);
