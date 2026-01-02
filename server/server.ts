@@ -114,13 +114,19 @@ const EXTRACTION_PROMPT = `
     - total: Debe ser el valor de la columna 'Valor Isa' (VALOR TOTAL CON IMPUESTOS Y RECARGOS).
     - RECUERDA: La diferencia entre Cantidad * Precio y Valor Isa corresponde a IVA, Impuestos Específicos o Recargos Legales vigentes en Chile. Esto es correcto y esperado.
 
+    REGLA DE RECONCILIACIÓN MATEMÁTICA (AUDITORÍA INTERNA):
+    - ANTES DE ESCRIBIR CADA SECCIÓN: Realiza un cálculo silencioso. Suma los valores de la columna 'Valor Isa' de todos los ítems que planeas extraer para esa sección.
+    - COMPARA: Compara esa suma con el Subtotal declarado por la clínica para dicha sección.
+    - CORRIGE: Si tu suma es menor al subtotal del papel, significa que TE FALTA ALGÚN ÍTEM. Re-escanea visualmente el documento, encuentra las líneas que omitiste y agrégalas.
+    - El objetivo es que la suma de tus líneas sea EXACTAMENTE IGUAL al subtotal de la sección. Si no cuadra, indica el motivo en un comentario técnico suave al final de la sección.
+
     INSTRUCCIONES DE EXTRACCIÓN EXHAUSTIVA:
     1. Identifica las cabeceras de sección y sus subtotales declarados. Úsalos exactamente como aparecen.
     2. EXTRAE CADA LÍNEA DEL DESGLOSE SIN EXCEPCIÓN.
     3. ESTÁ PROHIBIDO RESUMIR, AGRUPAR O SIMPLIFICAR DATOS. Si el documento tiene 500 filas, el JSON debe tener 500 ítems.
     4. No omitas información por ser repetitiva o de bajo valor (ej: "Suministro", "Gasa").
     5. Convierte puntos de miles (.) a nada y comas decimales (,) a puntos para el JSON.
-    6. Si un ítem tiene valor 0, extráelo también.
+    6. Absolutamente prohibido usar puntos suspensivos (...) o detenerse antes del final de la cuenta.
 `;
 
 app.post('/api/extract', async (req, res) => {
