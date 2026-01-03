@@ -168,7 +168,7 @@ app.post('/api/extract', async (req, res) => {
         const model = genAI.getGenerativeModel({
             model: AI_CONFIG.ACTIVE_MODEL,
             generationConfig: {
-                maxOutputTokens: 64000
+                maxOutputTokens: 35000
             }
         });
 

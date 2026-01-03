@@ -30,7 +30,7 @@ export class GeminiService {
         const model = this.client.getGenerativeModel({
             model: AI_CONFIG.ACTIVE_MODEL,
             generationConfig: {
-                maxOutputTokens: config.maxTokens || 64000,
+                maxOutputTokens: config.maxTokens || 35000,
                 responseMimeType: config.responseMimeType,
                 responseSchema: config.responseSchema,
             }
@@ -90,9 +90,10 @@ export class GeminiService {
         2. Only use negative quantities if they are EXPLICITLY present in the document (e.g., a reversal or credit). DO NOT INVENT them just to force a balance.
         3. Use GROSS values (Valor Bruto/Valor Isa) for unitPrice and total.
         4. ENSURE MATHEMATICAL CONSISTENCY: quantity * unitPrice MUST EQUAL total. Avoid high precision decimals; keep results simple.
-        5. Provide the COMPLETE correct list of items for this section.
-        6. If the section is very long, output as many items as possible before truncated.
-        7. Return ONLY a CSV-style list using "|" as separator. No markdown. No text outside the data.
+        5. VERBATIM EXTRACTION: Do not skip items. Do not summarize. List EVERY single item belonging to this section across ALL pages.
+        6. RE-COUNT VERIFICATION: Before outputting the CSV, count the number of items you see. Ensure your CSV has that exact number of rows.
+        7. If the section is very long, output as many items as possible until you reach your output token limit.
+        8. Return ONLY a CSV-style list using "|" as separator. No markdown. No text outside the data.
         
         CSV FORMAT:
         index|description|quantity|unitPrice|total
@@ -103,7 +104,7 @@ export class GeminiService {
         const model = this.client.getGenerativeModel({
             model: AI_CONFIG.ACTIVE_MODEL,
             generationConfig: {
-                maxOutputTokens: 8000
+                maxOutputTokens: 35000
             }
         });
 
