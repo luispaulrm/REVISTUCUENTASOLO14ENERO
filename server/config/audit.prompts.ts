@@ -242,14 +242,31 @@ Para cada hallazgo:
 
 ---
 
-**OBLIGATORIO: sección "PRORRATEO COPAGO (si aplica)"**
-Si existe copago agregado en PAM sin desglose (ej. 3101001), incluye una sección "PRORRATEO COPAGO (si aplica)" que cierre exacto siguiendo la REGLA CANÓNICA (6) del Apéndice.
+**INSTRUCCIONES DE FORMATO PARA 'auditoriaFinalMarkdown' (ESTRICTO):**
+El markdown debe seguir EXACTAMENTE esta estructura (sin desviaciones):
 
-**SALIDA REQUERIDA:**
-Genera el JSON estructurado según el esquema. En \`auditoriaFinalMarkdown\`, incluye la sección "II. TABLA DE HALLAZGOS Y OBJECIONES FINALES" con el formato:
+### INFORME DE AUDITORÍA MÉDICO FORENSE
 
+**ESTADO DE LA CUENTA:** [Estado, ej: Objeción Parcial Detectada / Objeción Total]
+**TOTAL AHORRO PACIENTE:** $[Monto Formateado]
+
+#### I. RESUMEN EJECUTIVO
+[Resumen narrativo de los hallazgos principales, mencionando explícitamente si se detectó Sub-bonificación, Insumos Indebidos o Glosas Opacas...]
+
+#### II. TABLA DE HALLAZGOS Y OBJECIONES FINALES
 | Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |
 |---|---|---|---|---|---|
+[Filas de la tabla...]
+
+#### III. PRORRATEO COPAGO [CÓDIGO o 'MULTIPLE'] (MATERIALES)
+*(Solo si aplica prorrateo por IF-319 o PAM agregado. Si no aplica, OMITE esta sección)*
+Dado que el PAM agrupa el copago de materiales... [Explicación del factor de copago calculado]
+
+*   **[Nombre Item] (Item [Index]):** $[Valor Total] -> Copago: $[Valor Copago Imputado] (Objetado 100%)
+*   ...
+*   **[Items No Objetados]:** (Whitelist - No objetado)
+
+**Resultado:** El ahorro total para el paciente tras reliquidación de topes y eliminación de cargos indebidos asciende a **$[Total Ahorro]**.
 
 ${V9_AUDIT_RULES_APPENDIX}
 `;
