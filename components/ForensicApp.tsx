@@ -45,7 +45,20 @@ export default function ForensicApp() {
     useEffect(() => {
         checkData();
         window.addEventListener('storage', checkData);
-        return () => window.removeEventListener('storage', checkData);
+
+        // Re-check data when user returns to this tab/window
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                checkData();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener('storage', checkData);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, []);
 
     useEffect(() => {
@@ -132,14 +145,14 @@ export default function ForensicApp() {
     };
 
     const clearAllData = () => {
-        if (window.confirm('¿Estás seguro de que quieres borrar todos los datos de la sesión (Cuenta, PAM y Contrato)?')) {
-            localStorage.clear();
-            checkData();
+        if (window.confirm('¿Borrar el resultado de la auditoría forense? (Los análisis de Cuenta, PAM y Contrato se mantendrán)')) {
+            // Only clear audit results, keep base analyses for iteration
             setStatus('IDLE');
             setAuditResult(null);
             setLogs([]);
             setRealTimeUsage(null);
             setProgress(0);
+            setError(null);
         }
     };
 
@@ -168,7 +181,7 @@ export default function ForensicApp() {
                                 <Printer size={16} /> EXPORTAR REPORTE
                             </button>
                         )}
-                        <button onClick={clearAllData} className="p-2 text-slate-400 hover:text-rose-500 transition-colors" title="Borrar todo">
+                        <button onClick={clearAllData} className="p-2 text-slate-400 hover:text-amber-500 transition-colors" title="Limpiar auditoría (mantiene datos base)">
                             <Trash2 size={20} />
                         </button>
                     </div>

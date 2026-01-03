@@ -91,34 +91,135 @@ export const AUDIT_PROMPT = `
 Tu misión es realizar una **AUDITORÍA FORENSE INTEGRAL Y PROFUNDAMENTE FUNDAMENTADA**.
 No solo debes detectar errores, debes **CONCATENAR** cada hallazgo con la normativa legal y contractual vigente.
 
-**REGLA DE ORO: TRIPLE ANCLAJE OBLIGATORIO**
+**OBJETIVO: MÁXIMA DETECCIÓN DE COBROS INDEBIDOS**
+Suma CADA ítem individual detectado que esté bien fundado en:
+1. Circular IF/N°319 (Insumos en Día Cama/Pabellón)
+2. Ley 20.584 (Glosas Genéricas / Transparencia)
+3. Evento Único (Urgencia → Hospitalización)
+4. Desagregación Indebida de Pabellón (IF-319: INSUMOS COMUNES/HOTELERÍA, NO MEDICAMENTOS)
+5. Incumplimiento de Cobertura Contractual (PAM vs CONTRATO)
+
+Prioriza impactos a copago paciente. Verifica suma ≤ copago PAM total.
+
+**REGLA DE ORO: TRIPLE ANCLAJE OBLIGATORIO (FACT → CONTRACT → LAW)**
 Para cada hallazgo en la tabla, el campo \`hallazgo\` DEBE ser una narrativa exhaustiva que concatene:
-1.  **EL HECHO (CUENTA/PAM):** "Se detectó que el ítem X fue cobrado como Y..."
-2.  **EL CONTRATO (PLAN):** "Esto contraviene la cobertura de Z prometida en el contrato (ver coberturas[n])..."
-3.  **LA LEY (CONOCIMIENTO):** "Vulnerando lo establecido en [Citar Documento del Conocimiento/Norma], el cual indica que [Explicación de la norma]."
+1. **EL HECHO (CUENTA/PAM):** "Se detectó que el ítem X fue cobrado como Y por $Z..."
+2. **EL CONTRATO (PLAN):** "Esto contraviene la cobertura de [%] prometida en el contrato (ver coberturas[n])..."
+3. **LA LEY (CONOCIMIENTO):** "Vulnerando lo establecido en [Citar Documento del Conocimiento/Norma], el cual indica que [Explicación de la norma]."
 
 **INSTRUCCIONES DE USO DEL CONOCIMIENTO:**
-Utiliza el texto provisto en \`knowledge_base_text\` (jurisprudencia, dictámenes de la SUSESO, Ley 20.584, DFL 1) para fundamentar tus objeciones. Si un documento menciona un patrón de "mala práctica", cítalo explícitamente.
+Utiliza el texto provisto en \`knowledge_base_text\` (jurisprudencia, dictámenes SS, Ley 20.584, DFL 1, Circular 43) para fundamentar tus objeciones.
 
-**POLÍTICAS DE IMPUGNACIÓN:**
+---
 
-1.  **Incumplimiento de Cobertura (Coupling PAM vs CONTRATO):**
-    - Identifica la cobertura pactada (%) en el CONTRATO. 
-    - Compara contra la bonificación real aplicada en el PAM. 
-    - Si hay diferencia negativa para el afiliado, objeta la diferencia económica.
-    - **Fundamento**: Cita el DFL N°1 de 2005 y la naturaleza contractual del plan de salud.
+## LISTA DE VERIFICACIÓN DE FRAUDE (ZERO-TOLERANCE PATTERNS)
+Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPUGNAR ES OBLIGATORIO** solo si impacta copago paciente.
 
-2.  **Desagregación Indebida e IF/319 (Integralidad del Pabellón):**
-    - Usa la Circular IF/N°319 y la Circular 43 (Anexo 4) para impugnar cobros pormenorizados de insumos comunes (gasas, suturas, jeringas) o fármacos anestésicos/gases que son parte de la "infraestructura y personal" del pabellón.
-    - **Explicación**: No te limites a decir "es IF/319". Explica que la norma prohíbe el 'unbundling' o desagregación para proteger el patrimonio del afiliado.
+### 1. CÓDIGOS 3201001 y 3201002 (GLOSAS GENÉRICAS)
+- Si encuentras glosas como "GASTOS NO CUBIERTOS", "INSUMOS VARIOS", "PRESTACION NO ARANCELADA".
+- **ACCIÓN:** Objetar el 100% por falta de transparencia (Ley 20.584) si copago > 0 en PAM.
+- *Ejemplo real:* "Instalación de Vía Venosa" o "Fleboclisis" cobrada como genérico. Son inherentes al Día Cama.
 
-3.  **Derechos del Paciente y Transparencia (Ley 20.584):**
-    - Impugna cualquier glosa genérica ("GASTOS VARIOS", "EX ACC") basándote en el derecho a una cuenta detallada y legible según la Ley 20.584 de Derechos y Deberes de los Pacientes.
+### 2. CÓDIGOS DE INSUMOS DE HOTELERÍA (CIRCULAR IF-319)
+- Busca palabras clave: "TERMOMETRO", "SET DE ASEO", "SABANAS", "ROPA", "KIT DE ASEO", etc.
+- Estos insumos de hotelería deben estar incluidos en el Día Cama.
+- **ACCIÓN:** Objetar el 100% del copago por Desagregación Indebida si copago > 0 en PAM.
+  Si el ítem está completamente bonificado (copago = 0), clasificar como 'ajuste Isapre' (no suma al monto objetado paciente).
 
-**REGLAS DE SALIDA Y CALIDAD:**
-- El campo \`hallazgo\` debe ser largo y explicativo. **Prohibido resumir**.
-- El campo \`normaFundamento\` debe citar la ley o circular exacta.
-- El campo \`anclajeJson\` debe ser una ruta navegable (ej: PAM: items[2] / CONTRATO: coberturas[5]).
+### 3. PRINCIPIO DE EVENTO ÚNICO (URGENCIA → HOSPITALIZACIÓN) - REGLA DURA
+**SI** existe EVENTO HOSPITALARIO **Y** aparece una prestación de URGENCIA:
+- código = "0101031" **O** descripción contiene "URGENCIA"
+- **Y** su fecha es el mismo día que \`CUENTA.encabezado.fechaIngreso\` o el día previo (D-1),
+
+**ENTONCES:**
+1. Está **PROHIBIDO** clasificarla como "no_impugnar" por "condición ambulatoria".
+2. Debes clasificar ese ítem como:
+   - "impugnar" si el ítem existe en el UNIVERSO PAM con copago > 0 (monto objetado = copago exacto del PAM).
+   - "zona_gris" si NO puedes anclarlo al PAM o NO puedes determinar fecha (monto = 0; requiereRevisionHumana = true; causaInseguridad indicando qué falta).
+3. Fundamento mínimo obligatorio cuando sea "impugnar":
+   - Citar "Principio de Evento Único" + Dictamen SS N°12.287/2016.
+   - Explicar que la urgencia que deriva a hospitalización se reliquida con reglas/cobertura del evento hospitalario.
+
+**EXCEPCIÓN (ÚNICA):**
+- Solo puedes dejar 0101031 como "no_impugnar" si encuentras una CLÁUSULA CONTRACTUAL explícita que autorice copago fijo/bonificación distinta para urgencia aun cuando deriva en hospitalización, y la citas (anclaje al contrato).
+- Si no encuentras esa cláusula, NO puedes validarla.
+
+### 4. DESAGREGACIÓN INDEBIDA DE PABELLÓN (IF-319: INSUMOS COMUNES/HOTELERÍA, NO MEDICAMENTOS) [ALTA PRIORIDAD]
+
+**ALGORITMO DE DETECCIÓN (EJECUTAR EN ORDEN):**
+
+1. **¿Existe Pabellón en la CUENTA?** Revisa si existe algún código de "Derecho de Pabellón" o Cirugía Mayor (ej. **311013**, **311011**, **311012** o glosa "PABELLON").
+
+2. **¿Existen INSUMOS/MATERIALES/HOTELERÍA en el PAM?** Busca en el PAM ítems con códigos **3101*** o descripciones como "MATERIALES", "INSUMOS", "HOTELERIA" y glosas tipo gasas/guantes/jeringas/campos/mascarillas/catéteres/sueros genéricos/insumos de aseo.
+   **NO** uses **3218*** ni "MEDICAMENTOS"/"FARMACIA" para disparar IF-319.
+
+3. **FILTRO DE EXCLUSIONES (WHITELIST):** Verifica si la descripción de esos ítems contiene alguna de estas palabras clave (son las únicas permitidas para cobro aparte):
+   - "PRÓTESIS", "PROTESIS"
+   - "STENT"
+   - "MALLA"
+   - "PLACA"
+   - "TORNILLO"
+   - "OSTEOSINTESIS"
+   - "MARCAPASOS"
+   - "VÁLVULA", "VALVULA"
+
+**REGLA DE OBJECIÓN AUTOMÁTICA:**
+**SI** (Pabellón presente) **Y** (Ítem es insumo/material/hotelería) **Y** (Descripción NO contiene palabras de la Whitelist):
+**ENTONCES:** Marca el ítem como "Insumos comunes de pabellón" y **OBJETA EL 100% DEL COPAGO**.
+
+**IMPORTANTE:** Insumos comunes/materiales/hotelería desagregados en contexto de cargo integral; medicamentos se auditan por reglas clínicas/duplicidad/precio, NO por IF-319.
+
+**ACCIÓN:** Suma los copagos de todos los ítems que cumplan esta regla. El derecho de pabellón ya paga los insumos comunes.
+
+**MEDICAMENTOS (NO IF-319):** Se auditan por duplicidad/cantidad/precio/no-correlación; si faltan datos, clasifica como \`zona_gris\` (no objetar automático por IF-319).
+
+### 5. MEDICAMENTOS E INSUMOS EN HOSPITALIZACIÓN (CONTRATO)
+- Lee el CONTRATO y detecta reglas sobre "Medicamentos, Materiales e Insumos Clínicos" en hospitalización (ej. porcentajes especiales, topes por evento o por año, coberturas sin tope, etc.).
+- Si el contrato indica una cobertura mayor (o 100% sin tope) para medicamentos/insumos hospitalarios y el PAM muestra copago >0 en ítems de medicamentos/insumos (códigos 3101***, 3218*** u otros equivalentes),
+- **ACCIÓN:** Impugnar la diferencia entre lo cobrado al paciente y lo que debió ser cubierto, como "Incumplimiento de cobertura contractual".
+
+### 6. EXÁMENES E INSUMOS CLÍNICOS EN EVENTO HOSPITALARIO (e.g., 08xxxx)
+- Revisa el contrato por menciones a "Medicamentos, Materiales e Insumos Clínicos", "Evento Hospitalario", "Prestaciones Hospitalarias", "Día Cama Estándar", etc.
+- Si hay exámenes o procedimientos claramente inherentes a la cirugía o a la hospitalización (ej. biopsias, estudios histopatológicos, apoyo fluoroscópico intraoperatorio, etc.) con copago >0 en PAM,
+- **ACCIÓN:** Impugnar la diferencia como "Desagregación indebida" o "Incumplimiento contractual", según corresponda.
+
+### 7. DETERMINACIÓN DE MODALIDAD (CRÍTICO - ANTES DE AUDITAR)
+**PASO 1:** Identifica el PRESTADOR PRINCIPAL en el PAM (ej. "Clinica Santa Maria", "Hospital UC", "Clínica Las Condes").
+
+**PASO 2:** Busca ese nombre en el array \`CONTRATO.coberturas\` dentro de la columna \`MODALIDAD/RED\`.
+
+**PASO 3 - CLASIFICACIÓN:**
+- **CASO A (PREFERENTE):** Si el prestador aparece explícitamente en una fila "Preferente", ESA es la cobertura que rige (ej. "100%", "Sin Tope").
+- **CASO B (LIBRE ELECCIÓN):** Si el prestador NO aparece en ninguna red preferente, u opera fuera de la red cerrada del plan, APLICA OBLIGATORIAMENTE las reglas de "Libre Elección" (ej. "90% con Tope 5 UF").
+
+**ESTA DETERMINACIÓN ES LA BASE DE TU AUDITORÍA.** No asumas "Preferente" si el prestador no está listado.
+
+### 8. VERIFICACIÓN DE COBERTURA Y TOPES (BASE DE CÁLCULO)
+**OBJETIVO:** Detectar si la Isapre pagó MENOS de lo que obligaba la modalidad detectada en el Paso 7.
+
+**LÓGICA:**
+1. Toma el ítem del PAM con Copago > 0.
+2. Usa la cobertura de la modalidad detectada (Preferente o Libre Elección).
+3. Calcula: Bonificación Mínima Contractual.
+4. Si (Bonificación Real < Bonificación Mínima) → **OBJETAR LA DIFERENCIA**.
+
+**ZONA GRIS:** Si el contrato es ambiguo sobre el prestador o faltan tablas de Libre Elección, marca como \`zona_gris\`.
+
+---
+
+## SISTEMA DE CONTENCIÓN ANTI-ALUCINACIÓN (SCAA)
+
+**Checkpoint Anti-Alucinación 1 – Anclaje obligatorio:**
+Para cada hallazgo:
+- Ancla SIEMPRE a referencias JSON explícitas (ej: "CUENTA.secciones[2].items[5]" y "PAM[0].desglosePorPrestador[1].items[3]").
+- Nunca objetes más que el **copago** de ese ítem en el PAM.
+- Rechaza todo hallazgo que no tenga anclaje claro.
+
+**Checkpoint Anti-Alucinación 2 – Totales vs PAM:**
+- Verifica que la suma de todos tus montos objetados sea **<= totalCopago** del PAM correspondiente.
+- Si detectas exceso, reduce tus montos y anótalo en el texto del hallazgo ("ajuste por exceso detectado").
+
+---
 
 **MARCO LEGAL Y REGLAS CANÓNICAS (CONOCIMIENTO):**
 {knowledge_base_text}
@@ -133,10 +234,18 @@ Utiliza el texto provisto en \`knowledge_base_text\` (jurisprudencia, dictámene
 2. PAM (Isapre Processing): \`\`\`json {pam_json} \`\`\`
 3. CONTRATO (Health Plan): \`\`\`json {contrato_json} \`\`\`
 
+---
+
+**OBLIGATORIO: sección "PRORRATEO COPAGO (si aplica)"**
+Si existe copago agregado en PAM sin desglose (ej. 3101001), incluye una sección "PRORRATEO COPAGO (si aplica)" que cierre exacto siguiendo la REGLA CANÓNICA (6) del Apéndice.
+
 **SALIDA REQUERIDA:**
 Genera el JSON estructurado según el esquema. En \`auditoriaFinalMarkdown\`, incluye la sección "II. TABLA DE HALLAZGOS Y OBJECIONES FINALES" con el formato:
+
 | Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |
 |---|---|---|---|---|---|
+
+${V9_AUDIT_RULES_APPENDIX}
 `;
 
 export const AUDIT_RECONCILIATION_SCHEMA = {
