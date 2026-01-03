@@ -10,6 +10,7 @@ import { ParserService } from "./services/parser.service.js";
 import { AI_CONFIG } from "./config/ai.config.js";
 import { handlePamExtraction } from './endpoints/pam.endpoint.js';
 import { handleContractExtraction } from './endpoints/contract.endpoint.js';
+import { handleAuditAnalysis } from './endpoints/audit.endpoint.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -503,6 +504,7 @@ app.post('/api/extract', async (req, res) => {
 // Endpoint para análisis de documentos PAM
 app.post('/api/extract-pam', handlePamExtraction);
 app.post('/api/extract-contract', handleContractExtraction);
+app.post('/api/audit/analyze', handleAuditAnalysis);
 
 // Servir archivos estáticos del frontend
 app.use(express.static(path.join(__dirname, '../dist')));

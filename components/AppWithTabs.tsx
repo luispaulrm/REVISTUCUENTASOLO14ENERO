@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import App from '../App';
 import PAMApp from './PAMApp';
 import ContractApp from './ContractApp';
-import { ShieldCheck, Receipt, Scale } from 'lucide-react';
+import ForensicApp from './ForensicApp';
+import { ShieldCheck, Receipt, Scale, Gavel } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam' | 'contract';
+type DocumentType = 'bill' | 'pam' | 'contract' | 'audit';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -51,6 +52,17 @@ export function AppWithTabs() {
                             <Scale size={16} />
                             Contratos
                         </button>
+
+                        <button
+                            onClick={() => handleTabChange('audit')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'audit'
+                                ? 'bg-slate-900 text-emerald-400 shadow-lg shadow-emerald-900/20'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                        >
+                            <Gavel size={16} />
+                            Auditoría Forense
+                        </button>
                     </div>
                 </div>
             </div>
@@ -65,6 +77,9 @@ export function AppWithTabs() {
                 </div>
                 <div style={{ display: activeTab === 'contract' ? 'block' : 'none' }}>
                     <ContractApp />
+                </div>
+                <div style={{ display: activeTab === 'audit' ? 'block' : 'none' }}>
+                    <ForensicApp />
                 </div>
             </div>
         </div>

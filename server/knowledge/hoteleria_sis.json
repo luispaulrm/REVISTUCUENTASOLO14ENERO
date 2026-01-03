@@ -1,0 +1,76 @@
+{
+  "source": "SIS/FONASA",
+  "updated_at": "2025-12-05",
+  "purpose": "Clasificacion oficial de hoteleria para deteccion automatica de cobros indebidos.",
+  "rules": [
+    {
+      "id": "HOTELERIA_NO_CLINICA",
+      "type": "gasto_no_clinico",
+      "description": "Confort, higiene personal, ropa y articulos de habitacion que no son acto medico directo. Deben ir incluidos en dia cama o informarse como servicios opcionales (no bonificacion 0%).",
+      "keywords": [
+        "calzon clinico",
+        "set de aseo",
+        "aseo personal",
+        "kit de higiene",
+        "toalla humeda",
+        "esponja con jabon",
+        "jabon",
+        "shampoo",
+        "crema corporal",
+        "peineta",
+        "cepillo dental",
+        "pasta dental",
+        "delantal paciente",
+        "camisola",
+        "bata",
+        "pantufla",
+        "ropa paciente",
+        "vestuario paciente",
+        "termometro",
+        "frazada",
+        "sabana",
+        "almohada",
+        "colchon",
+        "accesorios habitacion",
+        "insumo de confort",
+        "removedor de adhesivos",
+        "medias antiembolicas",
+        "mangas compresor",
+        "compresor neumatico",
+        "lubricante ocular"
+      ],
+      "code_prefixes": ["22", "1117"],
+      "observation_snippets": [
+        "no representa un gasto medico directo",
+        "gasto no clinico",
+        "gasto no medico directo"
+      ],
+      "severity_default": "MEDIA",
+      "legal_basis": "Resoluciones SIS y FONASA: los insumos sin acto medico directo se clasifican como hoteleria y no pueden cobrarse como prestaciones clinicas."
+    },
+    {
+      "id": "HOTELERIA_CLINICA_INHERENTE_DIA_CAMA",
+      "type": "cuidados_basicos_inherentes",
+      "description": "Cuidados basicos de enfermeria y recuperacion inmediata incluidos en el paquete de hospitalizacion (dia cama). Cobro separado configura desagregacion indebida.",
+      "keywords": [
+        "instalacion de via venosa",
+        "instalacion de via",
+        "instalacion via periferica",
+        "fleboclisis",
+        "recuperacion 0-3 horas",
+        "recuperacion inmediata",
+        "control de signos vitales",
+        "control de enfermeria",
+        "enfermeria basica",
+        "supervision enfermeria",
+        "cuidados basicos",
+        "preparacion de paciente",
+        "higienizacion paciente"
+      ],
+      "code_prefixes": ["93-00", "99-00", "9300", "9900", "99-00-028", "99-00-045", "9900028", "9900045"],
+      "requires_dia_cama": true,
+      "severity_default": "ALTA",
+      "legal_basis": "SIS/FONASA: cuidados basicos de enfermeria son prestaciones inherentes al dia cama y no se cobran como items independientes."
+    }
+  ]
+}
