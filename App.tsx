@@ -48,11 +48,17 @@ const App: React.FC = () => {
   const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
   const [isExporting, setIsExporting] = useState(false);
 
+  // Multi-file batch processing state
+  const [fileQueue, setFileQueue] = useState<Array<{ file: File, preview: string, status: 'pending' | 'processing' | 'done' | 'error', result?: ExtractedAccount, error?: string }>>([]);
+  const [resultsHistory, setResultsHistory] = useState<Array<{ fileName: string, result: ExtractedAccount }>>([]);
+  const [currentFileIndex, setCurrentFileIndex] = useState<number>(0);
+
   const timerRef = useRef<number | null>(null);
   const progressRef = useRef<number | null>(null);
   const logEndRef = useRef<HTMLDivElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const processingLockRef = useRef<boolean>(false);
 
   const handleStopAnalysis = () => {
     if (abortControllerRef.current) {
@@ -99,53 +105,103 @@ const App: React.FC = () => {
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(event.target.files || []);
+    if (files.length === 0) return;
 
-    setStatus(AppStatus.UPLOADING);
+    // Limit to 2 files
+    const filesToProcess = files.slice(0, 2);
+    if (files.length > 2) {
+      addLog('[SISTEMA] ⚠️ Solo se pueden procesar 2 archivos a la vez. Se tomarán los primeros 2.');
+    }
+
+    // Reset state
     setError(null);
     setResult(null);
     setLogs([]);
     setRealTimeUsage(null);
-    addLog(`[SISTEMA] Archivo recibido: ${file.name}`);
+    setFileQueue([]);
+    setResultsHistory([]);
+    setCurrentFileIndex(0);
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      const base64Data = e.target?.result as string;
-      setFilePreview(base64Data);
-      const pureBase64 = base64Data.split(',')[1];
+    addLog(`[SISTEMA] ${filesToProcess.length} archivo(s) en cola para procesar.`);
 
+    // Create queue with previews
+    const queue = await Promise.all(
+      filesToProcess.map(async (file) => {
+        const preview = await new Promise<string>((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target?.result as string);
+          reader.readAsDataURL(file);
+        });
+        return { file, preview, status: 'pending' as const };
+      })
+    );
+
+    setFileQueue(queue);
+    setStatus(AppStatus.UPLOADING);
+
+    // Start processing queue
+    processQueue(queue);
+  };
+
+  const processQueue = async (queue: typeof fileQueue) => {
+    // Prevent duplicate processing
+    if (processingLockRef.current) {
+      console.log('[BILL] Processing already in progress, skipping duplicate call');
+      return;
+    }
+    processingLockRef.current = true;
+    for (let i = 0; i < queue.length; i++) {
+      const queueItem = queue[i];
+      setCurrentFileIndex(i);
+      setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'processing' } : item));
+
+      addLog(`[SISTEMA] Procesando archivo ${i + 1} de ${queue.length}: ${queueItem.file.name}`);
+      setFilePreview(queueItem.preview);
+
+      const pureBase64 = queueItem.preview.split(',')[1];
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
       const timeoutId = setTimeout(() => {
-        if (status === AppStatus.PROCESSING) {
-          addLog('[SYSTEM] ⚠️ Timeout excedido (60s). Cancelando extracción...');
-          controller.abort();
-        }
+        addLog('[SYSTEM] ⚠️ Timeout excedido (60s). Cancelando extracción...');
+        controller.abort();
       }, 60000);
 
       try {
         setStatus(AppStatus.PROCESSING);
-        const data = await extractBillingData(pureBase64, file.type, addLog, setRealTimeUsage, controller.signal);
+        const data = await extractBillingData(pureBase64, queueItem.file.type, addLog, setRealTimeUsage, controller.signal);
+
+        // Update queue item status
+        setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'done', result: data } : item));
         setResult(data);
-        // Save to localStorage for cross-audit with PAM
+
+        // Add to history
+        setResultsHistory(prev => [...prev, { fileName: queueItem.file.name, result: data }]);
+
+        // Save last result for cross-audit
         localStorage.setItem('clinic_audit_result', JSON.stringify(data));
-        addLog('[SISTEMA] 💾 Resultados guardados para auditoría cruzada con PAM.');
-        setStatus(AppStatus.SUCCESS);
+        addLog('[SISTEMA] ✅ Procesamiento completado.');
+
       } catch (err: any) {
         if (err.name === 'AbortError') {
+          setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'error', error: 'Cancelado' } : item));
+          processingLockRef.current = false;
           setStatus(AppStatus.IDLE);
           return;
         }
-        setError(err.message || 'Error procesando la cuenta clínica.');
-        setStatus(AppStatus.ERROR);
+        const errorMsg = err.message || 'Error procesando el archivo';
+        setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'error', error: errorMsg } : item));
+        addLog(`[ERROR] ${errorMsg}`);
       } finally {
         clearTimeout(timeoutId);
         abortControllerRef.current = null;
       }
-    };
-    reader.readAsDataURL(file);
+    }
+
+    processingLockRef.current = false;
+    setStatus(AppStatus.SUCCESS);
+    addLog('[SISTEMA] 🎉 Todos los archivos procesados.');
   };
 
   const downloadFormat = (format: 'json' | 'md') => {
@@ -303,7 +359,7 @@ const App: React.FC = () => {
             <label
               className="group relative border-2 border-dashed border-slate-300 bg-white rounded-3xl p-16 transition-all duration-500 cursor-pointer block hover:border-slate-900 hover:bg-slate-50"
             >
-              <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
+              <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} multiple />
               <div className="relative z-10 flex flex-col items-center gap-4">
                 <div className="p-4 rounded-2xl transition-all duration-300 bg-slate-100 text-slate-400 group-hover:bg-indigo-600 group-hover:text-white">
                   <FileText size={32} />
@@ -334,6 +390,35 @@ const App: React.FC = () => {
                 <Code2 size={12} /> High Speed
               </span>
             </div>
+
+            {/* File Queue Status */}
+            {fileQueue.length > 0 && status !== AppStatus.IDLE && (
+              <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-900 mb-4 uppercase tracking-widest">Cola de Procesamiento</h3>
+                <div className="space-y-3">
+                  {fileQueue.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
+                      <div className="flex-shrink-0">
+                        {item.status === 'pending' && <div className="w-2 h-2 rounded-full bg-slate-400 animate-pulse" />}
+                        {item.status === 'processing' && <Loader2 size={16} className="text-indigo-600 animate-spin" />}
+                        {item.status === 'done' && <div className="w-2 h-2 rounded-full bg-emerald-500" />}
+                        {item.status === 'error' && <X size={16} className="text-rose-500" />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-slate-900 truncate">{item.file.name}</p>
+                        <p className="text-[10px] text-slate-500">
+                          {item.status === 'pending' && 'Pendiente'}
+                          {item.status === 'processing' && 'Procesando...'}
+                          {item.status === 'done' && 'Completado'}
+                          {item.status === 'error' && `Error: ${item.error}`}
+                        </p>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-slate-400">{idx + 1}/{fileQueue.length}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

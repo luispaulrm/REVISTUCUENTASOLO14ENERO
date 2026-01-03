@@ -144,7 +144,17 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 - Solo puedes dejar 0101031 como "no_impugnar" si encuentras una CLÁUSULA CONTRACTUAL explícita que autorice copago fijo/bonificación distinta para urgencia aun cuando deriva en hospitalización, y la citas (anclaje al contrato).
 - Si no encuentras esa cláusula, NO puedes validarla.
 
-### 4. DESAGREGACIÓN INDEBIDA DE PABELLÓN (IF-319: INSUMOS COMUNES/HOTELERÍA, NO MEDICAMENTOS) [ALTA PRIORIDAD]
+### 4. PROCEDIMIENTOS DE ENFERMERÍA INHERENTES (VÍA VENOSA / FLEBOCLISIS) [NOVA]
+**CONTEXTO:** Estos procedimientos son parte de la "Atención Integral de Enfermería" incluida en el Día Cama.
+**BUSCAR:**
+- Descripciones: "VIA VENOSA", "INSTALACION VIA", "FLEBOCLISIS", "CATETERISMO VENOSO", "TOMA DE MUESTRA VENOSA".
+- Códigos sospechosos: a veces ocultos en **3201001** o **3201002**.
+
+**ACCIÓN:**
+- Si aparecen cobrados por separado con Copago > 0 --> **OBJETAR 100%**.
+- **FUNDAMENTO:** "Desagregación Indebida de prestaciones de enfermería inherentes al Día Cama (Circular IF/N°319 y Circular 43)". Explicar que la instalación de vías es un procedimiento básico de hospitalización ya remunerado en el día cama.
+
+### 5. DESAGREGACIÓN INDEBIDA DE PABELLÓN (IF-319: INSUMOS COMUNES/HOTELERÍA, NO MEDICAMENTOS) [ALTA PRIORIDAD]
 
 **ALGORITMO DE DETECCIÓN (EJECUTAR EN ORDEN):**
 
@@ -184,26 +194,33 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 - **ACCIÓN:** Impugnar la diferencia como "Desagregación indebida" o "Incumplimiento contractual", según corresponda.
 
 ### 7. DETERMINACIÓN DE MODALIDAD (CRÍTICO - ANTES DE AUDITAR)
-**PASO 1:** Identifica el PRESTADOR PRINCIPAL en el PAM (ej. "Clinica Santa Maria", "Hospital UC", "Clínica Las Condes").
+**PASO 1:** Identifica el PRESTADOR PRINCIPAL en el PAM. Si tiene RUT chileno o es una clínica en Chile, la Modalidad es **OBLIGATORIAMENTE "NACIONAL"**.
+- **PROHIBIDO** usar topes/coberturas de la fila "INTERNACIONAL" para prestadores chilenos.
+- Ignora cualquier fila que diga "INTERNACIONAL" a menos que la cuenta sea en dólares/euros.
 
-**PASO 2:** Busca ese nombre en el array \`CONTRATO.coberturas\` dentro de la columna \`MODALIDAD/RED\`.
+**PASO 2:** Busca el nombre del prestador en el array \`CONTRATO.coberturas\`.
 
 **PASO 3 - CLASIFICACIÓN:**
-- **CASO A (PREFERENTE):** Si el prestador aparece explícitamente en una fila "Preferente", ESA es la cobertura que rige (ej. "100%", "Sin Tope").
-- **CASO B (LIBRE ELECCIÓN):** Si el prestador NO aparece en ninguna red preferente, u opera fuera de la red cerrada del plan, APLICA OBLIGATORIAMENTE las reglas de "Libre Elección" (ej. "90% con Tope 5 UF").
-
-**ESTA DETERMINACIÓN ES LA BASE DE TU AUDITORÍA.** No asumas "Preferente" si el prestador no está listado.
+- **CASO A (PREFERENTE):** Si el prestador aparece explícitamente en una fila "Preferente", ESA es la cobertura que rige.
+- **CASO B (LIBRE ELECCIÓN):** Si el prestador NO aparece en ninguna red preferente, APLICA las reglas de **"Libre Elección" / "Modalidad Nacional"**.
 
 ### 8. VERIFICACIÓN DE COBERTURA Y TOPES (BASE DE CÁLCULO)
-**OBJETIVO:** Detectar si la Isapre pagó MENOS de lo que obligaba la modalidad detectada en el Paso 7.
+**OBJETIVO:** Detectar sub-bonificación (Isapre pagando menos de lo pactado).
 
-**LÓGICA:**
-1. Toma el ítem del PAM con Copago > 0.
-2. Usa la cobertura de la modalidad detectada (Preferente o Libre Elección).
-3. Calcula: Bonificación Mínima Contractual.
-4. Si (Bonificación Real < Bonificación Mínima) → **OBJETAR LA DIFERENCIA**.
+**REGLAS ESPECÍFICAS:**
+1. **EXÁMENES DE LABORATORIO:**
+   - Verifica si existe una cobertura "Exámenes de Laboratorio (Hospitalario)" o "Ambulatorio" según corresponda.
+   - Si el contrato dice "100% de bonificación" (aunque tenga tope VAM), y el monto cobrado es bajo (no supera el tope VAM probable), **LA ISAPRE DEBE CUBRIR EL 100%**.
+   - **ERROR COMÚN:** Aplicar bonificación de 80% (ambulatorio) a exámenes tomados durante una hospitalización. Si es hospitalizado, busca la fila "Hospitalario" y exige el 100% si así lo dice el plan.
 
-**ZONA GRIS:** Si el contrato es ambiguo sobre el prestador o faltan tablas de Libre Elección, marca como \`zona_gris\`.
+2. **TOPES VAM/UF:**
+   - Un tope (ej. 6 VAM) no baja el % de cobertura a menos que el valor supere el tope.
+   - Si (ValorCobrado < TopeCalculado) Y (Cobertura = 100%), el Copago debe ser $0.
+   - Si PAM muestra Copago > 0 en estos casos, **OBJETAR COMO SUB-BONIFICACIÓN**.
+
+3. **CÁLCULO:**
+   - Bonificación Mínima = min(ValorTotal, TopeContractual) * %Cobertura.
+   - Si (Bonificación Real < Bonificación Mínima) -> DIFERENCIA ES OBJETO DE RECLAMO.
 
 ---
 
@@ -265,6 +282,9 @@ Dado que el PAM agrupa el copago de materiales... [Explicación del factor de co
 *   **[Nombre Item] (Item [Index]):** $[Valor Total] -> Copago: $[Valor Copago Imputado] (Objetado 100%)
 *   ...
 *   **[Items No Objetados]:** (Whitelist - No objetado)
+
+#### IV. EXPLICACIÓN EN LENGUAJE SIMPLE (PARA EL PACIENTE)
+[Escribe un párrafo amigable explicando los hallazgos sin tecnicismos. Ejemplo: "Hola. Revisamos tu cuenta y detectamos que tu plan cubría el 100% de los medicamentos, pero te los cobraron. También te cobraron aparte la instalación del suero, que ya viene incluida en el día cama..."]
 
 **Resultado:** El ahorro total para el paciente tras reliquidación de topes y eliminación de cargos indebidos asciende a **$[Total Ahorro]**.
 

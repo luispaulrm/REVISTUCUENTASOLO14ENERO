@@ -277,7 +277,7 @@ app.post('/api/extract', async (req, res) => {
         let invoiceNumber = "000000";
         let billingDate = new Date().toLocaleDateString('es-CL');
 
-        const cleanCLP = (value: string): number => {
+        const cleanCLP = (value: string, isQuantity: boolean = false): number => {
             if (!value) return 0;
             let cleaned = value.trim();
 
@@ -304,16 +304,38 @@ app.post('/api/extract', async (req, res) => {
             const dots = (cleaned.match(/\./g) || []).length;
             if (dots === 1) {
                 const parts = cleaned.split('.');
-                // If it ends with .000, .00 or .0, it's likely a technical decimal from AI reasoning (1.0)
-                // BUT in CLP context it's tricky. If it's a price like 11.400, it's 11400.
-                // We'll trust the Coherence Check for final fixing, but here we prioritize parseFloat
-                // if it looks like a calculation decimal.
-                if (parts[1].length !== 3 || (parts[1] === "000" && parts[0].length <= 2)) {
-                    return parseFloat(cleaned) || 0;
-                } else {
-                    // Border case: "11.400". Treat as thousands (11400)
+
+                // CRITICAL FIX: Context-Aware Parsing
+                // If it's a PRICE/TOTAL in CLP, decimals are almost non-existent (no cents).
+                // So "24.000" MUST be 24000.
+                if (!isQuantity) {
+                    // For prices, assume dot is thousands separator unless typically small floating math from AI
+                    // But AI usually outputs "24000" or "24.000".
+                    // Safe bet for CLP: Treat dot as thousands.
                     return parseFloat(cleaned.replace(/\./g, '')) || 0;
                 }
+
+                // For QUANTITY, "1.000" might be 1. "0.5" is 0.5.
+                // Logic: If decimal part is "000", it's likely an integer formatted with thousands.
+                if (parts[1] === "000") {
+                    // 1.000 -> 1000? Or 1?
+                    // In medical quantities, 1000 units is rare but possible (grams?).
+                    // But 1.000 (1) is also possible output from AI.
+                    // Let's stick to previous logic for quantities: small numbers are decimals.
+                    if (parts[0].length <= 2) {
+                        return parseFloat(cleaned) || 0; // 1.000 -> 1
+                    } else {
+                        return parseFloat(cleaned.replace(/\./g, '')) || 0; // 100.000 -> 100000
+                    }
+                }
+
+                // If it ends with .00 or .0, it's a decimal (1.0 -> 1)
+                if (parts[1].length !== 3) {
+                    return parseFloat(cleaned) || 0;
+                }
+
+                // Default: Treat as thousands
+                return parseFloat(cleaned.replace(/\./g, '')) || 0;
             } else if (dots > 1) {
                 // "1.000.000" -> thousands
                 return parseFloat(cleaned.replace(/\./g, '')) || 0;
@@ -336,7 +358,7 @@ app.post('/api/extract', async (req, res) => {
         for (const line of lines) {
             if (line.startsWith('GRAND_TOTAL:')) {
                 const rawVal = line.replace('GRAND_TOTAL:', '').trim();
-                clinicGrandTotalField = Math.round(cleanCLP(rawVal));
+                clinicGrandTotalField = Math.round(cleanCLP(rawVal, false));
                 console.log(`[PARSER] Raw GRAND_TOTAL: "${rawVal}" -> Parsed: ${clinicGrandTotalField}`);
                 continue;
             }
@@ -385,7 +407,7 @@ app.post('/api/extract', async (req, res) => {
 
             if (line.startsWith('SECTION_TOTAL:')) {
                 const rawVal = line.replace('SECTION_TOTAL:', '').trim();
-                const secTotal = Math.round(cleanCLP(rawVal));
+                const secTotal = Math.round(cleanCLP(rawVal, false));
 
                 if (sectionsMap.has(currentSectionName)) {
                     sectionsMap.get(currentSectionName).sectionTotal = secTotal;
@@ -410,9 +432,9 @@ app.post('/api/extract', async (req, res) => {
             const totalStr = cols.length >= 7 ? cols[6] : (cols.length >= 6 ? cols[5] : cols[3]); // Fallback safe
 
             const isClinicTotalLine = desc?.toUpperCase().includes("TOTAL SECCIÓN") || desc?.toUpperCase().includes("SUBTOTAL");
-            const total = Math.round(cleanCLP(totalStr || "0"));
-            const quantity = cleanCLP(qtyStr || "1");
-            const unitPrice = Math.round(cleanCLP(unitPriceStr || "0"));
+            const total = Math.round(cleanCLP(totalStr || "0", false));
+            const quantity = cleanCLP(qtyStr || "1", true); // TRUE: Quantity allows decimals
+            const unitPrice = Math.round(cleanCLP(unitPriceStr || "0", false));
             const fullDescription = code ? `${desc} ${code}` : desc;
 
             let sectionObj = sectionsMap.get(currentSectionName);
@@ -652,6 +674,13 @@ app.post('/api/extract', async (req, res) => {
             }
         }
 
+        // REMOVED REDUNDANT CONSISTENCY CHECK (Found Root Cause in Parser)
+
+        // Re-calculate section totals before Discrepancy Hunter avoids confusion
+        for (const sec of sectionsMap.values()) {
+            sec.sectionTotal = sec.items.reduce((acc: number, item: any) => acc + item.total, 0);
+        }
+
         // --- DISCREPANCY HUNTER ---
         // Final attempt to fix global discrepancies by identifying suspect items
         // Specifically targets "Honorarios" duplicates where AI forces Qty 1 on assistants.
@@ -684,6 +713,18 @@ app.post('/api/extract', async (req, res) => {
                                 // Double check if this new quantity makes sense
                                 // e.g. 0.07999 -> 0.08
                                 const potentialQty = Math.round(impliedQty * 100) / 100;
+
+                                // STRICT CHECK: Only allow common medical fractions
+                                // We don't want to change a quantity to 0.96 (or 0.07!) just because it fits the math.
+                                const commonFractions = [0.1, 0.125, 0.2, 0.25, 0.3, 0.33, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9];
+                                const isCommon = commonFractions.some(f => Math.abs(potentialQty - f) < 0.02);
+
+                                if (!isCommon) {
+                                    // DEAD STOP. No more loopholes for small values.
+                                    // If isn't a standard surgery split (assistant, etc), don't invent it.
+                                    continue;
+                                }
+
                                 const verificationTotal = Math.round(potentialQty * item.unitPrice);
                                 const residual = Math.abs(verificationTotal - targetTotal);
 
@@ -744,7 +785,19 @@ app.post('/api/extract', async (req, res) => {
         }
 
         // Re-calculate sum after potential fix
-        const finalSumOfSections = Array.from(sectionsMap.values()).reduce((acc: number, s: any) => acc + s.sectionTotal, 0);
+        // EXCLUDE informative sections (PAM) that should not be counted in total
+        const finalSumOfSections = Array.from(sectionsMap.values())
+            .filter((s: any) => {
+                const cat = s.category.toUpperCase();
+                const isInformative = cat.includes('PROGRAMA DE ATENCION MEDICA')
+                    || cat.includes('PAM')
+                    || cat.includes('DETALLE DE COBROS DUPLICADOS');
+                if (isInformative) {
+                    console.log(`[AUDIT] Excluding informative section from total: "${s.category}"`);
+                }
+                return !isInformative;
+            })
+            .reduce((acc: number, s: any) => acc + s.sectionTotal, 0);
 
         const auditData = {
             clinicName: clinicName,

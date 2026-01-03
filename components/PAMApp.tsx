@@ -22,11 +22,17 @@ export default function PAMApp() {
     const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
 
     const [isExporting, setIsExporting] = useState(false);
+
+    // Multi-file batch processing state
+    const [fileQueue, setFileQueue] = useState<Array<{ file: File, preview: string, status: 'pending' | 'processing' | 'done' | 'error', result?: PamDocument, error?: string }>>([]);
+    const [resultsHistory, setResultsHistory] = useState<Array<{ fileName: string, result: PamDocument }>>([]);
+    const [currentFileIndex, setCurrentFileIndex] = useState<number>(0);
     const timerRef = useRef<number | null>(null);
     const progressRef = useRef<number | null>(null);
     const logEndRef = useRef<HTMLDivElement>(null);
     const reportRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
+    const processingLockRef = useRef<boolean>(false);
 
     const handleStop = () => {
         if (abortControllerRef.current) {
@@ -76,60 +82,96 @@ export default function PAMApp() {
     };
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+        const files = Array.from(event.target.files || []);
+        if (files.length === 0) return;
 
+        // Limit to 2 files
+        const filesToProcess = files.slice(0, 2);
+        if (files.length > 2) {
+            addLog('[SISTEMA] ⚠️ Solo se pueden procesar 2 archivos PAM a la vez. Se tomarán los primeros 2.');
+        }
+
+        // Reset state
         setStatus(AppStatus.UPLOADING);
         setError(null);
         setPamResult(null);
         setLogs([]);
         setRealTimeUsage(null);
-        addLog(`[SISTEMA] Archivo PAM recibido: ${file.name}`);
+        setFileQueue([]);
+        setResultsHistory([]);
+        setCurrentFileIndex(0);
 
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const base64Data = e.target?.result as string;
-            const pureBase64 = base64Data.split(',')[1];
+        addLog(`[SISTEMA] ${filesToProcess.length} archivo(s) PAM en cola.`);
+
+        // Create queue with previews
+        const queue = await Promise.all(
+            filesToProcess.map(async (file) => {
+                const preview = await new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target?.result as string);
+                    reader.readAsDataURL(file);
+                });
+                return { file, preview, status: 'pending' as const };
+            })
+        );
+
+        setFileQueue(queue);
+        processQueue(queue);
+    };
+
+    const processQueue = async (queue: typeof fileQueue) => {
+        // Prevent duplicate processing
+        if (processingLockRef.current) {
+            console.log('[PAM] Processing already in progress, skipping duplicate call');
+            return;
+        }
+        processingLockRef.current = true;
+        for (let i = 0; i < queue.length; i++) {
+            const queueItem = queue[i];
+            setCurrentFileIndex(i);
+            setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'processing' } : item));
+
+            addLog(`[SISTEMA] Procesando archivo ${i + 1} de ${queue.length}: ${queueItem.file.name}`);
+
+            const pureBase64 = queueItem.preview.split(',')[1];
+            const controller = new AbortController();
+            abortControllerRef.current = controller;
+
+            const timeoutId = setTimeout(() => {
+                addLog('[SISTEMA] ⚠️ Timeout excedido (60s). Cancelando...');
+                controller.abort();
+            }, 60000);
 
             try {
                 setStatus(AppStatus.PROCESSING);
+                const result = await extractPamData(pureBase64, queueItem.file.type, addLog, setRealTimeUsage, setProgress, controller.signal);
 
-                // Abort Controller Setup
-                const controller = new AbortController();
-                abortControllerRef.current = controller;
+                setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'done', result: result.data } : item));
+                setPamResult(result.data);
+                setResultsHistory(prev => [...prev, { fileName: queueItem.file.name, result: result.data }]);
 
-                // Auto-timeout de 60s
-                const timeoutId = setTimeout(() => {
-                    if (status === AppStatus.PROCESSING) {
-                        addLog('[SISTEMA] ⚠️ El tiempo de espera ha expirado (60s). Cancelando...');
-                        controller.abort();
-                    }
-                }, 60000);
-
-                try {
-                    const result = await extractPamData(pureBase64, file.type, addLog, setRealTimeUsage, setProgress, controller.signal);
-                    setPamResult(result.data);
-                    setStatus(AppStatus.SUCCESS);
-
-                    // Persistir PAM para auditoría cruzada
-                    localStorage.setItem('pam_audit_result', JSON.stringify(result.data));
-                    addLog('[SISTEMA] ✅ Resultados PAM guardados para auditoría cruzada.');
-                } catch (err: any) {
-                    if (err.name === 'AbortError') {
-                        setStatus(AppStatus.IDLE);
-                        return;
-                    }
-                    throw err;
-                } finally {
-                    clearTimeout(timeoutId);
-                    abortControllerRef.current = null;
-                }
+                // Save last result for cross-audit
+                localStorage.setItem('pam_audit_result', JSON.stringify(result.data));
+                addLog('[SISTEMA] ✅ Análisis completado.');
             } catch (err: any) {
-                setError(err.message || 'Error procesando el documento PAM.');
-                setStatus(AppStatus.ERROR);
+                if (err.name === 'AbortError') {
+                    setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'error', error: 'Cancelado' } : item));
+                    processingLockRef.current = false;
+                    setStatus(AppStatus.IDLE);
+                    return;
+                }
+                const errorMsg = err.message || 'Error procesando PAM';
+                setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'error', error: errorMsg } : item));
+                addLog(`[ERROR] ${errorMsg}`);
+            } finally {
+                clearTimeout(timeoutId);
+                abortControllerRef.current = null;
             }
-        };
-        reader.readAsDataURL(file);
+        }
+
+        processingLockRef.current = false;
+        setStatus(AppStatus.SUCCESS);
+        addLog('[SISTEMA] 🎉 Todos los archivos PAM procesados.');
     };
 
     const downloadData = (format: 'json' | 'md') => {
@@ -255,7 +297,7 @@ export default function PAMApp() {
                         <p className="text-slate-500 mb-10">Sube Programas de Atención Médica para extraer y auditar folios, bonos y copagos.</p>
 
                         <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-slate-50 hover:border-slate-900 transition-all group">
-                            <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} />
+                            <input type="file" className="hidden" accept="image/*,application/pdf" onChange={handleFileUpload} multiple />
                             <div className="flex flex-col items-center p-6">
                                 <div className="p-4 bg-slate-50 rounded-2xl mb-4 text-slate-400 group-hover:text-slate-900 group-hover:bg-slate-200 transition-colors">
                                     <FileText size={32} />
