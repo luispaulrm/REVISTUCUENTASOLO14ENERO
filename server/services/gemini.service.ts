@@ -68,6 +68,7 @@ export class GeminiService {
     /**
      * Executes a targeted repair tailored for a specific section discrepancy.
      * Uses CSV format for token efficiency and preventing truncation.
+     * IMPLEMENTS MULTI-PASS REPAIR IF TRUNCATED.
      */
     async repairSection(
         image: string,
@@ -76,122 +77,129 @@ export class GeminiService {
         declaredTotal: number,
         currentSum: number
     ): Promise<any[]> {
-        const prompt = `
-        ACT AS A CLINICAL BILL AUDIT SPECIALIST.
-        
-        ISSUE:
-        In the section "${sectionName}", you previously extracted items that sum up to $${currentSum.toLocaleString('es-CL')}.
-        However, the document states that the TOTAL for this section should be $${declaredTotal.toLocaleString('es-CL')}.
-        
-        There is a DISCREPANCY of $${(declaredTotal - currentSum).toLocaleString('es-CL')}.
+        let allItems: any[] = [];
+        let lastItemDescription = "";
+        let isTruncated = true;
+        let attempts = 0;
+        const maxAttempts = 3;
 
-        CRITICAL INSTRUCTIONS:
-        1. If your sum is HIGHER than the declared total, you likely DUPLICATED items or read a subtotal as a line item. REMOVE the extra items.
-        2. Only use negative quantities if they are EXPLICITLY present in the document (e.g., a reversal or credit). DO NOT INVENT them just to force a balance.
-        3. Use GROSS values (Valor Bruto/Valor Isa) for unitPrice and total.
-        4. ENSURE MATHEMATICAL CONSISTENCY: quantity * unitPrice MUST EQUAL total. Avoid high precision decimals; keep results simple.
-        5. VERBATIM EXTRACTION: Do not skip items. Do not summarize. List EVERY single item belonging to this section across ALL pages.
-        6. RE-COUNT VERIFICATION: Before outputting the CSV, count the number of items you see. Ensure your CSV has that exact number of rows.
-        7. If the section is very long, output as many items as possible until you reach your output token limit.
-        8. Return ONLY a CSV-style list using "|" as separator. No markdown. No text outside the data.
-        
-        CSV FORMAT:
-        index|description|quantity|unitPrice|total
-        1|GLUCOSA 5% 500ML|2|1500|3000
-        ...
-        `;
+        while (isTruncated && attempts < maxAttempts) {
+            attempts++;
+            const prompt = `
+            ACT AS A CLINICAL BILL AUDIT SPECIALIST.
+            
+            ISSUE:
+            In the section "${sectionName}", you previously extracted items that sum up to $${currentSum.toLocaleString('es-CL')}.
+            However, the document states that the TOTAL for this section should be $${declaredTotal.toLocaleString('es-CL')}.
+            
+            ${attempts > 1 ? `PARTIAL PROGRESS: You already extracted ${allItems.length} items. The last one was "${lastItemDescription}". PLEASE CONTINUE listing the remaining items from there.` : ''}
 
-        const model = this.client.getGenerativeModel({
-            model: AI_CONFIG.ACTIVE_MODEL,
-            generationConfig: {
-                maxOutputTokens: 35000
-            }
-        });
+            CRITICAL INSTRUCTIONS:
+            1. If your sum is HIGHER than the declared total, you likely DUPLICATED items or read a subtotal as a line item. REMOVE the extra items.
+            2. Only use negative quantities if they are EXPLICITLY present in the document (e.g., a reversal or credit). DO NOT INVENT them just to force a balance.
+            3. Use GROSS values (Valor Bruto/Valor Isa) for unitPrice and total.
+            4. ENSURE MATHEMATICAL CONSISTENCY: quantity * unitPrice MUST EQUAL total. Avoid high precision decimals; keep results simple.
+            5. VERBATIM EXTRACTION: Do not skip items. Do not summarize. List EVERY single item belonging to this section across ALL pages.
+            6. RE-COUNT VERIFICATION: Before outputting the CSV, count the number of items you see. Ensure your CSV has that exact number of rows.
+            8. Return ONLY a CSV-style list using "|" as separator. No markdown. No text outside the data.
+            9. TRUNCATION SAFETY: If the list is too long, end with "CONTINUE|PENDING" and I will ask for more.
+            10. FORMATO NUMÉRICO ESTRICTO:
+                - PRECIOS Y TOTALES: Usa solo NÚMEROS ENTEROS (ej: 11400, no 11.400).
+                - CANTIDADES: Usa el punto (.) SOLO para decimales reales (ej: 0.5). PROHIBIDO usar .000 para indicar enteros. Usa 1 en lugar de 1.000.
+            `;
 
-        const result = await model.generateContent([
-            { text: prompt },
-            {
-                inlineData: {
-                    data: image,
-                    mimeType: mimeType
+            const model = this.client.getGenerativeModel({
+                model: AI_CONFIG.ACTIVE_MODEL,
+                generationConfig: {
+                    maxOutputTokens: 35000
+                }
+            });
+
+            const result = await model.generateContent([
+                { text: prompt },
+                {
+                    inlineData: {
+                        data: image,
+                        mimeType: mimeType
+                    }
+                }
+            ]);
+
+            const text = result.response.text();
+            console.log(`[REPAIR] Pass ${attempts} Raw Response (Preview):`, text.substring(0, 200) + "...");
+
+            const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.includes('|'));
+            let passTruncated = false;
+
+            for (const line of lines) {
+                // Skip header if present
+                if (line.toLowerCase().includes('description|quantity')) continue;
+                // Skip markdown table separators like |--|--|
+                if (line.includes('---')) continue;
+
+                if (line.toUpperCase().includes('CONTINUE|PENDING')) {
+                    passTruncated = true;
+                    continue;
+                }
+
+                const parts = line.split('|').map(p => p.trim()).filter(p => p !== "");
+                if (parts.length >= 4) {
+                    try {
+                        const idx = parseInt(parts[0]);
+                        const desc = parts[1];
+
+                        // Standard parser for quantities and prices in repair CSV
+                        const parseVal = (v: string): number => {
+                            let c = v.trim().replace(/[^\d.,-]/g, '');
+                            if (c.includes(',')) return parseFloat(c.replace(/\./g, '').replace(/,/g, '.')) || 0;
+                            const d = (c.match(/\./g) || []).length;
+                            if (d === 1) {
+                                const p = c.split('.');
+                                if (p[1].length !== 3 || (p[1] === "000" && p[0].length <= 2)) return parseFloat(c) || 0;
+                                return parseFloat(c.replace(/\./g, '')) || 0;
+                            } else if (d > 1) {
+                                return parseFloat(c.replace(/\./g, '')) || 0;
+                            }
+                            return parseFloat(c) || 0;
+                        };
+
+                        const qty = parseVal(parts[2]);
+
+                        let uprice = 0;
+                        let total = 0;
+
+                        if (parts.length >= 5) {
+                            uprice = Math.round(parseVal(parts[3]));
+                            total = Math.round(parseVal(parts[4]));
+                        } else {
+                            total = Math.round(parseVal(parts[3]));
+                        }
+
+                        if (!isNaN(total)) {
+                            allItems.push({
+                                index: isNaN(idx) ? allItems.length + 1 : idx,
+                                description: desc,
+                                quantity: isNaN(qty) ? 1 : qty,
+                                unitPrice: uprice || (qty !== 0 ? Math.round(Math.abs(total / qty)) : 0),
+                                total: total
+                            });
+                            lastItemDescription = desc;
+                        }
+                    } catch (err) { }
                 }
             }
-        ]);
 
-        const text = result.response.text();
-        console.log("[REPAIR] Raw Response (CSV/Text Preview):", text.substring(0, 300) + "...");
-
-        const items: any[] = [];
-        const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.includes('|'));
-
-        for (const line of lines) {
-            // Skip header if present
-            if (line.toLowerCase().includes('description|quantity')) continue;
-            // Skip markdown table separators like |--|--|
-            if (line.includes('---')) continue;
-
-            const parts = line.split('|').map(p => p.trim()).filter(p => p !== "");
-            if (parts.length >= 4) {
-                try {
-                    const idx = parseInt(parts[0]);
-                    const desc = parts[1];
-
-                    // Standard parser for quantities and prices in repair CSV
-                    const parseVal = (v: string): number => {
-                        let c = v.trim().replace(/[^\d.,-]/g, '');
-                        if (c.includes(',')) return parseFloat(c.replace(/\./g, '').replace(/,/g, '.')) || 0;
-                        const d = (c.match(/\./g) || []).length;
-                        const p = c.split('.');
-                        if (d === 1 && p[1].length !== 3) return parseFloat(c) || 0;
-                        return parseFloat(c.replace(/\./g, '')) || 0;
-                    };
-
-                    const qty = parseVal(parts[2]);
-
-                    let uprice = 0;
-                    let total = 0;
-
-                    if (parts.length >= 5) {
-                        uprice = Math.round(parseVal(parts[3]));
-                        total = Math.round(parseVal(parts[4]));
-                    } else {
-                        total = Math.round(parseVal(parts[3]));
-                    }
-
-                    if (!isNaN(total)) {
-                        items.push({
-                            index: isNaN(idx) ? items.length + 1 : idx,
-                            description: desc,
-                            quantity: isNaN(qty) ? 1 : qty,
-                            unitPrice: uprice || (qty !== 0 ? Math.round(Math.abs(total / qty)) : 0),
-                            total: total
-                        });
-                    }
-                } catch (err) { }
-            }
+            isTruncated = passTruncated;
+            if (!isTruncated) break;
+            console.log(`[REPAIR] Section "${sectionName}" truncated. Total items so far: ${allItems.length}. Requesting next part...`);
         }
 
-        if (items.length > 0) {
-            console.log(`[REPAIR SUCCESS] Parsed ${items.length} items from CSV response.`);
-            return items;
+        if (allItems.length > 0) {
+            console.log(`[REPAIR SUCCESS] Parsed total of ${allItems.length} items for "${sectionName}" after ${attempts} pass(es).`);
+            return allItems;
         }
 
-        // Final Fallback: Try regex on original text just in case it sent JSON anyway
-        const itemRegex = /\{[\s\n]*"index"[\s\n]*:[\s\n]*(-?\d+)[\s\S]*?"description"[\s\n]*:[\s\n]*"([\s\S]*?)"[\s\S]*?"quantity"[\s\n]*:[\s\n]*(-?\d*\.?\d+)[\s\S]*?"unitPrice"[\s\n]*:[\s\n]*(-?\d+)[\s\S]*?"total"[\s\n]*:[\s\n]*(-?\d+)[\s\n]*\}?/g;
-        let match;
-        while ((match = itemRegex.exec(text)) !== null) {
-            try {
-                items.push({
-                    index: parseInt(match[1]),
-                    description: match[2],
-                    quantity: parseFloat(match[3]),
-                    unitPrice: parseInt(match[4]),
-                    total: parseInt(match[5])
-                });
-            } catch (e) { }
-        }
-
-        return items;
+        return allItems;
     }
 
     /**

@@ -132,8 +132,11 @@ const EXTRACTION_PROMPT = `
     2. EXTRAE CADA LÍNEA DEL DESGLOSE SIN EXCEPCIÓN.
     3. ESTÁ PROHIBIDO RESUMIR, AGRUPAR O SIMPLIFICAR DATOS. Si el documento tiene 500 filas, el JSON debe tener 500 ítems.
     4. No omitas información por ser repetitiva o de bajo valor (ej: "Suministro", "Gasa").
-    5. Convierte puntos de miles (.) a nada y comas decimales (,) a puntos para el JSON.
-    6. Absolutamente prohibido usar puntos suspensivos (...) o detenerse antes del final de la cuenta.
+    5. FORMATO NUMÉRICO ESTRICTO:
+       - PRECIOS Y TOTALES: Usa solo NÚMEROS ENTEROS. Sin puntos, sin comas, sin separadores de miles (ej: 11400, no 11.400).
+       - CANTIDADES: Usa el punto (.) SOLO para decimales reales (ej: 0.5). Prohibido usar .000 para indicar enteros.
+    6. PROHIBIDO INVENTAR: No agregues líneas de "ajuste" ni ítems que no estén en el papel para forzar que la suma cuadre. Si no cuadra, el auditor humano lo verá.
+    7. Absolutamente prohibido usar puntos suspensivos (...) o detenerse antes del final de la cuenta.
 `;
 
 app.post('/api/extract', async (req, res) => {
@@ -273,12 +276,14 @@ app.post('/api/extract', async (req, res) => {
             const dots = (cleaned.match(/\./g) || []).length;
             if (dots === 1) {
                 const parts = cleaned.split('.');
-                // If it's a dot followed by exactly 3 digits, it's likely a Chilean thousands separator
-                // (Ambiguous, but if it has more than 3 decimals, it's definitely a calculation decimal)
-                if (parts[1].length !== 3) {
+                // If it ends with .000, .00 or .0, it's likely a technical decimal from AI reasoning (1.0)
+                // BUT in CLP context it's tricky. If it's a price like 11.400, it's 11400.
+                // We'll trust the Coherence Check for final fixing, but here we prioritize parseFloat
+                // if it looks like a calculation decimal.
+                if (parts[1].length !== 3 || (parts[1] === "000" && parts[0].length <= 2)) {
                     return parseFloat(cleaned) || 0;
                 } else {
-                    // Border case: "1.000". Treat as thousands (1000), let Coherence Check fix if it was 1.0
+                    // Border case: "11.400". Treat as thousands (11400)
                     return parseFloat(cleaned.replace(/\./g, '')) || 0;
                 }
             } else if (dots > 1) {
@@ -299,6 +304,7 @@ app.post('/api/extract', async (req, res) => {
             return trimmed.split('|').map(c => c.trim());
         };
 
+        const processedItemsSet = new Set<string>();
         for (const line of lines) {
             if (line.startsWith('GRAND_TOTAL:')) {
                 const rawVal = line.replace('GRAND_TOTAL:', '').trim();
@@ -444,6 +450,15 @@ app.post('/api/extract', async (req, res) => {
             if (isClinicTotalLine) {
                 sectionObj.sectionTotal = finalTotal;
             } else {
+                // --- DEDUPLICATION LOGIC ---
+                // Avoid adding the same item twice if AI repeats lines in its response
+                const itemKey = `${currentSectionName}|${idxStr}|${code}|${desc}|${finalTotal}`;
+                if (processedItemsSet.has(itemKey)) {
+                    console.log(`[PARSER] Skipping duplicated item: ${fullDescription}`);
+                    continue;
+                }
+                processedItemsSet.add(itemKey);
+
                 const isHeaderArtifact = fullDescription.toLowerCase().includes("descripción") ||
                     fullDescription.toLowerCase().includes("código") ||
                     fullDescription.includes("---");
