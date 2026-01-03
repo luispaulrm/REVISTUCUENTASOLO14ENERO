@@ -53,6 +53,14 @@ if (!GEMINI_API_KEY) {
     console.log(`✅ GEMINI_API_KEY LOADED`);
     console.log(`   Key preview: ${GEMINI_API_KEY.substring(0, 8)}...${GEMINI_API_KEY.slice(-4)}`);
 }
+
+const GEMINI_SEC = envGet("GEMINI_API_KEY_SECONDARY");
+if (GEMINI_SEC) {
+    console.log(`✅ GEMINI_API_KEY_SECONDARY LOADED`);
+    console.log(`   Key preview: ${GEMINI_SEC.substring(0, 8)}...${GEMINI_SEC.slice(-4)}`);
+} else {
+    console.log(`⚪ NO SECONDARY KEY FOUND (Optional)`);
+}
 console.log("=".repeat(50) + "\n");
 
 // 🛡️ GLOBAL CRASH GUARD
