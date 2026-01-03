@@ -67,6 +67,7 @@ export class GeminiService {
 
     /**
      * Executes a targeted repair tailored for a specific section discrepancy.
+     * Uses CSV format for token efficiency and preventing truncation.
      */
     async repairSection(
         image: string,
@@ -87,21 +88,22 @@ export class GeminiService {
         CRITICAL INSTRUCTIONS:
         1. If your sum is HIGHER than the declared total, you likely DUPLICATED items or read a subtotal as a line item. REMOVE the extra items.
         2. Only use negative quantities if they are EXPLICITLY present in the document (e.g., a reversal or credit). DO NOT INVENT them just to force a balance.
-        3. Provide the COMPLETE correct list of items for this section.
-        4. If the section is very long, output as many items as possible before truncated.
-        5. Return ONLY a plain JSON array of objects. No markdown. No text outside the array.
-
-        [
-          { "index": 1, "description": "...", "quantity": 1, "unitPrice": 100, "total": 100 },
-          ...
-        ]
+        3. Use GROSS values (Valor Bruto/Valor Isa) for unitPrice and total.
+        4. ENSURE MATHEMATICAL CONSISTENCY: quantity * unitPrice MUST EQUAL total. Avoid high precision decimals; keep results simple.
+        5. Provide the COMPLETE correct list of items for this section.
+        6. If the section is very long, output as many items as possible before truncated.
+        7. Return ONLY a CSV-style list using "|" as separator. No markdown. No text outside the data.
+        
+        CSV FORMAT:
+        index|description|quantity|unitPrice|total
+        1|GLUCOSA 5% 500ML|2|1500|3000
+        ...
         `;
 
         const model = this.client.getGenerativeModel({
             model: AI_CONFIG.ACTIVE_MODEL,
             generationConfig: {
-                maxOutputTokens: 8000,
-                responseMimeType: "application/json"
+                maxOutputTokens: 8000
             }
         });
 
@@ -116,46 +118,79 @@ export class GeminiService {
         ]);
 
         const text = result.response.text();
-        try {
-            // Remove markdown sugar if present
-            const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
-            return JSON.parse(cleaned);
-        } catch (e) {
-            console.error("Failed to parse repair JSON with JSON.parse. Attempting regex fallback...", e);
-            console.log("[DEBUG] Raw malformed response:", text);
+        console.log("[REPAIR] Raw Response (CSV/Text Preview):", text.substring(0, 300) + "...");
 
-            // Fallback: Robust regex to extract item objects even if truncated or malformed
-            const items: any[] = [];
-            const itemRegex = /\{[\s\n]*"index"[\s\n]*:[\s\n]*(-?\d+)[\s\S]*?"description"[\s\n]*:[\s\n]*"([\s\S]*?)"[\s\S]*?"quantity"[\s\n]*:[\s\n]*(-?\d*\.?\d+)[\s\S]*?"unitPrice"[\s\n]*:[\s\n]*(-?\d+)[\s\S]*?"total"[\s\n]*:[\s\n]*(-?\d+)[\s\n]*\}?/g;
+        const items: any[] = [];
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.includes('|'));
 
-            let match;
-            while ((match = itemRegex.exec(text)) !== null) {
+        for (const line of lines) {
+            // Skip header if present
+            if (line.toLowerCase().includes('description|quantity')) continue;
+            // Skip markdown table separators like |--|--|
+            if (line.includes('---')) continue;
+
+            const parts = line.split('|').map(p => p.trim()).filter(p => p !== "");
+            if (parts.length >= 4) {
                 try {
-                    const idx = parseInt(match[1]);
-                    const desc = match[2];
-                    const qty = parseFloat(match[3]);
-                    const uprice = parseInt(match[4]);
-                    const tot = parseInt(match[5]);
+                    const idx = parseInt(parts[0]);
+                    const desc = parts[1];
 
-                    items.push({
-                        index: idx,
-                        description: desc,
-                        quantity: qty,
-                        unitPrice: uprice,
-                        total: tot
-                    });
-                } catch (innerError) {
-                    // Silently skip corrupted items
-                }
+                    // Standard parser for quantities and prices in repair CSV
+                    const parseVal = (v: string): number => {
+                        let c = v.trim().replace(/[^\d.,-]/g, '');
+                        if (c.includes(',')) return parseFloat(c.replace(/\./g, '').replace(/,/g, '.')) || 0;
+                        const d = (c.match(/\./g) || []).length;
+                        const p = c.split('.');
+                        if (d === 1 && p[1].length !== 3) return parseFloat(c) || 0;
+                        return parseFloat(c.replace(/\./g, '')) || 0;
+                    };
+
+                    const qty = parseVal(parts[2]);
+
+                    let uprice = 0;
+                    let total = 0;
+
+                    if (parts.length >= 5) {
+                        uprice = Math.round(parseVal(parts[3]));
+                        total = Math.round(parseVal(parts[4]));
+                    } else {
+                        total = Math.round(parseVal(parts[3]));
+                    }
+
+                    if (!isNaN(total)) {
+                        items.push({
+                            index: isNaN(idx) ? items.length + 1 : idx,
+                            description: desc,
+                            quantity: isNaN(qty) ? 1 : qty,
+                            unitPrice: uprice || (qty !== 0 ? Math.round(Math.abs(total / qty)) : 0),
+                            total: total
+                        });
+                    }
+                } catch (err) { }
             }
-
-            if (items.length > 0) {
-                console.log(`[REPAIR SUCCESS] Recovered ${items.length} items via robust regex fallback.`);
-                return items;
-            }
-
-            return [];
         }
+
+        if (items.length > 0) {
+            console.log(`[REPAIR SUCCESS] Parsed ${items.length} items from CSV response.`);
+            return items;
+        }
+
+        // Final Fallback: Try regex on original text just in case it sent JSON anyway
+        const itemRegex = /\{[\s\n]*"index"[\s\n]*:[\s\n]*(-?\d+)[\s\S]*?"description"[\s\n]*:[\s\n]*"([\s\S]*?)"[\s\S]*?"quantity"[\s\n]*:[\s\n]*(-?\d*\.?\d+)[\s\S]*?"unitPrice"[\s\n]*:[\s\n]*(-?\d+)[\s\S]*?"total"[\s\n]*:[\s\n]*(-?\d+)[\s\n]*\}?/g;
+        let match;
+        while ((match = itemRegex.exec(text)) !== null) {
+            try {
+                items.push({
+                    index: parseInt(match[1]),
+                    description: match[2],
+                    quantity: parseFloat(match[3]),
+                    unitPrice: parseInt(match[4]),
+                    total: parseInt(match[5])
+                });
+            } catch (e) { }
+        }
+
+        return items;
     }
 
     /**

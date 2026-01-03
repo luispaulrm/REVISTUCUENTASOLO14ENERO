@@ -258,9 +258,37 @@ app.post('/api/extract', async (req, res) => {
 
         const cleanCLP = (val: string): number => {
             if (!val) return 0;
-            // Remove points (thousands) and replace comma with dot for decimals, then keep only digits, dots and minus signs
-            const cleaned = val.replace(/\./g, '').replace(/,/g, '.').replace(/[^\d.-]/g, '');
-            return parseFloat(cleaned) || 0;
+            let cleaned = val.trim();
+            // Start cleaning from first digit or minus sign
+            const firstNumeric = cleaned.search(/[0-9-]/);
+            if (firstNumeric > 0) cleaned = cleaned.substring(firstNumeric);
+
+            // Handle Chilean format if comma exists
+            if (cleaned.includes(',')) {
+                // "1.000,50" -> "1000.50"
+                return parseFloat(cleaned.replace(/\./g, '').replace(/,/g, '.')) || 0;
+            }
+
+            // Handle ambiguity: dots without commas
+            const dots = (cleaned.match(/\./g) || []).length;
+            if (dots === 1) {
+                const parts = cleaned.split('.');
+                // If it's a dot followed by exactly 3 digits, it's likely a Chilean thousands separator
+                // (Ambiguous, but if it has more than 3 decimals, it's definitely a calculation decimal)
+                if (parts[1].length !== 3) {
+                    return parseFloat(cleaned) || 0;
+                } else {
+                    // Border case: "1.000". Treat as thousands (1000), let Coherence Check fix if it was 1.0
+                    return parseFloat(cleaned.replace(/\./g, '')) || 0;
+                }
+            } else if (dots > 1) {
+                // "1.000.000" -> thousands
+                return parseFloat(cleaned.replace(/\./g, '')) || 0;
+            }
+
+            // No dots/commas or scientific notation/plain
+            const finalVal = cleaned.replace(/[^\d.eE-]/g, '');
+            return parseFloat(finalVal) || 0;
         };
 
         const robustSplit = (line: string): string[] => {
