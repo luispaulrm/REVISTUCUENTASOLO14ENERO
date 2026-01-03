@@ -122,21 +122,22 @@ const EXTRACTION_PROMPT = `
     - BLOQUE DE CÁLCULO: En el formato de salida, DEBES incluir el resultado de tu multiplicación en la columna de verificación.
 
     REGLA DE RECONCILIACIÓN MATEMÁTICA (AUDITORÍA INTERNA):
-    - ANTES DE ESCRIBIR CADA SECCIÓN: Realiza un cálculo silencioso. Suma los valores de la columna 'Valor Isa' de todos los ítems que planeas extraer para esa sección.
-    - COMPARA: Compara esa suma con el Subtotal declarado por la clínica para dicha sección.
-    - CORRIGE: Si tu suma es menor al subtotal del papel, significa que TE FALTA ALGÚN ÍTEM. Re-escanea visualmente el documento, encuentra las líneas que omitiste y agrégalas.
-    - El objetivo es que la suma de tus líneas sea EXACTAMENTE IGUAL al subtotal de la sección. Si no cuadra, indica el motivo en un comentario técnico suave al final de la sección.
+    - ANTES DE ESCRIBIR CADA SECCIÓN: Realiza un cálculo silencioso. Suma los valores de la columna 'Valor Isa'.
+    - El objetivo es que la suma sea EXACTAMENTE IGUAL al subtotal. 
+
+    REGLA ANTIFUSIÓN (COLUMNAS):
+    - CUIDADO CON EL "PRICE BLEED": A veces el Precio Unitario parece fusionado con un código de ítem (ej: "2.470500501"). DEBES separar el precio real (2.470) e ignorar el código.
+    - El Total debe ser siempre consistente: Qty * Price = Total. Si lees un precio de millones para un antibiótico común, estás leyendo mal.
 
     INSTRUCCIONES DE EXTRACCIÓN EXHAUSTIVA:
-    1. Identifica las cabeceras de sección y sus subtotales declarados. Úsalos exactamente como aparecen.
+    0. MARCADOR DE PÁGINA: Cada vez que comiences a leer una nueva página, escribe obligatoriamente "PAGE: n" (donde n es el número de página).
+    1. Identifica las cabeceras de sección y sus subtotales declarados.
     2. EXTRAE CADA LÍNEA DEL DESGLOSE SIN EXCEPCIÓN.
-    3. ESTÁ PROHIBIDO RESUMIR, AGRUPAR O SIMPLIFICAR DATOS. Si el documento tiene 500 filas, el JSON debe tener 500 ítems.
-    4. No omitas información por ser repetitiva o de bajo valor (ej: "Suministro", "Gasa").
-    5. FORMATO NUMÉRICO ESTRICTO:
-       - PRECIOS Y TOTALES: Usa solo NÚMEROS ENTEROS. Sin puntos, sin comas, sin separadores de miles (ej: 11400, no 11.400).
-       - CANTIDADES: Usa el punto (.) SOLO para decimales reales (ej: 0.5). Prohibido usar .000 para indicar enteros.
-    6. PROHIBIDO INVENTAR: No agregues líneas de "ajuste" ni ítems que no estén en el papel para forzar que la suma cuadre. Si no cuadra, el auditor humano lo verá.
-    7. Absolutamente prohibido usar puntos suspensivos (...) o detenerse antes del final de la cuenta.
+    3. FORMATO NUMÉRICO ESTRICTO:
+       - PRECIOS Y TOTALES: Solo NÚMEROS ENTEROS (ej: 11400).
+       - CANTIDADES: Solo . para decimales reales (ej: 0.5). Prohibido .000 para enteros.
+    4. PROHIBIDO INVENTAR: No agregues líneas de "ajuste" ficticias.
+    5. Absolutamente prohibido usar puntos suspensivos (...) o detenerse antes del final de la cuenta.
 `;
 
 app.post('/api/extract', async (req, res) => {
@@ -147,8 +148,17 @@ app.post('/api/extract', async (req, res) => {
     res.setHeader('Transfer-Encoding', 'chunked');
 
     const sendUpdate = (data: any) => {
-        res.write(JSON.stringify(data) + '\n');
+        if (!res.writableEnded) {
+            res.write(JSON.stringify(data) + '\n');
+        }
     };
+
+    const forensicLog = (msg: string) => {
+        console.log(`[FORENSIC] ${msg}`);
+        sendUpdate({ type: 'chunk', text: `[FORENSIC] ${msg}` });
+    };
+
+    forensicLog("Iniciando análisis forense de la cuenta clínica.");
 
     try {
         const { image, mimeType } = req.body;
@@ -250,7 +260,9 @@ app.post('/api/extract', async (req, res) => {
         console.log(`[PROCESS] Starting data parsing for ${fullText.length} chars...`);
         const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
         const sectionsMap = new Map<string, any>();
+        const sectionPageTracking = new Map<string, Set<number>>();
         let currentSectionName = "SECCION_DESCONOCIDA";
+        let currentPage = 1;
         let globalIndex = 1;
 
         let clinicGrandTotalField = 0;
@@ -329,12 +341,30 @@ app.post('/api/extract', async (req, res) => {
                 continue;
             }
 
+            if (line.startsWith('PAGE:')) {
+                const p = parseInt(line.replace('PAGE:', '').trim());
+                if (!isNaN(p)) currentPage = p;
+                forensicLog(`Procesando Página ${currentPage}...`);
+                continue;
+            }
+
             if (line.startsWith('SECTION:')) {
                 currentSectionName = line.replace('SECTION:', '').trim();
                 if (!sectionsMap.has(currentSectionName)) {
                     sectionsMap.set(currentSectionName, { category: currentSectionName, items: [], sectionTotal: 0 });
                 }
+                if (!sectionPageTracking.has(currentSectionName)) {
+                    sectionPageTracking.set(currentSectionName, new Set<number>());
+                }
                 continue;
+            }
+
+            const parts = robustSplit(line);
+            if (parts.length < 3) continue;
+
+            // Track page for this section based on where its items are found
+            if (sectionPageTracking.has(currentSectionName)) {
+                sectionPageTracking.get(currentSectionName).add(currentPage);
             }
 
             if (line.startsWith('SECTION_TOTAL:')) {
@@ -416,7 +446,34 @@ app.post('/api/extract', async (req, res) => {
 
                 // 2. Try combined factors (Total / F)
                 if (!foundFix) {
-                    for (const f of factors) {
+                    // Try common factors: 10, 100, 1000
+                    const commonFactors = [10, 100, 1000];
+                    for (const f of commonFactors) {
+                        // Prefer scaling PRICE down if it results in an integer-like Quantity
+                        // Especially for drugs where quantities are usually whole numbers or simple decimals (0.5)
+                        if (Math.abs((quantity * (unitPrice / f)) - finalTotal) < 10) {
+                            finalUnitPrice = unitPrice / f;
+                            finalCalcTotal = Math.round(quantity * finalUnitPrice);
+                            foundFix = true;
+                            console.log(`[PARSER] Fixed Price magnitude for "${fullDescription}": Price/${f}`);
+                            break;
+                        }
+                        // Only scale Quantity if the resulting quantity is not "too small" (< 0.01)
+                        if (Math.abs(((quantity / f) * unitPrice) - finalTotal) < 10) {
+                            const qf = quantity / f;
+                            if (qf >= 0.009) { // Avoid micro-quantities unless very precise
+                                finalQuantity = qf;
+                                finalCalcTotal = Math.round(finalQuantity * unitPrice);
+                                foundFix = true;
+                                console.log(`[PARSER] Fixed Qty magnitude for "${fullDescription}": Qty/${f}`);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (!foundFix) {
+                    for (const f of factors) { // This 'factors' is the large array [10, 100, ..., 10^12]
                         if (Math.abs(Math.round(calcTotal / f) - total) <= 10) {
                             // If Total / F works, try to distribute f between Qty and Price
                             // Common: Qty has 1000x or 1000000x inflation
@@ -480,20 +537,13 @@ app.post('/api/extract', async (req, res) => {
         // ... After parsing lines Loop ...
 
         // --- AUTO-RECONCILIATION LOOP ---
-        console.log(`[AUDIT] Starting Mathematical Verification...`);
+        forensicLog(`Iniciando Auditoría Matemática de ${sectionsMap.size} secciones.`);
         const sectionsArray = Array.from(sectionsMap.values());
-
-        // Notify frontend that we are entering verification phase
-        sendUpdate({ type: 'status', message: 'Verificando cuadratura matemática...' });
-
-        // Instantiate Gemini Service for repairs if needed
         const geminiService = new GeminiService(apiKey);
 
         for (const sec of sectionsArray) {
-            // Recalculate sum of items
             const sumItems = sec.items.reduce((acc: number, item: any) => acc + item.total, 0);
 
-            // If sectionTotal is 0 (maybe not found), try to assume it from items, but if it IS found, trust it.
             if (sec.sectionTotal === 0 && sec.items.length > 0) {
                 sec.sectionTotal = sumItems;
                 continue;
@@ -501,21 +551,21 @@ app.post('/api/extract', async (req, res) => {
 
             const diff = sec.sectionTotal - sumItems;
 
-            // Tolerance threshold (e.g., $1000 CLP to avoid minor rounding noise, but user complained about $400k)
-            if (Math.abs(diff) > 1000) {
-                console.warn(`[DISCREPANCY] Section "${sec.category}": Declared $${sec.sectionTotal} vs Items Sum $${sumItems}. Diff: $${diff}`);
+            if (Math.abs(diff) > 10) { // Reducido el threshold para mayor sensibilidad
+                const pages = Array.from(sectionPageTracking.get(sec.category) || []);
+                const pagesInfo = pages.length > 0 ? `detectado en pág(s): ${pages.join(', ')}` : "páginas no identificadas";
 
-                // Trigger Repair
-                sendUpdate({ type: 'status', message: `⚠️ Discrepancia en "${sec.category}". Intentando auto-corrección...` });
+                forensicLog(`⚠️ DESCUADRE en "${sec.category}": Declarado $${sec.sectionTotal} vs Suma $${sumItems} (Dif: $${diff}). Contexto: ${pagesInfo}.`);
+                forensicLog(`Solicitando REPARACIÓN focalizada para "${sec.category}"...`);
 
                 try {
-                    console.log(`[REPAIR] Requesting repair for section: ${sec.category}`);
                     const repairedItems = await geminiService.repairSection(
                         image,
                         mimeType,
                         sec.category,
                         sec.sectionTotal,
-                        sumItems
+                        sumItems,
+                        pages
                     );
 
                     if (repairedItems && repairedItems.length > 0) {
@@ -523,8 +573,7 @@ app.post('/api/extract', async (req, res) => {
                         const newDiff = sec.sectionTotal - newSum;
 
                         if (Math.abs(newDiff) < Math.abs(diff)) {
-                            console.log(`[REPAIR PROGRESS] Section "${sec.category}" improved. Old Diff: $${diff} -> New Diff: $${newDiff}`);
-                            // Update section with repaired items
+                            forensicLog(`✅ MEJORA en "${sec.category}": Diferencia reducida de $${diff} a $${newDiff}. Aplicando cambios.`);
                             sec.items = repairedItems.map((item: any) => ({
                                 ...item,
                                 total: item.total || 0,
@@ -532,17 +581,12 @@ app.post('/api/extract', async (req, res) => {
                                 quantity: item.quantity || 1,
                                 hasCalculationError: Math.abs((item.unitPrice * item.quantity) - item.total) > 10
                             }));
-                            const statusMsg = Math.abs(newDiff) < 10 ?
-                                `✅ Corrección exitosa en "${sec.category}"` :
-                                `📉 Mejora parcial en "${sec.category}" (Dif: $${newDiff})`;
-                            sendUpdate({ type: 'status', message: statusMsg });
                         } else {
-                            console.warn(`[REPAIR FAILED] New items didn't improve section "${sec.category}". Keeping original.`);
-                            sendUpdate({ type: 'status', message: `❌ No se pudo mejorar "${sec.category}".` });
+                            forensicLog(`❌ REPARACIÓN FALLIDA en "${sec.category}": La nueva suma ($${newSum}) no mejora el descuadre original.`);
                         }
                     }
                 } catch (repairError) {
-                    console.error(`[REPAIR ERROR] Failed to repair section ${sec.category}`, repairError);
+                    forensicLog(`🔴 ERROR CRÍTICO reparando "${sec.category}": ${repairError}`);
                 }
             }
         }

@@ -75,7 +75,8 @@ export class GeminiService {
         mimeType: string,
         sectionName: string,
         declaredTotal: number,
-        currentSum: number
+        currentSum: number,
+        pages?: number[]
     ): Promise<any[]> {
         let allItems: any[] = [];
         let lastItemDescription = "";
@@ -85,6 +86,7 @@ export class GeminiService {
 
         while (isTruncated && attempts < maxAttempts) {
             attempts++;
+            const pageFocus = pages && pages.length > 0 ? `FOCUS ON PAGES: ${pages.join(', ')}.` : '';
             const prompt = `
             ACT AS A CLINICAL BILL AUDIT SPECIALIST.
             
@@ -92,6 +94,7 @@ export class GeminiService {
             In the section "${sectionName}", you previously extracted items that sum up to $${currentSum.toLocaleString('es-CL')}.
             However, the document states that the TOTAL for this section should be $${declaredTotal.toLocaleString('es-CL')}.
             
+            ${pageFocus}
             ${attempts > 1 ? `PARTIAL PROGRESS: You already extracted ${allItems.length} items. The last one was "${lastItemDescription}". PLEASE CONTINUE listing the remaining items from there.` : ''}
 
             CRITICAL INSTRUCTIONS:
@@ -146,10 +149,10 @@ export class GeminiService {
                 if (parts.length >= 4) {
                     try {
                         const idx = parseInt(parts[0]);
-                        const desc = parts[1];
 
                         // Standard parser for quantities and prices in repair CSV
                         const parseVal = (v: string): number => {
+                            if (!v) return 0;
                             let c = v.trim().replace(/[^\d.,-]/g, '');
                             if (c.includes(',')) return parseFloat(c.replace(/\./g, '').replace(/,/g, '.')) || 0;
                             const d = (c.match(/\./g) || []).length;
@@ -163,17 +166,15 @@ export class GeminiService {
                             return parseFloat(c) || 0;
                         };
 
-                        const qty = parseVal(parts[2]);
+                        // ROBUST PARSING: The last 3 columns are always Qty|Price|Total
+                        // This makes it immune to IA injecting "Code" or "Date" at the beginning.
+                        const lastThree = parts.slice(-3);
+                        const qty = parseVal(lastThree[0]);
+                        const uprice = parseVal(lastThree[1]);
+                        const total = parseVal(lastThree[2]);
 
-                        let uprice = 0;
-                        let total = 0;
-
-                        if (parts.length >= 5) {
-                            uprice = Math.round(parseVal(parts[3]));
-                            total = Math.round(parseVal(parts[4]));
-                        } else {
-                            total = Math.round(parseVal(parts[3]));
-                        }
+                        // Description is everything between the index (parts[0]) and the last three
+                        const desc = parts.slice(1, -3).join(' ').trim();
 
                         if (!isNaN(total)) {
                             allItems.push({
