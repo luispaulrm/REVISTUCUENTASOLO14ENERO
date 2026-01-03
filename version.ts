@@ -1,3 +1,3 @@
-export const VERSION = "v1.9.97";
-export const LAST_MODIFIED = "03/01/2026 02:03 (Chile)";
+export const VERSION = "v1.9.98";
+export const LAST_MODIFIED = "03/01/2026 02:29 (Chile)";
 export const AI_MODEL = "Gemini 3 Flash";
