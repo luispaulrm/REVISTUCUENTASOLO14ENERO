@@ -159,6 +159,16 @@ const EXTRACTION_PROMPT = `
     5. Absolutamente prohibido usar puntos suspensivos (...) o detenerse antes del final de la cuenta.
 `;
 
+// Helper to get all API keys
+const getApiKeys = () => {
+    const keys = [];
+    if (envGet("GEMINI_API_KEY")) keys.push(envGet("GEMINI_API_KEY"));
+    if (envGet("API_KEY")) keys.push(envGet("API_KEY"));
+    if (envGet("GEMINI_API_KEY_SECONDARY")) keys.push(envGet("GEMINI_API_KEY_SECONDARY"));
+    // Deduplicate
+    return [...new Set(keys)].filter(k => !!k);
+};
+
 app.post('/api/extract', async (req, res) => {
     console.log(`[REQUEST] New extraction request (Streaming)`);
 
@@ -183,26 +193,18 @@ app.post('/api/extract', async (req, res) => {
         const { image, mimeType } = req.body;
         console.log(`[REQUEST] Processing image style: ${mimeType}`);
 
-        const apiKey = getApiKey();
-        console.log(`[AUTH] API Key status: ${apiKey ? 'Found (Starts with ' + apiKey.substring(0, 4) + '...)' : 'MISSING'}`);
+        const apiKeys = getApiKeys();
+        console.log(`[AUTH] Found ${apiKeys.length} API Keys.`);
 
         if (!image || !mimeType) {
             console.error(`[ERROR] Missing payload: image=${!!image}, mimeType=${mimeType}`);
             return res.status(400).json({ error: 'Missing image data or mimeType' });
         }
 
-        if (!apiKey) {
+        if (apiKeys.length === 0) {
             console.error(`[CRITICAL] Cannot proceed without API Key`);
             return res.status(500).json({ error: 'Server configuration error: Gemini API Key not found' });
         }
-
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-            model: AI_CONFIG.ACTIVE_MODEL,
-            generationConfig: {
-                maxOutputTokens: 35000
-            }
-        });
 
         const CSV_PROMPT = `
         ${EXTRACTION_PROMPT}
@@ -229,30 +231,68 @@ app.post('/api/extract', async (req, res) => {
         `;
 
         let resultStream;
-        try {
-            resultStream = await model.generateContentStream([
-                { text: CSV_PROMPT },
-                {
-                    inlineData: {
-                        data: image,
-                        mimeType: mimeType
+        let lastError: any;
+        let activeApiKey: string | undefined;
+
+        // RETRY LOOP WITH FAILURE OVER KEYS
+        for (const apiKey of apiKeys) {
+            const keyMask = apiKey ? (apiKey.substring(0, 4) + '...') : '???';
+            console.log(`[AUTH] Trying with API Key: ${keyMask}`);
+
+            try {
+                const genAI = new GoogleGenerativeAI(apiKey);
+                const model = genAI.getGenerativeModel({
+                    model: AI_CONFIG.ACTIVE_MODEL,
+                    generationConfig: {
+                        maxOutputTokens: 35000
                     }
+                });
+
+                resultStream = await model.generateContentStream([
+                    { text: CSV_PROMPT },
+                    {
+                        inlineData: {
+                            data: image,
+                            mimeType: mimeType
+                        }
+                    }
+                ]);
+
+                // If successful, break
+                if (resultStream) {
+                    console.log(`[AUTH] Success with Key: ${keyMask}`);
+                    activeApiKey = apiKey;
+                    break;
                 }
-            ]);
-        } catch (initError: any) {
-            console.error("❌ [GEMINI INIT ERROR]", initError);
-            const errStr = (initError?.toString() || "") + (initError?.message || "");
-            const has429 = errStr.includes('429') || errStr.includes('Too Many Requests') || initError?.status === 429 || initError?.status === '429';
+
+            } catch (attemptError: any) {
+                console.warn(`[AUTH] Failed with Key: ${keyMask}:`, attemptError.message);
+                lastError = attemptError;
+
+                const errStr = (attemptError?.toString() || "") + (attemptError?.message || "");
+                const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || attemptError?.status === 429;
+
+                if (!isQuota) {
+                    // If it's NOT a quota error (e.g. invalid key), maybe we should still continue?
+                    // But for now, let's assume retry logic is mostly for Quota/Permission.
+                }
+            }
+        }
+
+        if (!resultStream) {
+            console.error("❌All API Keys failed.");
+            // Handle last error specifically
+            const errStr = (lastError?.toString() || "") + (lastError?.message || "");
+            const has429 = errStr.includes('429') || errStr.includes('Too Many Requests') || lastError?.status === 429;
 
             if (has429) {
-                console.warn("⚠️ Quota Exceeded detected. Sending user-friendly warning.");
                 sendUpdate({
                     type: 'error',
-                    message: '⏳ La API de IA está saturada (Quota Exceeded). Por favor espera 1-2 minutos y reintenta.'
+                    message: '⏳ Todas las claves de API están saturadas (Quota Exceeded). Por favor espera 1-2 minutos.'
                 });
                 return res.end();
             }
-            throw initError;
+            throw lastError || new Error("All API attempts failed");
         }
 
         let fullText = "";
@@ -630,7 +670,9 @@ app.post('/api/extract', async (req, res) => {
         // --- AUTO-RECONCILIATION LOOP ---
         forensicLog(`Iniciando Auditoría Matemática de ${sectionsMap.size} secciones.`);
         const sectionsArray = Array.from(sectionsMap.values());
-        const geminiService = new GeminiService(apiKey);
+        // Use the key that worked for the initial extraction
+        if (!activeApiKey) throw new Error("No active API key available for repair service");
+        const geminiService = new GeminiService(activeApiKey);
 
         for (const sec of sectionsArray) {
             const sumItems = sec.items.reduce((acc: number, item: any) => acc + item.total, 0);
