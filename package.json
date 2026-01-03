@@ -15,7 +15,7 @@
     "preview": "vite preview",
     "prestart": "node scripts/update-version.js",
     "start": "tsx server/server.ts",
-    "server": "tsx server/server.ts",
+    "server": "tsx watch server/server.ts",
     "dev:all": "concurrently \"npm run server\" \"npm run dev\""
   },
   "dependencies": {

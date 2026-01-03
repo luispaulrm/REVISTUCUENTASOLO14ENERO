@@ -11,6 +11,8 @@ import {
     CONTRACT_OCR_MAX_PAGES,
     CONTRACT_FAST_MODEL,
     CONTRACT_REASONING_MODEL,
+    CONTRACT_FALLBACK_MODEL,
+    CONTRACT_DEFAULT_RETRIES,
 } from './contractConstants.js';
 import { AI_CONFIG, calculatePrice } from '../config/ai.config.js';
 import path from 'path';
@@ -216,15 +218,39 @@ export async function analyzeSingleContract(
 
     log('[ContractEngine] 🚀 Iniciando stream con Auto-Retry...');
     let fullText = '';
-    const MAX_RETRIES = 2;
+    const MAX_RETRIES = CONTRACT_DEFAULT_RETRIES;
+    let currentModelName = AI_CONFIG.ACTIVE_MODEL;
 
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        // Init model inside loop or update it if needed. 
+        // Since we might switch models, let's re-instantiate if it's the fallback attempt.
+        if (attempt > 1 && currentModelName !== CONTRACT_FALLBACK_MODEL) {
+            log(`[ContractEngine] ⚠️ Detectado fallo en modelo primario. Cambiando a FALLBACK: ${CONTRACT_FALLBACK_MODEL}`);
+            currentModelName = CONTRACT_FALLBACK_MODEL;
+        }
+
+        const model = genAI.getGenerativeModel({
+            model: currentModelName,
+            systemInstruction: CONTRACT_ANALYSIS_PROMPT,
+            generationConfig: { maxOutputTokens, temperature: 0 },
+            safetySettings: SAFETY_SETTINGS,
+        }, {
+            timeout: 180000
+        });
+
         try {
             if (attempt > 1) {
-                log(`[ContractEngine] 🔄 Reintentando (Intento ${attempt}/${MAX_RETRIES})...`);
+                log(`[ContractEngine] 🔄 Reintentando (Intento ${attempt}/${MAX_RETRIES}) con modelo: ${currentModelName}...`);
             }
 
-            const streamResult = await model.generateContentStream({ contents });
+            // Wrap stream connection in a race with a timeout
+            const streamPromise = model.generateContentStream({ contents });
+            const timeoutPromise = new Promise<any>((_, reject) =>
+                setTimeout(() => reject(new Error('Timeout connecting to stream (20s)')), 20000)
+            );
+
+            log('[ContractEngine] ⏳ Intentando conectar stream (Timeout 20s)...');
+            const streamResult = await Promise.race([streamPromise, timeoutPromise]);
             log('[ContractEngine] 📡 Stream conectado. Esperando primer chunk...');
 
             for await (const chunk of streamResult.stream) {
@@ -258,7 +284,10 @@ export async function analyzeSingleContract(
             break;
 
         } catch (streamError: any) {
-            const isAbort = streamError.message.includes('aborted') || streamError.name === 'AbortError' || streamError.message.includes('AbortError');
+            const isAbort = streamError.message.includes('aborted') ||
+                streamError.name === 'AbortError' ||
+                streamError.message.includes('AbortError') ||
+                streamError.message.includes('Timeout');
 
             if (isAbort && attempt < MAX_RETRIES) {
                 log(`[ContractEngine] ⚠️ Timeout detectado en intento ${attempt}. Reintentando automáticamente en 2s...`);
