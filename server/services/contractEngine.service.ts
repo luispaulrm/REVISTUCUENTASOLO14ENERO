@@ -287,7 +287,9 @@ export async function analyzeSingleContract(
             const isAbort = streamError.message.includes('aborted') ||
                 streamError.name === 'AbortError' ||
                 streamError.message.includes('AbortError') ||
-                streamError.message.includes('Timeout');
+                streamError.message.includes('Timeout') ||
+                streamError.message.includes('Error reading from the stream') ||
+                streamError.message.includes('GoogleGenerativeAI Error');
 
             if (isAbort && attempt < MAX_RETRIES) {
                 log(`[ContractEngine] ⚠️ Timeout detectado en intento ${attempt}. Reintentando automáticamente en 2s...`);
