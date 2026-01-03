@@ -165,24 +165,67 @@ export async function analyzeSingleContract(
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-        model: AI_CONFIG.ACTIVE_MODEL,
-        generationConfig: { maxOutputTokens, temperature: 0 },
-        safetySettings: SAFETY_SETTINGS,
-    });
-
     log('[ContractEngine] 🚀 Iniciando flujo de extracción jerárquica...');
 
-    const resultStream = await model.generateContentStream([
-        { text: CONTRACT_ANALYSIS_PROMPT },
-        {
-            inlineData: {
-                data: file.buffer.toString('base64'),
-                mimeType: file.mimetype
+    // HELPER: Get all available keys
+    // We prioritize the passed apiKey, then look for env vars
+    const getKeys = () => {
+        const keys = [apiKey];
+        if (process.env.GEMINI_API_KEY) keys.push(process.env.GEMINI_API_KEY);
+        if (process.env.API_KEY) keys.push(process.env.API_KEY);
+        if (process.env.GEMINI_API_KEY_SECONDARY) keys.push(process.env.GEMINI_API_KEY_SECONDARY);
+        return [...new Set(keys)].filter(k => !!k && k.length > 5);
+    };
+
+    const allKeys = getKeys();
+    log(`[ContractEngine] 🔑 Disponibles ${allKeys.length} llaves de API para reintentos.`);
+
+    let resultStream;
+    let lastError: any;
+
+    for (const currentKey of allKeys) {
+        const mask = currentKey.substring(0, 4) + '...';
+        log(`[ContractEngine] 🔄 Intentando generación con llave: ${mask}`);
+
+        try {
+            const genAI = new GoogleGenerativeAI(currentKey);
+            const model = genAI.getGenerativeModel({
+                model: AI_CONFIG.ACTIVE_MODEL,
+                generationConfig: { maxOutputTokens, temperature: 0 },
+                safetySettings: SAFETY_SETTINGS,
+            });
+
+            resultStream = await model.generateContentStream([
+                { text: CONTRACT_ANALYSIS_PROMPT },
+                {
+                    inlineData: {
+                        data: file.buffer.toString('base64'),
+                        mimeType: file.mimetype
+                    }
+                }
+            ]);
+
+            if (resultStream) {
+                log(`[ContractEngine] ✅ Éxito iniciando stream con llave: ${mask}`);
+                break;
+            }
+        } catch (err: any) {
+            lastError = err;
+            const errStr = (err?.toString() || "") + (err?.message || "");
+            const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests');
+
+            if (isQuota) {
+                log(`[ContractEngine] ⚠️ Quota Exceeded (429) con llave ${mask}. Probando siguiente...`);
+            } else {
+                log(`[ContractEngine] ❌ Error no relacionado con quota con llave ${mask}: ${err.message}`);
             }
         }
-    ]);
+    }
+
+    if (!resultStream) {
+        log(`[ContractEngine] 💀 Todas las llaves fallaron.`);
+        throw lastError || new Error("All API keys failed to initiate stream.");
+    }
 
     let fullText = "";
     let reglas: any[] = [];

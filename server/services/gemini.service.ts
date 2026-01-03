@@ -11,10 +11,48 @@ export interface StreamChunk {
 }
 
 export class GeminiService {
+    private keys: string[];
+    private activeKeyIndex: number = 0;
     private client: GoogleGenerativeAI;
 
-    constructor(apiKey: string) {
-        this.client = new GoogleGenerativeAI(apiKey);
+    constructor(apiKeyOrKeys: string | string[]) {
+        // Normalize input to array
+        const initialKeys = Array.isArray(apiKeyOrKeys) ? apiKeyOrKeys : [apiKeyOrKeys];
+
+        // Auto-discover environmental keys if single key passed matches env
+        const envKeys = [];
+        // Helper to safely get env in both Node and potentially other runtimes (though this is server-side)
+        const getEnv = (k: string) => typeof process !== 'undefined' && process.env ? process.env[k] : undefined;
+
+        if (getEnv("GEMINI_API_KEY")) envKeys.push(getEnv("GEMINI_API_KEY")!);
+        if (getEnv("API_KEY")) envKeys.push(getEnv("API_KEY")!);
+        if (getEnv("GEMINI_API_KEY_SECONDARY")) envKeys.push(getEnv("GEMINI_API_KEY_SECONDARY")!);
+
+        // Combine and unique
+        this.keys = [...new Set([...initialKeys, ...envKeys])].filter(k => !!k && k.length > 5);
+
+        if (this.keys.length === 0) {
+            console.error("❌ GeminiService started with NO VALID KEYS");
+            this.client = new GoogleGenerativeAI("DUMMY_KEY");
+        } else {
+            // Initialize with first available key
+            this.client = new GoogleGenerativeAI(this.keys[0]);
+        }
+    }
+
+    private getClientForCurrentKey(): GoogleGenerativeAI {
+        const key = this.keys[this.activeKeyIndex];
+        return new GoogleGenerativeAI(key);
+    }
+
+    private rotateKey(): boolean {
+        if (this.activeKeyIndex >= this.keys.length - 1) return false; // No more keys
+        this.activeKeyIndex++;
+        const newKey = this.keys[this.activeKeyIndex];
+        const mask = newKey.substring(0, 4) + '...';
+        console.log(`[GeminiService] 🔄 Switching to Backup Key: ${mask} (Index ${this.activeKeyIndex})`);
+        this.client = new GoogleGenerativeAI(newKey);
+        return true;
     }
 
     async extractWithStream(
@@ -27,26 +65,71 @@ export class GeminiService {
             responseSchema?: any;
         } = {}
     ): Promise<AsyncIterable<StreamChunk>> {
-        const model = this.client.getGenerativeModel({
-            model: AI_CONFIG.ACTIVE_MODEL,
-            generationConfig: {
-                maxOutputTokens: config.maxTokens || 35000,
-                responseMimeType: config.responseMimeType,
-                responseSchema: config.responseSchema,
-            }
-        });
+        let lastError: any;
 
-        const resultStream = await model.generateContentStream([
-            { text: prompt },
-            {
-                inlineData: {
-                    data: image,
-                    mimeType: mimeType
+        // Reset key index for new request? No, keep using the working one or start fresh?
+        // Ideally we start fresh or stick to what works. Let's try current active, then rotate.
+        // Actually for a new major request, maybe we should try all from start if we want to Load Balance?
+        // For simplicity: Try current active. If fail, rotate forward. 
+        // If we hit end, wrap around? No, end means failure.
+        // If we assumed keys are Primary, Secondary... we should try Primary first?
+        // Let's implement a loop: Try up to keys.length times.
+
+        const startIdx = 0; // Always start from primary? Or stay on backup?
+        // Staying on backup is safer if primary is permanently suspended.
+        // Starting on primary is better if it's intermittent quota.
+        // Let's start from 0 to preserve backup quota.
+        this.activeKeyIndex = 0;
+
+        for (let attempt = 0; attempt < this.keys.length; attempt++) {
+            const currentKey = this.keys[this.activeKeyIndex];
+            const mask = currentKey ? (currentKey.substring(0, 4) + '...') : '???';
+
+            try {
+                this.client = new GoogleGenerativeAI(currentKey); // Ensure client uses current key
+                const model = this.client.getGenerativeModel({
+                    model: AI_CONFIG.ACTIVE_MODEL,
+                    generationConfig: {
+                        maxOutputTokens: config.maxTokens || 35000,
+                        responseMimeType: config.responseMimeType,
+                        responseSchema: config.responseSchema,
+                    }
+                });
+
+                const resultStream = await model.generateContentStream([
+                    { text: prompt },
+                    {
+                        inlineData: {
+                            data: image,
+                            mimeType: mimeType
+                        }
+                    }
+                ]);
+
+                return this.processStream(resultStream);
+
+            } catch (err: any) {
+                lastError = err;
+                const errStr = (err?.toString() || "") + (err?.message || "");
+                const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests');
+
+                if (isQuota) {
+                    console.warn(`[GeminiService] ⚠️ 429 Quota Exceeded on Key ${mask}.`);
+                    if (this.rotateKey()) {
+                        continue; // Try next key
+                    } else {
+                        console.error(`[GeminiService] ❌ All keys exhausted.`);
+                        break;
+                    }
+                } else {
+                    // Non-quota error (param error, bad image, etc). Do not retry blindly?
+                    console.error(`[GeminiService] ❌ Non-quota error on Key ${mask}:`, err.message);
+                    throw err; // Stop immediately for non-quota errors
                 }
             }
-        ]);
+        }
 
-        return this.processStream(resultStream);
+        throw lastError || new Error("All API keys failed for stream extraction.");
     }
 
     private async *processStream(resultStream: any): AsyncIterable<StreamChunk> {
