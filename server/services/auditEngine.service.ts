@@ -35,7 +35,11 @@ export async function performForensicAudit(
         const filePath = path.join(KNOWLEDGE_DIR, file);
         const ext = path.extname(file).toLowerCase();
 
-        if (ext === '.txt' || ext === '.md') {
+        // ONLY LOAD .TXT FILES AS REQUESTED BY USER
+        // This ignores PDFs and explicitly ignores .md (unless desired, but user said "forget pdfs, only txt")
+        // Actually user said "solo lee los txt... olvida los pdf".
+        // Current code also loaded .md. I will restrict to ONLY .txt per specific request.
+        if (ext === '.txt') {
             const content = await fs.readFile(filePath, 'utf-8');
             knowledgeBaseText += `\n\n--- DOCUMENTO: ${file} ---\n${content}`;
             log(`[AuditEngine] 📑 Cargado: ${file}`);
@@ -43,6 +47,8 @@ export async function performForensicAudit(
             const content = await fs.readFile(filePath, 'utf-8');
             hoteleriaRules = content;
             log(`[AuditEngine] 🏨 Cargadas reglas de hotelería (IF-319)`);
+        } else {
+            // Ignoring everything else explicitly
         }
     }
 
