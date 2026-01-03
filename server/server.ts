@@ -521,8 +521,20 @@ app.post('/api/extract', async (req, res) => {
             // IVA Intelligence: Check if (Price * Qty) matches Total, OR if (Price * 1.19 * Qty) matches Total
             const simpleError = Math.abs(finalTotal - finalCalcTotal) > 10;
             const ivaError = Math.abs(finalTotal - Math.round(finalCalcTotal * 1.19)) > 10;
-            const hasError = !foundFix && simpleError && ivaError;
+            let hasError = !foundFix && simpleError && ivaError;
             const isIVAApplied = simpleError && !ivaError;
+
+            // AUTO-FIX: Absurd quantity detection (OCR code fusion error)
+            // If quantity is > 10000 but total is reasonable (< 1M) and unitPrice is reasonable, recalculate
+            if (finalQuantity > 10000 && finalTotal < 1000000 && finalUnitPrice > 0 && finalUnitPrice < finalTotal) {
+                const correctedQuantity = Math.round((finalTotal / finalUnitPrice) * 100) / 100;
+                if (correctedQuantity < 1000 && correctedQuantity > 0) {
+                    console.log(`[AUTO-FIX] Correcting absurd quantity: ${finalQuantity} -> ${correctedQuantity} for "${desc}"`);
+                    finalQuantity = correctedQuantity;
+                    finalCalcTotal = Math.round(finalQuantity * finalUnitPrice);
+                    hasError = Math.abs(finalTotal - finalCalcTotal) > 10;
+                }
+            }
 
             if (isClinicTotalLine) {
                 sectionObj.sectionTotal = finalTotal;
@@ -639,6 +651,70 @@ app.post('/api/extract', async (req, res) => {
                 }
             }
         }
+
+        // --- DISCREPANCY HUNTER ---
+        // Final attempt to fix global discrepancies by identifying suspect items
+        // Specifically targets "Honorarios" duplicates where AI forces Qty 1 on assistants.
+        const currentExtractedTotal = Array.from(sectionsMap.values()).reduce((acc: number, sec: any) => acc + sec.sectionTotal, 0);
+        const globalDiscrepancy = currentExtractedTotal - clinicGrandTotalField; // Positive means we over-extracted
+
+        if (Math.abs(globalDiscrepancy) > 1000) {
+            forensicLog(`🔍 DISCREPANCY HUNTER: Analizando sobrante de $${globalDiscrepancy}...`);
+
+            let fixedGlobal = false;
+            for (const sec of Array.from(sectionsMap.values())) {
+                // look for items that might be inflated
+                for (const item of sec.items) {
+                    // Scenario: Item Total is suspiciously close to Discrepancy + X (where X is the real value)
+                    // Or simply: If we reduce this item's Qty, does it fix the discrepancy?
+
+                    if (item.unitPrice > 0) {
+                        const targetTotal = item.total - globalDiscrepancy;
+                        if (targetTotal > 0) {
+                            const impliedQty = targetTotal / item.unitPrice;
+
+                            // Check if impliedQty is a "clean" decimal (e.g. 0.08, 0.25, 0.33)
+                            // or if the item is a duplicate Price of another item in the same section
+                            const candidates = sec.items.filter((i: any) => i.unitPrice === item.unitPrice);
+                            const isDuplicatePrice = candidates.length > 1;
+                            const isFirstOccurrence = candidates[0] === item;
+                            const isProtected = (isDuplicatePrice && isFirstOccurrence && item.unitPrice > 100000);
+
+                            if ((isDuplicatePrice || impliedQty < 0.3) && impliedQty < 1 && impliedQty > 0 && !isProtected) {
+                                // Double check if this new quantity makes sense
+                                // e.g. 0.07999 -> 0.08
+                                const potentialQty = Math.round(impliedQty * 100) / 100;
+                                const verificationTotal = Math.round(potentialQty * item.unitPrice);
+                                const residual = Math.abs(verificationTotal - targetTotal);
+
+                                if (residual < 5000) { // Tolerance
+                                    forensicLog(`🎯 CAZADO: "${item.description}" parece estar inflado. Qty ${item.quantity} -> ${potentialQty}. Ajustando Total de $${item.total} a $${verificationTotal}.`);
+
+                                    // Apply fix
+                                    item.quantity = potentialQty;
+                                    item.total = verificationTotal;
+                                    item.calculatedTotal = verificationTotal;
+                                    item.isUnjustifiedCharge = true; // Mark as suspiciously fixed
+
+                                    // Update section total
+                                    sec.sectionTotal -= (item.total - verificationTotal); // This won't work directly if sectionTotal is separate, but helps logic
+                                    // Actually we should just update the item and let the final sum happen later, 
+                                    // but sectionObj.sectionTotal is what creates the JSON.
+                                    sec.sectionTotal = sec.items.reduce((sum: number, i: any) => sum + i.total, 0);
+
+                                    // Break after fixing one major discrepancy per run to avoid cascading errors
+                                    item.hasCalculationError = false;
+                                    fixedGlobal = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (fixedGlobal) break;
+            }
+        }
+
 
         const sumOfSections = Array.from(sectionsMap.values()).reduce((acc: number, s: any) => acc + s.sectionTotal, 0);
 

@@ -209,6 +209,12 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 
 ## SISTEMA DE CONTENCIÓN ANTI-ALUCINACIÓN (SCAA)
 
+**Checkpoint Anti-Alucinación 0 – Errores de Cálculo en CUENTA:**
+- Algunos ítems de la CUENTA pueden tener \`hasCalculationError: true\` cuando la IA extrajo mal la cantidad.
+- **REGLA OBLIGATORIA:** Si un ítem tiene \`hasCalculationError: true\`, usa SIEMPRE el campo \`total\` (valor real de la cuenta) y NO el \`calculatedTotal\`.
+- Ejemplo: Si quantity=180000 (error de OCR) pero total=212486 (correcto), usa 212486 como base para tu análisis.
+- NO objetes ítems solo por tener \`hasCalculationError\`; ese flag indica un problema de extracción, no de facturación.
+
 **Checkpoint Anti-Alucinación 1 – Anclaje obligatorio:**
 Para cada hallazgo:
 - Ancla SIEMPRE a referencias JSON explícitas (ej: "CUENTA.secciones[2].items[5]" y "PAM[0].desglosePorPrestador[1].items[3]").
