@@ -50,8 +50,8 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
         'PABELLÓN': ['PABELLON', 'QUIRURGIC', 'CIRUGIA', 'DERECHO DE SALA'],
         'HONORARIOS': ['HONORARIOS', 'MEDICOS', 'CIRUJANOS'],
         'CONSULTA': ['CONSULTA', 'VISITA', 'TELEMEDICINA'],
-        'IMAGENOLOGÍA': ['IMAGENOLOGIA', 'IMAGEN', 'RADIOGRAFIA', 'TOMOGRAFIA', 'SCANNER', 'ECOGRAFIA'],
-        'LABORATORIO': ['LABORATORIO', 'EXAMENES', 'HEMOGRAMA', 'PERFIL', 'BIOQUIMICO'],
+        'IMAGENOLOGÍA': ['IMAGENOLOGIA', 'IMAGEN', 'RADIOGRAFIA', 'TOMOGRAFIA', 'SCANNER', 'ECOGRAFIA', 'RAYOS', 'RESONANCIA'],
+        'LABORATORIO': ['LABORATORIO', 'EXAMENES', 'HEMOGRAMA', 'PERFIL', 'BIOQUIMICO', 'BIOPSIA', 'ANATOMIA', 'PATOLOGIA'],
         'MEDICAMENTOS': ['MEDICAMENTOS', 'FARMACOS', 'INSUMOS', 'MATERIALES']
     };
 
@@ -75,9 +75,9 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
         return '';
     };
 
-    // Unir todo el texto de prestaciones para búsqueda global
+    // Unir todo el texto de prestaciones para búsqueda global (buscamos en TODAS las columnas, no solo el nombre)
     const allPrestacionText = normalizeText(coberturas.map(c =>
-        getValue(c, ['PRESTACIÓN CLAVE', 'PRESTACION CLAVE', 'PRESTACION', 'GLOSA', 'NOMBRE']).toString()
+        Object.values(c).join(' ')
     ).join(' '));
 
     const missingSections: string[] = [];

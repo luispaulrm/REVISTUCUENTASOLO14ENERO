@@ -246,10 +246,10 @@ export async function analyzeSingleContract(
             // Wrap stream connection in a race with a timeout
             const streamPromise = model.generateContentStream({ contents });
             const timeoutPromise = new Promise<any>((_, reject) =>
-                setTimeout(() => reject(new Error('Timeout connecting to stream (20s)')), 20000)
+                setTimeout(() => reject(new Error('Timeout connecting to stream (90s)')), 90000)
             );
 
-            log('[ContractEngine] ⏳ Intentando conectar stream (Timeout 20s)...');
+            log('[ContractEngine] ⏳ Intentando conectar stream (Timeout 90s)...');
             const streamResult = await Promise.race([streamPromise, timeoutPromise]);
             log('[ContractEngine] 📡 Stream conectado. Esperando primer chunk...');
 
