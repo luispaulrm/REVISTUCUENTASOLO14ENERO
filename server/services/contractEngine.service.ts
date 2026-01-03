@@ -245,6 +245,9 @@ export async function analyzeSingleContract(
 
             // Wrap stream connection in a race with a timeout
             const streamPromise = model.generateContentStream({ contents });
+            // Silence potential unhandled rejection if stream fails after timeout wins
+            streamPromise.catch(() => { });
+
             const timeoutPromise = new Promise<any>((_, reject) =>
                 setTimeout(() => reject(new Error('Timeout connecting to stream (90s)')), 90000)
             );

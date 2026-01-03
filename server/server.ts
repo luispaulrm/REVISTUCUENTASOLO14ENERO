@@ -55,6 +55,19 @@ if (!GEMINI_API_KEY) {
 }
 console.log("=".repeat(50) + "\n");
 
+// 🛡️ GLOBAL CRASH GUARD
+// Evita que el servidor se reinicie por errores "flaky" de librerías externas (ej: Google AI stream)
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('🚨 [CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
+    // No salimos (process.exit) para mantener el servidor vivo ante fallos transitorios
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('🚨 [CRITICAL] Uncaught Exception:', err);
+    // En producción idealmente se reinicia, pero en este dev-server preferimos aguantar
+    // a menos que sea algo irrecuperable.
+});
+
 const app = express();
 // ✅ Railway requires listening to process.env.PORT
 const PORT = Number(envGet("PORT") || 5000);
