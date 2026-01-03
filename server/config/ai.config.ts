@@ -18,7 +18,7 @@ export function getActivePricing() {
 
 export function calculatePrice(inputTokens: number, outputTokens: number) {
     const p = getActivePricing();
-    console.log(`[AI_CONFIG] Price Calc - Model: ${AI_CONFIG.ACTIVE_MODEL}, Input: ${inputTokens}, Output: ${outputTokens}, Pricing:`, p);
+    // console.log(`[AI_CONFIG] Price Calc - Model: ${AI_CONFIG.ACTIVE_MODEL}, Input: ${inputTokens}, Output: ${outputTokens}, Pricing:`, p);
 
     if (!p) {
         console.error('[AI_CONFIG] ❌ ERROR: Pricing not found for model', AI_CONFIG.ACTIVE_MODEL);
@@ -26,7 +26,7 @@ export function calculatePrice(inputTokens: number, outputTokens: number) {
     }
 
     const costUSD = (inputTokens / 1_000_000) * p.input + (outputTokens / 1_000_000) * p.output;
-    console.log(`[AI_CONFIG] Cost Result: $${costUSD} USD`);
+    // console.log(`[AI_CONFIG] Cost Result: $${costUSD} USD`);
 
     return {
         costUSD,

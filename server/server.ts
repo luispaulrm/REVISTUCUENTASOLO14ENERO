@@ -246,7 +246,7 @@ app.post('/api/extract', async (req, res) => {
 
         console.log(`[PROCESS] Starting data parsing for ${fullText.length} chars...`);
         const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
-        const sectionsMap = new Map();
+        const sectionsMap = new Map<string, any>();
         let currentSectionName = "SECCION_DESCONOCIDA";
         let globalIndex = 1;
 
@@ -256,32 +256,25 @@ app.post('/api/extract', async (req, res) => {
         let invoiceNumber = "000000";
         let billingDate = new Date().toLocaleDateString('es-CL');
 
+        const cleanCLP = (val: string): number => {
+            if (!val) return 0;
+            // Remove points (thousands) and replace comma with dot for decimals, then keep only digits, dots and minus signs
+            const cleaned = val.replace(/\./g, '').replace(/,/g, '.').replace(/[^\d.-]/g, '');
+            return parseFloat(cleaned) || 0;
+        };
+
+        const robustSplit = (line: string): string[] => {
+            // Remove leading and trailing pipes if they exist (Markdown table style)
+            let trimmed = line.trim();
+            if (trimmed.startsWith('|')) trimmed = trimmed.substring(1);
+            if (trimmed.endsWith('|')) trimmed = trimmed.substring(0, trimmed.length - 1);
+            return trimmed.split('|').map(c => c.trim());
+        };
+
         for (const line of lines) {
             if (line.startsWith('GRAND_TOTAL:')) {
-                // Remove all non-numeric characters for safety, but consider comma as decimal if needed?
-                // Standard Chilean format: 691.287.600 -> 691287600
-                // Sometimes Gemini output: 691,287,600 or 691287600
-                // "1.000,00" -> 1000
-
                 const rawVal = line.replace('GRAND_TOTAL:', '').trim();
-                // Strategy: remove dots, then regex for digits. 
-                // However, if comma exists, it might be decimal.
-                // Given clinical bills in CLP are usually integers, we can strip mostly everything.
-                // Note: If Gemini puts "691.287.600,00", stripping dots -> "691287600,00". ParseInt handles it.
-                // If Gemini puts "6.912.876" (thinking in millions with bad formatting?), we need heuristics.
-
-                clinicGrandTotalField = parseInt(rawVal.replace(/\./g, '').replace(/,/g, '.')) || 0;
-                // Example: "691.287.600" -> "691287600" -> 691287600 (OK)
-                // Example: "691,287,600" -> "691.287.600" -> 691 (BAD if parseInt stops)
-
-                // Better approach: Remove non-digits? No, we need to respect decimals if present.
-                // But CLP bills rarely have decimals.
-                // Let's use a simpler "clean non-digits" approach for Grand Total usually works for CLP integers.
-                const numericOnly = rawVal.replace(/[^\d]/g, '');
-                if (numericOnly.length > 0) {
-                    clinicGrandTotalField = parseInt(numericOnly);
-                }
-
+                clinicGrandTotalField = Math.round(cleanCLP(rawVal));
                 console.log(`[PARSER] Raw GRAND_TOTAL: "${rawVal}" -> Parsed: ${clinicGrandTotalField}`);
                 continue;
             }
@@ -312,9 +305,7 @@ app.post('/api/extract', async (req, res) => {
 
             if (line.startsWith('SECTION_TOTAL:')) {
                 const rawVal = line.replace('SECTION_TOTAL:', '').trim();
-                // Parse similarly to Grand Total
-                const numericOnly = rawVal.replace(/[^\d]/g, '');
-                const secTotal = parseInt(numericOnly) || 0;
+                const secTotal = Math.round(cleanCLP(rawVal));
 
                 if (sectionsMap.has(currentSectionName)) {
                     sectionsMap.get(currentSectionName).sectionTotal = secTotal;
@@ -325,7 +316,7 @@ app.post('/api/extract', async (req, res) => {
 
             if (!line.includes('|')) continue;
 
-            const cols = line.split('|').map(c => c.trim());
+            const cols = robustSplit(line);
             if (cols.length < 4) continue;
 
             const idxStr = cols[0];
@@ -336,12 +327,12 @@ app.post('/api/extract', async (req, res) => {
             // En el nuevo formato v1.6.3:
             // cols[5] es la verificación Cant * Precio
             // cols[6] es el total final
-            const totalStr = cols.length >= 7 ? cols[6] : cols[5];
+            const totalStr = cols.length >= 7 ? cols[6] : (cols.length >= 6 ? cols[5] : cols[3]); // Fallback safe
 
             const isClinicTotalLine = desc?.toUpperCase().includes("TOTAL SECCIÓN") || desc?.toUpperCase().includes("SUBTOTAL");
-            const total = parseInt((totalStr || "0").replace(/\./g, '')) || 0;
-            const quantity = parseFloat((qtyStr || "1").replace(',', '.')) || 1;
-            const unitPrice = parseInt((unitPriceStr || "0").replace(/\./g, '')) || 0;
+            const total = Math.round(cleanCLP(totalStr || "0"));
+            const quantity = cleanCLP(qtyStr || "1");
+            const unitPrice = Math.round(cleanCLP(unitPriceStr || "0"));
             const fullDescription = code ? `${desc} ${code}` : desc;
 
             let sectionObj = sectionsMap.get(currentSectionName);
@@ -351,23 +342,92 @@ app.post('/api/extract', async (req, res) => {
             }
 
             const calcTotal = Math.round(unitPrice * quantity);
-            const hasError = Math.abs(total - calcTotal) > 1;
+            let finalQuantity = quantity;
+            let finalUnitPrice = unitPrice;
+            let finalTotal = total;
+            let finalCalcTotal = calcTotal;
+
+            // --- SMART COHERENCE CHECK ---
+            // Detect if quantity or unitPrice is inflated due to decimal confusion (e.g. 1.000 read as 1000)
+            // Expanding factors up to 10^12 for extreme cases (Sevoflurano, Esferas, etc.)
+            const factors = [10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000];
+            let foundFix = false;
+
+            if (Math.abs(calcTotal - total) > 5) {
+                // 1. Try single factors first (Qty or Price)
+                for (const f of factors) {
+                    if (unitPrice > 0) {
+                        const testQty = quantity / f;
+                        const testCalc = Math.round(unitPrice * testQty);
+                        if (Math.abs(testCalc - total) <= 10) { // Tolerance slightly higher for extreme scales
+                            finalQuantity = testQty;
+                            finalCalcTotal = testCalc;
+                            foundFix = true;
+                            console.log(`[PARSER] Fixed magnitude (Qty) for "${fullDescription}": ${quantity} -> ${finalQuantity}`);
+                            break;
+                        }
+                    }
+                    if (quantity > 0) {
+                        const testPrice = unitPrice / f;
+                        const testCalc = Math.round(testPrice * quantity);
+                        if (Math.abs(testCalc - total) <= 10) {
+                            finalUnitPrice = testPrice;
+                            finalCalcTotal = testCalc;
+                            foundFix = true;
+                            console.log(`[PARSER] Fixed magnitude (Price) for "${fullDescription}": ${unitPrice} -> ${finalUnitPrice}`);
+                            break;
+                        }
+                    }
+                }
+
+                // 2. Try combined factors (Total / F)
+                if (!foundFix) {
+                    for (const f of factors) {
+                        if (Math.abs(Math.round(calcTotal / f) - total) <= 10) {
+                            // If Total / F works, try to distribute f between Qty and Price
+                            // Common: Qty has 1000x or 1000000x inflation
+                            const commonQtyFactors = [1000, 1000000];
+                            for (const qf of commonQtyFactors) {
+                                if (f % qf === 0) {
+                                    const pf = f / qf;
+                                    finalQuantity = quantity / qf;
+                                    finalUnitPrice = unitPrice / pf;
+                                    finalCalcTotal = Math.round(finalQuantity * finalUnitPrice);
+                                    foundFix = true;
+                                    console.log(`[PARSER] Combined Fixed magnitude for "${fullDescription}": Qty/${qf}, Price/${pf}`);
+                                    break;
+                                }
+                            }
+                            if (!foundFix) {
+                                // Default distribution to Price if no common Qty factor
+                                finalUnitPrice = unitPrice / f;
+                                finalCalcTotal = Math.round(quantity * finalUnitPrice);
+                                foundFix = true;
+                                console.log(`[PARSER] Global Fixed magnitude for "${fullDescription}": Price/${f}`);
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+
+            const hasError = !foundFix && Math.abs(finalTotal - finalCalcTotal) > 5;
 
             if (isClinicTotalLine) {
-                sectionObj.sectionTotal = total;
+                sectionObj.sectionTotal = finalTotal;
             } else {
-                // Filter out header rows that crept in
-                const isHeaderArtifact = fullDescription.includes("[Descripción]") ||
-                    (fullDescription.includes("Descripción") && fullDescription.includes("Código"));
+                const isHeaderArtifact = fullDescription.toLowerCase().includes("descripción") ||
+                    fullDescription.toLowerCase().includes("código") ||
+                    fullDescription.includes("---");
 
-                if (!isHeaderArtifact) {
+                if (!isHeaderArtifact && finalTotal > 0) {
                     sectionObj.items.push({
-                        index: parseInt(idxStr) || globalIndex++,
+                        index: globalIndex++,
                         description: fullDescription,
-                        quantity: quantity,
-                        unitPrice: unitPrice,
-                        total: total,
-                        calculatedTotal: calcTotal,
+                        quantity: finalQuantity,
+                        unitPrice: finalUnitPrice,
+                        total: finalTotal,
+                        calculatedTotal: finalCalcTotal,
                         hasCalculationError: hasError
                     });
                 }
@@ -420,20 +480,22 @@ app.post('/api/extract', async (req, res) => {
                         const newDiff = sec.sectionTotal - newSum;
 
                         if (Math.abs(newDiff) < Math.abs(diff)) {
-                            console.log(`[REPAIR SUCCESS] Section "${sec.category}" fixed. New Diff: $${newDiff}`);
+                            console.log(`[REPAIR PROGRESS] Section "${sec.category}" improved. Old Diff: $${diff} -> New Diff: $${newDiff}`);
                             // Update section with repaired items
                             sec.items = repairedItems.map((item: any) => ({
                                 ...item,
-                                // Ensure robust typing
                                 total: item.total || 0,
                                 unitPrice: item.unitPrice || 0,
                                 quantity: item.quantity || 1,
                                 hasCalculationError: Math.abs((item.unitPrice * item.quantity) - item.total) > 10
                             }));
-                            sendUpdate({ type: 'status', message: `✅ Corrección exitosa en "${sec.category}"` });
+                            const statusMsg = Math.abs(newDiff) < 10 ?
+                                `✅ Corrección exitosa en "${sec.category}"` :
+                                `📉 Mejora parcial en "${sec.category}" (Dif: $${newDiff})`;
+                            sendUpdate({ type: 'status', message: statusMsg });
                         } else {
-                            console.warn(`[REPAIR FAILED] New items didn't solve the issue. Keeping original.`);
-                            sendUpdate({ type: 'status', message: `❌ No se pudo corregir "${sec.category}" automáticamente.` });
+                            console.warn(`[REPAIR FAILED] New items didn't improve section "${sec.category}". Keeping original.`);
+                            sendUpdate({ type: 'status', message: `❌ No se pudo mejorar "${sec.category}".` });
                         }
                     }
                 } catch (repairError) {

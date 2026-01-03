@@ -73,35 +73,28 @@ export class GeminiService {
         mimeType: string,
         sectionName: string,
         declaredTotal: number,
-        calculatedTotal: number
+        currentSum: number
     ): Promise<any[]> {
-        const diff = declaredTotal - calculatedTotal;
         const prompt = `
         ACT AS A CLINICAL BILL AUDIT SPECIALIST.
         
         ISSUE:
-        In the section "${sectionName}", you previously extracted items that sum up to $${calculatedTotal.toLocaleString('es-CL')}.
-        However, the document clearly states that the TOTAL for this section should be $${declaredTotal.toLocaleString('es-CL')}.
+        In the section "${sectionName}", you previously extracted items that sum up to $${currentSum.toLocaleString('es-CL')}.
+        However, the document states that the TOTAL for this section should be $${declaredTotal.toLocaleString('es-CL')}.
         
-        There is a DISCREPANCY of $${diff.toLocaleString('es-CL')} (Missing or Misread Items).
-        
-        YOUR TASK:
-        1. Re-scan ONLY the section "${sectionName}" in the provided image.
-        2. Find the items that explain this difference. It might be:
-           - A missing item you skipped.
-           - An item where you read a digit wrongly (e.g. read 6 as 8).
-           - An item where you read the Unit Price instead of the Total Price.
-        3. Output the COMPLETE correct list of items for this section.
-        
-        OUTPUT FORMAT: A plain JSON array of objects.
+        There is a DISCREPANCY of $${(declaredTotal - currentSum).toLocaleString('es-CL')}.
+
+        CRITICAL INSTRUCTIONS:
+        1. If your sum is HIGHER than the declared total, you likely DUPLICATED items or read a subtotal as a line item. REMOVE the extra items.
+        2. Only use negative quantities if they are EXPLICITLY present in the document (e.g., a reversal or credit). DO NOT INVENT them just to force a balance.
+        3. Provide the COMPLETE correct list of items for this section.
+        4. If the section is very long, output as many items as possible before truncated.
+        5. Return ONLY a plain JSON array of objects. No markdown. No text outside the array.
+
         [
           { "index": 1, "description": "...", "quantity": 1, "unitPrice": 100, "total": 100 },
           ...
         ]
-        
-        IMPORTANT:
-        - Return ONLY the JSON array. No markdown formatting.
-        - Ensure the new list sums up EXACTLY to $${declaredTotal.toLocaleString('es-CL')}.
         `;
 
         const model = this.client.getGenerativeModel({
@@ -124,9 +117,43 @@ export class GeminiService {
 
         const text = result.response.text();
         try {
-            return JSON.parse(text);
+            // Remove markdown sugar if present
+            const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim();
+            return JSON.parse(cleaned);
         } catch (e) {
-            console.error("Failed to parse repair JSON", e);
+            console.error("Failed to parse repair JSON with JSON.parse. Attempting regex fallback...", e);
+            console.log("[DEBUG] Raw malformed response:", text);
+
+            // Fallback: Robust regex to extract item objects even if truncated or malformed
+            const items: any[] = [];
+            const itemRegex = /\{[\s\n]*"index"[\s\n]*:[\s\n]*(-?\d+)[\s\S]*?"description"[\s\n]*:[\s\n]*"([\s\S]*?)"[\s\S]*?"quantity"[\s\n]*:[\s\n]*(-?\d*\.?\d+)[\s\S]*?"unitPrice"[\s\n]*:[\s\n]*(-?\d+)[\s\S]*?"total"[\s\n]*:[\s\n]*(-?\d+)[\s\n]*\}?/g;
+
+            let match;
+            while ((match = itemRegex.exec(text)) !== null) {
+                try {
+                    const idx = parseInt(match[1]);
+                    const desc = match[2];
+                    const qty = parseFloat(match[3]);
+                    const uprice = parseInt(match[4]);
+                    const tot = parseInt(match[5]);
+
+                    items.push({
+                        index: idx,
+                        description: desc,
+                        quantity: qty,
+                        unitPrice: uprice,
+                        total: tot
+                    });
+                } catch (innerError) {
+                    // Silently skip corrupted items
+                }
+            }
+
+            if (items.length > 0) {
+                console.log(`[REPAIR SUCCESS] Recovered ${items.length} items via robust regex fallback.`);
+                return items;
+            }
+
             return [];
         }
     }

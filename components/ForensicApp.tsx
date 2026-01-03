@@ -54,6 +54,18 @@ export default function ForensicApp() {
         setLogs(prev => [...prev, `[${timestamp}] ${msg}`]);
     };
 
+    const downloadJson = (data: any, filename: string) => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     const handleExecuteAudit = async () => {
         setStatus('PROCESSING');
         setError(null);
@@ -279,12 +291,28 @@ export default function ForensicApp() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-center gap-4 pt-4 print:hidden">
-                                <button onClick={() => window.print()} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-black transition-all">
-                                    <Printer size={20} /> IMPRIMIR INFORME TÉCNICO
+                            <div className="flex justify-center flex-wrap gap-4 pt-4 print:hidden">
+                                <button onClick={() => window.print()} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-black transition-all shadow-lg">
+                                    <Printer size={20} /> IMPRIMIR INFORME
                                 </button>
-                                <button className="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-50 transition-all">
-                                    <Download size={20} /> DESCARGAR PDF
+                                <button
+                                    onClick={() => downloadJson(auditResult, 'informe_forense')}
+                                    className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg"
+                                >
+                                    <Download size={20} /> EXPORTAR JSON (INFORME)
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        const raw = {
+                                            cuenta: JSON.parse(localStorage.getItem('clinic_audit_result') || '{}'),
+                                            pam: JSON.parse(localStorage.getItem('pam_audit_result') || '{}'),
+                                            contrato: JSON.parse(localStorage.getItem('contract_audit_result') || '{}')
+                                        };
+                                        downloadJson(raw, 'raw_data_consolidada');
+                                    }}
+                                    className="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm"
+                                >
+                                    <FileText size={20} /> DESCARGAR DATA ORIGINAL
                                 </button>
                             </div>
                         </div>
