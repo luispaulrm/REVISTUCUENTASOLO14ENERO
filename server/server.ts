@@ -228,15 +228,32 @@ app.post('/api/extract', async (req, res) => {
           ...
         `;
 
-        const resultStream = await model.generateContentStream([
-            { text: CSV_PROMPT },
-            {
-                inlineData: {
-                    data: image,
-                    mimeType: mimeType
+        let resultStream;
+        try {
+            resultStream = await model.generateContentStream([
+                { text: CSV_PROMPT },
+                {
+                    inlineData: {
+                        data: image,
+                        mimeType: mimeType
+                    }
                 }
+            ]);
+        } catch (initError: any) {
+            console.error("❌ [GEMINI INIT ERROR]", initError);
+            const errStr = (initError?.toString() || "") + (initError?.message || "");
+            const has429 = errStr.includes('429') || errStr.includes('Too Many Requests') || initError?.status === 429 || initError?.status === '429';
+
+            if (has429) {
+                console.warn("⚠️ Quota Exceeded detected. Sending user-friendly warning.");
+                sendUpdate({
+                    type: 'error',
+                    message: '⏳ La API de IA está saturada (Quota Exceeded). Por favor espera 1-2 minutos y reintenta.'
+                });
+                return res.end();
             }
-        ]);
+            throw initError;
+        }
 
         let fullText = "";
 
