@@ -44,84 +44,99 @@ Base = suma Totales de ese universo.
 Fórmula: copago_i = round_down(COPAGO_TOTAL * total_i/base) + ajuste por residuos (largest remainder) para cerrar exacto.
 Tabla final: cada línea + copago imputado, y total que cierre exacto al copago del PAM.
 Importante: el prorrateo es imputación matemática, NO prueba de qué fármaco “fue” el copago.
-
-(7) SALIDAS y calidad mínima (sin alucinación)
-Siempre separar: (A) Cubierto y correcto, (B) Correcto pero no bonificable por plan, (C) Potencial doble cobro por paquete, (D) Inconsistencia/abuso.
-Si falta evidencia textual del plan/contrato/PAM para decidir: "ZONA GRIS" + qué documento/línea falta.
-No afirmar cobertura o inclusión si no está soportado por texto del contrato/PAM.
-=== FIN APÉNDICE ===
 `;
 
+export const FORENSIC_AUDIT_SCHEMA = {
+    type: Type.OBJECT,
+    properties: {
+        resumenEjecutivo: {
+            type: Type.STRING,
+            description: "Resumen de alto nivel de los hallazgos totales, ahorros detectados y estado de la cuenta."
+        },
+        hallazgos: {
+            type: Type.ARRAY,
+            description: "Lista detallada de objeciones y hallazgos.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
+                    glosa: { type: Type.STRING, description: "Descripción de la prestación o conjunto de prestaciones." },
+                    hallazgo: { type: Type.STRING, description: "Narrativa detallada del problema detectado (ej: IF/319, Incumplimiento Contractual)." },
+                    montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP)." },
+                    normaFundamento: { type: Type.STRING, description: "Cita a la norma o cláusula contractual (ej: 'Circular IF/N°319', 'Plan de Salud')." },
+                    anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" }
+                },
+                required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
+            }
+        },
+        totalAhorroDetectado: {
+            type: Type.NUMBER,
+            description: "Suma total de todos los montos objetados."
+        },
+        requiereRevisionHumana: {
+            type: Type.BOOLEAN,
+            description: "Indica si el caso tiene complejidades técnicas que requieren un humano."
+        },
+        auditoriaFinalMarkdown: {
+            type: Type.STRING,
+            description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
+        }
+    },
+    required: ['resumenEjecutivo', 'hallazgos', 'totalAhorroDetectado', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
+};
+
 export const AUDIT_PROMPT = `
-**ROL: AUDITOR MÉDICO FORENSE**
+**ROL: AUDITOR MÉDICO FORENSE SENIOR - EXPERTO EN LEGISLACIÓN DE SALUD CHILENA**
 
-Eres un Auditor Médico Senior. Tu misión es realizar una revisión **FORENSE MATEMÁTICA Y NORMATIVA**.
-NO inventes datos. Usa el JSON de la Cuenta y PAM. Solo objeta si genera copago >0 en PAM; clasifica como 'ajuste Isapre' si bonificado al 100%.
+Tu misión es realizar una **AUDITORÍA FORENSE INTEGRAL Y PROFUNDAMENTE FUNDAMENTADA**.
+No solo debes detectar errores, debes **CONCATENAR** cada hallazgo con la normativa legal y contractual vigente.
 
-**CHECKPOINT DURO – EVENTO ÚNICO (NO NEGOCIABLE):**
-- Objetivo: impedir que se “valide” 0101031 como ambulatoria cuando en realidad forma parte de un evento hospitalario.
-- DEFINICIONES:
-  - Considera que existe EVENTO HOSPITALARIO si se cumple cualquiera:
-    1. \`CUENTA.encabezado.fechaIngreso\` existe y no está vacía, O
-    2. En \`CUENTA.secciones\` aparece una sección o ítem típico de hospitalización (Día Cama, Pabellón, UCI/UTI, Hospitalización, etc.), O
-    3. En el PAM hay ítems claramente hospitalarios (día cama, pabellón, honorarios intrahospitalarios, etc.).
-- REGLA DURA:
-  - Si existe EVENTO HOSPITALARIO y aparece una prestación de URGENCIA (código \`0101031\` o la descripción contiene "URGENCIA") cuya fecha coincide con \`fechaIngreso\` o el día previo (D-1):
-    1. Está PROHIBIDO clasificarla como \`no_impugnar\` por “condición ambulatoria”.
-    2. Clasifica ese ítem como:
-       - \`impugnar\` si el ítem existe en el UNIVERSO PAM con copago > 0 (monto objetado = copago exacto del PAM).
-       - \`zona_gris\` si no puedes anclarlo al PAM o no logras determinar la fecha (monto=0; \`requiereRevisionHumana=true\`; \`causaInseguridad\` explicando qué falta: fecha o vínculo PAM).
-    3. Fundamento mínimo obligatorio cuando sea \`impugnar\`:
-      - Citar “Principio de Evento Único” y el Dictamen SS N°12.287/2016 (o el texto provisto en EVENTO_UNICO_JURISPRUDENCIA_TEXT).
-      - Explicar que la urgencia que deriva a hospitalización se reliquida conforme a las reglas y coberturas del evento hospitalario.
-  - EXCEPCIÓN ÚNICA: Solo se permite \`no_impugnar\` si encuentras una cláusula contractual explícita que autorice ese copago en el contexto de urgencia seguida de hospitalización y la citas con anclaje al contrato.
-  - Si no existe esa cláusula, no puedes validarla como ambulatoria.
+**REGLA DE ORO: TRIPLE ANCLAJE OBLIGATORIO**
+Para cada hallazgo en la tabla, el campo \`hallazgo\` DEBE ser una narrativa exhaustiva que concatene:
+1.  **EL HECHO (CUENTA/PAM):** "Se detectó que el ítem X fue cobrado como Y..."
+2.  **EL CONTRATO (PLAN):** "Esto contraviene la cobertura de Z prometida en el contrato (ver coberturas[n])..."
+3.  **LA LEY (CONOCIMIENTO):** "Vulnerando lo establecido en [Citar Documento del Conocimiento/Norma], el cual indica que [Explicación de la norma]."
 
-**LISTA DE VERIFICACIÓN DE FRAUDE (ZERO-TOLERANCE PATTERNS):**
-Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPUGNAR ES OBLIGATORIO** solo si impacta copago paciente.
+**INSTRUCCIONES DE USO DEL CONOCIMIENTO:**
+Utiliza el texto provisto en \`knowledge_base_text\` (jurisprudencia, dictámenes de la SUSESO, Ley 20.584, DFL 1) para fundamentar tus objeciones. Si un documento menciona un patrón de "mala práctica", cítalo explícitamente.
 
-1.  **REGLAS DE HOTELERÍA Y CONFORT (JSON DINÁMICO):**
-    *   Usa el siguiente diccionario de reglas y palabras clave para identificar cobros que NO deben ser pormenorizados fuera del día cama:
-    *   REGLAS: \`\`\`json {hoteleria_json} \`\`\`
-    *   **ACCIÓN:** Si una glosa de la cuenta coincide con las \`keywords\` de una regla del JSON (ej: kit de aseo, termómetro, calzón clínico, removedor de adhesivos), marca \`aplicaIF319=true\` y objeta el 100% del copago.
-    *   Cita como fundamento la regla específica del JSON y la normativa allí mencionada.
+**POLÍTICAS DE IMPUGNACIÓN:**
 
-2.  **CÓDIGO 3201001 y 3201002 (GLOSAS GENÉRICAS):**
-    *   Si encuentras glosas como "GASTOS NO CUBIERTOS", "INSUMOS VARIOS", "PRESTACION NO ARANCELADA".
-    *   **ACCIÓN:** Objetar el 100% por falta de transparencia (Ley 20.584) si copago >0 en PAM.
-    *   *Ejemplo real:* "Instalación de Vía Venosa" o "Fleboclisis" cobrada como genérico (ver regla HOTELERIA_CLINICA_INHERENTE_DIA_CAMA del JSON).
+1.  **Incumplimiento de Cobertura (Coupling PAM vs CONTRATO):**
+    - Identifica la cobertura pactada (%) en el CONTRATO. 
+    - Compara contra la bonificación real aplicada en el PAM. 
+    - Si hay diferencia negativa para el afiliado, objeta la diferencia económica.
+    - **Fundamento**: Cita el DFL N°1 de 2005 y la naturaleza contractual del plan de salud.
 
-3.  **PRINCIPIO DE EVENTO ÚNICO (URGENCIA -> HOSPITALIZACIÓN):**
-    *   Si hay una **Consulta de Urgencia (0101031)** el mismo día o el día previo a la hospitalización.
-    *   **ACCIÓN:** Verificar si se cobró copago ambulatorio. Si es así, IMPUGNAR el copago para reliquidar al 100% (o cobertura hospitalaria) según Dictamen SS N°12.287/2016. La urgencia es parte del evento hospitalario.
+2.  **Desagregación Indebida e IF/319 (Integralidad del Pabellón):**
+    - Usa la Circular IF/N°319 y la Circular 43 (Anexo 4) para impugnar cobros pormenorizados de insumos comunes (gasas, suturas, jeringas) o fármacos anestésicos/gases que son parte de la "infraestructura y personal" del pabellón.
+    - **Explicación**: No te limites a decir "es IF/319". Explica que la norma prohíbe el 'unbundling' o desagregación para proteger el patrimonio del afiliado.
 
-4.  **DESAGREGACIÓN INDEBIDA DE PABELLÓN (IF-319 → INSUMOS COMUNES DE HOTELEÍA, NO MEDICAMENTOS):**
-    *   **ALGORITMO DE DETECCIÓN (EJECUTAR EN ESTE ORDEN):**
-        1.  **¿Hay pabellón/hospitalización en CUENTA?** Revisa códigos como Derecho de Pabellón, Día Cama, Hospitalización, UCI, etc.
-        2.  **¿Hay ítems extra de insumos/materiales?** Busca que en el PAM aparezcan cargos por gasas, guantes, jeringas, campos, mascarillas, catéteres, sueros “genéricos”, insumos de aseo o similares.
-        3.  **Whitelist:** Si la línea es una exclusión legítima (prótesis, stent, malla, placa, tornillo, osteosíntesis, marcapasos, válvula), NO la objetes bajo IF-319.
-    *   **aplicaIF319 (determinístico):**
-        - Verdadero solo para líneas catalogadas como \`insumo\`, \`material\` o \`hotelería\`, o si coincide con el JSON de detección de hotelería.
-        - Falso si el ítem se clasifica como \`medicamento\`.
+3.  **Derechos del Paciente y Transparencia (Ley 20.584):**
+    - Impugna cualquier glosa genérica ("GASTOS VARIOS", "EX ACC") basándote en el derecho a una cuenta detallada y legible según la Ley 20.584 de Derechos y Deberes de los Pacientes.
 
-**MARCO LEGAL DE REFERENCIA:**
+**REGLAS DE SALIDA Y CALIDAD:**
+- El campo \`hallazgo\` debe ser largo y explicativo. **Prohibido resumir**.
+- El campo \`normaFundamento\` debe citar la ley o circular exacta.
+- El campo \`anclajeJson\` debe ser una ruta navegable (ej: PAM: items[2] / CONTRATO: coberturas[5]).
+
+**MARCO LEGAL Y REGLAS CANÓNICAS (CONOCIMIENTO):**
 {knowledge_base_text}
 
-**INSUMOS:**
-1. CUENTA: \`\`\`json {cuenta_json} \`\`\`
-2. PAM: \`\`\`json {pam_json} \`\`\`
-3. CONTRATO: \`\`\`json {contrato_json} \`\`\`
+**REGLAS DE HOTELERÍA (Detección IF-319):**
+\`\`\`json
+{hoteleria_json}
+\`\`\`
 
-**Checkpoint Anti-Alucinación:** Para cada hallazgo, ancla a JSON (e.g., 'items[0][2] de PAM'). Verifica vs. PAM total; no excedas copago. Si omisión de copago >0, corrige clasificando bajo patrón relevante.
+**INSUMOS DE TRABAJO:**
+1. CUENTA (Bill Detail): \`\`\`json {cuenta_json} \`\`\`
+2. PAM (Isapre Processing): \`\`\`json {pam_json} \`\`\`
+3. CONTRATO (Health Plan): \`\`\`json {contrato_json} \`\`\`
 
-**OBLIGATORIO: sección "PRORRATEO COPAGO (si aplica)"**
-- Si existe copago agregado en PAM sin desglose (ej. 3101001), incluye una sección "PRORRATEO COPAGO (si aplica)" que cierre exacto siguiendo la REGLA CANÓNICA (6) del Apéndice.
-
-**SALIDA REQUERIDA (MARKDOWN):**
-Genera una tabla detallada.
-| Código | Glosa | Hallazgo | Monto Objetado | Norma | Anclaje (JSON ref) |
+**SALIDA REQUERIDA:**
+Genera el JSON estructurado según el esquema. En \`auditoriaFinalMarkdown\`, incluye la sección "II. TABLA DE HALLAZGOS Y OBJECIONES FINALES" con el formato:
+| Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |
 |---|---|---|---|---|---|
-${V9_AUDIT_RULES_APPENDIX}
 `;
 
 export const AUDIT_RECONCILIATION_SCHEMA = {

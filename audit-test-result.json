@@ -1,0 +1,39 @@
+{
+  "data": {
+    "resumenEjecutivo": "La auditoría forense realizada a la cuenta de Clínica Indisa y su procesamiento por Isapre Consalud (Plan CORE 206 25) revela irregularidades críticas que totalizan un ahorro detectado de $114.338. Se identificaron prácticas de desagregación indebida ('unbundling') en insumos de pabellón y anestésicos, contraviniendo la Circular 43 y la Circular IF/N°319. Asimismo, se detectó un incumplimiento contractual en la bonificación aplicada a la anatomía patológica, donde la Isapre bonificó un 34.3% en lugar del 40% pactado. Se recomienda la impugnación inmediata de estos cargos ante el prestador y la reliquidación de la cobertura por parte de la Isapre.",
+    "hallazgos": [
+      {
+        "codigos": "3101304",
+        "glosa": "MATERIALES CLINICOS QUIRURGICOS (Sutura seda 3-0)",
+        "hallazgo": "Se detectó que el ítem 'Sutura seda 3-0' fue cobrado de forma desagregada bajo el código 3101304 por un monto de $10.000. Esto contraviene la estructura de beneficios del contrato CORE 206 25, donde los materiales inherentes al acto quirúrgico deben estar integrados en el valor del pabellón. Vulnerando lo establecido en el documento de Conocimiento 'CIRCULAR 43 1998', el cual en su Anexo N°4 (Apéndice de Derecho de Pabellón, letra d) indica explícitamente que la tarifa de quirófano incluye la 'utilización de elementos y útiles fungibles de uso general', mencionando específicamente 'Todo tipo de material de sutura'. Al cobrar este insumo por separado, el prestador incurre en una desagregación indebida ('unbundling') que duplica el cobro para el afiliado, práctica prohibida por la Circular IF/N°319 para proteger el patrimonio de los beneficiarios.",
+        "montoObjetado": 10000,
+        "normaFundamento": "Circular 43 1998 (Anexo 4, Apéndice d) y Circular IF/N°319",
+        "anclajeJson": "CUENTA: sections[0].items[0] / PAM: items[0]"
+      },
+      {
+        "codigos": "3101302",
+        "glosa": "MEDICAMENTOS HOSPITALIZADOS (Sevoflurano 250ml)",
+        "hallazgo": "Se detectó que el ítem 'Sevoflurano 250ml' fue cobrado como un gasto de farmacia independiente bajo el código 3101302 por un monto de $100.000. Esto contraviene la cobertura de integralidad quirúrgica pactada en el contrato CORE 206 25. Vulnerando lo establecido en la normativa de la Superintendencia de Salud (Circular 43 de 1998), la cual define en su Anexo 4 que el Derecho de Pabellón 'incluye el uso de la sala de parto... gases y anestésicos de cualquier tipo'. El Sevoflurano es un gas anestésico fundamental del acto quirúrgico y su costo debe ser absorbido por el Derecho de Pabellón cobrado. La fragmentación de este ítem constituye una práctica de facturación irregular orientada a inflar el copago del paciente, violando el principio de transparencia de la Ley 20.584.",
+        "montoObjetado": 100000,
+        "normaFundamento": "Circular 43 1998 (Anexo 4, Apéndice f) y Ley 20.584",
+        "anclajeJson": "CUENTA: sections[0].items[1] / PAM: items[1]"
+      },
+      {
+        "codigos": "801004",
+        "glosa": "ESTUDIO HISTOPATOLÓGICO",
+        "hallazgo": "Se detectó que el ítem 'ESTUDIO HISTOPATOLÓGICO' fue bonificado por la Isapre aplicando un 34.3% sobre el valor de la prestación. Esto contraviene la cobertura del 40% pactada en el plan de salud CORE 206 25 para prestaciones en Modalidad Libre Elección (ver coberturas[1]). Vulnerando lo establecido en el DFL N°1 de 2005 (Art. 189), el cual mandata que las Isapres están obligadas a financiar las prestaciones y beneficios conforme al contrato de salud suscrito. La diferencia negativa de 5.7 puntos porcentuales en la bonificación real aplicada en el PAM respecto a la pactada representa un perjuicio directo al afiliado por incumplimiento de las condiciones contractuales vigentes.",
+        "montoObjetado": 4338,
+        "normaFundamento": "DFL N°1 de 2005, Art. 189 y Plan de Salud Complementario",
+        "anclajeJson": "PAM: items[2] / CONTRATO: coberturas[3]"
+      }
+    ],
+    "totalAhorroDetectado": 114338,
+    "requiereRevisionHumana": false,
+    "auditoriaFinalMarkdown": "## INFORME DE AUDITORÍA FORENSE MÉDICO-LEGAL\n\n**ESTADO DE LA CUENTA:** OBJECIÓN TOTAL POR PRÁCTICAS IRREGULARES\n**PLAN DE SALUD:** CORE 206 25 (Consalud)\n\n### I. RESUMEN EJECUTIVO\nTras el análisis forense de la cuenta médica emitida por Clínica Indisa y el procesamiento en el Programa de Atención Médica (PAM), se han detectado hallazgos significativos de **Desagregación Indebida (Unbundling)** e **Incumplimiento de Cobertura Contractual**. El ahorro total detectado asciende a **$114.338**, derivado principalmente de insumos que legalmente deben estar incluidos en el Derecho de Pabellón y errores en la aplicación de porcentajes de bonificación del plan.\n\n### II. TABLA DE HALLAZGOS Y OBJECIONES FINALES\n\n| Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |\n|---|---|---|---|---|---|\n| 3101304 | MATERIALES CLINICOS | Cobro de suturas por separado. La Circular 43 de 1998 indica que el pabellón incluye 'todo tipo de material de sutura'. Su desagregación es una práctica irregular de 'unbundling'. | $10.000 | Circular 43 (Anexo 4, Apéndice d) | PAM: items[0] |\n| 3101302 | MEDICAMENTOS | Cobro de Sevoflurano (gas anestésico). La Circular 43 define que el pabellón incluye 'gases y anestésicos de cualquier tipo'. El cobro separado vulnera la integralidad del acto quirúrgico. | $100.000 | Circular 43 (Anexo 4, Apéndice f) | PAM: items[1] |\n| 801004 | ANATOMÍA PATOLÓGICA | Error de bonificación. La Isapre aplicó 34.3% cuando el contrato CORE 206 25 estipula 40% para libre elección. Incumplimiento del Art. 189 del DFL 1/2005. | $4.338 | DFL N°1 2005, Art. 189 | PAM: items[2] / CONTRATO: reglas[2] |\n\n### III. CONCLUSIÓN FORENSE\nSe instruye al afiliado a no proceder con el pago del copago excedente y solicitar a la Isapre la rectificación de la bonificación del código 801004. Simultáneamente, se debe exigir al prestador institucional la eliminación de los cobros por suturas y anestésicos por ser contrarios a la normativa de integralidad de pabellón (Circular 43)."
+  },
+  "usage": {
+    "promptTokens": 911141,
+    "candidatesTokens": 1918,
+    "totalTokens": 915122
+  }
+}

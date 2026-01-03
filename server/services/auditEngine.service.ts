@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { AUDIT_PROMPT, AUDIT_RECONCILIATION_SCHEMA } from '../config/audit.prompts.js';
+import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.js';
 import { AI_CONFIG } from '../config/ai.config.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -20,7 +20,7 @@ export async function performForensicAudit(
         model: AI_CONFIG.ACTIVE_MODEL,
         generationConfig: {
             responseMimeType: "application/json",
-            responseSchema: AUDIT_RECONCILIATION_SCHEMA as any
+            responseSchema: FORENSIC_AUDIT_SCHEMA as any
         }
     });
 
@@ -38,16 +38,18 @@ export async function performForensicAudit(
         if (ext === '.txt' || ext === '.md') {
             const content = await fs.readFile(filePath, 'utf-8');
             knowledgeBaseText += `\n\n--- DOCUMENTO: ${file} ---\n${content}`;
+            log(`[AuditEngine] 📑 Cargado: ${file}`);
         } else if (file === 'hoteleria_sis.json') {
             const content = await fs.readFile(filePath, 'utf-8');
             hoteleriaRules = content;
+            log(`[AuditEngine] 🏨 Cargadas reglas de hotelería (IF-319)`);
         }
     }
 
     log('[AuditEngine] 🧠 Sincronizando datos y analizando hallazgos con Super-Contexto...');
 
     const prompt = AUDIT_PROMPT
-        .replace('{jurisprudencia_text}', '') // Cleaning legacy markers
+        .replace('{jurisprudencia_text}', '')
         .replace('{normas_administrativas_text}', '')
         .replace('{evento_unico_jurisprudencia_text}', '')
         .replace('{knowledge_base_text}', knowledgeBaseText)
@@ -57,12 +59,22 @@ export async function performForensicAudit(
         .replace('{contrato_json}', JSON.stringify(contratoJson, null, 2));
 
     try {
+        log('[AuditEngine] 📡 Enviando consulta a Gemini 3 Flash...');
         const result = await model.generateContent(prompt);
         const responseText = result.response.text();
         const auditResult = JSON.parse(responseText);
 
+        const usage = result.response.usageMetadata;
         log('[AuditEngine] ✅ Auditoría forense completada.');
-        return auditResult;
+
+        return {
+            data: auditResult,
+            usage: usage ? {
+                promptTokens: usage.promptTokenCount,
+                candidatesTokens: usage.candidatesTokenCount,
+                totalTokens: usage.totalTokenCount
+            } : null
+        };
     } catch (error: any) {
         log(`[AuditEngine] ❌ Error en el proceso de auditoría: ${error.message}`);
         throw error;

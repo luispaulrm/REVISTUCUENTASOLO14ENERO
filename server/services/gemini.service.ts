@@ -96,19 +96,17 @@ export class GeminiService {
             
             ${pageFocus}
             ${attempts > 1 ? `PARTIAL PROGRESS: You already extracted ${allItems.length} items. The last one was "${lastItemDescription}". PLEASE CONTINUE listing the remaining items from there.` : ''}
-
             CRITICAL INSTRUCTIONS:
-            1. If your sum is HIGHER than the declared total, you likely DUPLICATED items or read a subtotal as a line item. REMOVE the extra items.
-            2. Only use negative quantities if they are EXPLICITLY present in the document (e.g., a reversal or credit). DO NOT INVENT them just to force a balance.
-            3. Use GROSS values (Valor Bruto/Valor Isa) for unitPrice and total.
-            4. ENSURE MATHEMATICAL CONSISTENCY: quantity * unitPrice MUST EQUAL total. Avoid high precision decimals; keep results simple.
-            5. VERBATIM EXTRACTION: Do not skip items. Do not summarize. List EVERY single item belonging to this section across ALL pages.
-            6. RE-COUNT VERIFICATION: Before outputting the CSV, count the number of items you see. Ensure your CSV has that exact number of rows.
-            8. Return ONLY a CSV-style list using "|" as separator. No markdown. No text outside the data.
-            9. TRUNCATION SAFETY: If the list is too long, end with "CONTINUE|PENDING" and I will ask for more.
-            10. FORMATO NUMÉRICO ESTRICTO:
-                - PRECIOS Y TOTALES: Usa solo NÚMEROS ENTEROS (ej: 11400, no 11.400).
-                - CANTIDADES: Usa el punto (.) SOLO para decimales reales (ej: 0.5). PROHIBIDO usar .000 para indicar enteros. Usa 1 en lugar de 1.000.
+            - EXHAUSTIVENESS IS #1: List EVERY item. If the clinician's total is wrong, WE DON'T CARE. We want the full 100% list of products verbatim.
+            - DO NOT GROUP ITEMS. If the paper lists it 5 times, you extract it 5 times.
+            - FORMAT: index | description | quantity | unitPrice | total
+            - IMPORTANT: Some lines are CREDIT/REVERSALS. They have a minus sign (-) or are in parentheses ( ). You MUST extract them as negative (ej: -1, -3006).
+            - IVA DETECTION: If unitPrice * quantity doesn't match total, it might be due to 19% tax (IVA). Just extract values as they are.
+            - ANTI-FUSION: If a price looks like millions (ej: 2.470500501), it is fused with a code. Clean it to match the total (ej: 2.470).
+            - MATH CHECK: sum(items.total) SHOULD equal $${declaredTotal.toLocaleString('es-CL')}, BUT IF THE DOCUMENT IS WRONG, PRIORITIZE LISTING ALL ITEMS.
+            - ABSOLUTELY NO decimals in Prices/Totals. INTEGERS ONLY.
+            - Return ONLY a CSV-style list using "|" as separator. No markdown.
+            - TRUNCATION SAFETY: If the list is too long, end with "CONTINUE|PENDING".
             `;
 
             const model = this.client.getGenerativeModel({
@@ -153,7 +151,14 @@ export class GeminiService {
                         // Standard parser for quantities and prices in repair CSV
                         const parseVal = (v: string): number => {
                             if (!v) return 0;
-                            let c = v.trim().replace(/[^\d.,-]/g, '');
+                            let c = v.trim();
+
+                            // Handle negative parentheses
+                            if (c.startsWith('(') && c.endsWith(')')) {
+                                c = '-' + c.substring(1, c.length - 1);
+                            }
+
+                            c = c.replace(/[^\d.,-]/g, '');
                             if (c.includes(',')) return parseFloat(c.replace(/\./g, '').replace(/,/g, '.')) || 0;
                             const d = (c.match(/\./g) || []).length;
                             if (d === 1) {

@@ -1,37 +1,70 @@
 import { Request, Response } from 'express';
 import { performForensicAudit } from '../services/auditEngine.service.js';
+import { GeminiService } from '../services/gemini.service.js';
+import { AI_CONFIG } from '../config/ai.config.js';
 
 export async function handleAuditAnalysis(req: Request, res: Response) {
     console.log('[AUDIT] New Forensic Audit Request Initiated');
+
+    // Setup streaming response
+    res.setHeader('Content-Type', 'application/x-ndjson');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    const sendUpdate = (data: any) => {
+        res.write(JSON.stringify(data) + '\n');
+    };
 
     try {
         const { cuentaJson, pamJson, contratoJson } = req.body;
 
         if (!cuentaJson || !pamJson || !contratoJson) {
-            return res.status(400).json({ error: 'Missing required JSONs (Cuenta, PAM or Contrato)' });
+            sendUpdate({ type: 'error', message: 'Missing required JSONs (Cuenta, PAM or Contrato)' });
+            return res.end();
         }
 
         const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
         if (!apiKey) {
-            return res.status(500).json({ error: 'API Key not configured' });
+            sendUpdate({ type: 'error', message: 'API Key not configured' });
+            return res.end();
         }
 
-        // Response stream for progress logs (optional, but consistent with other modules)
-        // For now, let's keep it simple as a single JSON response or a fast stream
-        const auditResult = await performForensicAudit(
+        sendUpdate({ type: 'progress', progress: 10 });
+
+        const result = await performForensicAudit(
             cuentaJson,
             pamJson,
             contratoJson,
             apiKey,
-            (msg) => console.log(`[AUDIT] ${msg}`)
+            (msg) => sendUpdate({ type: 'log', message: msg })
         );
 
-        return res.json(auditResult);
+        sendUpdate({ type: 'progress', progress: 90 });
+
+        if (result.usage) {
+            const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(
+                AI_CONFIG.ACTIVE_MODEL,
+                result.usage.promptTokens,
+                result.usage.candidatesTokens
+            );
+            sendUpdate({
+                type: 'usage',
+                usage: {
+                    ...result.usage,
+                    estimatedCost,
+                    estimatedCostCLP
+                }
+            });
+        }
+
+        sendUpdate({ type: 'final', data: result.data });
+        res.end();
 
     } catch (error: any) {
         console.error('[AUDIT] Forensic Audit Error:', error);
-        return res.status(500).json({
-            error: error.message || 'Internal Server Error during forensic audit'
+        sendUpdate({
+            type: 'error',
+            message: error.message || 'Internal Server Error during forensic audit'
         });
+        res.end();
     }
 }

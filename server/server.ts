@@ -122,21 +122,27 @@ const EXTRACTION_PROMPT = `
     - BLOQUE DE CÁLCULO: En el formato de salida, DEBES incluir el resultado de tu multiplicación en la columna de verificación.
 
     REGLA DE RECONCILIACIÓN MATEMÁTICA (AUDITORÍA INTERNA):
-    - ANTES DE ESCRIBIR CADA SECCIÓN: Realiza un cálculo silencioso. Suma los valores de la columna 'Valor Isa'.
-    - El objetivo es que la suma sea EXACTAMENTE IGUAL al subtotal. 
+    - TU PRIORIDAD ES LA EXHAUSTIVIDAD: Si el subtotal de la sección no coincide con lo que estás viendo en los ítems, NO TE DETENGAS NI RESUMAS. Extrae CADA ítem exactamente como aparece.
+    - TU VERDAD SON LOS ÍTEMS: Si la clínica sumó mal, el auditor lo verá después. Tu trabajo es listar el 100% de las filas.
 
-    REGLA ANTIFUSIÓN (COLUMNAS):
-    - CUIDADO CON EL "PRICE BLEED": A veces el Precio Unitario parece fusionado con un código de ítem (ej: "2.470500501"). DEBES separar el precio real (2.470) e ignorar el código.
-    - El Total debe ser siempre consistente: Qty * Price = Total. Si lees un precio de millones para un antibiótico común, estás leyendo mal.
+    REGLA DE HONORARIOS Y PORCENTAJES:
+    - En secciones de Honorarios (6010, 6011, etc.), si la cantidad es fraccionaria (0.1, 0.2, 0.25, etc.), el Total DEBE ser el resultado de esa fracción (ej: 0.1 * 4.000.000 = 400.000). Prohibido poner el total de la cirugía completa en una línea de porcentaje.
+    - Si el papel muestra el total de la cirugía pero tú estás extrayendo una línea de "Primer Ayudante (0.25)", el total de esa línea es el 25%.
+
+    REGLA ANTIFUSIÓN Y PRECIOS:
+    - IVA Y ARITMÉTICA: A veces el Precio Unitario es NETO y el Total es BRUTO (Precio * 1.19 * Cantidad). Si ves esto, extrae el precio tal cual.
+    - "PRICE BLEED": Separa códigos de precio (ej: 2.470500501 -> 2.470).
+
+    REGLA DE NEGATIVOS (REVERSIONES):
+    - Las líneas con signo menos (-) o entre paréntesis ( ) son CRÉDITOS/REVERSIONES.
+    - DEBES extraer el valor como NEGATIVO (ej: -1, -3006). Esto es vital para que la suma cuadre.
 
     INSTRUCCIONES DE EXTRACCIÓN EXHAUSTIVA:
-    0. MARCADOR DE PÁGINA: Cada vez que comiences a leer una nueva página, escribe obligatoriamente "PAGE: n" (donde n es el número de página).
+    0. MARCADOR DE PÁGINA: Cada vez que comiences a leer una nueva página, escribe obligatoriamente "PAGE: n".
     1. Identifica las cabeceras de sección y sus subtotales declarados.
-    2. EXTRAE CADA LÍNEA DEL DESGLOSE SIN EXCEPCIÓN.
-    3. FORMATO NUMÉRICO ESTRICTO:
-       - PRECIOS Y TOTALES: Solo NÚMEROS ENTEROS (ej: 11400).
-       - CANTIDADES: Solo . para decimales reales (ej: 0.5). Prohibido .000 para enteros.
-    4. PROHIBIDO INVENTAR: No agregues líneas de "ajuste" ficticias.
+    2. EXTRAE CADA LÍNEA DEL DESGLOSE SIN EXCEPCIÓN. Si hay 56 fármacos, deben salir 56 fármacos.
+    3. FORMATO NUMÉRICO ESTRICTO: Solo números enteros en precios/totales.
+    4. PROHIBIDO INVENTAR O RESUMIR.
     5. Absolutamente prohibido usar puntos suspensivos (...) o detenerse antes del final de la cuenta.
 `;
 
@@ -271,9 +277,19 @@ app.post('/api/extract', async (req, res) => {
         let invoiceNumber = "000000";
         let billingDate = new Date().toLocaleDateString('es-CL');
 
-        const cleanCLP = (val: string): number => {
-            if (!val) return 0;
-            let cleaned = val.trim();
+        const cleanCLP = (value: string): number => {
+            if (!value) return 0;
+            let cleaned = value.trim();
+
+            // Handle parentheses for negatives (ej: (1.234) -> -1.234)
+            if (cleaned.startsWith('(') && cleaned.endsWith(')')) {
+                cleaned = '-' + cleaned.substring(1, cleaned.length - 1);
+            }
+
+            // Now remove non-numeric characters, but keep '.', ',', and '-'
+            cleaned = cleaned.replace(/[^\d.,-]/g, '');
+            if (cleaned === '' || cleaned === '-') return 0;
+
             // Start cleaning from first digit or minus sign
             const firstNumeric = cleaned.search(/[0-9-]/);
             if (firstNumeric > 0) cleaned = cleaned.substring(firstNumeric);
@@ -502,16 +518,26 @@ app.post('/api/extract', async (req, res) => {
                 }
             }
 
-            const hasError = !foundFix && Math.abs(finalTotal - finalCalcTotal) > 5;
+            // IVA Intelligence: Check if (Price * Qty) matches Total, OR if (Price * 1.19 * Qty) matches Total
+            const simpleError = Math.abs(finalTotal - finalCalcTotal) > 10;
+            const ivaError = Math.abs(finalTotal - Math.round(finalCalcTotal * 1.19)) > 10;
+            const hasError = !foundFix && simpleError && ivaError;
+            const isIVAApplied = simpleError && !ivaError;
 
             if (isClinicTotalLine) {
                 sectionObj.sectionTotal = finalTotal;
             } else {
                 // --- DEDUPLICATION LOGIC ---
-                // Avoid adding the same item twice if AI repeats lines in its response
-                const itemKey = `${currentSectionName}|${idxStr}|${code}|${desc}|${finalTotal}`;
+                // Avoid adding the same item twice ONLY if the entire row (including quantity and price) is identical
+                // and they share the same Folio (idxStr). 
+                // We use a counter in the key to allow legitimate multiple charges of same product in same section
+                // if they appear as distinct lines in the AI response.
+                const itemKey = `${currentSectionName}|${idxStr}|${code}|${desc}|${finalQuantity}|${finalUnitPrice}|${finalTotal}`;
                 if (processedItemsSet.has(itemKey)) {
-                    console.log(`[PARSER] Skipping duplicated item: ${fullDescription}`);
+                    // Only skip if the AI is clearly repeating itself (same everything)
+                    // But if it's a clinical bill, sometimes same code and total repeat legitimately.
+                    // We'll trust the AI's list unless it's an exact duplicate of a previously seen line.
+                    console.log(`[PARSER] Skipping potential duplicate row: ${fullDescription}`);
                     continue;
                 }
                 processedItemsSet.add(itemKey);
@@ -528,7 +554,8 @@ app.post('/api/extract', async (req, res) => {
                         unitPrice: finalUnitPrice,
                         total: finalTotal,
                         calculatedTotal: finalCalcTotal,
-                        hasCalculationError: hasError
+                        hasCalculationError: hasError,
+                        isIVAApplied: isIVAApplied
                     });
                 }
             }
@@ -572,17 +599,39 @@ app.post('/api/extract', async (req, res) => {
                         const newSum = repairedItems.reduce((acc: number, item: any) => acc + (item.total || 0), 0);
                         const newDiff = sec.sectionTotal - newSum;
 
-                        if (Math.abs(newDiff) < Math.abs(diff)) {
-                            forensicLog(`✅ MEJORA en "${sec.category}": Diferencia reducida de $${diff} a $${newDiff}. Aplicando cambios.`);
-                            sec.items = repairedItems.map((item: any) => ({
-                                ...item,
-                                total: item.total || 0,
-                                unitPrice: item.unitPrice || 0,
-                                quantity: item.quantity || 1,
-                                hasCalculationError: Math.abs((item.unitPrice * item.quantity) - item.total) > 10
-                            }));
+                        const improvedMath = Math.abs(newDiff) < Math.abs(diff);
+                        const improvedCount = repairedItems.length > sec.items.length;
+
+                        // CRITICAL: Prioritize exhaustiveness (improvedCount) over perfect math
+                        // because the clinic might have summed it wrong.
+                        if (improvedMath || improvedCount) {
+                            const reason = improvedCount ?
+                                `Detectados ${repairedItems.length - sec.items.length} ítems adicionales.` :
+                                `Diferencia reducida de $${diff} a $${newDiff}.`;
+
+                            forensicLog(`✅ MEJORA en "${sec.category}": ${reason} Aplicando cambios.`);
+
+                            sec.items = repairedItems.map((item: any) => {
+                                const q = item.quantity || 1;
+                                const p = item.unitPrice || 0;
+                                const t = item.total || 0;
+
+                                // IVA Intelligence: Check if (Price * Qty) matches Total, OR if (Price * 1.19 * Qty) matches Total
+                                const simpleError = Math.abs((p * q) - t) > 10;
+                                const ivaError = Math.abs((p * 1.19 * q) - t) > 10;
+                                const hasRealCalcError = simpleError && ivaError;
+
+                                return {
+                                    ...item,
+                                    total: t,
+                                    unitPrice: p,
+                                    quantity: q,
+                                    hasCalculationError: hasRealCalcError,
+                                    isIVAApplied: simpleError && !ivaError // Meta flag useful for audit
+                                };
+                            });
                         } else {
-                            forensicLog(`❌ REPARACIÓN FALLIDA en "${sec.category}": La nueva suma ($${newSum}) no mejora el descuadre original.`);
+                            forensicLog(`❌ REPARACIÓN OMITIDA en "${sec.category}": No aumentó el detalle ni mejoró la cuadratura.`);
                         }
                     }
                 } catch (repairError) {

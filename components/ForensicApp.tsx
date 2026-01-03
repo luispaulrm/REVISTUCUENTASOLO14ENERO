@@ -12,10 +12,16 @@ import {
     Terminal,
     ChevronRight,
     Search,
-    CheckCircle2
+    CheckCircle2,
+    Timer,
+    X,
+    FileType,
+    FileJson,
+    DollarSign,
+    Zap
 } from 'lucide-react';
 import { runForensicAudit } from '../auditService';
-import { VERSION, LAST_MODIFIED } from '../version';
+import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
 
 export default function ForensicApp() {
     const [status, setStatus] = useState<'IDLE' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('IDLE');
@@ -23,16 +29,21 @@ export default function ForensicApp() {
     const [logs, setLogs] = useState<string[]>([]);
     const [auditResult, setAuditResult] = useState<any>(null);
 
+    // Telemetry State
+    const [progress, setProgress] = useState(0);
+    const [seconds, setSeconds] = useState(0);
+    const [realTimeUsage, setRealTimeUsage] = useState<any>(null);
+
     // Persisted Data State
     const [hasBill, setHasBill] = useState(false);
     const [hasPam, setHasPam] = useState(false);
     const [hasContract, setHasContract] = useState(false);
 
     const logEndRef = useRef<HTMLDivElement>(null);
+    const timerRef = useRef<number | null>(null);
 
     useEffect(() => {
         checkData();
-        // Listen for storage changes to update status if user processes docs in other tabs
         window.addEventListener('storage', checkData);
         return () => window.removeEventListener('storage', checkData);
     }, []);
@@ -42,6 +53,27 @@ export default function ForensicApp() {
             logEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [logs]);
+
+    useEffect(() => {
+        if (status === 'PROCESSING') {
+            if (!timerRef.current) {
+                setSeconds(0);
+                timerRef.current = window.setInterval(() => setSeconds(s => s + 1), 1000);
+            }
+        } else {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+            if (status === 'SUCCESS') setProgress(100);
+        }
+    }, [status]);
+
+    const formatTime = (totalSeconds: number) => {
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
 
     const checkData = () => {
         setHasBill(!!localStorage.getItem('clinic_audit_result'));
@@ -54,12 +86,13 @@ export default function ForensicApp() {
         setLogs(prev => [...prev, `[${timestamp}] ${msg}`]);
     };
 
-    const downloadJson = (data: any, filename: string) => {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const downloadFormat = (data: any, format: 'json' | 'md', filename: string) => {
+        const content = format === 'json' ? JSON.stringify(data, null, 2) : data.auditoriaFinalMarkdown;
+        const blob = new Blob([content], { type: format === 'json' ? 'application/json' : 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${filename}_${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `${filename}_${new Date().getTime()}.${format}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -71,6 +104,8 @@ export default function ForensicApp() {
         setError(null);
         setLogs([]);
         setAuditResult(null);
+        setProgress(0);
+        setRealTimeUsage(null);
 
         addLog('[SISTEMA] 🚀 Iniciando Auditoría Forense Consolidada...');
 
@@ -79,7 +114,15 @@ export default function ForensicApp() {
             const pam = JSON.parse(localStorage.getItem('pam_audit_result') || '{}');
             const contrato = JSON.parse(localStorage.getItem('contract_audit_result') || '{}');
 
-            const result = await runForensicAudit(cuenta, pam, contrato, addLog);
+            const result = await runForensicAudit(
+                cuenta,
+                pam,
+                contrato,
+                addLog,
+                (usage) => setRealTimeUsage(usage),
+                (prog) => setProgress(prog)
+            );
+
             setAuditResult(result);
             setStatus('SUCCESS');
         } catch (err: any) {
@@ -95,6 +138,8 @@ export default function ForensicApp() {
             setStatus('IDLE');
             setAuditResult(null);
             setLogs([]);
+            setRealTimeUsage(null);
+            setProgress(0);
         }
     };
 
@@ -110,8 +155,11 @@ export default function ForensicApp() {
                             <h1 className="text-lg font-bold text-slate-900 leading-none flex items-center gap-2">
                                 AUDITORÍA FORENSE
                                 <span className="text-[9px] bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 text-slate-500 font-mono">{VERSION}</span>
+                                <span className="text-xs text-slate-900 font-black ml-2 uppercase tracking-tight">Actualizado: {LAST_MODIFIED}</span>
                             </h1>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Cross-Validation Engine (v9)</p>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">
+                                {AI_MODEL} <span className="w-1 h-1 rounded-full bg-slate-300 inline-block mx-1"></span> Cross-Validation Engine (v9)
+                            </p>
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -130,7 +178,6 @@ export default function ForensicApp() {
             <main className="flex-grow max-w-[1800px] mx-auto w-full p-6 sm:p-10">
                 {status === 'IDLE' && (
                     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                        {/* Status Cards */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <DataStatusCard
                                 title="Cuenta Clínica"
@@ -185,48 +232,93 @@ export default function ForensicApp() {
                                 </button>
                             )}
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 opacity-60">
-                            <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Normativa Aplicada</h4>
-                                <ul className="text-xs space-y-2 text-slate-600 font-medium">
-                                    <li className="flex items-center gap-2"><div className="w-1 h-1 bg-slate-300 rounded-full" /> Circular IF-319 (Hotelería/Insumos)</li>
-                                    <li className="flex items-center gap-2"><div className="w-1 h-1 bg-slate-300 rounded-full" /> Dictamen SS N°12.287 (Evento Único)</li>
-                                    <li className="flex items-center gap-2"><div className="w-1 h-1 bg-slate-300 rounded-full" /> Ley 20.584 (Transparencia Médica)</li>
-                                </ul>
-                            </div>
-                            <div className="bg-white p-6 rounded-2xl border border-slate-200">
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">Objetivos Forenses</h4>
-                                <ul className="text-xs space-y-2 text-slate-600 font-medium">
-                                    <li className="flex items-center gap-2"><div className="w-1 h-1 bg-slate-300 rounded-full" /> Identificación de doble cobro</li>
-                                    <li className="flex items-center gap-2"><div className="w-1 h-1 bg-slate-300 rounded-full" /> Prorrateo determinístico de fámacos</li>
-                                    <li className="flex items-center gap-2"><div className="w-1 h-1 bg-slate-300 rounded-full" /> Validación de red preferente vs libre</li>
-                                </ul>
-                            </div>
-                        </div>
                     </div>
                 )}
 
                 {status === 'PROCESSING' && (
                     <div className="max-w-4xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
                         <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden h-[600px] flex flex-col relative">
-                            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                            <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                                 <div className="flex items-center gap-2">
                                     <Terminal size={16} className="text-slate-400" />
                                     <span className="text-xs font-bold uppercase tracking-widest text-slate-500">Forensic Engine Logs</span>
                                 </div>
-                                <Loader2 size={16} className="text-slate-400 animate-spin" />
+                                <div className="flex gap-2">
+                                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                                </div>
                             </div>
-                            <div className="p-6 h-full overflow-y-auto font-mono text-[11px] space-y-2 bg-white">
+                            <div className="p-6 h-full overflow-y-auto font-mono text-xs space-y-2 pb-20 bg-white custom-scrollbar">
                                 {logs.map((log, i) => (
-                                    <div key={i} className="flex gap-4 items-start py-1 border-l-2 border-transparent pl-3">
-                                        <span className="text-slate-600">{log}</span>
+                                    <div key={i} className="flex gap-4 items-start py-1.5 border-l-2 border-transparent hover:border-slate-300 hover:bg-slate-50 transition-colors pl-3 -ml-3">
+                                        <span className="opacity-40 w-24 shrink-0 text-right text-slate-400 font-bold text-[10px] pt-0.5 font-sans">
+                                            {log.match(/\[(.*?)\]/)?.[1] || ""}
+                                        </span>
+                                        <span className={`break-words flex-1 leading-relaxed ${log.includes('[SISTEMA]') ? 'text-slate-400 italic' : 'text-slate-600'}`}>
+                                            {log.replace(/^\[.*?\]/, '').trim()}
+                                        </span>
                                     </div>
                                 ))}
                                 <div ref={logEndRef} />
                             </div>
                             <div className="p-6 bg-slate-50 border-t border-slate-100 text-center">
                                 <p className="text-xs font-bold text-slate-400 uppercase animate-pulse">Analizando jurisprudencia y cruzando datos...</p>
+                            </div>
+                        </div>
+
+                        {/* SPACE X FOOTER for Forensic */}
+                        <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb">
+                            <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
+                                <div className="flex items-center gap-4 border-r border-slate-800 pr-8 h-full">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Time</span>
+                                        <div className="font-mono text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                                            <Timer size={18} className="text-slate-500" />
+                                            T+{formatTime(seconds)}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 px-8 border-r border-slate-800 h-full min-w-[200px]">
+                                    <div className="relative w-12 h-12">
+                                        <svg className="w-full h-full transform -rotate-90">
+                                            <circle cx="24" cy="24" r="20" className="text-slate-800 stroke-current" strokeWidth="4" fill="transparent" />
+                                            <circle cx="24" cy="24" r="20" className="text-white stroke-current" strokeWidth="4" fill="transparent"
+                                                strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * progress) / 100} strokeLinecap="round" />
+                                        </svg>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="text-[10px] font-bold font-mono text-white">{Math.round(progress)}%</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
+                                        <span className="text-xs font-bold text-slate-300">Audit Mode</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-8 px-8 flex-1 justify-center h-full">
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Payload</span>
+                                        <span className="font-mono text-sm font-bold text-slate-300">
+                                            {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                        </span>
+                                    </div>
+                                    <div className="w-px h-8 bg-slate-800"></div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Est. Cost</span>
+                                        <span className="font-mono text-sm font-bold text-white tracking-tight">
+                                            ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'} CLP
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-6 pl-8 border-l border-slate-800 h-full">
+                                    <button
+                                        onClick={() => window.location.reload()}
+                                        className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
+                                        title="STOP ANALYSIS"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -246,74 +338,81 @@ export default function ForensicApp() {
                 {status === 'SUCCESS' && auditResult && (
                     <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
                         <div className="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm space-y-10">
-                            {/* Summary Header */}
                             <div className="flex flex-col md:flex-row justify-between items-start gap-8 border-b border-slate-100 pb-10">
-                                <div className="space-y-2">
+                                <div className="space-y-4 max-w-2xl">
                                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-100 text-[10px] font-black uppercase tracking-wider">
                                         <CheckCircle2 size={12} /> Análisis Forense Completado
                                     </div>
                                     <h2 className="text-4xl font-black text-slate-900 tracking-tighter">Resultados de la Auditoría</h2>
-                                    <p className="text-slate-500 font-medium">Motivo: {auditResult.motivo}</p>
+                                    <p className="text-slate-600 font-medium leading-relaxed">{auditResult.resumenEjecutivo}</p>
                                 </div>
-                                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 min-w-[250px]">
-                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Decisión del Motor</p>
-                                    <div className="text-2xl font-black text-slate-900 uppercase">
-                                        {auditResult.decision.replace('_', ' ')}
+                                <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 min-w-[250px] text-white">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Ahorro Detectado</p>
+                                    <div className="text-3xl font-black text-emerald-400">
+                                        ${auditResult.totalAhorroDetectado.toLocaleString('es-CL')}
                                     </div>
                                     {auditResult.requiereRevisionHumana && (
-                                        <div className="mt-2 text-[10px] font-bold text-amber-600 flex items-center gap-1.5 bg-amber-50 px-2 py-1 rounded">
+                                        <div className="mt-4 text-[10px] font-bold text-amber-400 flex items-center gap-1.5 bg-amber-950/50 px-2 py-1 rounded border border-amber-900">
                                             <AlertCircle size={12} /> REQUIERE REVISIÓN HUMANA
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            {/* Key Changes / Findings */}
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <ChevronRight size={16} className="text-slate-900" /> Hallazgos Críticos ({auditResult.cambiosClave.length})
+                                    <ChevronRight size={16} className="text-slate-900" /> Hallazgos y Objeciones ({auditResult.hallazgos.length})
                                 </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {auditResult.cambiosClave.map((cambio: any, idx: number) => (
-                                        <div key={idx} className="p-4 bg-slate-50 rounded-2xl border border-slate-200 border-l-4 border-l-slate-900">
-                                            <div className="text-[10px] font-black text-slate-400 uppercase mb-1">{cambio.codigoPrestacion} - {cambio.tipoCambio}</div>
-                                            <p className="text-sm text-slate-700 font-medium leading-relaxed">{cambio.detalle}</p>
+                                <div className="grid grid-cols-1 gap-4">
+                                    {auditResult.hallazgos.map((hallazgo: any, idx: number) => (
+                                        <div key={idx} className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-400 transition-all shadow-sm group">
+                                            <div className="flex flex-col md:flex-row justify-between gap-4 mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <span className="px-2 py-1 bg-slate-900 text-white rounded text-[10px] font-mono font-bold">{hallazgo.codigos}</span>
+                                                    <h4 className="font-bold text-slate-900">{hallazgo.glosa}</h4>
+                                                </div>
+                                                <div className="text-rose-600 font-black text-lg">
+                                                    -${hallazgo.montoObjetado.toLocaleString('es-CL')}
+                                                </div>
+                                            </div>
+                                            <p className="text-sm text-slate-600 mb-4 leading-relaxed whitespace-pre-wrap">{hallazgo.hallazgo}</p>
+                                            <div className="flex flex-wrap items-center gap-4 text-[10px] font-bold uppercase tracking-tight text-slate-400">
+                                                <span className="flex items-center gap-1.5 text-slate-900 bg-slate-100 px-2 py-1 rounded">
+                                                    <Scale size={12} /> {hallazgo.normaFundamento}
+                                                </span>
+                                                <span className="flex items-center gap-1.5">
+                                                    <Search size={12} /> {hallazgo.anclajeJson}
+                                                </span>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
 
-                            {/* Report Markdown Rendering */}
-                            <div className="bg-slate-900 text-slate-100 p-1 md:p-10 rounded-3xl overflow-hidden shadow-2xl">
-                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-8 border-b border-slate-800 pb-4">Informe Completo (Markdown format)</h4>
-                                <div className="prose prose-invert prose-slate max-w-none whitespace-pre-wrap font-mono text-xs leading-loose">
+                            <div className="bg-slate-950 text-slate-100 p-8 md:p-12 rounded-3xl overflow-hidden shadow-2xl relative">
+                                <div className="absolute top-0 right-0 p-8 opacity-10">
+                                    <FileText size={120} />
+                                </div>
+                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] mb-8 border-b border-slate-800 pb-4 flex items-center gap-2">
+                                    <FileType size={14} /> Informe Formal del Auditor
+                                </h4>
+                                <div className="prose prose-invert prose-slate max-w-none whitespace-pre-wrap font-mono text-[11px] leading-relaxed">
                                     {auditResult.auditoriaFinalMarkdown}
                                 </div>
                             </div>
 
                             <div className="flex justify-center flex-wrap gap-4 pt-4 print:hidden">
-                                <button onClick={() => window.print()} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-black transition-all shadow-lg">
+                                <button onClick={() => window.print()} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-black transition-all shadow-lg active:scale-95">
                                     <Printer size={20} /> IMPRIMIR INFORME
                                 </button>
-                                <button
-                                    onClick={() => downloadJson(auditResult, 'informe_forense')}
-                                    className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg"
-                                >
-                                    <Download size={20} /> EXPORTAR JSON (INFORME)
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        const raw = {
-                                            cuenta: JSON.parse(localStorage.getItem('clinic_audit_result') || '{}'),
-                                            pam: JSON.parse(localStorage.getItem('pam_audit_result') || '{}'),
-                                            contrato: JSON.parse(localStorage.getItem('contract_audit_result') || '{}')
-                                        };
-                                        downloadJson(raw, 'raw_data_consolidada');
-                                    }}
-                                    className="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm"
-                                >
-                                    <FileText size={20} /> DESCARGAR DATA ORIGINAL
-                                </button>
+                                <div className="flex gap-2">
+                                    <button onClick={() => downloadFormat(auditResult, 'json', 'audit_forense')} className="px-6 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+                                        <FileJson size={18} /> JSON
+                                    </button>
+                                    <button onClick={() => downloadFormat(auditResult, 'md', 'audit_forense')} className="px-6 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2 hover:bg-slate-50 transition-all shadow-sm">
+                                        <FileType size={18} /> MD
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
