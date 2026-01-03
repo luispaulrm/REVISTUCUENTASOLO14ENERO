@@ -152,8 +152,6 @@ export async function analyzeSingleContract(
     const startTime = Date.now();
     const {
         maxOutputTokens = 40000,
-        ocrMaxPages = CONTRACT_OCR_MAX_PAGES,
-        modelName = CONTRACT_REASONING_MODEL,
     } = options;
 
     const log = (m: string) => {
@@ -162,191 +160,137 @@ export async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine v4.1] 🛡️ MOTOR ${AI_CONFIG.MODEL_LABEL.toUpperCase()} ESTABLE`);
+    log(`[ContractEngine v5.0] 🛡️ MOTOR ${AI_CONFIG.MODEL_LABEL.toUpperCase()} STREAMING`);
     log(`[ContractEngine] 📄 Modelo: ${AI_CONFIG.ACTIVE_MODEL}`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const filePart = fileToGenerativePart(file);
-
-    // FASE 1: OCR
-    const { text: extractedText, totalPages } = await extractTextFromPdf(file, ocrMaxPages, log);
-
-    // FASE 2: AI (Using System Instruction for performance)
-    log(`[ContractEngine] ⚡ Solicitando auditoría forense ${AI_CONFIG.MODEL_LABEL}...`);
-    log(`[ContractEngine] ⏳ RAZONANDO: Espere mientras el modelo ${AI_CONFIG.MODEL_LABEL} aplica las reglas forenses.`);
-
     const model = genAI.getGenerativeModel({
         model: AI_CONFIG.ACTIVE_MODEL,
-        systemInstruction: CONTRACT_ANALYSIS_PROMPT,
         generationConfig: { maxOutputTokens, temperature: 0 },
         safetySettings: SAFETY_SETTINGS,
-    }, {
-        timeout: 180000 // 3 minutes timeout to prevent infinite hangs
     });
 
-    const userPrompt = `
-    [DOCUMENTO A ANALIZAR]
-    METADATOS VERIFICADOS: El documento original contiene ${totalPages} páginas.
-    INSTRUCCIÓN DE COBERTURA: Usted DEBE procesar y extraer información hasta la PÁGINA ${totalPages}.
-    
-    Use el documento adjunto para el análisis forense estructurado.
-    
-    [MANDATO FINAL]
-    Siga estrictamente el mandato de exhaustividad del sistema y genere el JSON final.
-    Confirme explícitamente haber revisado hasta la página ${totalPages}.
-    `;
+    log('[ContractEngine] 🚀 Iniciando flujo de extracción jerárquica...');
 
-    const contents = [
+    const resultStream = await model.generateContentStream([
+        { text: CONTRACT_ANALYSIS_PROMPT },
         {
-            role: 'user',
-            parts: [
-                filePart,
-                { text: userPrompt }
-            ]
-        }
-    ];
-
-    let sessionActive = true;
-    let secondsSinceStar = 0;
-    let chunksReceived = 0;
-
-    // Estimate input tokens to save a heavy API call (approx 4000 per page for contracts)
-    const inputTokens = totalPages * 4000;
-    log(`[ContractEngine] 🔢 Tokens de Entrada (Est.): ${inputTokens}`);
-
-    log('[ContractEngine] 🚀 Iniciando stream con Auto-Retry...');
-    let fullText = '';
-    const MAX_RETRIES = CONTRACT_DEFAULT_RETRIES;
-    let currentModelName = AI_CONFIG.ACTIVE_MODEL;
-
-    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-        // Init model inside loop or update it if needed. 
-        // Since we might switch models, let's re-instantiate if it's the fallback attempt.
-        if (attempt > 1 && currentModelName !== CONTRACT_FALLBACK_MODEL) {
-            log(`[ContractEngine] ⚠️ Detectado fallo en modelo primario. Cambiando a FALLBACK: ${CONTRACT_FALLBACK_MODEL}`);
-            currentModelName = CONTRACT_FALLBACK_MODEL;
-        }
-
-        const model = genAI.getGenerativeModel({
-            model: currentModelName,
-            systemInstruction: CONTRACT_ANALYSIS_PROMPT,
-            generationConfig: { maxOutputTokens, temperature: 0 },
-            safetySettings: SAFETY_SETTINGS,
-        }, {
-            timeout: 180000
-        });
-
-        try {
-            if (attempt > 1) {
-                log(`[ContractEngine] 🔄 Reintentando (Intento ${attempt}/${MAX_RETRIES}) con modelo: ${currentModelName}...`);
+            inlineData: {
+                data: file.buffer.toString('base64'),
+                mimeType: file.mimetype
             }
+        }
+    ]);
 
-            // Wrap stream connection in a race with a timeout
-            const streamPromise = model.generateContentStream({ contents });
-            // Silence potential unhandled rejection if stream fails after timeout wins
-            streamPromise.catch(() => { });
+    let fullText = "";
+    let reglas: any[] = [];
+    let coberturas: any[] = [];
+    let diseno_ux: any = {
+        nombre_isapre: "N/A",
+        titulo_plan: "N/A",
+        layout: "forensic_report_v2",
+        funcionalidad: "contract_streaming_v5",
+        salida_json: "hierarchical_parsed"
+    };
 
-            const timeoutPromise = new Promise<any>((_, reject) =>
-                setTimeout(() => reject(new Error('Timeout connecting to stream (90s)')), 90000)
-            );
+    let currentSection = "";
 
-            log('[ContractEngine] ⏳ Intentando conectar stream (Timeout 90s)...');
-            const streamResult = await Promise.race([streamPromise, timeoutPromise]);
-            log('[ContractEngine] 📡 Stream conectado. Esperando primer chunk...');
+    const robustSplit = (line: string): string[] => {
+        let trimmed = line.trim();
+        if (trimmed.startsWith('|')) trimmed = trimmed.substring(1);
+        if (trimmed.endsWith('|')) trimmed = trimmed.substring(0, trimmed.length - 1);
+        return trimmed.split('|').map(c => c.trim());
+    };
 
-            for await (const chunk of streamResult.stream) {
-                const chunkText = chunk.text();
-                fullText += chunkText;
-                chunksReceived++;
+    for await (const chunk of resultStream.stream) {
+        const chunkText = chunk.text();
+        fullText += chunkText;
+        onLog?.(chunkText); // Stream text to UI logs
 
-                // Always log first chunk to confirm aliveness
-                if (chunksReceived === 1) {
-                    log('[ContractEngine] 🐣 Primer chunk recibido!');
-                }
+        // Usage metrics if available
+        const usage = chunk.usageMetadata;
+        if (usage) {
+            const promptTokens = usage.promptTokenCount || 0;
+            const candidatesTokens = usage.candidatesTokenCount || 0;
+            const totalTokens = usage.totalTokenCount || 0;
+            const priceData = calculatePrice(promptTokens, candidatesTokens);
 
-                // Emitting Real-Time Metrics every ~2 seconds (assuming chunks come fast)
-                if (chunksReceived % 2 === 0) {
-                    log(`[ContractEngine] 📡 CONEXIÓN ACTIVA: DESCARGANDO (${chunksReceived} chunks)`);
+            log(`@@METRICS@@${JSON.stringify({
+                input: promptTokens,
+                output: candidatesTokens,
+                cost: priceData.costCLP
+            })}`);
+        }
+    }
 
-                    // Calculate real-time metrics
-                    const currentOutputTokens = Math.ceil(fullText.length / 4);
-                    const currentCost = calculatePrice(inputTokens, currentOutputTokens).costCLP;
+    log(`\n[Process] Parsing ${fullText.length} characters...`);
+    const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
 
-                    // Special log format for endpoint interception
-                    log(`@@METRICS@@${JSON.stringify({
-                        input: inputTokens,
-                        output: currentOutputTokens,
-                        cost: currentCost
-                    })}`);
-                }
-            }
+    for (const line of lines) {
+        if (line.startsWith('ISAPRE:')) {
+            diseno_ux.nombre_isapre = line.replace('ISAPRE:', '').trim();
+            continue;
+        }
+        if (line.startsWith('PLAN:')) {
+            diseno_ux.titulo_plan = line.replace('PLAN:', '').trim();
+            continue;
+        }
+        if (line.startsWith('SUBTITULO:')) {
+            diseno_ux.subtitulo_plan = line.replace('SUBTITULO:', '').trim();
+            continue;
+        }
+        if (line.startsWith('SECTION:')) {
+            currentSection = line.replace('SECTION:', '').trim().toUpperCase();
+            continue;
+        }
 
-            // If success, break loop
-            break;
-
-        } catch (streamError: any) {
-            const isAbort = streamError.message.includes('aborted') ||
-                streamError.name === 'AbortError' ||
-                streamError.message.includes('AbortError') ||
-                streamError.message.includes('Timeout') ||
-                streamError.message.includes('Error reading from the stream') ||
-                streamError.message.includes('GoogleGenerativeAI Error');
-
-            if (isAbort && attempt < MAX_RETRIES) {
-                log(`[ContractEngine] ⚠️ Timeout detectado en intento ${attempt}. Reintentando automáticamente en 2s...`);
-                // Reset for retry
-                fullText = '';
-                chunksReceived = 0;
-                await new Promise(r => setTimeout(r, 2000));
-                continue;
-            } else {
-                log(`[ContractEngine] ❌ Error CRÍTICO en stream (Intento ${attempt}): ${streamError.message}`);
-                throw streamError;
+        if (line.includes('|')) {
+            const parts = robustSplit(line);
+            if (currentSection === "REGLAS" && parts.length >= 4) {
+                reglas.push({
+                    'PÁGINA ORIGEN': parts[0],
+                    'CÓDIGO/SECCIÓN': parts[1],
+                    'SUBCATEGORÍA': parts[2],
+                    'VALOR EXTRACTO LITERAL DETALLADO': parts[3]
+                });
+            } else if (currentSection === "COBERTURAS" && parts.length >= 7) {
+                coberturas.push({
+                    'PRESTACIÓN CLAVE': parts[0],
+                    'MODALIDAD/RED': parts[1],
+                    '% BONIFICACIÓN': parts[2],
+                    'COPAGO FIJO': parts[3],
+                    'TOPE LOCAL 1 (VAM/EVENTO)': parts[4],
+                    'TOPE LOCAL 2 (ANUAL/UF)': parts[5],
+                    'RESTRICCIÓN Y CONDICIONAMIENTO': parts[6],
+                    'ANCLAJES': []
+                });
             }
         }
     }
 
-    log(`[ContractEngine] ✅ Recepción completa.`);
-    log(`[ContractEngine] 🔧 Validando estructura final...`);
-
-    let parsedResult: any;
-    try {
-        parsedResult = safeJsonParse(fullText);
-    } catch (parseError) {
-        log(`[ContractEngine] ⚠️ Estructura rota. Intentando reparación...`);
-        const repairedJson = await repairJsonWithGemini(genAI, CONTRACT_ANALYSIS_SCHEMA, fullText, log);
-        parsedResult = safeJsonParse(repairedJson);
-    }
-
-    if (!parsedResult || (!parsedResult.reglas && !parsedResult.coberturas)) {
-        throw new Error('Respuesta del modelo incompleta o estructura inválida.');
-    }
-
-    log(`[ContractEngine] ✅ Auditoría estructurada correctamente.`);
-
-    // Estimate output tokens since streaming doesn't give it directly in all versions, or use usageMetadata if available
-    const outputTokens = Math.ceil(fullText.length / 4); // Rough approximation if usageMetadata missing
-    const totalTokens = inputTokens + outputTokens;
+    const outputTokens = Math.ceil(fullText.length / 4);
+    // Note: real prompt tokens would be better from usageMetadata, but let's provide a fallback
+    const inputTokens = Math.ceil(CONTRACT_ANALYSIS_PROMPT.length / 4) + 10000;
     const priceData = calculatePrice(inputTokens, outputTokens);
-    log(`[ContractEngine] 📊 Resumen: ${totalTokens} tokens | Costo Est: $${priceData.costCLP} CLP`);
-    log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     const result: ContractAnalysisResult = {
-        ...parsedResult,
+        reglas,
+        coberturas,
+        diseno_ux,
         metrics: {
             executionTimeMs: Date.now() - startTime,
             tokenUsage: {
                 input: inputTokens,
                 output: outputTokens,
-                total: totalTokens,
+                total: inputTokens + outputTokens,
                 costClp: priceData.costCLP
             }
         }
     };
 
-    log(`[ContractEngine] ✅ ÉXITO EN ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
+    log(`[ContractEngine] ✅ ÉXITO: Extraídas ${reglas.length} reglas y ${coberturas.length} coberturas.`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
     return result;
