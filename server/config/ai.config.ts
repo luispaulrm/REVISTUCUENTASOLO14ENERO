@@ -1,15 +1,17 @@
 export const AI_CONFIG = {
     // SINGLE SOURCE OF TRUTH FOR THE AI MODEL
     ACTIVE_MODEL: 'gemini-3-flash-preview',
+    FALLBACK_MODEL: 'gemini-2.5-flash',
 
     // PRICING (USD per 1 Million Tokens) - Updated for Flash 3
     PRICING: {
         'gemini-3-flash-preview': { input: 0.50, output: 3.00 },
+        'gemini-2.5-flash': { input: 0.10, output: 0.40 }, // Estimated Lower Cost
         'gemini-3-pro-preview': { input: 2.00, output: 12.00 } // Keep for reference
     },
 
     // UI LABEL
-    MODEL_LABEL: 'Gemini 3 Flash'
+    MODEL_LABEL: 'Gemini 3 Flash (w/ 2.5 Fallback)'
 };
 
 export function getActivePricing() {

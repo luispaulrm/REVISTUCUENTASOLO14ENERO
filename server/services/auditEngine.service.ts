@@ -15,15 +15,11 @@ export async function performForensicAudit(
     apiKey: string,
     log: (msg: string) => void
 ) {
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-        model: AI_CONFIG.ACTIVE_MODEL,
-        generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: FORENSIC_AUDIT_SCHEMA as any
-        }
-    });
+    const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
+    let result;
+    let lastError;
 
+    // --- RESTORING LOGIC FOR KNOWLEDGE BASE AND PROMPT ---
     log('[AuditEngine] 📚 Cargando base de conocimiento legal extendida...');
 
     // Read all files in knowledge directory
@@ -35,20 +31,18 @@ export async function performForensicAudit(
         const filePath = path.join(KNOWLEDGE_DIR, file);
         const ext = path.extname(file).toLowerCase();
 
-        // ONLY LOAD .TXT FILES AS REQUESTED BY USER
-        // This ignores PDFs and explicitly ignores .md (unless desired, but user said "forget pdfs, only txt")
-        // Actually user said "solo lee los txt... olvida los pdf".
-        // Current code also loaded .md. I will restrict to ONLY .txt per specific request.
-        if (ext === '.txt') {
+        // USER REQUEST: ONLY USE 'Prácticas Irregulares' to save tokens.
+        // We use the .txt version of the document.
+        const isTargetDoc = file === 'Informe sobre Prácticas Irregulares en Cuentas Hospitalarias y Clínicas.txt';
+
+        if (ext === '.txt' && isTargetDoc) {
             const content = await fs.readFile(filePath, 'utf-8');
             knowledgeBaseText += `\n\n--- DOCUMENTO: ${file} ---\n${content}`;
-            log(`[AuditEngine] 📑 Cargado: ${file}`);
+            log(`[AuditEngine] 📑 Cargado (Exclusivo): ${file}`);
         } else if (file === 'hoteleria_sis.json') {
             const content = await fs.readFile(filePath, 'utf-8');
             hoteleriaRules = content;
             log(`[AuditEngine] 🏨 Cargadas reglas de hotelería (IF-319)`);
-        } else {
-            // Ignoring everything else explicitly
         }
     }
 
@@ -63,10 +57,48 @@ export async function performForensicAudit(
         .replace('{cuenta_json}', JSON.stringify(cuentaJson, null, 2))
         .replace('{pam_json}', JSON.stringify(pamJson, null, 2))
         .replace('{contrato_json}', JSON.stringify(contratoJson, null, 2));
+    // -----------------------------------------------------
+
+    for (const modelName of modelsToTry) {
+        if (!modelName) continue;
+
+        try {
+            log(`[AuditEngine] 🛡️ Strategy: Intentando con modelo ${modelName}...`);
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({
+                model: modelName,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: FORENSIC_AUDIT_SCHEMA as any
+                }
+            });
+
+            log('[AuditEngine] 📡 Enviando consulta a Gemini...');
+            result = await model.generateContent(prompt);
+            log(`[AuditEngine] ✅ Éxito con modelo ${modelName}`);
+            break;
+
+        } catch (error: any) {
+            lastError = error;
+            const errStr = (error?.toString() || "") + (error?.message || "");
+            const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || error?.status === 429 || error?.status === 503;
+
+            if (isQuota) {
+                log(`[AuditEngine] ⚠️ Fallo en ${modelName} por Quota/Server (${error.message}). Probando siguiente...`);
+                continue;
+            } else {
+                log(`[AuditEngine] ❌ Error no recuperable en ${modelName}: ${error.message}`);
+                throw error; // Si no es quota, fallamos inmediatamente
+            }
+        }
+    }
+
+    if (!result) {
+        log(`[AuditEngine] ❌ Todos los modelos fallaron.`);
+        throw lastError || new Error("Forensic Audit failed on all models.");
+    }
 
     try {
-        log('[AuditEngine] 📡 Enviando consulta a Gemini 3 Flash...');
-        const result = await model.generateContent(prompt);
         const responseText = result.response.text();
         const auditResult = JSON.parse(responseText);
 

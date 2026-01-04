@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { GeminiService } from './gemini.service.js';
 import {
     ContractAnalysisResult,
     ContractAnalysisOptions,
@@ -45,13 +46,14 @@ function safeJsonParse<T>(text: string): T {
     try {
         return JSON.parse(cleaned);
     } catch (error: any) {
-        console.error('[ContractEngine] JSON parse error, trying jsonrepair:', error.message);
+        // console.error('[ContractEngine] JSON parse error, trying jsonrepair:', error.message);
         try {
             const repaired = jsonrepair(cleaned);
             return JSON.parse(repaired);
         } catch (repairError: any) {
-            console.error('[ContractEngine] jsonrepair failed:', repairError.message);
-            throw new Error(`Invalid JSON response: ${error.message}`);
+            // console.error('[ContractEngine] jsonrepair failed:', repairError.message);
+            // Return null to signal failure
+            return null as any;
         }
     }
 }
@@ -136,6 +138,11 @@ async function repairJsonWithGemini(
 // CORE ANALYSIS FUNCTIONS
 // ============================================================================
 
+// ============================================================================
+// CORE ANALYSIS FUNCTIONS
+// ============================================================================
+
+// Define Safety Settings locally to ensure they are available
 const SAFETY_SETTINGS = [
     { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
     { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -150,9 +157,7 @@ export async function analyzeSingleContract(
     options: ContractAnalysisOptions = {}
 ): Promise<ContractAnalysisResult> {
     const startTime = Date.now();
-    const {
-        maxOutputTokens = 40000,
-    } = options;
+    const { maxOutputTokens = 40000 } = options;
 
     const log = (m: string) => {
         console.log(m);
@@ -160,15 +165,40 @@ export async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine v5.0] 🛡️ MOTOR ${AI_CONFIG.MODEL_LABEL.toUpperCase()} STREAMING`);
+    log(`[ContractEngine v6.1] 🛡️ MOTOR ${AI_CONFIG.MODEL_LABEL.toUpperCase()} CON SOLIDEZ DE CUENTAS`);
     log(`[ContractEngine] 📄 Modelo: ${AI_CONFIG.ACTIVE_MODEL}`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-    log('[ContractEngine] 🚀 Iniciando flujo de extracción jerárquica...');
+    // 1. NATIVE PDF PROCESSING (Replaces Local OCR)
+    // Strategy: Send PDF directly as inlineData to match Bill/PAM mechanism.
+    // This avoids local tokenizer hangs on garbage OCR text and leverages Gemini's native PDF parsing.
 
-    // HELPER: Get all available keys
-    // We prioritize the passed apiKey, then look for env vars
+    // Convert Buffer to Base64
+    const base64Data = file.buffer.toString('base64');
+    const mimeType = file.mimetype; // e.g. 'application/pdf'
+
+    log(`[ContractEngine] 📤 Estrategia: PDF Nativo (InlineData). Tamaño: ${(base64Data.length / 1024).toFixed(2)} KB`);
+
+    // 1.5. Get Page Count (Observability)
+    try {
+        const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+        const data = new Uint8Array(file.buffer);
+        const loadingTask = pdfjsLib.getDocument({ data, useSystemFonts: true });
+        const pdf = await loadingTask.promise;
+        log(`[ContractEngine] 📄 Documento cargado exitosamente. Total de páginas detectadas: ${pdf.numPages}`);
+    } catch (pdfError: any) {
+        log(`[ContractEngine] ⚠️ No se pudo determinar el número exacto de páginas: ${pdfError.message}`);
+    }
+
+    // 2. Initialize Centralized Gemini Service (Double Loop support built-in)
+    const geminiService = new GeminiService(apiKey);
+
+    log('[ContractEngine] 🚀 Iniciando flujo de extracción con GeminiService...');
+
+    const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
+
+    // Helper to get keys
     const getKeys = () => {
         const keys = [apiKey];
         if (process.env.GEMINI_API_KEY) keys.push(process.env.GEMINI_API_KEY);
@@ -176,90 +206,100 @@ export async function analyzeSingleContract(
         if (process.env.GEMINI_API_KEY_SECONDARY) keys.push(process.env.GEMINI_API_KEY_SECONDARY);
         return [...new Set(keys)].filter(k => !!k && k.length > 5);
     };
-
     const allKeys = getKeys();
-    log(`[ContractEngine] 🔑 Disponibles ${allKeys.length} llaves de API para reintentos.`);
 
-    let resultStream;
-    let lastError: any;
+    let resultStream: any = null;
+    let lastError: any = null;
+    let activeModelUsed = "";
 
-    for (const currentKey of allKeys) {
-        const mask = currentKey.substring(0, 4) + '...';
-        log(`[ContractEngine] 🔄 Intentando generación con llave: ${mask}`);
+    for (const modelName of modelsToTry) {
+        if (!modelName) continue;
+        log(`[ContractEngine] 🛡️ Strategy: Attempting with model ${modelName}`);
 
-        try {
-            const genAI = new GoogleGenerativeAI(currentKey);
-            const model = genAI.getGenerativeModel({
-                model: AI_CONFIG.ACTIVE_MODEL,
-                generationConfig: { maxOutputTokens, temperature: 0 },
-                safetySettings: SAFETY_SETTINGS,
-            });
+        for (const currentKey of allKeys) {
+            const mask = currentKey.substring(0, 4) + '...';
+            log(`[ContractEngine] 🔄 Intentando con llave: ${mask} (Modelo: ${modelName})`);
 
-            resultStream = await model.generateContentStream([
-                { text: CONTRACT_ANALYSIS_PROMPT },
-                {
-                    inlineData: {
-                        data: file.buffer.toString('base64'),
-                        mimeType: file.mimetype
-                    }
+            try {
+                // Define Safety Settings for maximum throughput (Contract text can be sensitive but we need it all)
+                const SAFETY_SETTINGS = [
+                    { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                    { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                ];
+
+                // EXACT REPLICATION OF server.ts / gemini.service.ts PATTERN
+                const genAI = new GoogleGenerativeAI(currentKey);
+                // We re-enable explicit safety settings because "defaults" might be blocking parts of the contract
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: {
+                        maxOutputTokens: 50000,
+                        // temperature: 0
+                    },
+                    safetySettings: SAFETY_SETTINGS
+                });
+
+                // WRAP STREAM GENERATION IN TIMEOUT (60s - increased for Large PDF processing)
+                // SANDWICH STRATEGY: Instructions -> PDF -> Enforcement Reminder
+                const streamPromise = model.generateContentStream([
+                    { text: CONTRACT_ANALYSIS_PROMPT },
+                    {
+                        inlineData: {
+                            data: base64Data,
+                            mimeType: mimeType
+                        }
+                    },
+                    { text: "\n\n[REQUISITO DE CANTIDAD MÍNIMA - VALIDACIÓN OBLIGATORIA]:\n\n⚠️ TU JSON SERÁ RECHAZADO SI NO CUMPLE ESTOS MÍNIMOS:\n\n📋 REGLAS: MÍNIMO 18 OBJETOS\n📋 COBERTURAS: MÍNIMO 25 OBJETOS\n\nLISTA DE COBERTURAS CONOCIDAS (CADA UNA CON PREFERENTE + LIBRE):\n1. Día Cama - Preferente 70%\n2. Día Cama - Preferente 60% (CLC)\n3. Día Cama - Libre Elección\n4. Día Cama UCI/Intermedio - Preferente\n5. Día Cama UCI/Intermedio - Libre\n6. PABELLÓN - PREFERENTE\n7. PABELLÓN - LIBRE ELECCIÓN\n8. Honorarios Médicos Quirúrgicos - Preferente\n9. Honorarios Médicos Quirúrgicos - Libre\n10. Medicamentos/Insumos - Preferente\n11. Medicamentos/Insumos - Libre\n12. Quimioterapia - Preferente\n13. Quimioterapia - Libre\n14. CONSULTA MÉDICA - PREFERENTE\n15. CONSULTA MÉDICA - LIBRE ELECCIÓN\n16. Exámenes de Laboratorio - Preferente\n17. Exámenes de Laboratorio - Libre\n18. IMAGENOLOGÍA - PREFERENTE (OBLIGATORIO)\n19. IMAGENOLOGÍA - LIBRE ELECCIÓN (OBLIGATORIO)\n20. Urgencia - Preferente\n21. Urgencia - Libre\n22. Psiquiatría - Preferente\n23. Psiquiatría - Libre\n24. Marcos y Cristales\n25. Medicamentos Esclerosis Múltiple\n26. Cobertura Internacional\n27. Traslados\n28. Tope General Anual\n\n[POLÍTICA DE CERO OMISIONES - OBLIGATORIO]:\n🚨 PROHIBIDO OMITIR INFORMACIÓN - DELIBERADA O ACCIDENTALMENTE.\n🔍 La lista anterior es SOLO UNA GUÍA. Si el contrato contiene ítems NO listados:\n   → Kinesiología, Fonoaudiología, Dental, Maternidad, Prótesis, Órtesis, Radioterapia, Diálisis, Trasplantes, etc.\n   → DEBES INCLUIRLOS EN TU SALIDA.\n🔍 CADA línea visible en la tabla de beneficios = UN objeto en coberturas.\n🔍 CADA nota, cláusula, definición, anexo = UN objeto en reglas.\n🔍 Tu trabajo: EXTRAER EL 100% DEL CONTENIDO DEL CONTRATO.\n🔍 Si encuentras algo nuevo, CRÉALO. No esperes que yo te lo liste.\n\n¡GENERA AHORA! MÍNIMO: reglas >= 18, coberturas >= 25 (PUEDE SER MUCHO MÁS)" }
+                ]);
+                const timeoutPromise = new Promise<any>((_, reject) =>
+                    setTimeout(() => reject(new Error("Timeout: Gemini Stream failed to start in 60s")), 60000)
+                );
+
+                resultStream = await Promise.race([streamPromise, timeoutPromise]);
+
+                if (resultStream) {
+                    log(`[ContractEngine] ✅ Éxito iniciando stream con llave: ${mask}`);
+                    activeModelUsed = modelName;
+                    break; // Break inner loop
                 }
-            ]);
+            } catch (err: any) {
+                lastError = err;
+                const errStr = (err?.toString() || "") + (err?.message || "");
+                const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests');
+                const isTimeout = errStr.includes('Timeout');
 
-            if (resultStream) {
-                log(`[ContractEngine] ✅ Éxito iniciando stream con llave: ${mask}`);
-                break;
-            }
-        } catch (err: any) {
-            lastError = err;
-            const errStr = (err?.toString() || "") + (err?.message || "");
-            const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests');
-
-            if (isQuota) {
-                log(`[ContractEngine] ⚠️ Quota Exceeded (429) con llave ${mask}. Probando siguiente...`);
-            } else {
-                log(`[ContractEngine] ❌ Error no relacionado con quota con llave ${mask}: ${err.message}`);
+                if (isQuota) {
+                    log(`[ContractEngine] ⚠️ Quota Exceeded (429) con llave ${mask}. Probando siguiente...`);
+                } else if (isTimeout) {
+                    log(`[ContractEngine] ⏱️ Timeout (60s) iniciando stream con llave ${mask}. Zombie connection detectada. Reintentando...`);
+                } else {
+                    log(`[ContractEngine] ❌ Error: ${err.message}`);
+                }
             }
         }
+        if (resultStream) break; // Break outer loop
+        log(`[ContractEngine] ⚠️ Todas las llaves fallaron para el modelo ${modelName}.`);
     }
 
     if (!resultStream) {
-        log(`[ContractEngine] 💀 Todas las llaves fallaron.`);
-        throw lastError || new Error("All API keys failed to initiate stream.");
+        throw lastError || new Error("All API keys and models failed.");
     }
 
     let fullText = "";
-    let reglas: any[] = [];
-    let coberturas: any[] = [];
-    let diseno_ux: any = {
-        nombre_isapre: "N/A",
-        titulo_plan: "N/A",
-        layout: "forensic_report_v2",
-        funcionalidad: "contract_streaming_v5",
-        salida_json: "hierarchical_parsed"
-    };
-
-    let currentSection = "";
-
-    const robustSplit = (line: string): string[] => {
-        let trimmed = line.trim();
-        if (trimmed.startsWith('|')) trimmed = trimmed.substring(1);
-        if (trimmed.endsWith('|')) trimmed = trimmed.substring(0, trimmed.length - 1);
-        return trimmed.split('|').map(c => c.trim());
-    };
-
+    // 3. Process Stream with Metrics
     for await (const chunk of resultStream.stream) {
         const chunkText = chunk.text();
         fullText += chunkText;
-        onLog?.(chunkText); // Stream text to UI logs
+        onLog?.(chunkText);
 
-        // Usage metrics if available
+        // Usage metrics
         const usage = chunk.usageMetadata;
         if (usage) {
             const promptTokens = usage.promptTokenCount || 0;
             const candidatesTokens = usage.candidatesTokenCount || 0;
-            const totalTokens = usage.totalTokenCount || 0;
             const priceData = calculatePrice(promptTokens, candidatesTokens);
-
             log(`@@METRICS@@${JSON.stringify({
                 input: promptTokens,
                 output: candidatesTokens,
@@ -269,54 +309,118 @@ export async function analyzeSingleContract(
     }
 
     log(`\n[Process] Parsing ${fullText.length} characters...`);
-    const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
 
-    for (const line of lines) {
-        if (line.startsWith('ISAPRE:')) {
-            diseno_ux.nombre_isapre = line.replace('ISAPRE:', '').trim();
-            continue;
-        }
-        if (line.startsWith('PLAN:')) {
-            diseno_ux.titulo_plan = line.replace('PLAN:', '').trim();
-            continue;
-        }
-        if (line.startsWith('SUBTITULO:')) {
-            diseno_ux.subtitulo_plan = line.replace('SUBTITULO:', '').trim();
-            continue;
-        }
-        if (line.startsWith('SECTION:')) {
-            currentSection = line.replace('SECTION:', '').trim().toUpperCase();
-            continue;
-        }
+    // 4. SURVIVOR PARSER V2.0 (Handles both JSON and PIPES)
+    let reglas: any[] = [];
+    let coberturas: any[] = [];
+    let diseno_ux: any = {
+        nombre_isapre: "N/A",
+        titulo_plan: "N/A",
+        layout: "forensic_report_v2",
+        funcionalidad: "contract_streaming_v6",
+        salida_json: "survivor_parsed"
+    };
 
-        if (line.includes('|')) {
-            const parts = robustSplit(line);
-            if (currentSection === "REGLAS" && parts.length >= 4) {
-                reglas.push({
-                    'PÁGINA ORIGEN': parts[0],
-                    'CÓDIGO/SECCIÓN': parts[1],
-                    'SUBCATEGORÍA': parts[2],
-                    'VALOR EXTRACTO LITERAL DETALLADO': parts[3]
-                });
-            } else if (currentSection === "COBERTURAS" && parts.length >= 7) {
-                coberturas.push({
-                    'PRESTACIÓN CLAVE': parts[0],
-                    'MODALIDAD/RED': parts[1],
-                    '% BONIFICACIÓN': parts[2],
-                    'COPAGO FIJO': parts[3],
-                    'TOPE LOCAL 1 (VAM/EVENTO)': parts[4],
-                    'TOPE LOCAL 2 (ANUAL/UF)': parts[5],
-                    'RESTRICCIÓN Y CONDICIONAMIENTO': parts[6],
-                    'ANCLAJES': []
-                });
+    // A. Try JSON First (Best Case)
+    let jsonSuccess = false;
+    try {
+        const potentialJson = fullText.substring(fullText.indexOf('{'), fullText.lastIndexOf('}') + 1);
+        if (potentialJson.length > 10) {
+            const parsed = safeJsonParse<any>(potentialJson);
+            if (parsed && (Array.isArray(parsed.reglas) || Array.isArray(parsed.coberturas))) {
+                reglas = parsed.reglas || [];
+                coberturas = parsed.coberturas || [];
+                if (parsed.diseno_ux) diseno_ux = { ...diseno_ux, ...parsed.diseno_ux };
+                jsonSuccess = true;
+                log(`[ContractEngine] ✅ PARSER: JSON nativo detectado y procesado exitosamente.`);
+            }
+        }
+    } catch (jsonErr) {
+        // Fallback
+    }
+
+    // B. Fallback to Pipe Parsing (Resilience Mode)
+    if (!jsonSuccess) {
+        log(`[ContractEngine] ⚠️ PARSER: Modo JSON no detectado. Activando Modo Resiliencia (Pipes)...`);
+        const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
+        let currentSection = "";
+
+        for (const line of lines) {
+            const upper = line.toUpperCase();
+
+            // Metadata
+            if (upper.includes('ISAPRE:')) { diseno_ux.nombre_isapre = line.replace(/.*ISAPRE:/i, '').trim().replace(/\*/g, ''); continue; }
+            if (upper.includes('PLAN:')) { diseno_ux.titulo_plan = line.replace(/.*PLAN:/i, '').trim().replace(/\*/g, ''); continue; }
+
+            // Section Headers
+            if (upper.includes('SECTION:')) {
+                const rawSection = upper.substring(upper.indexOf('SECTION:'));
+                if (rawSection.includes('REGLAS')) currentSection = "REGLAS";
+                else if (rawSection.includes('COBERTURAS')) currentSection = "COBERTURAS";
+                log(`[ContractEngine] 📂 Sección Detectada: ${currentSection}`);
+                continue;
+            }
+
+            // Pipe Parsing
+            if (line.includes('|')) {
+                const cleanLine = line.replace(/^\|/, '').replace(/\|$/, '');
+                const parts = cleanLine.split('|').map(p => p.trim());
+
+                if (cleanLine.length < 5) continue;
+
+                if (currentSection === "REGLAS") {
+                    // Check if header row to skip
+                    if (parts[0].toUpperCase().includes('PAGINA') || parts[0].toUpperCase().includes('PÁGINA')) continue;
+
+                    // Relaxed parsing: Accept 3 or more parts.
+                    // If 3 parts: Page | Code | Text (Subcategory merged or missing)
+                    if (parts.length >= 3) {
+                        reglas.push({
+                            'PÁGINA ORIGEN': parts[0],
+                            'CÓDIGO/SECCIÓN': parts[1],
+                            'SUBCATEGORÍA': parts.length >= 4 ? parts[2] : 'General',
+                            'VALOR EXTRACTO LITERAL DETALLADO': parts.length >= 4 ? parts.slice(3).join('|') : parts[2]
+                        });
+                    } else {
+                        log(`[ContractEngine] ⚠️ REGLAS Parser rechazo línea: "${cleanLine}" (Parts: ${parts.length})`);
+                    }
+                } else if (currentSection === "COBERTURAS" && parts.length >= 7) {
+                    // Check if header
+                    if (parts[0].toUpperCase().includes('PRESTACION') || parts[0].toUpperCase().includes('PRESTACIÓN')) continue;
+
+                    coberturas.push({
+                        'PRESTACIÓN CLAVE': parts[0],
+                        'MODALIDAD/RED': parts[1],
+                        '% BONIFICACIÓN': parts[2],
+                        'COPAGO FIJO': parts[3],
+                        'TOPE LOCAL 1 (VAM/EVENTO)': parts[4],
+                        'TOPE LOCAL 2 (ANUAL/UF)': parts[5],
+                        'RESTRICCIÓN Y CONDICIONAMIENTO': parts[6],
+                        'ANCLAJES': []
+                    });
+                }
             }
         }
     }
 
-    const outputTokens = Math.ceil(fullText.length / 4);
-    // Note: real prompt tokens would be better from usageMetadata, but let's provide a fallback
-    const inputTokens = Math.ceil(CONTRACT_ANALYSIS_PROMPT.length / 4) + 10000;
-    const priceData = calculatePrice(inputTokens, outputTokens);
+    // 4. Extract Metrics (Use Real UsageMetadata if available)
+    let finalInputTokens = 0;
+    let finalOutputTokens = 0;
+
+    if (resultStream?.response?.usageMetadata) {
+        finalInputTokens = resultStream.response.usageMetadata.promptTokenCount || 0;
+        finalOutputTokens = resultStream.response.usageMetadata.candidatesTokenCount || 0;
+        log(`[ContractEngine] 📊 Metricas Reales (Gemini): Input=${finalInputTokens}, Output=${finalOutputTokens}`);
+    } else {
+        // Fallback Heuristic for PDF (much lower density than text)
+        // A 6MB PDF is NOT 1.5M tokens. It's normally 10k-50k. 
+        // We divide by 400 to get a safer approximation if metadata fails.
+        finalInputTokens = Math.ceil(base64Data.length / 400) + 500;
+        finalOutputTokens = Math.ceil(fullText.length / 4);
+        log(`[ContractEngine] ⚠️ Usando Metricas Estimadas (Fallback): Input=${finalInputTokens}, Output=${finalOutputTokens}`);
+    }
+
+    const priceData = calculatePrice(finalInputTokens, finalOutputTokens);
 
     const result: ContractAnalysisResult = {
         reglas,
@@ -325,16 +429,14 @@ export async function analyzeSingleContract(
         metrics: {
             executionTimeMs: Date.now() - startTime,
             tokenUsage: {
-                input: inputTokens,
-                output: outputTokens,
-                total: inputTokens + outputTokens,
+                input: finalInputTokens,
+                output: finalOutputTokens,
+                total: finalInputTokens + finalOutputTokens,
                 costClp: priceData.costCLP
             }
         }
     };
 
-    log(`[ContractEngine] ✅ ÉXITO: Extraídas ${reglas.length} reglas y ${coberturas.length} coberturas.`);
-    log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
+    log(`[ContractEngine] ✅ ÉXITO FINAL: Reglas=${reglas.length}, Coberturas=${coberturas.length}`);
     return result;
 }

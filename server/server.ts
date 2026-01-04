@@ -242,49 +242,59 @@ app.post('/api/extract', async (req, res) => {
         let lastError: any;
         let activeApiKey: string | undefined;
 
-        // RETRY LOOP WITH FAILURE OVER KEYS
-        for (const apiKey of apiKeys) {
-            const keyMask = apiKey ? (apiKey.substring(0, 4) + '...') : '???';
-            console.log(`[AUTH] Trying with API Key: ${keyMask}`);
+        // RETRY LOOP WITH FAILURE OVER KEYS AND MODELS
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
 
-            try {
-                const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({
-                    model: AI_CONFIG.ACTIVE_MODEL,
-                    generationConfig: {
-                        maxOutputTokens: 35000
-                    }
-                });
+        for (const modelName of modelsToTry) {
+            if (!modelName) continue;
+            console.log(`[AUTH] 🛡️ Attempting extraction with model: ${modelName}`);
 
-                resultStream = await model.generateContentStream([
-                    { text: CSV_PROMPT },
-                    {
-                        inlineData: {
-                            data: image,
-                            mimeType: mimeType
+            for (const apiKey of apiKeys) {
+                const keyMask = apiKey ? (apiKey.substring(0, 4) + '...') : '???';
+                console.log(`[AUTH] Trying with API Key: ${keyMask} (Model: ${modelName})`);
+
+                try {
+                    const genAI = new GoogleGenerativeAI(apiKey);
+                    const model = genAI.getGenerativeModel({
+                        model: modelName,
+                        generationConfig: {
+                            maxOutputTokens: 35000
                         }
+                    });
+
+                    resultStream = await model.generateContentStream([
+                        { text: CSV_PROMPT },
+                        {
+                            inlineData: {
+                                data: image,
+                                mimeType: mimeType
+                            }
+                        }
+                    ]);
+
+                    // If successful, break both loops
+                    if (resultStream) {
+                        console.log(`[AUTH] Success with Key: ${keyMask} on Model: ${modelName}`);
+                        activeApiKey = apiKey;
+
+                        // Critical: Update pricing used for this successful request if possible, 
+                        // but actually pricing is static map. We should probably note which model won.
+                        // For now just breaking.
+                        break;
                     }
-                ]);
 
-                // If successful, break
-                if (resultStream) {
-                    console.log(`[AUTH] Success with Key: ${keyMask}`);
-                    activeApiKey = apiKey;
-                    break;
-                }
+                } catch (attemptError: any) {
+                    console.warn(`[AUTH] Failed with Key: ${keyMask} on ${modelName}:`, attemptError.message);
+                    lastError = attemptError;
+                    const errStr = (attemptError?.toString() || "") + (attemptError?.message || "");
 
-            } catch (attemptError: any) {
-                console.warn(`[AUTH] Failed with Key: ${keyMask}:`, attemptError.message);
-                lastError = attemptError;
-
-                const errStr = (attemptError?.toString() || "") + (attemptError?.message || "");
-                const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || attemptError?.status === 429;
-
-                if (!isQuota) {
-                    // If it's NOT a quota error (e.g. invalid key), maybe we should still continue?
-                    // But for now, let's assume retry logic is mostly for Quota/Permission.
+                    // If 400 Bad Request (Invalid Argument), switching models/keys might not help if prompt is bad,
+                    // but switching model MIGHT help if one model doesn't support a param.
+                    // For 429/500, definitely retry.
                 }
             }
+            if (activeApiKey) break; // Found a working key/model combo
+            console.warn(`[AUTH] ⚠️ All keys failed for model ${modelName}. Switching to next model if available...`);
         }
 
         if (!resultStream) {

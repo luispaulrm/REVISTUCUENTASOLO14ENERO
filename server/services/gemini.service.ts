@@ -81,52 +81,64 @@ export class GeminiService {
         // Let's start from 0 to preserve backup quota.
         this.activeKeyIndex = 0;
 
-        for (let attempt = 0; attempt < this.keys.length; attempt++) {
-            const currentKey = this.keys[this.activeKeyIndex];
-            const mask = currentKey ? (currentKey.substring(0, 4) + '...') : '???';
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
 
-            try {
-                this.client = new GoogleGenerativeAI(currentKey); // Ensure client uses current key
-                const model = this.client.getGenerativeModel({
-                    model: AI_CONFIG.ACTIVE_MODEL,
-                    generationConfig: {
-                        maxOutputTokens: config.maxTokens || 35000,
-                        responseMimeType: config.responseMimeType,
-                        responseSchema: config.responseSchema,
-                    }
-                });
+        // Loop through Models (Primary -> Fallback)
+        for (const modelName of modelsToTry) {
+            if (!modelName) continue;
+            console.log(`[GeminiService] 🛡️ Strategy: Attempting with model ${modelName}`);
 
-                const resultStream = await model.generateContentStream([
-                    { text: prompt },
-                    {
-                        inlineData: {
-                            data: image,
-                            mimeType: mimeType
+            // Loop through Keys (Primary -> Secondary -> etc)
+            for (let keyIdx = 0; keyIdx < this.keys.length; keyIdx++) {
+                const currentKey = this.keys[keyIdx];
+                const mask = currentKey ? (currentKey.substring(0, 4) + '...') : '???';
+
+                try {
+                    // Update client with current key
+                    this.client = new GoogleGenerativeAI(currentKey);
+
+                    const model = this.client.getGenerativeModel({
+                        model: modelName,
+                        generationConfig: {
+                            maxOutputTokens: config.maxTokens || 35000,
+                            responseMimeType: config.responseMimeType,
+                            responseSchema: config.responseSchema,
                         }
-                    }
-                ]);
+                    });
 
-                return this.processStream(resultStream);
+                    const resultStream = await model.generateContentStream([
+                        { text: prompt },
+                        {
+                            inlineData: {
+                                data: image,
+                                mimeType: mimeType
+                            }
+                        }
+                    ]);
 
-            } catch (err: any) {
-                lastError = err;
-                const errStr = (err?.toString() || "") + (err?.message || "");
-                const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests');
+                    console.log(`[GeminiService] ✅ Success with Key ${mask} on ${modelName}`);
+                    return this.processStream(resultStream);
 
-                if (isQuota) {
-                    console.warn(`[GeminiService] ⚠️ 429 Quota Exceeded on Key ${mask}.`);
-                    if (this.rotateKey()) {
-                        continue; // Try next key
+                } catch (err: any) {
+                    lastError = err;
+                    const errStr = (err?.toString() || "") + (err?.message || "");
+                    const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || err?.status === 429 || err?.status === 503;
+
+                    if (isQuota) {
+                        console.warn(`[GeminiService] ⚠️ Quota/Service Error on Key ${mask} (${modelName}). Trying next key...`);
+                        continue;
                     } else {
-                        console.error(`[GeminiService] ❌ All keys exhausted.`);
-                        break;
+                        // Non-quota error (param error, bad image, etc). Do not retry blindly?
+                        console.error(`[GeminiService] ❌ Non-retriable error on Key ${mask} (${modelName}):`, err.message);
+                        // If it's a model-specific error (Active model unsupported?), we SHOULD try fallback model.
+                        // But if it's "Invalid Argument", fallback likely won't help unless arguments differ.
+                        // For safety, we continue to next Key/Model ONLY if it helps.
+                        // Determining if it helps is hard. Let's assume strict retry only on Quota/Server Errors.
+                        // If user wants robustness, maybe we retry everything? No, "Invalid Image" wont be fixed.
                     }
-                } else {
-                    // Non-quota error (param error, bad image, etc). Do not retry blindly?
-                    console.error(`[GeminiService] ❌ Non-quota error on Key ${mask}:`, err.message);
-                    throw err; // Stop immediately for non-quota errors
                 }
             }
+            console.warn(`[GeminiService] ⚠️ All keys failed for model ${modelName}. Switching to fallback if available...`);
         }
 
         throw lastError || new Error("All API keys failed for stream extraction.");
