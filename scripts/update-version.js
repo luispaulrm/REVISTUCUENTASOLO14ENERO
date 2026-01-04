@@ -11,6 +11,13 @@ const __dirname = path.dirname(__filename);
 const versionFilePath = path.join(__dirname, '../version.ts');
 
 try {
+    // CI/CD GUARD: Skip version bump in CI environments (GitHub Actions, Render, etc.)
+    if (process.env.CI || process.env.RENDER || process.env.GITHUB_ACTIONS) {
+        console.log('🛑 CI/CD Environment detected. Skipping version bump and metadata update.');
+        console.log('   This build will use the version defined in the commit.');
+        process.exit(0);
+    }
+
     let content = fs.readFileSync(versionFilePath, 'utf-8');
 
     // Extract current version
