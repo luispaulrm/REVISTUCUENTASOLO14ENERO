@@ -5,6 +5,8 @@ export const AI_MODELS = {
 
 export const GENERATION_CONFIG = {
     temperature: 0,
+    topP: 0.1,
+    topK: 1,
     maxOutputTokens: 8192,
 };
 

@@ -71,7 +71,9 @@ export async function performForensicAudit(
                     responseMimeType: "application/json",
                     responseSchema: FORENSIC_AUDIT_SCHEMA as any,
                     maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
-                    temperature: GENERATION_CONFIG.temperature
+                    temperature: GENERATION_CONFIG.temperature,
+                    topP: GENERATION_CONFIG.topP,
+                    topK: GENERATION_CONFIG.topK
                 }
             });
 

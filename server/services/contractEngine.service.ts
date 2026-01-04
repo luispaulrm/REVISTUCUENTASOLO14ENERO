@@ -16,6 +16,8 @@ import {
     CONTRACT_DEFAULT_RETRIES,
     CONTRACT_MAX_OUTPUT_TOKENS,
     CONTRACT_TEMPERATURE,
+    CONTRACT_TOP_P,
+    CONTRACT_TOP_K
 } from './contractConstants.js';
 import { AI_CONFIG, calculatePrice } from '../config/ai.config.js';
 import path from 'path';
@@ -240,7 +242,9 @@ export async function analyzeSingleContract(
                         maxOutputTokens: CONTRACT_MAX_OUTPUT_TOKENS,
                         responseMimeType: "application/json",
                         responseSchema: CONTRACT_ANALYSIS_SCHEMA as any,
-                        temperature: CONTRACT_TEMPERATURE
+                        temperature: CONTRACT_TEMPERATURE,
+                        topP: CONTRACT_TOP_P,
+                        topK: CONTRACT_TOP_K
                     },
                     safetySettings: SAFETY_SETTINGS
                 });

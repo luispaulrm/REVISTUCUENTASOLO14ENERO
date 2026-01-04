@@ -47,7 +47,9 @@ export async function handlePamExtraction(req: Request, res: Response) {
             responseMimeType: 'application/json',
             responseSchema: PAM_ANALYSIS_SCHEMA,
             maxTokens: GENERATION_CONFIG.maxOutputTokens,
-            temperature: GENERATION_CONFIG.temperature
+            temperature: GENERATION_CONFIG.temperature,
+            topP: GENERATION_CONFIG.topP,
+            topK: GENERATION_CONFIG.topK
         });
 
         for await (const chunk of stream) {

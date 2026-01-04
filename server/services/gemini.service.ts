@@ -64,6 +64,8 @@ export class GeminiService {
             responseMimeType?: string;
             responseSchema?: any;
             temperature?: number;
+            topP?: number;
+            topK?: number;
         } = {}
     ): Promise<AsyncIterable<StreamChunk>> {
         let lastError: any;
@@ -104,7 +106,9 @@ export class GeminiService {
                             maxOutputTokens: config.maxTokens || 35000,
                             responseMimeType: config.responseMimeType,
                             responseSchema: config.responseSchema,
-                            temperature: config.temperature
+                            temperature: config.temperature,
+                            topP: config.topP,
+                            topK: config.topK
                         }
                     });
 

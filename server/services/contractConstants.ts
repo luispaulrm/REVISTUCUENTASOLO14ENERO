@@ -29,11 +29,8 @@ Para cada sección (Hospitalaria, Ambulatoria, Urgencia), debes ejecutar este al
 - ❌ NO olvides "Honorarios Médicos".
 
 ---
-** PARTE I: REGLAS Y DEFINICIONES **
-  Extrae LITERALMENTE todas las notas al pie, definiciones y cláusulas numéricas (1.1, 1.2, 5.1, etc.).
-
 ---
-** PARTE II: COBERTURAS (LA TABLA GIGANTE) **
+** PARTE I: COBERTURAS (LA TABLA GIGANTE - PRIORIDAD ABSOLUTA) **
 
 [Checklist de Filas OBLIGATORIAS - Si falta alguna, el trabajo está incompleto]:
 
@@ -89,7 +86,7 @@ OTROS:
 43. Prestadores Derivados
 
 ---
-** INSTRUCCIONES DE ATRIBUTOS JSON **
+** INSTRUCCIONES DE ATRIBUTOS JSON PARA COBERTURAS **
 
 - **'MODALIDAD/RED'**:
   - Si la tabla tiene 2 columnas de datos ("Bonificación" y "Tope" duplicados para Preferente y Libre Elección), ¡GENERA 2 OBJETOS POR CADA FILA!
@@ -100,6 +97,11 @@ OTROS:
   - Concatena TODO: Notas al pie referenciadas (1.1), texto de las celdas de tope, y texto de la cabecera de la columna (ej: "Solo prestadores Staff").
 
 ---
+** PARTE II: REGLAS Y DEFINICIONES (CARGA SECUNDARIA) **
+  Extrae LITERALMENTE todas las notas al pie, definiciones y cláusulas numéricas (1.1, 1.2, 5.1, etc.) que aparecen DESPUÉS o AL FINAL del documento.
+
+
+---
 ** SALIDA **
 Genera solamente el JSON válido.
 `;
@@ -108,19 +110,6 @@ Genera solamente el JSON válido.
 export const CONTRACT_ANALYSIS_SCHEMA = {
   type: SchemaType.OBJECT,
   properties: {
-    reglas: {
-      type: SchemaType.ARRAY,
-      items: {
-        type: SchemaType.OBJECT,
-        properties: {
-          'PÁGINA ORIGEN': { type: SchemaType.STRING },
-          'CÓDIGO/SECCIÓN': { type: SchemaType.STRING },
-          'SUBCATEGORÍA': { type: SchemaType.STRING },
-          'VALOR EXTRACTO LITERAL DETALLADO': { type: SchemaType.STRING },
-        },
-        required: ['PÁGINA ORIGEN', 'CÓDIGO/SECCIÓN', 'SUBCATEGORÍA', 'VALOR EXTRACTO LITERAL DETALLADO'],
-      }
-    },
     coberturas: {
       type: SchemaType.ARRAY,
       items: {
@@ -138,6 +127,19 @@ export const CONTRACT_ANALYSIS_SCHEMA = {
         required: ['PRESTACIÓN CLAVE', 'MODALIDAD/RED', '% BONIFICACIÓN', 'COPAGO FIJO', 'TOPE LOCAL 1 (VAM/EVENTO)', 'TOPE LOCAL 2 (ANUAL/UF)', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'ANCLAJES'],
       }
     },
+    reglas: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          'PÁGINA ORIGEN': { type: SchemaType.STRING },
+          'CÓDIGO/SECCIÓN': { type: SchemaType.STRING },
+          'SUBCATEGORÍA': { type: SchemaType.STRING },
+          'VALOR EXTRACTO LITERAL DETALLADO': { type: SchemaType.STRING },
+        },
+        required: ['PÁGINA ORIGEN', 'CÓDIGO/SECCIÓN', 'SUBCATEGORÍA', 'VALOR EXTRACTO LITERAL DETALLADO'],
+      }
+    },
     diseno_ux: {
       type: SchemaType.OBJECT,
       properties: {
@@ -151,7 +153,7 @@ export const CONTRACT_ANALYSIS_SCHEMA = {
       required: ['nombre_isapre', 'titulo_plan', 'layout', 'funcionalidad', 'salida_json'],
     },
   },
-  required: ['reglas', 'coberturas', 'diseno_ux'],
+  required: ['coberturas', 'reglas', 'diseno_ux'],
 } as const;
 
 // Configuration constants
@@ -159,6 +161,8 @@ export const CONTRACT_OCR_MAX_PAGES = 50;
 // NOTE: User explicitly requested 8192 tokens. This is aggressive for large contracts but we comply.
 export const CONTRACT_MAX_OUTPUT_TOKENS = GENERATION_CONFIG.maxOutputTokens;
 export const CONTRACT_TEMPERATURE = GENERATION_CONFIG.temperature;
+export const CONTRACT_TOP_P = GENERATION_CONFIG.topP;
+export const CONTRACT_TOP_K = GENERATION_CONFIG.topK;
 
 export const CONTRACT_FAST_MODEL = AI_MODELS.primary;
 export const CONTRACT_REASONING_MODEL = AI_MODELS.primary; // User requested strict adherence to primary model

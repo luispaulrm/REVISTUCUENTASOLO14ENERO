@@ -259,7 +259,9 @@ app.post('/api/extract', async (req, res) => {
                         model: modelName,
                         generationConfig: {
                             maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
-                            temperature: GENERATION_CONFIG.temperature
+                            temperature: GENERATION_CONFIG.temperature,
+                            topP: GENERATION_CONFIG.topP,
+                            topK: GENERATION_CONFIG.topK
                         }
                     });
 
