@@ -287,36 +287,29 @@ ANTES DE FINALIZAR TU JSON, VERIFICA:
    ✓ Si tu "VALOR EXTRACTO LITERAL DETALLADO" tiene menos de 100 caracteres, ES SOSPECHOSO
 
 
+
 📋 COBERTURAS:
-   ✓ MÍNIMO OBLIGATORIO: 40 OBJETOS (Antes 25)
-   ✓ DEBES DESGLOSAR POR MODALIDAD (Preferente vs Libre = 2 objetos)
+   ✓ MÍNIMO OBLIGATORIO: 25 OBJETOS
    
-   LISTA DE CHEQUEO (DEBEN ESTAR TODAS):
-   1. [ ] Día Cama (x2 o x3)
-   2. [ ] Día Cama UCI/UTI (x2)
-   3. [ ] PABELLÓN (x2) <-- CRÍTICO: NO OMITIR
-   4. [ ] HONORARIOS MÉDICOS QUIRÚRGICOS (x2) <-- CRÍTICO: NO OMITIR
-   5. [ ] Medicamentos e Insumos (x2)
-   6. [ ] Quimioterapia (x2)
-   7. [ ] CONSULTA MÉDICA (x2)
-   8. [ ] EXÁMENES DE LABORATORIO (x2)
-   9. [ ] IMAGENOLOGÍA (x2)
-   10. [ ] KINESIOLOGÍA (x2)
-   11. [ ] Fonoaudiología / Nutricionista (x2)
-   12. [ ] Urgencia (x2)
-   13. [ ] Psiquiatría (x2)
-   14. [ ] Marcos y Cristales (x2)
-   15. [ ] Cobertura Internacional (x1)
-   16. [ ] Traslados (x1)
-   17. [ ] Dental (x1)
+   [POLÍTICA DE CERO OMISIONES - OBLIGATORIO]:
+   🚨 PROHIBIDO OMITIR INFORMACIÓN - DELIBERADA O ACCIDENTALMENTE.
+   🔍 La lista anterior es SOLO UNA GUÍA. Si el contrato contiene ítems NO listados:
+      → Kinesiología, Fonoaudiología, Dental, Maternidad, Prótesis, Órtesis, Radioterapia, Diálisis, Trasplantes, etc.
+      → DEBES INCLUIRLOS EN TU SALIDA.
+   🔍 CADA línea visible en la tabla de beneficios = UN objeto en coberturas.
+   🔍 CADA nota, cláusula, definición, anexo = UN objeto en reglas.
+   🔍 Tu trabajo: EXTRAER EL 100% DEL CONTENIDO DEL CONTRATO.
+   🔍 Si encuentras algo nuevo, CRÉALO. No esperes que yo te lo liste.
    
-   SI TU ARRAY "coberturas" TIENE MENOS DE 30 ÍTEMS, ESTÁS AGRUPANDO ILEGALMENTE. DESAGRUPA AHORA.
+   ⚠️ REGLA DE MALLA VISUAL:
+   Si un recuadro agrupa "Día Cama", "Pabellón" y "Honorarios" bajo una misma condición, DEBES DESGLOSARLO.
+   NO PUEDES generar un solo objeto que diga "Día Cama y otros". Tienes que crear 3 objetos.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 SI TU JSON NO CUMPLE ESTOS MÍNIMOS, SERÁ RECHAZADO AUTOMÁTICAMENTE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-GENERA AHORA EL JSON COMPLETO (REGLAS >= 25, COBERTURAS >= 40).` }
+GENERA AHORA EL JSON COMPLETO (REGLAS >= 25, COBERTURAS >= 25).` }
                 ]);
                 const timeoutPromise = new Promise<any>((_, reject) =>
                     setTimeout(() => reject(new Error("Timeout: Gemini Stream failed to start in 120s")), 120000)
