@@ -1,33 +1,91 @@
-// Contract Analysis Prompt - Forensic VERSION 9.1 (Bill-Like Strategy + Expansion)
+// Contract Analysis Prompt - Forensic VERSION 9.2 (Granular Row-by-Row Enforcement)
 export const CONTRACT_ANALYSIS_PROMPT = `
-  ** Mandato Forense de Análisis de Contrato de Salud Isapre - Versión Final(Procesamiento Imperativo) **
+  ** Mandato Forense de Análisis de Contrato de Salud Isapre - Versión Final(Procesamiento Imperativo - LÍNEA A LÍNEA) **
 
-    Usted es un analista forense experto en la interpretación de contratos de planes de salud de Isapres chilenas.Su tarea es procesar el documento PDF adjunto con el máximo rigor, generando un único objeto JSON.Su única salida debe ser el objeto JSON.
+    Usted es un analista forense experto. Su misión es tranferir la estructura EXACTA del contrato PDF a JSON.
+    
+    CRITERIO FUNDAMENTAL: "SI ESTÁ EN UNA LÍNEA VISIBLE, DEBE SER UN OBJETO JSON".
+    NO AGRUPE. NO RESUMA. NO OMITE NADA.
 
 ---
-** PARTE I: EXTRACCIÓN FORENSE DE REGLAS(Array "reglas") **
+** PARTE I: EXTRACCIÓN FORENSE DE REGLAS (Array "reglas") **
 
 🔴 REGLA CRÍTICA DE TEXTO LITERAL:
 La clave "VALOR EXTRACTO LITERAL DETALLADO" significa COPIAR EL TEXTO EXACTAMENTE COMO APARECE EN EL PDF.
 ✓ NO RESUMIR, NO PARAFRASEAR, NO INTERPRETAR
-✓ COPIAR palabra por palabra, carácter por carácter
 ✓ Si el texto original ocupa 3 líneas y tiene 400 caracteres, tu campo debe tener ~400 caracteres
-✓ Un campo con menos de 80 caracteres es SOSPECHOSO de ser un resumen ilegal
-
-  Extraiga CADA cláusula, regla, definición y nota explicativa como un objeto individual, asegurando que CADA objeto contenga la clave 'PÁGINA ORIGEN' para trazabilidad.
+✓ Extraiga CADA cláusula, regla, definición y nota explicativa como un objeto individual.
 
 ---
-** PARTE II: ANÁLISIS DE COBERTURA(Array "coberturas") **
+** PARTE II: ANÁLISIS DE COBERTURA (Array "coberturas") **
 
 ** IMPERATIVO DE ATOMICIDAD (CRÍTICO):**
   La unidad mínima de extracción es la FILA VISIBLE.
-  - Si una celda dice: "Día Cama / Pabellón / Honorarios", DEBES DESGLOSARLO en 3 objetos distintos.
-  - Si una malla agrupa 5 filas, DEBES GENERAR 5 OBJETOS, uno por cada fila.
-  - PROHIBIDO AGRUPAR.
+  He contado visualmente 45+ filas en la tabla de beneficios. TU JSON DEBE TENER AL MENOS 45 OBJETOS DE COBERTURA (más los desdobles por modalidad).
+  
+  [LISTA MAESTRA DE VERIFICACIÓN - SI FALTA UNO, EL PROCESO FALLA]:
+  
+  GRUPO 1: HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA (17 Ítems Mínimo)
+  1. [ ] Día Cama
+  2. [ ] Sala Cuna
+  3. [ ] Incubadora
+  4. [ ] Día Cama Cuidado Intensivo, Intermedio o Coronario
+  5. [ ] Día Cama Transitorio u Observación
+  6. [ ] Exámenes de Laboratorio (Hospitalario)
+  7. [ ] Imagenología (Hospitalario)
+  8. [ ] Derecho Pabellón
+  9. [ ] Kinesiología, Fisioterapia y Terapia Ocupacional (Hospitalario)
+  10. [ ] Procedimientos (Hospitalario)
+  11. [ ] Honorarios Médicos Quirúrgicos (check nota 1.2)
+  12. [ ] Medicamentos (check notas 1.4, 1.10)
+  13. [ ] Materiales e Insumos Clínicos (check notas 1.4, 1.10) - OJO: Si están en líneas separadas, extráelos separado.
+  14. [ ] Quimioterapia (check nota 1.6)
+  15. [ ] Prótesis, Órtesis y Elementos de Osteosíntesis
+  16. [ ] Visita por Médico Tratante y Médico Interconsultor
+  17. [ ] Traslados (check nota 5.4)
 
+  GRUPO 2: AMBULATORIAS (14 Ítems Mínimo)
+  18. [ ] Consulta Médica
+  19. [ ] Exámenes de Laboratorio (Ambulatorio)
+  20. [ ] Imagenología (Ambulatorio)
+  21. [ ] Derecho Pabellón Ambulatorio
+  22. [ ] Procedimientos (Ambulatorio)
+  23. [ ] Honorarios Médicos Quirúrgicos (Ambulatorio)
+  24. [ ] Radioterapia
+  25. [ ] Fonoaudiología
+  26. [ ] Kinesiología, Fisioterapia y Terapia Ocupacional (Ambulatorio)
+  27. [ ] Prestaciones Dentales (PAD) (check nota 1.13)
+  28. [ ] Atención Integral de Nutricionista
+  29. [ ] Atención Integral de Enfermería
+  30. [ ] Prótesis y Órtesis (Ambulatorio) (check nota 1.5)
+  31. [ ] Quimioterapia (Ambulatorio) Rastrear si aparece nuevamente.
+
+  GRUPO 3: ATENCIONES DE URGENCIA (6 Ítems Mínimo - DESGLOSE COMPLETO)
+  32. [ ] Consulta de Urgencia
+  33. [ ] Exámenes de laboratorio e imagenología (Urgencia)
+  34. [ ] Derecho Pabellón ambulatorio (Urgencia)
+  35. [ ] Procedimientos de Urgencia
+  36. [ ] Honorarios Médicos Quirúrgicos (Urgencia)
+  37. [ ] Medicamentos y Materiales de Urgencia
+
+  GRUPO 4: PRESTACIONES RESTRINGIDAS (3 Ítems Mínimo)
+  38. [ ] Prestaciones Hospitalarias de Psiquiatría...
+  39. [ ] Prestaciones Hospitalarias de Cirugía Refractiva (o similar)
+  40. [ ] Consulta, Tratamiento Psiquiatría y Psicología
+
+  GRUPO 5: OTRAS PRESTACIONES (3 Ítems Mínimo)
+  41. [ ] Marcos y Cristales Ópticos (check nota 1.8)
+  42. [ ] Medicamentos Tratamiento Esclerosis Múltiple (check 1.9, 1.10)
+  43. [ ] Cobertura Internacional (check 1.12)
+
+  GRUPO 6: PRESTADORES DERIVADOS (2 Ítems Mínimo - TABLA FINAL)
+  44. [ ] Prestadores Derivados Hospitalarios (5.1)
+  45. [ ] Prestadores Derivados Ambulatorios (5.1)
+
+---
 ** Paso 1: Identificación y Contexto Inicial.**
   a. SITÚATE en la primera fila de beneficios.
-  b. IDENTIFICA el nombre de la prestación (ej. "Día Cama").
+  b. IDENTIFICA el nombre de la prestación.
   c. SI ESTÁ DENTRO DESDE UNA MALLA VISUAL:
      - Marca que TIENE MALLA.
      - Lee la CONDICIÓN COMPLETA de la malla (ej. "100% Sin Tope excepto...").
@@ -132,139 +190,39 @@ Complete los siguientes campos:
 - No uses comas finales (trailing commas) en objetos/arrays.
 - No incluyas caracteres antes o después del JSON.
                                      
-[MANDATO DE PRODUCCIÓN INDUSTRIAL - CERO TOLERANCIA A OMISIONES]:
-ESTO ES UN PROCESO DE EXTRACCIÓN FORENSE. CADA OMISIÓN ES UN ERROR CRÍTICO DEL SISTEMA.
+[MANDATO DE PRODUCCIÓN INDUSTRIAL - EXTRACCIÓN TOTAL]:
+NO TE DETENGAS ANTES DEL FINAL DEL DOCUMENTO.
+SI OMITES ALGUNO DE LOS 45 ÍTEMS LISTADOS ARRIBA, FALLARÁS LA TAREA.
+REVISA LA LISTA DE VERIFICACIÓN 1 POR 1.
 
-LISTA OBLIGATORIA DE EXTRACCIÓN (DEBES EXTRAER TODOS ESTOS ÍTEMS O EL SISTEMA FALLA):
+LISTA OBLIGATORIA DE EXTRACCIÓN DE REGLAS/NOTAS:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 NOTAS EXPLICATIVAS (PÁGINA 3):
 ✓ Nota 1.1  - Prestaciones Hospitalarias
 ✓ Nota 1.2  - Cobertura Preferente y Honorarios Quirúrgicos
 ✓ Nota 1.3  - Urgencia Hospitalaria
 ✓ Nota 1.4  - Medicamentos e Insumos
-✓ Nota 1.5  - Pabellón (SI EXISTE, DEBES EXTRAERLA)
+✓ Nota 1.5  - Pabellón
 ✓ Nota 1.6  - Quimioterapia
-✓ Nota 1.7  - Prestaciones Restringidas (Psiquiatría, Cirugía Bariátrica)
+✓ Nota 1.7  - Prestaciones Restringidas
 ✓ Nota 1.8  - Marcos y Cristales Ópticos
-✓ Nota 1.9  - Medicamentos para Esclerosis Múltiple (SI EXISTE)
-✓ Nota 1.10 - Condiciones ISP (Medicamentos registrados)
-✓ Nota 1.11 - Urgencia Ambulatoria (No extensión a prescripciones)
+✓ Nota 1.9  - Medicamentos para Esclerosis Múltiple
+✓ Nota 1.10 - Condiciones ISP
+✓ Nota 1.11 - Urgencia Ambulatoria
 ✓ Nota 1.12 - Cobertura Internacional
+✓ Nota 1.13 - PAD Dental
 
-DEFINICIONES (PÁGINA 3 o 4):
-✓ Sección 2 - V.A. (Valor Arancel)
-✓ Sección 2 - UF (Unidad de Fomento)
-✓ Sección 2 - Habitación Individual Simple
-✓ Sección 2 - Médico Staff
-✓ Sección 2 - Tope Máximo año contrato por beneficiario
-
-PRESTADORES Y PLAZOS (PÁGINA 4):
-✓ Sección 5.1 - Prestadores Derivados (Hospitalarios y Ambulatorios)
-✓ Sección 5.2 - (SI EXISTE)
-✓ Sección 5.3 - Tiempos Máximos de Espera
-✓ Sección 5.4 - Traslados
-✓ Sección 5.5 - Segunda Opinión Médica (SI EXISTE)
-✓ Sección 5.6 - Opiniones Médicas Divergentes (SI EXISTE)
-✓ Sección 5.7 - Modificación del Convenio (SI EXISTE)
-✓ Sección 5.8 - Reglas especiales sobre modificación de contrato
-
-⚠️ SECCIONES CRÍTICAS DE PÁGINA 2 (FRECUENTEMENTE OMITIDAS - FALLO HISTÓRICO):
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚨 SECCIÓN 3 - VALOR DE CONVERSIÓN (PÁGINA 2/4 o similar):
-✓ 3.1 - Valor UF en columnas de bonificación
-✓ 3.2 - Valor UF de pago de cotización
-
-🚨 SECCIÓN 4 - REAJUSTE DEL ARANCEL DE PRESTACIONES (PÁGINA 2):
-✓ 4 - Descripción completa del reajuste según IPC
-
-🚨 SECCIÓN 5 - NOTAS EXPLICATIVAS COMPLETAS (PÁGINA 2):
-✓ 5.1 - Prestadores Derivados COMPLETO (con tabla hospitalizados y ambulatorios)
-✓ 5.2 - Urgencia Ambulatoria en prestador preferente (SI EXISTE, NO CONFUNDIR CON 1.11)
-✓ 5.3 - Tiempos de espera (tabla COMPLETA con consulta, exámenes, procedimientos, intervenciones)
-✓ 5.4 - Traslados (texto literal completo)
-✓ 5.5 - Segunda Opinión Médica (SI EXISTE)
-✓ 5.6 - Opiniones Médicas Divergentes (SI EXISTE)
-✓ 5.7 - Modificación del Convenio (SI EXISTE)
-✓ 5.8 - Reglas especiales sobre modificación de contrato
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔴 FALLO DETECTADO: SI NO EXTRAES LAS SECCIONES 3, 4 Y 5 COMPLETAS, EL JSON ES INVÁLIDO.
-
-[LISTA OBLIGATORIA DE COBERTURAS - TABLA DE BENEFICIOS]:
-DEBES EXTRAER CADA UNA DE ESTAS FILAS POR SEPARADO. PROHIBIDO VER UN GRUPO Y EXTRAER SOLO EL PRIMERO.
-
-🚨 HOSPITALARIO (CADA FILA ES UN OBJETO):
-✓ Día Cama (Preferente + Libre)
-✓ Día Cama Cuidado Intensivo / Intermedio / Coronario (Preferente + Libre)
-✓ PABELLÓN (Preferente + Libre)
-✓ HONORARIOS MÉDICOS QUIRÚRGICOS (Preferente + Libre)
-✓ Medicamentos, Materiales e Insumos Clínicos (Preferente + Libre)
-✓ QUIMIOTERAPIA (Preferente + Libre)
-
-🚨 AMBULATORIO (CADA FILA ES UN OBJETO):
-✓ CONSULTA MÉDICA (Preferente + Libre)
-✓ EXÁMENES DE LABORATORIO (Preferente + Libre)
-✓ IMAGENOLOGÍA (Preferente + Libre)
-✓ Procedimientos de Diagnóstico y Terapéuticos (Preferente + Libre)
-✓ KINESIOLOGÍA / FISIOTERAPIA (Preferente + Libre)
-✓ FONOAUDIOLOGÍA (Preferente + Libre)
-✓ Atención Integral de Nutricionista (Preferente + Libre)
-✓ Prótesis y Órtesis (Preferente + Libre)
-
-🚨 OTROS (CADA FILA ES UN OBJETO):
-✓ Consultas de Urgencia (Preferente + Libre)
-✓ Psiquiatría y Psicología (Preferente + Libre)
-✓ Marcos y Cristales (Preferente + Libre)
-✓ Cobertura Internacional
-✓ Traslados
-✓ Dental (PAD)
-
-[CONDUCTA DE ESCANEO - CERO HUECOS]:
-- Recorre CADA línea de CADA página desde la primera hasta la última.
-- MALLAS VISUALES: Si un recuadro agrupa "Día Cama", "Pabellón" y "Honorarios", DEBES GENERAR 3 OBJETOS SEPARADOS.
-- NO ASUMAS que "ya terminaste" porque extrajiste el título de la malla. Entra y extrae CADA ÍTEM.
-- **CENTINELA DE FINALIZACIÓN:**
-  * TU PROCESO NO TERMINA HASTA QUE HAYAS EXTRAÍDO LA ÚLTIMA LÍNEA DE LA ÚLTIMA PÁGINA.
-  * Si el documento tiene 4 páginas, y vas en la 3, NO TE DETENGAS.
-  * Busca activamente "Firmas", "Timbre", "Notas Finales" o "Anexos de Cierre".
-  * Si la respuesta se corta antes de esto, es un FALLO TOTAL.
-- **MANDATO DE JERARQUÍA (CRÍTICO PARA ANEXOS Y LISTAS):**
-  * DEBES CAPTURAR ÍTEMS Y SUBÍTEMS.
-  * Si un Anexo o una sección legal tiene estructura:
-    1. Título
-      1.1. Subtítulo
-        a) Detalle
-  * **DEBES EXTRAER TODOS LOS NIVELES.**
-  * No extraigas solo el título "1". Extrae "1", "1.1" y "a)".
-  * CADA sub-ítem debe ser su propio objeto en "reglas" si tiene contenido sustantivo.
-
-[MECANISMO DE VINCULACIÓN Y RESOLUCIÓN DE NOTAS (CRÍTICO)]:
-1. BÚSQUEDA PROFUNDA: Si una prestación tiene (1), (1.X), busca esa referencia EN TODO EL DOCUMENTO.
-2. INCRUSTACIÓN DIRECTA: COPIA el texto completo DENTRO de [RESTRICCIÓN Y CONDICIONAMIENTO].
-3. HERENCIA VISUAL (MALLAS): Si un grupo tiene un % o tope compartido, REPE cada condición en CADA ítem del recuadro.
-
-[MECANISMO DE EXTRACCIÓN - SECCIÓN REGLAS]:
-- Extrae CADA nota, definición, sección legal como un objeto individual en "reglas".
-- Estructura OBLIGATORIA:
-  * [PÁGINA ORIGEN]: Número de página.
-  * [CÓDIGO/SECCIÓN]: "1.1", "5.8", etc.
-  * [SUBCATEGORÍA]: Tema.
-  * [VALOR EXTRACTO LITERAL DETALLADO]: Texto VERBATIM completo.
-
-[FILTRO LEGAL CHILENO]:
-- ELIMINA ÚNICAMENTE "TABLA DE FACTORES DE PRECIO".
-- TODO LO DEMÁS SE EXTRAE.
+DEFINICIONES Y SECCIONES:
+✓ Sección 2 - Definiciones (V.A., UF, Habitación, Médico Staff, Topes)
+✓ Sección 3 - Conversión UF
+✓ Sección 4 - Reajuste Arancel
+✓ Sección 5 - Prestadores, Tiempos de Espera, Traslados
 
 [INSTRUCCION DE FORMATO FINAL (ABSOLUTA)]:
 Tu salida debe ser EXACTAMENTE asi:
 SECTION: REGLAS
 [PÁGINA ORIGEN] | [CÓDIGO/SECCIÓN] | [SUBCATEGORÍA] | [VALOR EXTRACTO LITERAL DETALLADO]
 1.1 | 1.1 | Definición | Se entiende por urgencia...
-...
-[PÁGINA 4] | 5.1 | Derivados | Prestadores derivados hospitalarios: Cl. San Carlos...
-...
-[PÁGINA 4] | 5.3 | Tiempos de Espera | Consulta Médica: 10 días...
-...
 
 SECTION: COBERTURAS
 [PRESTACIÓN CLAVE] | [MODALIDAD/RED] | [% BONIFICACIÓN] | [COPAGO FIJO] | [TOPE LOCAL 1 (VAM/EVENTO)] | [TOPE LOCAL 2 (ANUAL/UF)] | [RESTRICCIÓN Y CONDICIONAMIENTO]

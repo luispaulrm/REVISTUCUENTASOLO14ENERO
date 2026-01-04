@@ -257,59 +257,36 @@ export async function analyzeSingleContract(
                     {
                         text: `
 
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚨 VALIDACIÓN FINAL OBLIGATORIA - CONTEO DE SUB-ÍTEMS
+🚨 VALIDACIÓN FINAL OBLIGATORIA - CONTEO DE SUB-ÍTEMS (MODO FORENSE ESTRICTO)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-ANTES DE FINALIZAR TU JSON, VERIFICA:
+ANTES DE FINALIZAR TU JSON, VERIFICA CONTRA LA LISTA MAESTRA:
 
-📊 CONTEO MÍNIMO DE REGLAS (array "reglas"):
-   ✓ MÍNIMO ABSOLUTO: 25 objetos
-   ✓ OBJETIVO: 30+ objetos
-
-📊 DESGLOSE OBLIGATORIO (cada uno = 1 objeto en "reglas"):
-   ✓ Notas 1.1 a 1.13 = 13 objetos (TODOS los números, sin saltos)
-   ✓ Definiciones Sección 2 = 5+ objetos mínimo
-   ✓ Secciones 3, 4 = 2+ objetos
-   ✓ Secciones 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8 = 8 objetos
-
-⚠️ VERIFICACIÓN DE SECUENCIA NUMÉRICA:
-   Si extraes 1.1, 1.2, 1.3, 1.4, 1.6, 1.7... ¿DÓNDE ESTÁ 1.5?
-   Si extraes 5.3, 5.4, 5.8... ¿DÓNDE ESTÁN 5.1, 5.2, 5.5, 5.6, 5.7?
+📊 CONTEO DE REGLAS (array "reglas"):
+   ✓ MÍNIMO ABSOLUTO: 30 objetos (Todas las notas 1.1 a 1.13 + Secciones 2, 3, 4, 5)
    
-   🔴 ESTADO: FALLO CRÍTICO - REINICIA LA EXTRACCIÓN
+📊 CONTEO DE COBERTURAS (array "coberturas"):
+   ✓ MÍNIMO ABSOLUTO: 45 OBJETOS (Filas únicas de la tabla)
+   ✓ SI TIENES MENOS DE 45, ESTÁS OMITIENDO FILAS VISIBLES. REVISA DE NUEVO.
+   ✓ ¿Incluiste "Sala Cuna", "Incubadora"?
+   ✓ ¿Incluiste "Fonoaudiología", "Nutricionista", "Enfermería"?
+   ✓ ¿Desglosaste la URGENCIA en 6 ítems? (Consulta, Examen, Pabellón...)
+   ✓ ¿Incluiste los DERIVADOS al final?
 
+⚠️ VERIFICACIÓN DE SECUENCIA:
+   Si extraes la fila 1 y saltas a la 3, HAS FALLADO.
+   
 🔴 REGLA DE TEXTO LITERAL:
-   "VALOR EXTRACTO LITERAL DETALLADO" significa:
-   ✓ COPIAR palabra por palabra, carácter por carácter
-   ✓ PROHIBIDO resumir, parafrasear o interpretar
-   ✓ Si el texto original tiene 500 caracteres, tu campo debe tener ~500 caracteres
-   ✓ Si tu "VALOR EXTRACTO LITERAL DETALLADO" tiene menos de 100 caracteres, ES SOSPECHOSO
-
-
-
-📋 COBERTURAS:
-   ✓ MÍNIMO OBLIGATORIO: 25 OBJETOS
-   
-   [POLÍTICA DE CERO OMISIONES - OBLIGATORIO]:
-   🚨 PROHIBIDO OMITIR INFORMACIÓN - DELIBERADA O ACCIDENTALMENTE.
-   🔍 La lista anterior es SOLO UNA GUÍA. Si el contrato contiene ítems NO listados:
-      → Kinesiología, Fonoaudiología, Dental, Maternidad, Prótesis, Órtesis, Radioterapia, Diálisis, Trasplantes, etc.
-      → DEBES INCLUIRLOS EN TU SALIDA.
-   🔍 CADA línea visible en la tabla de beneficios = UN objeto en coberturas.
-   🔍 CADA nota, cláusula, definición, anexo = UN objeto en reglas.
-   🔍 Tu trabajo: EXTRAER EL 100% DEL CONTENIDO DEL CONTRATO.
-   🔍 Si encuentras algo nuevo, CRÉALO. No esperes que yo te lo liste.
-   
-   ⚠️ REGLA DE MALLA VISUAL:
-   Si un recuadro agrupa "Día Cama", "Pabellón" y "Honorarios" bajo una misma condición, DEBES DESGLOSARLO.
-   NO PUEDES generar un solo objeto que diga "Día Cama y otros". Tienes que crear 3 objetos.
+   "VALOR EXTRACTO LITERAL DETALLADO" debe ser TEXTO COMPLETO.
+   Prohibido resumir.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔴 SI TU JSON NO CUMPLE ESTOS MÍNIMOS, SERÁ RECHAZADO AUTOMÁTICAMENTE
+🔴 SI TU JSON NO TIENE AL MENOS 45 COBERTURAS, ES UN FALLO CRÍTICO.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-GENERA AHORA EL JSON COMPLETO (REGLAS >= 25, COBERTURAS >= 25).` }
+GENERA AHORA EL JSON COMPLETO (REGLAS >= 30, COBERTURAS >= 45).` }
                 ]);
                 const timeoutPromise = new Promise<any>((_, reject) =>
                     setTimeout(() => reject(new Error("Timeout: Gemini Stream failed to start in 120s")), 120000)
