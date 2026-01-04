@@ -5,61 +5,69 @@ import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 
 // --- SPLIT PROMPTS FOR 3-PASS EXTRACTION ---
 
-// --- SPLIT PROMPTS FOR 4-PASS UNIVERSAL ARCHITECTURE (v8.0) ---
+// --- SPLIT PROMPTS FOR 4-PASS UNIVERSAL ARCHITECTURE (v8.2 EXPLOSION) ---
 
 export const PROMPT_REGLAS = `
-  ** MANDATO UNIVERSAL v8.0: PASE 1 - REGLAS Y DEFINICIONES **
+  ** MANDATO UNIVERSAL v8.2: PASE 1 - REGLAS Y DEFINICIONES **
   
   ROL: Auditor Forense de Seguros (Nivel Experto).
   OBJETIVO: Extraer Notas Legales, Definiciones de Tiempo y Exclusiones.
   
-  ⚠️ INSTRUCCIONES MAESTRAS PASE 1:
-  1. **ATOMICIDAD**: Si la Nota 1.1 tiene 3 párrafos, crea 3 reglas separadas. ¡PROHIBIDO RESUMIR!
-  2. **VARIABLES DE TIEMPO**: Busca definiciones de "Día Cama" (ej: >4 horas vs >6 horas).
-  3. **VARIABLES DE EXCLUSIÓN**: Transcribe listas de exclusiones de insumos (ej: pañales, kit de aseo).
+  ⚠️ INSTRUCCIONES DE EXPLOSIÓN (PASE 1):
+  1. **ATOMICIDAD**: Si la Nota 1.1 tiene 3 párrafos con condiciones distintas, crea 3 reglas separadas.
+  2. **INSUMOS NO BONIFICABLES**: Busca la lista de exclusiones (ej: "pañales, kit de aseo, termómetros"). ¡Cópiala ENTERA!
+  3. **VARIABLES DE TIEMPO**: Busca definiciones de "Día Cama" (ej: >4 horas vs >6 horas).
   4. **FIDELIDAD**: El campo 'VALOR EXTRACTO LITERAL DETALLADO' debe ser >50 caracteres.
-  5. **IGNORAR**: Tabla de Factores.
   
   FORMATO: JSON Strict (Schema Reglas Universal).
 `;
 
 export const PROMPT_COBERTURAS_HOSP = `
-  ** MANDATO UNIVERSAL v8.0: PASE 2 - HOSPITALARIO (HOSP) **
+  ** MANDATO UNIVERSAL v8.2: PASE 2 - HOSPITALARIO (HOSP) - ESTRATAGEMA DE MULTIPLICACIÓN **
   
   OBJETIVO: Mapear Día Cama, Pabellón, Insumos y Medicamentos.
   
-  ⚠️ INSTRUCCIONES MAESTRAS PASE 2:
-  1. **DESGLOSE DE REDES**: Crea una regla JSON para CADA prestador de la Red Preferente mencionado.
-  2. **CONDICIONES**: Captura "Solo en habitación compartida" o "Topes de veces al año".
-  3. **IGNORAR**: Tabla de Factores.
+  ⚠️ INSTRUCCIONES DE MULTIPLICACIÓN [ITEM x PRESTADOR]:
+  1. **IDENTIFICA LOS PRESTADORES**: Busca la lista de Clínicas Preferentes (ej: Alemana, Indisa, Santa María).
+  2. **EXPLOSIÓN COMBINATORIA**: Por cada Fila (ej: "Día Cama") y por CADA Prestador, genera un objeto JSON ÚNICO.
+     - Ejemplo: { item: "Día Cama", modalidad: "Pref. Alemana", ... }
+  3. **CONDICIONES**: Captura "Solo en habitación compartida" o "Topes de veces al año".
+  4. **AUTO-DETECCIÓN DE TOPES GLOBALES**: Captura el MONTO TOTAL ANUAL por beneficiario (ej: 5.000 UF, 11.200 UF) que suele estar arriba o abajo de la tabla.
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_COBERTURAS_AMB = `
-  ** MANDATO UNIVERSAL v8.0: PASE 3 - AMBULATORIO Y URGENCIA (AMB) **
+  ** MANDATO UNIVERSAL v8.2: PASE 3 - AMBULATORIO Y URGENCIA (AMB) **
   
   OBJETIVO: Consultas, Exámenes y Urgencias.
   
-  ⚠️ INSTRUCCIONES MAESTRAS PASE 3:
-  1. **URGENCIA COMPLEJA vs SIMPLE**: Busca los códigos que definen la complejidad (ej: subgrupos 04, 05).
-  2. **COPAGOS FIJOS**: Captura valores en UF o Pesos para consultas de urgencia.
-  3. **IGNORAR**: Tabla de Factores.
+  ⚠️ INSTRUCCIONES DE DETALLE (PASE 3):
+  1. **URGENCIA INTEGRAL**: Desglosa Copagos Fijos para:
+     - Urgencia Simple Adulto vs Pediátrica
+     - Urgencia Compleja Adulto vs Pediátrica
+  2. **CRITERIO DE COMPLEJIDAD**:
+     - Busca CÓDIGOS FONASA GATILLANTES (ej: 03, 04, 05 para Imagenología).
+     - Rellena el campo 'CÓDIGO_DISPARADOR_FONASA' con la lista (ej: "1802053, 0405001").
+  3. **MULTIPLICACIÓN**: Aplica la misma lógica [Item x Prestador] que en Hospitalario.
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_EXTRAS = `
-  ** MANDATO UNIVERSAL v8.0: PASE 4 - PRESTACIONES VALORIZADAS (EXTRAS) **
+  ** MANDATO FORENSE v8.3: PASE 4 - PRESTACIONES VALORIZADAS (LOGICA "PAGE 7") **
   
-  OBJETIVO: Tablas de Cirugías Específicas (Partos, PAD) y Tiempos.
+  ROL: Auditor Forense.
+  OBJETIVO: Capturar la "Selección de Prestaciones Valorizadas" que SOBREESCRIBE la bonificación general.
   
-  ⚠️ INSTRUCCIONES MAESTRAS PASE 4:
-  1. **TABLAS VALORIZADAS**: Mapea cirugías con copago fijo (ej: Parto, Apendicectomía - Pág 7 Consalud).
-  2. **TIEMPOS DE ESPERA**: Si no salió en Reglas, extráelo aquí.
-  3. **DERIVADOS**: Prestadores derivados y cobertura internacional.
+  ⚠️ INSTRUCCIONES CRÍTICAS (CONSALUD/MASVIDA/COLMENA):
+  1. **REGLA DE SUPREMACÍA**: Si encuentras una tabla con montos fijos (ej: Parto, Cesárea, Apendicectomía, Colecistectomía), estos valores REEMPLAZAN el % general. Indícalo en 'LOGICA_DE_CALCULO'.
+  2. **VINCULACIÓN PRESTADOR**: Extrae el NÚMERO DE PRESTADOR asociado a cada copago fijo.
+  3. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos en estas cirugías (ej: "Tope $758.208 en Neumonía/Apendicectomía").
+  4. **TIEMPOS DE ESPERA**: Mapea la tabla completa de tiempos (10 días consulta, etc.) y cita la nota de insuficiencia.
+  5. **DERIVADOS**: Reglas de derivación por falta de capacidad técnica.
   
-  FORMATO: JSON Strict.
+  FORMATO: JSON Strict (Schema Coberturas).
 `;
 
 export const SCHEMA_REGLAS = {
