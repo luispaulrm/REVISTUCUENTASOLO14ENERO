@@ -1,8 +1,9 @@
 import { SchemaType } from "@google/generative-ai";
 import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 
-// Contract Analysis Prompt - Forensic VERSION 11.0 (Ultra-Exhaustive)
-// --- SPLIT PROMPTS FOR 2-PASS EXTRACTION ---
+
+
+// --- SPLIT PROMPTS FOR 3-PASS EXTRACTION ---
 
 export const PROMPT_REGLAS = `
   ** MANDATO FORENSE: PARTE 1 - REGLAS Y DEFINICIONES **
@@ -14,20 +15,53 @@ export const PROMPT_REGLAS = `
   FORMATO: JSON Strict.
 `;
 
-export const PROMPT_COBERTURAS = `
-  ** MANDATO FORENSE: PARTE 2 - COBERTURAS (TABLA DE BENEFICIOS) **
+export const PROMPT_COBERTURAS_HOSP = `
+  ** MANDATO FORENSE: PARTE 2 - COBERTURAS HOSPITALARIAS **
   
   ROL: Auditor Forense.
-  OBJETIVO: Digitalizar la TABLA DE BENEFICIOS (Hospitalario, Ambulatorio, Urgencia).
+  OBJETIVO: Digitalizar SOLO el GRUPO HOSPITALARIO de la Tabla de Beneficios.
   
-  CRITERIO DE COMPLETITUD:
-  - Debes extraer ~45 filas visuales.
-  - Como hay 2 columnas (Preferente / Libre Elección), esto generará ~90 objetos.
-  - BARRIDO VISUAL: Hospitalario -> Ambulatorio -> Urgencia -> Otros.
+  ALCANCE (Filas 1-17):
+  1. Día Cama
+  2. Sala Cuna
+  3. Incubadora
+  4. Día Cama Cuidados (UCI/UTI/Coronario)
+  5. Día Cama Transitorio/Observación
+  6. Exámenes de Laboratorio (Hosp)
+  7. Imagenología (Hosp)
+  8. Derecho de Pabellón
+  9. Kinesiología/Fisioterapia Hospitalaria
+  10. Procedimientos
+  11. Honorarios Médicos Quirúrgicos
+  12. Medicamentos
+  13. Materiales e Insumos Clínicos
+  14. Quimioterapia
+  15. Prótesis y Órtesis
+  16. Visita Médica
+  17. Traslados
   
   INSTRUCCIONES CLAVE:
-  - 'MODALIDAD/RED': Genera 2 objetos por fila si hay 2 columnas de datos.
-  - 'RESTRICCIÓN': Concatena notas al pie, topes y cabeceras.
+  - Genera 2 objetos por fila (Preferente y Libre Elección).
+  - DETENTE antes de llegar a "Consulta Médica" (Ambulatoria).
+  
+  FORMATO: JSON Strict.
+`;
+
+export const PROMPT_COBERTURAS_AMB = `
+  ** MANDATO FORENSE: PARTE 3 - AMBULATORIO, URGENCIA Y OTROS **
+  
+  ROL: Auditor Forense.
+  OBJETIVO: Digitalizar las secciones AMBULATORIA, URGENCIA y OTROS.
+  IGNORA la parte Hospitalaria (ya fue extraída).
+  
+  ALCANCE (Filas 18-43+):
+  - GRUPO AMBULATORIO (Consulta Médica, Exámenes, Pabellón Amb, etc.)
+  - GRUPO URGENCIA (Consulta, Exámenes, Pabellón Urg, etc.)
+  - OTROS (Psiquiatría, Cirugía Refractiva, Marcos, Esclerosis, Internacional, Derivados)
+  
+  INSTRUCCIONES CLAVE:
+  - Genera 2 objetos por fila (Preferente y Libre Elección).
+  - Asegúrate de incluir Prestadores Derivados al final.
   
   FORMATO: JSON Strict.
 `;
