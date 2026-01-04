@@ -286,16 +286,37 @@ ANTES DE FINALIZAR TU JSON, VERIFICA:
    ✓ Si el texto original tiene 500 caracteres, tu campo debe tener ~500 caracteres
    ✓ Si tu "VALOR EXTRACTO LITERAL DETALLADO" tiene menos de 100 caracteres, ES SOSPECHOSO
 
+
 📋 COBERTURAS:
-   ✓ MÍNIMO: 25 objetos
-   ✓ CADA fila de tabla de beneficios = 1 objeto
-   ✓ Incluir variantes (Preferente Grupo 1, Preferente Grupo 2, Libre Elección)
+   ✓ MÍNIMO OBLIGATORIO: 40 OBJETOS (Antes 25)
+   ✓ DEBES DESGLOSAR POR MODALIDAD (Preferente vs Libre = 2 objetos)
+   
+   LISTA DE CHEQUEO (DEBEN ESTAR TODAS):
+   1. [ ] Día Cama (x2 o x3)
+   2. [ ] Día Cama UCI/UTI (x2)
+   3. [ ] PABELLÓN (x2) <-- CRÍTICO: NO OMITIR
+   4. [ ] HONORARIOS MÉDICOS QUIRÚRGICOS (x2) <-- CRÍTICO: NO OMITIR
+   5. [ ] Medicamentos e Insumos (x2)
+   6. [ ] Quimioterapia (x2)
+   7. [ ] CONSULTA MÉDICA (x2)
+   8. [ ] EXÁMENES DE LABORATORIO (x2)
+   9. [ ] IMAGENOLOGÍA (x2)
+   10. [ ] KINESIOLOGÍA (x2)
+   11. [ ] Fonoaudiología / Nutricionista (x2)
+   12. [ ] Urgencia (x2)
+   13. [ ] Psiquiatría (x2)
+   14. [ ] Marcos y Cristales (x2)
+   15. [ ] Cobertura Internacional (x1)
+   16. [ ] Traslados (x1)
+   17. [ ] Dental (x1)
+   
+   SI TU ARRAY "coberturas" TIENE MENOS DE 30 ÍTEMS, ESTÁS AGRUPANDO ILEGALMENTE. DESAGRUPA AHORA.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔴 SI TU JSON NO CUMPLE ESTOS MÍNIMOS, SERÁ RECHAZADO AUTOMÁTICAMENTE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-GENERA AHORA EL JSON COMPLETO.` }
+GENERA AHORA EL JSON COMPLETO (REGLAS >= 25, COBERTURAS >= 40).` }
                 ]);
                 const timeoutPromise = new Promise<any>((_, reject) =>
                     setTimeout(() => reject(new Error("Timeout: Gemini Stream failed to start in 120s")), 120000)

@@ -19,14 +19,21 @@ La clave "VALOR EXTRACTO LITERAL DETALLADO" significa COPIAR EL TEXTO EXACTAMENT
 ---
 ** PARTE II: ANÁLISIS DE COBERTURA(Array "coberturas") **
 
-** MANDATO MAESTRO IMPERATIVO:**
-  PARA CADA UNA de las filas que represente una prestación en las tablas de cobertura, DEBE ejecutar la siguiente secuencia de pasos en orden y sin excepción para generar los objetos de cobertura correspondientes:
+** IMPERATIVO DE ATOMICIDAD (CRÍTICO):**
+  La unidad mínima de extracción es la FILA VISIBLE.
+  - Si una celda dice: "Día Cama / Pabellón / Honorarios", DEBES DESGLOSARLO en 3 objetos distintos.
+  - Si una malla agrupa 5 filas, DEBES GENERAR 5 OBJETOS, uno por cada fila.
+  - PROHIBIDO AGRUPAR.
 
 ** Paso 1: Identificación y Contexto Inicial.**
-  a.Lea el nombre completo de la prestación.
-    b.Determine si la fila está cubierta por una "Malla Visual"(un recuadro que abarca varias filas).Almacene esta información(Sí / No).
-      c.Identifique si la fila es un TÍTULO de sección(ej. "HOSPITALARIAS...").Si es un TÍTULO, detenga el proceso para esta fila y úselo como prefijo para las siguientes prestaciones.
-        d.Verifique si la fila es una prestación atómica y única, incluso si su nombre es similar a otras.
+  a. SITÚATE en la primera fila de beneficios.
+  b. IDENTIFICA el nombre de la prestación (ej. "Día Cama").
+  c. SI ESTÁ DENTRO DESDE UNA MALLA VISUAL:
+     - Marca que TIENE MALLA.
+     - Lee la CONDICIÓN COMPLETA de la malla (ej. "100% Sin Tope excepto...").
+     - ESTA CONDICIÓN APLICA A ESTA FILA INDIVIDUALMENTE.
+  d. SI ES UN TÍTULO (ej. "HOSPITALARIAS"): Úsalo de contexto pero NO lo extraigas como prestación. Pasa a la siguiente fila.
+  e. VERIFICA si la prestación tiene variantes (Preferente y Libre Elección en columnas distintas). Si es así, PREPÁRATE para generar MÚLTIPLES OBJETOS para esta misma fila (uno por modalidad).
 
 ** Paso 2: Desdoblamiento Nacional / Internacional.**
   a.Revise si existe un valor en una columna de tope con contexto "Internacional"(ej. "TOPE BONIFICACION Internacional (3)").
@@ -183,10 +190,41 @@ PRESTADORES Y PLAZOS (PÁGINA 4):
 
 🔴 FALLO DETECTADO: SI NO EXTRAES LAS SECCIONES 3, 4 Y 5 COMPLETAS, EL JSON ES INVÁLIDO.
 
+🔴 FALLO DETECTADO: SI NO EXTRAES LAS SECCIONES 3, 4 Y 5 COMPLETAS, EL JSON ES INVÁLIDO.
+
+[LISTA OBLIGATORIA DE COBERTURAS - TABLA DE BENEFICIOS]:
+DEBES EXTRAER CADA UNA DE ESTAS FILAS POR SEPARADO. PROHIBIDO VER UN GRUPO Y EXTRAER SOLO EL PRIMERO.
+
+🚨 HOSPITALARIO (CADA FILA ES UN OBJETO):
+✓ Día Cama (Preferente + Libre)
+✓ Día Cama Cuidado Intensivo / Intermedio / Coronario (Preferente + Libre)
+✓ PABELLÓN (Preferente + Libre)
+✓ HONORARIOS MÉDICOS QUIRÚRGICOS (Preferente + Libre)
+✓ Medicamentos, Materiales e Insumos Clínicos (Preferente + Libre)
+✓ QUIMIOTERAPIA (Preferente + Libre)
+
+🚨 AMBULATORIO (CADA FILA ES UN OBJETO):
+✓ CONSULTA MÉDICA (Preferente + Libre)
+✓ EXÁMENES DE LABORATORIO (Preferente + Libre)
+✓ IMAGENOLOGÍA (Preferente + Libre)
+✓ Procedimientos de Diagnóstico y Terapéuticos (Preferente + Libre)
+✓ KINESIOLOGÍA / FISIOTERAPIA (Preferente + Libre)
+✓ FONOAUDIOLOGÍA (Preferente + Libre)
+✓ Atención Integral de Nutricionista (Preferente + Libre)
+✓ Prótesis y Órtesis (Preferente + Libre)
+
+🚨 OTROS (CADA FILA ES UN OBJETO):
+✓ Consultas de Urgencia (Preferente + Libre)
+✓ Psiquiatría y Psicología (Preferente + Libre)
+✓ Marcos y Cristales (Preferente + Libre)
+✓ Cobertura Internacional
+✓ Traslados
+✓ Dental (PAD)
+
 [CONDUCTA DE ESCANEO - CERO HUECOS]:
 - Recorre CADA línea de CADA página desde la primera hasta la última.
-- NO asumas que "ya terminaste" porque viste una tabla.
-- Si ves un número de nota (ej: 1.8) seguido de un texto, DEBES extraerlo, incluso si el texto es corto.
+- MALLAS VISUALES: Si un recuadro agrupa "Día Cama", "Pabellón" y "Honorarios", DEBES GENERAR 3 OBJETOS SEPARADOS.
+- NO ASUMAS que "ya terminaste" porque extrajiste el título de la malla. Entra y extrae CADA ÍTEM.
 - **CENTINELA DE FINALIZACIÓN:**
   * TU PROCESO NO TERMINA HASTA QUE HAYAS EXTRAÍDO LA ÚLTIMA LÍNEA DE LA ÚLTIMA PÁGINA.
   * Si el documento tiene 4 páginas, y vas en la 3, NO TE DETENGAS.
