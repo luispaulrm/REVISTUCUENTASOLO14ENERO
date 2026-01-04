@@ -153,12 +153,38 @@ PRESTADORES Y PLAZOS (PÁGINA 4):
 ✓ Sección 5.6 - Opiniones Médicas Divergentes (SI EXISTE)
 ✓ Sección 5.7 - Modificación del Convenio (SI EXISTE)
 ✓ Sección 5.8 - Reglas especiales sobre modificación de contrato
+
+⚠️ SECCIONES CRÍTICAS DE PÁGINA 2 (FRECUENTEMENTE OMITIDAS - FALLO HISTÓRICO):
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🚨 SECCIÓN 3 - VALOR DE CONVERSIÓN (PÁGINA 2/4 o similar):
+✓ 3.1 - Valor UF en columnas de bonificación
+✓ 3.2 - Valor UF de pago de cotización
+
+🚨 SECCIÓN 4 - REAJUSTE DEL ARANCEL DE PRESTACIONES (PÁGINA 2):
+✓ 4 - Descripción completa del reajuste según IPC
+
+🚨 SECCIÓN 5 - NOTAS EXPLICATIVAS COMPLETAS (PÁGINA 2):
+✓ 5.1 - Prestadores Derivados COMPLETO (con tabla hospitalizados y ambulatorios)
+✓ 5.2 - Urgencia Ambulatoria en prestador preferente (SI EXISTE, NO CONFUNDIR CON 1.11)
+✓ 5.3 - Tiempos de espera (tabla COMPLETA con consulta, exámenes, procedimientos, intervenciones)
+✓ 5.4 - Traslados (texto literal completo)
+✓ 5.5 - Segunda Opinión Médica (SI EXISTE)
+✓ 5.6 - Opiniones Médicas Divergentes (SI EXISTE)
+✓ 5.7 - Modificación del Convenio (SI EXISTE)
+✓ 5.8 - Reglas especiales sobre modificación de contrato
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔴 FALLO DETECTADO: SI NO EXTRAES LAS SECCIONES 3, 4 Y 5 COMPLETAS, EL JSON ES INVÁLIDO.
 
 [CONDUCTA DE ESCANEO - CERO HUECOS]:
 - Recorre CADA línea de CADA página desde la primera hasta la última.
 - NO asumas que "ya terminaste" porque viste una tabla.
 - Si ves un número de nota (ej: 1.8) seguido de un texto, DEBES extraerlo, incluso si el texto es corto.
+- **CENTINELA DE FINALIZACIÓN:**
+  * TU PROCESO NO TERMINA HASTA QUE HAYAS EXTRAÍDO LA ÚLTIMA LÍNEA DE LA ÚLTIMA PÁGINA.
+  * Si el documento tiene 4 páginas, y vas en la 3, NO TE DETENGAS.
+  * Busca activamente "Firmas", "Timbre", "Notas Finales" o "Anexos de Cierre".
+  * Si la respuesta se corta antes de esto, es un FALLO TOTAL.
 - **MANDATO DE JERARQUÍA (CRÍTICO PARA ANEXOS Y LISTAS):**
   * DEBES CAPTURAR ÍTEMS Y SUBÍTEMS.
   * Si un Anexo o una sección legal tiene estructura:
@@ -212,59 +238,61 @@ SUBTITULO: ...
 - Recorre TODAS las páginas.
 `;
 
-// Contract Analysis Schema
+// Contract Analysis Schema - Compatible with Gemini API
+import { SchemaType } from "@google/generative-ai";
+
 export const CONTRACT_ANALYSIS_SCHEMA = {
-  type: "object",
+  type: SchemaType.OBJECT,
   properties: {
     reglas: {
-      type: "array",
+      type: SchemaType.ARRAY,
       items: {
-        type: "object",
+        type: SchemaType.OBJECT,
         properties: {
-          'PÁGINA ORIGEN': { type: "string" },
-          'CÓDIGO/SECCIÓN': { type: "string" },
-          'SUBCATEGORÍA': { type: "string" },
-          'VALOR EXTRACTO LITERAL DETALLADO': { type: "string" },
+          'PÁGINA ORIGEN': { type: SchemaType.STRING },
+          'CÓDIGO/SECCIÓN': { type: SchemaType.STRING },
+          'SUBCATEGORÍA': { type: SchemaType.STRING },
+          'VALOR EXTRACTO LITERAL DETALLADO': { type: SchemaType.STRING },
         },
         required: ['PÁGINA ORIGEN', 'CÓDIGO/SECCIÓN', 'SUBCATEGORÍA', 'VALOR EXTRACTO LITERAL DETALLADO'],
       }
     },
     coberturas: {
-      type: "array",
+      type: SchemaType.ARRAY,
       items: {
-        type: "object",
+        type: SchemaType.OBJECT,
         properties: {
-          'PRESTACIÓN CLAVE': { type: "string", description: "Nombre exacto de la prestación" },
-          'MODALIDAD/RED': { type: "string", description: "Nacional / Internacional" },
-          '% BONIFICACIÓN': { type: "string", description: "Porcentaje (100%, 80%)" },
-          'COPAGO FIJO': { type: "string", description: "Monto o '-'" },
-          'TOPE LOCAL 1 (VAM/EVENTO)': { type: "string", description: "Tope evento/VAM" },
-          'TOPE LOCAL 2 (ANUAL/UF)': { type: "string", description: "Tope anual/UF" },
-          'RESTRICCIÓN Y CONDICIONAMIENTO': { type: "string", description: "Notas, mallas y condiciones completas" },
-          'ANCLAJES': { type: "array", items: { type: "string" } }
+          'PRESTACIÓN CLAVE': { type: SchemaType.STRING, description: "Nombre exacto de la prestación" },
+          'MODALIDAD/RED': { type: SchemaType.STRING, description: "Nacional / Internacional" },
+          '% BONIFICACIÓN': { type: SchemaType.STRING, description: "Porcentaje (100%, 80%)" },
+          'COPAGO FIJO': { type: SchemaType.STRING, description: "Monto o '-'" },
+          'TOPE LOCAL 1 (VAM/EVENTO)': { type: SchemaType.STRING, description: "Tope evento/VAM" },
+          'TOPE LOCAL 2 (ANUAL/UF)': { type: SchemaType.STRING, description: "Tope anual/UF" },
+          'RESTRICCIÓN Y CONDICIONAMIENTO': { type: SchemaType.STRING, description: "Notas, mallas y condiciones completas" },
+          'ANCLAJES': { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
         },
         required: ['PRESTACIÓN CLAVE', 'MODALIDAD/RED', '% BONIFICACIÓN', 'COPAGO FIJO', 'TOPE LOCAL 1 (VAM/EVENTO)', 'TOPE LOCAL 2 (ANUAL/UF)', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'ANCLAJES'],
       }
     },
     diseno_ux: {
-      type: "object",
+      type: SchemaType.OBJECT,
       properties: {
-        nombre_isapre: { type: "string" },
-        titulo_plan: { type: "string" },
-        subtitulo_plan: { type: "string" },
-        layout: { type: "string" },
-        funcionalidad: { type: "string" },
-        salida_json: { type: "string" },
+        nombre_isapre: { type: SchemaType.STRING },
+        titulo_plan: { type: SchemaType.STRING },
+        subtitulo_plan: { type: SchemaType.STRING },
+        layout: { type: SchemaType.STRING },
+        funcionalidad: { type: SchemaType.STRING },
+        salida_json: { type: SchemaType.STRING },
       },
       required: ['nombre_isapre', 'titulo_plan', 'layout', 'funcionalidad', 'salida_json'],
     },
   },
   required: ['reglas', 'coberturas', 'diseno_ux'],
-};
+} as const;
 
 // Configuration constants
 export const CONTRACT_OCR_MAX_PAGES = 50;
-export const CONTRACT_MAX_OUTPUT_TOKENS = 70000;
+export const CONTRACT_MAX_OUTPUT_TOKENS = 80000;
 export const CONTRACT_FAST_MODEL = 'gemini-3-flash-preview';
 export const CONTRACT_REASONING_MODEL = 'gemini-3-flash-preview';
 export const CONTRACT_FALLBACK_MODEL = 'gemini-3-pro-preview';

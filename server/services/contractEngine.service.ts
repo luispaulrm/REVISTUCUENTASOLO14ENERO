@@ -14,6 +14,7 @@ import {
     CONTRACT_REASONING_MODEL,
     CONTRACT_FALLBACK_MODEL,
     CONTRACT_DEFAULT_RETRIES,
+    CONTRACT_MAX_OUTPUT_TOKENS,
 } from './contractConstants.js';
 import { AI_CONFIG, calculatePrice } from '../config/ai.config.js';
 import path from 'path';
@@ -235,13 +236,15 @@ export async function analyzeSingleContract(
                 const model = genAI.getGenerativeModel({
                     model: modelName,
                     generationConfig: {
-                        maxOutputTokens: 50000,
+                        maxOutputTokens: CONTRACT_MAX_OUTPUT_TOKENS,
+                        responseMimeType: "application/json",
+                        responseSchema: CONTRACT_ANALYSIS_SCHEMA as any,
                         // temperature: 0
                     },
                     safetySettings: SAFETY_SETTINGS
                 });
 
-                // WRAP STREAM GENERATION IN TIMEOUT (60s - increased for Large PDF processing)
+                // WRAP STREAM GENERATION IN TIMEOUT (120s - increased for Large PDF processing)
                 // SANDWICH STRATEGY: Instructions -> PDF -> Enforcement Reminder
                 const streamPromise = model.generateContentStream([
                     { text: CONTRACT_ANALYSIS_PROMPT },
@@ -254,7 +257,7 @@ export async function analyzeSingleContract(
                     { text: "\n\n[REQUISITO DE CANTIDAD MÍNIMA - VALIDACIÓN OBLIGATORIA]:\n\n⚠️ TU JSON SERÁ RECHAZADO SI NO CUMPLE ESTOS MÍNIMOS:\n\n📋 REGLAS: MÍNIMO 18 OBJETOS\n📋 COBERTURAS: MÍNIMO 25 OBJETOS\n\nLISTA DE COBERTURAS CONOCIDAS (CADA UNA CON PREFERENTE + LIBRE):\n1. Día Cama - Preferente 70%\n2. Día Cama - Preferente 60% (CLC)\n3. Día Cama - Libre Elección\n4. Día Cama UCI/Intermedio - Preferente\n5. Día Cama UCI/Intermedio - Libre\n6. PABELLÓN - PREFERENTE\n7. PABELLÓN - LIBRE ELECCIÓN\n8. Honorarios Médicos Quirúrgicos - Preferente\n9. Honorarios Médicos Quirúrgicos - Libre\n10. Medicamentos/Insumos - Preferente\n11. Medicamentos/Insumos - Libre\n12. Quimioterapia - Preferente\n13. Quimioterapia - Libre\n14. CONSULTA MÉDICA - PREFERENTE\n15. CONSULTA MÉDICA - LIBRE ELECCIÓN\n16. Exámenes de Laboratorio - Preferente\n17. Exámenes de Laboratorio - Libre\n18. IMAGENOLOGÍA - PREFERENTE (OBLIGATORIO)\n19. IMAGENOLOGÍA - LIBRE ELECCIÓN (OBLIGATORIO)\n20. Urgencia - Preferente\n21. Urgencia - Libre\n22. Psiquiatría - Preferente\n23. Psiquiatría - Libre\n24. Marcos y Cristales\n25. Medicamentos Esclerosis Múltiple\n26. Cobertura Internacional\n27. Traslados\n28. Tope General Anual\n\n[POLÍTICA DE CERO OMISIONES - OBLIGATORIO]:\n🚨 PROHIBIDO OMITIR INFORMACIÓN - DELIBERADA O ACCIDENTALMENTE.\n🔍 La lista anterior es SOLO UNA GUÍA. Si el contrato contiene ítems NO listados:\n   → Kinesiología, Fonoaudiología, Dental, Maternidad, Prótesis, Órtesis, Radioterapia, Diálisis, Trasplantes, etc.\n   → DEBES INCLUIRLOS EN TU SALIDA.\n🔍 CADA línea visible en la tabla de beneficios = UN objeto en coberturas.\n🔍 CADA nota, cláusula, definición, anexo = UN objeto en reglas.\n🔍 Tu trabajo: EXTRAER EL 100% DEL CONTENIDO DEL CONTRATO.\n🔍 Si encuentras algo nuevo, CRÉALO. No esperes que yo te lo liste.\n\n¡GENERA AHORA! MÍNIMO: reglas >= 18, coberturas >= 25 (PUEDE SER MUCHO MÁS)" }
                 ]);
                 const timeoutPromise = new Promise<any>((_, reject) =>
-                    setTimeout(() => reject(new Error("Timeout: Gemini Stream failed to start in 60s")), 60000)
+                    setTimeout(() => reject(new Error("Timeout: Gemini Stream failed to start in 120s")), 120000)
                 );
 
                 resultStream = await Promise.race([streamPromise, timeoutPromise]);
