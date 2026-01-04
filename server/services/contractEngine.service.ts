@@ -10,6 +10,7 @@ import {
     PROMPT_REGLAS,
     PROMPT_COBERTURAS_HOSP,
     PROMPT_COBERTURAS_AMB,
+    PROMPT_EXTRAS,
     SCHEMA_REGLAS,
     SCHEMA_COBERTURAS,
     CONTRACT_OCR_MAX_PAGES,
@@ -258,25 +259,32 @@ export async function analyzeSingleContract(
     // --- EXECUTE PHASE 3: COBERTURAS AMBULATORIO/URGENCIA ---
     const ambPhase = await extractSection("AMBULATORIO_RESTO", PROMPT_COBERTURAS_AMB, SCHEMA_COBERTURAS);
 
+    // --- EXECUTE PHASE 4: EXTRAS (Partos, Tiempos, Derivados) ---
+    const extrasPhase = await extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS);
+
     // --- MERGE ---
     const reglas = reglasPhase.result?.reglas || [];
     const coberturasHosp = hospPhase.result?.coberturas || [];
     const coberturasAmb = ambPhase.result?.coberturas || [];
-    const coberturas = [...coberturasHosp, ...coberturasAmb];
+    const coberturasExtras = extrasPhase.result?.coberturas || [];
+
+    // Merge all coverage arrays
+    const coberturas = [...coberturasHosp, ...coberturasAmb, ...coberturasExtras];
+
     const diseno_ux = hospPhase.result?.diseno_ux || ambPhase.result?.diseno_ux || {
         nombre_isapre: "Unknown",
         titulo_plan: "Unknown",
         layout: "failed_extraction",
-        funcionalidad: "multi_pass_v3",
+        funcionalidad: "multi_pass_v4_universal",
         salida_json: "merged"
     };
 
     // --- TOTAL METRICS ---
-    const totalInput = (reglasPhase.metrics.tokensInput) + (hospPhase.metrics.tokensInput) + (ambPhase.metrics.tokensInput);
-    const totalOutput = (reglasPhase.metrics.tokensOutput) + (hospPhase.metrics.tokensOutput) + (ambPhase.metrics.tokensOutput);
-    const totalCost = (reglasPhase.metrics.cost) + (hospPhase.metrics.cost) + (ambPhase.metrics.cost);
+    const totalInput = (reglasPhase.metrics.tokensInput) + (hospPhase.metrics.tokensInput) + (ambPhase.metrics.tokensInput) + (extrasPhase.metrics.tokensInput);
+    const totalOutput = (reglasPhase.metrics.tokensOutput) + (hospPhase.metrics.tokensOutput) + (ambPhase.metrics.tokensOutput) + (extrasPhase.metrics.tokensOutput);
+    const totalCost = (reglasPhase.metrics.cost) + (hospPhase.metrics.cost) + (ambPhase.metrics.cost) + (extrasPhase.metrics.cost);
 
-    log(`\n[ContractEngine] ✅ FUSIONADO: Reglas=${reglas.length}, Hosp=${coberturasHosp.length}, Amb=${coberturasAmb.length}, TOTAL=${coberturas.length}`);
+    log(`\n[ContractEngine] ✅ FUSIONADO 4-PASS: Reglas=${reglas.length}, Hosp=${coberturasHosp.length}, Amb=${coberturasAmb.length}, Extras=${coberturasExtras.length}, TOTAL=${coberturas.length}`);
 
     return {
         reglas,

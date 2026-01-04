@@ -5,77 +5,65 @@ import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 
 // --- SPLIT PROMPTS FOR 3-PASS EXTRACTION ---
 
+// --- SPLIT PROMPTS FOR 4-PASS UNIVERSAL ARCHITECTURE (v8.0) ---
+
 export const PROMPT_REGLAS = `
-  ** MANDATO FORENSE: PARTE 1 - REGLAS Y DEFINICIONES (MODO "UN-NESTING" + TEXTO INTEGRO) **
+  ** MANDATO UNIVERSAL v8.0: PASE 1 - REGLAS Y DEFINICIONES **
   
-  ROL: Auditor Forense.
-  OBJETIVO: Extraer LITERALMENTE todas las notas al pie, definiciones y cláusulas numéricas (1.1, 1.2, 5.1, etc.).
+  ROL: Auditor Forense de Seguros (Nivel Experto).
+  OBJETIVO: Extraer Notas Legales, Definiciones de Tiempo y Exclusiones.
   
-  ⚠️ MANDATO DE FIDELIDAD (IMPORTANTE):
-  - "VALOR EXTRACTO LITERAL DETALLADO": DEBE SER UN VOLCADO DE TEXTO ÍNTEGRO. No permitas paráfrasis.
-  - Ejemplo: Si la regla es Nota 1.3, empieza con "En caso de urgencia..." y termina con la última palabra del párrafo. ¡Copia y pega!
+  ⚠️ INSTRUCCIONES MAESTRAS PASE 1:
+  1. **ATOMICIDAD**: Si la Nota 1.1 tiene 3 párrafos, crea 3 reglas separadas. ¡PROHIBIDO RESUMIR!
+  2. **VARIABLES DE TIEMPO**: Busca definiciones de "Día Cama" (ej: >4 horas vs >6 horas).
+  3. **VARIABLES DE EXCLUSIÓN**: Transcribe listas de exclusiones de insumos (ej: pañales, kit de aseo).
+  4. **FIDELIDAD**: El campo 'VALOR EXTRACTO LITERAL DETALLADO' debe ser >50 caracteres.
+  5. **IGNORAR**: Tabla de Factores.
   
-  CRITERIO DE EXPLOSIÓN:
-  1. **DESANIDADO**: Si dice "Clínica A, B y C", genera 3 reglas separadas.
-  2. **MAPEO DE NOTAS**: Cada sub-punto (1.1 a 1.13, 5.1 a 5.8) de las páginas 3 y 4 es una mina de oro. Extráelo como entidad separada.
-  3. **PÁGINA 4**: No olvides las reglas finales: "Tiempos de Espera" (5.3) y "Traslados" (5.4).
-  
-  FORMATO: JSON Strict.
+  FORMATO: JSON Strict (Schema Reglas Universal).
 `;
 
 export const PROMPT_COBERTURAS_HOSP = `
-  ** MANDATO FORENSE: PARTE 2 - COBERTURAS HOSPITALARIAS (MODO DUAL + LETRA PEQUEÑA) **
+  ** MANDATO UNIVERSAL v8.0: PASE 2 - HOSPITALARIO (HOSP) **
   
-  ROL: Auditor Forense.
-  OBJETIVO: Digitalizar SOLO el GRUPO HOSPITALARIO.
+  OBJETIVO: Mapear Día Cama, Pabellón, Insumos y Medicamentos.
   
-  ALCANCE (Filas 1-17):
-  1. Día Cama
-  2. Sala Cuna
-  3. Incubadora
-  4. Día Cama Cuidados (UCI/UTI/Coronario)
-  5. Día Cama Transitorio/Observación
-  6. Exámenes de Laboratorio (Hosp)
-  7. Imagenología (Hosp)
-  8. Derecho de Pabellón
-  9. Kinesiología/Fisioterapia Hospitalaria
-  10. Procedimientos
-  11. Honorarios Médicos Quirúrgicos
-  12. Medicamentos
-  13. Materiales e Insumos Clínicos
-  14. Quimioterapia
-  15. Prótesis y Órtesis
-  16. Visita Médica
-  17. Traslados
-  
-  INSTRUCCIONES CLAVE:
-  - 🔴 **OBLIGATORIO**: Debes extraer SIEMPRE por separado "Oferta Preferente" y "Libre Elección".
-  - **LETRA PEQUEÑA**: Copia textualmente las restricciones (ej: "Sólo con Médicos Staff", "Sujeto a Arancel V20").
-  - **SEPARACIÓN**: Si dice "Clínica Las Condes bonificación 60%", extráelo como regla propia.
+  ⚠️ INSTRUCCIONES MAESTRAS PASE 2:
+  1. **DESGLOSE DE REDES**: Crea una regla JSON para CADA prestador de la Red Preferente mencionado.
+  2. **CONDICIONES**: Captura "Solo en habitación compartida" o "Topes de veces al año".
+  3. **IGNORAR**: Tabla de Factores.
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_COBERTURAS_AMB = `
-  ** MANDATO FORENSE: PARTE 3 - AMBULATORIO, URGENCIA Y OTROS (MODO DUAL + LETRA PEQUEÑA) **
+  ** MANDATO UNIVERSAL v8.0: PASE 3 - AMBULATORIO Y URGENCIA (AMB) **
   
-  ROL: Auditor Forense.
-  OBJETIVO: Digitalizar las secciones AMBULATORIA, URGENCIA y OTROS.
+  OBJETIVO: Consultas, Exámenes y Urgencias.
   
-  ALCANCE (Filas 18-43+):
-  - GRUPO AMBULATORIO (Consulta Médica, Exámenes, Pabellón Amb, etc.)
-  - GRUPO URGENCIA (Consulta, Exámenes, Pabellón Urg, etc.)
-  - OTROS (Psiquiatría, Cirugía Refractiva, Marcos, Esclerosis, Internacional, Derivados)
+  ⚠️ INSTRUCCIONES MAESTRAS PASE 3:
+  1. **URGENCIA COMPLEJA vs SIMPLE**: Busca los códigos que definen la complejidad (ej: subgrupos 04, 05).
+  2. **COPAGOS FIJOS**: Captura valores en UF o Pesos para consultas de urgencia.
+  3. **IGNORAR**: Tabla de Factores.
   
-  INSTRUCCIONES CLAVE:
-  - 🔴 **OBLIGATORIO**: Debes extraer SIEMPRE por separado "Oferta Preferente" y "Libre Elección".
-  - **FINAL DEL DOCUMENTO**: Asegúrate de llegar al final para capturar Prestadores Derivados.
-  - **LETRA PEQUEÑA**: Copia textualmente todas las condiciones (ej: "Sin tope", "V.A.").
+  FORMATO: JSON Strict.
+`;
+
+export const PROMPT_EXTRAS = `
+  ** MANDATO UNIVERSAL v8.0: PASE 4 - PRESTACIONES VALORIZADAS (EXTRAS) **
+  
+  OBJETIVO: Tablas de Cirugías Específicas (Partos, PAD) y Tiempos.
+  
+  ⚠️ INSTRUCCIONES MAESTRAS PASE 4:
+  1. **TABLAS VALORIZADAS**: Mapea cirugías con copago fijo (ej: Parto, Apendicectomía - Pág 7 Consalud).
+  2. **TIEMPOS DE ESPERA**: Si no salió en Reglas, extráelo aquí.
+  3. **DERIVADOS**: Prestadores derivados y cobertura internacional.
   
   FORMATO: JSON Strict.
 `;
 
 export const SCHEMA_REGLAS = {
+  description: "Esquema Universal de Reglas de Auditoría v8.1",
   type: SchemaType.OBJECT,
   properties: {
     reglas: {
@@ -84,17 +72,35 @@ export const SCHEMA_REGLAS = {
         type: SchemaType.OBJECT,
         properties: {
           'PÁGINA ORIGEN': { type: SchemaType.STRING },
-          'CÓDIGO/SECCIÓN': { type: SchemaType.STRING },
+          'CÓDIGO/SECCIÓN': { type: SchemaType.STRING }, // Mantener compatible
+          'CÓDIGO_DISPARADOR_FONASA': {
+            type: SchemaType.STRING,
+            description: "Lista de códigos que activan esta regla (ej: 1802053, 403, 405)"
+          },
           'SUBCATEGORÍA': { type: SchemaType.STRING },
-          'VALOR EXTRACTO LITERAL DETALLADO': { type: SchemaType.STRING },
+          'VALOR EXTRACTO LITERAL DETALLADO': {
+            type: SchemaType.STRING,
+            description: "Copia fiel del párrafo completo. OBLIGATORIO > 50 caracteres."
+          },
+          'LOGICA_DE_CALCULO': {
+            type: SchemaType.STRING,
+            description: "Explicación técnica: ¿Es un tope por evento, por día, o porcentaje fijo?"
+          }
         },
-        required: ['PÁGINA ORIGEN', 'CÓDIGO/SECCIÓN', 'SUBCATEGORÍA', 'VALOR EXTRACTO LITERAL DETALLADO'],
+        required: ['PÁGINA ORIGEN', 'CÓDIGO/SECCIÓN', 'VALOR EXTRACTO LITERAL DETALLADO'],
+      }
+    },
+    // Metrics structure remains
+    metrics: {
+      type: SchemaType.OBJECT,
+      properties: {
+        tokensInput: { type: SchemaType.NUMBER },
+        tokensOutput: { type: SchemaType.NUMBER },
+        cost: { type: SchemaType.NUMBER }
       }
     }
-  },
-  required: ['reglas']
+  }
 };
-
 export const SCHEMA_COBERTURAS = {
   type: SchemaType.OBJECT,
   properties: {
@@ -110,7 +116,9 @@ export const SCHEMA_COBERTURAS = {
           'TOPE LOCAL 1 (VAM/EVENTO)': { type: SchemaType.STRING, description: "Tope por evento o VAM" },
           'TOPE LOCAL 2 (ANUAL/UF)': { type: SchemaType.STRING, description: "Tope anual en UF" },
           'RESTRICCIÓN Y CONDICIONAMIENTO': { type: SchemaType.STRING, description: "Todas las notas, condiciones de malla y restricciones específicas" },
-          'ANCLAJES': { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+          'ANCLAJES': { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+          'CÓDIGO_DISPARADOR_FONASA': { type: SchemaType.STRING, description: "Códigos FONASA asociados (ej: 0305xxx)" },
+          'LOGICA_DE_CALCULO': { type: SchemaType.STRING, description: "Ej: % de cobertura sobre el arancel" }
         },
         required: ['PRESTACIÓN CLAVE', 'MODALIDAD/RED', '% BONIFICACIÓN', 'COPAGO FIJO', 'TOPE LOCAL 1 (VAM/EVENTO)', 'TOPE LOCAL 2 (ANUAL/UF)', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'ANCLAJES'],
       }
