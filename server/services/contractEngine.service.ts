@@ -158,6 +158,39 @@ const SAFETY_SETTINGS = [
     { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
 ];
 
+/**
+ * Validador de Calidad Forense v8.5
+ * Verifica que los extractos literales tengan la densidad requerida.
+ */
+function auditIntegrityCheck(jsonOutput: any, log: (msg: string) => void) {
+    const minChars = 50; // Longitud mínima para un extracto legal real
+    const issues: string[] = [];
+
+    const reglas = jsonOutput.reglas || [];
+    reglas.forEach((regla: any, index: number) => {
+        const literal = regla['VALOR EXTRACTO LITERAL DETALLADO'];
+
+        if (!literal || literal.toLowerCase() === 'null') {
+            issues.push(`Error en Regla ${index}: Extracto nulo.`);
+        } else if (literal.length < minChars) {
+            issues.push(`Advertencia en Regla ${index}: Extracto muy corto (${literal.length} chars). Posible resumen.`);
+        }
+    });
+
+    if (issues.length > 0) {
+        log('\n[ContractEngine] ⚠️ INTEGRIDAD FORENSE COMPROMETIDA EN ALGUNAS REGLAS:');
+        issues.forEach(i => log(`   - ${i}`));
+    } else {
+        log('\n[ContractEngine] ✅ INTEGRIDAD FORENSE CERTIFICADA: Todos los extractos cumplen densidad mínima.');
+    }
+
+    return {
+        isValid: issues.length === 0,
+        report: issues,
+        totalRules: reglas.length
+    };
+}
+
 export async function analyzeSingleContract(
     file: UploadedFile,
     apiKey: string,
@@ -284,9 +317,7 @@ export async function analyzeSingleContract(
     const totalOutput = (reglasPhase.metrics.tokensOutput) + (hospPhase.metrics.tokensOutput) + (ambPhase.metrics.tokensOutput) + (extrasPhase.metrics.tokensOutput);
     const totalCost = (reglasPhase.metrics.cost) + (hospPhase.metrics.cost) + (ambPhase.metrics.cost) + (extrasPhase.metrics.cost);
 
-    log(`\n[ContractEngine] ✅ FUSIONADO 4-PASS: Reglas=${reglas.length}, Hosp=${coberturasHosp.length}, Amb=${coberturasAmb.length}, Extras=${coberturasExtras.length}, TOTAL=${coberturas.length}`);
-
-    return {
+    const result: ContractAnalysisResult = {
         reglas,
         coberturas,
         diseno_ux,
@@ -305,4 +336,9 @@ export async function analyzeSingleContract(
             }
         }
     };
+
+    // --- FINAL FORENSIC CHECK ---
+    auditIntegrityCheck({ reglas }, log);
+
+    return result;
 }
