@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { GeminiService } from '../services/gemini.service.js';
 import { PAM_PROMPT, PAM_ANALYSIS_SCHEMA } from '../prompts/pam.prompt.js';
 import { AI_CONFIG } from '../config/ai.config.js';
+import { repairAndParseJson } from '../utils/jsonRepair.js';
 
 // Helper para obtener env vars (reutilizado del server.ts)
 function envGet(k: string) {
@@ -76,8 +77,21 @@ export async function handlePamExtraction(req: Request, res: Response) {
 
         // Convertir el texto acumulado a JSON
         try {
-            const cleanedText = fullText.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
-            const rawPamData: any[] = JSON.parse(cleanedText);
+            // Intenta reparar y parsear
+            let rawPamData = repairAndParseJson(fullText);
+
+            // Garantizar que sea Array
+            if (!Array.isArray(rawPamData)) {
+                // A veces Gemini devuelve un objeto { items: [...] } o { folios: [...] }
+                if (rawPamData.items && Array.isArray(rawPamData.items)) {
+                    rawPamData = rawPamData.items;
+                } else if (rawPamData.folios && Array.isArray(rawPamData.folios)) {
+                    rawPamData = rawPamData.folios;
+                } else {
+                    // Si es un solo objeto folio, lo envolvemos
+                    rawPamData = [rawPamData];
+                }
+            }
 
             // --- CONSOLIDACIÓN DE FOLIOS DUPLICADOS ---
             // A veces Gemini emite el mismo folio varias veces si está fragmentado pág por pág

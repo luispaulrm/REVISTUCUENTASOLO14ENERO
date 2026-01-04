@@ -7,6 +7,13 @@ export const CONTRACT_ANALYSIS_PROMPT = `
 ---
 ** PARTE I: EXTRACCIÓN FORENSE DE REGLAS(Array "reglas") **
 
+🔴 REGLA CRÍTICA DE TEXTO LITERAL:
+La clave "VALOR EXTRACTO LITERAL DETALLADO" significa COPIAR EL TEXTO EXACTAMENTE COMO APARECE EN EL PDF.
+✓ NO RESUMIR, NO PARAFRASEAR, NO INTERPRETAR
+✓ COPIAR palabra por palabra, carácter por carácter
+✓ Si el texto original ocupa 3 líneas y tiene 400 caracteres, tu campo debe tener ~400 caracteres
+✓ Un campo con menos de 80 caracteres es SOSPECHOSO de ser un resumen ilegal
+
   Extraiga CADA cláusula, regla, definición y nota explicativa como un objeto individual, asegurando que CADA objeto contenga la clave 'PÁGINA ORIGEN' para trazabilidad.
 
 ---
