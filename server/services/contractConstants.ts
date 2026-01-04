@@ -6,23 +6,25 @@ import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 // --- SPLIT PROMPTS FOR 3-PASS EXTRACTION ---
 
 export const PROMPT_REGLAS = `
-  ** MANDATO FORENSE: PARTE 1 - REGLAS Y DEFINICIONES (MODO "UN-NESTING") **
+  ** MANDATO FORENSE: PARTE 1 - REGLAS Y DEFINICIONES (MODO "UN-NESTING" + TEXTO INTEGRO) **
   
   ROL: Auditor Forense.
   OBJETIVO: Extraer LITERALMENTE todas las notas al pie, definiciones y cláusulas numéricas (1.1, 1.2, 5.1, etc.).
   
-  ⚠️ CRITERIO DE EXPLOSIÓN DE REGLAS (MÍNIMO 30+ REGLAS):
-  1. **DESANIDADO ("UN-NESTING")**: No generes una regla gigante. Si una cláusula menciona "Clínica A, B y C", genera 3 objetos JSON idénticos, uno para cada clínica.
-  2. **GRANULARIDAD DE NOTAS**: Descompón cada Nota (ej: 1.1) en al menos 3 reglas lógicas:
-     - Regla de Condición (¿Cuándo aplica?)
-     - Regla de Plazo/Tiempo
-     - Regla de Excepción
+  ⚠️ MANDATO DE FIDELIDAD (IMPORTANTE):
+  - "VALOR EXTRACTO LITERAL DETALLADO": DEBE SER UN VOLCADO DE TEXTO ÍNTEGRO. No permitas paráfrasis.
+  - Ejemplo: Si la regla es Nota 1.3, empieza con "En caso de urgencia..." y termina con la última palabra del párrafo. ¡Copia y pega!
+  
+  CRITERIO DE EXPLOSIÓN:
+  1. **DESANIDADO**: Si dice "Clínica A, B y C", genera 3 reglas separadas.
+  2. **MAPEO DE NOTAS**: Cada sub-punto (1.1 a 1.13, 5.1 a 5.8) de las páginas 3 y 4 es una mina de oro. Extráelo como entidad separada.
+  3. **PÁGINA 4**: No olvides las reglas finales: "Tiempos de Espera" (5.3) y "Traslados" (5.4).
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_COBERTURAS_HOSP = `
-  ** MANDATO FORENSE: PARTE 2 - COBERTURAS HOSPITALARIAS (MODO DUAL) **
+  ** MANDATO FORENSE: PARTE 2 - COBERTURAS HOSPITALARIAS (MODO DUAL + LETRA PEQUEÑA) **
   
   ROL: Auditor Forense.
   OBJETIVO: Digitalizar SOLO el GRUPO HOSPITALARIO.
@@ -48,14 +50,14 @@ export const PROMPT_COBERTURAS_HOSP = `
   
   INSTRUCCIONES CLAVE:
   - 🔴 **OBLIGATORIO**: Debes extraer SIEMPRE por separado "Oferta Preferente" y "Libre Elección".
-  - ¡GENERA 2 OBJETOS JSON POR CADA FILA VISUAL DEL PDF!
-  - DETENTE antes de llegar a "Consulta Médica" (Ambulatoria).
+  - **LETRA PEQUEÑA**: Copia textualmente las restricciones (ej: "Sólo con Médicos Staff", "Sujeto a Arancel V20").
+  - **SEPARACIÓN**: Si dice "Clínica Las Condes bonificación 60%", extráelo como regla propia.
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_COBERTURAS_AMB = `
-  ** MANDATO FORENSE: PARTE 3 - AMBULATORIO, URGENCIA Y OTROS (MODO DUAL) **
+  ** MANDATO FORENSE: PARTE 3 - AMBULATORIO, URGENCIA Y OTROS (MODO DUAL + LETRA PEQUEÑA) **
   
   ROL: Auditor Forense.
   OBJETIVO: Digitalizar las secciones AMBULATORIA, URGENCIA y OTROS.
@@ -67,8 +69,8 @@ export const PROMPT_COBERTURAS_AMB = `
   
   INSTRUCCIONES CLAVE:
   - 🔴 **OBLIGATORIO**: Debes extraer SIEMPRE por separado "Oferta Preferente" y "Libre Elección".
-  - ¡GENERA 2 OBJETOS JSON POR CADA FILA VISUAL DEL PDF!
-  - Asegúrate de incluir Prestadores Derivados al final.
+  - **FINAL DEL DOCUMENTO**: Asegúrate de llegar al final para capturar Prestadores Derivados.
+  - **LETRA PEQUEÑA**: Copia textualmente todas las condiciones (ej: "Sin tope", "V.A.").
   
   FORMATO: JSON Strict.
 `;
