@@ -5,17 +5,22 @@ import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 
 // --- SPLIT PROMPTS FOR 3-PASS EXTRACTION ---
 
-// --- SPLIT PROMPTS FOR 4-PASS UNIVERSAL ARCHITECTURE (v8.2 EXPLOSION) ---
+// --- SPLIT PROMPTS FOR 4-PASS UNIVERSAL ARCHITECTURE (v8.4 ANTI-PEREZA & OVERRIDES) ---
 
 export const PROMPT_REGLAS = `
-  ** MANDATO UNIVERSAL v8.2: PASE 1 - REGLAS Y DEFINICIONES **
+  ** MANDATO UNIVERSAL v8.4: PASE 1 - REGLAS Y DEFINICIONES **
+  
+  ⚠️ ALERTA DE SEGURIDAD DE DATOS (CRÍTICO):
+  Queda estrictamente prohibido usar elipsis (...), resúmenes o frases como "según indica el plan".
+  El valor de 'VALOR EXTRACTO LITERAL DETALLADO' es tu prioridad número uno.
+  Si el extracto tiene 500 palabras, escribe las 500 palabras. Tienes 8.192 tokens para este fin; ÚSALOS TODOS.
   
   ROL: Auditor Forense de Seguros (Nivel Experto).
   OBJETIVO: Extraer Notas Legales, Definiciones de Tiempo y Exclusiones.
   
   ⚠️ INSTRUCCIONES DE EXPLOSIÓN (PASE 1):
   1. **ATOMICIDAD**: Si la Nota 1.1 tiene 3 párrafos con condiciones distintas, crea 3 reglas separadas.
-  2. **INSUMOS NO BONIFICABLES**: Busca la lista de exclusiones (ej: "pañales, kit de aseo, termómetros"). ¡Cópiala ENTERA!
+  2. **INSUMOS NO BONIFICABLES**: Busca la lista de exclusiones (ej: "pañales, kit de aseo, termómetros"). ¡Cópiala ENTERA, LITERAL!
   3. **VARIABLES DE TIEMPO**: Busca definiciones de "Día Cama" (ej: >4 horas vs >6 horas).
   4. **FIDELIDAD**: El campo 'VALOR EXTRACTO LITERAL DETALLADO' debe ser >50 caracteres.
   
@@ -23,7 +28,7 @@ export const PROMPT_REGLAS = `
 `;
 
 export const PROMPT_COBERTURAS_HOSP = `
-  ** MANDATO UNIVERSAL v8.2: PASE 2 - HOSPITALARIO (HOSP) - ESTRATAGEMA DE MULTIPLICACIÓN **
+  ** MANDATO UNIVERSAL v8.4: PASE 2 - HOSPITALARIO (HOSP) **
   
   OBJETIVO: Mapear Día Cama, Pabellón, Insumos y Medicamentos.
   
@@ -31,14 +36,13 @@ export const PROMPT_COBERTURAS_HOSP = `
   1. **IDENTIFICA LOS PRESTADORES**: Busca la lista de Clínicas Preferentes (ej: Alemana, Indisa, Santa María).
   2. **EXPLOSIÓN COMBINATORIA**: Por cada Fila (ej: "Día Cama") y por CADA Prestador, genera un objeto JSON ÚNICO.
      - Ejemplo: { item: "Día Cama", modalidad: "Pref. Alemana", ... }
-  3. **CONDICIONES**: Captura "Solo en habitación compartida" o "Topes de veces al año".
-  4. **AUTO-DETECCIÓN DE TOPES GLOBALES**: Captura el MONTO TOTAL ANUAL por beneficiario (ej: 5.000 UF, 11.200 UF) que suele estar arriba o abajo de la tabla.
+  3. **AUTO-DETECCIÓN DE TOPES GLOBALES**: Captura el MONTO TOTAL ANUAL por beneficiario (ej: 5.000 UF, 11.200 UF).
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_COBERTURAS_AMB = `
-  ** MANDATO UNIVERSAL v8.2: PASE 3 - AMBULATORIO Y URGENCIA (AMB) **
+  ** MANDATO UNIVERSAL v8.4: PASE 3 - AMBULATORIO Y URGENCIA (AMB) **
   
   OBJETIVO: Consultas, Exámenes y Urgencias.
   
@@ -49,29 +53,31 @@ export const PROMPT_COBERTURAS_AMB = `
   2. **CRITERIO DE COMPLEJIDAD**:
      - Busca CÓDIGOS FONASA GATILLANTES (ej: 03, 04, 05 para Imagenología).
      - Rellena el campo 'CÓDIGO_DISPARADOR_FONASA' con la lista (ej: "1802053, 0405001").
-  3. **MULTIPLICACIÓN**: Aplica la misma lógica [Item x Prestador] que en Hospitalario.
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_EXTRAS = `
-  ** MANDATO FORENSE v8.3: PASE 4 - PRESTACIONES VALORIZADAS (LOGICA "PAGE 7") **
+  ** MANDATO FORENSE v8.4: PASE 4 - PRESTACIONES VALORIZADAS (PAGE 7 SUPREMACY) **
   
-  ROL: Auditor Forense.
+  ⚠️ ALERTA DE SEGURIDAD DE DATOS (CRÍTICO):
+  Prohibido resumir. Copia TEXTUALMENTE las condiciones.
+  
   OBJETIVO: Capturar la "Selección de Prestaciones Valorizadas" que SOBREESCRIBE la bonificación general.
   
   ⚠️ INSTRUCCIONES CRÍTICAS (CONSALUD/MASVIDA/COLMENA):
-  1. **REGLA DE SUPREMACÍA**: Si encuentras una tabla con montos fijos (ej: Parto, Cesárea, Apendicectomía, Colecistectomía), estos valores REEMPLAZAN el % general. Indícalo en 'LOGICA_DE_CALCULO'.
-  2. **VINCULACIÓN PRESTADOR**: Extrae el NÚMERO DE PRESTADOR asociado a cada copago fijo.
-  3. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos en estas cirugías (ej: "Tope $758.208 en Neumonía/Apendicectomía").
-  4. **TIEMPOS DE ESPERA**: Mapea la tabla completa de tiempos (10 días consulta, etc.) y cita la nota de insuficiencia.
-  5. **DERIVADOS**: Reglas de derivación por falta de capacidad técnica.
+  1. **REGLA DE SUPREMACÍA**: Busca la sección 'SELECCIÓN DE PRESTACIONES VALORIZADAS' (Generalmente Pág 7).
+     - Por cada cirugía (Apendicectomía, Cesárea, Parto, etc.), genera una regla.
+     - Captura el CÓDIGO FONASA y el Valor en Pesos ('Copago').
+     - ESTOS VALORES SOBREESCRIBEN CUALQUIER PORCENTAJE DEL PLAN GENERAL. Márcalos como 'SUPREMO'.
+  2. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos en estas cirugías (ej: "Tope $758.208").
+  3. **TIEMPOS DE ESPERA**: Mapea la tabla completa de tiempos (10 días consulta, etc.).
   
   FORMATO: JSON Strict (Schema Coberturas).
 `;
 
 export const SCHEMA_REGLAS = {
-  description: "Esquema Universal de Reglas de Auditoría v8.1",
+  description: "Esquema Universal de Reglas de Auditoría v8.4",
   type: SchemaType.OBJECT,
   properties: {
     reglas: {
@@ -117,18 +123,24 @@ export const SCHEMA_COBERTURAS = {
       items: {
         type: SchemaType.OBJECT,
         properties: {
-          'PRESTACIÓN CLAVE': { type: SchemaType.STRING, description: "Nombre exacto de la prestación" },
-          'MODALIDAD/RED': { type: SchemaType.STRING, description: "Nacional / Internacional / Preferente / Libre Elección" },
-          '% BONIFICACIÓN': { type: SchemaType.STRING, description: "Porcentaje (ej: 100%, 80%)" },
-          'COPAGO FIJO': { type: SchemaType.STRING, description: "Monto fijo o '-'" },
-          'TOPE LOCAL 1 (VAM/EVENTO)': { type: SchemaType.STRING, description: "Tope por evento o VAM" },
-          'TOPE LOCAL 2 (ANUAL/UF)': { type: SchemaType.STRING, description: "Tope anual en UF" },
-          'RESTRICCIÓN Y CONDICIONAMIENTO': { type: SchemaType.STRING, description: "Todas las notas, condiciones de malla y restricciones específicas" },
-          'ANCLAJES': { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+          'categoria': { type: SchemaType.STRING },
+          'item': { type: SchemaType.STRING },
+          'modalidad': { type: SchemaType.STRING, enum: ["Libre Elección", "Oferta Preferente", "Bonificación"] },
+          'cobertura': { type: SchemaType.STRING },
+          'tope': { type: SchemaType.STRING },
+          'copago': { type: SchemaType.STRING },
+          'nota_restriccion': { type: SchemaType.STRING, nullable: true },
+
+          // Campos v8.0/8.4
           'CÓDIGO_DISPARADOR_FONASA': { type: SchemaType.STRING, description: "Códigos FONASA asociados (ej: 0305xxx)" },
-          'LOGICA_DE_CALCULO': { type: SchemaType.STRING, description: "Ej: % de cobertura sobre el arancel" }
+          'LOGICA_DE_CALCULO': { type: SchemaType.STRING, description: "Ej: % de cobertura sobre el arancel" },
+          'NIVEL_PRIORIDAD': {
+            type: SchemaType.STRING,
+            enum: ["GENERAL", "SUPREMO"],
+            description: "'GENERAL' para tablas pág 1, 'SUPREMO' para prestaciones valorizadas pág 7."
+          }
         },
-        required: ['PRESTACIÓN CLAVE', 'MODALIDAD/RED', '% BONIFICACIÓN', 'COPAGO FIJO', 'TOPE LOCAL 1 (VAM/EVENTO)', 'TOPE LOCAL 2 (ANUAL/UF)', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'ANCLAJES'],
+        required: ['categoria', 'item', 'modalidad', 'cobertura']
       }
     },
     diseno_ux: {
