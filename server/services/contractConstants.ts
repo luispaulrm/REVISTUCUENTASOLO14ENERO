@@ -1,89 +1,106 @@
 import { SchemaType } from "@google/generative-ai";
 
-// Contract Analysis Prompt - Forensic VERSION 10.0 (Json Deterministic)
+// Contract Analysis Prompt - Forensic VERSION 11.0 (Ultra-Exhaustive)
 export const CONTRACT_ANALYSIS_PROMPT = `
-  ** Mandato Forense de Análisis de Contrato de Salud Isapre - Versión Final (JSON STRICT MODE) **
+  ** MANDATO FORENSE DE EXTRACCIÓN TOTAL (NO RESUMIR NADA) **
 
-    Usted es un motor de extracción de datos forense. Su ÚNICA función es convertir el contrato PDF a un objeto JSON válido.
-    
-    CRITERIO FUNDAMENTAL: "SI EXISTE EN EL PDF, DEBE EXISTIR EN EL JSON".
-    NO AGRUPE. NO RESUMA. NO OMITE NADA.
-
----
-** PARTE I: EXTRACCIÓN DE REGLAS (Array "reglas") **
-
-  1. ** Literalidad Absoluta **: El campo "VALOR EXTRACTO LITERAL DETALLADO" debe contener el texto EXACTO del PDF.
-  2. ** Exhaustividad **: Extraiga TODAS las notas explicativas (1.1, 1.2, etc.), definiciones (Sección 2) y cláusulas administrativas (Secciones 3, 4, 5).
-
----
-** PARTE II: ANÁLISIS DE COBERTURA (Array "coberturas") **
-
-** IMPERATIVO DE COMPLETITUD:**
-  He detectado que esta tabla contiene entre 70 y 85 filas de beneficios.
-  TU DEBER JSON ES EXTRAERLAS TODAS.
-  Si tu JSON tiene menos de 60 ítems, es una ALUCINACIÓN POR OMISIÓN y será rechazado.
-
-  [LISTA DE CONTROL DE EXTRACCIÓN - NO ES OPCIONAL]:
+  ROL: Eres un Auditor Forense de Contratos. Tu trabajo NO es interpretar, es DIGITALIZAR con precisión de píxel cada fila visible del documento.
   
-  GRUPO A: HOSPITALARIO (Extraer CADA fila por separado)
-  - Días Cama (Todas las variantes: Solo, UCI, UTI, Coronario, Transitorio).
-  - Sala Cuna, Incubadora.
-  - Exámenes laboratorios e Imagenología (Hospitalario).
-  - Pabellones y Procedimientos.
-  - Honorarios Médicos (Verificar notas staff vs libre elección).
-  - Medicamentos y materiales (Separar si están en filas distintas).
-  - Quimioterapia y Drogas antineoplásicas.
-  - Prótesis y Órtesis (Incluyendo osteosíntesis).
-  - Visitas médicas.
-  - Traslados.
-
-  GRUPO B: AMBULATORIO
-  - Consultas médicas (Todas las especialidades listadas).
-  - Exámenes y procedimientos ambulatorios.
-  - Pabellón ambulatorio (Cirugía mayor y menor).
-  - Radioterapia, Quimioterapia ambulatoria.
-  - Fonoaudiología, Kinesiología, Terapia Ocupacional.
-  - PAD Dental y otras prestaciones dentales.
-  - Nutricionistas, Enfermería.
-  - Prótesis ambulatorias (Audífonos, lentes, etc).
-
-  GRUPO C: URGENCIA (Desglose TOTAL)
-  - NO agrupes la urgencia. Extrae: Consulta, Exámenes, Procedimientos, Pabellón, Honorarios, Medicamentos. Cada uno es una fila JSON.
-
-  GRUPO D: RESTRINGIDAS Y OTROS
-  - Psiquiatría (Hospitalaria y Ambulatoria).
-  - Cirugía Refractiva, Bariátrica, Metabólica.
-  - Marcos y Cristales, Esclerosis Múltiple.
-  - Cobertura Internacional.
-
-  GRUPO E: DERIVADOS
-  - Prestadores derivados (Hospitalario y Ambulatorio).
+  ** DIAGNÓSTICO DE COMPLETITUD CRÍTICO: **
+  - Un contrato estándar de Isapre tiene visualmente entre **45 y 55 FILAS** en la tabla de beneficios.
+  - Como casi todas las filas tienen 2 columnas de datos (Preferente y Libre Elección), esto resulta en **80 a 110 OBJETOS JSON** finales.
+  - SI TU OUTPUT TIENE MENOS DE 70 OBJETOS, HAS FALLADO. ES UNA ALUCINACIÓN POR OMISIÓN GRAVE.
 
 ---
-** ALGORITMO DE POBLADO DE DATOS (JSON) **
+** ESTRATEGIA DE BARRIDO VISUAL (OBLIGATORIA) **
 
-  Para CADA objeto en el array "coberturas":
+Para cada sección (Hospitalaria, Ambulatoria, Urgencia), debes ejecutar este algoritmo mental:
+1. Pone tu dedo virtual en la primera fila.
+2. Lee el nombre ("Día Cama"). Extrae 2 objetos (Pref y LE).
+3. Baja a la siguiente fila ("Sala Cuna"). Extrae 2 objetos.
+4. REPITE HASTA QUE NO QUEDEN LÍNEAS.
 
-1. ** 'PRESTACIÓN CLAVE' **: El nombre exacto que aparece en la fila.
-2. ** 'MODALIDAD/RED' **:
-- Si la tabla tiene columnas diferenciadas, genera DOS OBJETOS: uno con "Preferente/Nacional" y otro con "Internacional" (si aplica).
-   - O uno para "Preferente" y otro para "Libre Elección" si están separados.
-3. ** 'TOPE LOCAL 1' y 'TOPE LOCAL 2' **: Extráelos de sus columnas respectivas. Si la celda está vacía pero hay un encabezado de grupo (Malla) que dice "100% Sin Tope", HEREDA ese valor.
-4. ** 'RESTRICCIÓN Y CONDICIONAMIENTO' (CRÍTICO) **:
-- Este campo debe ser TEXTO LARGO.
-   - Concatena: [Texto de Notas al pie (*)] + [Condiciones de Malla / Recuadro] + [Restricciones de la celda].
-   - ** EJEMPLO:** "Tope aplica por beneficiario. | (**) Nota 1.2: Solo prestadores staff. | Malla: 100% Sin Tope en Clínica Alemana."
-  - NUNCA pongas "Ver nota". COPIA LA NOTA.
-5. ** 'ANCLAJES' **: Array de strings con las páginas de origen de la prestación, notas y malla.
-
----
-** PARTE III: METADATA (Objeto "diseno_ux") **
-  Llene con los datos del encabezado del documento: Nombre Isapre, Plan y Subtítulo.
+** LISTA NEGRA DE ERRORES (LO QUE NO DEBES HACER): **
+- ❌ NO agrupes "Exámenes y Procedimientos". Si son dos filas en el PDF, son dos entradas separadas en JSON.
+- ❌ NO olvides "Derecho de Pabellón" o "Pabellón". A menudo el modelo lo salta. ES OBLIGATORIO.
+- ❌ NO olvides "Materiales e Insumos". Es una fila crítica.
+- ❌ NO olvides "Traslados".
+- ❌ NO olvides "Honorarios Médicos".
 
 ---
-** INSTRUCCIÓN FINAL **
-  Genera ÚNICAMENTE el JSON. Sin bloques de código markdown, sin texto introductorio.
-El JSON debe ser válido y contener TODAS las ~80 prestaciones detectadas.
+** PARTE I: REGLAS Y DEFINICIONES **
+  Extrae LITERALMENTE todas las notas al pie, definiciones y cláusulas numéricas (1.1, 1.2, 5.1, etc.).
+
+---
+** PARTE II: COBERTURAS (LA TABLA GIGANTE) **
+
+[Checklist de Filas OBLIGATORIAS - Si falta alguna, el trabajo está incompleto]:
+
+GRUPO HOSPITALARIO:
+1. Día Cama
+2. Sala Cuna
+3. Incubadora
+4. Día Cama Cuidados (UCI/UTI/Coronario)
+5. Día Cama Transitorio/Observación
+6. Exámenes de Laboratorio
+7. Imagenología
+8. Derecho de Pabellón (¡NO OLVIDAR!)
+9. Kinesiología/Fisioterapia Hospitalaria
+10. Procedimientos
+11. Honorarios Médicos Quirúrgicos
+12. Medicamentos
+13. Materiales e Insumos Clínicos
+14. Quimioterapia
+15. Prótesis y Órtesis
+16. Visita Médica
+17. Traslados
+
+GRUPO AMBULATORIO:
+18. Consulta Médica
+19. Exámenes de Laboratorio
+20. Imagenología
+21. Derecho de Pabellón Ambulatorio
+22. Procedimientos Ambulatorios
+23. Honorarios Médicos Quirúrgicos (Ambulatorio)
+24. Radioterapia
+25. Fonoaudiología
+26. Kinesiología/Fisioterapia
+27. Prestaciones Dentales (PAD)
+28. Nutricionista
+29. Enfermería
+30. Prótesis y Órtesis (Ambulatorio)
+31. Quimioterapia Ambulatoria
+
+GRUPO URGENCIA:
+32. Consulta Urgencia
+33. Exámenes Laboratorio/Imagenología Urgencia
+34. Derecho Pabellón Urgencia
+35. Procedimientos Urgencia
+36. Honorarios Médicos Urgencia
+37. Medicamentos/Materiales Urgencia
+
+OTROS:
+38. Psiquiatría
+39. Cirugía Refractiva/Bariátrica
+40. Marcos y Cristales
+41. Esclerosis Múltiple
+42. Cobertura Internacional
+43. Prestadores Derivados
+
+---
+** INSTRUCCIONES DE ATRIBUTOS JSON **
+
+- **'MODALIDAD/RED'**:
+  - Si la tabla tiene 2 columnas de datos ("Bonificación" y "Tope" duplicados para Preferente y Libre Elección), ¡GENERA 2 OBJETOS POR CADA FILA!
+  - Objeto 1: MODALIDAD/RED = "Oferta Preferente / [Nombre Prestador Columna]"
+  - Objeto 2: MODALIDAD/RED = "Libre Elección / Modalidad General"
+
+- **'RESTRICCIÓN Y CONDICIONAMIENTO'**:
+  - Concatena TODO: Notas al pie referenciadas (1.1), texto de las celdas de tope, y texto de la cabecera de la columna (ej: "Solo prestadores Staff").
+
+---
+** SALIDA **
+Genera solamente el JSON válido.
 `;
 
 // Contract Analysis Schema - Compatible with Gemini API
@@ -109,12 +126,12 @@ export const CONTRACT_ANALYSIS_SCHEMA = {
         type: SchemaType.OBJECT,
         properties: {
           'PRESTACIÓN CLAVE': { type: SchemaType.STRING, description: "Nombre exacto de la prestación" },
-          'MODALIDAD/RED': { type: SchemaType.STRING, description: "Nacional / Internacional" },
-          '% BONIFICACIÓN': { type: SchemaType.STRING, description: "Porcentaje (100%, 80%)" },
-          'COPAGO FIJO': { type: SchemaType.STRING, description: "Monto o '-'" },
-          'TOPE LOCAL 1 (VAM/EVENTO)': { type: SchemaType.STRING, description: "Tope evento/VAM" },
-          'TOPE LOCAL 2 (ANUAL/UF)': { type: SchemaType.STRING, description: "Tope anual/UF" },
-          'RESTRICCIÓN Y CONDICIONAMIENTO': { type: SchemaType.STRING, description: "Notas, mallas y condiciones completas" },
+          'MODALIDAD/RED': { type: SchemaType.STRING, description: "Nacional / Internacional / Preferente / Libre Elección" },
+          '% BONIFICACIÓN': { type: SchemaType.STRING, description: "Porcentaje (ej: 100%, 80%)" },
+          'COPAGO FIJO': { type: SchemaType.STRING, description: "Monto fijo o '-'" },
+          'TOPE LOCAL 1 (VAM/EVENTO)': { type: SchemaType.STRING, description: "Tope por evento o VAM" },
+          'TOPE LOCAL 2 (ANUAL/UF)': { type: SchemaType.STRING, description: "Tope anual en UF" },
+          'RESTRICCIÓN Y CONDICIONAMIENTO': { type: SchemaType.STRING, description: "Todas las notas, condiciones de malla y restricciones específicas" },
           'ANCLAJES': { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
         },
         required: ['PRESTACIÓN CLAVE', 'MODALIDAD/RED', '% BONIFICACIÓN', 'COPAGO FIJO', 'TOPE LOCAL 1 (VAM/EVENTO)', 'TOPE LOCAL 2 (ANUAL/UF)', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'ANCLAJES'],
