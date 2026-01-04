@@ -156,7 +156,7 @@ export const CONTRACT_ANALYSIS_SCHEMA = {
 // Configuration constants
 export const CONTRACT_OCR_MAX_PAGES = 50;
 export const CONTRACT_MAX_OUTPUT_TOKENS = 80000;
-export const CONTRACT_FAST_MODEL = 'gemini-1.5-flash';
+export const CONTRACT_FAST_MODEL = 'gemini-2.0-flash-exp';
 export const CONTRACT_REASONING_MODEL = 'gemini-1.5-pro';
 export const CONTRACT_FALLBACK_MODEL = 'gemini-1.5-pro-002';
 export const CONTRACT_DEFAULT_RETRIES = 3;
