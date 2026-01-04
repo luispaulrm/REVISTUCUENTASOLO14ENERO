@@ -468,6 +468,11 @@ GENERA AHORA EL JSON COMPLETO (REGLAS >= 30, COBERTURAS >= 45).` }
                 output: finalOutputTokens,
                 total: finalInputTokens + finalOutputTokens,
                 costClp: priceData.costCLP
+            },
+            extractionBreakdown: {
+                totalReglas: reglas.length,
+                totalCoberturas: coberturas.length,
+                totalItems: reglas.length + coberturas.length
             }
         }
     };
