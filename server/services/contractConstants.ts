@@ -6,20 +6,26 @@ import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 // --- SPLIT PROMPTS FOR 3-PASS EXTRACTION ---
 
 export const PROMPT_REGLAS = `
-  ** MANDATO FORENSE: PARTE 1 - REGLAS Y DEFINICIONES **
+  ** MANDATO FORENSE: PARTE 1 - REGLAS Y DEFINICIONES (MODO "UN-NESTING") **
   
   ROL: Auditor Forense.
-  OBJETIVO: Extraer LITERALMENTE todas las notas al pie, definiciones y cláusulas numéricas (1.1, 1.2, 5.1, etc.) del documento.
-  NO EXTRAIGAS LA TABLA DE COBERTURAS EN ESTE PASO.
+  OBJETIVO: Extraer LITERALMENTE todas las notas al pie, definiciones y cláusulas numéricas (1.1, 1.2, 5.1, etc.).
+  
+  ⚠️ CRITERIO DE EXPLOSIÓN DE REGLAS (MÍNIMO 30+ REGLAS):
+  1. **DESANIDADO ("UN-NESTING")**: No generes una regla gigante. Si una cláusula menciona "Clínica A, B y C", genera 3 objetos JSON idénticos, uno para cada clínica.
+  2. **GRANULARIDAD DE NOTAS**: Descompón cada Nota (ej: 1.1) en al menos 3 reglas lógicas:
+     - Regla de Condición (¿Cuándo aplica?)
+     - Regla de Plazo/Tiempo
+     - Regla de Excepción
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_COBERTURAS_HOSP = `
-  ** MANDATO FORENSE: PARTE 2 - COBERTURAS HOSPITALARIAS **
+  ** MANDATO FORENSE: PARTE 2 - COBERTURAS HOSPITALARIAS (MODO DUAL) **
   
   ROL: Auditor Forense.
-  OBJETIVO: Digitalizar SOLO el GRUPO HOSPITALARIO de la Tabla de Beneficios.
+  OBJETIVO: Digitalizar SOLO el GRUPO HOSPITALARIO.
   
   ALCANCE (Filas 1-17):
   1. Día Cama
@@ -41,18 +47,18 @@ export const PROMPT_COBERTURAS_HOSP = `
   17. Traslados
   
   INSTRUCCIONES CLAVE:
-  - Genera 2 objetos por fila (Preferente y Libre Elección).
+  - 🔴 **OBLIGATORIO**: Debes extraer SIEMPRE por separado "Oferta Preferente" y "Libre Elección".
+  - ¡GENERA 2 OBJETOS JSON POR CADA FILA VISUAL DEL PDF!
   - DETENTE antes de llegar a "Consulta Médica" (Ambulatoria).
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_COBERTURAS_AMB = `
-  ** MANDATO FORENSE: PARTE 3 - AMBULATORIO, URGENCIA Y OTROS **
+  ** MANDATO FORENSE: PARTE 3 - AMBULATORIO, URGENCIA Y OTROS (MODO DUAL) **
   
   ROL: Auditor Forense.
   OBJETIVO: Digitalizar las secciones AMBULATORIA, URGENCIA y OTROS.
-  IGNORA la parte Hospitalaria (ya fue extraída).
   
   ALCANCE (Filas 18-43+):
   - GRUPO AMBULATORIO (Consulta Médica, Exámenes, Pabellón Amb, etc.)
@@ -60,7 +66,8 @@ export const PROMPT_COBERTURAS_AMB = `
   - OTROS (Psiquiatría, Cirugía Refractiva, Marcos, Esclerosis, Internacional, Derivados)
   
   INSTRUCCIONES CLAVE:
-  - Genera 2 objetos por fila (Preferente y Libre Elección).
+  - 🔴 **OBLIGATORIO**: Debes extraer SIEMPRE por separado "Oferta Preferente" y "Libre Elección".
+  - ¡GENERA 2 OBJETOS JSON POR CADA FILA VISUAL DEL PDF!
   - Asegúrate de incluir Prestadores Derivados al final.
   
   FORMATO: JSON Strict.
