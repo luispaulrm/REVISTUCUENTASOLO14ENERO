@@ -7,13 +7,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "predev": "node scripts/update-version.js",
     "dev": "vite",
-    "prebuild": "node scripts/update-version.js",
     "build": "vite build && npm run build:server",
     "build:server": "echo 'Server uses TypeScript, no build needed'",
     "preview": "vite preview",
-    "prestart": "node scripts/update-version.js",
     "start": "tsx server/server.ts",
     "server": "tsx watch server/server.ts",
     "dev:all": "concurrently \"npm run server\" \"npm run dev\""
