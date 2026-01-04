@@ -1,4 +1,5 @@
 import { SchemaType } from "@google/generative-ai";
+import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 
 // Contract Analysis Prompt - Forensic VERSION 11.0 (Ultra-Exhaustive)
 export const CONTRACT_ANALYSIS_PROMPT = `
@@ -155,8 +156,11 @@ export const CONTRACT_ANALYSIS_SCHEMA = {
 
 // Configuration constants
 export const CONTRACT_OCR_MAX_PAGES = 50;
-export const CONTRACT_MAX_OUTPUT_TOKENS = 80000;
-export const CONTRACT_FAST_MODEL = 'gemini-2.0-flash-exp';
-export const CONTRACT_REASONING_MODEL = 'gemini-1.5-pro';
-export const CONTRACT_FALLBACK_MODEL = 'gemini-1.5-pro-002';
+// NOTE: User explicitly requested 8192 tokens. This is aggressive for large contracts but we comply.
+export const CONTRACT_MAX_OUTPUT_TOKENS = GENERATION_CONFIG.maxOutputTokens;
+export const CONTRACT_TEMPERATURE = GENERATION_CONFIG.temperature;
+
+export const CONTRACT_FAST_MODEL = AI_MODELS.primary;
+export const CONTRACT_REASONING_MODEL = AI_MODELS.primary; // User requested strict adherence to primary model
+export const CONTRACT_FALLBACK_MODEL = AI_MODELS.fallback;
 export const CONTRACT_DEFAULT_RETRIES = 3;

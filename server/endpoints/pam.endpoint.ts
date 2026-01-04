@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { GeminiService } from '../services/gemini.service.js';
 import { PAM_PROMPT, PAM_ANALYSIS_SCHEMA } from '../prompts/pam.prompt.js';
-import { AI_CONFIG } from '../config/ai.config.js';
+import { AI_CONFIG, GENERATION_CONFIG } from '../config/ai.config.js';
 import { repairAndParseJson } from '../utils/jsonRepair.js';
 
 // Helper para obtener env vars (reutilizado del server.ts)
@@ -46,7 +46,8 @@ export async function handlePamExtraction(req: Request, res: Response) {
         const stream = await gemini.extractWithStream(image, mimeType, PAM_PROMPT, {
             responseMimeType: 'application/json',
             responseSchema: PAM_ANALYSIS_SCHEMA,
-            maxTokens: 30000
+            maxTokens: GENERATION_CONFIG.maxOutputTokens,
+            temperature: GENERATION_CONFIG.temperature
         });
 
         for await (const chunk of stream) {

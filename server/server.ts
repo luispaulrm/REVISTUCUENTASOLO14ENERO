@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GeminiService } from './services/gemini.service.js';
 import { ParserService } from "./services/parser.service.js";
-import { AI_CONFIG } from "./config/ai.config.js";
+import { AI_CONFIG, GENERATION_CONFIG } from "./config/ai.config.js";
 import { handlePamExtraction } from './endpoints/pam.endpoint.js';
 import { handleContractExtraction } from './endpoints/contract.endpoint.js';
 import { handleAuditAnalysis } from './endpoints/audit.endpoint.js';
@@ -258,7 +258,8 @@ app.post('/api/extract', async (req, res) => {
                     const model = genAI.getGenerativeModel({
                         model: modelName,
                         generationConfig: {
-                            maxOutputTokens: 35000
+                            maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
+                            temperature: GENERATION_CONFIG.temperature
                         }
                     });
 

@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.js';
-import { AI_CONFIG } from '../config/ai.config.js';
+import { AI_CONFIG, GENERATION_CONFIG } from '../config/ai.config.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -69,7 +69,9 @@ export async function performForensicAudit(
                 model: modelName,
                 generationConfig: {
                     responseMimeType: "application/json",
-                    responseSchema: FORENSIC_AUDIT_SCHEMA as any
+                    responseSchema: FORENSIC_AUDIT_SCHEMA as any,
+                    maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
+                    temperature: GENERATION_CONFIG.temperature
                 }
             });
 
