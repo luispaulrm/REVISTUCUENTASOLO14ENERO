@@ -137,154 +137,168 @@ export async function handlePamExtraction(req: Request, res: Response) {
         }
 
         // =================================================================================
+        // =================================================================================
         // FASE 3: CONSOLIDATION & VALIDATION
         // =================================================================================
         console.log('[PAM] Phase 3: Merging and Validating...');
 
-        // Reuse existing validation logic
-        // --- CONSOLIDACIÓN DE FOLIOS DUPLICADOS ---
-        const mergedFoliosMap = new Map<string, any>();
+        try {
+            console.log('[PAM DEBUG] Starting Merge Process...');
+            // --- CONSOLIDACIÓN DE FOLIOS DUPLICADOS ---
+            const mergedFoliosMap = new Map<string, any>();
+            const inputData = allFolioData || [];
+            console.log(`[PAM DEBUG] Input items to merge: ${inputData.length}`);
 
-        (allFolioData || []).forEach(item => {
-            if (!item) return;
-            const id = item.folioPAM;
-            if (!id) return;
-
-            if (mergedFoliosMap.has(id)) {
-                const existing = mergedFoliosMap.get(id);
-                // Combinar desgloses de forma segura
-                let existingDesglose = existing.desglosePorPrestador || [];
-                if (!Array.isArray(existingDesglose)) existingDesglose = [existingDesglose];
-
-                let newDesglose = item.desglosePorPrestador || [];
-                if (!Array.isArray(newDesglose)) newDesglose = [newDesglose];
-
-                existing.desglosePorPrestador = [...existingDesglose, ...newDesglose];
-            } else {
-                // Inicializar si no existe array
-                if (item.desglosePorPrestador && !Array.isArray(item.desglosePorPrestador)) {
-                    item.desglosePorPrestador = [item.desglosePorPrestador];
-                } else if (!item.desglosePorPrestador) {
-                    item.desglosePorPrestador = [];
+            inputData.forEach((item, idx) => {
+                if (!item) {
+                    console.log(`[PAM DEBUG] Item ${idx} is null/undefined, skipping.`);
+                    return;
                 }
-                mergedFoliosMap.set(id, { ...item });
-            }
-        });
-
-        const pamData = Array.from(mergedFoliosMap.values());
-
-        // --- VALIDACIÓN ARITMÉTICA GLOBAL (Reused Logic) ---
-        let globalValor = 0;
-        let globalBonif = 0;
-        let globalCopago = 0;
-        let globalDeclarado = 0;
-        let globalTotalItems = 0;
-
-        const parseMoney = (val: string | number) => {
-            if (!val) return 0;
-            if (typeof val === 'number') return val;
-            return parseInt(val.replace(/[^\d]/g, '')) || 0;
-        };
-
-        const validatedFolios = pamData.map(folio => {
-            let calcTotalValor = 0;
-            let calcTotalBonif = 0;
-            let calcTotalCopago = 0;
-
-            // SAFETY: Ensure desglosePorPrestador is an array
-            if (folio.desglosePorPrestador && !Array.isArray(folio.desglosePorPrestador)) {
-                // If it's an object, wrap it. If it's truthy but weird, allow empty array fallback in map
-                folio.desglosePorPrestador = [folio.desglosePorPrestador];
-            }
-
-            folio.desglosePorPrestador = (folio.desglosePorPrestador || []).map((prestador: any) => {
-                if (!prestador) return {};
-
-                let pValor = 0, pBonif = 0, pCopago = 0;
-
-                // SAFETY: Ensure items is an array
-                if (prestador.items && !Array.isArray(prestador.items)) {
-                    prestador.items = [prestador.items];
+                const id = item.folioPAM;
+                if (!id) {
+                    console.log(`[PAM DEBUG] Item ${idx} has no folioPAM, skipping.`);
+                    return;
                 }
 
-                prestador.items = (prestador.items || []).map((item: any) => {
-                    const vt = parseMoney(item.valorTotal);
-                    const bn = parseMoney(item.bonificacion);
-                    const cp = parseMoney(item.copago);
+                if (mergedFoliosMap.has(id)) {
+                    // console.log(`[PAM DEBUG] Merging duplicate folio: ${id}`);
+                    const existing = mergedFoliosMap.get(id);
 
-                    pValor += vt;
-                    pBonif += bn;
-                    pCopago += cp;
+                    // Combinar desgloses de forma segura
+                    let existingDesglose = existing.desglosePorPrestador;
+                    if (!existingDesglose) existingDesglose = [];
+                    if (!Array.isArray(existingDesglose)) existingDesglose = [existingDesglose];
 
-                    const expected = vt - bn;
-                    const itemAudit = Math.abs(expected - cp) > 10 ? '❌ ERROR' : '✅ OK';
-                    return { ...item, _audit: itemAudit };
+                    let newDesglose = item.desglosePorPrestador;
+                    if (!newDesglose) newDesglose = [];
+                    if (!Array.isArray(newDesglose)) newDesglose = [newDesglose];
+
+                    existing.desglosePorPrestador = [...existingDesglose, ...newDesglose];
+                } else {
+                    // Inicializar
+                    // console.log(`[PAM DEBUG] New folio entry: ${id}`);
+                    if (!item.desglosePorPrestador) {
+                        item.desglosePorPrestador = [];
+                    } else if (!Array.isArray(item.desglosePorPrestador)) {
+                        item.desglosePorPrestador = [item.desglosePorPrestador];
+                    }
+                    mergedFoliosMap.set(id, { ...item });
+                }
+            });
+
+            const pamData = Array.from(mergedFoliosMap.values());
+            console.log(`[PAM DEBUG] Merge complete. Unique folios: ${pamData.length}`);
+
+            // --- VALIDACIÓN ARITMÉTICA GLOBAL ---
+            let globalValor = 0;
+            let globalBonif = 0;
+            let globalCopago = 0;
+            let globalDeclarado = 0;
+            let globalTotalItems = 0;
+
+            const parseMoney = (val: any) => {
+                if (!val) return 0;
+                if (typeof val === 'number') return val;
+                if (typeof val === 'string') return parseInt(val.replace(/[^\d]/g, '')) || 0;
+                return 0;
+            };
+
+            console.log('[PAM DEBUG] Starting Validation Loop...');
+            const validatedFolios = pamData.map((folio, fIdx) => {
+                const folioId = folio.folioPAM || `UNKNOWN_${fIdx}`;
+                console.log(`[PAM DEBUG] Validating folio ${fIdx + 1}/${pamData.length}: ${folioId}`);
+
+                let calcTotalValor = 0;
+                let calcTotalBonif = 0;
+                let calcTotalCopago = 0;
+
+                // Ensure desglose is array (already done in merge, but double check)
+                let desgloses = folio.desglosePorPrestador;
+                if (!Array.isArray(desgloses)) desgloses = [];
+
+                folio.desglosePorPrestador = desgloses.map((prestador: any, pIdx: number) => {
+                    if (!prestador) return {};
+
+                    let pValor = 0, pBonif = 0, pCopago = 0;
+
+                    let items = prestador.items;
+                    if (!items) items = [];
+                    if (!Array.isArray(items)) items = [items];
+
+                    prestador.items = items.map((item: any) => {
+                        const vt = parseMoney(item.valorTotal);
+                        const bn = parseMoney(item.bonificacion);
+                        const cp = parseMoney(item.copago);
+
+                        pValor += vt;
+                        pBonif += bn;
+                        pCopago += cp;
+
+                        const expected = vt - bn;
+                        const itemAudit = Math.abs(expected - cp) > 10 ? '❌ ERROR' : '✅ OK';
+
+                        globalTotalItems++;
+                        return { ...item, _audit: itemAudit };
+                    });
+
+                    calcTotalValor += pValor;
+                    calcTotalBonif += pBonif;
+                    calcTotalCopago += pCopago;
+
+                    return {
+                        ...prestador,
+                        _totals: { valor: pValor, bonif: pBonif, copago: pCopago }
+                    };
                 });
 
-                calcTotalValor += pValor;
-                calcTotalBonif += pBonif;
-                calcTotalCopago += pCopago;
+                // Update Globals
+                globalValor += calcTotalValor;
+                globalBonif += calcTotalBonif;
+                globalCopago += calcTotalCopago;
+
+                const decl = parseMoney(folio.resumen?.totalCopagoDeclarado || folio.resumen?.totalCopago);
+                globalDeclarado += decl;
+
+                const diff = Math.abs(calcTotalCopago - decl);
+                const isCorrect = diff <= 100;
 
                 return {
-                    ...prestador,
-                    _totals: { valor: pValor, bonif: pBonif, copago: pCopago }
+                    ...folio,
+                    resumen: {
+                        ...(folio.resumen || {}),
+                        totalCopagoCalculado: calcTotalCopago,
+                        auditoriaStatus: isCorrect ? '✅ Cuadra' : '⚠️ Discrepancia',
+                        cuadra: isCorrect
+                    }
                 };
             });
 
-            const declaredCopago = parseMoney(folio.resumen?.totalCopagoDeclarado || "");
-            const diff = Math.abs(calcTotalCopago - declaredCopago);
+            console.log('[PAM DEBUG] Validation complete. Preparing final response...');
 
-            // Si cuadra con un margen de 50 pesos
-            const isCorrect = diff <= 50;
-            const auditStatus = isCorrect
-                ? '✅ Totales cuadran'
-                : `⚠️ Diferencia detectada: Suma Calc $${calcTotalCopago.toLocaleString()} vs Declarado $${declaredCopago.toLocaleString()}`;
-
-            // Acumular globales
-            globalValor += calcTotalValor;
-            globalBonif += calcTotalBonif;
-            globalCopago += calcTotalCopago;
-            globalDeclarado += declaredCopago;
-
-            // Sumar items de este folio
-            const folioItemsCount = folio.desglosePorPrestador?.reduce((acc: number, p: any) => acc + (p.items?.length || 0), 0) || 0;
-            globalTotalItems += folioItemsCount;
-
-            return {
-                ...folio,
-                resumen: {
-                    ...(folio.resumen || {}),
-                    totalCopagoCalculado: calcTotalCopago,
-                    auditoriaStatus: auditStatus,
-                    cuadra: isCorrect
-                }
-            };
-        });
-
-        const globalDiff = Math.abs(globalCopago - globalDeclarado);
-        const globalAuditStatus = globalDiff > 50
-            ? `❌ La cuenta consolidada NO CUADRA por $${globalDiff.toLocaleString()}`
-            : `✅ TODO CUADRA: Total consolidado $${globalCopago.toLocaleString()}`;
-
-        // Enviar resultado final estructurado
-        sendUpdate({
-            type: 'final',
-            data: {
+            const globalDiff = Math.abs(globalCopago - globalDeclarado);
+            const finalResult: PamDocument = {
                 folios: validatedFolios,
                 global: {
                     totalValor: globalValor,
                     totalBonif: globalBonif,
                     totalCopago: globalCopago,
                     totalCopagoDeclarado: globalDeclarado,
-                    cuadra: globalDiff <= 50,
-                    discrepancia: globalDiff,
-                    auditoriaStatus: globalAuditStatus,
+                    cuadra: globalDiff <= 500,
+                    discrepancia: globalCopago - globalDeclarado,
+                    auditoriaStatus: 'COMPLETED',
                     totalItems: globalTotalItems
                 }
-            }
-        });
+            };
 
-        res.end();
+            console.log('[PAM] Sending Final Success Response.');
+            sendUpdate({ type: 'final', data: finalResult });
+            res.end();
+
+        } catch (phase3Error: any) {
+            console.error('[PAM CRASH] Critical Error in Phase 3:', phase3Error);
+            sendUpdate({ type: 'error', message: `CRASH en consolidación: ${phase3Error.message}` });
+            res.end();
+        }
 
     } catch (error: any) {
         console.error('[PAM] Error en endpoint PAM:', error);

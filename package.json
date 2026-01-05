@@ -16,7 +16,7 @@
     "preview": "vite preview",
     "start": "tsx server/server.ts",
     "server": "tsx watch server/server.ts",
-    "dev:all": "concurrently \"npm run server\" \"npm run dev\""
+    "dev:all": "node scripts/update-version.js && concurrently \"npm run server\" \"npm run dev\""
   },
   "dependencies": {
     "@google/genai": "^1.34.0",
