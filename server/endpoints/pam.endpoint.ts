@@ -108,8 +108,11 @@ export async function handlePamExtraction(req: Request, res: Response) {
             });
 
             try {
+                console.log(`[PAM DEBUG] Parsing extracted text (length: ${extractedText.length})...`);
+
                 // Ensure array format
                 let folioDetails = repairAndParseJson(extractedText);
+                console.log(`[PAM DEBUG] Parsed details. Items: ${Array.isArray(folioDetails) ? folioDetails.length : 'Object'}`);
 
                 // If the model returned a single object instead of array (common in granular prompts), wrap it
                 if (!Array.isArray(folioDetails)) {
@@ -118,12 +121,16 @@ export async function handlePamExtraction(req: Request, res: Response) {
                     else folioDetails = [folioDetails];
                 }
 
+                console.log(`[PAM DEBUG] Pushing ${folioDetails.length} items to allFolioData...`);
                 // Append
                 allFolioData.push(...folioDetails);
+                console.log(`[PAM DEBUG] Push success. Total items so far: ${allFolioData.length}`);
+
                 sendUpdate({ type: 'phase', name: 'extraction_success', folio: folioId });
 
             } catch (e) {
-                console.error(`[PAM] Error parsing details for folio ${folioId}:`, extractedText);
+                console.error(`[PAM] Error parsing details for folio ${folioId}:`, extractedText.substring(0, 100) + '...');
+                console.error(e);
                 sendUpdate({ type: 'phase', name: 'extraction_error', folio: folioId, error: 'JSON malformed' });
                 // We continue to next folio even if one fails
             }
@@ -146,13 +153,20 @@ export async function handlePamExtraction(req: Request, res: Response) {
             if (mergedFoliosMap.has(id)) {
                 const existing = mergedFoliosMap.get(id);
                 // Combinar desgloses de forma segura
-                const existingDesglose = existing.desglosePorPrestador || [];
-                const newDesglose = item.desglosePorPrestador || [];
+                let existingDesglose = existing.desglosePorPrestador || [];
+                if (!Array.isArray(existingDesglose)) existingDesglose = [existingDesglose];
+
+                let newDesglose = item.desglosePorPrestador || [];
+                if (!Array.isArray(newDesglose)) newDesglose = [newDesglose];
 
                 existing.desglosePorPrestador = [...existingDesglose, ...newDesglose];
             } else {
                 // Inicializar si no existe array
-                if (!item.desglosePorPrestador) item.desglosePorPrestador = [];
+                if (item.desglosePorPrestador && !Array.isArray(item.desglosePorPrestador)) {
+                    item.desglosePorPrestador = [item.desglosePorPrestador];
+                } else if (!item.desglosePorPrestador) {
+                    item.desglosePorPrestador = [];
+                }
                 mergedFoliosMap.set(id, { ...item });
             }
         });
@@ -177,8 +191,21 @@ export async function handlePamExtraction(req: Request, res: Response) {
             let calcTotalBonif = 0;
             let calcTotalCopago = 0;
 
+            // SAFETY: Ensure desglosePorPrestador is an array
+            if (folio.desglosePorPrestador && !Array.isArray(folio.desglosePorPrestador)) {
+                // If it's an object, wrap it. If it's truthy but weird, allow empty array fallback in map
+                folio.desglosePorPrestador = [folio.desglosePorPrestador];
+            }
+
             folio.desglosePorPrestador = (folio.desglosePorPrestador || []).map((prestador: any) => {
+                if (!prestador) return {};
+
                 let pValor = 0, pBonif = 0, pCopago = 0;
+
+                // SAFETY: Ensure items is an array
+                if (prestador.items && !Array.isArray(prestador.items)) {
+                    prestador.items = [prestador.items];
+                }
 
                 prestador.items = (prestador.items || []).map((item: any) => {
                     const vt = parseMoney(item.valorTotal);
