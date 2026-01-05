@@ -314,7 +314,10 @@ export async function analyzeSingleContract(
     // --- MERGE ---
     const reglas = (reglasPhase.result?.reglas || []).map((r: any) => ({
         ...r,
-        categoria_canonica: getCanonicalCategory(r.seccion || r.texto || '', r.categoria || '')
+        categoria_canonica: getCanonicalCategory(
+            (r['CÓDIGO/SECCIÓN'] || r['seccion'] || '') + ' ' + (r['VALOR EXTRACTO LITERAL DETALLADO'] || r['texto'] || ''),
+            r['SUBCATEGORÍA'] || r['categoria'] || ''
+        )
     }));
     const coberturasHospRaw = hospPhase.result?.coberturas || [];
     const coberturasAmbRaw = ambPhase.result?.coberturas || [];
@@ -334,7 +337,10 @@ export async function analyzeSingleContract(
         let cleaned = { ...cob };
 
         // --- PHASE 2: CANONICAL NORMALIZATION (v9.0) ---
-        cleaned.categoria_canonica = getCanonicalCategory(cleaned.item || cleaned.prestacion || '', cleaned.categoria || '');
+        cleaned.categoria_canonica = getCanonicalCategory(
+            cleaned.item || cleaned.prestacion || cleaned['PRESTACIÓN CLAVE'] || '',
+            cleaned.categoria || ''
+        );
 
         if (!cleaned.nota_restriccion || cleaned.nota_restriccion === null) {
             cleaned.nota_restriccion = "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.";
