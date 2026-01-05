@@ -6,6 +6,7 @@ import {
     UploadedFile
 } from './contractTypes.js';
 import { jsonrepair } from 'jsonrepair';
+import { getCanonicalCategory } from './contractCanonical.js';
 import {
     PROMPT_REGLAS,
     PROMPT_COBERTURAS_HOSP,
@@ -310,10 +311,11 @@ export async function analyzeSingleContract(
         log(`   Confianza: ${fingerprintPhase.result.confianza}%`);
     }
 
-    log(`\n[ContractEngine] ✅ Todas las fases paralelas han retornado.`);
-
     // --- MERGE ---
-    const reglas = reglasPhase.result?.reglas || [];
+    const reglas = (reglasPhase.result?.reglas || []).map((r: any) => ({
+        ...r,
+        categoria_canonica: getCanonicalCategory(r.seccion || r.texto || '', r.categoria || '')
+    }));
     const coberturasHospRaw = hospPhase.result?.coberturas || [];
     const coberturasAmbRaw = ambPhase.result?.coberturas || [];
     const coberturasExtrasRaw = extrasPhase.result?.coberturas || [];
@@ -330,6 +332,10 @@ export async function analyzeSingleContract(
 
     const cleanAndCheck = (list: any[]) => list.map((cob: any) => {
         let cleaned = { ...cob };
+
+        // --- PHASE 2: CANONICAL NORMALIZATION (v9.0) ---
+        cleaned.categoria_canonica = getCanonicalCategory(cleaned.item || cleaned.prestacion || '', cleaned.categoria || '');
+
         if (!cleaned.nota_restriccion || cleaned.nota_restriccion === null) {
             cleaned.nota_restriccion = "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.";
         }

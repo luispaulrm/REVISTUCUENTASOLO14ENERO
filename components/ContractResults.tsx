@@ -270,7 +270,14 @@ export function ContractResults({ data }: Props) {
                                             <tr key={idx} className="hover:bg-slate-50 transition-colors">
                                                 <td className="px-4 py-4 font-mono text-xs text-slate-500 align-top">{getFuzzy(rule, ['pagina', 'PÁGINA ORIGEN'])}</td>
                                                 <td className="px-4 py-4 font-black text-slate-950 text-sm align-top uppercase">{getFuzzy(rule, ['seccion', 'CÓDIGO/SECCIÓN'])}</td>
-                                                <td className="px-4 py-4 text-slate-900 text-xs font-black uppercase align-top tracking-tighter">{getFuzzy(rule, ['categoria', 'SUBCATEGORÍA'])}</td>
+                                                <td className="px-4 py-4 text-slate-900 text-xs font-black uppercase align-top tracking-tighter">
+                                                    {getFuzzy(rule, ['categoria', 'SUBCATEGORÍA'])}
+                                                    {(rule as any).categoria_canonica && (
+                                                        <div className="text-[8px] text-indigo-500 font-bold mt-1 tracking-widest">
+                                                            📍 {(rule as any).categoria_canonica.replace(/_/g, ' ')}
+                                                        </div>
+                                                    )}
+                                                </td>
                                                 <td className="px-4 py-4">
                                                     <div className="text-[13px] text-black leading-relaxed font-sans bg-white p-4 rounded-lg border-2 border-slate-900 italic shadow-sm">
                                                         "{getFuzzy(rule, ['texto', 'VALOR EXTRACTO LITERAL DETALLADO'])}"
@@ -306,6 +313,11 @@ export function ContractResults({ data }: Props) {
                                                     <div className="font-black text-black text-xs uppercase leading-tight mb-1">
                                                         {getFuzzy(coverage, ['item', 'prestacion', 'PRESTACIÓN CLAVE'])}
                                                     </div>
+                                                    {(coverage as any).categoria_canonica && (
+                                                        <div className="text-[8px] font-black text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 uppercase tracking-tighter mb-1 inline-block">
+                                                            {(coverage as any).categoria_canonica}
+                                                        </div>
+                                                    )}
                                                     {getFuzzy(coverage, ['anclajes', 'ANCLAJES']) !== '-' && Array.isArray(getFuzzy(coverage, ['anclajes', 'ANCLAJES'])) && (
                                                         <div className="flex flex-wrap gap-1">
                                                             {getFuzzy(coverage, ['anclajes', 'ANCLAJES']).map((a: string, i: number) => (

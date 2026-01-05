@@ -24,6 +24,7 @@ export interface ContractAnalysisResult {
         'pagina': string;
         'seccion': string;
         'categoria': string;
+        'categoria_canonica'?: string;
         'texto': string;
     }>;
     coberturas: Array<{
@@ -34,6 +35,7 @@ export interface ContractAnalysisResult {
         'tope': string;
         'tope_2'?: string;
         'nota_restriccion': string;
+        'categoria_canonica'?: string;
     }>;
     diseno_ux: {
         nombre_isapre: string;
