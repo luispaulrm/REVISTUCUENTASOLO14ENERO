@@ -66,7 +66,8 @@ try {
         fs.writeFileSync(versionFilePath, content);
         console.log(`✅ Version updated to ${newVersion} at ${newTimestamp}`);
 
-        // --- GIT AUTOMATION ---
+        // --- GIT AUTOMATION DISABLED ---
+        /*
         try {
             console.log('📦 Committing and pushing version update...');
             // Need to change directory to project root for git commands
@@ -81,6 +82,8 @@ try {
             console.error('⚠️ Failed to auto-push to GitHub:', gitError.message);
             // Don't fail the build script just because push failed
         }
+        */
+        console.log('ℹ️ Git auto-push is disabled. Please commit and push manually.');
 
     } else {
         console.error('❌ Could not find version pattern in version.ts');
