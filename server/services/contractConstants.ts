@@ -403,6 +403,13 @@ export const PROMPT_COBERTURAS_AMB = `
   - 'modalidad': "Oferta Preferente" o "Libre Elección" según indica la lista.
   - 'nota_restriccion': NUNCA null. Usar las plantillas de arriba.
   
+  **= TOTAL: 70 FILAS OBLIGATORIAS PARA AMBULATORIO**
+
+  ⚠️ VERIFICACIÓN FINAL OBLIGATORIA:
+  Antes de enviar tu respuesta, CUENTA tus filas y confirma que has generado EXACTAMENTE 70 objetos JSON.
+  La ÚLTIMA fila (#70) DEBE ser: "Prótesis y Órtesis (Libre Elección)".
+  Si tienes menos de 70, CONTINÚA generando hasta completar la lista numerada.
+
   FORMATO: JSON Strict.
 `;
 

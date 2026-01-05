@@ -55,6 +55,80 @@ export class GeminiService {
         return true;
     }
 
+    async extract(
+        image: string,
+        mimeType: string,
+        prompt: string,
+        config: {
+            maxTokens?: number;
+            responseMimeType?: string;
+            responseSchema?: any;
+            temperature?: number;
+            topP?: number;
+            topK?: number;
+        } = {}
+    ): Promise<string> {
+        let lastError: any;
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
+
+        for (const modelName of modelsToTry) {
+            if (!modelName) continue;
+            console.log(`[GeminiService] 🛡️ Strategy: Attempting non-streaming extraction with model ${modelName}`);
+
+            // Start with primary key, then rotate if needed
+            this.activeKeyIndex = 0;
+
+            for (let keyIdx = 0; keyIdx < this.keys.length; keyIdx++) {
+                const currentKey = this.keys[keyIdx];
+                const mask = currentKey ? (currentKey.substring(0, 4) + '...') : '???';
+
+                try {
+                    this.client = new GoogleGenerativeAI(currentKey);
+                    const model = this.client.getGenerativeModel({
+                        model: modelName,
+                        generationConfig: {
+                            maxOutputTokens: config.maxTokens || 35000,
+                            responseMimeType: config.responseMimeType,
+                            responseSchema: config.responseSchema,
+                            temperature: config.temperature,
+                            topP: config.topP,
+                            topK: config.topK
+                        }
+                    });
+
+                    const result = await model.generateContent([
+                        { text: prompt },
+                        {
+                            inlineData: {
+                                data: image,
+                                mimeType: mimeType
+                            }
+                        }
+                    ]);
+
+                    const text = result.response.text();
+                    console.log(`[GeminiService] ✅ Success (Non-Stream) with Key ${mask} on ${modelName}`);
+                    return text;
+
+                } catch (err: any) {
+                    lastError = err;
+                    const errStr = (err?.toString() || "") + (err?.message || "");
+                    const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || err?.status === 429 || err?.status === 503;
+
+                    if (isQuota) {
+                        console.warn(`[GeminiService] ⚠️ Quota error on Key ${mask}. Trying next key...`);
+                        continue;
+                    } else {
+                        console.error(`[GeminiService] ❌ Non-retriable error on Key ${mask}:`, err.message);
+                        // Try next key just in case, or break?
+                        // For robustness, try next.
+                    }
+                }
+            }
+        }
+        throw lastError || new Error("All API keys and models failed for extraction.");
+    }
+
     async extractWithStream(
         image: string,
         mimeType: string,

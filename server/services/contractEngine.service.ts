@@ -165,7 +165,7 @@ const SAFETY_SETTINGS = [
  * Verifica que los extractos literales tengan la densidad requerida.
  */
 function auditIntegrityCheck(jsonOutput: any, log: (msg: string) => void) {
-    const minChars = 50; // Longitud mínima para un extracto legal real
+    const minChars = 15; // Extractos legales válidos pueden ser cortos (ej. "Sin tope.")
     const issues: string[] = [];
 
     const reglas = jsonOutput.reglas || [];
@@ -175,12 +175,12 @@ function auditIntegrityCheck(jsonOutput: any, log: (msg: string) => void) {
         if (!literal || literal.toLowerCase() === 'null') {
             issues.push(`Error en Regla ${index}: Extracto nulo.`);
         } else if (literal.length < minChars) {
-            issues.push(`Advertencia en Regla ${index}: Extracto muy corto (${literal.length} chars). Posible resumen.`);
+            issues.push(`Advertencia en Regla ${index}: Extracto muy corto (${literal.length} chars). Verificar si es verbatim.`);
         }
     });
 
     if (issues.length > 0) {
-        log('\n[ContractEngine] ⚠️ INTEGRIDAD FORENSE COMPROMETIDA EN ALGUNAS REGLAS:');
+        log('\n[ContractEngine] ⚠️ REVISIÓN SUGERIDA EN ALGUNAS REGLAS (Extractos Breves):');
         issues.forEach(i => log(`   - ${i}`));
     } else {
         log('\n[ContractEngine] ✅ INTEGRIDAD FORENSE CERTIFICADA: Todos los extractos cumplen densidad mínima.');

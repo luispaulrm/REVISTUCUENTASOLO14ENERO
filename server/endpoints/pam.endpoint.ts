@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { GeminiService } from '../services/gemini.service.js';
-import { PAM_PROMPT, PAM_ANALYSIS_SCHEMA } from '../prompts/pam.prompt.js';
+import { PAM_PROMPT, PAM_ANALYSIS_SCHEMA, PAM_DISCOVERY_PROMPT, PAM_DISCOVERY_SCHEMA, PAM_DETAILS_PROMPT } from '../prompts/pam.prompt.js';
 import { AI_CONFIG, GENERATION_CONFIG } from '../config/ai.config.js';
 import { repairAndParseJson } from '../utils/jsonRepair.js';
 
@@ -11,7 +11,7 @@ function envGet(k: string) {
 }
 
 export async function handlePamExtraction(req: Request, res: Response) {
-    console.log('[PAM] New PAM extraction request (Structured JSON Array)');
+    console.log('[PAM] New PAM extraction request (Multi-Pass Architecture)');
 
     // Setup streaming response
     res.setHeader('Content-Type', 'application/x-ndjson');
@@ -24,7 +24,6 @@ export async function handlePamExtraction(req: Request, res: Response) {
     try {
         const { image, mimeType } = req.body;
 
-        // Validaciones
         if (!image || !mimeType) {
             console.error('[PAM] Missing payload');
             return res.status(400).json({ error: 'Missing image data or mimeType' });
@@ -36,192 +35,227 @@ export async function handlePamExtraction(req: Request, res: Response) {
             return res.status(500).json({ error: 'API Key not configured' });
         }
 
-        // Inicializar servicio Gemini
         const gemini = new GeminiService(apiKey);
-        let fullText = "";
 
-        // Llamada a Gemini con Schema
-        console.log('[PAM] Starting Gemini extraction with PAM_ANALYSIS_SCHEMA...');
+        // =================================================================================
+        // FASE 1: DISCOVERY (Model-Agnostic, usually fast)
+        // =================================================================================
+        console.log('[PAM] Phase 1: Discovery started...');
+        sendUpdate({ type: 'phase', name: 'discovery', message: '🔍 Analizando documento en busca de folios...' });
 
-        const stream = await gemini.extractWithStream(image, mimeType, PAM_PROMPT, {
+        // IMPORTANT: Discovery Phase works best with a stricter schema to get just the list
+        const discoveryResultText = await gemini.extract(image, mimeType, PAM_DISCOVERY_PROMPT, {
             responseMimeType: 'application/json',
-            responseSchema: PAM_ANALYSIS_SCHEMA,
-            maxTokens: GENERATION_CONFIG.maxOutputTokens,
-            temperature: GENERATION_CONFIG.temperature,
-            topP: GENERATION_CONFIG.topP,
-            topK: GENERATION_CONFIG.topK
+            responseSchema: PAM_DISCOVERY_SCHEMA,
+            maxTokens: 4096, // Enough for a list
+            temperature: 0,
+            topP: 0.1
         });
 
-        for await (const chunk of stream) {
-            fullText += chunk.text;
+        let discoveryData: any = {};
+        try {
+            discoveryData = repairAndParseJson(discoveryResultText);
+        } catch (e) {
+            console.error('[PAM] Discovery breakdown:', discoveryResultText);
+            throw new Error("No se pudieron identificar los folios del documento.");
+        }
 
-            // Enviar chunk al frontend
-            sendUpdate({ type: 'chunk', text: chunk.text });
+        let foliosFound = discoveryData.folios || [];
 
-            // Enviar métricas si disponibles
-            if (chunk.usageMetadata) {
-                const usage = chunk.usageMetadata;
-                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(AI_CONFIG.ACTIVE_MODEL, usage.promptTokenCount, usage.candidatesTokenCount);
+        // FILTER: Remove noise (e.g. "244-", empty strings, or very short fragments)
+        foliosFound = foliosFound.filter((f: any) => {
+            const id = f.folioPAM || "";
+            return id.length > 5 && !id.endsWith('-');
+        });
 
-                sendUpdate({
-                    type: 'usage',
-                    usage: {
-                        promptTokens: usage.promptTokenCount,
-                        candidatesTokens: usage.candidatesTokenCount,
-                        totalTokens: usage.totalTokenCount,
-                        estimatedCost,
-                        estimatedCostCLP
-                    }
-                });
+        console.log(`[PAM] Discovery complete. Found ${foliosFound.length} valid folios:`, foliosFound.map((f: any) => f.folioPAM));
+        sendUpdate({ type: 'phase', name: 'discovery_complete', count: foliosFound.length, folios: foliosFound });
+
+        if (foliosFound.length === 0) {
+            throw new Error("No se encontraron folios PAM válidos en el documento.");
+        }
+
+        // =================================================================================
+        // FASE 2: EXTRACTION LOOP (Per Folio)
+        // =================================================================================
+        const allFolioData: any[] = [];
+
+        for (let i = 0; i < foliosFound.length; i++) {
+            const folioObj = foliosFound[i];
+            const folioId = folioObj.folioPAM;
+            console.log(`[PAM] Phase 2: Extracting details for Folio ${folioId} (${i + 1}/${foliosFound.length})...`);
+
+            sendUpdate({
+                type: 'phase',
+                name: 'extraction_start',
+                folio: folioId,
+                current: i + 1,
+                total: foliosFound.length
+            });
+
+            // Inject Target Folio into Prompt
+            const effectivePrompt = PAM_DETAILS_PROMPT.replace(/{{TARGET_FOLIO}}/g, folioId);
+
+            // CALL GENERATIVE AI (No Stream for individual chunks to avoid valid JSON stream complexity, or stream to console only)
+            // Actually, we can stream the text to the UI for "liveness" effect if we want, but keeping it simple for now.
+            // Using 30k tokens for the detailed extraction
+            const extractedText = await gemini.extract(image, mimeType, effectivePrompt, {
+                responseMimeType: 'application/json',
+                // schema: undefined, // LOOSE MODE
+                maxTokens: 30000,
+                temperature: 0,
+                topP: 0.1
+            });
+
+            try {
+                // Ensure array format
+                let folioDetails = repairAndParseJson(extractedText);
+
+                // If the model returned a single object instead of array (common in granular prompts), wrap it
+                if (!Array.isArray(folioDetails)) {
+                    // Sometimes it wraps in { items: ... } or just returns the object
+                    if (folioDetails.items) folioDetails = [folioDetails];
+                    else folioDetails = [folioDetails];
+                }
+
+                // Append
+                allFolioData.push(...folioDetails);
+                sendUpdate({ type: 'phase', name: 'extraction_success', folio: folioId });
+
+            } catch (e) {
+                console.error(`[PAM] Error parsing details for folio ${folioId}:`, extractedText);
+                sendUpdate({ type: 'phase', name: 'extraction_error', folio: folioId, error: 'JSON malformed' });
+                // We continue to next folio even if one fails
             }
         }
 
-        console.log(`[PAM] Extraction complete: ${fullText.length} chars`);
+        // =================================================================================
+        // FASE 3: CONSOLIDATION & VALIDATION
+        // =================================================================================
+        console.log('[PAM] Phase 3: Merging and Validating...');
 
-        // Convertir el texto acumulado a JSON
-        try {
-            // Intenta reparar y parsear
-            let rawPamData = repairAndParseJson(fullText);
+        // Reuse existing validation logic
+        // --- CONSOLIDACIÓN DE FOLIOS DUPLICADOS ---
+        const mergedFoliosMap = new Map<string, any>();
 
-            // Garantizar que sea Array
-            if (!Array.isArray(rawPamData)) {
-                // A veces Gemini devuelve un objeto { items: [...] } o { folios: [...] }
-                if (rawPamData.items && Array.isArray(rawPamData.items)) {
-                    rawPamData = rawPamData.items;
-                } else if (rawPamData.folios && Array.isArray(rawPamData.folios)) {
-                    rawPamData = rawPamData.folios;
-                } else {
-                    // Si es un solo objeto folio, lo envolvemos
-                    rawPamData = [rawPamData];
-                }
+        (allFolioData || []).forEach(item => {
+            if (!item) return;
+            const id = item.folioPAM;
+            if (!id) return;
+
+            if (mergedFoliosMap.has(id)) {
+                const existing = mergedFoliosMap.get(id);
+                // Combinar desgloses de forma segura
+                const existingDesglose = existing.desglosePorPrestador || [];
+                const newDesglose = item.desglosePorPrestador || [];
+
+                existing.desglosePorPrestador = [...existingDesglose, ...newDesglose];
+            } else {
+                // Inicializar si no existe array
+                if (!item.desglosePorPrestador) item.desglosePorPrestador = [];
+                mergedFoliosMap.set(id, { ...item });
             }
+        });
 
-            // --- CONSOLIDACIÓN DE FOLIOS DUPLICADOS ---
-            // A veces Gemini emite el mismo folio varias veces si está fragmentado pág por pág
-            const mergedFoliosMap = new Map<string, any>();
+        const pamData = Array.from(mergedFoliosMap.values());
 
-            rawPamData.forEach(item => {
-                const id = item.folioPAM;
-                if (!id) return;
+        // --- VALIDACIÓN ARITMÉTICA GLOBAL (Reused Logic) ---
+        let globalValor = 0;
+        let globalBonif = 0;
+        let globalCopago = 0;
+        let globalDeclarado = 0;
+        let globalTotalItems = 0;
 
-                if (mergedFoliosMap.has(id)) {
-                    const existing = mergedFoliosMap.get(id);
-                    // Combinar desgloses
-                    existing.desglosePorPrestador = [
-                        ...(existing.desglosePorPrestador || []),
-                        ...(item.desglosePorPrestador || [])
-                    ];
-                    // Si el nuevo tiene un periodo o prestador más completo, podrías actualizarlo
-                    // Pero lo más importante es el acumulado de items
-                } else {
-                    mergedFoliosMap.set(id, { ...item });
-                }
-            });
+        const parseMoney = (val: string | number) => {
+            if (!val) return 0;
+            if (typeof val === 'number') return val;
+            return parseInt(val.replace(/[^\d]/g, '')) || 0;
+        };
 
-            const pamData = Array.from(mergedFoliosMap.values());
+        const validatedFolios = pamData.map(folio => {
+            let calcTotalValor = 0;
+            let calcTotalBonif = 0;
+            let calcTotalCopago = 0;
 
-            // --- VALIDACIÓN ARITMÉTICA GLOBAL ---
-            let globalValor = 0;
-            let globalBonif = 0;
-            let globalCopago = 0;
-            let globalDeclarado = 0;
-            let globalTotalItems = 0;
+            folio.desglosePorPrestador = (folio.desglosePorPrestador || []).map((prestador: any) => {
+                let pValor = 0, pBonif = 0, pCopago = 0;
 
-            const parseMoney = (val: string | number) => {
-                if (!val) return 0;
-                if (typeof val === 'number') return val;
-                return parseInt(val.replace(/[^\d]/g, '')) || 0;
-            };
+                prestador.items = (prestador.items || []).map((item: any) => {
+                    const vt = parseMoney(item.valorTotal);
+                    const bn = parseMoney(item.bonificacion);
+                    const cp = parseMoney(item.copago);
 
-            const validatedFolios = pamData.map(folio => {
-                let calcTotalValor = 0;
-                let calcTotalBonif = 0;
-                let calcTotalCopago = 0;
+                    pValor += vt;
+                    pBonif += bn;
+                    pCopago += cp;
 
-                folio.desglosePorPrestador = (folio.desglosePorPrestador || []).map((prestador: any) => {
-                    let pValor = 0, pBonif = 0, pCopago = 0;
-
-                    prestador.items = (prestador.items || []).map((item: any) => {
-                        const vt = parseMoney(item.valorTotal);
-                        const bn = parseMoney(item.bonificacion);
-                        const cp = parseMoney(item.copago);
-
-                        pValor += vt;
-                        pBonif += bn;
-                        pCopago += cp;
-
-                        const expected = vt - bn;
-                        const itemAudit = Math.abs(expected - cp) > 10 ? '❌ ERROR' : '✅ OK';
-                        return { ...item, _audit: itemAudit };
-                    });
-
-                    calcTotalValor += pValor;
-                    calcTotalBonif += pBonif;
-                    calcTotalCopago += pCopago;
-
-                    return {
-                        ...prestador,
-                        _totals: { valor: pValor, bonif: pBonif, copago: pCopago }
-                    };
+                    const expected = vt - bn;
+                    const itemAudit = Math.abs(expected - cp) > 10 ? '❌ ERROR' : '✅ OK';
+                    return { ...item, _audit: itemAudit };
                 });
 
-                const declaredCopago = parseMoney(folio.resumen?.totalCopagoDeclarado || "");
-                const diff = Math.abs(calcTotalCopago - declaredCopago);
-
-                // Si cuadra con un margen de 20 pesos (común en redondeos de Isapre)
-                const isCorrect = diff <= 50;
-                const auditStatus = isCorrect
-                    ? '✅ Totales cuadran'
-                    : `⚠️ Diferencia detectada: Suma Calc $${calcTotalCopago.toLocaleString()} vs Declarado $${declaredCopago.toLocaleString()}`;
-
-                // Acumular globales
-                globalValor += calcTotalValor;
-                globalBonif += calcTotalBonif;
-                globalCopago += calcTotalCopago;
-                globalDeclarado += declaredCopago;
-
-                // Sumar items de este folio
-                const folioItemsCount = folio.desglosePorPrestador?.reduce((acc: number, p: any) => acc + (p.items?.length || 0), 0) || 0;
-                globalTotalItems += folioItemsCount;
+                calcTotalValor += pValor;
+                calcTotalBonif += pBonif;
+                calcTotalCopago += pCopago;
 
                 return {
-                    ...folio,
-                    resumen: {
-                        ...(folio.resumen || {}),
-                        totalCopagoCalculado: calcTotalCopago,
-                        auditoriaStatus: auditStatus,
-                        cuadra: isCorrect
-                    }
+                    ...prestador,
+                    _totals: { valor: pValor, bonif: pBonif, copago: pCopago }
                 };
             });
 
-            const globalDiff = Math.abs(globalCopago - globalDeclarado);
-            const globalAuditStatus = globalDiff > 50
-                ? `❌ La cuenta consolidada NO CUADRA por $${globalDiff.toLocaleString()}`
-                : `✅ TODO CUADRA: Total consolidado $${globalCopago.toLocaleString()}`;
+            const declaredCopago = parseMoney(folio.resumen?.totalCopagoDeclarado || "");
+            const diff = Math.abs(calcTotalCopago - declaredCopago);
 
-            // Enviar resultado final estructurado
-            sendUpdate({
-                type: 'final',
-                data: {
-                    folios: validatedFolios,
-                    global: {
-                        totalValor: globalValor,
-                        totalBonif: globalBonif,
-                        totalCopago: globalCopago,
-                        totalCopagoDeclarado: globalDeclarado,
-                        cuadra: globalDiff <= 50,
-                        discrepancia: globalDiff,
-                        auditoriaStatus: globalAuditStatus,
-                        totalItems: globalTotalItems
-                    }
+            // Si cuadra con un margen de 50 pesos
+            const isCorrect = diff <= 50;
+            const auditStatus = isCorrect
+                ? '✅ Totales cuadran'
+                : `⚠️ Diferencia detectada: Suma Calc $${calcTotalCopago.toLocaleString()} vs Declarado $${declaredCopago.toLocaleString()}`;
+
+            // Acumular globales
+            globalValor += calcTotalValor;
+            globalBonif += calcTotalBonif;
+            globalCopago += calcTotalCopago;
+            globalDeclarado += declaredCopago;
+
+            // Sumar items de este folio
+            const folioItemsCount = folio.desglosePorPrestador?.reduce((acc: number, p: any) => acc + (p.items?.length || 0), 0) || 0;
+            globalTotalItems += folioItemsCount;
+
+            return {
+                ...folio,
+                resumen: {
+                    ...(folio.resumen || {}),
+                    totalCopagoCalculado: calcTotalCopago,
+                    auditoriaStatus: auditStatus,
+                    cuadra: isCorrect
                 }
-            });
+            };
+        });
 
-        } catch (parseError) {
-            console.error('[PAM] JSON Parse Error:', parseError);
-            throw new Error('No se pudo procesar la respuesta estructurada.');
-        }
+        const globalDiff = Math.abs(globalCopago - globalDeclarado);
+        const globalAuditStatus = globalDiff > 50
+            ? `❌ La cuenta consolidada NO CUADRA por $${globalDiff.toLocaleString()}`
+            : `✅ TODO CUADRA: Total consolidado $${globalCopago.toLocaleString()}`;
+
+        // Enviar resultado final estructurado
+        sendUpdate({
+            type: 'final',
+            data: {
+                folios: validatedFolios,
+                global: {
+                    totalValor: globalValor,
+                    totalBonif: globalBonif,
+                    totalCopago: globalCopago,
+                    totalCopagoDeclarado: globalDeclarado,
+                    cuadra: globalDiff <= 50,
+                    discrepancia: globalDiff,
+                    auditoriaStatus: globalAuditStatus,
+                    totalItems: globalTotalItems
+                }
+            }
+        });
 
         res.end();
 

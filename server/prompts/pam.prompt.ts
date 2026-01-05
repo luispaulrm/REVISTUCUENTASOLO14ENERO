@@ -79,3 +79,60 @@ Es común que un mismo **Folio PAM** esté subdividido en varias hojas o seccion
 
 **SALIDA JSON:** Responde SOLO con el array JSON válido. Sin texto explicativo ni bloques markdown.
 `;
+
+// ============================================================================
+// MULTI-PASS ARCHITECTURE (GEMINI 3 FLASH OPTIMIZATION)
+// ============================================================================
+
+export const PAM_DISCOVERY_SCHEMA = {
+   type: SchemaType.OBJECT,
+   description: 'Lista de los folios únicos encontrados.',
+   properties: {
+      folios: {
+         type: SchemaType.ARRAY,
+         description: 'Lista de números de folio detectados.',
+         items: {
+            type: SchemaType.OBJECT,
+            properties: {
+               folioPAM: { type: SchemaType.STRING, description: 'El número de folio completo.' },
+               prestador: { type: SchemaType.STRING, description: 'Nombre del prestador principal asociado.' }
+            },
+            required: ['folioPAM']
+         }
+      }
+   },
+   required: ['folios']
+};
+
+export const PAM_DISCOVERY_PROMPT = `
+   ** FASE 1: RADAR DE FOLIOS(DISCOVERY) **
+
+      Tu única misión es leer todo el documento e identificar ** CADA NÚMERO DE FOLIO PAM ** (o Bono) único que encuentres.
+   
+   - Ignora los ítems, ignora los montos.
+   - Solo busca los identificadores de Folio / Bono.
+   - Si un folio aparece en múltiples páginas, ** solo lístalo una vez **.
+   
+   Responde EXACTAMENTE con el JSON de folios encontrados.
+`;
+
+export const PAM_DETAILS_PROMPT = `
+   ** FASE 2: EXTRACCIÓN QUIRÚRGICA(DETAILS) **
+
+      OBJETIVO: Extraer el desglose completo y detallado PARA UN SOLO FOLIO ESPECÍFICO.
+   
+   👉 ** FOLIO TARGET **: "{{TARGET_FOLIO}}"
+
+INSTRUCCIONES:
+1.  Busca en TODO el documento las secciones que pertenezcan EXCLUSIVAMENTE al Folio "{{TARGET_FOLIO}}".
+   2.  Ignora cualquier otro folio o bono que no coincida.
+   3.  Extrae TODOS los ítems de ese folio(Prestaciones, Insumos, Medicamentos, etc.).
+   4.  Si el folio está dividido en varias páginas, ** CONSOLIDA ** toda la información en un solo reporte.
+   5.  Captura los totales declarados(copago, bonificación) que aparezcan impresos para este folio.
+
+   IMPORTANTE:
+- Exhaustividad total: No omitas ítems con valor $0.
+   - Precisión: Copia los códigos y descripciones tal como aparecen.
+   
+   Responde con el JSON detallado para este folio.
+`;

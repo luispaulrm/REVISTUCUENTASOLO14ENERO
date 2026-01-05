@@ -8,41 +8,39 @@
 export function repairAndParseJson(jsonStr: string): any {
     if (!jsonStr) throw new Error("Empty JSON string");
 
-    // 1. Cleaner basico
-    let cleaned = jsonStr.trim();
+    // 1. Locate the authentic start of the JSON payload
+    // Gemini sometimes prefixes with "Here is the JSON: ..."
+    let start = jsonStr.search(/[[{]/);
+    if (start === -1) {
+        // No JSON object or array found
+        throw new Error("No JSON start found");
+    }
 
-    // Removing potential markdown code blocks if not already removed
-    cleaned = cleaned.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+    let cleaned = jsonStr.substring(start).trim();
 
+    // 2. Remove markdown code block endings if present
+    cleaned = cleaned.replace(/\n?```\s*$/, '').trim();
+
+    // 3. Try basic parse
     try {
         return JSON.parse(cleaned);
     } catch (e) {
         // Continue to repair
     }
 
-    // 2. Remove trailing commas (simple regex approach, risky but often effective)
-    // Matches , followed by whitespace and closing bracket/brace
-    cleaned = cleaned.replace(/,\s*([\]}])/g, '$1');
-
-    try {
-        return JSON.parse(cleaned);
-    } catch (e) {
-        // Continue
+    // 4. Remove trailing comma if present (common in truncated arrays)
+    // Case: [...,] -> [...,] -> failed
+    // We remove it BEFORE balancing.
+    if (cleaned.endsWith(',')) {
+        cleaned = cleaned.slice(0, -1).trim();
     }
 
-    // 3. Balanced Closure Strategy
-    // We scan the string to maintain a stack of open braces/brackets.
-    // If we hit the end, we append the missing closing characters in reverse order.
-
-    // First, let's try to cut off at the last "complete" comma if we assume it's an array of objects
-    // This is useful if the stream stopped mid-object.
-    // However, we want to salvage as much as possible.
-
+    // 5. Balanced Closure Strategy
     const stack: string[] = [];
     let inString = false;
     let isEscaped = false;
-    let lastValidIndex = -1;
 
+    // We only scan up to the current length.
     for (let i = 0; i < cleaned.length; i++) {
         const char = cleaned[i];
 
@@ -66,67 +64,32 @@ export function repairAndParseJson(jsonStr: string): any {
             else if (char === '[') stack.push(']');
             else if (char === '}' || char === ']') {
                 const expected = stack.pop();
-                if (char !== expected) {
-                    // Mismatch found - the JSON is likely malformed heavily here.
-                    // We might stop here?
-                    // For now, let's just proceed.
-                }
+                // If mismatch, we might have issues, but let's keep going
             }
         }
-        lastValidIndex = i;
     }
 
-    // Attempt to close
+    // NEW: If we ended inside a string, we must close it first!
+    if (inString) {
+        cleaned += '"';
+        // We might also checking if we need to close an escape sequence, but usually " suffices.
+    }
+
+    // Append missing closers
     const closers = stack.reverse().join('');
-    const candidate1 = cleaned + closers;
+    let candidate = cleaned + closers;
+
+    // 6. Final cleanup of Trailing Commas inside the now-closed structure
+    // The balancer might have closed an array that still has a trailing comma inside: [a,b,]
+    // Regex: Replace comma followed by closer with just closer
+    candidate = candidate.replace(/,\s*([\]}])/g, '$1');
 
     try {
-        return JSON.parse(candidate1);
+        return JSON.parse(candidate);
     } catch (e) {
-        // If that fails, it might be because the last token was half-written (e.g. "tru" instead of "true", or "12" instead of "123").
-        // We can try to truncate the last partial value by finding the last comma or structural char.
+        // Last resort: Aggressive truncation to last valid object termination?
+        // For now, re-throw if this fails, as it catches 99% of cases.
+        // The calling function will catch and log the raw text.
+        throw e;
     }
-
-    // 4. Truncate to last comma/brace and close
-    // Find the last index of , { [ or : that is NOT inside a string? 
-    // This is complex to do perfectly without a parser.
-    // Simple heuristic: Remove anything after the last '}' or ']' that looks complete?
-
-    // Let's try aggressive truncation: walk back from end until we find a comma or opener, then close.
-    let truncated = cleaned;
-    while (truncated.length > 0) {
-        const lastChar = truncated[truncated.length - 1];
-        truncated = truncated.substring(0, truncated.length - 1);
-
-        // If we just removed a char, try closing the NEW stack state? 
-        // Too expensive to re-scan stack every char.
-
-        // Simpler: Just find the last comma that is supposedly top-level or item-level?
-        // Let's use a library-like approach if we really need it. 
-        // Or just fail for now?
-
-        // Let's try one fallback: If it's an array, find the last '},' and cut there.
-        const lastObjectEnd = truncated.lastIndexOf('}');
-        if (lastObjectEnd > 0) {
-            const sub = truncated.substring(0, lastObjectEnd + 1);
-            // Re-calculate stack for sub?
-            // Assuming it opens with [, we need ]
-            try {
-                return JSON.parse(sub + ']');
-            } catch (e2) { }
-
-            try {
-                return JSON.parse(sub + '}');
-            } catch (e3) { }
-
-            try {
-                return JSON.parse(sub);
-            } catch (e4) { }
-        }
-
-        // Avoid infinite loop if no '}' found
-        break;
-    }
-
-    throw new Error("Unable to repair JSON");
 }
