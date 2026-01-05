@@ -103,7 +103,7 @@ export function PAMResults({ data }: PAMResultsProps) {
                 if (!codeMatch) return sum;
                 const cleanBillCode = codeMatch[0].replace(/-/g, '');
                 const foundInPam = pamSectionItems.find(pi => pi.codigoGC.replace(/-/g, '').includes(cleanBillCode));
-                return sum + (foundInPam ? parseInt(foundInPam.valorTotal.replace(/[^\d]/g, '')) || 0 : 0);
+                return sum + (foundInPam ? parseInt(String(foundInPam.valorTotal || '').replace(/[^\d]/g, '')) || 0 : 0);
             }, 0);
 
             return {
@@ -132,7 +132,7 @@ export function PAMResults({ data }: PAMResultsProps) {
             });
 
             const isMissing = !foundInPam;
-            const isZeroValue = foundInPam && (parseInt(foundInPam.valorTotal.replace(/[^\d]/g, '')) || 0) === 0;
+            const isZeroValue = foundInPam && (parseInt(String(foundInPam.valorTotal || '').replace(/[^\d]/g, '')) || 0) === 0;
 
             // Clasificar según hallazgos del usuario
             let type: 'OMISSION' | 'ZERO_VALUE' | 'COVERED' = 'COVERED';
