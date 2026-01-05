@@ -272,9 +272,9 @@ export function ContractResults({ data }: Props) {
                                                 <td className="px-4 py-4 font-black text-slate-950 text-sm align-top uppercase">{getFuzzy(rule, ['seccion', 'CÓDIGO/SECCIÓN'])}</td>
                                                 <td className="px-4 py-4 text-slate-900 text-xs font-black uppercase align-top tracking-tighter">
                                                     {getFuzzy(rule, ['categoria', 'SUBCATEGORÍA'])}
-                                                    {(rule as any).categoria_canonica && (
-                                                        <div className="text-[8px] text-indigo-500 font-bold mt-1 tracking-widest">
-                                                            📍 {(rule as any).categoria_canonica.replace(/_/g, ' ')}
+                                                    {(rule as any).categoria_canonica && (rule as any).categoria_canonica !== 'OTRO' && (
+                                                        <div className="inline-flex items-center gap-1 text-[9px] font-black text-white bg-indigo-600 px-1.5 py-0.5 rounded shadow-sm mt-1 animate-pulse">
+                                                            <span>📍 {(rule as any).categoria_canonica.replace(/_/g, ' ')}</span>
                                                         </div>
                                                     )}
                                                 </td>
@@ -313,9 +313,9 @@ export function ContractResults({ data }: Props) {
                                                     <div className="font-black text-black text-xs uppercase leading-tight mb-1">
                                                         {getFuzzy(coverage, ['item', 'prestacion', 'PRESTACIÓN CLAVE'])}
                                                     </div>
-                                                    {(coverage as any).categoria_canonica && (
-                                                        <div className="text-[8px] font-black text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-100 uppercase tracking-tighter mb-1 inline-block">
-                                                            {(coverage as any).categoria_canonica}
+                                                    {(coverage as any).categoria_canonica && (coverage as any).categoria_canonica !== 'OTRO' && (
+                                                        <div className="inline-flex items-center gap-1 text-[9px] font-black text-white bg-indigo-600 px-1.5 py-0.5 rounded shadow-sm animate-pulse">
+                                                            <span>📍 {(coverage as any).categoria_canonica.replace(/_/g, ' ')}</span>
                                                         </div>
                                                     )}
                                                     {getFuzzy(coverage, ['anclajes', 'ANCLAJES']) !== '-' && Array.isArray(getFuzzy(coverage, ['anclajes', 'ANCLAJES'])) && (
