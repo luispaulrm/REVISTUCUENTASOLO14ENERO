@@ -131,8 +131,8 @@ export function ContractResults({ data }: Props) {
 
     const safeCoberturas = data?.coberturas || [];
     const filteredCoberturas = safeCoberturas.filter(c => {
-        const prestacion = getFuzzy(c, ['prestacion', 'PRESTACIÓN CLAVE', 'PRESTACION CLAVE']).toString().toLowerCase();
-        const restriccion = getFuzzy(c, ['restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'RESTRICCION']).toString().toLowerCase();
+        const prestacion = getFuzzy(c, ['item', 'prestacion', 'PRESTACIÓN CLAVE', 'PRESTACION CLAVE']).toString().toLowerCase();
+        const restriccion = getFuzzy(c, ['nota_restriccion', 'restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'RESTRICCION']).toString().toLowerCase();
         return prestacion.includes(searchTerm.toLowerCase()) || restriccion.includes(searchTerm.toLowerCase());
     });
 
@@ -282,7 +282,7 @@ export function ContractResults({ data }: Props) {
                                             <th className="px-2 py-5 border-r border-slate-800 text-center w-24">Modalidad</th>
                                             <th className="px-2 py-5 border-r border-slate-800 text-center w-20">Bonif.</th>
                                             <th className="px-2 py-5 border-r border-slate-800 text-center w-20">Copago</th>
-                                            <th className="px-2 py-5 border-r border-slate-800 text-center w-28">Tope Local 1</th>
+                                            <th className="px-2 py-5 border-r border-slate-800 text-center w-40">Tope Local 1</th>
                                             <th className="px-2 py-5 border-r border-slate-800 text-center w-28">Tope Local 2</th>
                                             <th className="px-6 py-5 min-w-[600px]">Restricciones y Notas (Evidencia Forense)</th>
                                         </tr>
@@ -292,7 +292,7 @@ export function ContractResults({ data }: Props) {
                                             <tr key={idx} className={`hover:bg-blue-50/20 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/10'}`}>
                                                 <td className="px-4 py-5 border-r border-slate-100 align-top">
                                                     <div className="font-black text-black text-xs uppercase leading-tight mb-1">
-                                                        {getFuzzy(coverage, ['prestacion', 'PRESTACIÓN CLAVE'])}
+                                                        {getFuzzy(coverage, ['item', 'prestacion', 'PRESTACIÓN CLAVE'])}
                                                     </div>
                                                     {getFuzzy(coverage, ['anclajes', 'ANCLAJES']) !== '-' && Array.isArray(getFuzzy(coverage, ['anclajes', 'ANCLAJES'])) && (
                                                         <div className="flex flex-wrap gap-1">
@@ -306,14 +306,14 @@ export function ContractResults({ data }: Props) {
                                                     <span className="text-[11px] font-black text-slate-800 uppercase tracking-tighter">{getFuzzy(coverage, ['modalidad', 'MODALIDAD/RED'])}</span>
                                                 </td>
                                                 <td className="px-2 py-4 text-center align-top border-r border-slate-100">
-                                                    <span className="text-sm font-black text-black">{getFuzzy(coverage, ['bonificacion', '% BONIFICACIÓN'])}</span>
+                                                    <span className="text-sm font-black text-black">{getFuzzy(coverage, ['cobertura', 'bonificacion', '% BONIFICACIÓN'])}</span>
                                                 </td>
                                                 <td className="px-2 py-4 text-center align-top border-r border-slate-100">
                                                     <span className="text-[11px] font-black text-slate-700 tracking-tight">{getFuzzy(coverage, ['copago', 'COPAGO FIJO'])}</span>
                                                 </td>
                                                 <td className="px-2 py-4 text-center align-top border-r border-slate-100">
                                                     <div className="text-[11px] font-black text-black bg-slate-100 py-1 px-1.5 rounded-md border border-slate-200 inline-block min-w-full">
-                                                        {getFuzzy(coverage, ['tope_1', 'TOPE LOCAL 1 (VAM/EVENTO)'])}
+                                                        {getFuzzy(coverage, ['tope', 'tope_1', 'TOPE LOCAL 1 (VAM/EVENTO)'])}
                                                     </div>
                                                 </td>
                                                 <td className="px-2 py-4 text-center align-top border-r border-slate-100">
@@ -323,7 +323,7 @@ export function ContractResults({ data }: Props) {
                                                 </td>
                                                 <td className="px-4 py-4 align-top">
                                                     <div className="text-xs text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
-                                                        {getFuzzy(coverage, ['restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO'])}
+                                                        {getFuzzy(coverage, ['nota_restriccion', 'restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO'])}
                                                     </div>
                                                 </td>
                                             </tr>

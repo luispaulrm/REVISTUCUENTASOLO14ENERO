@@ -13,6 +13,8 @@ import {
     PROMPT_EXTRAS,
     SCHEMA_REGLAS,
     SCHEMA_COBERTURAS,
+    PROMPT_REGLAS_SOLO_PASE_1,
+    SCHEMA_REGLAS_SOLO_PASE_1,
     CONTRACT_OCR_MAX_PAGES,
     CONTRACT_FAST_MODEL,
     CONTRACT_REASONING_MODEL,
@@ -283,8 +285,8 @@ export async function analyzeSingleContract(
         return { result, metrics: { tokensInput, tokensOutput, cost } };
     }
 
-    // --- EXECUTE PHASE 1: REGLAS ---
-    const reglasPhase = await extractSection("REGLAS", PROMPT_REGLAS, SCHEMA_REGLAS);
+    // --- EXECUTE PHASE 1: REGLAS (USING v9.0 PROMPT) ---
+    const reglasPhase = await extractSection("REGLAS_V9", PROMPT_REGLAS, SCHEMA_REGLAS);
 
     // --- EXECUTE PHASE 2: COBERTURAS HOSPITALARIAS ---
     const hospPhase = await extractSection("HOSPITALARIO", PROMPT_COBERTURAS_HOSP, SCHEMA_COBERTURAS);
