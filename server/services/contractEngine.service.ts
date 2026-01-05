@@ -285,17 +285,21 @@ export async function analyzeSingleContract(
         return { result, metrics: { tokensInput, tokensOutput, cost } };
     }
 
-    // --- EXECUTE PHASE 1: REGLAS (USING v9.0 PROMPT) ---
-    const reglasPhase = await extractSection("REGLAS_V9", PROMPT_REGLAS, SCHEMA_REGLAS);
+    // --- EXECUTE PHASES IN PARALLEL (v7.1 Optimization) ---
+    log(`\n[ContractEngine] ⚡ Ejecutando 4 fases en paralelo para optimizar tiempo...`);
 
-    // --- EXECUTE PHASE 2: COBERTURAS HOSPITALARIAS ---
-    const hospPhase = await extractSection("HOSPITALARIO", PROMPT_COBERTURAS_HOSP, SCHEMA_COBERTURAS);
+    // We launch all phases simultaneously. 
+    // Note: Gemini API handles concurrent requests well if using different keys or within TPM limits.
+    const phasePromises = [
+        extractSection("REGLAS_V9", PROMPT_REGLAS, SCHEMA_REGLAS),
+        extractSection("HOSPITALARIO", PROMPT_COBERTURAS_HOSP, SCHEMA_COBERTURAS),
+        extractSection("AMBULATORIO_RESTO", PROMPT_COBERTURAS_AMB, SCHEMA_COBERTURAS),
+        extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS)
+    ];
 
-    // --- EXECUTE PHASE 3: COBERTURAS AMBULATORIO/URGENCIA ---
-    const ambPhase = await extractSection("AMBULATORIO_RESTO", PROMPT_COBERTURAS_AMB, SCHEMA_COBERTURAS);
+    const [reglasPhase, hospPhase, ambPhase, extrasPhase] = await Promise.all(phasePromises);
 
-    // --- EXECUTE PHASE 4: EXTRAS (Partos, Tiempos, Derivados) ---
-    const extrasPhase = await extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS);
+    log(`\n[ContractEngine] ✅ Todas las fases paralelas han retornado.`);
 
     // --- MERGE ---
     const reglas = reglasPhase.result?.reglas || [];

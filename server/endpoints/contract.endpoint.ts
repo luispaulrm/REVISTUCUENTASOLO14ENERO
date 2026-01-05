@@ -19,6 +19,10 @@ export async function handleContractExtraction(req: Request, res: Response) {
         res.write(JSON.stringify(data) + '\n');
     };
 
+    // Harden Timeouts for massive contracts
+    req.setTimeout(0); // Unlimited input timeout
+    res.setTimeout(600000); // 10 minutes for output
+
     try {
         const { image, mimeType, originalname } = req.body;
 
@@ -86,10 +90,12 @@ export async function handleContractExtraction(req: Request, res: Response) {
         }
 
         // Send Final Data
+        console.log(`[CONTRACT] Final analysis complete. Serializing and sending ${result.coberturas.length} items...`);
         sendUpdate({
             type: 'final',
             data: result
         });
+        console.log(`[CONTRACT] Data sent successfully.`);
 
         res.end();
 
