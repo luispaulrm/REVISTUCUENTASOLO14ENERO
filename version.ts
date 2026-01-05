@@ -1,3 +1,3 @@
-export const VERSION = "v1.9.248";
-export const LAST_MODIFIED = "05/01/2026 15:38 (Chile)";
+export const VERSION = "v1.9.249";
+export const LAST_MODIFIED = "05/01/2026 15:46 (Chile)";
 export const AI_MODEL = "Gemini 3 Universal v8.5 (Human Scanner)";

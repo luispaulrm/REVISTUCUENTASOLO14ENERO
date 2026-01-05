@@ -76,6 +76,7 @@ export default function PAMApp() {
     };
 
     const addLog = (msg: string) => {
+        console.log(msg); // Enable F12 console viewing
         const timestamp = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         const formattedMsg = `[${timestamp}] ${msg}`;
         setLogs(prev => [...prev, formattedMsg]);
