@@ -56,28 +56,32 @@ export function evaluateContractQuality(contract: Contract): ContractQualityRepo
     };
 
     // 1. Verificación de Secciones Críticas (Inteligente)
-    const normalizeText = (text: string) => text.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const normalizeText = (text: any) => {
+        if (!text) return "";
+        return String(text).toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    };
 
     // Helper para obtener valor insensible a mayúsculas/acentos en las keys
     const getValue = (obj: any, candidates: string[]) => {
         if (!obj) return '';
         // 1. Direct match
         for (const key of candidates) {
-            if (obj[key]) return obj[key];
+            if (obj[key] !== undefined && obj[key] !== null) return obj[key];
         }
         // 2. Fuzzy match keys
         const objKeys = Object.keys(obj);
         for (const key of candidates) {
             const normalizedTarget = normalizeText(key);
             const foundKey = objKeys.find(k => normalizeText(k) === normalizedTarget);
-            if (foundKey && obj[foundKey]) return obj[foundKey];
+            if (foundKey && obj[foundKey] !== undefined && obj[foundKey] !== null) return obj[foundKey];
         }
         return '';
     };
 
-    // Unir todo el texto de prestaciones para búsqueda global (buscamos en TODAS las columnas, no solo el nombre)
+    // Unir todo el texto de prestaciones para búsqueda global
+    // Usamos String() para evitar fallos si hay objetos anidados o nulls
     const allPrestacionText = normalizeText(coberturas.map(c =>
-        Object.values(c).join(' ')
+        c ? Object.values(c).map(v => String(v || '')).join(' ') : ''
     ).join(' '));
 
     const missingSections: string[] = [];

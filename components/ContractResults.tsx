@@ -33,12 +33,12 @@ const TokenStatsBadge: React.FC<{ metadata?: any }> = ({ metadata }) => {
                 </div>
             </div>
 
-            {metadata.phases && metadata.phases.length > 0 && (
+            {metadata.phases && Array.isArray(metadata.phases) && metadata.phases.length > 0 && (
                 <div className="flex flex-wrap gap-2 max-w-md">
                     {metadata.phases.map((p: any, idx: number) => (
                         <div key={idx} className="px-2 py-0.5 bg-indigo-50 border border-indigo-100 rounded text-[8px] font-bold text-indigo-600 uppercase flex items-center gap-1">
-                            <span>{p.phase.replace(/_/g, ' ')}:</span>
-                            <span className="font-mono">{(p.totalTokens / 1000).toFixed(1)}k</span>
+                            <span>{String(p.phase || '').replace(/_/g, ' ')}:</span>
+                            <span className="font-mono">{((Number(p.totalTokens) || 0) / 1000).toFixed(1)}k</span>
                         </div>
                     ))}
                 </div>
@@ -142,10 +142,10 @@ export function ContractResults({ data }: Props) {
         return '-';
     };
 
-    const safeCoberturas = data?.coberturas || [];
+    const safeCoberturas = Array.isArray(data?.coberturas) ? data.coberturas : [];
     const filteredCoberturas = safeCoberturas.filter(c => {
-        const prestacion = getFuzzy(c, ['item', 'prestacion', 'PRESTACIÓN CLAVE', 'PRESTACION CLAVE']).toString().toLowerCase();
-        const restriccion = getFuzzy(c, ['nota_restriccion', 'restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'RESTRICCION']).toString().toLowerCase();
+        const prestacion = String(getFuzzy(c, ['item', 'prestacion', 'PRESTACIÓN CLAVE', 'PRESTACION CLAVE']) || '').toLowerCase();
+        const restriccion = String(getFuzzy(c, ['nota_restriccion', 'restriccion', 'RESTRICCIÓN Y CONDICIONAMIENTO', 'RESTRICCION']) || '').toLowerCase();
         return prestacion.includes(searchTerm.toLowerCase()) || restriccion.includes(searchTerm.toLowerCase());
     });
 
@@ -197,14 +197,13 @@ export function ContractResults({ data }: Props) {
                             <Download size={14} />
                             Exportar JSON
                         </button>
-                        {/* UF REFERENCE BADGE */}
                         {(() => {
                             const ufRule = safeReglas.find(r =>
-                                getFuzzy(r, ['categoria', 'SUBCATEGORÍA']).includes('UF') ||
-                                getFuzzy(r, ['seccion', 'CÓDIGO/SECCIÓN']).includes('UF')
+                                String(getFuzzy(r, ['categoria', 'SUBCATEGORÍA']) || '').includes('UF') ||
+                                String(getFuzzy(r, ['seccion', 'CÓDIGO/SECCIÓN']) || '').includes('UF')
                             );
                             if (ufRule) {
-                                const ufText = getFuzzy(ufRule, ['texto', 'VALOR EXTRACTO LITERAL DETALLADO']);
+                                const ufText = String(getFuzzy(ufRule, ['texto', 'VALOR EXTRACTO LITERAL DETALLADO']) || '');
                                 const match = ufText.match(/\$[\d.]+/);
                                 if (match) {
                                     return (

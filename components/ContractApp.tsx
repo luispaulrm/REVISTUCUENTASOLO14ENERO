@@ -139,9 +139,14 @@ export default function ContractApp() {
                     setContractResult(finalData);
                     setStatus(AppStatus.SUCCESS);
 
-                    // Persistir el contrato para auditoría cruzada
-                    localStorage.setItem('contract_audit_result', JSON.stringify(finalData));
-                    addLog('[SISTEMA] ✅ Contrato persistido localmente para auditoría cruzada.');
+                    // Persistir el contrato para auditoría cruzada (con protección de cuota)
+                    try {
+                        localStorage.setItem('contract_audit_result', JSON.stringify(finalData));
+                        addLog('[SISTEMA] ✅ Contrato persistido localmente para auditoría cruzada.');
+                    } catch (storageErr) {
+                        addLog('[SISTEMA] ⚠️ No se pudo persistir en localStorage (posible límite excedido), pero el análisis es válido.');
+                        console.warn('LocalStorage error:', storageErr);
+                    }
 
                 } catch (err: any) {
                     if (err.name === 'AbortError') {
