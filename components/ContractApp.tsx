@@ -297,7 +297,7 @@ export default function ContractApp() {
                                             {realTimeUsage.phases.map((p, idx) => (
                                                 <div key={idx} className="flex flex-col items-center min-w-[80px] border-r border-slate-800 last:border-0 pr-4">
                                                     <span className="text-[7px] font-bold text-indigo-400 uppercase tracking-tighter mb-1 truncate max-w-[70px]">
-                                                        {p.phase.replace(/_/g, ' ')}
+                                                        {String(p.phase || '').replace(/_/g, ' ')}
                                                     </span>
                                                     <span className="font-mono text-[10px] font-bold text-slate-400">
                                                         {(p.totalTokens / 1000).toFixed(1)}k

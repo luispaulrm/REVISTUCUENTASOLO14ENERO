@@ -362,13 +362,22 @@ export async function analyzeSingleContract(
     log(`✅ Final total: ${coberturas.length} items.`);
 
 
-    const diseno_ux = hospPhase.result?.diseno_ux || ambPhase.result?.diseno_ux || {
-        nombre_isapre: "Unknown",
-        titulo_plan: "Unknown",
+    // --- IDENTIFICATION BACKUP (v8.0) ---
+    const detectedIsapre = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('isapre'))?.split('isapre')?.[1]?.trim() || "Unknown";
+    const detectedPlan = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('plan'))?.split('plan')?.[1]?.trim() || "Unknown";
+
+    const diseno_ux = hospPhase.result?.diseno_ux || ambPhase.result?.diseno_ux || extrasPhase.result?.diseno_ux || {
+        nombre_isapre: detectedIsapre !== "Unknown" ? detectedIsapre : "Unknown",
+        titulo_plan: detectedPlan !== "Unknown" ? detectedPlan : "Unknown",
         layout: "failed_extraction",
         funcionalidad: "multi_pass_v4_universal",
         salida_json: "merged"
     };
+
+    // Simple fallback if everything is unknown but fingerprint has info
+    if (diseno_ux.nombre_isapre === "Unknown" && fingerprintPhase.result?.tipo_contrato) {
+        diseno_ux.nombre_isapre = fingerprintPhase.result.tipo_contrato.split('_')[0];
+    }
 
     // --- TOTAL METRICS ---
     const allPhases = [fingerprintPhase, reglasPhase, hospPhase, ambPhase, extrasPhase];
