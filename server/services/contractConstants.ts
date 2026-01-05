@@ -129,95 +129,279 @@ export const PROMPT_REGLAS = `
 `;
 
 export const PROMPT_COBERTURAS_HOSP = `
-  ** MANDATO UNIVERSAL v10.0: PASE 2 - HOSPITALARIO (EXPLOSIÓN ITEM x PRESTADOR) **
+  ** MANDATO UNIVERSAL v10.3: PASE 2 - HOSPITALARIO (ENUMERACIÓN ULTRA-EXPLÍCITA) **
   
-  OBJETIVO: Generar FILAS INDEPENDIENTES por cada combinación [ITEM x PRESTADOR x MODALIDAD].
+  OBJETIVO: Generar EXACTAMENTE las 56 filas listadas abajo. NO resumir, NO consolidar.
   
-  ⚠️ META MÍNIMA: 60+ OBJETOS JSON.
-  Si generas menos de 50 coberturas hospitalarias, has FALLADO.
+  ⚠️ META MATEMÁTICA: 56 OBJETOS JSON EXACTOS.
+  Si generas menos de 50, has FALLADO.
   
-  ⚠️ LISTA DE CAZA OBLIGATORIA (MULTIPLICA CADA UNO):
-  1. **Día Cama Básico**: Genera 1 fila por cada clínica (Alemana, U. Andes, San Carlos, Sta María, CLC, CL UC, Indisa).
-  2. **Día Cama UTI/UCI**: Genera 1 fila por cada clínica.
-  3. **Día Cama Intermedio**: Si existe, 1 fila por clínica.
-  4. **Derecho Pabellón**: 1 fila por cada clínica.
-  5. **Honorarios Médicos Quirúrgicos**: 1 fila por clínica.
-  6. **Medicamentos**: 1 fila por clínica.
-  7. **Materiales e Insumos**: 1 fila por clínica.
-  8. **Gases Medicinales**: Si existe, 1 fila por clínica.
-  9. **Anestesia**: 1 fila por clínica.
+  ⚠️ CHECKLIST NUMERADO (GENERA EXACTAMENTE ESTAS FILAS):
   
-  ⚠️ MATRIZ DE MODALIDADES:
-  - Por CADA item arriba, genera TAMBIÉN 1 fila para "Libre Elección" (con sus topes en UF/VA).
+  **SECCIÓN 1: DÍA CAMA (14 filas obligatorias)**
+  1. Día Cama - Clínica Alemana (Oferta Preferente)
+  2. Día Cama - Clínica Universidad de los Andes (Oferta Preferente)
+  3. Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente)
+  4. Día Cama - Clínica Santa María (Oferta Preferente)
+  5. Día Cama - Hospital Clínico UC (Oferta Preferente)
+  6. Día Cama - Clínica Las Condes (Oferta Preferente)
+  7. Día Cama - Clínica Indisa (Oferta Preferente)
+  8. Día Cama (Libre Elección)
+  
+  **SECCIÓN 2: DÍA CAMA UTI/UCI (8 filas obligatorias)**
+  9. Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente)
+  10. Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente)
+  11. Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente)
+  12. Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente)
+  13. Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente)
+  14. Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente)
+  15. Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente)
+  16. Día Cama UTI/UCI (Libre Elección)
+  
+  **SECCIÓN 3: DERECHO PABELLÓN (8 filas obligatorias)**
+  17. Derecho Pabellón - Clínica Alemana (Oferta Preferente)
+  18. Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente)
+  19. Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente)
+  20. Derecho Pabellón - Clínica Santa María (Oferta Preferente)
+  21. Derecho Pabellón - Hospital Clínico UC (Oferta Preferente)
+  22. Derecho Pabellón - Clínica Las Condes (Oferta Preferente)
+  23. Derecho Pabellón - Clínica Indisa (Oferta Preferente)
+  24. Derecho Pabellón (Libre Elección)
+  
+  **SECCIÓN 4: HONORARIOS MÉDICOS QUIRÚRGICOS (8 filas obligatorias)**
+  25. Honorarios Médicos Quirúrgicos - Clínica Alemana (Oferta Preferente)
+  26. Honorarios Médicos Quirúrgicos - Clínica Universidad de los Andes (Oferta Preferente)
+  27. Honorarios Médicos Quirúrgicos - Clínica San Carlos de Apoquindo (Oferta Preferente)
+  28. Honorarios Médicos Quirúrgicos - Clínica Santa María (Oferta Preferente)
+  29. Honorarios Médicos Quirúrgicos - Hospital Clínico UC (Oferta Preferente)
+  30. Honorarios Médicos Quirúrgicos - Clínica Las Condes (Oferta Preferente)
+  31. Honorarios Médicos Quirúrgicos - Clínica Indisa (Oferta Preferente)
+  32. Honorarios Médicos Quirúrgicos (Libre Elección)
+  
+  **SECCIÓN 5: MEDICAMENTOS (8 filas obligatorias)**
+  33. Medicamentos - Clínica Alemana (Oferta Preferente)
+  34. Medicamentos - Clínica Universidad de los Andes (Oferta Preferente)
+  35. Medicamentos - Clínica San Carlos de Apoquindo (Oferta Preferente)
+  36. Medicamentos - Clínica Santa María (Oferta Preferente)
+  37. Medicamentos - Hospital Clínico UC (Oferta Preferente)
+  38. Medicamentos - Clínica Las Condes (Oferta Preferente)
+  39. Medicamentos - Clínica Indisa (Oferta Preferente)
+  40. Medicamentos (Libre Elección)
+  
+  **SECCIÓN 6: MATERIALES E INSUMOS (8 filas obligatorias)**
+  41. Materiales e Insumos Clínicos - Clínica Alemana (Oferta Preferente)
+  42. Materiales e Insumos Clínicos - Clínica Universidad de los Andes (Oferta Preferente)
+  43. Materiales e Insumos Clínicos - Clínica San Carlos de Apoquindo (Oferta Preferente)
+  44. Materiales e Insumos Clínicos - Clínica Santa María (Oferta Preferente)
+  45. Materiales e Insumos Clínicos - Hospital Clínico UC (Oferta Preferente)
+  46. Materiales e Insumos Clínicos - Clínica Las Condes (Oferta Preferente)
+  47. Materiales e Insumos Clínicos - Clínica Indisa (Oferta Preferente)
+  48. Materiales e Insumos Clínicos (Libre Elección)
+  
+  **SECCIÓN 7: ANESTESIA (8 filas obligatorias)**
+  49. Anestesia - Clínica Alemana (Oferta Preferente)
+  50. Anestesia - Clínica Universidad de los Andes (Oferta Preferente)
+  51. Anestesia - Clínica San Carlos de Apoquindo (Oferta Preferente)
+  52. Anestesia - Clínica Santa María (Oferta Preferente)
+  53. Anestesia - Hospital Clínico UC (Oferta Preferente)
+  54. Anestesia - Clínica Las Condes (Oferta Preferente)
+  55. Anestesia - Clínica Indisa (Oferta Preferente)
+  56. Anestesia (Libre Elección)
+  
+  **= TOTAL: 56 FILAS OBLIGATORIAS PARA HOSPITALARIO**
+  
+  ⚠️ PROHIBIDO ABSOLUTO:
+  - **NO CREAR ÍTEMS DE RESUMEN O AGREGACIÓN.** Cada fila debe ser ÚNICA y ATÓMICA.
+  - **NO CONSOLIDAR** múltiples clínicas en una sola fila.
+  - **NO CREAR "Día Cama" genérico** que liste todas las clínicas.
+  - **NO CREAR filas adicionales** fuera de esta lista numerada.
+  
+  ⚠️ RESTRICCIONES OBLIGATORIAS POR TIPO:
+  
+  **Día Cama (todas las clínicas):**
+  - 'nota_restriccion': "Habitación Individual Simple. Referencia: Nota 1.4, 2.3"
+  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
+  
+  **Honorarios (todas las clínicas):**
+  - 'nota_restriccion': "Sólo con Médicos Staff. Referencia: Nota 1.2"
+  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
+  
+  **Medicamentos (todas las clínicas):**
+  - 'nota_restriccion': "Sólo en prestaciones que requieran hospitalización y en cirugías ambulatorias (pabellón 5 o superior). Excluye drogas antineoplásicas. No cubre insumos ambulatorios. Solo medicamentos registrados en ISP. Referencia: Nota 1.4, 1.10"
+  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
+  
+  **Materiales e Insumos (todas las clínicas):**
+  - 'nota_restriccion': "Sólo en prestaciones que requieran hospitalización y en cirugías ambulatorias (pabellón 5 o superior). Solo insumos registrados en ISP. Referencia: Nota 1.4, 1.10"
+  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
+  
+  **Anestesia (todas las clínicas):**
+  - 'nota_restriccion': "Sólo con Médicos Staff. Referencia: Nota 1.2"
+  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
+  
+  **Libre Elección (todos los ítems):**
+  - 'nota_restriccion': "Sujeto a arancel Isapre. Tope por evento/beneficiario. Referencia: Nota 1.1, 1.4"
   
   ⚠️ REGLA DE NOMENCLATURA:
-  - 'item': "Día Cama - Clínica Alemana", "Día Cama - Clínica Las Condes", etc.
-  - 'modalidad': "Oferta Preferente" o "Libre Elección".
+  - 'item': EXACTAMENTE como está en la lista numerada arriba.
+  - 'modalidad': "Oferta Preferente" o "Libre Elección" según indica la lista.
+  - 'nota_restriccion': NUNCA null. Usar las plantillas de arriba.
   
   FORMATO: JSON Strict.
 `;
 
 export const PROMPT_COBERTURAS_AMB = `
-  ** MANDATO UNIVERSAL v10.0: PASE 3 - AMBULATORIO (EXPLOSIÓN POR PRESTACIÓN) **
+  ** MANDATO UNIVERSAL v10.3: PASE 3 - AMBULATORIO (ENUMERACIÓN ULTRA-EXPLÍCITA) **
   
-  OBJETIVO: Generar FILAS INDIVIDUALES por cada tipo de examen/procedimiento.
+  OBJETIVO: Generar EXACTAMENTE las 70 filas listadas abajo. NO resumir, NO consolidar.
   
-  ⚠️ META MÍNIMA: 80+ OBJETOS JSON.
-  Si generas menos de 60 coberturas ambulatorias, has FALLADO.
+  ⚠️ META MATEMÁTICA: 70 OBJETOS JSON EXACTOS.
+  Si generas menos de 60, has FALLADO.
   
-  ⚠️ LISTA DE CAZA OBLIGATORIA (GENERA 1 JSON POR CADA UNO):
+  ⚠️ CHECKLIST NUMERADO (GENERA EXACTAMENTE ESTAS FILAS):
   
-  **CONSULTAS (4 filas):**
-  - Consulta Médica General (Pref + LE)
-  - Consulta Pediatría (Pref + LE)
+  **SECCIÓN 1: CONSULTAS (4 filas)**
+  1. Consulta Médica General (Oferta Preferente)
+  2. Consulta Médica General (Libre Elección)
+  3. Consulta Pediatría (Oferta Preferente)
+  4. Consulta Pediatría (Libre Elección)
   
-  **LABORATORIO (10+ filas):**
-  - Exámenes de Laboratorio (Pref + LE)
-  - Hemograma (Pref + LE)
-  - Perfil Bioquímico (Pref + LE)
-  - Orina Completa (Pref + LE)
-  - Cultivos (Pref + LE)
+  **SECCIÓN 2: LABORATORIO (14 filas)**
+  5. Exámenes de Laboratorio (Oferta Preferente)
+  6. Exámenes de Laboratorio (Libre Elección)
+  7. Hemograma (Oferta Preferente)
+  8. Hemograma (Libre Elección)
+  9. Perfil Bioquímico (Oferta Preferente)
+  10. Perfil Bioquímico (Libre Elección)
+  11. Orina Completa (Oferta Preferente)
+  12. Orina Completa (Libre Elección)
+  13. Cultivos (Oferta Preferente)
+  14. Cultivos (Libre Elección)
+  15. Glucosa en Sangre (Oferta Preferente)
+  16. Glucosa en Sangre (Libre Elección)
+  17. Perfil Lipídico (Oferta Preferente)
+  18. Perfil Lipídico (Libre Elección)
   
-  **IMAGENOLOGÍA (12+ filas):**
-  - Imagenología Genérica (Pref + LE)
-  - Rayos X (Pref + LE)
-  - Ecotomografía (Pref + LE)
-  - TAC/Scanner (Pref + LE)
-  - Resonancia Magnética (Pref + LE)
-  - Mamografía (Pref + LE)
+  **SECCIÓN 3: IMAGENOLOGÍA (16 filas)**
+  19. Imagenología (Oferta Preferente)
+  20. Imagenología (Libre Elección)
+  21. Rayos X (Oferta Preferente)
+  22. Rayos X (Libre Elección)
+  23. Ecotomografía (Oferta Preferente)
+  24. Ecotomografía (Libre Elección)
+  25. TAC/Scanner (Oferta Preferente)
+  26. TAC/Scanner (Libre Elección)
+  27. Resonancia Magnética (Oferta Preferente)
+  28. Resonancia Magnética (Libre Elección)
+  29. Mamografía (Oferta Preferente)
+  30. Mamografía (Libre Elección)
+  31. Densitometría Ósea (Oferta Preferente)
+  32. Densitometría Ósea (Libre Elección)
+  33. Ecografía Doppler (Oferta Preferente)
+  34. Ecografía Doppler (Libre Elección)
   
-  **PROCEDIMIENTOS (10+ filas):**
-  - Procedimientos Diagnósticos (Pref + LE)
-  - Procedimientos Terapéuticos (Pref + LE)
-  - Endoscopía (Pref + LE)
-  - Colonoscopía (Pref + LE)
-  - Biopsia (Pref + LE)
+  **SECCIÓN 4: PROCEDIMIENTOS (12 filas)**
+  35. Procedimientos Diagnósticos (Oferta Preferente)
+  36. Procedimientos Diagnósticos (Libre Elección)
+  37. Procedimientos Terapéuticos (Oferta Preferente)
+  38. Procedimientos Terapéuticos (Libre Elección)
+  39. Endoscopía Digestiva (Oferta Preferente)
+  40. Endoscopía Digestiva (Libre Elección)
+  41. Colonoscopía (Oferta Preferente)
+  42. Colonoscopía (Libre Elección)
+  43. Biopsia (Oferta Preferente)
+  44. Biopsia (Libre Elección)
+  45. Electrocardiograma (Oferta Preferente)
+  46. Electrocardiograma (Libre Elección)
   
-  **TERAPIAS (8+ filas):**
-  - Kinesiología (Pref + LE)
-  - Fonoaudiología (Pref + LE)
-  - Terapia Ocupacional (Pref + LE)
-  - Nutrición (Pref + LE)
+  **SECCIÓN 5: TERAPIAS (8 filas)**
+  47. Kinesiología (Oferta Preferente)
+  48. Kinesiología (Libre Elección)
+  49. Fonoaudiología (Oferta Preferente)
+  50. Fonoaudiología (Libre Elección)
+  51. Terapia Ocupacional (Oferta Preferente)
+  52. Terapia Ocupacional (Libre Elección)
+  53. Nutricionista (Oferta Preferente)
+  54. Nutricionista (Libre Elección)
   
-  **URGENCIAS (4+ filas):**
-  - Urgencia Simple Adulto (Pref + LE)
-  - Urgencia Compleja Adulto (Pref + LE)
+  **SECCIÓN 6: URGENCIAS (4 filas)**
+  55. Urgencia Simple Adulto (Oferta Preferente)
+  56. Urgencia Simple Adulto (Libre Elección)
+  57. Urgencia Compleja Adulto (Oferta Preferente)
+  58. Urgencia Compleja Adulto (Libre Elección)
   
-  **SALUD MENTAL (4+ filas):**
-  - Consulta Psiquiatría (Pref + LE)
-  - Consulta Psicología (Pref + LE)
+  **SECCIÓN 7: SALUD MENTAL (4 filas)**
+  59. Consulta Psiquiatría (Oferta Preferente)
+  60. Consulta Psiquiatría (Libre Elección)
+  61. Consulta Psicología (Oferta Preferente)
+  62. Consulta Psicología (Libre Elección)
   
-  **DENTAL (4+ filas):**
-  - PAD Dental (Pref + LE)
-  - Tratamiento Dental General (Pref + LE)
+  **SECCIÓN 8: DENTAL (4 filas)**
+  63. PAD Dental (Oferta Preferente)
+  64. PAD Dental (Libre Elección)
+  65. Tratamiento Dental General (Oferta Preferente)
+  66. Tratamiento Dental General (Libre Elección)
   
-  **ÓPTICA (4+ filas):**
-  - Lentes Ópticos (Pref + LE)
-  - Lentes Contacto (Pref + LE)
+  **SECCIÓN 9: ÓPTICA Y PRÓTESIS (4 filas)**
+  67. Lentes Ópticos (Libre Elección)
+  68. Lentes de Contacto (Libre Elección)
+  69. Audífonos (Libre Elección)
+  70. Prótesis y Órtesis (Libre Elección)
   
-  ⚠️ REGLAS:
-  - Por CADA item, genera 2 filas: 1 para "Oferta Preferente" y 1 para "Libre Elección".
-  - Si el contrato menciona un examen específico (ej: "Hemograma"), crea una fila para él.
+  **= TOTAL: 70 FILAS OBLIGATORIAS PARA AMBULATORIO**
+  
+  ⚠️ PROHIBIDO ABSOLUTO:
+  - **NO CREAR ÍTEMS DE RESUMEN O AGREGACIÓN.** Cada fila debe ser ÚNICA y ATÓMICA.
+  - **NO CONSOLIDAR** múltiples prestaciones en una sola fila.
+  - **NO CREAR filas adicionales** fuera de esta lista numerada.
+  
+  ⚠️ RESTRICCIONES OBLIGATORIAS POR TIPO:
+  
+  **Consultas (Pref):**
+  - 'nota_restriccion': "Sólo con presentación de bonos. Máximo 10 días de espera. Referencia: Nota 1.2, 5.3"
+  
+  **Consultas (LE):**
+  - 'nota_restriccion': "No requiere orden médica. Referencia: Nota 2.13"
+  
+  **Laboratorio/Imagenología (Pref):**
+  - 'nota_restriccion': "Sólo con presentación de bonos. Requiere orden médica. Máximo 4 días de espera. Referencia: Nota 1.2, 2.13, 5.3"
+  
+  **Laboratorio/Imagenología (LE):**
+  - 'nota_restriccion': "Requiere orden médica. Referencia: Nota 2.13"
+  
+  **Procedimientos (Pref):**
+  - 'nota_restriccion': "Sólo con presentación de bonos. Requiere orden médica. Máximo 5 días de espera. Referencia: Nota 1.2, 2.13, 5.3"
+  
+  **Procedimientos (LE):**
+  - 'nota_restriccion': "Requiere orden médica. Referencia: Nota 2.13"
+  
+  **Terapias (Pref):**
+  - 'nota_restriccion': "Sólo con presentación de bonos. Requiere orden médica. Referencia: Nota 1.2, 2.13"
+  
+  **Terapias (LE):**
+  - 'nota_restriccion': "Requiere orden médica. Referencia: Nota 2.13"
+  
+  **Urgencias (Pref):**
+  - 'nota_restriccion': "Cobertura preferente solo al acto inicial; seguimiento por plan general. Referencia: Nota 1.11"
+  
+  **Urgencias (LE):**
+  - 'nota_restriccion': "Si no acude a prestador preferente, dar aviso en 48 horas. Referencia: Nota 1.3"
+  
+  **Salud Mental (ambas modalidades):**
+  - 'nota_restriccion': "Cobertura reducida (40%). Referencia: Nota 1.7"
+  
+  **PAD Dental (ambas modalidades):**
+  - 'nota_restriccion': "Solo beneficiarios entre 12 años y 17 años, 11 meses, 29 días. Referencia: Nota 1.13"
+  
+  **Lentes Ópticos:**
+  - 'nota_restriccion': "Requiere receta médica. No requiere receta para presbicia >40 años. Referencia: Nota 1.8"
+  
+  **Audífonos:**
+  - 'nota_restriccion': "Solo mayores de 55 años. Referencia: Nota 1.5"
+  
+  ⚠️ REGLA DE NOMENCLATURA:
+  - 'item': EXACTAMENTE como está en la lista numerada arriba.
+  - 'modalidad': "Oferta Preferente" o "Libre Elección" según indica la lista.
+  - 'nota_restriccion': NUNCA null. Usar las plantillas de arriba.
   
   FORMATO: JSON Strict.
 `;
