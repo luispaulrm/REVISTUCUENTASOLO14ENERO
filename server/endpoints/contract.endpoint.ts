@@ -52,6 +52,7 @@ export async function handleContractExtraction(req: Request, res: Response) {
                         sendUpdate({
                             type: 'usage',
                             usage: {
+                                phase: metrics.phase,
                                 promptTokens: metrics.input,
                                 candidatesTokens: metrics.output,
                                 totalTokens: metrics.input + metrics.output,

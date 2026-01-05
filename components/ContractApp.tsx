@@ -96,7 +96,39 @@ export default function ContractApp() {
 
 
                 try {
-                    const result = await extractContractData(pureBase64, file.type, addLog, setRealTimeUsage, setProgress, controller.signal);
+                    const result = await extractContractData(
+                        pureBase64,
+                        file.type,
+                        addLog,
+                        (phaseUsage: any) => {
+                            setRealTimeUsage(prev => {
+                                const phases = prev?.phases || [];
+                                const existingIndex = phases.findIndex(p => p.phase === phaseUsage.phase);
+
+                                let newPhases = [...phases];
+                                if (existingIndex >= 0) {
+                                    newPhases[existingIndex] = phaseUsage;
+                                } else {
+                                    newPhases.push(phaseUsage);
+                                }
+
+                                const totalInput = newPhases.reduce((acc, p) => acc + p.promptTokens, 0);
+                                const totalOutput = newPhases.reduce((acc, p) => acc + p.candidatesTokens, 0);
+                                const totalCost = newPhases.reduce((acc, p) => acc + p.estimatedCostCLP, 0);
+
+                                return {
+                                    promptTokens: totalInput,
+                                    candidatesTokens: totalOutput,
+                                    totalTokens: totalInput + totalOutput,
+                                    estimatedCost: totalCost / 980,
+                                    estimatedCostCLP: totalCost,
+                                    phases: newPhases
+                                };
+                            });
+                        },
+                        setProgress,
+                        controller.signal
+                    );
 
                     // Asegurar que las métricas finales se incluyan en el objeto
                     const finalData = {
@@ -252,27 +284,38 @@ export default function ContractApp() {
                                     </div>
                                 </div>
 
-                                {/* 3. TOKEN METRICS */}
-                                <div className="flex items-center gap-8 px-8 flex-1 justify-center h-full">
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Input Tokens</span>
-                                        <span className="font-mono text-sm font-bold text-slate-300">
-                                            {realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '0.0k'}
-                                        </span>
-                                    </div>
-                                    <div className="w-px h-8 bg-slate-800"></div>
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Output Tokens</span>
-                                        <span className="font-mono text-sm font-bold text-white">
-                                            {realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '0.0k'}
-                                        </span>
-                                    </div>
-                                    <div className="w-px h-8 bg-slate-800"></div>
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Payload</span>
-                                        <span className="font-mono text-sm font-bold text-indigo-400">
-                                            {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
-                                        </span>
+                                {/* 3. TOKEN METRICS (ACCUMULATED BY PHASE) */}
+                                <div className="flex items-center gap-6 px-8 flex-1 justify-center h-full overflow-hidden">
+                                    {realTimeUsage?.phases && realTimeUsage.phases.length > 0 ? (
+                                        <div className="flex items-center gap-4 animate-in fade-in duration-500 overflow-x-auto no-scrollbar py-2">
+                                            {realTimeUsage.phases.map((p, idx) => (
+                                                <div key={idx} className="flex flex-col items-center min-w-[80px] border-r border-slate-800 last:border-0 pr-4">
+                                                    <span className="text-[7px] font-bold text-indigo-400 uppercase tracking-tighter mb-1 truncate max-w-[70px]">
+                                                        {p.phase.replace(/_/g, ' ')}
+                                                    </span>
+                                                    <span className="font-mono text-[10px] font-bold text-slate-400">
+                                                        {(p.totalTokens / 1000).toFixed(1)}k
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : null}
+
+                                    <div className="w-px h-8 bg-slate-800 shrink-0 mx-4"></div>
+
+                                    <div className="flex items-center gap-6">
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Payload</span>
+                                            <span className="font-mono text-sm font-bold text-indigo-400">
+                                                {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                            </span>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Cost</span>
+                                            <span className="font-mono text-sm font-bold text-emerald-400">
+                                                ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 

@@ -17,19 +17,32 @@ const TokenStatsBadge: React.FC<{ metadata?: any }> = ({ metadata }) => {
     const costClp = metadata.estimatedCostCLP ?? metadata.costClp ?? 0;
 
     return (
-        <div className="flex gap-4 p-2 bg-slate-50 rounded border border-slate-200">
-            <div className="flex flex-col">
-                <span className="text-[8px] font-black text-slate-400 uppercase">Input Tokens</span>
-                <span className="text-xs font-mono font-bold text-slate-600">{(promptTokens / 1000).toFixed(1)}k</span>
+        <div className="flex flex-col gap-2">
+            <div className="flex gap-4 p-2 bg-slate-50 rounded border border-slate-200">
+                <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-400 uppercase">Input Tokens</span>
+                    <span className="text-xs font-mono font-bold text-slate-600">{(promptTokens / 1000).toFixed(1)}k</span>
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-400 uppercase">Output Tokens</span>
+                    <span className="text-xs font-mono font-bold text-slate-600">{(candidatesTokens / 1000).toFixed(1)}k</span>
+                </div>
+                <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-400 uppercase">Costo Est.</span>
+                    <span className="text-xs font-mono font-bold text-emerald-600">${Math.round(costClp)} CLP</span>
+                </div>
             </div>
-            <div className="flex flex-col">
-                <span className="text-[8px] font-black text-slate-400 uppercase">Output Tokens</span>
-                <span className="text-xs font-mono font-bold text-slate-600">{(candidatesTokens / 1000).toFixed(1)}k</span>
-            </div>
-            <div className="flex flex-col">
-                <span className="text-[8px] font-black text-slate-400 uppercase">Costo Est.</span>
-                <span className="text-xs font-mono font-bold text-emerald-600">${Math.round(costClp)} CLP</span>
-            </div>
+
+            {metadata.phases && metadata.phases.length > 0 && (
+                <div className="flex flex-wrap gap-2 max-w-md">
+                    {metadata.phases.map((p: any, idx: number) => (
+                        <div key={idx} className="px-2 py-0.5 bg-indigo-50 border border-indigo-100 rounded text-[8px] font-bold text-indigo-600 uppercase flex items-center gap-1">
+                            <span>{p.phase.replace(/_/g, ' ')}:</span>
+                            <span className="font-mono">{(p.totalTokens / 1000).toFixed(1)}k</span>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

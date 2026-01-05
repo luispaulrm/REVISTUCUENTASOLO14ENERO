@@ -19,12 +19,21 @@ export interface BillingSection {
   isUnjustifiedCharge?: boolean; // detected when clinic total > item sum and not taxes
 }
 
+export interface PhaseUsage {
+  phase: string;
+  promptTokens: number;
+  candidatesTokens: number;
+  totalTokens: number;
+  estimatedCostCLP: number;
+}
+
 export interface UsageMetrics {
   promptTokens: number;
   candidatesTokens: number;
   totalTokens: number;
   estimatedCost: number;
   estimatedCostCLP: number;
+  phases?: PhaseUsage[];
 }
 
 export interface ExtractedAccount {

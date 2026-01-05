@@ -271,7 +271,7 @@ export async function analyzeSingleContract(
                         tokensOutput = chunk.usageMetadata.candidatesTokenCount;
                         const p = calculatePrice(tokensInput, tokensOutput);
                         cost = p.costCLP;
-                        log(`@@METRICS@@${JSON.stringify({ input: tokensInput, output: tokensOutput, cost: cost })}`);
+                        log(`@@METRICS@@${JSON.stringify({ phase: name, input: tokensInput, output: tokensOutput, cost: cost })}`);
                     }
                 }
                 result = safeJsonParse(streamText);
@@ -362,7 +362,13 @@ export async function analyzeSingleContract(
                 input: totalInput,
                 output: totalOutput,
                 total: totalInput + totalOutput,
-                costClp: totalCost
+                costClp: totalCost,
+                phases: [
+                    { phase: "Reglas", totalTokens: reglasPhase.metrics.tokensInput + reglasPhase.metrics.tokensOutput, promptTokens: reglasPhase.metrics.tokensInput, candidatesTokens: reglasPhase.metrics.tokensOutput, estimatedCostCLP: reglasPhase.metrics.cost },
+                    { phase: "Hospitalario", totalTokens: hospPhase.metrics.tokensInput + hospPhase.metrics.tokensOutput, promptTokens: hospPhase.metrics.tokensInput, candidatesTokens: hospPhase.metrics.tokensOutput, estimatedCostCLP: hospPhase.metrics.cost },
+                    { phase: "Ambulatorio", totalTokens: ambPhase.metrics.tokensInput + ambPhase.metrics.tokensOutput, promptTokens: ambPhase.metrics.tokensInput, candidatesTokens: ambPhase.metrics.tokensOutput, estimatedCostCLP: ambPhase.metrics.cost },
+                    { phase: "Extras", totalTokens: extrasPhase.metrics.tokensInput + extrasPhase.metrics.tokensOutput, promptTokens: extrasPhase.metrics.tokensInput, candidatesTokens: extrasPhase.metrics.tokensOutput, estimatedCostCLP: extrasPhase.metrics.cost }
+                ]
             },
             extractionBreakdown: {
                 totalReglas: reglas.length,

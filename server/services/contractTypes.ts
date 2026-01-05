@@ -43,6 +43,13 @@ export interface ContractAnalysisResult {
             output: number;
             total: number;
             costClp: number;
+            phases?: Array<{
+                phase: string;
+                totalTokens: number;
+                promptTokens: number;
+                candidatesTokens: number;
+                estimatedCostCLP: number;
+            }>;
         };
         extractionBreakdown?: {
             totalReglas: number;
