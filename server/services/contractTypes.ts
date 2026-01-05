@@ -1,3 +1,15 @@
+import { ContractFingerprint } from './contractFingerprint.js';
+
+export interface UploadedFile {
+    buffer: Buffer;
+    mimetype: string;
+    originalname: string;
+}
+
+export interface ContractAnalysisOptions {
+    maxOutputTokens?: number;
+}
+
 export interface UsageMetadata {
     promptTokens: number;
     candidatesTokens: number;
@@ -7,6 +19,7 @@ export interface UsageMetadata {
 }
 
 export interface ContractAnalysisResult {
+    fingerprint?: ContractFingerprint; // Phase 0 - Universal Architecture
     reglas: Array<{
         'pagina': string;
         'seccion': string;
@@ -18,15 +31,14 @@ export interface ContractAnalysisResult {
         'modalidad': string;
         'bonificacion': string;
         'copago': string;
-        'tope_1': string;
-        'tope_2': string;
-        'restriccion': string;
-        'anclajes': string[];
+        'tope': string;
+        'tope_2'?: string;
+        'nota_restriccion': string;
     }>;
     diseno_ux: {
         nombre_isapre: string;
         titulo_plan: string;
-        subtitulo_plan: string;
+        subtitulo_plan?: string;
         layout: string;
         funcionalidad: string;
         salida_json: string;
@@ -57,19 +69,4 @@ export interface ContractAnalysisResult {
             totalItems: number;
         };
     };
-    executionTimeMs?: number;
-}
-
-export interface ContractAnalysisOptions {
-    useCache?: boolean;
-    maxOutputTokens?: number;
-    ocrMaxPages?: number;
-    modelName?: string;
-    retries?: number;
-}
-
-export interface UploadedFile {
-    buffer: Buffer;
-    mimetype: string;
-    originalname?: string;
 }

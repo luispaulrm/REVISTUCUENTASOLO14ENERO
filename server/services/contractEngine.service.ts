@@ -11,8 +11,10 @@ import {
     PROMPT_COBERTURAS_HOSP,
     PROMPT_COBERTURAS_AMB,
     PROMPT_EXTRAS,
+    PROMPT_CLASSIFIER,
     SCHEMA_REGLAS,
     SCHEMA_COBERTURAS,
+    SCHEMA_CLASSIFIER,
     PROMPT_REGLAS_SOLO_PASE_1,
     SCHEMA_REGLAS_SOLO_PASE_1,
     CONTRACT_OCR_MAX_PAGES,
@@ -285,6 +287,18 @@ export async function analyzeSingleContract(
         return { result, metrics: { tokensInput, tokensOutput, cost } };
     }
 
+    // --- PHASE 0:CLASSIFY CONTRACT (v8.0 - Universal Architecture) ---
+    log(`\n[ContractEngine] 🔍 FASE 0: Clasificando estructura del contrato...`);
+    const fingerprintPhase = await extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER);
+
+    if (fingerprintPhase.result) {
+        log(`\n[ContractEngine] 📍 Huella Digital:`);
+        log(`   Tipo: ${fingerprintPhase.result.tipo_contrato}`);
+        log(`   Numeración: ${fingerprintPhase.result.estilo_numeracion}`);
+        log(`   Selección Valorizada: ${fingerprintPhase.result.tiene_seleccion_valorizada ? '✅' : '❌'}`);
+        log(`   Confianza: ${fingerprintPhase.result.confianza}%`);
+    }
+
     // --- EXECUTE PHASES IN PARALLEL (v7.1 Optimization) ---
     log(`\n[ContractEngine] ⚡ Ejecutando 4 fases en paralelo para optimizar tiempo...`);
 
@@ -365,6 +379,7 @@ export async function analyzeSingleContract(
     const totalCost = (reglasPhase.metrics.cost) + (hospPhase.metrics.cost) + (ambPhase.metrics.cost) + (extrasPhase.metrics.cost);
 
     const result: ContractAnalysisResult = {
+        fingerprint: fingerprintPhase.result || undefined,
         reglas,
         coberturas,
         diseno_ux,

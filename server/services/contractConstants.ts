@@ -1,6 +1,11 @@
 import { SchemaType } from "@google/generative-ai";
 import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 
+// ========================================
+// FASE 0: CLASIFICADOR (v8.0 - Universal Architecture)
+// ========================================
+export { PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER } from './contractConstants_classifier.js';
+
 /**
  * PROMPT EXCLUSIVO PARA PASE 1: ESCÁNER LEGAL
  * Objetivo: Transcripción íntegra de notas al pie y definiciones.
