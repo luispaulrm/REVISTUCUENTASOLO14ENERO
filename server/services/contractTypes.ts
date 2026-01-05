@@ -44,6 +44,11 @@ export interface ContractAnalysisResult {
             total: number;
             costClp: number;
         };
+        extractionBreakdown?: {
+            totalReglas: number;
+            totalCoberturas: number;
+            totalItems: number;
+        };
     };
     executionTimeMs?: number;
 }

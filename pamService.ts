@@ -122,11 +122,41 @@ export async function extractPamData(
                             onLog?.(`[API] Tokens: ${update.usage.totalTokens} | Costo: $${update.usage.estimatedCostCLP} CLP`);
                             break;
 
+                        case 'phase':
+                            // Handle workflow phases
+                            const phaseName = update.name || 'unknown';
+
+                            if (phaseName === 'discovery') {
+                                onLog?.(`[PHASE 1] 🔍 Discovery: Buscando folios en el documento...`);
+                                onProgress?.(10);
+                            } else if (phaseName === 'discovery_complete') {
+                                const count = update.count || 0;
+                                onLog?.(`[PHASE 1] ✅ Folios encontrados: ${count}`);
+                                onProgress?.(20);
+                            } else if (phaseName === 'extraction_start') {
+                                const current = update.current;
+                                const total = update.total;
+                                const folio = update.folio;
+                                onLog?.(`[PHASE 2] 🚀 (${current}/${total}) Extrayendo detalles folio: ${folio}...`);
+
+                                // Dynamic progress between 20% and 90%
+                                const percent = 20 + ((current / total) * 70);
+                                onProgress?.(percent);
+                            } else if (phaseName === 'extraction_success') {
+                                onLog?.(`[PHASE 2] ✅ Extracción exitosa folio: ${update.folio}`);
+                            } else if (phaseName === 'extraction_error') {
+                                onLog?.(`[PHASE 2] ⚠️ Error en folio ${update.folio}: ${update.error}`);
+                            }
+                            break;
+
                         case 'chunk':
-                            totalReceived += update.text?.length || 0;
-                            // Progreso proporcional entre 15% y 85%
-                            const chunkProgress = Math.min(15 + (totalReceived / EXPECTED_SIZE) * 70, 85);
-                            onProgress?.(chunkProgress);
+                            // Text chunks might still come if enabled, but new architecture uses 'phase' mostly
+                            // Keep logic just in case
+                            if (update.text) {
+                                totalReceived += update.text.length;
+                                // Only update progress if we are not in phase mode (prevent jitter)
+                                // or make it subtle
+                            }
                             break;
 
                         case 'final':

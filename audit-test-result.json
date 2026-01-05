@@ -1,0 +1,39 @@
+{
+  "data": {
+    "resumenEjecutivo": "Se ha realizado una auditoría médico-forense integral a la cuenta de Clínica Indisa procesada por Isapre Consalud. Se detectaron cobros indebidos por un monto total de $114.338 CLP. Los hallazgos principales se centran en la desagregación indebida de insumos y fármacos anestésicos que, de acuerdo con la normativa vigente (Circular IF/N°319 y Circular 43 de 1998), deben estar incorporados en el valor del Derecho de Pabellón. Adicionalmente, se identificó un incumplimiento de la cobertura contractual mínima del 40% en prestaciones de anatomía patológica, donde la Isapre aplicó una bonificación inferior a la pactada en el plan CORE 206 25.",
+    "hallazgos": [
+      {
+        "codigos": "3101304",
+        "glosa": "MATERIALES CLINICOS QUIRURGICOS (Sutura seda 3-0)",
+        "hallazgo": "EL HECHO: Se detectó el cobro de $10.000 por concepto de suturas quirúrgicas bajo el código genérico 3101304, ítem que fue bonificado con $0 por la Isapre. EL CONTRATO: Esto vulnera la cobertura preferente del 40% pactada para insumos hospitalarios (ver CONTRATO: coberturas[4]). LA LEY: Este cobro constituye una 'Desagregación Indebida de Pabellón'. Según la Circular IF/N°319 y el Apéndice del Anexo N°4 de la Circular 43 (1998), los insumos básicos como materiales de sutura están incluidos en el Derecho de Pabellón y no pueden facturarse de forma independiente al paciente.",
+        "montoObjetado": 10000,
+        "normaFundamento": "Circular IF/N°319 y Circular 43 (1998) SIS",
+        "anclajeJson": "CUENTA: secciones[0].items[0] & PAM: items[0] & CONTRATO: coberturas[4]"
+      },
+      {
+        "codigos": "3101302",
+        "glosa": "MEDICAMENTOS HOSPITALIZADOS (Sevoflurano 250ml)",
+        "hallazgo": "EL HECHO: Se facturó el fármaco Sevoflurano por $100.000 con bonificación $0, trasladando el 100% del costo al paciente. EL CONTRATO: El plan CORE 206 25 obliga a una cobertura del 40% en medicamentos hospitalarios (ver CONTRATO: coberturas[5]). LA LEY: Vulneración del Principio de Integralidad del Derecho de Pabellón. El Sevoflurano es un anestésico inhalatorio que, por norma técnica (Circular 43 de 1998, Apéndice Anexo 4, letra f), se entiende incluido en el valor del pabellón ('anestésicos de cualquier tipo'). Su cobro por separado bajo el código 3101302 es improcedente.",
+        "montoObjetado": 100000,
+        "normaFundamento": "Circular 43 (1998) Apéndice Anexo 4 letra f",
+        "anclajeJson": "CUENTA: secciones[0].items[1] & PAM: items[1] & CONTRATO: coberturas[5]"
+      },
+      {
+        "codigos": "0801004",
+        "glosa": "ESTUDIO HISTOPATOLÓGICO",
+        "hallazgo": "EL HECHO: La Isapre aplicó una bonificación del 34.3% sobre la prestación de biopsia, generando un copago de $50.000. EL CONTRATO: El contrato CORE 206 25 establece explícitamente una cobertura mínima del 40% para prestaciones hospitalarias y de libre elección (ver CONTRATO: reglas[9] y coberturas[3]). LA LEY: Incumplimiento contractual de beneficios mínimos. La Isapre pagó menos de lo que obliga la modalidad detectada en el plan, perjudicando el patrimonio del afiliado.",
+        "montoObjetado": 4338,
+        "normaFundamento": "Plan de Salud CORE 206 25 y Art. 189 DFL 1/2005",
+        "anclajeJson": "PAM: items[2] & CONTRATO: coberturas[3]"
+      }
+    ],
+    "totalAhorroDetectado": 114338,
+    "requiereRevisionHumana": false,
+    "auditoriaFinalMarkdown": "## I. RESUMEN EJECUTIVO DE AUDITORÍA\nTras el análisis forense de la cuenta médica de **Clínica Indisa** para el afiliado de **Isapre Consalud**, se han identificado irregularidades normativas y contractuales que impactan el copago del paciente. Se objeta el 100% de los insumos y fármacos asociados a pabellón cobrados de forma desagregada, y se recalcula la bonificación por exámenes diagnósticos.\n\n**Total Ahorro Detectado: $114.338 CLP**\n\n---\n\n## II. TABLA DE HALLAZGOS Y OBJECIONES FINALES\n\n| Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |\n|---|---|---|---|---|---|\n| 3101304 | MATERIALES CLINICOS | Desagregación indebida de insumos básicos (suturas). El ítem debe estar incluido en el cargo de pabellón. | $10.000 | Circular IF/N°319 | CUENTA: items[0] |\n| 3101302 | MEDICAMENTOS HOSP. | Cobro de Sevoflurano (anestésico) por separado. La Circular 43 obliga su inclusión en el Derecho de Pabellón. | $100.000 | Circular 43 (1998) | CUENTA: items[1] |\n| 0801004 | ESTUDIO HISTOPATOLÓGICO | Diferencia por aplicación errónea de tasa de bonificación (34.3% real vs 40% contractual). | $4.338 | Plan CORE 206 25 | PAM: items[2] |\n\n---\n\n## III. PRORRATEO COPAGO (SI APLICA)\n*No se detectaron cobros agregados sin desglose en la sección de farmacia del PAM que requieran prorrateo matemático, dado que las líneas coinciden con el detalle de la cuenta.*\n\n---\n\n## IV. CONCLUSIÓN MÉDICO-LEGAL\nEl prestador ha incurrido en prácticas de **Unbundling** (desagregación) al facturar insumos y gases anestésicos fuera del paquete integral de cirugía. Asimismo, la aseguradora ha incumplido los porcentajes de cobertura del plan **CORE 206 25**. Se recomienda la impugnación inmediata de estos cargos ante la Isapre y, en subsidio, ante la Superintendencia de Salud."
+  },
+  "usage": {
+    "promptTokens": 914036,
+    "candidatesTokens": 1711,
+    "totalTokens": 917261
+  }
+}
