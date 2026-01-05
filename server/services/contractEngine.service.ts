@@ -299,44 +299,52 @@ export async function analyzeSingleContract(
 
     // --- MERGE ---
     const reglas = reglasPhase.result?.reglas || [];
-    const coberturasHosp = hospPhase.result?.coberturas || [];
-    const coberturasAmb = ambPhase.result?.coberturas || [];
-    const coberturasExtras = extrasPhase.result?.coberturas || [];
-
-    // Merge all coverage arrays
-    let coberturas = [...coberturasHosp, ...coberturasAmb, ...coberturasExtras];
+    const coberturasHospRaw = hospPhase.result?.coberturas || [];
+    const coberturasAmbRaw = ambPhase.result?.coberturas || [];
+    const coberturasExtrasRaw = extrasPhase.result?.coberturas || [];
 
     // ============================================================================
-    // POST-PROCESSING FILTER v10.3: Quality Control
+    // POST-PROCESSING FILTER v10.4: Quality Control & Forensic Isolation
     // ============================================================================
-    // Remove redundant items beyond the enumerated 126 (56 Hosp + 70 Amb)
-    // This prevents AI-generated aggregations and duplicates
+    const MAX_HOSP_ITEMS = 56;
+    const MAX_AMB_ITEMS = 70;
 
-    const MAX_HOSP_ITEMS = 56;  // 7 ítems × 8 filas (7 clínicas + LE)
-    const MAX_AMB_ITEMS = 70;   // Enumerated ambulatory items
-    const MAX_CORE_ITEMS = MAX_HOSP_ITEMS + MAX_AMB_ITEMS; // 126 total
+    // Independent slicing
+    const hospSliced = coberturasHospRaw.slice(0, MAX_HOSP_ITEMS);
+    const ambSliced = coberturasAmbRaw.slice(0, MAX_AMB_ITEMS);
 
-    // Step 1: Limit to first 126 core items (excluding extras)
-    const coreCoberturasRaw = [...coberturasHosp, ...coberturasAmb];
-    const coreCoberturasFiltered = coreCoberturasRaw.slice(0, MAX_CORE_ITEMS);
-
-    // Step 2: Clean up null restrictions
-    const coreCoberturasClean = coreCoberturasFiltered.map((cob: any) => {
-        if (!cob.nota_restriccion || cob.nota_restriccion === null) {
-            // Replace null with a default message
-            return {
-                ...cob,
-                nota_restriccion: "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-            };
+    const cleanAndCheck = (list: any[]) => list.map((cob: any) => {
+        let cleaned = { ...cob };
+        if (!cleaned.nota_restriccion || cleaned.nota_restriccion === null) {
+            cleaned.nota_restriccion = "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.";
         }
-        return cob;
+
+        // Sanity Check: Truncate repeating hallucinations (>2000 chars)
+        const SANITY_LIMIT = 2000;
+        ['item', 'tope', 'nota_restriccion', 'LOGICA_DE_CALCULO'].forEach(key => {
+            if (cleaned[key] && typeof cleaned[key] === 'string' && cleaned[key].length > SANITY_LIMIT) {
+                log(`🚨 HALLUCINATION in ${cleaned.item} (${key}). Truncating...`);
+                cleaned[key] = cleaned[key].substring(0, 500) + "... [Truncado]";
+            }
+        });
+        return cleaned;
     });
 
-    // Step 3: Merge with extras (these are typically OK)
-    coberturas = [...coreCoberturasClean, ...coberturasExtras];
+    const hospClean = cleanAndCheck(hospSliced);
+    const ambClean = cleanAndCheck(ambSliced);
 
-    log(`🔧 POST-PROCESSING: Filtered ${coreCoberturasRaw.length} → ${coreCoberturasClean.length} core items (target: ${MAX_CORE_ITEMS})`);
-    log(`✅ Final coberturas count: ${coberturas.length} (${coreCoberturasClean.length} core + ${coberturasExtras.length} extras)`);
+    // Filter redundant grid items from Extras
+    const GRID_CATEGORIES = ["Día Cama", "Pabellón", "Honorarios", "Medicamentos", "Insumos", "Anestesia"];
+    const filteredExtras = coberturasExtrasRaw.filter((ext: any) => {
+        const name = (ext.item || "").toLowerCase();
+        return !GRID_CATEGORIES.some(cat => name === cat.toLowerCase() || name.includes(cat.toLowerCase() + " ("));
+    });
+    const extrasClean = cleanAndCheck(filteredExtras);
+
+    let coberturas = [...hospClean, ...ambClean, ...extrasClean];
+
+    log(`🔧 POST-PROCESSING: Hosp: ${hospClean.length}, Amb: ${ambClean.length}, Extras: ${extrasClean.length}`);
+    log(`✅ Final total: ${coberturas.length} items.`);
 
 
     const diseno_ux = hospPhase.result?.diseno_ux || ambPhase.result?.diseno_ux || {

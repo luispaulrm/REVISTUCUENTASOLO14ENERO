@@ -414,20 +414,27 @@ export const PROMPT_COBERTURAS_AMB = `
 `;
 
 export const PROMPT_EXTRAS = `
-  ** MANDATO FORENSE v8.4: PASE 4 - PRESTACIONES VALORIZADAS (PAGE 7 SUPREMACY) **
+  ** MANDATO FORENSE v10.4: PASE 4 - PRESTACIONES VALORIZADAS (ANTI-REDUNDANCIA) **
   
-  ⚠️ ALERTA DE SEGURIDAD DE DATOS (CRÍTICO):
+  ⚠️ ALERTA DE SEGURIDAD (CRÍTICO):
   Prohibido resumir. Copia TEXTUALMENTE las condiciones.
+  
+  ⚠️ REGLA DE EXCLUSIÓN (ESTRICTO):
+  NO EXTRAIGAS NADA QUE YA ESTÉ EN LA GRILLA GENERAL DE LAS PÁGINAS 1 Y 2.
+  - No extraigas "Día Cama", "Pabellón", "Honorarios", "Medicamentos", "Insumos" o "Anestesia" generales.
+  - SÓLO extrae ítems que aparezcan en la sección 'SELECCIÓN DE PRESTACIONES VALORIZADAS' (Generalmente Pág 7).
+  
+  ⚠️ REGLA ANTI-ALUCINACIÓN:
+  - NO repitas la misma frase múltiples veces en el campo 'tope'.
+  - Si una condición se repite en el documento, menciónala una sola vez de forma clara.
   
   OBJETIVO: Capturar la "Selección de Prestaciones Valorizadas" que SOBREESCRIBE la bonificación general.
   
-  ⚠️ INSTRUCCIONES CRÍTICAS (CONSALUD/MASVIDA/COLMENA):
-  1. **REGLA DE SUPREMACÍA**: Busca la sección 'SELECCIÓN DE PRESTACIONES VALORIZADAS' (Generalmente Pág 7).
-     - Por cada cirugía (Apendicectomía, Cesárea, Parto, etc.), genera una regla.
+  INSTRUCCIONES:
+  1. **REGLA DE SUPREMACÍA**: Busca cirugías específicas (Apendicectomía, Cesárea, Parto, etc.).
      - Captura el CÓDIGO FONASA y el Valor en Pesos ('Copago').
-     - ESTOS VALORES SOBREESCRIBEN CUALQUIER PORCENTAJE DEL PLAN GENERAL. Márcalos como 'SUPREMO'.
-  2. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos en estas cirugías (ej: "Tope $758.208").
-  3. **TIEMPOS DE ESPERA**: Mapea la tabla completa de tiempos (10 días consulta, etc.).
+     - Márcalos como 'SUPREMO'.
+  2. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos específicos de estas cirugías.
   
   FORMATO: JSON Strict (Schema Coberturas).
 `;
