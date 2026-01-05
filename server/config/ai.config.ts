@@ -7,7 +7,7 @@ export const GENERATION_CONFIG = {
     temperature: 0,
     topP: 0.1,
     topK: 1,
-    maxOutputTokens: 8192,
+    maxOutputTokens: 64000,
 };
 
 export const AI_CONFIG = {

@@ -122,8 +122,20 @@ export async function extractPamData(
                             onLog?.(`[API] Tokens: ${update.usage.totalTokens} | Costo: $${update.usage.estimatedCostCLP} CLP`);
                             break;
 
+                        case 'log':
+                            // Handle log messages from backend
+                            onLog?.(update.message);
+                            break;
+
+                        case 'progress':
+                            // Handle progress updates from backend
+                            if (update.progress !== undefined) {
+                                onProgress?.(update.progress);
+                            }
+                            break;
+
                         case 'phase':
-                            // Handle workflow phases
+                            // Handle workflow phases (legacy multi-pass)
                             const phaseName = update.name || 'unknown';
 
                             if (phaseName === 'discovery') {

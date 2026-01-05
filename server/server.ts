@@ -316,11 +316,37 @@ app.post('/api/extract', async (req, res) => {
             throw lastError || new Error("All API attempts failed");
         }
 
+
         let fullText = "";
+        let previousLength = 0;
+        let stuckCount = 0;
+        let maxIterations = 10000; // Safety limit
+        let iteration = 0;
 
         for await (const chunk of resultStream.stream) {
+            iteration++;
+
+            // Safety check: prevent infinite loops
+            if (iteration > maxIterations) {
+                console.error(`[CRITICAL] Stream exceeded ${maxIterations} iterations. Breaking loop.`);
+                break;
+            }
+
             const chunkText = chunk.text();
             fullText += chunkText;
+
+            // Detect stuck stream (same length for 3+ iterations)
+            if (fullText.length === previousLength) {
+                stuckCount++;
+                if (stuckCount > 3) {
+                    console.log(`[WARN] Stream appears stuck at ${fullText.length} chars. Breaking loop.`);
+                    break;
+                }
+            } else {
+                stuckCount = 0; // Reset counter
+            }
+            previousLength = fullText.length;
+
             console.log(`[CHUNK] Received chunk: ${chunkText.length} chars (Total: ${fullText.length})`);
             // Enviar el texto extraído en tiempo real al log del frontend
             sendUpdate({ type: 'chunk', text: chunkText });

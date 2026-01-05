@@ -138,9 +138,9 @@ export default function PAMApp() {
             abortControllerRef.current = controller;
 
             const timeoutId = setTimeout(() => {
-                addLog('[SISTEMA] ⚠️ Timeout excedido (60s). Cancelando...');
+                addLog('[SISTEMA] ⚠️ Timeout excedido (5 minutos). Cancelando...');
                 controller.abort();
-            }, 60000);
+            }, 300000);
 
             try {
                 setStatus(AppStatus.PROCESSING);

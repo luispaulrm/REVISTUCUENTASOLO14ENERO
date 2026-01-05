@@ -164,9 +164,9 @@ const App: React.FC = () => {
       abortControllerRef.current = controller;
 
       const timeoutId = setTimeout(() => {
-        addLog('[SYSTEM] ⚠️ Timeout excedido (60s). Cancelando extracción...');
+        addLog('[SYSTEM] ⚠️ Timeout excedido (5 min). Cancelando extracción...');
         controller.abort();
-      }, 60000);
+      }, 300000); // 5 minutos para documentos largos
 
       try {
         setStatus(AppStatus.PROCESSING);
