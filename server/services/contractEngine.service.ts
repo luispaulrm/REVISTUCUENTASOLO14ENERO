@@ -9,15 +9,17 @@ import { jsonrepair } from 'jsonrepair';
 import { getCanonicalCategory } from './contractCanonical.js';
 import {
     PROMPT_REGLAS,
-    PROMPT_COBERTURAS_HOSP,
-    PROMPT_COBERTURAS_AMB,
+    PROMPT_HOSP_P1,
+    PROMPT_HOSP_P2,
+    PROMPT_AMB_P1,
+    PROMPT_AMB_P2,
+    PROMPT_AMB_P3,
+    PROMPT_AMB_P4,
     PROMPT_EXTRAS,
     PROMPT_CLASSIFIER,
     SCHEMA_REGLAS,
     SCHEMA_COBERTURAS,
     SCHEMA_CLASSIFIER,
-    PROMPT_REGLAS_SOLO_PASE_1,
-    SCHEMA_REGLAS_SOLO_PASE_1,
     CONTRACT_OCR_MAX_PAGES,
     CONTRACT_FAST_MODEL,
     CONTRACT_REASONING_MODEL,
@@ -168,7 +170,7 @@ const SAFETY_SETTINGS = [
  * Verifica que los extractos literales tengan la densidad requerida.
  */
 function auditIntegrityCheck(jsonOutput: any, log: (msg: string) => void) {
-    const minChars = 15; // Extractos legales válidos pueden ser cortos (ej. "Sin tope.")
+    const minChars = 50; // Longitud mínima para un extracto legal real (v8.5)
     const issues: string[] = [];
 
     const reglas = jsonOutput.reglas || [];
@@ -211,7 +213,7 @@ export async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine v7.0] 🛡️ MULTI-PASS EXTRACTION (STRICT 8192 TOKENS)`);
+    log(`[ContractEngine v1.10.0] 🛡️ MULTI-PASS EXTRACTION (STRICT 8192 TOKENS)`);
     log(`[ContractEngine] 📄 Modelo: ${AI_CONFIG.ACTIVE_MODEL}`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -288,26 +290,38 @@ export async function analyzeSingleContract(
         return { result, metrics: { tokensInput, tokensOutput, cost } };
     }
 
-    // --- EXECUTE PHASES IN PARALLEL (v8.0 Optimization) ---
-    log(`\n[ContractEngine] ⚡ Ejecutando 5 fases en paralelo (Fase 0 + Extracción)...`);
+    // --- EXECUTE PHASES IN PARALLEL (v10.0 Modular Rule Engine) ---
+    log(`\n[ContractEngine] ⚡ Ejecutando 9 fases en paralelo para cobertura 100%...`);
 
     const phasePromises = [
         extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER),
-        extractSection("REGLAS_V9", PROMPT_REGLAS, SCHEMA_REGLAS),
-        extractSection("HOSPITALARIO", PROMPT_COBERTURAS_HOSP, SCHEMA_COBERTURAS),
-        extractSection("AMBULATORIO_RESTO", PROMPT_COBERTURAS_AMB, SCHEMA_COBERTURAS),
+        extractSection("REGLAS", PROMPT_REGLAS, SCHEMA_REGLAS),
+        extractSection("HOSP_P1", PROMPT_HOSP_P1, SCHEMA_COBERTURAS),
+        extractSection("HOSP_P2", PROMPT_HOSP_P2, SCHEMA_COBERTURAS),
+        extractSection("AMB_P1", PROMPT_AMB_P1, SCHEMA_COBERTURAS),
+        extractSection("AMB_P2", PROMPT_AMB_P2, SCHEMA_COBERTURAS),
+        extractSection("AMB_P3", PROMPT_AMB_P3, SCHEMA_COBERTURAS),
+        extractSection("AMB_P4", PROMPT_AMB_P4, SCHEMA_COBERTURAS),
         extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS)
     ];
 
-    const [fingerprintPhase, reglasPhase, hospPhase, ambPhase, extrasPhase] = await Promise.all(phasePromises);
+    const [
+        fingerprintPhase,
+        reglasPhase,
+        hospP1Phase,
+        hospP2Phase,
+        ambP1Phase,
+        ambP2Phase,
+        ambP3Phase,
+        ambP4Phase,
+        extrasPhase
+    ] = await Promise.all(phasePromises);
 
-    log(`\n[ContractEngine] ✅ Todas las fases paralelas han retornado.`);
+    log(`\n[ContractEngine] ✅ Todas las fases modulares han retornado.`);
 
     if (fingerprintPhase.result) {
         log(`\n[ContractEngine] 📍 Huella Digital:`);
         log(`   Tipo: ${fingerprintPhase.result.tipo_contrato}`);
-        log(`   Numeración: ${fingerprintPhase.result.estilo_numeracion}`);
-        log(`   Selección Valorizada: ${fingerprintPhase.result.tiene_seleccion_valorizada ? '✅' : '❌'}`);
         log(`   Confianza: ${fingerprintPhase.result.confianza}%`);
     }
 
@@ -319,8 +333,18 @@ export async function analyzeSingleContract(
             r['SUBCATEGORÍA'] || r['categoria'] || ''
         )
     }));
-    const coberturasHospRaw = hospPhase.result?.coberturas || [];
-    const coberturasAmbRaw = ambPhase.result?.coberturas || [];
+
+    // Combine coverage from all modular prompts
+    const coberturasHospRaw = [
+        ...(hospP1Phase.result?.coberturas || []),
+        ...(hospP2Phase.result?.coberturas || [])
+    ];
+    const coberturasAmbRaw = [
+        ...(ambP1Phase.result?.coberturas || []),
+        ...(ambP2Phase.result?.coberturas || []),
+        ...(ambP3Phase.result?.coberturas || []),
+        ...(ambP4Phase.result?.coberturas || [])
+    ];
     const coberturasExtrasRaw = extrasPhase.result?.coberturas || [];
 
     // ============================================================================
@@ -378,7 +402,7 @@ export async function analyzeSingleContract(
     const detectedIsapre = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('isapre'))?.split('isapre')?.[1]?.trim() || "Unknown";
     const detectedPlan = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('plan'))?.split('plan')?.[1]?.trim() || "Unknown";
 
-    const diseno_ux = hospPhase.result?.diseno_ux || ambPhase.result?.diseno_ux || extrasPhase.result?.diseno_ux || {
+    const diseno_ux = reglasPhase.result?.diseno_ux || hospP1Phase.result?.diseno_ux || ambP1Phase.result?.diseno_ux || extrasPhase.result?.diseno_ux || {
         nombre_isapre: detectedIsapre !== "Unknown" ? detectedIsapre : "Unknown",
         titulo_plan: detectedPlan !== "Unknown" ? detectedPlan : "Unknown",
         layout: "failed_extraction",
@@ -391,8 +415,13 @@ export async function analyzeSingleContract(
         diseno_ux.nombre_isapre = fingerprintPhase.result.tipo_contrato.split('_')[0];
     }
 
-    // --- TOTAL METRICS ---
-    const allPhases = [fingerprintPhase, reglasPhase, hospPhase, ambPhase, extrasPhase];
+    // --- TOTAL METRICS (v10.0) ---
+    const allPhases = [
+        fingerprintPhase, reglasPhase,
+        hospP1Phase, hospP2Phase,
+        ambP1Phase, ambP2Phase, ambP3Phase, ambP4Phase,
+        extrasPhase
+    ];
     const totalInput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensInput || 0), 0);
     const totalOutput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensOutput || 0), 0);
     const totalCost = allPhases.reduce((acc, p) => acc + (p.metrics?.cost || 0), 0);
@@ -410,11 +439,15 @@ export async function analyzeSingleContract(
                 total: totalInput + totalOutput,
                 costClp: totalCost,
                 phases: [
-                    { phase: "Clasificación", totalTokens: (fingerprintPhase.metrics.tokensInput || 0) + (fingerprintPhase.metrics.tokensOutput || 0), promptTokens: fingerprintPhase.metrics.tokensInput || 0, candidatesTokens: fingerprintPhase.metrics.tokensOutput || 0, estimatedCostCLP: fingerprintPhase.metrics.cost || 0 },
-                    { phase: "Reglas", totalTokens: (reglasPhase.metrics.tokensInput || 0) + (reglasPhase.metrics.tokensOutput || 0), promptTokens: reglasPhase.metrics.tokensInput || 0, candidatesTokens: reglasPhase.metrics.tokensOutput || 0, estimatedCostCLP: reglasPhase.metrics.cost || 0 },
-                    { phase: "Hospitalario", totalTokens: (hospPhase.metrics.tokensInput || 0) + (hospPhase.metrics.tokensOutput || 0), promptTokens: hospPhase.metrics.tokensInput || 0, candidatesTokens: hospPhase.metrics.tokensOutput || 0, estimatedCostCLP: hospPhase.metrics.cost || 0 },
-                    { phase: "Ambulatorio", totalTokens: (ambPhase.metrics.tokensInput || 0) + (ambPhase.metrics.tokensOutput || 0), promptTokens: ambPhase.metrics.tokensInput || 0, candidatesTokens: ambPhase.metrics.tokensOutput || 0, estimatedCostCLP: ambPhase.metrics.cost || 0 },
-                    { phase: "Extras", totalTokens: (extrasPhase.metrics.tokensInput || 0) + (extrasPhase.metrics.tokensOutput || 0), promptTokens: extrasPhase.metrics.tokensInput || 0, candidatesTokens: extrasPhase.metrics.tokensOutput || 0, estimatedCostCLP: extrasPhase.metrics.cost || 0 }
+                    { phase: "Clasificación", ...getMetrics(fingerprintPhase) },
+                    { phase: "Reglas", ...getMetrics(reglasPhase) },
+                    { phase: "Hosp_P1", ...getMetrics(hospP1Phase) },
+                    { phase: "Hosp_P2", ...getMetrics(hospP2Phase) },
+                    { phase: "Amb_P1", ...getMetrics(ambP1Phase) },
+                    { phase: "Amb_P2", ...getMetrics(ambP2Phase) },
+                    { phase: "Amb_P3", ...getMetrics(ambP3Phase) },
+                    { phase: "Amb_P4", ...getMetrics(ambP4Phase) },
+                    { phase: "Extras", ...getMetrics(extrasPhase) }
                 ]
             },
             extractionBreakdown: {
@@ -424,6 +457,15 @@ export async function analyzeSingleContract(
             }
         }
     };
+
+    function getMetrics(p: any) {
+        return {
+            totalTokens: (p.metrics?.tokensInput || 0) + (p.metrics?.tokensOutput || 0),
+            promptTokens: p.metrics?.tokensInput || 0,
+            candidatesTokens: p.metrics?.tokensOutput || 0,
+            estimatedCostCLP: p.metrics?.cost || 0
+        };
+    }
 
     // --- FINAL FORENSIC CHECK ---
     auditIntegrityCheck({ reglas }, log);

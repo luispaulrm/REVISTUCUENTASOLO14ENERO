@@ -2,147 +2,33 @@ import { SchemaType } from "@google/generative-ai";
 import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 
 // ========================================
-// FASE 0: CLASIFICADOR (v8.0 - Universal Architecture)
+// FASE 0: CLASIFICADOR (v10.0 - Universal Architecture)
 // ========================================
 export { PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER } from './contractConstants_classifier.js';
 
 /**
- * PROMPT EXCLUSIVO PARA PASE 1: ESCÁNER LEGAL
- * Objetivo: Transcripción íntegra de notas al pie y definiciones.
+ * PROMPT EXCLUSIVO PARA PASE 1: REGLAS (MANDATO ESCÁNER HUMANO v10.0)
+ * Objetivo: Transcripción íntegra para evitar carga cognitiva y omisiones.
  */
-export const PROMPT_REGLAS_SOLO_PASE_1 = `
-  ** MANDATO: ESCÁNER TEXTUAL ÍNTEGRO v9.0 **
-
-  ROL: Transcriptor Legal Forense de Alta Precisión.
-  OBJETIVO: Copiar PALABRA POR PALABRA cada punto de las "Notas Explicativas" y "Definiciones".
-
-  ⚠️ INSTRUCCIONES DE NAVEGACIÓN VISUAL (ESTRICTO):
-  1. **IGNORA LA PÁGINA 1 Y 2**: Salta las tablas de beneficios, porcentajes y topes.
-  2. **ANCLA DE INICIO**: Tu trabajo comienza donde dice "1. COBERTURAS" (Sección de Notas Explicativas).
-  3. **FOCALIZACIÓN**: Solo extrae texto plano denso. Ignora gráficos decorativos.
-
-  ⚠️ REGLAS DE TRANSCRIPCIÓN (CERO RESUMEN):
-  1. **TRANSCRIPCIÓN ÍNTEGRA**: El campo 'VALOR EXTRACTO LITERAL DETALLADO' debe ser un COPY-PASTE exacto del párrafo. 
-  2. **PROHIBIDO**: No uses elipsis (...), no resumas y no uses la frase "según indica el plan".
-  3. **ATOMICIDAD**: Si la Nota 1.1 tiene 3 párrafos, genera 3 objetos JSON independientes.
-  4. **LISTAS TÉCNICAS**: Copia íntegramente listas de exclusión (ej: pañales, kit de aseo) y códigos Fonasa (ej: 1802053).
-
-  NO analices. NO calcules. SOLO TRANSURIBE EL TEXTO VISIBLE.
-  
-  FORMATO: JSON Strict.
-`;
-
-export const SCHEMA_REGLAS_SOLO_PASE_1 = {
-  type: SchemaType.OBJECT,
-  properties: {
-    reglas: {
-      type: SchemaType.ARRAY,
-      items: {
-        type: SchemaType.OBJECT,
-        properties: {
-          'PÁGINA ORIGEN': { type: SchemaType.STRING },
-          'CÓDIGO/SECCIÓN': { type: SchemaType.STRING, description: "Ej: Nota 1.1, Nota 5.3" },
-          'VALOR EXTRACTO LITERAL DETALLADO': {
-            type: SchemaType.STRING,
-            description: "Transcripción palabra por palabra. Mínimo 50 caracteres."
-          },
-          'CÓDIGO_DISPARADOR_FONASA': { type: SchemaType.STRING, description: "Lista de códigos detectados en el texto" },
-          'SUBCATEGORÍA': { type: SchemaType.STRING, description: "Ej: Exclusiones, Tiempos, Urgencia" }
-        },
-        required: ['PÁGINA ORIGEN', 'CÓDIGO/SECCIÓN', 'VALOR EXTRACTO LITERAL DETALLADO']
-      }
-    }
-  },
-  required: ['reglas']
-};
-
-/**
- * CONFIGURACIÓN DE GENERACIÓN PARA FLASH 3
- */
-export const GENERATION_CONFIG_PASE_1 = {
-  temperature: 0,           // Precisión OCR máxima
-  topP: 0.1,                // Cero desviación de caracteres
-  maxOutputTokens: 8192,    // Espacio máximo para textos largos
-  responseMimeType: "application/json"
-};
-
-
-
-// --- SPLIT PROMPTS FOR 3-PASS EXTRACTION ---
-
-// --- SPLIT PROMPTS FOR 4-PASS UNIVERSAL ARCHITECTURE (v8.5 ESCÁNER TEXTUAL) ---
-
 export const PROMPT_REGLAS = `
-  ** MANDATO: ESCÁNER LEGAL FORENSE v10.0 ULTRA-ATÓMICO **
-
-  ROL: Transcriptor Forensic de Contratos de Salud (Isapres).
-  OBJETIVO: Extraer CADA PÁRRAFO de CADA NOTA como un objeto JSON independiente.
-
-  ⚠️ META DE SALIDA MÍNIMA: 100+ OBJETOS JSON.
-  Si generas menos de 80 reglas, has FALLADO en tu misión.
-
-  ⚠️ INSTRUCCIONES DE NAVEGACIÓN VISUAL (ESTRICTO):
-  1. **IGNORA LA CARÁTULA**: Salta las tablas de porcentajes, beneficios y topes de las páginas 1 y 2.
-  2. **ANCLA DE INICIO**: Tu trabajo comienza estrictamente donde dice "1. COBERTURAS" o "Notas Explicativas del Plan".
-  3. **FOCALIZACIÓN**: Lee TODO el texto denso de las páginas 3 a 10.
-
-  ⚠️ CHECKLIST OBLIGATORIO DE NOTAS (DEBES ENCONTRAR TODAS):
+  ** MANDATO: ESCÁNER TEXTUAL ÍNTEGRO v10.0 **
   
-  **SECCIÓN 1: COBERTURAS**
-  - Nota 1.1: Prestaciones Hospitalarias (busca 2-3 párrafos, genera 2-3 JSONs)
-  - Nota 1.2: Cobertura Preferente (busca 2-4 párrafos)
-  - Nota 1.3: Urgencia Hospitalaria (al menos 1 párrafo largo)
-  - Nota 1.4: Medicamentos e Insumos (OBLIGATORIO: párrafo largo, divídelo en 2-3 JSONs por oración)
-  - Nota 1.5: Audífonos (1 JSON)
-  - Nota 1.6: (Si existe)
-  - Nota 1.7: Prestadores Derivados o Cobertura Restringida
-  - Nota 1.8: Marcos y Cristales Ópticos (Presbicia)
-  - Nota 1.9: (Si existe)
-  - Nota 1.10: Garantía ISP (OBLIGATORIO)
-  - Nota 1.11: Urgencias Ambulatorias
-  - Nota 1.12: (Si existe)
-  - Nota 1.13: PAD Dental
-  - Nota 1.14 a 1.20: (Busca cualquier numeración restante)
-
-  **SECCIÓN 2: DEFINICIONES**
-  - 2.1 a 2.10: Definición de UF, Tope, Habitación, Orden Médica, etc. (genera 1 JSON por definición)
-
-  **SECCIÓN 3: EXCLUSIONES (Si existe)**
-  - 3.1 a 3.X: Lista cada exclusión como JSON independiente.
-
-  **SECCIÓN 4: PRESTACIONES RESTRINGIDAS (Si existe)**
-  - 4.1 a 4.X
-
-  **SECCIÓN 5: OFERTA PREFERENTE**
-  - Nota 5.1: Prestadores Derivados
-  - Nota 5.2: Disponibilidad
-  - Nota 5.3: TIEMPOS MÁXIMOS DE ESPERA (¡OBLIGATORIO! Genera 1 JSON por cada tiempo: Consulta, Lab, Imagen, Procedimientos, Cirugía)
-  - Nota 5.4 a 5.10: (Si existen)
-
-  ⚠️ REGLAS DE ATOMICIDAD EXTREMA:
-  1. **UN PÁRRAFO = UN JSON**: Si la Nota 1.4 tiene 3 oraciones separadas por punto seguido, genera 3 JSONs.
-  2. **LISTAS = EXPLOSIONES**: Si una nota dice "Se excluyen: a) pañales, b) kit de aseo, c) sondas", genera 3 JSONs (uno por item).
-  3. **TABLA DE TIEMPOS (5.3)**: Genera 5 JSONs separados (Consulta 10 días, Lab 4 días, etc.).
-
-  ⚠️ FORMATO DE TRANSCRIPCIÓN:
-  - 'VALOR EXTRACTO LITERAL DETALLADO': COPY-PASTE exacto del párrafo o FRASE COMPLETA.
-  - 'CÓDIGO/SECCIÓN': "Nota 1.4 (Oración 1)", "Nota 5.3 (Consulta)", etc.
-
-  NO resumas. NO agrupes. SOLO MULTIPLICA.
+  ROL: Transcriptor legal.
+  OBJETIVO: Copiar palabra por palabra cada párrafo de las "Notas Explicativas" (Sección 1).
   
-  FORMATO: JSON Strict (Schema Reglas).
+  ⚠️ INSTRUCCIONES DE TRANSCRIPCIÓN:
+  1. Por cada número (1.1, 1.2, 1.3 hasta 1.13), genera una regla.
+  2. Si un número tiene varios párrafos, genera una regla por PÁRRAFO.
+  3. El campo 'VALOR EXTRACTO LITERAL DETALLADO' debe contener el PÁRRAFO COMPLETO. Queda prohibido resumir, usar elipsis (...) o saltarse palabras.
+  4. Si el párrafo es largo (más de 10 líneas), cópialo entero. Tienes 8,192 tokens; úsalos para escribir.
+  
+  NO analices la lógica. NO busques códigos Fonasa todavía. SOLO COPIA Y PEGA EL TEXTO.
+  
+  FORMATO: JSON Strict (Schema Reglas Universal).
 `;
 
-export const PROMPT_COBERTURAS_HOSP = `
-  ** MANDATO UNIVERSAL v10.3: PASE 2 - HOSPITALARIO (ENUMERACIÓN ULTRA-EXPLÍCITA) **
-  
-  OBJETIVO: Generar EXACTAMENTE las 56 filas listadas abajo. NO resumir, NO consolidar.
-  
-  ⚠️ META MATEMÁTICA: 56 OBJETOS JSON EXACTOS.
-  Si generas menos de 50, has FALLADO.
-  
-  ⚠️ CHECKLIST NUMERADO (GENERA EXACTAMENTE ESTAS FILAS):
-  
+
+const CHECKLIST_HOSP = `
   **SECCIÓN 1: DÍA CAMA (14 filas obligatorias)**
   1. Día Cama - Clínica Alemana (Oferta Preferente)
   2. Día Cama - Clínica Universidad de los Andes (Oferta Preferente)
@@ -212,58 +98,9 @@ export const PROMPT_COBERTURAS_HOSP = `
   54. Anestesia - Clínica Las Condes (Oferta Preferente)
   55. Anestesia - Clínica Indisa (Oferta Preferente)
   56. Anestesia (Libre Elección)
-  
-  **= TOTAL: 56 FILAS OBLIGATORIAS PARA HOSPITALARIO**
-  
-  ⚠️ PROHIBIDO ABSOLUTO:
-  - **NO CREAR ÍTEMS DE RESUMEN O AGREGACIÓN.** Cada fila debe ser ÚNICA y ATÓMICA.
-  - **NO CONSOLIDAR** múltiples clínicas en una sola fila.
-  - **NO CREAR "Día Cama" genérico** que liste todas las clínicas.
-  - **NO CREAR filas adicionales** fuera de esta lista numerada.
-  
-  ⚠️ RESTRICCIONES OBLIGATORIAS POR TIPO:
-  
-  **Día Cama (todas las clínicas):**
-  - 'nota_restriccion': "Habitación Individual Simple. Referencia: Nota 1.4, 2.3"
-  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
-  
-  **Honorarios (todas las clínicas):**
-  - 'nota_restriccion': "Sólo con Médicos Staff. Referencia: Nota 1.2"
-  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
-  
-  **Medicamentos (todas las clínicas):**
-  - 'nota_restriccion': "Sólo en prestaciones que requieran hospitalización y en cirugías ambulatorias (pabellón 5 o superior). Excluye drogas antineoplásicas. No cubre insumos ambulatorios. Solo medicamentos registrados en ISP. Referencia: Nota 1.4, 1.10"
-  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
-  
-  **Materiales e Insumos (todas las clínicas):**
-  - 'nota_restriccion': "Sólo en prestaciones que requieran hospitalización y en cirugías ambulatorias (pabellón 5 o superior). Solo insumos registrados en ISP. Referencia: Nota 1.4, 1.10"
-  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
-  
-  **Anestesia (todas las clínicas):**
-  - 'nota_restriccion': "Sólo con Médicos Staff. Referencia: Nota 1.2"
-  - Para CLC agregar: "Sólo con bonos. Referencia: Nota 1.2"
-  
-  **Libre Elección (todos los ítems):**
-  - 'nota_restriccion': "Sujeto a arancel Isapre. Tope por evento/beneficiario. Referencia: Nota 1.1, 1.4"
-  
-  ⚠️ REGLA DE NOMENCLATURA:
-  - 'item': EXACTAMENTE como está en la lista numerada arriba.
-  - 'modalidad': "Oferta Preferente" o "Libre Elección" según indica la lista.
-  - 'nota_restriccion': NUNCA null. Usar las plantillas de arriba.
-  
-  FORMATO: JSON Strict.
 `;
 
-export const PROMPT_COBERTURAS_AMB = `
-  ** MANDATO UNIVERSAL v10.3: PASE 3 - AMBULATORIO (ENUMERACIÓN ULTRA-EXPLÍCITA) **
-  
-  OBJETIVO: Generar EXACTAMENTE las 70 filas listadas abajo. NO resumir, NO consolidar.
-  
-  ⚠️ META MATEMÁTICA: 70 OBJETOS JSON EXACTOS.
-  Si generas menos de 60, has FALLADO.
-  
-  ⚠️ CHECKLIST NUMERADO (GENERA EXACTAMENTE ESTAS FILAS):
-  
+const CHECKLIST_AMB = `
   **SECCIÓN 1: CONSULTAS (4 filas)**
   1. Consulta Médica General (Oferta Preferente)
   2. Consulta Médica General (Libre Elección)
@@ -351,71 +188,87 @@ export const PROMPT_COBERTURAS_AMB = `
   68. Lentes de Contacto (Libre Elección)
   69. Audífonos (Libre Elección)
   70. Prótesis y Órtesis (Libre Elección)
-  
-  **= TOTAL: 70 FILAS OBLIGATORIAS PARA AMBULATORIO**
-  
-  ⚠️ PROHIBIDO ABSOLUTO:
-  - **NO CREAR ÍTEMS DE RESUMEN O AGREGACIÓN.** Cada fila debe ser ÚNICA y ATÓMICA.
-  - **NO CONSOLIDAR** múltiples prestaciones en una sola fila.
-  - **NO CREAR filas adicionales** fuera de esta lista numerada.
-  
-  ⚠️ RESTRICCIONES OBLIGATORIAS POR TIPO:
-  
-  **Consultas (Pref):**
-  - 'nota_restriccion': "Sólo con presentación de bonos. Máximo 10 días de espera. Referencia: Nota 1.2, 5.3"
-  
-  **Consultas (LE):**
-  - 'nota_restriccion': "No requiere orden médica. Referencia: Nota 2.13"
-  
-  **Laboratorio/Imagenología (Pref):**
-  - 'nota_restriccion': "Sólo con presentación de bonos. Requiere orden médica. Máximo 4 días de espera. Referencia: Nota 1.2, 2.13, 5.3"
-  
-  **Laboratorio/Imagenología (LE):**
-  - 'nota_restriccion': "Requiere orden médica. Referencia: Nota 2.13"
-  
-  **Procedimientos (Pref):**
-  - 'nota_restriccion': "Sólo con presentación de bonos. Requiere orden médica. Máximo 5 días de espera. Referencia: Nota 1.2, 2.13, 5.3"
-  
-  **Procedimientos (LE):**
-  - 'nota_restriccion': "Requiere orden médica. Referencia: Nota 2.13"
-  
-  **Terapias (Pref):**
-  - 'nota_restriccion': "Sólo con presentación de bonos. Requiere orden médica. Referencia: Nota 1.2, 2.13"
-  
-  **Terapias (LE):**
-  - 'nota_restriccion': "Requiere orden médica. Referencia: Nota 2.13"
-  
-  **Urgencias (Pref):**
-  - 'nota_restriccion': "Cobertura preferente solo al acto inicial; seguimiento por plan general. Referencia: Nota 1.11"
-  
-  **Urgencias (LE):**
-  - 'nota_restriccion': "Si no acude a prestador preferente, dar aviso en 48 horas. Referencia: Nota 1.3"
-  
-  **Salud Mental (ambas modalidades):**
-  - 'nota_restriccion': "Cobertura reducida (40%). Referencia: Nota 1.7"
-  
-  **PAD Dental (ambas modalidades):**
-  - 'nota_restriccion': "Solo beneficiarios entre 12 años y 17 años, 11 meses, 29 días. Referencia: Nota 1.13"
-  
-  **Lentes Ópticos:**
-  - 'nota_restriccion': "Requiere receta médica. No requiere receta para presbicia >40 años. Referencia: Nota 1.8"
-  
-  **Audífonos:**
-  - 'nota_restriccion': "Solo mayores de 55 años. Referencia: Nota 1.5"
-  
-  ⚠️ REGLA DE NOMENCLATURA:
-  - 'item': EXACTAMENTE como está en la lista numerada arriba.
-  - 'modalidad': "Oferta Preferente" o "Libre Elección" según indica la lista.
-  - 'nota_restriccion': NUNCA null. Usar las plantillas de arriba.
-  
-  **= TOTAL: 70 FILAS OBLIGATORIAS PARA AMBULATORIO**
+`;
 
-  ⚠️ VERIFICACIÓN FINAL OBLIGATORIA:
-  Antes de enviar tu respuesta, CUENTA tus filas y confirma que has generado EXACTAMENTE 70 objetos JSON.
-  La ÚLTIMA fila (#70) DEBE ser: "Prótesis y Órtesis (Libre Elección)".
-  Si tienes menos de 70, CONTINÚA generando hasta completar la lista numerada.
+// --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
 
-  FORMATO: JSON Strict.
+const SHARED_MANDATE = `
+  ** MANDATO FORENSE v10.0: MICRO-PROMPT ATÓMICO **
+  OBJETIVO: Extraer EXACTAMENTE el sub-set de filas que se te asignará abajo.
+  NORMA DE ORO: Si no encuentras el dato, no lo inventes, pero REVISA TODO EL DOCUMENTO.
+  NO resumas. NO consolides.
+`;
+
+export const PROMPT_HOSP_P1 = `
+  ${SHARED_MANDATE}
+  **SEGMENTO ASIGNADO: DÍA CAMA, UTI Y PABELLÓN**
+  
+  Extrae exactamente las filas 1 a 24 del checklist Hospitalario:
+  1-8: Día Cama (7 clínicas + LE)
+  9-16: UTI/UCI (7 clínicas + LE)
+  17-24: Pabellón (7 clínicas + LE)
+  
+  ⚠️ RESTRICCIÓN: Solo procesa estos 24 ítems.
+  ${CHECKLIST_HOSP.substring(CHECKLIST_HOSP.indexOf("**SECCIÓN 1"), CHECKLIST_HOSP.indexOf("**SECCIÓN 4"))}
+`;
+
+export const PROMPT_HOSP_P2 = `
+  ${SHARED_MANDATE}
+  **SEGMENTO ASIGNADO: HONORARIOS, MEDICAMENTOS, INSUMOS Y ANESTESIA**
+  
+  Extrae exactamente las filas 25 a 56 del checklist Hospitalario:
+  25-32: Honorarios Médicos Quirúrgicos
+  33-40: Medicamentos
+  41-48: Materiales e Insumos
+  49-56: Anestesia
+  
+  ⚠️ RESTRICCIÓN: Solo procesa estos 32 ítems.
+  ${CHECKLIST_HOSP.substring(CHECKLIST_HOSP.indexOf("**SECCIÓN 4"))}
+`;
+
+export const PROMPT_AMB_P1 = `
+  ${SHARED_MANDATE}
+  **SEGMENTO ASIGNADO: CONSULTAS Y LABORATORIO**
+  
+  Extrae exactamente las filas 1 a 18 del checklist Ambulatorio:
+  1-4: Consultas
+  5-18: Laboratorio (Hemograma, Perfil, etc.)
+  
+  ⚠️ RESTRICCIÓN: Solo procesa estos 18 ítems.
+  ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 1"), CHECKLIST_AMB.indexOf("**SECCIÓN 3"))}
+`;
+
+export const PROMPT_AMB_P2 = `
+  ${SHARED_MANDATE}
+  **SEGMENTO ASIGNADO: IMAGENOLOGÍA**
+  
+  Extrae exactamente las filas 19 a 34 del checklist Ambulatorio:
+  Rayos X, Ecotomografía, TAC, Resonancia, Mamografía, Densitometría, Doppler.
+  
+  ⚠️ RESTRICCIÓN: Solo procesa estos 16 ítems.
+  ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 3"), CHECKLIST_AMB.indexOf("**SECCIÓN 4"))}
+`;
+
+export const PROMPT_AMB_P3 = `
+  ${SHARED_MANDATE}
+  **SEGMENTO ASIGNADO: PROCEDIMIENTOS Y TERAPIAS**
+  
+  Extrae exactamente las filas 35 a 54 del checklist Ambulatorio:
+  Procedimientos Diagnósticos/Terapéuticos, Endoscopía, Colonoscopía, Biopsia, Electro, Kine, Fono, TO, Nutri.
+  
+  ⚠️ RESTRICCIÓN: Solo procesa estos 20 ítems.
+  ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 4"), CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
+`;
+
+export const PROMPT_AMB_P4 = `
+  ${SHARED_MANDATE}
+  **SEGMENTO ASIGNADO: URGENCIAS, SALUD MENTAL, DENTAL Y ÓPTICA**
+  
+  Extrae exactamente las filas 55 a 70 del checklist Ambulatorio:
+  Urgencias, Psiquiatría, Psicología, PAD Dental, Lentes, Audífonos, Prótesis.
+  
+  ⚠️ RESTRICCIÓN: Solo procesa estos 16 ítems.
+  ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
 `;
 
 export const PROMPT_EXTRAS = `
