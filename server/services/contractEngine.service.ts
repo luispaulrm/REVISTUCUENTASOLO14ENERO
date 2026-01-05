@@ -287,9 +287,20 @@ export async function analyzeSingleContract(
         return { result, metrics: { tokensInput, tokensOutput, cost } };
     }
 
-    // --- PHASE 0:CLASSIFY CONTRACT (v8.0 - Universal Architecture) ---
-    log(`\n[ContractEngine] 🔍 FASE 0: Clasificando estructura del contrato...`);
-    const fingerprintPhase = await extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER);
+    // --- EXECUTE PHASES IN PARALLEL (v8.0 Optimization) ---
+    log(`\n[ContractEngine] ⚡ Ejecutando 5 fases en paralelo (Fase 0 + Extracción)...`);
+
+    const phasePromises = [
+        extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER),
+        extractSection("REGLAS_V9", PROMPT_REGLAS, SCHEMA_REGLAS),
+        extractSection("HOSPITALARIO", PROMPT_COBERTURAS_HOSP, SCHEMA_COBERTURAS),
+        extractSection("AMBULATORIO_RESTO", PROMPT_COBERTURAS_AMB, SCHEMA_COBERTURAS),
+        extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS)
+    ];
+
+    const [fingerprintPhase, reglasPhase, hospPhase, ambPhase, extrasPhase] = await Promise.all(phasePromises);
+
+    log(`\n[ContractEngine] ✅ Todas las fases paralelas han retornado.`);
 
     if (fingerprintPhase.result) {
         log(`\n[ContractEngine] 📍 Huella Digital:`);
@@ -298,20 +309,6 @@ export async function analyzeSingleContract(
         log(`   Selección Valorizada: ${fingerprintPhase.result.tiene_seleccion_valorizada ? '✅' : '❌'}`);
         log(`   Confianza: ${fingerprintPhase.result.confianza}%`);
     }
-
-    // --- EXECUTE PHASES IN PARALLEL (v7.1 Optimization) ---
-    log(`\n[ContractEngine] ⚡ Ejecutando 4 fases en paralelo para optimizar tiempo...`);
-
-    // We launch all phases simultaneously. 
-    // Note: Gemini API handles concurrent requests well if using different keys or within TPM limits.
-    const phasePromises = [
-        extractSection("REGLAS_V9", PROMPT_REGLAS, SCHEMA_REGLAS),
-        extractSection("HOSPITALARIO", PROMPT_COBERTURAS_HOSP, SCHEMA_COBERTURAS),
-        extractSection("AMBULATORIO_RESTO", PROMPT_COBERTURAS_AMB, SCHEMA_COBERTURAS),
-        extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS)
-    ];
-
-    const [reglasPhase, hospPhase, ambPhase, extrasPhase] = await Promise.all(phasePromises);
 
     log(`\n[ContractEngine] ✅ Todas las fases paralelas han retornado.`);
 
@@ -374,9 +371,10 @@ export async function analyzeSingleContract(
     };
 
     // --- TOTAL METRICS ---
-    const totalInput = (reglasPhase.metrics.tokensInput) + (hospPhase.metrics.tokensInput) + (ambPhase.metrics.tokensInput) + (extrasPhase.metrics.tokensInput);
-    const totalOutput = (reglasPhase.metrics.tokensOutput) + (hospPhase.metrics.tokensOutput) + (ambPhase.metrics.tokensOutput) + (extrasPhase.metrics.tokensOutput);
-    const totalCost = (reglasPhase.metrics.cost) + (hospPhase.metrics.cost) + (ambPhase.metrics.cost) + (extrasPhase.metrics.cost);
+    const allPhases = [fingerprintPhase, reglasPhase, hospPhase, ambPhase, extrasPhase];
+    const totalInput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensInput || 0), 0);
+    const totalOutput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensOutput || 0), 0);
+    const totalCost = allPhases.reduce((acc, p) => acc + (p.metrics?.cost || 0), 0);
 
     const result: ContractAnalysisResult = {
         fingerprint: fingerprintPhase.result || undefined,
@@ -391,10 +389,11 @@ export async function analyzeSingleContract(
                 total: totalInput + totalOutput,
                 costClp: totalCost,
                 phases: [
-                    { phase: "Reglas", totalTokens: reglasPhase.metrics.tokensInput + reglasPhase.metrics.tokensOutput, promptTokens: reglasPhase.metrics.tokensInput, candidatesTokens: reglasPhase.metrics.tokensOutput, estimatedCostCLP: reglasPhase.metrics.cost },
-                    { phase: "Hospitalario", totalTokens: hospPhase.metrics.tokensInput + hospPhase.metrics.tokensOutput, promptTokens: hospPhase.metrics.tokensInput, candidatesTokens: hospPhase.metrics.tokensOutput, estimatedCostCLP: hospPhase.metrics.cost },
-                    { phase: "Ambulatorio", totalTokens: ambPhase.metrics.tokensInput + ambPhase.metrics.tokensOutput, promptTokens: ambPhase.metrics.tokensInput, candidatesTokens: ambPhase.metrics.tokensOutput, estimatedCostCLP: ambPhase.metrics.cost },
-                    { phase: "Extras", totalTokens: extrasPhase.metrics.tokensInput + extrasPhase.metrics.tokensOutput, promptTokens: extrasPhase.metrics.tokensInput, candidatesTokens: extrasPhase.metrics.tokensOutput, estimatedCostCLP: extrasPhase.metrics.cost }
+                    { phase: "Clasificación", totalTokens: (fingerprintPhase.metrics.tokensInput || 0) + (fingerprintPhase.metrics.tokensOutput || 0), promptTokens: fingerprintPhase.metrics.tokensInput || 0, candidatesTokens: fingerprintPhase.metrics.tokensOutput || 0, estimatedCostCLP: fingerprintPhase.metrics.cost || 0 },
+                    { phase: "Reglas", totalTokens: (reglasPhase.metrics.tokensInput || 0) + (reglasPhase.metrics.tokensOutput || 0), promptTokens: reglasPhase.metrics.tokensInput || 0, candidatesTokens: reglasPhase.metrics.tokensOutput || 0, estimatedCostCLP: reglasPhase.metrics.cost || 0 },
+                    { phase: "Hospitalario", totalTokens: (hospPhase.metrics.tokensInput || 0) + (hospPhase.metrics.tokensOutput || 0), promptTokens: hospPhase.metrics.tokensInput || 0, candidatesTokens: hospPhase.metrics.tokensOutput || 0, estimatedCostCLP: hospPhase.metrics.cost || 0 },
+                    { phase: "Ambulatorio", totalTokens: (ambPhase.metrics.tokensInput || 0) + (ambPhase.metrics.tokensOutput || 0), promptTokens: ambPhase.metrics.tokensInput || 0, candidatesTokens: ambPhase.metrics.tokensOutput || 0, estimatedCostCLP: ambPhase.metrics.cost || 0 },
+                    { phase: "Extras", totalTokens: (extrasPhase.metrics.tokensInput || 0) + (extrasPhase.metrics.tokensOutput || 0), promptTokens: extrasPhase.metrics.tokensInput || 0, candidatesTokens: extrasPhase.metrics.tokensOutput || 0, estimatedCostCLP: extrasPhase.metrics.cost || 0 }
                 ]
             },
             extractionBreakdown: {
