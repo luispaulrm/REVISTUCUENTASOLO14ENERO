@@ -327,7 +327,10 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 
 **Checkpoint Anti-Alucinación 1 – Anclaje obligatorio:**
 Para cada hallazgo:
-- Ancla SIEMPRE a referencias JSON explícitas (ej: "CUENTA.secciones[2].items[5]" y "PAM[0].desglosePorPrestador[1].items[3]").
+- Ancla SIEMPRE a referencias JSON explícitas y REALES.
+- **CUENTA:** Usa \'CUENTA.sections[i].items[j]\'. (Nota: la clave es "sections", en inglés).
+- **PAM:** Usa \'PAM.folios[i].desglosePorPrestador[j].items[k]\'. (Nota: PAM es un objeto que contiene un array "folios").
+- **CONTRATO:** Usa \'CONTRATO.coberturas[i]\'.
 - Nunca objetes más que el **copago** de ese ítem en el PAM.
 - Rechaza todo hallazgo que no tenga anclaje claro.
 
