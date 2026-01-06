@@ -358,10 +358,18 @@ export default function PAMApp() {
                     </div>
                     <div className="flex items-center gap-2">
                         {status === AppStatus.SUCCESS && (
-                            <button onClick={downloadPdf} disabled={isExporting} className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-all shadow-md disabled:opacity-50">
-                                {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
-                                {isExporting ? 'GENERANDO...' : 'EXPORTAR PDF'}
-                            </button>
+                            <>
+                                <button onClick={() => downloadData('json')} className="flex items-center gap-2 px-3 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all shadow-sm">
+                                    <FileText size={16} /> JSON
+                                </button>
+                                <button onClick={() => downloadData('md')} className="flex items-center gap-2 px-3 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all shadow-sm">
+                                    <FileText size={16} /> MD
+                                </button>
+                                <button onClick={downloadPdf} disabled={isExporting} className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-all shadow-md disabled:opacity-50">
+                                    {isExporting ? <Loader2 size={16} className="animate-spin" /> : <Printer size={16} />}
+                                    {isExporting ? 'GENERANDO...' : 'EXPORTAR PDF'}
+                                </button>
+                            </>
                         )}
                         {status !== AppStatus.IDLE && (
                             <button

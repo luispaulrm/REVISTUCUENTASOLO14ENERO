@@ -176,12 +176,10 @@ export async function extractPamData(
                             break;
 
                         case 'chunk':
-                            // Text chunks might still come if enabled, but new architecture uses 'phase' mostly
-                            // Keep logic just in case
+                            // Enable text streaming visualization
                             if (update.text) {
+                                onLog?.(update.text);
                                 totalReceived += update.text.length;
-                                // Only update progress if we are not in phase mode (prevent jitter)
-                                // or make it subtle
                             }
                             break;
 

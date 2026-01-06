@@ -177,9 +177,17 @@ export default function ForensicApp() {
                     </div>
                     <div className="flex items-center gap-2">
                         {status === 'SUCCESS' && (
-                            <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-all shadow-md">
-                                <Printer size={16} /> EXPORTAR REPORTE
-                            </button>
+                            <>
+                                <button onClick={() => downloadFormat(auditResult, 'json', 'audit_forense')} className="flex items-center gap-2 px-3 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all shadow-sm">
+                                    <FileJson size={16} /> JSON
+                                </button>
+                                <button onClick={() => downloadFormat(auditResult, 'md', 'audit_forense')} className="flex items-center gap-2 px-3 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all shadow-sm">
+                                    <FileType size={16} /> MD
+                                </button>
+                                <button onClick={() => window.print()} className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-black transition-all shadow-md">
+                                    <Printer size={16} /> EXPORTAR REPORTE
+                                </button>
+                            </>
                         )}
                         <button onClick={clearAllData} className="p-2 text-slate-400 hover:text-amber-500 transition-colors" title="Limpiar auditoría (mantiene datos base)">
                             <Trash2 size={20} />
