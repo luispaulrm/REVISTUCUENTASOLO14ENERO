@@ -270,11 +270,15 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 **SI** (Pabellón presente) **Y** (Ítem es insumo/material/hotelería) **Y** (Descripción NO contiene palabras de la Whitelist):
 **ENTONCES:** Marca el ítem como "Insumos comunes de pabellón" y **OBJETA EL 100% DEL COPAGO**.
 
-**IMPORTANTE:** Insumos comunes/materiales/hotelería desagregados en contexto de cargo integral; medicamentos se auditan por reglas clínicas/duplicidad/precio, NO por IF-319.
+**IMPORTANTE: DESGLOSE OBLIGATORIO (NO AGRUPAR)**
+No generes un solo hallazgo gigante llamado "Insumos Varios".
+**Debes generar una línea en la tabla por cada grupo relevante o listar explícitamente los productos:**
+- Ej: "Desagregación Pabellón: Jeringas (x15), Gasas (x20), Suturas (x5)".
+- El usuario DEBE ver qué productos específicos se están cuestionando.
 
-**ACCIÓN:** Suma los copagos de todos los ítems que cumplan esta regla. El derecho de pabellón ya paga los insumos comunes.
+**ACCIÓN:** Suma los copagos, pero MANTÉN LA TRAZABILIDAD de los nombres de los productos en la glosa del hallazgo.
 
-**MEDICAMENTOS (NO IF-319):** Se auditan por duplicidad/cantidad/precio/no-correlación; si faltan datos, clasifica como \`zona_gris\` (no objetar automático por IF-319).
+**MEDICAMENTOS (NO IF-319):** Se auditan por reglas clínicas/duplicidad/precio, NO por IF-319.
 
 ### 5. MEDICAMENTOS E INSUMOS EN HOSPITALIZACIÓN (CONTRATO)
 - Lee el CONTRATO y detecta reglas sobre "Medicamentos, Materiales e Insumos Clínicos" en hospitalización (ej. porcentajes especiales, topes por evento o por año, coberturas sin tope, etc.).
@@ -285,6 +289,16 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 - Revisa el contrato por menciones a "Medicamentos, Materiales e Insumos Clínicos", "Evento Hospitalario", "Prestaciones Hospitalarias", "Día Cama Estándar", etc.
 - Si hay exámenes o procedimientos claramente inherentes a la cirugía o a la hospitalización (ej. biopsias, estudios histopatológicos, apoyo fluoroscópico intraoperatorio, etc.) con copago >0 en PAM,
 - **ACCIÓN:** Impugnar la diferencia como "Desagregación indebida" o "Incumplimiento contractual", según corresponda.
+
+### 7. INTEGRIDAD DEL EQUIPO QUIRÚRGICO (NO SON DUPLICADOS)
+**CONTEXTO:** En cirugías, es estándar cobrar el mismo código para Cirujano (100%), 1er Ayudante, 2do Ayudante y/o Arsenalera.
+**REGLA:**
+- SI encuentras múltiples cargos del MISMO código quirúrgico en la MISMA fecha pero con:
+  a) Diferentes Profesionales/Médicos.
+  b) Cantidades Fraccionarias o Porcentuales (ej: 1.0, 0.25, 0.20, 0.10).
+  c) Montos proporcionales al cargo principal.
+- **ACCIÓN:** **VALIDAR COMO EQUIPO QUIRÚRGICO**. NUNCA marques como "Cargo Injustificado" o "Duplicado".
+- Solo objetar si la suma de porcentajes excede lo permitido por normativa (ej: >2 ayudantes sin justificación en cirugía simple).
 
 ### 7. DETERMINACIÓN DE MODALIDAD (CRÍTICO - ANTES DE AUDITAR)
 **PASO 1:** Identifica el PRESTADOR PRINCIPAL en el PAM. Si tiene RUT chileno o es una clínica en Chile, la Modalidad es **OBLIGATORIAMENTE "NACIONAL"**.
@@ -367,6 +381,7 @@ El markdown debe seguir EXACTAMENTE esta estructura (sin desviaciones):
 [Resumen narrativo de los hallazgos principales, mencionando explícitamente si se detectó Sub-bonificación, Insumos Indebidos o Glosas Opacas...]
 
 #### II. TABLA DE HALLAZGOS Y OBJECIONES FINALES
+**NOTA:** En hallazgos agrupados (ej. Insumos Pabellón), LISTAR los productos principales en la columna 'Glosa'.
 | Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |
 |---|---|---|---|---|---|
 [Filas de la tabla...]
