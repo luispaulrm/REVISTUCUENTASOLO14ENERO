@@ -168,41 +168,6 @@ const SAFETY_SETTINGS = [
     { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
 ];
 
-/**
- * Validador de Calidad Forense v8.5
- * Verifica que los extractos literales tengan la densidad requerida.
- */
-function auditIntegrityCheck(jsonOutput: any, log: (msg: string) => void) {
-    const minChars = 30; // Calibrated for v1.14.0: shorter valid legal clauses exist.
-    const issues: string[] = [];
-
-    const reglas = jsonOutput.reglas || [];
-    reglas.forEach((regla: any, index: number) => {
-        const literal = regla['VALOR EXTRACTO LITERAL DETALLADO'] || regla['texto'] || '';
-
-        if (!literal || literal.toLowerCase() === 'null') {
-            issues.push(`Error en Regla ${index}: Extracto nulo.`);
-        } else if (literal.length < minChars) {
-            issues.push(`Extracto breve en Regla ${index} (${literal.length} chars).`);
-        }
-    });
-
-    const totalReglas = reglas.length || 1;
-    const suspectCount = issues.length;
-    const integrityScore = Math.max(0, Math.min(100, Math.round(((totalReglas - suspectCount) / totalReglas) * 100)));
-
-    if (issues.length > 0) {
-        log(`\n[SYSTEM] 🛡️ Calidad Forense: ${integrityScore}% (Alertas: ${issues.length})`);
-    } else {
-        log('\n[SYSTEM] ✅ INTEGRIDAD FORENSE CERTIFICADA');
-    }
-
-    return {
-        isValid: issues.length === 0,
-        report: issues,
-        totalRules: reglas.length
-    };
-}
 
 export async function analyzeSingleContract(
     file: UploadedFile,
@@ -489,9 +454,6 @@ export async function analyzeSingleContract(
             estimatedCostCLP: p.metrics?.cost || 0
         };
     }
-
-    // --- FINAL FORENSIC CHECK ---
-    auditIntegrityCheck({ reglas }, log);
 
     return result;
 }
