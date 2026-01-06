@@ -51,37 +51,36 @@ export const PAM_ANALYSIS_SCHEMA = {
 };
 
 export const PAM_PROMPT = `
-**INSTRUCCIÓN CRÍTICA: ANÁLISIS Y CONSOLIDACIÓN DE PROGRAMAS DE ATENCIÓN MÉDICA (PAM)**
+**INSTRUCCIÓN CRÍTICA: ANÁLISIS DE PROGRAMAS DE ATENCIÓN MÉDICA (PAM)**
+ACTÚA COMO UN AUDITOR DE SEGUROS Y BONOS MÉDICOS.
 
-Tu misión es extraer y consolidar la información de los PAM (Programas de Atención Médica / Bonos). 
+**OBJETIVO:** Extraer el detalle completo de los bonos PAM en formato **TEXTO ESTRUCTURADO (NO JSON)**.
 
-**REGLA DE CONSOLIDACIÓN (EXTREMADAMENTE IMPORTANTE):**
-Es común que un mismo **Folio PAM** esté subdividido en varias hojas o secciones independientes. 
-- Si encuentras el mismo número de Folio más de una vez, **DEBES CONSOLIDARLO** en un único objeto JSON.
-- Suma todos los items de ese folio aunque aparezcan en imágenes/páginas distintas.
-- Identifica cada Prestador dentro de ese folio y agrégalos al array \`desglosePorPrestador\`.
+**REGLA DE FORMATO VISUAL (IMPORTANTE):**
+1. **FOLIO:** Identifica cada bono nuevo con "FOLIO: [Numero]"
+2. **PRESTADOR:** Identifica el prestador con "PROVIDER: [Nombre]"
+3. **TABLA:** Extrae los ítems línea por línea usando el símbolo "|" como separador.
+   Formato: [Código]|[Descripción]|[Cantidad]|[ValorTotal]|[Bonificación]|[Copago]
+4. **TOTALES:** Si ves un total declarado, usa "TOTAL_COPAGO_DECLARADO: [Monto]"
 
-**REGLA DE EXHAUSTIVIDAD (CRÍTICA):**
-- Debes extraer **TODOS** los ítems listados en el documento, **INCLUSO SI EL COPAGO ES $0 O LA BONIFICACIÓN ES $0**.
-- **PROHIBIDO OMITIR ÍTEMS.** Si aparece en la lista, debe estar en el JSON.
-- A veces los ítems con Copago 0 son fundamentales para el historial clínico (ej. exámenes, días cama), por lo que es obligatorio incluirlos.
+**ESTRUCTURA DE SALIDA ESPERADA:**
+FOLIO: 12345678
+PROVIDER: CLINICA ALEMANA
+DATE_START: 12/05/2024
+DATE_END: 13/05/2024
+SECTION: DETALLE PRESTACIONES
+[Código]|[Descripción]|[Cantidad]|[ValorTotal]|[Bonificación]|[Copago]
+303030|CONSULTA MEDICA|1|40000|32000|8000
+... (todas las filas) ...
+SECTION_TOTAL: 8000
+TOTAL_COPAGO_DECLARADO: 8000
 
-**REGLA DE AISLAMIENTO:** Solo extrae datos de "Folio PAM" o "Bono". Ignora la Cuenta Paciente Definitiva.
+FOLIO: 87654321
+...
 
-**PROCESO DE EXTRACCIÓN:**
-
-1.  **METADATA:** Extrae el "Folio PAM", "Prestador Principal" y "Período de Cobro".
-2.  **DESGLOSE:** Por cada prestador en el folio, llena el array \`items\` con: \`codigoGC\`, \`descripcion\`, \`cantidad\`, \`valorTotal\`, \`bonificacion\`, \`copago\`.
-3.  **RESUMEN Y TOTALES:** 
-    *   **totalCopagoDeclarado:** Busca etiquetas como "Copago Prestador", "Copago en Prestado" o "Total a Pagar". 
-    *   **SI EL FOLIO ESTÁ SUBDIVIDIDO:** Debes identificar todos los sub-totales de copago impresos para ese folio y **SUMARLOS** para obtener el \`totalCopagoDeclarado\` final del objeto folio. 
-    *   Ejemplo: Si la pág 1 dice "Copago Prestador: 366.604" y la pág 2 dice "Copago en Prestado 73.465", el \`totalCopagoDeclarado\` debe ser la suma de ambos (440.069).
-
-**🚨 MANDATO ANTI-PEREZA (CRITICAL):**
-- **PROHIBIDO DETENERSE ANTES DEL FINAL:** Debes escanear TODO el documento de principio a fin. No te detengas en la mitad.
-- **EXHAUSTIVIDAD TOTAL:** Si hay múltiples folios o tablas extensas, **DEBES** extraer todos y cada uno de los ítems listados.
-- **RE-ESCANEO OBLIGATORIO:** Si al finalizar detectas que la suma de copagos difiere en más de $100.000 del total declarado, **DEBES RE-ESCANEAR** el documento completo y asegurarte de que no omitiste ítems.
-- **CERO TOLERANCIA A OMISIONES:** La extracción parcial es inaceptable. Una factura de 500 ítems debe resultar en un JSON de 500 ítems.
-
-**SALIDA JSON:** Responde SOLO con el array JSON válido. Sin texto explicativo ni bloques markdown.
+**MANDATOS DE EXTRACCIÓN:**
+1. **EXHAUSTIVIDAD:** Extrae TODAS las líneas. Si hay 50 ítems, extrae 50 líneas.
+2. **VALORES:** Usa solo números enteros. Si es $0, escribe "0".
+3. **LIMPIEZA:** Elimina puntos de mil en la salida (ej: 40000, no 40.000).
+4. **CONTINUIDAD:** No te detengas. Si el documento es largo, continúa hasta el final.
 `;

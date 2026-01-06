@@ -82,7 +82,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
                     });
 
                     // Direct stream generation (No explicit timeout wrapper, matching server.ts)
-                    resultStream = await model.generateContentStream([
+                    const streamPromise = model.generateContentStream([
                         { text: PAM_PROMPT },
                         {
                             inlineData: {
@@ -91,6 +91,13 @@ export async function handlePamExtraction(req: Request, res: Response) {
                             }
                         }
                     ]);
+
+                    const timeoutPromise = new Promise((_, reject) => {
+                        // User requested 70 seconds to allow for deep thinking/large context
+                        setTimeout(() => reject(new Error('TIMEOUT_STREAM_INIT: Model took too long to respond')), 70000);
+                    });
+
+                    resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
 
                     if (resultStream) {
                         console.log(`[PAM] Success with Key: ${keyMask} on Model: ${modelName}`);
@@ -197,24 +204,130 @@ export async function handlePamExtraction(req: Request, res: Response) {
         sendUpdate({ type: 'progress', progress: 80 });
         sendUpdate({ type: 'log', message: 'Procesando respuesta...' });
 
-        // Parse the JSON response
-        let rawFolios;
-        try {
-            console.log('[PAM] Attempting to parse JSON...');
-            rawFolios = repairAndParseJson(fullText);
-            console.log('[PAM] JSON parsed successfully. Type:', typeof rawFolios, 'Is Array:', Array.isArray(rawFolios));
-        } catch (parseError: any) {
-            console.error('[PAM] JSON parse error:', parseError);
-            console.error('[PAM] Raw text (first 500 chars):', fullText?.substring(0, 500));
-            sendUpdate({ type: 'error', message: `Error al parsear JSON: ${parseError.message}` });
-            return res.end();
+        // Parse the LINE-BASED response (Imitating Bill Parser Pattern)
+        const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
+        const mapFolios = new Map<string, any>();
+        let currentFolio = "UNKNOWN";
+        let currentProvider = "UNKNOWN";
+        let currentFolioObj: any = null;
+        let currentProviderObj: any = null;
+
+        console.log(`[PAM] Parsing ${lines.length} lines of text data...`);
+
+        // Helper for cleaning money
+        const cleanMoney = (val: string): number => {
+            if (!val) return 0;
+            return parseInt(val.replace(/[^\d-]/g, ''), 10) || 0;
+        };
+
+        for (const line of lines) {
+            if (line.startsWith('FOLIO:')) {
+                currentFolio = line.replace('FOLIO:', '').trim();
+                currentProvider = "UNKNOWN";
+
+                if (!mapFolios.has(currentFolio)) {
+                    currentFolioObj = {
+                        folioPAM: currentFolio,
+                        prestadorPrincipal: "PENDING",
+                        periodoCobro: "PENDING",
+                        desglosePorPrestador: [],
+                        resumen: { totalCopagoDeclarado: 0, copago: 0 }
+                    };
+                    mapFolios.set(currentFolio, currentFolioObj);
+                } else {
+                    currentFolioObj = mapFolios.get(currentFolio);
+                }
+                continue;
+            }
+
+            if (line.startsWith('PROVIDER:')) {
+                currentProvider = line.replace('PROVIDER:', '').trim();
+                // Ensure folio exists if provider comes first (rare but possible)
+                if (!currentFolioObj) {
+                    currentFolio = "DEFAULT_PAM";
+                    currentFolioObj = {
+                        folioPAM: currentFolio,
+                        prestadorPrincipal: "PENDING",
+                        periodoCobro: "PENDING",
+                        desglosePorPrestador: [],
+                        resumen: {}
+                    };
+                    mapFolios.set(currentFolio, currentFolioObj);
+                }
+
+                // Check if provider already exists in this folio
+                currentProviderObj = currentFolioObj.desglosePorPrestador.find((p: any) => p.nombrePrestador === currentProvider);
+                if (!currentProviderObj) {
+                    currentProviderObj = {
+                        nombrePrestador: currentProvider,
+                        items: []
+                    };
+                    currentFolioObj.desglosePorPrestador.push(currentProviderObj);
+
+                    // Update main provider if it's the first one
+                    if (currentFolioObj.prestadorPrincipal === "PENDING") {
+                        currentFolioObj.prestadorPrincipal = currentProvider;
+                    }
+                }
+                continue;
+            }
+
+            if (line.startsWith('TOTAL_COPAGO_DECLARADO:')) {
+                if (currentFolioObj) {
+                    currentFolioObj.resumen.totalCopagoDeclarado = cleanMoney(line.replace('TOTAL_COPAGO_DECLARADO:', ''));
+                }
+                continue;
+            }
+
+            // Pipe delimited Items: [Code]|[Desc]|[Qty]|[Total]|[Bonif]|[Copago]
+            if (line.includes('|')) {
+                const parts = line.split('|').map(p => p.trim());
+                if (parts.length >= 6) {
+                    // Start from index 0 if format is strictly followed
+                    // [0]Code, [1]Desc, [2]Qty, [3]Total, [4]Bonif, [5]Copago
+                    const code = parts[0];
+                    const desc = parts[1];
+                    const qtyStr = parts[2];
+                    const totalStr = parts[3];
+                    const bonifStr = parts[4];
+                    const copagoStr = parts[5];
+
+                    if (!currentFolioObj) continue; // Skip if no context
+
+                    // If no provider set, create a default one
+                    if (!currentProviderObj) {
+                        currentProviderObj = {
+                            nombrePrestador: "PRESTADOR_GENERAL",
+                            items: []
+                        };
+                        currentFolioObj.desglosePorPrestador.push(currentProviderObj);
+                    }
+
+                    // Avoid headers
+                    if (desc.includes("Descripción") || desc.includes("---")) continue;
+
+                    const newItem = {
+                        codigoGC: code,
+                        descripcion: desc,
+                        cantidad: qtyStr,
+                        valorTotal: cleanMoney(totalStr),
+                        bonificacion: cleanMoney(bonifStr),
+                        copago: cleanMoney(copagoStr)
+                    };
+
+                    currentProviderObj.items.push(newItem);
+                }
+            }
         }
 
-        // Post-process: Transform array into PamDocument structure
-        console.log('[PAM] Post-processing folios...');
-        sendUpdate({ type: 'log', message: 'Validando y consolidando datos...' });
+        const rawFolios = Array.from(mapFolios.values());
+        console.log(`[PAM] Parsed ${rawFolios.length} folios from text stream.`);
 
-        const folios = Array.isArray(rawFolios) ? rawFolios : [];
+        /* 
+        // Post-process: Transform array into PamDocument structure
+        // (Existing logic continues below...)
+        */
+        const folios = rawFolios; // Compatible assignment
 
         // Calculate global totals
         let globalValor = 0;
