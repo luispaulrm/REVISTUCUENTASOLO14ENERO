@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Search, Info, AlertTriangle, ShieldCheck, Scale, Download, Printer, Loader2 } from 'lucide-react';
+import { Search, Info, AlertTriangle, ShieldCheck, Scale, Download, Printer, Loader2, FileText } from 'lucide-react';
 import { Contract, UsageMetrics } from '../types';
 
 interface Props {
@@ -111,48 +111,70 @@ export function ContractResults({ data }: Props) {
     };
 
     const handleDownloadPdf = async () => {
-        if (!reportRef.current) return;
+        if (!reportRef.current || !data) return;
         setIsExporting(true);
 
-        const element = reportRef.current;
-        const opt = {
-            margin: [10, 10, 10, 10],
-            filename: `Auditoria_Contractual_${data?.diseno_ux?.nombre_isapre || 'Isapre'}_${new Date().getTime()}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: true,
-                letterRendering: true,
-                onclone: (clonedDoc: Document) => {
-                    // Sanitizar colores oklch que rompen html2canvas (Tailwind 4)
-                    const styleTags = clonedDoc.getElementsByTagName('style');
-                    for (let i = 0; i < styleTags.length; i++) {
-                        styleTags[i].innerHTML = styleTags[i].innerHTML.replace(/oklch\([^)]+\)/g, '#475569'); // Fallback a slate-600
-                    }
-                    // También revisar estilos inline por si acaso
-                    const allElements = clonedDoc.getElementsByTagName('*');
-                    for (let i = 0; i < allElements.length; i++) {
-                        const el = allElements[i] as HTMLElement;
-                        if (el.style && el.style.cssText && el.style.cssText.includes('oklch')) {
-                            el.style.cssText = el.style.cssText.replace(/oklch\([^)]+\)/g, '#475569');
-                        }
-                    }
-                }
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-        };
-
         try {
-            const html2pdf = (window as any).html2pdf;
-            if (!html2pdf) throw new Error('html2pdf library not loaded');
-            await html2pdf().set(opt).from(element).save();
         } catch (err) {
             console.error('PDF Error:', err);
             alert('Error al generar PDF. Por favor reintente.');
         } finally {
             setIsExporting(false);
         }
+    };
+
+    const handleDownloadMarkdown = () => {
+        if (!data) return;
+
+        const { diseno_ux, coberturas, reglas } = data;
+        let md = `# Auditoría Contractual: ${diseno_ux?.nombre_isapre || 'Isapre Desconocida'}\n`;
+        md += `## Plan: ${diseno_ux?.titulo_plan || 'Sin Título'}\n`;
+        if (diseno_ux?.subtitulo_plan) md += `### Subtítulo: ${diseno_ux.subtitulo_plan}\n`;
+        md += `**Fecha de Generación:** ${new Date().toLocaleString()}\n\n`;
+
+        md += `## 1. Coberturas Detectadas\n\n`;
+
+        // Agrupar por categoría
+        const grouped = (coberturas || []).reduce((acc: any, curr: any) => {
+            const cat = curr.categoria || 'SIN CATEGORÍA';
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(curr);
+            return acc;
+        }, {});
+
+        Object.keys(grouped).forEach(cat => {
+            md += `### ${cat}\n\n`;
+            md += `| Prestación | Modalidad | Cobertura | Tope | Copago | Notas |\n`;
+            md += `|---|---|---|---|---|---|\n`;
+            grouped[cat].forEach((c: any) => {
+                const item = c.item || '-';
+                const mod = c.modalidad || '-';
+                const cob = c.cobertura || '-';
+                const tope = c.tope || '-';
+                const copago = c.copago || '-';
+                const notas = c.nota_restriccion || '';
+                md += `| ${item} | ${mod} | ${cob} | ${tope} | ${copago} | ${notas} |\n`;
+            });
+            md += `\n`;
+        });
+
+        md += `## 2. Reglas y Notas Explicativas\n\n`;
+        (reglas || []).forEach((r: any, idx: number) => {
+            md += `**${idx + 1}. Sección ${r['CÓDIGO/SECCIÓN'] || ''} (Pág ${r['PÁGINA ORIGEN'] || ''})**\n`;
+            md += `> ${r['VALOR EXTRACTO LITERAL DETALLADO'] || ''}\n`;
+            if (r['LOGICA_DE_CALCULO']) md += `- *Lógica:* ${r['LOGICA_DE_CALCULO']}\n`;
+            md += `\n`;
+        });
+
+        const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Auditoria_${diseno_ux?.nombre_isapre || 'Isapre'}_${new Date().getTime()}.md`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
     // Helper ultra-resiliente...
@@ -218,6 +240,13 @@ export function ContractResults({ data }: Props) {
                         >
                             <Download size={14} />
                             Exportar JSON
+                        </button>
+                        <button
+                            onClick={handleDownloadMarkdown}
+                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-md active:scale-95"
+                        >
+                            <FileText size={14} />
+                            Exportar MD
                         </button>
                         {(() => {
                             const ufRule = safeReglas.find(r =>

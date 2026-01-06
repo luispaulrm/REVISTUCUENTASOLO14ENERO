@@ -45,6 +45,7 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
         {data.sections.map((section, sIdx) => {
           const diff = section.sectionTotal - section.calculatedSectionTotal;
           const hasDiff = Math.abs(diff) > 5;
+          const hasBonification = section.items.some(i => i.bonification && i.bonification !== 0);
 
           return (
             <div key={sIdx} className={`bg-white border rounded-2xl overflow-hidden transition-all shadow-sm hover:shadow-md ${section.hasSectionError ? 'border-rose-200 ring-1 ring-rose-100' : 'border-slate-200'}`}>
@@ -125,6 +126,7 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                           <th className="py-3 text-center w-16">Cant</th>
                           <th className="py-3 text-right w-32">Precio (Neto)</th>
                           <th className="px-4 py-3 text-right w-32">Total ISA</th>
+                          {hasBonification && <th className="px-4 py-3 text-right w-32 bg-indigo-950 text-indigo-200">Bonif/Copago</th>}
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200">
@@ -161,6 +163,11 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                             <td className={`px-4 py-3 text-right font-black font-mono text-sm ${item.hasCalculationError ? 'text-amber-600' : 'text-slate-900'}`}>
                               {formatCurrency(item.total)}
                             </td>
+                            {hasBonification && (
+                              <td className="px-4 py-3 text-right font-mono text-sm text-slate-500 bg-slate-50/50">
+                                {item.bonification ? formatCurrency(item.bonification) : '-'}
+                              </td>
+                            )}
                           </tr>
                         ))}
                       </tbody>
@@ -170,10 +177,11 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                           <td className={`px-4 py-4 text-right font-black text-base ${section.hasSectionError ? 'text-rose-600' : 'text-slate-900'}`}>
                             {formatCurrency(section.calculatedSectionTotal)}
                           </td>
+                          {hasBonification && <td className="bg-slate-100"></td>}
                         </tr>
                         {section.hasSectionError && (
                           <tr className={section.isUnjustifiedCharge ? 'bg-rose-50' : 'bg-amber-50'}>
-                            <td colSpan={4} className={`px-4 py-2 text-center text-[9px] font-black uppercase tracking-[0.2em] ${section.isUnjustifiedCharge ? 'text-rose-600' : 'text-amber-600'}`}>
+                            <td colSpan={hasBonification ? 6 : 5} className={`px-4 py-2 text-center text-[9px] font-black uppercase tracking-[0.2em] ${section.isUnjustifiedCharge ? 'text-rose-600' : 'text-amber-600'}`}>
                               {section.isUnjustifiedCharge
                                 ? 'Detectada discrepancia crítica: La clínica cobra más de lo respaldado en los ítems.'
                                 : section.isTaxConfusion

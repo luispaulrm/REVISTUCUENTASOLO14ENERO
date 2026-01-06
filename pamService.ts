@@ -100,12 +100,26 @@ export async function extractPamData(
     let totalReceived = 0;
     const EXPECTED_SIZE = 8000;
 
+    // Watchdog for connection health
+    let watchdogTimer: number | null = null;
+    let lastActivity = Date.now();
+
+    const checkHealth = () => {
+        if (Date.now() - lastActivity > 20000) { // 20 seconds silence
+            // This might be normal for slow AI thinking, but we should at least log it
+            onLog?.('[SYSTEM] ⏳ Esperando respuesta del modelo...');
+        }
+    };
+
+    watchdogTimer = window.setInterval(checkHealth, 5000);
+
     try {
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
 
             partialBuffer += decoder.decode(value, { stream: true });
+            lastActivity = Date.now(); // Update activity
             const lines = partialBuffer.split('\n');
             partialBuffer = lines.pop() || '';
 
@@ -195,6 +209,7 @@ export async function extractPamData(
         }
         throw err;
     } finally {
+        if (watchdogTimer) clearInterval(watchdogTimer);
         reader.releaseLock();
     }
 

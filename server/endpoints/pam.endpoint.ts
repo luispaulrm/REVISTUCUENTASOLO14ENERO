@@ -38,36 +38,60 @@ export async function handlePamExtraction(req: Request, res: Response) {
 
         console.log('[PAM] Starting Gemini streaming extraction with model:', AI_CONFIG.ACTIVE_MODEL);
 
-        // Use the SAME pattern as Bill: direct streaming
+        // Use the SAME pattern as Bill: direct streaming with RETRY
         let resultStream;
-        try {
-            const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({
-                model: AI_CONFIG.ACTIVE_MODEL,
-                generationConfig: {
-                    responseMimeType: 'application/json',
-                    maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
-                    temperature: GENERATION_CONFIG.temperature,
-                    topP: GENERATION_CONFIG.topP,
-                    topK: GENERATION_CONFIG.topK
-                }
-            });
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL].filter(Boolean); // Ensure valid models
 
-            resultStream = await model.generateContentStream([
-                { text: PAM_PROMPT },
-                {
-                    inlineData: {
-                        data: image,
-                        mimeType: mimeType
+        for (const modelName of modelsToTry) {
+            try {
+                console.log(`[PAM] 🛡️ Attempting extraction with model: ${modelName}`);
+
+                const genAI = new GoogleGenerativeAI(apiKey);
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: {
+                        responseMimeType: 'application/json',
+                        maxOutputTokens: GENERATION_CONFIG.maxOutputTokens, // Ensure this config is appropriate for PAM
+                        temperature: GENERATION_CONFIG.temperature,
+                        topP: GENERATION_CONFIG.topP,
+                        topK: GENERATION_CONFIG.topK
                     }
-                }
-            ]);
+                });
 
-            console.log('[PAM] Stream initiated successfully');
-        } catch (streamError: any) {
-            console.error('[PAM] Stream initiation failed:', streamError);
-            sendUpdate({ type: 'error', message: `Error iniciando stream: ${streamError.message}` });
-            return res.end();
+                console.log('[PAM] Initiating Gemini stream...');
+
+                // Timeout wrapper for stream initiation - INCREASED TO 60s
+                const streamPromise = model.generateContentStream([
+                    { text: PAM_PROMPT },
+                    {
+                        inlineData: {
+                            data: image,
+                            mimeType: mimeType
+                        }
+                    }
+                ]);
+
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error(`Timeout esperando respuesta de Google AI (${modelName}, 60s)`)), 60000)
+                );
+
+                // @ts-ignore
+                resultStream = await Promise.race([streamPromise, timeoutPromise]);
+
+                console.log(`[PAM] Stream initiated successfully with ${modelName}`);
+                break; // If successful, exit loop
+
+            } catch (streamError: any) {
+                console.warn(`[PAM] Failed with model ${modelName}:`, streamError.message);
+                if (modelName === modelsToTry[modelsToTry.length - 1]) {
+                    // If this was the last model, throw or handle the error
+                    console.error('[PAM] All models failed.');
+                    sendUpdate({ type: 'error', message: `Error iniciando stream (Todos los modelos fallaron): ${streamError.message}` });
+                    return res.end();
+                }
+                // Otherwise continue to next model
+                sendUpdate({ type: 'log', message: `⚠️ Modelo ${modelName} lento/falló. Reintentando con alternativo...` });
+            }
         }
 
         sendUpdate({ type: 'progress', progress: 30 });

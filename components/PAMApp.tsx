@@ -42,6 +42,22 @@ export default function PAMApp() {
         }
     };
 
+    // Global Error Handler for Extension Context Invalidated
+    useEffect(() => {
+        const handleError = (event: ErrorEvent) => {
+            if (event.message && event.message.includes('Extension context invalidated')) {
+                addLog('[CRITICAL] ⚠️ Error de Extensión del Navegador detectado.');
+                addLog('[CRITICAL] Una extensión (AdBlock, Traductor, etc) ha interrumpido la conexión.');
+                addLog('[CRITICAL] Por favor recarga la página (F5) para solucionar esto.');
+                setError('Error de Entorno: Una extensión del navegador bloqueó la app. Recarga la página.');
+                setStatus(AppStatus.ERROR);
+            }
+        };
+
+        window.addEventListener('error', handleError);
+        return () => window.removeEventListener('error', handleError);
+    }, []);
+
     useEffect(() => {
         if (logEndRef.current) {
             logEndRef.current.scrollIntoView({ behavior: 'smooth' });
