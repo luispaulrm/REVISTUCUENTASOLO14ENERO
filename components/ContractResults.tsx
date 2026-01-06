@@ -119,7 +119,26 @@ export function ContractResults({ data }: Props) {
             margin: [10, 10, 10, 10],
             filename: `Auditoria_Contractual_${data?.diseno_ux?.nombre_isapre || 'Isapre'}_${new Date().getTime()}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                onclone: (clonedDoc: Document) => {
+                    // Sanitizar colores oklch que rompen html2canvas (Tailwind 4)
+                    const styleTags = clonedDoc.getElementsByTagName('style');
+                    for (let i = 0; i < styleTags.length; i++) {
+                        styleTags[i].innerHTML = styleTags[i].innerHTML.replace(/oklch\([^)]+\)/g, '#475569'); // Fallback a slate-600
+                    }
+                    // También revisar estilos inline por si acaso
+                    const allElements = clonedDoc.getElementsByTagName('*');
+                    for (let i = 0; i < allElements.length; i++) {
+                        const el = allElements[i] as HTMLElement;
+                        if (el.style && el.style.cssText && el.style.cssText.includes('oklch')) {
+                            el.style.cssText = el.style.cssText.replace(/oklch\([^)]+\)/g, '#475569');
+                        }
+                    }
+                }
+            },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
             pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
         };
