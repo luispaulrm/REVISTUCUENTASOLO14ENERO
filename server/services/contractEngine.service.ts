@@ -8,7 +8,8 @@ import {
 import { jsonrepair } from 'jsonrepair';
 import { getCanonicalCategory } from './contractCanonical.js';
 import {
-    PROMPT_REGLAS,
+    PROMPT_REGLAS_P1,
+    PROMPT_REGLAS_P2,
     PROMPT_HOSP_P1,
     PROMPT_HOSP_P2,
     PROMPT_AMB_P1,
@@ -215,7 +216,7 @@ export async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine v1.12.0] 🛡️ 11-PHASE TOTAL EXTRACTION (v11.2)`);
+    log(`[ContractEngine v1.13.1] 🛡️ 12-PHASE TOTAL EXTRACTION (v11.3)`);
     log(`[ContractEngine] 📄 Modelo: ${AI_CONFIG.ACTIVE_MODEL}`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -272,15 +273,15 @@ export async function analyzeSingleContract(
                     const txt = chunk.text();
                     streamText += txt;
                     onLog?.(`[${name}] ${txt}`); // Tagged Stream to UI
-
                     if (chunk.usageMetadata) {
                         tokensInput = chunk.usageMetadata.promptTokenCount;
                         tokensOutput = chunk.usageMetadata.candidatesTokenCount;
                         const p = calculatePrice(tokensInput, tokensOutput);
                         cost = p.costCLP;
-                        log(`@@METRICS@@${JSON.stringify({ phase: name, input: tokensInput, output: tokensOutput, cost: cost })}`);
                     }
                 }
+                // Final Metrics log for the phase (after stream ends)
+                log(`@@METRICS@@${JSON.stringify({ phase: name, input: tokensInput, output: tokensOutput, cost: cost })}`);
                 result = safeJsonParse(streamText);
                 break; // Success
             } catch (err: any) {
@@ -293,13 +294,14 @@ export async function analyzeSingleContract(
     }
 
     // --- EXECUTE PHASES IN PARALLEL (v10.0 Modular Rule Engine) ---
-    log(`\n[ContractEngine] ⚡ Ejecutando 9 fases en paralelo para cobertura 100%...`);
+    log(`\n[ContractEngine] ⚡ Ejecutando 12 fases en paralelo para cobertura 100%...`);
 
     const phasePromises = [
         extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER),
-        extractSection("REGLAS", PROMPT_REGLAS, SCHEMA_REGLAS),
-        extractSection("ANEXOS_P1", PROMPT_ANEXOS_P1, SCHEMA_REGLAS), // PHASE 10
-        extractSection("ANEXOS_P2", PROMPT_ANEXOS_P2, SCHEMA_REGLAS), // PHASE 11
+        extractSection("REGLAS_P1", PROMPT_REGLAS_P1, SCHEMA_REGLAS), // PHASE 2
+        extractSection("REGLAS_P2", PROMPT_REGLAS_P2, SCHEMA_REGLAS), // PHASE 3
+        extractSection("ANEXOS_P1", PROMPT_ANEXOS_P1, SCHEMA_REGLAS), // PHASE 4
+        extractSection("ANEXOS_P2", PROMPT_ANEXOS_P2, SCHEMA_REGLAS), // PHASE 5
         extractSection("HOSP_P1", PROMPT_HOSP_P1, SCHEMA_COBERTURAS),
         extractSection("HOSP_P2", PROMPT_HOSP_P2, SCHEMA_COBERTURAS),
         extractSection("AMB_P1", PROMPT_AMB_P1, SCHEMA_COBERTURAS),
@@ -311,7 +313,8 @@ export async function analyzeSingleContract(
 
     const [
         fingerprintPhase,
-        reglasPhase,
+        reglasP1Phase,
+        reglasP2Phase,
         anexosP1Phase,
         anexosP2Phase,
         hospP1Phase,
@@ -323,7 +326,7 @@ export async function analyzeSingleContract(
         extrasPhase
     ] = await Promise.all(phasePromises);
 
-    log(`\n[ContractEngine] ✅ 11 Fases Modulares Completadas.`);
+    log(`\n[ContractEngine] ✅ 12 Fases Modulares Completadas.`);
 
     if (fingerprintPhase.result) {
         log(`\n[ContractEngine] 📍 Huella Digital:`);
@@ -333,7 +336,8 @@ export async function analyzeSingleContract(
 
     // --- MERGE ---
     const rawReglas = [
-        ...(reglasPhase.result?.reglas || []),
+        ...(reglasP1Phase.result?.reglas || []),
+        ...(reglasP2Phase.result?.reglas || []),
         ...(anexosP1Phase.result?.reglas || []),
         ...(anexosP2Phase.result?.reglas || [])
     ];
@@ -414,7 +418,7 @@ export async function analyzeSingleContract(
     const detectedIsapre = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('isapre'))?.split('isapre')?.[1]?.trim() || "Unknown";
     const detectedPlan = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('plan'))?.split('plan')?.[1]?.trim() || "Unknown";
 
-    const diseno_ux = reglasPhase.result?.diseno_ux || hospP1Phase.result?.diseno_ux || ambP1Phase.result?.diseno_ux || extrasPhase.result?.diseno_ux || {
+    const diseno_ux = reglasP1Phase.result?.diseno_ux || reglasP2Phase.result?.diseno_ux || hospP1Phase.result?.diseno_ux || ambP1Phase.result?.diseno_ux || extrasPhase.result?.diseno_ux || {
         nombre_isapre: detectedIsapre !== "Unknown" ? detectedIsapre : "Unknown",
         titulo_plan: detectedPlan !== "Unknown" ? detectedPlan : "Unknown",
         layout: "failed_extraction",
@@ -427,9 +431,10 @@ export async function analyzeSingleContract(
         diseno_ux.nombre_isapre = fingerprintPhase.result.tipo_contrato.split('_')[0];
     }
 
-    // --- TOTAL METRICS (v10.0) ---
+    // --- TOTAL METRICS ---
     const allPhases = [
-        fingerprintPhase, reglasPhase, anexosP1Phase, anexosP2Phase,
+        fingerprintPhase, reglasP1Phase, reglasP2Phase,
+        anexosP1Phase, anexosP2Phase,
         hospP1Phase, hospP2Phase,
         ambP1Phase, ambP2Phase, ambP3Phase, ambP4Phase,
         extrasPhase
@@ -452,7 +457,8 @@ export async function analyzeSingleContract(
                 costClp: totalCost,
                 phases: [
                     { phase: "Clasificación", ...getMetrics(fingerprintPhase) },
-                    { phase: "Reglas", ...getMetrics(reglasPhase) },
+                    { phase: "Reglas_P1", ...getMetrics(reglasP1Phase) },
+                    { phase: "Reglas_P2", ...getMetrics(reglasP2Phase) },
                     { phase: "Anexos_P1", ...getMetrics(anexosP1Phase) },
                     { phase: "Anexos_P2", ...getMetrics(anexosP2Phase) },
                     { phase: "Hosp_P1", ...getMetrics(hospP1Phase) },

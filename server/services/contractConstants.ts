@@ -7,22 +7,36 @@ import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 export { PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER } from './contractConstants_classifier.js';
 
 /**
- * PROMPT EXCLUSIVO PARA PASE 1: REGLAS (MANDATO ESCÁNER HUMANO v10.0)
- * Objetivo: Transcripción íntegra para evitar carga cognitiva y omisiones.
+ * PROMPT EXCLUSIVO PARA REGLAS - PARTE 1 (MANDATO FIDELIDAD QUIRÚRGICA v11.3)
  */
-export const PROMPT_REGLAS = `
-  ** MANDATO: ESCÁNER TEXTUAL ÍNTEGRO v11.0 **
+export const PROMPT_REGLAS_P1 = `
+  ** MANDATO: ESCÁNER TEXTUAL ÍNTEGRO (PARTE 1) v11.3 **
   
-  ROL: Transcriptor legal.
-  OBJETIVO: Copiar palabra por palabra cada párrafo de las "Notas Explicativas" (Sección 1).
+  ROL: Transcriptor legal de alta precisión.
+  OBJETIVO: Copiar palabra por palabra la PRIMERA MITAD de las "Notas Explicativas" o "Condiciones Generales".
   
-  ⚠️ INSTRUCCIONES DE TRANSCRIPCIÓN:
-  1. Por cada sección numerada (1.1, 1.2, etc.), genera una regla.
-  2. SI UNA SECCIÓN TIENE VARIOS PÁRRAFOS, USA SUB-ÍNDICES: 1.1a, 1.1b, 1.1c, etc.
-  3. El campo 'VALOR EXTRACTO LITERAL DETALLADO' debe contener el PÁRRAFO COMPLETO. Queda prohibido resumir, usar elipsis (...) o saltarse palabras.
-  4. Si el párrafo es largo, cópialo entero. Tienes 8,192 tokens; úsalos para escribir.
+  ⚠️ INSTRUCCIONES DE FIDELIDAD:
+  1. **NUMERACIÓN EXACTA**: El campo 'CÓDIGO/SECCIÓN' debe ser IDÉNTICO al del PDF (ej: 1.1, 3.2, 5). PROHIBIDO inventar sub-índices (a, b, c) a menos que estén en el papel.
+  2. **TRANSCRIPCIÓN QUIRÚRGICA**: Copia cada párrafo íntegramente. Prohibido resumir plazos (ej: "48 horas"), montos o condiciones.
+  3. Si una sección es larga, cópiala completa en un solo bloque o sigue la enumeración del contrato.
+  4. Enfócate en las secciones iniciales hasta la mitad de las notas.
   
-  NO analices la lógica. SOLO COPIA Y PEGA EL TEXTO.
+  FORMATO: JSON Strict (Schema Reglas Universal).
+`;
+
+/**
+ * PROMPT EXCLUSIVO PARA REGLAS - PARTE 2 (MANDATO FIDELIDAD QUIRÚRGICA v11.3)
+ */
+export const PROMPT_REGLAS_P2 = `
+  ** MANDATO: ESCÁNER TEXTUAL ÍNTEGRO (PARTE 2) v11.3 **
+  
+  ROL: Transcriptor legal de alta precisión.
+  OBJETIVO: Copiar la SEGUNDA MITAD de las "Notas Explicativas" hasta el final de dicha sección.
+  
+  ⚠️ INSTRUCCIONES DE FIDELIDAD:
+  1. **NUMERACIÓN EXACTA**: Usa los códigos reales del contrato (ej: 5.8, 6.1). 
+  2. **SIN TRUNCAR**: Asegúrate de capturar todas las secciones que siguen después de la 5.8.
+  3. **VERBATIM**: Los números y plazos deben ser exactos. Si el contrato dice "48 horas", escribe "48 horas".
   
   FORMATO: JSON Strict (Schema Reglas Universal).
 `;
