@@ -1,64 +1,15 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ClinicAudit - Extractor y Auditor</title>
-  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <!-- Carga de html2pdf como script global para evitar errores de módulo -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
-    body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
-    
-    /* Brand Colors for Contract Analysis */
-    .bg-brand-primary { background-color: #0f172a; }
-    .bg-brand-secondary { background-color: #1e293b; }
-    .bg-brand-accent { background-color: #334155; }
-    .text-brand-cyan { color: #22d3ee; }
-    .text-brand-text { color: #f8fafc; }
-    .text-brand-light { color: #cbd5e1; }
-    .border-brand-accent { border-color: #334155; }
-    .bg-brand-primary\/50 { background-color: rgba(15, 23, 42, 0.5); }
-    .bg-brand-accent\/30 { background-color: rgba(51, 65, 85, 0.3); }
-    .bg-brand-accent\/20 { background-color: rgba(51, 65, 85, 0.2); }
-    .border-brand-accent\/30 { border-color: rgba(51, 65, 85, 0.3); }
-    .border-brand-accent\/50 { border-color: rgba(51, 65, 85, 0.5); }
-    .bg-brand-cyan\/10 { background-color: rgba(34, 211, 238, 0.1); }
-    .border-brand-cyan\/30 { border-color: rgba(34, 211, 238, 0.3); }
-
-    @media print {
-      @page { 
-        margin: 1cm; 
-        size: auto; 
-      }
-      body { 
-        background-color: white !important; 
-        color: black !important; 
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-      }
-      #root { position: static !important; }
-      main { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: none !important; }
-      
-      .print\:hidden, 
-      header, 
-      footer, 
-      .terminal-container, 
-      button, 
-      .sidebar-actions,
-      aside,
-      .no-print { 
-        display: none !important; 
-      }
-      
-      .print\:block { display: block !important; }
-      .bg-white { background-color: white !important; }
-      .border { border: 1px solid #e2e8f0 !important; }
-    }
-  </style>
-<script type="importmap">
+  <link rel="stylesheet" href="/index.css">
+  <script type="importmap">
 {
   "imports": {
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
@@ -69,10 +20,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
+
 <body>
   <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

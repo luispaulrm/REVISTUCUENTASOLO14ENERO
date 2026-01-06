@@ -16,6 +16,8 @@ import {
     PROMPT_AMB_P3,
     PROMPT_AMB_P4,
     PROMPT_EXTRAS,
+    PROMPT_ANEXOS_P1,
+    PROMPT_ANEXOS_P2,
     PROMPT_CLASSIFIER,
     SCHEMA_REGLAS,
     SCHEMA_COBERTURAS,
@@ -213,7 +215,7 @@ export async function analyzeSingleContract(
     };
 
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    log(`[ContractEngine v1.10.0] 🛡️ MULTI-PASS EXTRACTION (STRICT 8192 TOKENS)`);
+    log(`[ContractEngine v1.12.0] 🛡️ 11-PHASE TOTAL EXTRACTION (v11.2)`);
     log(`[ContractEngine] 📄 Modelo: ${AI_CONFIG.ACTIVE_MODEL}`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
@@ -269,7 +271,7 @@ export async function analyzeSingleContract(
                 for await (const chunk of stream.stream) {
                     const txt = chunk.text();
                     streamText += txt;
-                    onLog?.(txt); // Stream to UI
+                    onLog?.(`[${name}] ${txt}`); // Tagged Stream to UI
 
                     if (chunk.usageMetadata) {
                         tokensInput = chunk.usageMetadata.promptTokenCount;
@@ -296,6 +298,8 @@ export async function analyzeSingleContract(
     const phasePromises = [
         extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER),
         extractSection("REGLAS", PROMPT_REGLAS, SCHEMA_REGLAS),
+        extractSection("ANEXOS_P1", PROMPT_ANEXOS_P1, SCHEMA_REGLAS), // PHASE 10
+        extractSection("ANEXOS_P2", PROMPT_ANEXOS_P2, SCHEMA_REGLAS), // PHASE 11
         extractSection("HOSP_P1", PROMPT_HOSP_P1, SCHEMA_COBERTURAS),
         extractSection("HOSP_P2", PROMPT_HOSP_P2, SCHEMA_COBERTURAS),
         extractSection("AMB_P1", PROMPT_AMB_P1, SCHEMA_COBERTURAS),
@@ -308,6 +312,8 @@ export async function analyzeSingleContract(
     const [
         fingerprintPhase,
         reglasPhase,
+        anexosP1Phase,
+        anexosP2Phase,
         hospP1Phase,
         hospP2Phase,
         ambP1Phase,
@@ -317,7 +323,7 @@ export async function analyzeSingleContract(
         extrasPhase
     ] = await Promise.all(phasePromises);
 
-    log(`\n[ContractEngine] ✅ Todas las fases modulares han retornado.`);
+    log(`\n[ContractEngine] ✅ 11 Fases Modulares Completadas.`);
 
     if (fingerprintPhase.result) {
         log(`\n[ContractEngine] 📍 Huella Digital:`);
@@ -326,7 +332,13 @@ export async function analyzeSingleContract(
     }
 
     // --- MERGE ---
-    const reglas = (reglasPhase.result?.reglas || []).map((r: any) => ({
+    const rawReglas = [
+        ...(reglasPhase.result?.reglas || []),
+        ...(anexosP1Phase.result?.reglas || []),
+        ...(anexosP2Phase.result?.reglas || [])
+    ];
+
+    const reglas = rawReglas.map((r: any) => ({
         ...r,
         categoria_canonica: getCanonicalCategory(
             (r['CÓDIGO/SECCIÓN'] || r['seccion'] || '') + ' ' + (r['VALOR EXTRACTO LITERAL DETALLADO'] || r['texto'] || ''),
@@ -417,7 +429,7 @@ export async function analyzeSingleContract(
 
     // --- TOTAL METRICS (v10.0) ---
     const allPhases = [
-        fingerprintPhase, reglasPhase,
+        fingerprintPhase, reglasPhase, anexosP1Phase, anexosP2Phase,
         hospP1Phase, hospP2Phase,
         ambP1Phase, ambP2Phase, ambP3Phase, ambP4Phase,
         extrasPhase
@@ -441,6 +453,8 @@ export async function analyzeSingleContract(
                 phases: [
                     { phase: "Clasificación", ...getMetrics(fingerprintPhase) },
                     { phase: "Reglas", ...getMetrics(reglasPhase) },
+                    { phase: "Anexos_P1", ...getMetrics(anexosP1Phase) },
+                    { phase: "Anexos_P2", ...getMetrics(anexosP2Phase) },
                     { phase: "Hosp_P1", ...getMetrics(hospP1Phase) },
                     { phase: "Hosp_P2", ...getMetrics(hospP2Phase) },
                     { phase: "Amb_P1", ...getMetrics(ambP1Phase) },

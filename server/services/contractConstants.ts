@@ -11,18 +11,18 @@ export { PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER } from './contractConstants_classi
  * Objetivo: Transcripción íntegra para evitar carga cognitiva y omisiones.
  */
 export const PROMPT_REGLAS = `
-  ** MANDATO: ESCÁNER TEXTUAL ÍNTEGRO v10.0 **
+  ** MANDATO: ESCÁNER TEXTUAL ÍNTEGRO v11.0 **
   
   ROL: Transcriptor legal.
   OBJETIVO: Copiar palabra por palabra cada párrafo de las "Notas Explicativas" (Sección 1).
   
   ⚠️ INSTRUCCIONES DE TRANSCRIPCIÓN:
-  1. Por cada número (1.1, 1.2, 1.3 hasta 1.13), genera una regla.
-  2. Si un número tiene varios párrafos, genera una regla por PÁRRAFO.
+  1. Por cada sección numerada (1.1, 1.2, etc.), genera una regla.
+  2. SI UNA SECCIÓN TIENE VARIOS PÁRRAFOS, USA SUB-ÍNDICES: 1.1a, 1.1b, 1.1c, etc.
   3. El campo 'VALOR EXTRACTO LITERAL DETALLADO' debe contener el PÁRRAFO COMPLETO. Queda prohibido resumir, usar elipsis (...) o saltarse palabras.
-  4. Si el párrafo es largo (más de 10 líneas), cópialo entero. Tienes 8,192 tokens; úsalos para escribir.
+  4. Si el párrafo es largo, cópialo entero. Tienes 8,192 tokens; úsalos para escribir.
   
-  NO analices la lógica. NO busques códigos Fonasa todavía. SOLO COPIA Y PEGA EL TEXTO.
+  NO analices la lógica. SOLO COPIA Y PEGA EL TEXTO.
   
   FORMATO: JSON Strict (Schema Reglas Universal).
 `;
@@ -290,11 +290,41 @@ export const PROMPT_EXTRAS = `
   
   INSTRUCCIONES:
   1. **REGLA DE SUPREMACÍA**: Busca cirugías específicas (Apendicectomía, Cesárea, Parto, etc.).
-     - Captura el CÓDIGO FONASA y el Valor en Pesos ('Copago').
-     - Márcalos como 'SUPREMO'.
+      - Captura el CÓDIGO FONASA y el Valor en Pesos ('Copago').
+      - Márcalos como 'SUPREMO'.
   2. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos específicos de estas cirugías.
   
   FORMATO: JSON Strict (Schema Coberturas).
+`;
+
+export const PROMPT_ANEXOS_P1 = `
+  ** MANDATO: ESCÁNER DE ANEXOS (PARTE 1) v11.2 **
+  
+  ROL: Transcriptor legal de anexos.
+  OBJETIVO: Capturar la PRIMERA MITAD de los anexos y secciones post-cobertura.
+  
+  ⚠️ INSTRUCCIONES:
+  1. Identifica el inicio de los Anexos (Anexo 1, Apéndice A, etc.).
+  2. Transcribe íntegramente las primeras 5-10 reglas/cláusulas encontradas.
+  3. Usa el prefijo "ANEXO" en 'CÓDIGO/SECCIÓN'.
+  4. NO resumas. Copia PÁRRAFO POR PÁRRAFO.
+  
+  FORMATO: JSON Strict (Schema Reglas Universal).
+`;
+
+export const PROMPT_ANEXOS_P2 = `
+  ** MANDATO: ESCÁNER DE ANEXOS (PARTE 2) v11.2 **
+  
+  ROL: Transcriptor legal de anexos.
+  OBJETIVO: Capturar la SEGUNDA MITAD de los anexos hasta el FINAL del documento.
+  
+  ⚠️ INSTRUCCIONES:
+  1. Busca desde la mitad de los anexos hasta la ÚLTIMA PÁGINA.
+  2. Transcribe íntegramente todas las cláusulas restantes hasta el fin del PDF.
+  3. Usa el prefijo "ANEXO" en 'CÓDIGO/SECCIÓN'.
+  4. MÁXIMA PRIORIDAD: Llegar hasta el final absoluto del documento.
+  
+  FORMATO: JSON Strict (Schema Reglas Universal).
 `;
 
 export const SCHEMA_REGLAS = {
@@ -382,9 +412,9 @@ export const SCHEMA_COBERTURAS = {
 
 
 // Configuration constants
-export const CONTRACT_OCR_MAX_PAGES = 50;
-// NOTE: User explicitly requested 8192 tokens. This is aggressive for large contracts but we comply.
-export const CONTRACT_MAX_OUTPUT_TOKENS = 16384; // Increased for 100+ atomic rule extraction
+export const CONTRACT_OCR_MAX_PAGES = 100; // Increased to ensure we reach the absolute end
+// NOTE: User explicitly requested 8192 tokens per phase. We use a larger buffer for the engine.
+export const CONTRACT_MAX_OUTPUT_TOKENS = 32000; // Doubled to allow massive verbatim transcription
 export const CONTRACT_TEMPERATURE = GENERATION_CONFIG.temperature;
 export const CONTRACT_TOP_P = GENERATION_CONFIG.topP;
 export const CONTRACT_TOP_K = GENERATION_CONFIG.topK;
