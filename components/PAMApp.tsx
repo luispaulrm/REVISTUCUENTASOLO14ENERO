@@ -148,11 +148,84 @@ export default function PAMApp() {
                 const result = await extractPamData(pureBase64, queueItem.file.type, addLog, setRealTimeUsage, setProgress, controller.signal);
 
                 setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'done', result: result.data } : item));
-                setPamResult(result.data);
+
+                // MEJORA: Acumular folios en lugar de sobrescribir
+                setPamResult(prev => {
+                    if (!prev) return result.data;
+
+                    const mergedFolios = [...prev.folios];
+
+                    // Merge new folios into existing ones if ID matches, or add new ones
+                    result.data.folios.forEach(newFolio => {
+                        const existingIdx = mergedFolios.findIndex(f => f.folioPAM === newFolio.folioPAM);
+                        if (existingIdx !== -1) {
+                            // Si el folio ya existe, combinamos los desgloses (por si el folio estaba dividido en varios archivos)
+                            const existingFolio = mergedFolios[existingIdx];
+                            mergedFolios[existingIdx] = {
+                                ...existingFolio,
+                                desglosePorPrestador: [...existingFolio.desglosePorPrestador, ...newFolio.desglosePorPrestador],
+                                // Sumamos el copago declarado si viene en partes
+                                resumen: {
+                                    ...existingFolio.resumen,
+                                    totalCopagoDeclarado: String((parseInt(existingFolio.resumen?.totalCopagoDeclarado?.replace(/[^\d]/g, '') || '0') +
+                                        parseInt(newFolio.resumen?.totalCopagoDeclarado?.replace(/[^\d]/g, '') || '0')))
+                                }
+                            };
+                        } else {
+                            mergedFolios.push(newFolio);
+                        }
+                    });
+
+                    // Recalcular métricas globales
+                    const parseMoney = (val: any) => {
+                        if (!val) return 0;
+                        if (typeof val === 'number') return val;
+                        return parseInt(String(val).replace(/[^\d]/g, '')) || 0;
+                    };
+
+                    let totalValor = 0, totalBonif = 0, totalCopago = 0, totalItems = 0, totalDeclarado = 0;
+
+                    mergedFolios.forEach(f => {
+                        let folioValor = 0, folioBonif = 0, folioCopago = 0;
+                        f.desglosePorPrestador.forEach(p => {
+                            p.items.forEach(item => {
+                                const v = parseMoney(item.valorTotal);
+                                const b = parseMoney(item.bonificacion);
+                                const c = parseMoney(item.copago);
+                                folioValor += v; folioBonif += b; folioCopago += c;
+                                totalValor += v; totalBonif += b; totalCopago += c;
+                                totalItems++;
+                            });
+                        });
+                        // Actualizar resumen de folio individual
+                        const declared = parseMoney(f.resumen.totalCopagoDeclarado);
+                        f.resumen.cuadra = Math.abs(folioCopago - declared) <= 500;
+                        f.resumen.totalCopagoCalculado = folioCopago;
+                        totalDeclarado += declared;
+                    });
+
+                    return {
+                        folios: mergedFolios,
+                        global: {
+                            totalValor,
+                            totalBonif,
+                            totalCopago,
+                            totalCopagoDeclarado: totalDeclarado,
+                            cuadra: Math.abs(totalCopago - totalDeclarado) <= 500,
+                            discrepancia: totalCopago - totalDeclarado,
+                            auditoriaStatus: 'COMPLETED',
+                            totalItems
+                        }
+                    };
+                });
+
                 setResultsHistory(prev => [...prev, { fileName: queueItem.file.name, result: result.data }]);
 
-                // Save last result for cross-audit
-                localStorage.setItem('pam_audit_result', JSON.stringify(result.data));
+                // Guardar resultado acumulado para auditoría cruzada
+                setPamResult(current => {
+                    if (current) localStorage.setItem('pam_audit_result', JSON.stringify(current));
+                    return current;
+                });
                 addLog('[SISTEMA] ✅ Análisis completado.');
             } catch (err: any) {
                 if (err.name === 'AbortError') {
