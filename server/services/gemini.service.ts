@@ -274,7 +274,7 @@ export class GeminiService {
             CRITICAL INSTRUCTIONS:
             - EXHAUSTIVENESS IS #1: List EVERY item. If the clinician's total is wrong, WE DON'T CARE. We want the full 100% list of products verbatim.
             - DO NOT GROUP ITEMS. If the paper lists it 5 times, you extract it 5 times.
-            - FORMAT: index | description | quantity | unitPrice | total | bonification
+            - FORMAT: index | description | quantity | unitPrice | total
             - IMPORTANT: Some lines are CREDIT/REVERSALS. They have a minus sign (-) or are in parentheses ( ). You MUST extract them as negative (ej: -1, -3006).
             - IVA DETECTION: If unitPrice * quantity doesn't match total, it might be due to 19% tax (IVA). Just extract values as they are.
             - ANTI-FUSION: If a price looks like millions (ej: 2.470500501), it is fused with a code. Clean it to match the total (ej: 2.470).
@@ -346,38 +346,15 @@ export class GeminiService {
                             return parseFloat(c) || 0;
                         };
 
-                        // ROBUST PARSING: The last 4 columns are usually Qty|Price|Total|Bonification ?
-                        // Wait, "bonification" is optional so it might be missing or 0.
-                        // We asked for: index | description | quantity | unitPrice | total | bonification
+                        // ROBUST PARSING: The last 3 columns are always Qty|Price|Total
+                        // This makes it immune to IA injecting "Code" or "Date" at the beginning.
+                        const lastThree = parts.slice(-3);
+                        const qty = parseVal(lastThree[0]);
+                        const uprice = parseVal(lastThree[1]);
+                        const total = parseVal(lastThree[2]);
 
-                        // Let's rely on robust parsing from the end backwards.
-                        // If 6 parts: index | desc | qty | price | total | bonif
-                        // If 5 parts (legacy): index | desc | qty | price | total
-
-                        let qty, uprice, total, bonification = 0;
-                        let desc = "";
-
-                        if (parts.length >= 6) {
-                            const lastFour = parts.slice(-4);
-                            // Check if last one is bonification (number)
-                            const possibleBonif = parseVal(lastFour[3]);
-
-                            // Heuristic: Bonification is usually smaller than total or negative? 
-                            // Just parse it as is.
-                            bonification = possibleBonif;
-                            total = parseVal(lastFour[2]);
-                            uprice = parseVal(lastFour[1]);
-                            qty = parseVal(lastFour[0]);
-
-                            desc = parts.slice(1, -4).join(' ').trim();
-                        } else {
-                            // Fallback to 5 parts logic
-                            const lastThree = parts.slice(-3);
-                            qty = parseVal(lastThree[0]);
-                            uprice = parseVal(lastThree[1]);
-                            total = parseVal(lastThree[2]);
-                            desc = parts.slice(1, -3).join(' ').trim();
-                        }
+                        // Description is everything between the index (parts[0]) and the last three
+                        const desc = parts.slice(1, -3).join(' ').trim();
 
                         if (!isNaN(total)) {
                             allItems.push({
@@ -385,8 +362,7 @@ export class GeminiService {
                                 description: desc,
                                 quantity: isNaN(qty) ? 1 : qty,
                                 unitPrice: uprice || (qty !== 0 ? Math.round(Math.abs(total / qty)) : 0),
-                                total: total,
-                                bonification: bonification
+                                total: total
                             });
                             lastItemDescription = desc;
                         }

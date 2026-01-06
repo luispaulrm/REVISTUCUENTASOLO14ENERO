@@ -5,6 +5,22 @@ import { AI_CONFIG, GENERATION_CONFIG } from '../config/ai.config.js';
 import { GeminiService } from '../services/gemini.service.js';
 import { repairAndParseJson } from '../utils/jsonRepair.js';
 
+// ✅ Railway-compatible env access
+function envGet(k: string) {
+    const v = process.env[k];
+    return typeof v === "string" ? v : undefined;
+}
+
+// Helper to get all API keys
+const getApiKeys = () => {
+    const keys = [];
+    if (envGet("GEMINI_API_KEY")) keys.push(envGet("GEMINI_API_KEY"));
+    if (envGet("API_KEY")) keys.push(envGet("API_KEY"));
+    if (envGet("GEMINI_API_KEY_SECONDARY")) keys.push(envGet("GEMINI_API_KEY_SECONDARY"));
+    // Deduplicate
+    return [...new Set(keys)].filter(k => !!k);
+};
+
 export async function handlePamExtraction(req: Request, res: Response) {
     console.log('[PAM] New PAM extraction request (Bill-Style Streaming)');
 
@@ -26,9 +42,9 @@ export async function handlePamExtraction(req: Request, res: Response) {
             return res.end();
         }
 
-        // Get API key
-        const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
-        if (!apiKey) {
+        // Get ALL API keys
+        const apiKeys = getApiKeys();
+        if (apiKeys.length === 0) {
             sendUpdate({ type: 'error', message: 'API Key not configured' });
             return res.end();
         }
@@ -36,63 +52,77 @@ export async function handlePamExtraction(req: Request, res: Response) {
         sendUpdate({ type: 'log', message: 'Iniciando extracción de datos PAM...' });
         sendUpdate({ type: 'progress', progress: 10 });
 
-        console.log('[PAM] Starting Gemini streaming extraction with model:', AI_CONFIG.ACTIVE_MODEL);
+        console.log('[PAM] Starting Gemini streaming extraction...');
 
-        // Use the SAME pattern as Bill: direct streaming with RETRY
         let resultStream;
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL].filter(Boolean); // Ensure valid models
+        let lastError: any;
+        let activeApiKey: string | undefined;
+
+        // RETRY LOOP WITH FAILURE OVER MODELS AND KEYS (Aligned with server.ts)
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL].filter(Boolean);
 
         for (const modelName of modelsToTry) {
-            try {
-                console.log(`[PAM] 🛡️ Attempting extraction with model: ${modelName}`);
+            if (!modelName) continue;
+            console.log(`[PAM] 🛡️ Attempting extraction with model: ${modelName}`);
 
-                const genAI = new GoogleGenerativeAI(apiKey);
-                const model = genAI.getGenerativeModel({
-                    model: modelName,
-                    generationConfig: {
-                        responseMimeType: 'application/json',
-                        maxOutputTokens: GENERATION_CONFIG.maxOutputTokens, // Ensure this config is appropriate for PAM
-                        temperature: GENERATION_CONFIG.temperature,
-                        topP: GENERATION_CONFIG.topP,
-                        topK: GENERATION_CONFIG.topK
-                    }
-                });
+            for (const apiKey of apiKeys) {
+                const keyMask = apiKey ? (apiKey.substring(0, 4) + '...') : '???';
+                console.log(`[PAM] Trying with API Key: ${keyMask} (Model: ${modelName})`);
 
-                console.log('[PAM] Initiating Gemini stream...');
-
-                // Timeout wrapper for stream initiation - INCREASED TO 60s
-                const streamPromise = model.generateContentStream([
-                    { text: PAM_PROMPT },
-                    {
-                        inlineData: {
-                            data: image,
-                            mimeType: mimeType
+                try {
+                    const genAI = new GoogleGenerativeAI(apiKey);
+                    const model = genAI.getGenerativeModel({
+                        model: modelName,
+                        generationConfig: {
+                            maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
+                            temperature: GENERATION_CONFIG.temperature,
+                            topP: GENERATION_CONFIG.topP,
+                            topK: GENERATION_CONFIG.topK
                         }
+                    });
+
+                    // Direct stream generation (No explicit timeout wrapper, matching server.ts)
+                    resultStream = await model.generateContentStream([
+                        { text: PAM_PROMPT },
+                        {
+                            inlineData: {
+                                data: image,
+                                mimeType: mimeType
+                            }
+                        }
+                    ]);
+
+                    if (resultStream) {
+                        console.log(`[PAM] Success with Key: ${keyMask} on Model: ${modelName}`);
+                        activeApiKey = apiKey;
+                        break; // Success with this key
                     }
-                ]);
 
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error(`Timeout esperando respuesta de Google AI (${modelName}, 60s)`)), 60000)
-                );
-
-                // @ts-ignore
-                resultStream = await Promise.race([streamPromise, timeoutPromise]);
-
-                console.log(`[PAM] Stream initiated successfully with ${modelName}`);
-                break; // If successful, exit loop
-
-            } catch (streamError: any) {
-                console.warn(`[PAM] Failed with model ${modelName}:`, streamError.message);
-                if (modelName === modelsToTry[modelsToTry.length - 1]) {
-                    // If this was the last model, throw or handle the error
-                    console.error('[PAM] All models failed.');
-                    sendUpdate({ type: 'error', message: `Error iniciando stream (Todos los modelos fallaron): ${streamError.message}` });
-                    return res.end();
+                } catch (attemptError: any) {
+                    console.warn(`[PAM] Failed with Key: ${keyMask} on ${modelName}:`, attemptError.message);
+                    lastError = attemptError;
                 }
-                // Otherwise continue to next model
-                sendUpdate({ type: 'log', message: `⚠️ Modelo ${modelName} lento/falló. Reintentando con alternativo...` });
             }
+            if (activeApiKey) break; // Success with this model
+            console.warn(`[PAM] ⚠️ All keys failed for model ${modelName}. Switching to next model...`);
+            sendUpdate({ type: 'log', message: `⚠️ Modelo ${modelName} saturado/falló. Probando alternativo...` });
         }
+
+        if (!resultStream) {
+            console.error("[PAM] ❌ All API Keys/Models failed.");
+            const errStr = (lastError?.toString() || "") + (lastError?.message || "");
+            const has429 = errStr.includes('429') || errStr.includes('Too Many Requests') || lastError?.status === 429;
+            const has503 = errStr.includes('503') || errStr.includes('Overloaded');
+
+            if (has429 || has503) {
+                sendUpdate({ type: 'error', message: '⏳ Servidores Saturados (Google AI 503/429). Intente nuevamente en 1 minuto.' });
+            } else {
+                sendUpdate({ type: 'error', message: `Error iniciando stream: ${lastError?.message || 'Unknown Error'}` });
+            }
+            return res.end();
+        }
+
+        console.log('[PAM] Stream initiated successfully');
 
         sendUpdate({ type: 'progress', progress: 30 });
 
