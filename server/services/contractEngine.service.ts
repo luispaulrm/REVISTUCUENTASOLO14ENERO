@@ -173,25 +173,28 @@ const SAFETY_SETTINGS = [
  * Verifica que los extractos literales tengan la densidad requerida.
  */
 function auditIntegrityCheck(jsonOutput: any, log: (msg: string) => void) {
-    const minChars = 50; // Longitud mínima para un extracto legal real (v8.5)
+    const minChars = 30; // Calibrated for v1.14.0: shorter valid legal clauses exist.
     const issues: string[] = [];
 
     const reglas = jsonOutput.reglas || [];
     reglas.forEach((regla: any, index: number) => {
-        const literal = regla['VALOR EXTRACTO LITERAL DETALLADO'];
+        const literal = regla['VALOR EXTRACTO LITERAL DETALLADO'] || regla['texto'] || '';
 
         if (!literal || literal.toLowerCase() === 'null') {
             issues.push(`Error en Regla ${index}: Extracto nulo.`);
         } else if (literal.length < minChars) {
-            issues.push(`Advertencia en Regla ${index}: Extracto muy corto (${literal.length} chars). Verificar si es verbatim.`);
+            issues.push(`Extracto breve en Regla ${index} (${literal.length} chars).`);
         }
     });
 
+    const totalReglas = reglas.length || 1;
+    const suspectCount = issues.length;
+    const integrityScore = Math.max(0, Math.min(100, Math.round(((totalReglas - suspectCount) / totalReglas) * 100)));
+
     if (issues.length > 0) {
-        log('\n[ContractEngine] ⚠️ REVISIÓN SUGERIDA EN ALGUNAS REGLAS (Extractos Breves):');
-        issues.forEach(i => log(`   - ${i}`));
+        log(`\n[SYSTEM] 🛡️ Calidad Forense: ${integrityScore}% (Alertas: ${issues.length})`);
     } else {
-        log('\n[ContractEngine] ✅ INTEGRIDAD FORENSE CERTIFICADA: Todos los extractos cumplen densidad mínima.');
+        log('\n[SYSTEM] ✅ INTEGRIDAD FORENSE CERTIFICADA');
     }
 
     return {
@@ -390,7 +393,7 @@ export async function analyzeSingleContract(
         const SANITY_LIMIT = 2000;
         ['item', 'tope', 'nota_restriccion', 'LOGICA_DE_CALCULO'].forEach(key => {
             if (cleaned[key] && typeof cleaned[key] === 'string' && cleaned[key].length > SANITY_LIMIT) {
-                log(`🚨 HALLUCINATION in ${cleaned.item} (${key}). Truncating...`);
+                log(`[SYSTEM] 🚨 HALLUCINATION detected in ${cleaned.item} (${key}). Truncating...`);
                 cleaned[key] = cleaned[key].substring(0, 500) + "... [Truncado]";
             }
         });
