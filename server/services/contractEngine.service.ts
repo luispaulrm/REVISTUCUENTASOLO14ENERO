@@ -78,16 +78,12 @@ function safeJsonParse<T>(text: string): T {
 
 async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<{ text: string, totalPages: number }> {
     try {
-        log(`[ContractEngine] 🔍 Escaneando PDF: ${file.originalname}...`);
+        log(`[ContractEngine] 🔍 Escaneando PDF con Reconstructor Geométrico (v10.5)...`);
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
-        // Resolve absolute path to standard fonts
         const fontPathRaw = path.resolve(__dirname, '../../node_modules/pdfjs-dist/standard_fonts');
-        // Convert to absolute path with forward slashes and a TRAILING SLASH
         const fontPath = fontPathRaw.replace(/\\/g, '/') + '/';
         const standardFontDataUrl = fontPath;
-
-        log(`[ContractEngine] 📄 Cargando fuentes: ${standardFontDataUrl}`);
 
         const data = new Uint8Array(file.buffer);
         const loadingTask = pdfjsLib.getDocument({
@@ -98,20 +94,48 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
         const pdf = await loadingTask.promise;
 
         const pagesToScan = Math.min(pdf.numPages, Number.isFinite(maxPages) ? maxPages : pdf.numPages);
-        log(`[ContractEngine] 📗 PDF cargado (${pdf.numPages} págs). Procesando ${pagesToScan}.`);
+        log(`[ContractEngine] 📗 PDF cargado (${pdf.numPages} págs). Procesando ${pagesToScan} manteniendo layout.`);
 
         let formattedText = '';
 
         for (let pageNumber = 1; pageNumber <= pagesToScan; pageNumber++) {
-            log(`[ContractEngine] 📄 OCR Página ${pageNumber}/${pagesToScan}...`);
+            // log(`[ContractEngine] 📄 OCR Pág ${pageNumber}...`);
 
             const pagePromise = pdf.getPage(pageNumber).then(async (page) => {
                 const textContent = await page.getTextContent();
-                return (textContent?.items || [])
-                    .map((item: any) => item?.str || '')
-                    .join('\n')
-                    .replace(/\s+/g, ' ')
-                    .trim();
+                const items: any[] = textContent.items || [];
+
+                // --- GEOMETRIC LAYOUT RECONSTRUCTION ---
+                // 1. Group items by Y-coordinate (Row detection) with tolerance
+                const Y_TOLERANCE = 4.0;
+                const lines: { y: number, items: any[] }[] = [];
+
+                for (const item of items) {
+                    if (!item.transform || item.transform.length < 6) continue;
+                    const y = item.transform[5]; // PDF Y-coordinate (0 at bottom)
+
+                    // Find existing line bucket
+                    const line = lines.find(l => Math.abs(l.y - y) < Y_TOLERANCE);
+                    if (line) {
+                        line.items.push(item);
+                    } else {
+                        lines.push({ y, items: [item] });
+                    }
+                }
+
+                // 2. Sort Lines Top-to-Bottom (Descending Y)
+                lines.sort((a, b) => b.y - a.y);
+
+                // 3. Sort Items Left-to-Right (Ascending X) and Join
+                const pageLines = lines.map(line => {
+                    line.items.sort((a, b) => (a.transform[4] - b.transform[4])); // Sort by X
+
+                    // Intelligent spacing based on X-gap (Optional enhancement for columns)
+                    // For now, simple space joining is vastly better than linear soup
+                    return line.items.map(i => i.str).join(' ');
+                });
+
+                return pageLines.join('\n');
             });
 
             const pageText = await Promise.race([

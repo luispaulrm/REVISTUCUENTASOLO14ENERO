@@ -207,10 +207,26 @@ const CHECKLIST_AMB = `
 // --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
 
 const SHARED_MANDATE = `
-  ** MANDATO FORENSE v10.0: MICRO-PROMPT ATÓMICO **
-  OBJETIVO: Extraer EXACTAMENTE el sub-set de filas que se te asignará abajo.
-  NORMA DE ORO: Si no encuentras el dato, no lo inventes, pero REVISA TODO EL DOCUMENTO.
-  NO resumas. NO consolides.
+  ** MANDATO FORENSE v10.8: LITERALIDAD VISUAL ABSOLUTA **
+  OBJETIVO: Responder al Checklist actuando como un ESCÁNER HUMANIZADO.
+  
+  ⚠️ PRINCIPIO DE REALIDAD (NO INVENTAR):
+  - SOLO EXISTE LO QUE ESTÁ ESCRITO EN EL PDF.
+  - Si un recuadro está vacío o tiene un guion "-", TU RESPUESTA DEBE REFLEJAR ESO (ej: "No indicado" o "-").
+  - PROHIBIDO "completar" datos basándose en filas o columnas vecinas.
+  
+  ⚠️ PROTOCOLO DE PRESTADORES (VERIFICACIÓN VISUAL):
+  1. ¿El checklist pide "Clínica Alemana"? -> BUSCA ESE NOMBRE EN LA COLUMNA "PREFERENTE".
+  2. **¿LO VES ESCRITO AHÍ?**
+     - SI: Extrae valores de la izquierda. Modalidad = "Oferta Preferente".
+     - NO: 
+       - Modalidad = "Libre Elección" (ESTRICTO).
+       - Valores = Extrae de columna DERECHA ("Libre Elección").
+       - Nombre Item = "Clínica Alemana (Fuera de Red - Aplica Libre Elección)".
+  
+  ⚠️ GEOMETRÍA DE PRECIOS:
+  - "Libre Elección" SIEMPRE tiene precios (UF / V.A / %).
+  - SI LA CELDA DE TOPE TIENE UN VALOR (ej: "2,2 UF"), **ES OBLIGATORIO EXTRAERLO**.
 `;
 
 export const PROMPT_HOSP_P1 = `
@@ -286,19 +302,19 @@ export const PROMPT_AMB_P4 = `
 `;
 
 export const PROMPT_EXTRAS = `
-  ** MANDATO FORENSE v10.4: PASE 4 - PRESTACIONES VALORIZADAS (ANTI-REDUNDANCIA) **
+  ** MANDATO FORENSE v10.8: PASE 4 - PRESTACIONES VALORIZADAS (ANTI-INVENCIÓN) **
   
   ⚠️ ALERTA DE SEGURIDAD (CRÍTICO):
   Prohibido resumir. Copia TEXTUALMENTE las condiciones.
+  
+  ⚠️ REGLA ANTI-INVENCIÓN:
+  - SOLO extrae lo que veas explícitamente como una tabla o lista de "Prestaciones Valorizadas" adicional a la general.
+  - Si no existe tal sección, DEVUELVE UN ARRAY VACÍO. No inventes datos.
   
   ⚠️ REGLA DE EXCLUSIÓN (ESTRICTO):
   NO EXTRAIGAS NADA QUE YA ESTÉ EN LA GRILLA GENERAL DE LAS PÁGINAS 1 Y 2.
   - No extraigas "Día Cama", "Pabellón", "Honorarios", "Medicamentos", "Insumos" o "Anestesia" generales.
   - SÓLO extrae ítems que aparezcan en la sección 'SELECCIÓN DE PRESTACIONES VALORIZADAS' (Generalmente Pág 7).
-  
-  ⚠️ REGLA ANTI-ALUCINACIÓN:
-  - NO repitas la misma frase múltiples veces en el campo 'tope'.
-  - Si una condición se repite en el documento, menciónala una sola vez de forma clara.
   
   OBJETIVO: Capturar la "Selección de Prestaciones Valorizadas" que SOBREESCRIBE la bonificación general.
   
