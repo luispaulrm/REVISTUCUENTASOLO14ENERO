@@ -31,14 +31,18 @@ export async function performForensicAudit(
         const filePath = path.join(KNOWLEDGE_DIR, file);
         const ext = path.extname(file).toLowerCase();
 
-        // USER REQUEST: ONLY USE 'Prácticas Irregulares' to save tokens.
+        // USER REQUEST: Use 'Prácticas Irregulares' AND 'JURISPRUDENCIA SIS'
         // We use the .txt version of the document.
-        const isTargetDoc = file === 'Informe sobre Prácticas Irregulares en Cuentas Hospitalarias y Clínicas.txt';
+        const allowedDocs = [
+            'Informe sobre Prácticas Irregulares en Cuentas Hospitalarias y Clínicas.txt',
+            'JURISPRUDENCIA SIS.txt'
+        ];
+        const isTargetDoc = allowedDocs.includes(file);
 
         if (ext === '.txt' && isTargetDoc) {
             const content = await fs.readFile(filePath, 'utf-8');
             knowledgeBaseText += `\n\n--- DOCUMENTO: ${file} ---\n${content}`;
-            log(`[AuditEngine] 📑 Cargado (Exclusivo): ${file}`);
+            log(`[AuditEngine] 📑 Cargado (Contexto Legal): ${file}`);
         } else if (file === 'hoteleria_sis.json') {
             const content = await fs.readFile(filePath, 'utf-8');
             hoteleriaRules = content;

@@ -101,6 +101,7 @@ Suma CADA ítem individual detectado que esté bien fundado en:
 3. Evento Único (Urgencia → Hospitalización)
 4. Desagregación Indebida de Pabellón (IF-319: INSUMOS COMUNES/HOTELERÍA, NO MEDICAMENTOS)
 5. Incumplimiento de Cobertura Contractual (PAM vs CONTRATO)
+6. Exclusión Componentes Esenciales (Pabellón/Sala sin cobertura - Jurisprudencia SS)
 
 Prioriza impactos a copago paciente. Verifica suma ≤ copago PAM total.
 
@@ -299,6 +300,24 @@ No generes un solo hallazgo gigante llamado "Insumos Varios".
   c) Montos proporcionales al cargo principal.
 - **ACCIÓN:** **VALIDAR COMO EQUIPO QUIRÚRGICO**. NUNCA marques como "Cargo Injustificado" o "Duplicado".
 - Solo objetar si la suma de porcentajes excede lo permitido por normativa (ej: >2 ayudantes sin justificación en cirugía simple).
+
+### 8. EXCLUSIÓN DE COMPONENTES ESENCIALES (PABELLÓN/SALA/RECUPERACIÓN) [JURISPRUDENCIA SS]
+**PRINCIPIO:** "No resulta procedente excluir de cobertura o bonificación costos que constituyen elementos indispensables para la ejecución del acto médico autorizado" (Superintendencia de Salud).
+
+**ÁMBITO DE APLICACIÓN:**
+- Uso de Pabellón / Quirófano.
+- Derecho a Sala / Día Cama.
+- Sala de Recuperación Inmediata.
+- Infraestructura Clínica Mínima.
+
+**DETECCIÓN:**
+- Busca ítems de infraestructura crítica (Pabellón, Sala, Recuperación) que tengan **BONIFICACIÓN $0** o hayan sido derivados íntegramente a COPAGO DEL PACIENTE.
+- Frecuentemente rechazados bajo glosas como: "Prestación no arancelada", "No codificada", "Código Genérico 3201002" o "Insumos/Servicios no pactados".
+
+**ACCIÓN:**
+- **OBJETAR EL 100% DEL COPAGO** generado por esta exclusión.
+- **FUNDAMENTO OBLIGATORIO:**
+  "Exclusión improcedente de componente esencial del acto médico. Según Jurisprudencia Administrativa de la Superintendencia de Salud (DFL N°1/2005), los costos de infraestructura indispensable para la ejecución del procedimiento autorizado (como Pabellón o Sala) NO pueden ser excluidos de cobertura ni bonificación, aun cuando no se encuentren individualizados como prestaciones valorizadas en el arancel. Se vulnera la naturaleza del evento quirúrgico cubierto."
 
 ### 7. DETERMINACIÓN DE MODALIDAD (CRÍTICO - ANTES DE AUDITAR)
 **PASO 1:** Identifica el PRESTADOR PRINCIPAL en el PAM. Si tiene RUT chileno o es una clínica en Chile, la Modalidad es **OBLIGATORIAMENTE "NACIONAL"**.
