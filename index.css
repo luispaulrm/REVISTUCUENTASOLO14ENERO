@@ -63,3 +63,56 @@ body {
         border: 1px solid #e2e8f0 !important;
     }
 }
+
+/* --- GLOBAL SCROLLBAR STYLING (CROSS-BROWSER) --- */
+:root {
+    --sb-track-color: #f1f5f9;
+    --sb-thumb-color: #cbd5e1;
+    --sb-size: 8px;
+}
+
+/* Universal scrollbar class */
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: var(--sb-size);
+    height: var(--sb-size);
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 10px;
+    border: 2px solid var(--sb-track-color);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Apply to body by default for global awareness */
+body {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+body::-webkit-scrollbar {
+    width: 10px;
+}
+
+body::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+    border: 2px solid #f8fafc;
+}

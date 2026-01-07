@@ -232,8 +232,8 @@ export async function analyzeSingleContract(
         let finalMetrics = { tokensInput: 0, tokensOutput: 0, cost: 0 };
 
         // Multi-Model Fallback: Contract-specific configuration
-        // Primary: gemini-3-flash-preview | Fallback: gemini-2.5-flash
-        const modelsToTry = ['gemini-3-flash-preview', 'gemini-2.5-flash'];
+        // Primary: gemini-2.5-flash | Fallback: gemini-3-flash-preview
+        const modelsToTry = ['gemini-2.5-flash', 'gemini-3-flash-preview'];
 
         // Retry with exponential backoff for 503 errors
         const attemptExtraction = async (currentKey: string, modelName: string): Promise<any> => {
