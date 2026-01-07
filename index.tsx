@@ -1,4 +1,5 @@
 import React from 'react';
+import './index.css';
 import ReactDOM from 'react-dom/client';
 import { AppWithTabs } from './components/AppWithTabs';
 
