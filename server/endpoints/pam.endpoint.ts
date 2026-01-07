@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
 import { PAM_PROMPT } from '../prompts/pam.prompt.js';
 import { AI_CONFIG, GENERATION_CONFIG } from '../config/ai.config.js';
 import { GeminiService } from '../services/gemini.service.js';
@@ -22,7 +22,7 @@ const getApiKeys = () => {
 };
 
 export async function handlePamExtraction(req: Request, res: Response) {
-    console.log('[PAM] New PAM extraction request (Bill-Style Streaming)');
+    console.log('[PAM] New PAM extraction request (Workflow Mode)');
 
     // Setup streaming response
     res.setHeader('Content-Type', 'application/x-ndjson');
@@ -52,77 +52,117 @@ export async function handlePamExtraction(req: Request, res: Response) {
         sendUpdate({ type: 'log', message: 'Iniciando extracción de datos PAM...' });
         sendUpdate({ type: 'progress', progress: 10 });
 
-        console.log('[PAM] Starting Gemini streaming extraction...');
+        console.log('[PAM] Starting Workflow Execution...');
 
         let resultStream;
         let lastError: any;
         let activeApiKey: string | undefined;
+        let activeModel: string = "";
 
-        // RETRY LOOP WITH FAILURE OVER MODELS AND KEYS (Aligned with server.ts)
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL].filter(Boolean);
+        // WORKFLOW CONFIGURATION
+        // Only gemini-2.5-flash works reliably for PAM (text/plain mode)
+        const workflow = [
+            {
+                model: 'gemini-2.5-flash',
+                timeout: 60000, // 60s timeout
+                desc: 'Único modelo que funciona con PAM'
+            }
+        ];
 
-        for (const modelName of modelsToTry) {
-            if (!modelName) continue;
-            console.log(`[PAM] 🛡️ Attempting extraction with model: ${modelName}`);
+        console.log('[PAM] Workflow Steps:', workflow.map(w => `${w.model} (${w.timeout}ms)`));
+
+        for (const step of workflow) {
+            console.log(`[PAM] 🔄 Executing Workflow Step: ${step.model} (${step.desc})`);
 
             for (const apiKey of apiKeys) {
                 const keyMask = apiKey ? (apiKey.substring(0, 4) + '...') : '???';
-                console.log(`[PAM] Trying with API Key: ${keyMask} (Model: ${modelName})`);
+                console.log(`[PAM] Trying with API Key: ${keyMask} (Model: ${step.model})`);
 
                 try {
                     const genAI = new GoogleGenerativeAI(apiKey);
                     const model = genAI.getGenerativeModel({
-                        model: modelName,
+                        model: step.model,
                         generationConfig: {
                             maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
-                            temperature: GENERATION_CONFIG.temperature,
-                            topP: GENERATION_CONFIG.topP,
+                            // High precision for medical data (User Request)
+                            temperature: 0.1,
+                            topP: 0.95,
                             topK: GENERATION_CONFIG.topK,
-                            responseMimeType: "text/plain" // CRITICAL: Tell model we want text, not JSON
-                        }
+                            responseMimeType: "text/plain"
+                        },
+                        // CRITICAL: Block NONE settings to prevent medical content blocks
+                        safetySettings: [
+                            { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                            { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
+                            { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                            { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
+                        ]
                     });
 
-                    console.log(`[PAM] Initiating stream with model ${modelName}...`);
-                    sendUpdate({ type: 'log', message: `Conectando con ${modelName}...` });
+                    console.log(`[PAM] Initiating stream with model ${step.model}...`);
+                    sendUpdate({ type: 'log', message: `Conectando con ${step.model}...` });
 
-                    // 2-minute timeout (enough for Flash 3 on large docs, prevents infinite hangs)
-                    const streamPromise = model.generateContentStream([
-                        { text: PAM_PROMPT },
-                        {
-                            inlineData: {
-                                data: image,
-                                mimeType: mimeType
-                            }
-                        }
-                    ]);
+                    // Progress indicator
+                    let waitingIndicator: NodeJS.Timeout | null = setInterval(() => {
+                        console.log(`[PAM] ⏳ Waiting... model: ${step.model}`);
+                    }, 5000);
 
+                    // Timeout promise from workflow config
                     const timeoutPromise = new Promise<never>((_, reject) => {
                         setTimeout(() => {
-                            reject(new Error(`Stream timeout (120s) - Model: ${modelName}`));
-                        }, 120000); // 2 minutes
+                            reject(new Error(`Timeout (${step.timeout}ms) exceeded for ${step.model}`));
+                        }, step.timeout);
                     });
 
-                    resultStream = await Promise.race([streamPromise, timeoutPromise]);
+                    try {
+                        const streamPromise = model.generateContentStream([
+                            { text: PAM_PROMPT },
+                            { inlineData: { data: image, mimeType: mimeType } }
+                        ]);
 
-                    if (resultStream) {
-                        console.log(`[PAM] ✅ Stream established with Key: ${keyMask} on Model: ${modelName}`);
-                        activeApiKey = apiKey;
-                        break; // Success with this key
+                        resultStream = await Promise.race([streamPromise, timeoutPromise]);
+
+                        if (resultStream) {
+                            console.log(`[PAM] ✅ Stream established with Key: ${keyMask} on Model: ${step.model}`);
+                            activeApiKey = apiKey;
+                            activeModel = step.model;
+                            clearInterval(waitingIndicator);
+                            break; // Success with this key
+                        }
+                    } catch (raceError) {
+                        clearInterval(waitingIndicator);
+                        throw raceError;
                     }
 
+                    if (waitingIndicator) clearInterval(waitingIndicator);
+
                 } catch (attemptError: any) {
-                    console.warn(`[PAM] ❌ Failed with Key: ${keyMask} on ${modelName}:`, attemptError.message);
+                    // Enhanced error logging to diagnose API issues
+                    console.error(`[PAM] ❌ Failed with Key: ${keyMask} on ${step.model}`);
+                    console.error(`[PAM] Error Message: ${attemptError.message}`);
+                    console.error(`[PAM] Error Status: ${attemptError.status || 'N/A'}`);
+                    console.error(`[PAM] Error Code: ${attemptError.code || 'N/A'}`);
+                    console.error(`[PAM] Full Error:`, attemptError);
+
                     lastError = attemptError;
-                    // Continue to next key/model
+
+                    // Send detailed error to frontend for diagnosis
+                    sendUpdate({
+                        type: 'log',
+                        message: `[DEBUG] ${step.model} error: ${attemptError.message} (status: ${attemptError.status || 'unknown'})`
+                    });
+
+                    // Continue to next key
                 }
             }
-            if (activeApiKey) break; // Success with this model
-            console.warn(`[PAM] ⚠️ All keys failed for model ${modelName}. Switching to next model...`);
-            sendUpdate({ type: 'log', message: `⚠️ Modelo ${modelName} saturado/falló. Probando alternativo...` });
+            if (activeApiKey) break; // Workflow success
+
+            console.warn(`[PAM] ⚠️ All keys failed for model ${step.model}. Switching to next workflow step...`);
+            sendUpdate({ type: 'log', message: `⚠️ ${step.model} falló o tardó demasiado. Probando siguiente...` });
         }
 
         if (!resultStream) {
-            console.error("[PAM] ❌ All API Keys/Models failed.");
+            console.error("[PAM] ❌ All Workflow steps failed.");
             const errStr = (lastError?.toString() || "") + (lastError?.message || "");
             const has429 = errStr.includes('429') || errStr.includes('Too Many Requests') || lastError?.status === 429;
             const has503 = errStr.includes('503') || errStr.includes('Overloaded');
@@ -130,7 +170,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
             if (has429 || has503) {
                 sendUpdate({ type: 'error', message: '⏳ Servidores Saturados (Google AI 503/429). Intente nuevamente en 1 minuto.' });
             } else {
-                sendUpdate({ type: 'error', message: `Error iniciando stream: ${lastError?.message || 'Unknown Error'}` });
+                sendUpdate({ type: 'error', message: `Error crítico: Streaming falló. ${lastError?.message || ''}` });
             }
             return res.end();
         }
@@ -183,7 +223,8 @@ export async function handlePamExtraction(req: Request, res: Response) {
                     const totalTokens = usage.totalTokenCount || 0;
 
                     const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(
-                        AI_CONFIG.ACTIVE_MODEL,
+                        // Use active model we captured
+                        activeModel || 'gemini-2.5-flash',
                         promptTokens,
                         candidatesTokens
                     );

@@ -34,6 +34,9 @@ import {
     CONTRACT_TOP_K
 } from './contractConstants.js';
 import { AI_CONFIG, calculatePrice } from '../config/ai.config.js';
+import { retryWithBackoff } from '../utils/retryWithBackoff.js';
+import { detectRepetition, truncateAtRepetition } from '../utils/repetitionDetector.js';
+import { safeStreamParse, balanceJson } from '../utils/streamErrorHandler.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -217,72 +220,130 @@ export async function analyzeSingleContract(
     const base64Data = file.buffer.toString('base64');
     const mimeType = file.mimetype;
 
-    // Helper for Extraction Call
+    // Helper for Extraction Call with Robustness Features
     async function extractSection(name: string, prompt: string, schema: any): Promise<any> {
         log(`\n[ContractEngine] 🚀 Iniciando FASE: ${name.toUpperCase()}...`);
         const geminiService = new GeminiService(apiKey);
 
-        let result = null;
-        let tokensInput = 0;
-        let tokensOutput = 0;
-        let cost = 0;
-        let streamText = "";
-
         const allKeys = [apiKey, process.env.GEMINI_API_KEY, process.env.API_KEY, process.env.GEMINI_API_KEY_SECONDARY]
             .filter(k => !!k && k.length > 5);
 
-        // Simple Retry Logic for Keys (Simplified from v6 for brevity but same robustness)
-        // Note: Using GeminiService's internal rotation would be better but let's stick to simple direct call loop here
-        // actually GeminiService.extractWithStream is what we want? No, we custom built it here.
-        // Let's reuse the custom logic from before but adapted.
+        let finalResult = null;
+        let finalMetrics = { tokensInput: 0, tokensOutput: 0, cost: 0 };
 
-        let activeKeyIndex = 0;
-        // ... Logic to get model ...
+        // Multi-Model Fallback: Try primary, then fallback
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
 
-        // Let's use standard loop
-        for (const currentKey of [...new Set(allKeys)]) {
-            try {
-                const genAI = new GoogleGenerativeAI(currentKey);
-                const model = genAI.getGenerativeModel({
-                    model: AI_CONFIG.ACTIVE_MODEL,
-                    generationConfig: {
-                        maxOutputTokens: CONTRACT_MAX_OUTPUT_TOKENS,
-                        responseMimeType: "application/json",
-                        responseSchema: schema,
-                        temperature: CONTRACT_TEMPERATURE,
-                        topP: CONTRACT_TOP_P,
-                        topK: CONTRACT_TOP_K
+        // Retry with exponential backoff for 503 errors
+        const attemptExtraction = async (currentKey: string, modelName: string): Promise<any> => {
+            return retryWithBackoff(
+                async () => {
+                    const genAI = new GoogleGenerativeAI(currentKey);
+                    const model = genAI.getGenerativeModel({
+                        model: modelName,
+                        generationConfig: {
+                            maxOutputTokens: CONTRACT_MAX_OUTPUT_TOKENS,
+                            responseMimeType: "application/json",
+                            responseSchema: schema,
+                            temperature: CONTRACT_TEMPERATURE,
+                            topP: CONTRACT_TOP_P,
+                            topK: CONTRACT_TOP_K
+                        },
+                        safetySettings: SAFETY_SETTINGS
+                    });
+
+                    const stream = await model.generateContentStream([
+                        { text: prompt },
+                        { inlineData: { data: base64Data, mimeType: mimeType } }
+                    ]);
+
+                    // Safe stream parsing with error recovery
+                    const streamResult = await safeStreamParse(stream.stream, {
+                        onChunk: (text) => onLog?.(`[${name}] ${text}`),
+                        onError: (err) => log(`[${name}] ⚠️ Stream chunk error: ${err.message}`),
+                        maxChunks: 10000
+                    });
+
+                    let streamText = streamResult.text;
+
+                    // Check for token usage in the stream
+                    let tokensInput = 0;
+                    let tokensOutput = 0;
+                    try {
+                        const finalChunk = await stream.response;
+                        if (finalChunk.usageMetadata) {
+                            tokensInput = finalChunk.usageMetadata.promptTokenCount;
+                            tokensOutput = finalChunk.usageMetadata.candidatesTokenCount;
+                            const p = calculatePrice(tokensInput, tokensOutput);
+                            finalMetrics = { tokensInput, tokensOutput, cost: p.costCLP };
+                        }
+                    } catch (metadataError: any) {
+                        log(`[${name}] ⚠️ Could not extract metadata: ${metadataError.message}`);
+                    }
+
+                    // Detect AI repetition loops
+                    const repetition = detectRepetition(streamText);
+                    if (repetition.hasRepetition) {
+                        log(`[${name}] 🚨 AI REPETITION LOOP detected: "${repetition.repeatedPhrase?.substring(0, 50)}..." (${repetition.count} times)`);
+                        streamText = truncateAtRepetition(streamText);
+                        log(`[${name}] 🔧 Truncated output at repetition boundary`);
+                    }
+
+                    // If stream was truncated, try to balance JSON
+                    if (streamResult.truncated) {
+                        log(`[${name}] 🔧 Stream was truncated, attempting JSON repair...`);
+                        streamText = balanceJson(streamText);
+                    }
+
+                    // Parse JSON
+                    const result = safeJsonParse(streamText);
+                    if (!result) {
+                        throw new Error('Failed to parse JSON output');
+                    }
+
+                    // Log final metrics for the phase
+                    log(`@@METRICS@@${JSON.stringify({ phase: name, input: tokensInput, output: tokensOutput, cost: finalMetrics.cost })}`);
+
+                    return result;
+                },
+                {
+                    maxRetries: 3,
+                    initialDelay: 1000,
+                    maxDelay: 10000,
+                    shouldRetry: (error: any) => {
+                        const msg = error?.message || String(error);
+                        return msg.includes('503') || msg.includes('overloaded') || msg.includes('Service Unavailable');
                     },
-                    safetySettings: SAFETY_SETTINGS
-                });
-
-                const stream = await model.generateContentStream([
-                    { text: prompt },
-                    { inlineData: { data: base64Data, mimeType: mimeType } }
-                ]);
-
-                for await (const chunk of stream.stream) {
-                    const txt = chunk.text();
-                    streamText += txt;
-                    onLog?.(`[${name}] ${txt}`); // Tagged Stream to UI
-                    if (chunk.usageMetadata) {
-                        tokensInput = chunk.usageMetadata.promptTokenCount;
-                        tokensOutput = chunk.usageMetadata.candidatesTokenCount;
-                        const p = calculatePrice(tokensInput, tokensOutput);
-                        cost = p.costCLP;
+                    onRetry: (attempt, error, delay) => {
+                        log(`[${name}] 🔄 Reintento ${attempt}/3 en ${delay}ms: ${error.message}`);
                     }
                 }
-                // Final Metrics log for the phase (after stream ends)
-                log(`@@METRICS@@${JSON.stringify({ phase: name, input: tokensInput, output: tokensOutput, cost: cost })}`);
-                result = safeJsonParse(streamText);
-                break; // Success
-            } catch (err: any) {
-                log(`[${name}] ⚠️ Error con llave ${currentKey.substring(0, 4)}...: ${err.message}`);
+            );
+        };
+
+        // Try each model, then each API key
+        for (const modelName of modelsToTry) {
+            log(`[${name}] 📍 Intentando con modelo: ${modelName}...`);
+
+            for (const currentKey of [...new Set(allKeys)]) {
+                try {
+                    finalResult = await attemptExtraction(currentKey, modelName);
+                    log(`[${name}] ✅ Éxito con ${modelName}`);
+                    break; // Success with this model
+                } catch (err: any) {
+                    log(`[${name}] ⚠️ Error con llave ${currentKey.substring(0, 4)}... y modelo ${modelName}: ${err.message}`);
+                }
             }
+
+            // If we got a result, stop trying other models
+            if (finalResult) break;
         }
 
-        if (!result) log(`[${name}] ❌ FALLO CRÍTICO: No se pudo extraer.`);
-        return { result, metrics: { tokensInput, tokensOutput, cost } };
+        if (!finalResult) {
+            log(`[${name}] ❌ FALLO CRÍTICO: No se pudo extraer después de todos los reintentos con todos los modelos.`);
+        }
+
+        return { result: finalResult, metrics: finalMetrics };
     }
 
     // --- EXECUTE PHASES IN PARALLEL (v10.0 Modular Rule Engine) ---
