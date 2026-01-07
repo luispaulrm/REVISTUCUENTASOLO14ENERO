@@ -1,6 +1,6 @@
 export const AI_MODELS = {
-    primary: 'gemini-2.5-flash', // Gemini 2.5 Flash (ÚNICO modelo estable que funciona)
-    fallback: 'gemini-2.5-flash' // Sin fallback, mismo modelo
+    primary: 'gemini-3-flash-preview', // Testing Gemini 3 Flash Preview
+    fallback: 'gemini-2.5-flash' // Fallback to stable model
 };
 
 export const GENERATION_CONFIG = {
@@ -25,7 +25,7 @@ export const AI_CONFIG = {
     },
 
     // UI LABEL
-    MODEL_LABEL: 'Gemini 2.5 Flash'
+    MODEL_LABEL: 'Gemini 3 Flash Preview'
 };
 
 export function getActivePricing() {
