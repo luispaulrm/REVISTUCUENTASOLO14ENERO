@@ -77,11 +77,15 @@ export async function handlePamExtraction(req: Request, res: Response) {
                             maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
                             temperature: GENERATION_CONFIG.temperature,
                             topP: GENERATION_CONFIG.topP,
-                            topK: GENERATION_CONFIG.topK
+                            topK: GENERATION_CONFIG.topK,
+                            responseMimeType: "text/plain" // CRITICAL: Tell model we want text, not JSON
                         }
                     });
 
-                    // Direct stream generation (No explicit timeout wrapper, matching server.ts)
+                    console.log(`[PAM] Initiating stream with model ${modelName}...`);
+                    sendUpdate({ type: 'log', message: `Conectando con ${modelName}...` });
+
+                    // 2-minute timeout (enough for Flash 3 on large docs, prevents infinite hangs)
                     const streamPromise = model.generateContentStream([
                         { text: PAM_PROMPT },
                         {
@@ -92,22 +96,24 @@ export async function handlePamExtraction(req: Request, res: Response) {
                         }
                     ]);
 
-                    const timeoutPromise = new Promise((_, reject) => {
-                        // User requested 70 seconds to allow for deep thinking/large context
-                        setTimeout(() => reject(new Error('TIMEOUT_STREAM_INIT: Model took too long to respond')), 70000);
+                    const timeoutPromise = new Promise<never>((_, reject) => {
+                        setTimeout(() => {
+                            reject(new Error(`Stream timeout (120s) - Model: ${modelName}`));
+                        }, 120000); // 2 minutes
                     });
 
-                    resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
+                    resultStream = await Promise.race([streamPromise, timeoutPromise]);
 
                     if (resultStream) {
-                        console.log(`[PAM] Success with Key: ${keyMask} on Model: ${modelName}`);
+                        console.log(`[PAM] ✅ Stream established with Key: ${keyMask} on Model: ${modelName}`);
                         activeApiKey = apiKey;
                         break; // Success with this key
                     }
 
                 } catch (attemptError: any) {
-                    console.warn(`[PAM] Failed with Key: ${keyMask} on ${modelName}:`, attemptError.message);
+                    console.warn(`[PAM] ❌ Failed with Key: ${keyMask} on ${modelName}:`, attemptError.message);
                     lastError = attemptError;
+                    // Continue to next key/model
                 }
             }
             if (activeApiKey) break; // Success with this model
@@ -167,7 +173,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
 
                 console.log(`[PAM] Received chunk: ${chunkText.length} chars (Total: ${fullText.length})`);
 
-                sendUpdate({ type: 'log', message: `Procesando... ${fullText.length} chars` });
+                sendUpdate({ type: 'chunk', text: chunkText });
 
                 // Send usage metadata if available
                 const usage = chunk.usageMetadata;

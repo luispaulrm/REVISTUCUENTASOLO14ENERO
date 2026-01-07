@@ -1,6 +1,6 @@
 export const AI_MODELS = {
-    primary: 'gemini-3-flash-preview',
-    fallback: 'gemini-2.5-flash'
+    primary: 'gemini-2.5-flash', // Temporarily using 2.5 (quota for 3 exhausted)
+    fallback: 'gemini-3-flash-preview'
 };
 
 export const GENERATION_CONFIG = {
