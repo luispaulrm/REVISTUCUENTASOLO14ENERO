@@ -89,9 +89,16 @@ export default function ForensicApp() {
     };
 
     const checkData = () => {
-        setHasBill(!!localStorage.getItem('clinic_audit_result'));
-        setHasPam(!!localStorage.getItem('pam_audit_result'));
-        setHasContract(!!localStorage.getItem('contract_audit_result'));
+        try {
+            setHasBill(!!localStorage.getItem('clinic_audit_result'));
+            setHasPam(!!localStorage.getItem('pam_audit_result'));
+            setHasContract(!!localStorage.getItem('contract_audit_result'));
+        } catch (e) {
+            console.warn('LocalStorage access blocked:', e);
+            setHasBill(false);
+            setHasPam(false);
+            setHasContract(false);
+        }
     };
 
     const addLog = (msg: string) => {

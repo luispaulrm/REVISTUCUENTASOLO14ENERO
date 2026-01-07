@@ -180,7 +180,11 @@ const App: React.FC = () => {
         setResultsHistory(prev => [...prev, { fileName: queueItem.file.name, result: data }]);
 
         // Save last result for cross-audit
-        localStorage.setItem('clinic_audit_result', JSON.stringify(data));
+        try {
+          localStorage.setItem('clinic_audit_result', JSON.stringify(data));
+        } catch (e) {
+          console.warn('Failed to save to localStorage:', e);
+        }
         addLog('[SISTEMA] ✅ Procesamiento completado.');
 
       } catch (err: any) {

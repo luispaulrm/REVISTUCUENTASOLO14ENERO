@@ -239,7 +239,13 @@ export default function PAMApp() {
 
                 // Guardar resultado acumulado para auditoría cruzada
                 setPamResult(current => {
-                    if (current) localStorage.setItem('pam_audit_result', JSON.stringify(current));
+                    if (current) {
+                        try {
+                            localStorage.setItem('pam_audit_result', JSON.stringify(current));
+                        } catch (e) {
+                            console.warn('Failed to save PAM result to localStorage:', e);
+                        }
+                    }
                     return current;
                 });
                 addLog('[SISTEMA] ✅ Análisis completado.');
@@ -330,6 +336,9 @@ export default function PAMApp() {
     };
 
     const clearSession = () => {
+        try {
+            localStorage.removeItem('pam_audit_result');
+        } catch (e) { }
         setStatus(AppStatus.IDLE);
         setPamResult(null);
         setError(null);
