@@ -254,6 +254,7 @@ app.post('/api/extract', async (req, res) => {
                 console.log(`[AUTH] Trying with API Key: ${keyMask} (Model: ${modelName})`);
 
                 try {
+                    forensicLog(`Intentando extracción con modelo ${modelName}...`);
                     const genAI = new GoogleGenerativeAI(apiKey);
                     const model = genAI.getGenerativeModel({
                         model: modelName,
@@ -265,7 +266,11 @@ app.post('/api/extract', async (req, res) => {
                         }
                     });
 
-                    resultStream = await model.generateContentStream([
+                    forensicLog(`Enviando imagen al modelo ${modelName}...`);
+
+                    // Add timeout wrapper to prevent indefinite hangs
+                    const timeoutMs = 90000; // 90 seconds for bill extraction
+                    const streamPromise = model.generateContentStream([
                         { text: CSV_PROMPT },
                         {
                             inlineData: {
@@ -274,6 +279,14 @@ app.post('/api/extract', async (req, res) => {
                             }
                         }
                     ]);
+
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => {
+                            reject(new Error(`Timeout: El modelo ${modelName} no respondió en ${timeoutMs / 1000} segundos`));
+                        }, timeoutMs);
+                    });
+
+                    resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
 
                     // If successful, break both loops
                     if (resultStream) {
@@ -287,10 +300,19 @@ app.post('/api/extract', async (req, res) => {
                     }
 
                 } catch (attemptError: any) {
+                    const errStr = (attemptError?.toString() || "") + (attemptError?.message || "");
+                    const isTimeout = errStr.includes('Timeout');
+
+                    if (isTimeout) {
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 90 segundos.`);
+                        forensicLog(`💡 Esto puede indicar que el PDF es muy grande o complejo.`);
+                        lastError = attemptError;
+                        // Try next key/model
+                        continue;
+                    }
+
                     console.warn(`[AUTH] Failed with Key: ${keyMask} on ${modelName}:`, attemptError.message);
                     lastError = attemptError;
-                    const errStr = (attemptError?.toString() || "") + (attemptError?.message || "");
-
                     // If 400 Bad Request (Invalid Argument), switching models/keys might not help if prompt is bad,
                     // but switching model MIGHT help if one model doesn't support a param.
                     // For 429/500, definitely retry.

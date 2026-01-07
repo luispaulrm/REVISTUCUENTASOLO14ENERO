@@ -31,11 +31,10 @@ export async function performForensicAudit(
         const filePath = path.join(KNOWLEDGE_DIR, file);
         const ext = path.extname(file).toLowerCase();
 
-        // USER REQUEST: Use 'Prácticas Irregulares' AND 'JURISPRUDENCIA SIS'
+        // USER REQUEST: Use only 'Prácticas Irregulares' (JURISPRUDENCIA SIS removed due to size)
         // We use the .txt version of the document.
         const allowedDocs = [
-            'Informe sobre Prácticas Irregulares en Cuentas Hospitalarias y Clínicas.txt',
-            'JURISPRUDENCIA SIS.txt'
+            'Informe sobre Prácticas Irregulares en Cuentas Hospitalarias y Clínicas.txt'
         ];
         const isTargetDoc = allowedDocs.includes(file);
 
@@ -61,6 +60,11 @@ export async function performForensicAudit(
         .replace('{cuenta_json}', JSON.stringify(cuentaJson, null, 2))
         .replace('{pam_json}', JSON.stringify(pamJson, null, 2))
         .replace('{contrato_json}', JSON.stringify(contratoJson, null, 2));
+
+    // Log prompt size for debugging
+    const promptSize = prompt.length;
+    const promptSizeKB = (promptSize / 1024).toFixed(2);
+    log(`[AuditEngine] 📏 Tamaño del prompt: ${promptSizeKB} KB (${promptSize} caracteres)`);
     // -----------------------------------------------------
 
     for (const modelName of modelsToTry) {
@@ -81,17 +85,61 @@ export async function performForensicAudit(
                 }
             });
 
-            log('[AuditEngine] 📡 Enviando consulta a Gemini...');
-            result = await model.generateContent(prompt);
-            log(`[AuditEngine] ✅ Éxito con modelo ${modelName}`);
+            log('[AuditEngine] 📡 Enviando consulta a Gemini (Streaming)...');
+
+            // Use streaming for real-time feedback
+            const timeoutMs = 120000; // 120 seconds for audit (larger prompt)
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error(`Timeout: La API no respondió en ${timeoutMs / 1000} segundos`)), timeoutMs);
+            });
+
+            const streamResult = await Promise.race([
+                model.generateContentStream(prompt),
+                timeoutPromise
+            ]) as any;
+
+            // Accumulate the full response from stream
+            let fullText = '';
+            let usage: any = null;
+
+            log('[AuditEngine] 📥 Recibiendo respuesta en tiempo real...');
+            for await (const chunk of streamResult.stream) {
+                const chunkText = chunk.text();
+                fullText += chunkText;
+
+                // Update usage metadata if available
+                if (chunk.usageMetadata) {
+                    usage = chunk.usageMetadata;
+                }
+
+                // Log progress every 1000 characters
+                if (fullText.length % 1000 < chunkText.length) {
+                    log(`[AuditEngine] 📊 Procesando... ${Math.floor(fullText.length / 1000)}KB recibidos`);
+                }
+            }
+
+            // Create result object compatible with existing code
+            result = {
+                response: {
+                    text: () => fullText,
+                    usageMetadata: usage
+                }
+            };
+
+            log(`[AuditEngine] ✅ Éxito con modelo ${modelName} (${fullText.length} caracteres)`);
             break;
 
         } catch (error: any) {
             lastError = error;
             const errStr = (error?.toString() || "") + (error?.message || "");
             const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || error?.status === 429 || error?.status === 503;
+            const isTimeout = errStr.includes('Timeout');
 
-            if (isQuota) {
+            if (isTimeout) {
+                log(`[AuditEngine] ⏱️ Timeout en ${modelName}. El modelo no respondió a tiempo.`);
+                log(`[AuditEngine] 💡 Sugerencia: El prompt puede ser demasiado grande (${promptSizeKB} KB).`);
+                throw error; // Don't retry on timeout, it's likely a prompt size issue
+            } else if (isQuota) {
                 log(`[AuditEngine] ⚠️ Fallo en ${modelName} por Quota/Server (${error.message}). Probando siguiente...`);
                 continue;
             } else {
