@@ -231,8 +231,9 @@ export async function analyzeSingleContract(
         let finalResult = null;
         let finalMetrics = { tokensInput: 0, tokensOutput: 0, cost: 0 };
 
-        // Multi-Model Fallback: Try primary, then fallback
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
+        // Multi-Model Fallback: Contract-specific configuration
+        // Primary: gemini-3-flash-preview | Fallback: gemini-2.5-flash
+        const modelsToTry = ['gemini-3-flash-preview', 'gemini-2.5-flash'];
 
         // Retry with exponential backoff for 503 errors
         const attemptExtraction = async (currentKey: string, modelName: string): Promise<any> => {
