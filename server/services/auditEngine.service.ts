@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.js';
 import { AI_CONFIG, GENERATION_CONFIG } from '../config/ai.config.js';
+import { loadJurisprudencia, getJurisprudenciaInfo } from '../prompts/jurisprudencia.prompt.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -19,7 +20,7 @@ export async function performForensicAudit(
     let result;
     let lastError;
 
-    // --- RESTORING LOGIC FOR KNOWLEDGE BASE AND PROMPT ---
+    // --- LOADING KNOWLEDGE BASE WITH JURISPRUDENCIA ---
     log('[AuditEngine] 📚 Cargando base de conocimiento legal extendida...');
 
     // Read all files in knowledge directory
@@ -27,12 +28,22 @@ export async function performForensicAudit(
     let knowledgeBaseText = '';
     let hoteleriaRules = '';
 
+    // Load jurisprudencia first
+    try {
+        const jurisprudenciaContent = await loadJurisprudencia();
+        if (jurisprudenciaContent) {
+            knowledgeBaseText += `\n\n--- JURISPRUDENCIA SUPERINTENDENCIA DE SALUD ---\n${jurisprudenciaContent}`;
+            log(`[AuditEngine] ⚖️ Cargada: ${getJurisprudenciaInfo()}`);
+        }
+    } catch (error) {
+        log(`[AuditEngine] ⚠️ No se pudo cargar jurisprudencia: ${error}`);
+    }
+
     for (const file of files) {
         const filePath = path.join(KNOWLEDGE_DIR, file);
         const ext = path.extname(file).toLowerCase();
 
-        // USER REQUEST: Use only 'Prácticas Irregulares' (JURISPRUDENCIA SIS removed due to size)
-        // We use the .txt version of the document.
+        // Load additional knowledge documents
         const allowedDocs = [
             'Informe sobre Prácticas Irregulares en Cuentas Hospitalarias y Clínicas.txt'
         ];

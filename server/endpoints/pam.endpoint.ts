@@ -60,12 +60,17 @@ export async function handlePamExtraction(req: Request, res: Response) {
         let activeModel: string = "";
 
         // WORKFLOW CONFIGURATION
-        // Only gemini-2.5-flash works reliably for PAM (text/plain mode)
+        // Testing gemini-3-flash-preview with fallback to gemini-2.5-flash
         const workflow = [
+            {
+                model: 'gemini-3-flash-preview',
+                timeout: 60000, // 60s timeout
+                desc: 'Gemini 3 Flash Preview - Testing'
+            },
             {
                 model: 'gemini-2.5-flash',
                 timeout: 60000, // 60s timeout
-                desc: 'Único modelo que funciona con PAM'
+                desc: 'Gemini 2.5 Flash - Fallback confiable'
             }
         ];
 
