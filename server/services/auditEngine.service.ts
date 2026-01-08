@@ -16,7 +16,10 @@ export async function performForensicAudit(
     apiKey: string,
     log: (msg: string) => void
 ) {
-    const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
+    // AUDIT-SPECIFIC: Use economical model to reduce costs
+    // Bill/PAM/Contract extraction uses AI_CONFIG.ACTIVE_MODEL
+    // Audit uses gemini-2.5-flash for 80% cost reduction
+    const modelsToTry = ['gemini-2.5-flash'];
     let result;
     let lastError;
 
@@ -62,15 +65,78 @@ export async function performForensicAudit(
 
     log('[AuditEngine] 🧠 Sincronizando datos y analizando hallazgos con Super-Contexto...');
 
+    // ============================================================================
+    // TOKEN OPTIMIZATION: Reduce input costs by 30-40%
+    // ============================================================================
+
+    // 1. Clean Cuenta JSON - Remove non-essential fields
+    const cleanedCuenta = {
+        ...cuentaJson,
+        sections: cuentaJson.sections?.map((section: any) => ({
+            ...section,
+            items: section.items?.map((item: any) => ({
+                index: item.index,
+                description: item.description,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                total: item.total
+                // Removed: calculatedTotal, hasCalculationError, isIVAApplied
+            }))
+        }))
+    };
+
+    // 2. Clean PAM JSON - Remove zero-value items and non-essential fields
+    const cleanedPam = {
+        ...pamJson,
+        folios: pamJson.folios?.map((folio: any) => ({
+            ...folio,
+            desglosePorPrestador: folio.desglosePorPrestador?.map((prestador: any) => ({
+                ...prestador,
+                items: prestador.items
+                    ?.filter((item: any) => item.bonificacion > 0 || item.copago > 0) // Remove $0 items
+                    ?.map((item: any) => ({
+                        codigo: item.codigo,
+                        descripcion: item.descripcion,
+                        cantidad: item.cantidad,
+                        valorTotal: item.valorTotal,
+                        bonificacion: item.bonificacion,
+                        copago: item.copago
+                        // Removed: other metadata fields
+                    }))
+            }))
+        }))
+    };
+
+    // 3. Clean Contrato JSON - Keep only essential coverage data
+    const cleanedContrato = {
+        coberturas: contratoJson.coberturas?.map((cob: any) => ({
+            categoria: cob.categoria,
+            item: cob.item,
+            modalidad: cob.modalidad,
+            cobertura: cob.cobertura,
+            tope: cob.tope,
+            nota_restriccion: cob.nota_restriccion,
+            CODIGO_DISPARADOR_FONASA: cob.CODIGO_DISPARADOR_FONASA
+            // Removed: LOGICA_DE_CALCULO, NIVEL_PRIORIDAD, copago, categoria_canonica
+        })),
+        reglas: contratoJson.reglas?.map((regla: any) => ({
+            'CÓDIGO/SECCIÓN': regla['CÓDIGO/SECCIÓN'],
+            'VALOR EXTRACTO LITERAL DETALLADO': regla['VALOR EXTRACTO LITERAL DETALLADO'],
+            'SUBCATEGORÍA': regla['SUBCATEGORÍA']
+            // Removed: PÁGINA ORIGEN, LOGICA_DE_CALCULO, categoria_canonica
+        }))
+    };
+
+    // 4. Minify JSONs (remove whitespace) - saves ~20% tokens
     const prompt = AUDIT_PROMPT
         .replace('{jurisprudencia_text}', '')
         .replace('{normas_administrativas_text}', '')
         .replace('{evento_unico_jurisprudencia_text}', '')
         .replace('{knowledge_base_text}', knowledgeBaseText)
         .replace('{hoteleria_json}', hoteleriaRules)
-        .replace('{cuenta_json}', JSON.stringify(cuentaJson, null, 2))
-        .replace('{pam_json}', JSON.stringify(pamJson, null, 2))
-        .replace('{contrato_json}', JSON.stringify(contratoJson, null, 2));
+        .replace('{cuenta_json}', JSON.stringify(cleanedCuenta))      // Minified
+        .replace('{pam_json}', JSON.stringify(cleanedPam))            // Minified
+        .replace('{contrato_json}', JSON.stringify(cleanedContrato)); // Minified
 
     // Log prompt size for debugging
     const promptSize = prompt.length;

@@ -3,9 +3,10 @@ import App from '../App';
 import PAMApp from './PAMApp';
 import ContractApp from './ContractApp';
 import ForensicApp from './ForensicApp';
-import { ShieldCheck, Receipt, Scale, Gavel } from 'lucide-react';
+import PdfProjector from './PdfProjector';
+import { ShieldCheck, Receipt, Scale, Gavel, Eye } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam' | 'contract' | 'audit';
+type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -63,6 +64,17 @@ export function AppWithTabs() {
                             <Gavel size={16} />
                             Auditoría Forense
                         </button>
+
+                        <button
+                            onClick={() => handleTabChange('view')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'view'
+                                ? 'bg-slate-900 text-indigo-400 shadow-lg shadow-indigo-900/20'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                        >
+                            <Eye size={16} />
+                            Proyector HTML
+                        </button>
                     </div>
                 </div>
             </div>
@@ -80,6 +92,9 @@ export function AppWithTabs() {
                 </div>
                 <div style={{ display: activeTab === 'audit' ? 'block' : 'none' }}>
                     <ForensicApp />
+                </div>
+                <div style={{ display: activeTab === 'view' ? 'block' : 'none' }}>
+                    <PdfProjector />
                 </div>
             </div>
         </div>

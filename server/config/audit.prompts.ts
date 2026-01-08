@@ -44,6 +44,12 @@ Base = suma Totales de ese universo.
 Fórmula: copago_i = round_down(COPAGO_TOTAL * total_i/base) + ajuste por residuos (largest remainder) para cerrar exacto.
 Tabla final: cada línea + copago imputado, y total que cierre exacto al copago del PAM.
 Importante: el prorrateo es imputación matemática, NO prueba de qué fármaco “fue” el copago.
+
+(9) REGLA DE COBERTURA INTERNACIONAL (SIEMPRE COMO RESTRICCIÓN)
+- **PRINCIPIO:** Todo tope, condición o limitación de "Cobertura Internacional" debe ser señalado exclusivamente como una RESTRICCIÓN o NOTA ESPECIAL.
+- **PROHIBICIÓN:** Está terminantemente prohibido incluir topes internacionales en las tablas de cobertura estándar o tratarlos como un "segundo tope" de la prestación. 
+- **LÓGICA:** El tope internacional es una limitación excepcional para atenciones fuera del país y no debe contaminar el análisis de cobertura nacional.
+- **HALLAZGO:** Si la cobertura internacional es extremadamente baja (ej: < 50 UF para hospitalización), DEBE ser señalada como un hallazgo de "Protección Financiera Insuficiente en el Extranjero".
 `;
 
 export const FORENSIC_AUDIT_SCHEMA = {
@@ -322,7 +328,7 @@ No generes un solo hallazgo gigante llamado "Insumos Varios".
 ### 7. DETERMINACIÓN DE MODALIDAD (CRÍTICO - ANTES DE AUDITAR)
 **PASO 1:** Identifica el PRESTADOR PRINCIPAL en el PAM. Si tiene RUT chileno o es una clínica en Chile, la Modalidad es **OBLIGATORIAMENTE "NACIONAL"**.
 - **PROHIBIDO** usar topes/coberturas de la fila "INTERNACIONAL" para prestadores chilenos.
-- Ignora cualquier fila que diga "INTERNACIONAL" a menos que la cuenta sea en dólares/euros.
+- **REGLA INTERNACIONAL:** Todo dato de la columna "Internacional" o "Cobertura Exterior" debe ir SIEMPRE a la sección de RESTRICCIONES y NOTAS. Jamás debe aparecer en la tabla de coberturas del punto I.
 
 **PASO 2:** Busca el nombre del prestador en el array \`CONTRATO.coberturas\`.
 
@@ -399,13 +405,22 @@ El markdown debe seguir EXACTAMENTE esta estructura (sin desviaciones):
 #### I. RESUMEN EJECUTIVO
 [Resumen narrativo de los hallazgos principales, mencionando explícitamente si se detectó Sub-bonificación, Insumos Indebidos o Glosas Opacas...]
 
-#### II. TABLA DE HALLAZGOS Y OBJECIONES FINALES
+#### II. COBERTURAS NACIONALES (TABLA PRINCIPAL)
+**IMPORTANTE:** Esta tabla NO puede contener columnas ni datos de Cobertura Internacional. Los topes internacionales se mueven obligatoriamente a la sección III.
+| Categoría | Prestación | % Bonif. | Tope de Bonificación (Nacional) | Tope Máximo Anual | Ampliación |
+|---|---|---|---|---|---|
+[Filas de la tabla...]
+
+#### III. RESTRICCIONES ESPECIALES Y COBERTURA INTERNACIONAL
+[Esta sección es OBLIGATORIA. Aquí se deben listar todos los topes de la columna 'Internacional', notas al pie (*, **, ***) y cualquier limitación etaria o diagnóstica detectada.]
+
+#### IV. TABLA DE HALLAZGOS Y OBJECIONES FINALES (FORENSE)
 **NOTA:** En hallazgos agrupados (ej. Insumos Pabellón), LISTAR los productos principales en la columna 'Glosa'.
 | Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |
 |---|---|---|---|---|---|
 [Filas de la tabla...]
 
-#### III. PRORRATEO COPAGO [CÓDIGO o 'MULTIPLE'] (MATERIALES)
+#### V. PRORRATEO COPAGO [CÓDIGO o 'MULTIPLE'] (MATERIALES)
 *(Solo si aplica prorrateo por IF-319 o PAM agregado. Si no aplica, OMITE esta sección)*
 Dado que el PAM agrupa el copago de materiales... [Explicación del factor de copago calculado]
 
@@ -413,8 +428,7 @@ Dado que el PAM agrupa el copago de materiales... [Explicación del factor de co
 *   ...
 *   **[Items No Objetados]:** (Whitelist - No objetado)
 
-#### IV. EXPLICACIÓN EN LENGUAJE SIMPLE (PARA EL PACIENTE)
-#### IV. EXPLICACIÓN EN LENGUAJE SIMPLE (PARA EL PACIENTE)
+#### VI. EXPLICACIÓN EN LENGUAJE SIMPLE (PARA EL PACIENTE)
 [Escribe un párrafo amigable explicando los hallazgos. **OBLIGATORIO: USA ESTA ANALOGÍA PARA EXPLICAR LA SITUACIÓN:**
 "Imagine que va a un taller mecánico tras un choque y el seguro le entrega un certificado prometiendo pagar el 100% de la reparación. Sin embargo, al retirar el auto, el taller le cobra aparte por los tornillos, la limpieza de las herramientas y el uso de la luz del local bajo el ítem 'Gastos Varios'. Usted termina pagando una suma considerable por elementos que son esenciales para la reparación que el seguro ya dijo que cubriría. El taller y el seguro están usando la complejidad de las piezas para confundirlo y que usted asuma costos que no le corresponden."
 Adapta esta analogía a los hallazgos médicos encontrados (ej. cambiando tornillos por jeringas/insumos).]

@@ -41,8 +41,9 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
         sendUpdate({ type: 'progress', progress: 90 });
 
         if (result.usage) {
+            // Use audit-specific model pricing (gemini-2.5-flash)
             const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(
-                AI_CONFIG.ACTIVE_MODEL,
+                'gemini-2.5-flash', // Audit uses economical model
                 result.usage.promptTokens,
                 result.usage.candidatesTokens
             );

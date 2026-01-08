@@ -227,6 +227,11 @@ const SHARED_MANDATE = `
   ⚠️ GEOMETRÍA DE PRECIOS:
   - "Libre Elección" SIEMPRE tiene precios (UF / V.A / %).
   - SI LA CELDA DE TOPE TIENE UN VALOR (ej: "2,2 UF"), **ES OBLIGATORIO EXTRAERLO**.
+
+  ⚠️ REGLA INTERNACIONAL (MANDATO):
+  - TODO tope o cobertura "Internacional" o "En el Extranjero" debe ser extraído ÚNICAMENTE como una NOTA O RESTRICCIÓN.
+  - PROHIBIDO incluir columnas de tope internacional en la tabla de coberturas principales.
+  - Si una prestación tiene un tope internacional, colócalo en el campo 'nota_restriccion' del ítem nacional correspondiente.
 `;
 
 export const PROMPT_HOSP_P1 = `
