@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AI_CONFIG } from '../config/ai.config.js';
 
 export interface ProjectionChunk {
-    type: 'chunk' | 'usage' | 'error';
+    type: 'chunk' | 'usage' | 'error' | 'log';
     text?: string;
     usage?: {
         promptTokens: number;
@@ -35,6 +35,8 @@ export class ProjectionService {
 
         while (!isFinalized && pass < maxPasses) {
             pass++;
+            yield { type: 'log', text: `[IA] 🚀 Iniciando Pase ${pass}/${maxPasses}...` };
+
             const prompt = pass === 1 ? `
                 ACT AS A HIGH-FIDELITY DOCUMENT PROJECTOR.
                 
@@ -117,9 +119,11 @@ export class ProjectionService {
 
                 if (fullHtml.includes("<!-- END_OF_DOCUMENT -->")) {
                     isFinalized = true;
+                    yield { type: 'log', text: `[IA] ✅ Marcador de finalización detectado en el pase ${pass}.` };
                 } else {
-                    console.log(`[ProjectionService] 🔄 Truncated detected in pass ${pass}. Requesting continuation...`);
-                    const { calculatePrice } = await import('../config/ai.config.js'); // just to satisfy types if needed
+                    const logMsg = `[IA] 🔄 Truncamiento detectado en el pase ${pass}. Solicitando continuación...`;
+                    console.log(`[ProjectionService] ${logMsg}`);
+                    yield { type: 'log', text: logMsg };
                 }
 
             } catch (err: any) {

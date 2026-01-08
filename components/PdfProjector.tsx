@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { UploadCloud, Loader2, FileText, Zap, ShieldCheck, X, Search, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { UploadCloud, Loader2, FileText, Zap, ShieldCheck, X, Search, ZoomIn, ZoomOut, Maximize2, Download, FileJson, FileCode, Timer, Coins, ArrowDownLeft, ArrowUpRight, Cpu } from 'lucide-react';
+import { AI_MODEL } from '../version';
 
 interface Usage {
     promptTokens: number;
@@ -16,16 +17,47 @@ export default function PdfProjector() {
     const [usage, setUsage] = useState<Usage | null>(null);
     const [logs, setLogs] = useState<string[]>([]);
     const [scale, setScale] = useState(1);
+    const [ms, setMs] = useState(0);
+    const [progress, setProgress] = useState(0);
     const logEndRef = useRef<HTMLDivElement>(null);
+    const timerRef = useRef<number | null>(null);
 
     const addLog = (msg: string) => {
         const timestamp = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        setLogs(prev => [...prev, `[${timestamp}] ${msg}`]);
+        const logMsg = `[${timestamp}] ${msg}`;
+        setLogs(prev => [...prev, logMsg]);
+        console.log(`[PdfProjector] ${logMsg}`);
     };
 
     useEffect(() => {
         if (logEndRef.current) logEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }, [logs]);
+
+    useEffect(() => {
+        if (isProcessing) {
+            if (!timerRef.current) {
+                setMs(0);
+                timerRef.current = window.setInterval(() => setMs(prev => prev + 100), 100);
+            }
+        } else {
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
+            if (htmlProjection) setProgress(100);
+        }
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
+    }, [isProcessing, htmlProjection]);
+
+    const formatTime = (totalMs: number) => {
+        const totalSeconds = Math.floor(totalMs / 1000);
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        const tenths = Math.floor((totalMs % 1000) / 100);
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${tenths}`;
+    };
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = e.target.files?.[0];
@@ -60,6 +92,7 @@ export default function PdfProjector() {
 
                 if (!reader) throw new Error('No se pudo iniciar el stream de datos');
 
+                let chunkCount = 0;
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
@@ -71,9 +104,15 @@ export default function PdfProjector() {
                         try {
                             const data = JSON.parse(line);
                             if (data.type === 'chunk') {
+                                chunkCount++;
                                 setHtmlProjection(prev => prev + data.text);
+                                if (chunkCount % 20 === 0) {
+                                    console.log(`[PdfProjector] 📦 Bloques recibidos: ${chunkCount}`);
+                                }
                             } else if (data.type === 'usage') {
                                 setUsage(data.usage);
+                                setProgress(prev => Math.min(prev + 5, 90));
+                                addLog(`[IA] Métricas: ${data.usage.totalTokens} tokens | $${data.usage.estimatedCostCLP} CLP`);
                             } else if (data.type === 'log') {
                                 addLog(data.text);
                             } else if (data.type === 'error') {
@@ -84,7 +123,8 @@ export default function PdfProjector() {
                         }
                     }
                 }
-                addLog('[SISTEMA] ✅ Proyección completada con éxito.');
+                addLog(`[SISTEMA] ✅ Proyección binaria completada (${chunkCount} mini-bloques).`);
+                addLog('[SISTEMA] Finalización exitosa.');
             } catch (err: any) {
                 addLog(`[ERROR] ${err.message}`);
             } finally {
@@ -102,6 +142,46 @@ export default function PdfProjector() {
         setIsProcessing(false);
     };
 
+    const downloadJson = () => {
+        if (!htmlProjection) return;
+        const exportData = {
+            filename: file?.name,
+            timestamp: new Date().toISOString(),
+            usage: usage,
+            content: htmlProjection
+        };
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `proyeccion_${file?.name.replace('.pdf', '')}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const downloadMarkdown = () => {
+        if (!htmlProjection) return;
+        // Basic HTML to MD conversion logic for the projection
+        let md = `# Proyección: ${file?.name}\n\n`;
+        md += `> **Fecha**: ${new Date().toLocaleString()}\n`;
+        md += `> **Tokens**: ${usage?.totalTokens || 0}\n\n`;
+        md += `---\n\n`;
+
+        // Simple heuristic: strip HTML tags but keep some structure
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlProjection;
+        const text = tempDiv.innerText || tempDiv.textContent || "";
+        md += text;
+
+        const blob = new Blob([md], { type: 'text/markdown' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `proyeccion_${file?.name.replace('.pdf', '')}.md`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="max-w-[1800px] mx-auto p-6 space-y-6 animate-in fade-in duration-500">
             {/* Header Area */}
@@ -111,16 +191,16 @@ export default function PdfProjector() {
                         <Zap className="text-indigo-600 fill-indigo-600" />
                         Proyector Maestro HTML
                     </h2>
-                    <p className="text-slate-500 font-medium">Proyección de alta fidelidad sin persistencia de datos.</p>
+                    <p className="text-slate-500 font-medium text-sm">Convertidor de alta fidelidad con inteligencia neural.</p>
                 </div>
-                {file && (
-                    <button
-                        onClick={clearSession}
-                        className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 border border-rose-100 rounded-xl text-xs font-bold hover:bg-rose-100 transition-all shadow-sm"
-                    >
-                        <X size={16} /> NUEVA PROYECCIÓN
-                    </button>
-                )}
+                <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                        <ShieldCheck size={12} className="text-emerald-500" /> CERO PERSISTENCIA
+                    </span>
+                    <span className="px-3 py-1 bg-slate-900 text-slate-100 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                        <Zap size={12} className="text-indigo-400 fill-indigo-400" /> MULTI-PASS ENABLED
+                    </span>
+                </div>
             </div>
 
             {!file ? (
@@ -173,31 +253,9 @@ export default function PdfProjector() {
                         </div>
                     </div>
 
-                    {/* Stats & Logs */}
+                    {/* Sidebar: Logs & Info */}
                     <div className="space-y-6">
-                        {usage && (
-                            <div className="bg-slate-950 text-white p-6 rounded-3xl border border-slate-800 shadow-xl">
-                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-                                    <Zap size={14} className="text-indigo-400" /> Métricas de Proyección
-                                </h4>
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center text-xs font-mono">
-                                        <span className="text-slate-400">Payload</span>
-                                        <span className="font-bold">{(usage.totalTokens / 1000).toFixed(1)}k <span className="text-slate-600">TK</span></span>
-                                    </div>
-                                    <div className="h-px bg-slate-900" />
-                                    <div className="flex justify-between items-end">
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase">Costo Est.</span>
-                                        <div className="text-right">
-                                            <span className="text-xl font-black block">${usage.estimatedCostCLP} CLP</span>
-                                            <span className="text-[9px] text-slate-600 font-mono italic">${usage.estimatedCost.toFixed(4)} USD</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm flex flex-col h-[400px]">
+                        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm flex flex-col h-[600px]">
                             <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Logs de Proceso</span>
                                 {isProcessing && <Loader2 size={14} className="animate-spin text-indigo-500" />}
@@ -221,6 +279,102 @@ export default function PdfProjector() {
                                 Ideal para verificar fidelidad antes de una auditoría masiva.
                             </p>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* SPACEX FOOTER (ACTION BAR & TELEMETRY) */}
+            {file && (
+                <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb animate-in slide-in-from-bottom duration-500">
+                    <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
+
+                        {/* 1. MISSION TIME */}
+                        <div className="flex items-center gap-4 border-r border-slate-800 pr-8 h-full">
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Time</span>
+                                <div className="font-mono text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                                    <Timer size={18} className="text-indigo-500" />
+                                    T+{formatTime(ms)}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 2. TRAJECTORY (GAUGE) */}
+                        <div className="flex items-center gap-4 px-8 border-r border-slate-800 h-full min-w-[200px]">
+                            <div className="relative w-12 h-12">
+                                <svg className="w-full h-full transform -rotate-90">
+                                    <circle cx="24" cy="24" r="20" className="text-slate-800 stroke-current" strokeWidth="4" fill="transparent" />
+                                    <circle cx="24" cy="24" r="20" className="text-white stroke-current" strokeWidth="4" fill="transparent"
+                                        strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * (isProcessing ? Math.min(progress + 15, 95) : 100)) / 100} strokeLinecap="round" />
+                                </svg>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="text-[10px] font-bold font-mono text-white">{isProcessing ? Math.min(progress + 15, 99) : '100'}%</span>
+                                </div>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
+                                <span className="text-xs font-bold text-slate-300 truncate max-w-[150px]">
+                                    {isProcessing ? 'PROYECTANDO...' : 'READY'}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* 3. AI MODEL */}
+                        <div className="flex items-center gap-4 px-8 border-r border-slate-800 h-full min-w-[250px]">
+                            <div className="flex flex-col">
+                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1 flex items-center gap-1">
+                                    <Cpu size={10} className="text-indigo-400" /> Neural Engine
+                                </span>
+                                <div className="text-[10px] font-bold text-slate-200 bg-slate-900 px-2 py-1 rounded border border-slate-800 truncate max-w-[200px]">
+                                    {AI_MODEL.split('|').find(m => m.includes('Others'))?.replace('Others:', '').trim() || 'Gemini 2.5 Flash'}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 4. METRICS */}
+                        <div className="flex items-center gap-8 px-8 flex-1 justify-center h-full">
+                            <div className="flex flex-col items-center">
+                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Payload</span>
+                                <span className="font-mono text-sm font-bold text-slate-300">
+                                    {usage ? (usage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                </span>
+                            </div>
+                            <div className="w-px h-8 bg-slate-800"></div>
+                            <div className="flex flex-col items-center">
+                                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Cost Est.</span>
+                                <span className="font-mono text-sm font-bold text-emerald-400 tracking-tight">
+                                    ${usage ? usage.estimatedCostCLP : '0'} CLP
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* 5. ACTIONS */}
+                        <div className="flex items-center gap-4 pl-8 border-l border-slate-800 h-full">
+                            {htmlProjection && !isProcessing && (
+                                <>
+                                    <button
+                                        onClick={downloadJson}
+                                        className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all"
+                                    >
+                                        <FileJson size={16} /> JSON
+                                    </button>
+                                    <button
+                                        onClick={downloadMarkdown}
+                                        className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all"
+                                    >
+                                        <FileText size={16} /> MD
+                                    </button>
+                                </>
+                            )}
+                            <button
+                                onClick={clearSession}
+                                className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
+                                title="NUEVA PROYECCIÓN"
+                            >
+                                <X size={18} />
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             )}
