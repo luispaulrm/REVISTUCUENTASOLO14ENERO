@@ -4,9 +4,10 @@ import PAMApp from './PAMApp';
 import ContractApp from './ContractApp';
 import ForensicApp from './ForensicApp';
 import PdfProjector from './PdfProjector';
-import { ShieldCheck, Receipt, Scale, Gavel, Eye } from 'lucide-react';
+import AccountProjectorV7 from './AccountProjectorV7';
+import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view';
+type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -75,6 +76,17 @@ export function AppWithTabs() {
                             <Eye size={16} />
                             Proyector HTML
                         </button>
+
+                        <button
+                            onClick={() => handleTabChange('m7')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'm7'
+                                ? 'bg-slate-900 text-amber-500 shadow-lg shadow-amber-900/20'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                        >
+                            <FileSpreadsheet size={16} />
+                            Cuentas Modulo 7
+                        </button>
                     </div>
                 </div>
             </div>
@@ -95,6 +107,9 @@ export function AppWithTabs() {
                 </div>
                 <div style={{ display: activeTab === 'view' ? 'block' : 'none' }}>
                     <PdfProjector />
+                </div>
+                <div style={{ display: activeTab === 'm7' ? 'block' : 'none' }}>
+                    <AccountProjectorV7 />
                 </div>
             </div>
         </div>

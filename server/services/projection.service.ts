@@ -31,7 +31,7 @@ export class ProjectionService {
         let fullHtml = "";
         let isFinalized = false;
         let pass = 0;
-        const maxPasses = 5;
+        const maxPasses = 10;
 
         while (!isFinalized && pass < maxPasses) {
             pass++;
@@ -43,38 +43,37 @@ export class ProjectionService {
                 GOAL:
                 Convert the provided PDF document into a CLEAN, SEMANTIC, and VISUALLY ACCURATE HTML representation.
                 
-                INSTRUCTIONS:
-                1. PROJECTION TYPE: High-fidelity reconstruction.
+                INSTRUCTIONS (STRICT):
+                1. PROJECTION TYPE: Full, high-fidelity reconstruction.
                 2. FORMATTING: Use semantic HTML5 (table, h1, h2, p, span, div).
-                3. STYLING (CRITICAL): 
-                   - Use INLINE CSS style attributes to replicate the layout.
-                   - Preserve font weights, relative sizes, and positions.
-                   - Maintain the structure of tables exactly as seen in the PDF.
-                4. ACCURACY: Do not interpret, summarize, or extract. PROJECT exactly what is visible.
-                5. VERBATIM: Copy all text exactly as it appears.
-                6. NO MARKDOWN: Output strictly RAW HTML inside a <div> container. Do not use code blocks.
-                7. FULL DOCUMENT: Process every page and item.
-                8. TRUNCATION: If the document is too long for one response, STOP before a logical break and I will ask you to continue.
-                9. FINAL MARKER: If you have finished projecting the ENTIRE document (all pages, annexes, and clauses), end with "<!-- END_OF_DOCUMENT -->".
+                3. STYLING: Use INLINE CSS style attributes to replicate layout, fonts, and table structures exactly.
+                4. ACCURACY: PROJECT exactly what is visible. Copy text VERBATIM.
+                5. NO PLACEHOLDERS: NEVER use placeholders like "[Document continues...]", "... [snip] ...", or similar. You MUST project EVERY line, clause, and item.
+                6. TOKEN MANAGEMENT: If the document is too long, STOP at a logical point (e.g., after a complete </table> row, or a paragraph </p>) and WAIT for the continuation signal. Do NOT summarize or skip content.
+                7. FINAL MARKER: ONLY use "<!-- END_OF_DOCUMENT -->" if you have reached the ABSOLUTE END of the file (including annexes, signatures, and fine print).
                 
                 OUTPUT:
                 A single <div> container containing the HTML projection.
             ` : `
                 CONTINUE PROJECTING THE DOCUMENT.
                 
-                You were projecting the PDF but reached the token limit.
-                Last part projected: "${fullHtml.slice(-100)}"
+                You were projecting the PDF but reached your output limit. 
+                Last 1000 characters projected: "${fullHtml.slice(-1000)}"
                 
-                Please CONTINUE the projection exactly where you left off. 
-                Maintain the same style and HTML structure. 
-                If you finish the entire document, end with "<!-- END_OF_DOCUMENT -->".
+                MANDATORY RULES:
+                1. CONTINUE exactly where you left off. 
+                2. SEAMLESS TRANSITION: If you were in the middle of a table, start with the NEXT row <tr>. If you were in a paragraph, continue the text.
+                3. NO GAPS: Do not skip content or use placeholders like "[...]".
+                4. NO REPETITION: Do not repeat what you already projected.
+                5. COMPLETENESS: You MUST project everything until the final page.
+                6. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE text in the PDF.
             `;
 
             try {
                 const model = this.client.getGenerativeModel({
                     model: modelName,
                     generationConfig: {
-                        maxOutputTokens: 35000,
+                        maxOutputTokens: 80000,
                         temperature: 0.1,
                     }
                 });
@@ -89,11 +88,12 @@ export class ProjectionService {
                     }
                 ]);
 
+                let currentPassOutput = "";
                 for await (const chunk of resultStream.stream) {
                     const chunkText = chunk.text();
+                    currentPassOutput += chunkText;
                     fullHtml += chunkText;
 
-                    // Filter out the end marker from the stream
                     const cleanChunk = chunkText.replace("<!-- END_OF_DOCUMENT -->", "");
                     if (cleanChunk) {
                         yield { type: 'chunk', text: cleanChunk };
@@ -117,11 +117,24 @@ export class ProjectionService {
                     }
                 }
 
-                if (fullHtml.includes("<!-- END_OF_DOCUMENT -->")) {
+                // LAZY DETECTION: If the AI claims it's done but uses a placeholder phrase, it's NOT done.
+                const lazyPhrases = [
+                    "[Documento continúa",
+                    "[Continúa",
+                    "[Document continues",
+                    "Continúa con Notas",
+                    "Continúa con Tablas",
+                    "... [",
+                ];
+                const isLazy = lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
+
+                if (currentPassOutput.includes("<!-- END_OF_DOCUMENT -->") && !isLazy) {
                     isFinalized = true;
                     yield { type: 'log', text: `[IA] ✅ Marcador de finalización detectado en el pase ${pass}.` };
                 } else {
-                    const logMsg = `[IA] 🔄 Truncamiento detectado en el pase ${pass}. Solicitando continuación...`;
+                    const logMsg = isLazy ?
+                        `[IA] ⚠️ Pereza detectada en el pase ${pass}. Forzando continuación...` :
+                        `[IA] 🔄 Truncamiento detectado en el pase ${pass}. Solicitando continuación...`;
                     console.log(`[ProjectionService] ${logMsg}`);
                     yield { type: 'log', text: logMsg };
                 }
