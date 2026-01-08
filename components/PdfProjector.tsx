@@ -19,6 +19,7 @@ export default function PdfProjector() {
     const [scale, setScale] = useState(1);
     const [ms, setMs] = useState(0);
     const [progress, setProgress] = useState(0);
+    const [currentPass, setCurrentPass] = useState(1);
     const logEndRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<number | null>(null);
 
@@ -37,19 +38,26 @@ export default function PdfProjector() {
         if (isProcessing) {
             if (!timerRef.current) {
                 setMs(0);
-                timerRef.current = window.setInterval(() => setMs(prev => prev + 100), 100);
+                timerRef.current = window.setInterval(() => {
+                    setMs(prev => prev + 100);
+                }, 100);
             }
         } else {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
             }
-            if (htmlProjection) setProgress(100);
+            if (htmlProjection) {
+                setProgress(100);
+            }
         }
         return () => {
-            if (timerRef.current) clearInterval(timerRef.current);
+            if (timerRef.current) {
+                clearInterval(timerRef.current);
+                timerRef.current = null;
+            }
         };
-    }, [isProcessing, htmlProjection]);
+    }, [isProcessing]);
 
     const formatTime = (totalMs: number) => {
         const totalSeconds = Math.floor(totalMs / 1000);
@@ -111,10 +119,25 @@ export default function PdfProjector() {
                                 }
                             } else if (data.type === 'usage') {
                                 setUsage(data.usage);
-                                setProgress(prev => Math.min(prev + 5, 90));
+                                // Progress: each pass is 20%. Within a pass, we move from baseline to baseline + 18%
+                                const baseline = (currentPass - 1) * 20;
+                                setProgress(prev => {
+                                    const currentInPass = prev - baseline;
+                                    const increment = 1; // slow increment for tokens
+                                    return Math.min(baseline + currentInPass + increment, baseline + 19);
+                                });
                                 addLog(`[IA] Métricas: ${data.usage.totalTokens} tokens | $${data.usage.estimatedCostCLP} CLP`);
                             } else if (data.type === 'log') {
                                 addLog(data.text);
+                                // Logic for progress proportionality:
+                                if (data.text.includes('Iniciando Pase')) {
+                                    const match = data.text.match(/Pase (\d+)/);
+                                    if (match) {
+                                        const p = parseInt(match[1]);
+                                        setCurrentPass(p);
+                                        setProgress((p - 1) * 20);
+                                    }
+                                }
                             } else if (data.type === 'error') {
                                 addLog(`[ERROR] ${data.error}`);
                             }
