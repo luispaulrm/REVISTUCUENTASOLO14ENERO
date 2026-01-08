@@ -387,6 +387,30 @@ export default function ForensicApp() {
                                 </div>
                             </div>
 
+                            {/* TOKEN USAGE METRICS */}
+                            {realTimeUsage && (
+                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Tokens Entrada</span>
+                                        <span className="text-2xl font-black text-slate-900 font-mono">{realTimeUsage.promptTokens?.toLocaleString('es-CL') || '0'}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Tokens Salida</span>
+                                        <span className="text-2xl font-black text-slate-900 font-mono">{realTimeUsage.candidatesTokens?.toLocaleString('es-CL') || '0'}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Tokens</span>
+                                        <span className="text-2xl font-black text-indigo-600 font-mono">{realTimeUsage.totalTokens?.toLocaleString('es-CL') || '0'}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1">
+                                            <DollarSign size={10} /> Costo Estimado
+                                        </span>
+                                        <span className="text-2xl font-black text-emerald-600 font-mono">${realTimeUsage.estimatedCostCLP || '0'} CLP</span>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="space-y-6">
                                 <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                     <ChevronRight size={16} className="text-slate-900" /> Hallazgos y Objeciones ({auditResult.hallazgos.length})
