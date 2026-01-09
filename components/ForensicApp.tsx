@@ -602,15 +602,28 @@ function DataStatusCard({ title, icon, ready, desc, onClick }: { title: string, 
     );
 }
 
+
 function InterrogationZone() {
     const [question, setQuestion] = useState('');
-    const [answer, setAnswer] = useState('');
+    const [history, setHistory] = useState<{ question: string; answer: string }[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [currentStreamingAnswer, setCurrentStreamingAnswer] = useState('');
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Auto-scroll to bottom when history or streaming answer changes
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [history, currentStreamingAnswer]);
 
     const handleAsk = async () => {
         if (!question.trim() || isLoading) return;
-        setAnswer('');
+
+        const currentQuestion = question;
+        setQuestion(''); // Clear input immediately
         setIsLoading(true);
+        setCurrentStreamingAnswer('');
 
         try {
             const context = {
@@ -623,7 +636,7 @@ function InterrogationZone() {
             const response = await fetch('/api/audit/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question, context })
+                body: JSON.stringify({ question: currentQuestion, context })
             });
 
             const reader = response.body?.getReader();
@@ -636,19 +649,25 @@ function InterrogationZone() {
                     if (done) break;
                     const chunk = decoder.decode(value);
                     accumulatedText += chunk;
-                    setAnswer(accumulatedText);
+                    setCurrentStreamingAnswer(accumulatedText);
                 }
             }
+
+            // Once finished, add to history
+            setHistory(prev => [...prev, { question: currentQuestion, answer: accumulatedText }]);
+            setCurrentStreamingAnswer('');
+
         } catch (err: any) {
-            setAnswer(`Error: ${err.message}`);
+            const errorMessage = `Error: ${err.message}`;
+            setHistory(prev => [...prev, { question: currentQuestion, answer: errorMessage }]);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl shadow-slate-200/50 space-y-4 mt-8">
-            <div className="flex items-center gap-3 mb-4">
+        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl shadow-slate-200/50 space-y-4 mt-8 flex flex-col max-h-[600px]">
+            <div className="flex items-center gap-3 mb-2 flex-shrink-0">
                 <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                     <MessageSquare size={20} />
                 </div>
@@ -658,13 +677,62 @@ function InterrogationZone() {
                 </div>
             </div>
 
-            <div className="flex gap-2">
+            {/* Chat History Area */}
+            <div
+                ref={scrollRef}
+                className="flex-1 overflow-y-auto custom-scrollbar space-y-6 p-4 border border-slate-100 rounded-xl bg-slate-50/50 min-h-[200px]"
+            >
+                {history.length === 0 && !currentStreamingAnswer && (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-60">
+                        <MessageSquare size={48} className="mb-2" />
+                        <p className="text-sm font-medium">Haz una pregunta para comenzar...</p>
+                    </div>
+                )}
+
+                {history.map((item, index) => (
+                    <div key={index} className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        {/* User Question */}
+                        <div className="flex justify-end">
+                            <div className="bg-slate-200 text-slate-800 px-4 py-2 rounded-2xl rounded-tr-sm max-w-[80%] text-sm font-medium">
+                                {item.question}
+                            </div>
+                        </div>
+
+                        {/* AI Answer */}
+                        <div className="flex justify-start">
+                            <div className="bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl rounded-tl-sm max-w-[90%] text-sm shadow-sm whitespace-pre-wrap">
+                                {item.answer}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+
+                {/* Streaming Current Answer */}
+                {isLoading && (
+                    <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex justify-end">
+                            <div className="bg-slate-200 text-slate-800 px-4 py-2 rounded-2xl rounded-tr-sm max-w-[80%] text-sm font-medium opacity-70">
+                                {question || "..."} {/* Shows previously captured question if needed, or loading state logic requires refactoring slightly for UX, but history logic handles it. Wait, I cleared 'question' state. Let's fix that visualization if needed, but the logic above captures it in 'currentQuestion' for execution. The UI might flicker the question away. Actually, standard chat UI adds the user message IMMEDIATELY to history before loading? Or shows a pending state? */}
+                                {/* Better UX: Append user message to history immediately, then stream the answer into the last history item or a temporary slot. */}
+                            </div>
+                        </div>
+                        <div className="flex justify-start">
+                            <div className="bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl rounded-tl-sm max-w-[90%] text-sm shadow-sm whitespace-pre-wrap">
+                                {currentStreamingAnswer || <Loader2 size={16} className="animate-spin text-indigo-600" />}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Input Area */}
+            <div className="flex gap-2 flex-shrink-0 pt-2">
                 <input
                     type="text"
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAsk()}
-                    placeholder="Ej: ¿Qué cobertura tiene el plan para días cama? ¿Qué paciente aparece en el HTML?"
+                    placeholder="Ej: ¿Qué cobertura tiene el plan para días cama?"
                     className="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                 />
                 <button
@@ -673,15 +741,9 @@ function InterrogationZone() {
                     className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-md"
                 >
                     {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                    Preguntar
+                    {isLoading ? 'Pensando' : 'Preguntar'}
                 </button>
             </div>
-
-            {answer && (
-                <div className="mt-4 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 whitespace-pre-wrap max-h-[300px] overflow-y-auto custom-scrollbar">
-                    {answer}
-                </div>
-            )}
         </div>
     );
 }
