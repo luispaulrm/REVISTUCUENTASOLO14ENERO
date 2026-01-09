@@ -14,7 +14,8 @@ export async function performForensicAudit(
     pamJson: any,
     contratoJson: any,
     apiKey: string,
-    log: (msg: string) => void
+    log: (msg: string) => void,
+    htmlContext: string = ''
 ) {
     // AUDIT-SPECIFIC: Use economical model to reduce costs
     // Bill/PAM/Contract extraction uses AI_CONFIG.ACTIVE_MODEL
@@ -69,8 +70,10 @@ export async function performForensicAudit(
     // TOKEN OPTIMIZATION: Reduce input costs by 30-40%
     // ============================================================================
 
-    // 1. Clean Cuenta JSON - Remove non-essential fields
-    const cleanedCuenta = {
+    // 1. Clean Cuenta JSON - Remove non-essential fields (Handle empty cuenta)
+    const hasStructuredCuenta = cuentaJson && Object.keys(cuentaJson).length > 0 && (cuentaJson.sections || cuentaJson.items);
+
+    const cleanedCuenta = hasStructuredCuenta ? {
         ...cuentaJson,
         sections: cuentaJson.sections?.map((section: any) => ({
             ...section,
@@ -83,7 +86,7 @@ export async function performForensicAudit(
                 // Removed: calculatedTotal, hasCalculationError, isIVAApplied
             }))
         }))
-    };
+    } : { info: "No structured bill provided. Use HTML context if available." };
 
     // 2. Clean PAM JSON - Remove zero-value items and non-essential fields
     const cleanedPam = {
@@ -136,7 +139,8 @@ export async function performForensicAudit(
         .replace('{hoteleria_json}', hoteleriaRules)
         .replace('{cuenta_json}', JSON.stringify(cleanedCuenta))      // Minified
         .replace('{pam_json}', JSON.stringify(cleanedPam))            // Minified
-        .replace('{contrato_json}', JSON.stringify(cleanedContrato)); // Minified
+        .replace('{contrato_json}', JSON.stringify(cleanedContrato))  // Minified
+        .replace('{html_context}', htmlContext || 'No HTML context provided.'); // New context
 
     // Log prompt size for debugging
     const promptSize = prompt.length;

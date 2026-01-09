@@ -391,6 +391,10 @@ Para cada hallazgo:
 1. CUENTA (Bill Detail): \`\`\`json {cuenta_json} \`\`\`
 2. PAM (Isapre Processing): \`\`\`json {pam_json} \`\`\`
 3. CONTRATO (Health Plan): \`\`\`json {contrato_json} \`\`\`
+4. CONTEXTO HTML (Módulo 5): \`\`\`html {html_context} \`\`\`
+
+**INSTRUCCIÓN SOBRE CONTEXTO HTML:**
+Si la 'CUENTA (Bill Detail)' estructurada está vacía o incompleta, utiliza el 'CONTEXTO HTML' como fuente primaria de verdad para identificar los ítems facturados, sus descripciones, cantidades y montos. Si ambos están presentes, usa el HTML para validar o enriquecer la estructura del JSON.
 
 ---
 

@@ -12,6 +12,7 @@ import { handlePamExtraction } from './endpoints/pam.endpoint.js';
 import { handleContractExtraction } from './endpoints/contract.endpoint.js';
 import { handleAuditAnalysis } from './endpoints/audit.endpoint.js';
 import { handleProjection } from './endpoints/projection.endpoint.js';
+import { handleAskAuditor } from './endpoints/ask.endpoint.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -177,6 +178,8 @@ const getApiKeys = () => {
     // Deduplicate
     return [...new Set(keys)].filter(k => !!k);
 };
+
+app.post('/api/audit/ask', handleAskAuditor);
 
 app.post('/api/extract', async (req, res) => {
     console.log(`[REQUEST] New extraction request (Streaming)`);

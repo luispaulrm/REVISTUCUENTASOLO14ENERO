@@ -15,10 +15,10 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
     };
 
     try {
-        const { cuentaJson, pamJson, contratoJson } = req.body;
+        const { cuentaJson, pamJson, contratoJson, htmlContext } = req.body;
 
-        if (!cuentaJson || !pamJson || !contratoJson) {
-            sendUpdate({ type: 'error', message: 'Missing required JSONs (Cuenta, PAM or Contrato)' });
+        if ((!cuentaJson && !htmlContext) || !pamJson || !contratoJson) {
+            sendUpdate({ type: 'error', message: 'Missing required data (Cuenta/HTML, PAM or Contrato)' });
             return res.end();
         }
 
@@ -35,7 +35,8 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
             pamJson,
             contratoJson,
             apiKey,
-            (msg) => sendUpdate({ type: 'log', message: msg })
+            (msg) => sendUpdate({ type: 'log', message: msg }),
+            htmlContext
         );
 
         sendUpdate({ type: 'progress', progress: 90 });

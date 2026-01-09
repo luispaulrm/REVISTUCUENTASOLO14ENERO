@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { UploadCloud, Loader2, FileText, Zap, ShieldCheck, X, Search, ZoomIn, ZoomOut, Maximize2, Download, FileJson, FileCode, Timer, Coins, ArrowDownLeft, ArrowUpRight, Cpu } from 'lucide-react';
+import { UploadCloud, Loader2, FileText, Zap, ShieldCheck, X, Search, ZoomIn, ZoomOut, Maximize2, Download, FileJson, FileCode, Timer, Coins, ArrowDownLeft, ArrowUpRight, Cpu, RefreshCw } from 'lucide-react';
 import { AI_MODEL } from '../version';
 
 interface Usage {
@@ -108,9 +108,11 @@ export default function PdfProjector() {
                 const reader = response.body?.getReader();
                 const decoder = new TextDecoder();
 
+                let chunkCount = 0;
+                let fullHtml = isResume ? htmlProjection : "";
+
                 if (!reader) throw new Error('No se pudo iniciar el stream de datos');
 
-                let chunkCount = 0;
                 while (true) {
                     const { done, value } = await reader.read();
                     if (done) break;
@@ -123,6 +125,7 @@ export default function PdfProjector() {
                             const data = JSON.parse(line);
                             if (data.type === 'chunk') {
                                 chunkCount++;
+                                fullHtml += data.text;
                                 setHtmlProjection(prev => prev + data.text);
                                 if (chunkCount % 20 === 0) {
                                     console.log(`[PdfProjector] 📦 Bloques recibidos: ${chunkCount}`);
@@ -157,6 +160,14 @@ export default function PdfProjector() {
                 }
                 addLog(`[SISTEMA] ✅ Proyección binaria completada (${chunkCount} mini-bloques).`);
                 addLog('[SISTEMA] Finalización exitosa.');
+
+                // Persist to localStorage for Auditor access
+                try {
+                    localStorage.setItem('html_projection_result', fullHtml);
+                    addLog('[SISTEMA] 📡 Datos sincronizados con el Auditor Forense.');
+                } catch (e) {
+                    console.error('Error saving to localStorage:', e);
+                }
             } catch (err: any) {
                 addLog(`[ERROR] ${err.message}`);
             } finally {
@@ -172,6 +183,9 @@ export default function PdfProjector() {
         setUsage(null);
         setLogs([]);
         setIsProcessing(false);
+        try {
+            localStorage.removeItem('html_projection_result');
+        } catch (e) { }
     };
 
     const downloadJson = () => {
@@ -390,6 +404,13 @@ export default function PdfProjector() {
                                         title="RESUMIR PROYECCIÓN (FORZAR CONTINUACIÓN)"
                                     >
                                         <Zap size={16} /> CONTINUAR
+                                    </button>
+                                    <button
+                                        onClick={clearSession}
+                                        className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
+                                        title="LIMPIAR Y RENOVAR PROYECCIÓN"
+                                    >
+                                        <RefreshCw size={16} /> RENOVAR
                                     </button>
                                     <button
                                         onClick={downloadJson}

@@ -4,7 +4,8 @@ export async function runForensicAudit(
     contratoJson: any,
     onLog?: (msg: string) => void,
     onUsageUpdate?: (usage: any) => void,
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
+    htmlContext?: string
 ) {
     onLog?.('[AuditService] 🚀 Iniciando flujo de auditoría forense...');
     onProgress?.(5);
@@ -13,7 +14,7 @@ export async function runForensicAudit(
         const response = await fetch('/api/audit/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cuentaJson, pamJson, contratoJson })
+            body: JSON.stringify({ cuentaJson, pamJson, contratoJson, htmlContext })
         });
 
         if (!response.ok) {
