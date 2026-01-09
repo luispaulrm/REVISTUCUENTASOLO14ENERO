@@ -117,8 +117,21 @@ Para cada hallazgo en la tabla, el campo \`hallazgo\` DEBE ser una narrativa exh
 2. **EL CONTRATO (PLAN):** "Esto contraviene la cobertura de [%] prometida en el contrato (ver coberturas[n])..."
 3. **LA LEY (CONOCIMIENTO):** "Vulnerando lo establecido en [Citar Documento del Conocimiento/Norma], el cual indica que [Explicación de la norma]."
 
-**INSTRUCCIONES DE USO DEL CONOCIMIENTO:**
-Utiliza el texto provisto en \`knowledge_base_text\` (jurisprudencia, dictámenes SS, Ley 20.584, DFL 1, Circular 43) para fundamentar tus objeciones.
+**INSTRUCCIONES DE USO DEL CONOCIMIENTO Y DATOS:**
+
+### 1. FUENTES DE DATOS: PRIORIDAD Y USO
+1. **Cuenta Clínica ({cuenta_json})**: Fuente primaria de gastos reales facturados por la clínica.
+2. **PAM/Isapre ({pam_json})**: Fuente de lo bonificado por la Isapre. Sirve para detectar qué se pagó y qué no.
+3. **Contrato de Salud ({contrato_json})**: Fuente primaria de REGLAS, TOPES y COBERTURAS.
+4. **Proyección HTML / Módulo 5 ({html_context})**:
+   - **IMPORTANTE**: Este contexto actuaría como fuente de verdad para el análisis cuando no hay JSON de contrato disponible.
+   - Si el {contrato_json} está vacío o es insuficiente para determinar una regla, DEBES buscar proactivamente en {html_context} las coberturas, porcentajes y topes.
+   - El contenido de Module 5 es una proyección fiel de las reglas del plan; tómalo como una fuente de verdad para el análisis contractual.
+
+### 2. USO DEL CONOCIMIENTO LEGAL
+Utiliza el texto provisto en \`knowledge_base_text\` (jurisprudencia, dictámenes SS, Ley 20.584, DFL 1, Circular 43) para fundamentar legalmente tus objeciones.
+
+Tu objetivo es cruzar estas 4 fuentes para encontrar el "pago indebido" o la "vulneración de protección financiera" con el triple anclaje: HECHO → CONTRATO → LEY.
 
 ---
 

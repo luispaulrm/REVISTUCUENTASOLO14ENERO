@@ -18,7 +18,7 @@ export async function performForensicAudit(
     htmlContext: string = ''
 ) {
     // AUDIT-SPECIFIC: Gemini 3 Flash primary, 2.5 Flash fallback
-    const modelsToTry = ['gemini-2.5-pro-preview-06-05', 'gemini-2.5-flash'];
+    const modelsToTry = ['gemini-3-flash-preview', 'gemini-2.5-flash'];
     let result;
     let lastError;
 

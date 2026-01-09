@@ -1,9 +1,16 @@
 import { Request, Response } from 'express';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AI_CONFIG } from "../config/ai.config.js";
+import fs from 'fs/promises';
+import path from 'path';
+
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const KNOWLEDGE_DIR = path.join(__dirname, '../knowledge');
 
 // Helper to get all API keys (copied from server.ts pattern or shared utility if available)
-// Ideally this should be in a shared config/utils file, but for speed replicating the safe usage.
+// ... (rest of imports and helpers)
 function envGet(k: string) {
     return process.env[k];
 }
@@ -35,14 +42,34 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
     const contractJson = context?.contractJson || null;
     const pamJson = context?.pamJson || null;
 
+    // --- LOADING KNOWLEDGE BASE ---
+    let extraLiterature = "";
+    try {
+        const files = await fs.readdir(KNOWLEDGE_DIR);
+
+        for (const file of files) {
+            const ext = path.extname(file).toLowerCase();
+            if (ext === '.txt' || ext === '.md') {
+                const content = await fs.readFile(path.join(KNOWLEDGE_DIR, file), 'utf-8');
+                // Cap total literature to avoid excessive token usage, but JURISPRUDENCIA is a must.
+                extraLiterature += `\n\n--- DOCUMENTO LEGAL: ${file} ---\n${content.substring(0, 800000)}`;
+            }
+        }
+    } catch (err) {
+        console.error("[ASK] Error loading literature:", err);
+    }
+
     // Calculate context size roughly
-    const ctxSize = htmlContext.length + JSON.stringify(contractJson || {}).length + JSON.stringify(pamJson || {}).length;
+    const ctxSize = htmlContext.length + JSON.stringify(contractJson || {}).length + JSON.stringify(pamJson || {}).length + extraLiterature.length;
     console.log(`[ASK] Question: "${question}" | Context Size: ${ctxSize} chars`);
 
     const PROMPT = `
-        ACTÚA COMO UN AUDITOR MÉDICO FORENSE EXPERTO Y METICULOSO.
+        ACTÚA COMO UN AUDITOR MÉDICO FORENSE EXPERTO Y METICULOSO CON ACCESO A LITERATURA LEGAL Y REGLAMENTARIA.
         
-        CONTEXTO DISPONIBLE:
+        LITERATURA Y JURISPRUDENCIA (MARCO DE REFERENCIA):
+        ${extraLiterature || "No hay literatura cargada actualmente."}
+
+        CONTEXTO DEL CASO ESPECÍFICO DISPONIBLE:
         --------------------
         1. PROYECCIÓN VISUAL (HTML): 
            ${htmlContext ? "Disponible (Prioridad Alta para validación visual)" : "No disponible"}
@@ -54,14 +81,14 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
            - PAM: ${pamJson ? "Disponible" : "No disponible"}
 
         --------------------
-        DATOS JSON (SI APLICA):
+        DATOS JSON DEL CASO:
         ${contractJson ? `CONTRATO: ${JSON.stringify(contractJson)}` : ""}
         ${pamJson ? `PAM: ${JSON.stringify(pamJson)}` : ""}
         ${billJson ? `CUENTA: ${JSON.stringify(billJson)}` : ""}
         --------------------
 
         TU MISIÓN:
-        Responder la pregunta del usuario basándote EXCLUSIVAMENTE en la evidencia provista arriba.
+        Responder la pregunta del usuario basándote en la evidencia del caso Y fundamentando con la LITERATURA provista.
 
         PREGUNTA DEL USUARIO:
         "${question}"
