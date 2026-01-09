@@ -17,10 +17,8 @@ export async function performForensicAudit(
     log: (msg: string) => void,
     htmlContext: string = ''
 ) {
-    // AUDIT-SPECIFIC: Use economical model to reduce costs
-    // Bill/PAM/Contract extraction uses AI_CONFIG.ACTIVE_MODEL
-    // Audit uses gemini-2.5-flash for 80% cost reduction
-    const modelsToTry = ['gemini-2.5-flash'];
+    // AUDIT-SPECIFIC: Gemini 3 Flash primary, 2.5 Flash fallback
+    const modelsToTry = ['gemini-2.5-pro-preview-06-05', 'gemini-2.5-flash'];
     let result;
     let lastError;
 
@@ -235,9 +233,55 @@ export async function performForensicAudit(
         throw lastError || new Error("Forensic Audit failed on all models.");
     }
 
+    // --- ROBUST JSON PARSING ---
     try {
-        const responseText = result.response.text();
-        const auditResult = JSON.parse(responseText);
+        let responseText = result.response.text();
+
+        // 1. Remove Markdown fences
+        responseText = responseText.replace(/```json\n?|```/g, '').trim();
+
+        // 2. Escape bad control characters (newlines/tabs inside strings)
+        // This regex looks for control chars that are NOT properly escaped
+        // However, a simpler approach for AI JSON is often just to clean common issues
+
+        // Attempt parse
+        let auditResult;
+        try {
+            auditResult = JSON.parse(responseText);
+        } catch (parseError) {
+            log(`[AuditEngine] ⚠️ JSON.parse falló inicialmente: ${parseError.message}. Intentando reparación básica...`);
+
+            // Repair: sometimes AI returns newlines inside strings which breaks JSON
+            // We can try to strip newlines that are not structural (risky but often works for AI)
+            // Or use a more advanced repair if available. For now, let's try a simple control char cleanup
+            const cleanedText = responseText.replace(/[\u0000-\u001F]+/g, (match) => {
+                // Keep legitimate newlines/tabs if they are outside strings (hard to know with regex)
+                // Better approach: allow "repairSection" logic or just fail gracefully with raw text wrapper
+                if (match === '\n') return ' '; // Replace stray newlines with space
+                return '';
+            });
+
+            try {
+                auditResult = JSON.parse(cleanedText);
+                log('[AuditEngine] ✅ Reparación de JSON exitosa.');
+            } catch (repairError) {
+                log(`[AuditEngine] ❌ Reparación falló. Devolviendo raw text para depuración.`);
+                // Fallback: return structure with raw content
+                auditResult = {
+                    metadata: { type: 'ERROR_FALLBACK' },
+                    resumen_financiero: { total_reclamado: 0, total_cobertura: 0, copago_final: 0 },
+                    hallazgos: [{
+                        titulo: "Error de Formato JSON",
+                        descripcion: "La IA generó una respuesta válida pero con formato JSON corrupto. Ver 'observaciones' para el texto crudo.",
+                        impacto_financiero: 0,
+                        categoria: "SISTEMA",
+                        estado: "REVISION_MANUAL",
+                        recomendacion: "Revisar texto crudo."
+                    }],
+                    observaciones_generales: responseText
+                };
+            }
+        }
 
         const usage = result.response.usageMetadata;
         log('[AuditEngine] ✅ Auditoría forense completada.');

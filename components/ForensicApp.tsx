@@ -167,34 +167,31 @@ export default function ForensicApp() {
     };
 
     const clearAllData = () => {
+        console.log('[System] clearAllData triggered');
+        // window.alert('CLICK DETECTADO'); // Temporary debug
         const confirmClear = window.confirm(
             '⚠️ ¿Deseas reiniciar TODA la sesión?\n\n' +
-            'Aceptar: Borra TODO (Cuentas, PAM, Contrato y Auditoría).\n' +
-            'Cancelar: Mantiene los datos cargados y solo limpia la pantalla.'
+            'Aceptar: Borra TODOS los archivos y resultados.\n' +
+            'Cancelar: Solo limpia la pantalla (mantiene archivos).'
         );
 
         if (confirmClear) {
-            // Full Wipe & Reload
+            console.log('[System] Performing full wipe and reload...');
             localStorage.removeItem('clinic_audit_result');
             localStorage.removeItem('pam_audit_result');
             localStorage.removeItem('contract_audit_result');
             localStorage.removeItem('html_projection_result');
-
-            addLog('[SISTEMA] 🧹 Sesión reiniciada. Recargando aplicación...');
-
-            // Force reload to reset all states in all components
-            setTimeout(() => {
-                window.location.reload();
-            }, 500);
+            window.location.reload();
         } else {
-            // Soft Clear (Screen only)
-            // No-op or just clear logs/result if user intended that, but per prompt usually "Cancel" breaks out.
-            // Let's assume Cancel means "Don't wipe storage", but maybe they wanted to clear the result view?
-            // Existing behavior was a single confirm. Now it's a binary choice.
-            // Let's refine: "Cancel" should probably just do nothing or maybe just clear the audit RESULT but keep inputs?
-            // To be safe and UX friendly: Let's make it a double confirm or just change the logic to always wipe on this button since the user specifically asked to "regularize" the "Ready" states.
-            // Actually, best approach: Action Sheet or just wipe everything. The icon is a Trash can.
-            // Let's stick to the "Confirm inputs wipe" logic clearly.
+            console.log('[System] Performing soft clear (UI only)...');
+            setStatus('IDLE');
+            setAuditResult(null);
+            setLogs([]);
+            setRealTimeUsage(null);
+            setProgress(0);
+            setError(null);
+            if (typeof checkData === 'function') checkData();
+            addLog('[SISTEMA] 🧹 Pantalla limpia. Datos de origen preservados.');
         }
     };
 
@@ -236,7 +233,7 @@ export default function ForensicApp() {
 
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 relative pb-32">
-            <header className="bg-transparent border-b border-slate-200 sticky top-0 z-50 print:hidden backdrop-blur-sm">
+            <header className="bg-white/80 border-b border-slate-200 sticky top-16 z-[40] print:hidden backdrop-blur-sm shadow-sm transition-all duration-300">
                 <div className="max-w-[1800px] mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-lg">
@@ -267,8 +264,29 @@ export default function ForensicApp() {
                                 </button>
                             </>
                         )}
-                        <button onClick={clearAllData} className="p-2 text-slate-400 hover:text-rose-600 transition-colors" title="Iniciar Nuevo Caso (Borra Todo)">
-                            <Trash2 size={20} />
+                        <button
+                            onClick={() => {
+                                if (!auditResult) return;
+                                setAuditResult(null);
+                                setStatus('IDLE');
+                                setLogs([]);
+                                setRealTimeUsage(null);
+                                setProgress(0);
+                                checkData(); // Re-verify modules are still there
+                                addLog('[SISTEMA] 🔄 Resultado de auditoría limpiado. Listo para re-iterar.');
+                            }}
+                            disabled={!auditResult}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-colors mr-2 ${auditResult
+                                ? 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100 border border-indigo-200'
+                                : 'bg-slate-100 text-slate-300 border border-slate-100 cursor-not-allowed'
+                                }`}
+                            title="Borrar solo el resultado para auditar de nuevo"
+                        >
+                            <Eraser size={16} />
+                            {auditResult ? 'LIMPIAR RESULTADO' : 'LIMPIAR'}
+                        </button>
+                        <button onClick={clearAllData} className="p-3 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Reiniciar sesión completa">
+                            <Trash2 size={24} />
                         </button>
                     </div>
                 </div>
