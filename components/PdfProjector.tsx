@@ -78,11 +78,18 @@ export default function PdfProjector() {
     const startProjection = async (selectedFile: File, isResume: boolean = false) => {
         setIsProcessing(true);
         if (!isResume) {
+            // Clear previous session data to avoid context pollution in the Auditor
+            localStorage.removeItem('clinic_audit_result');
+            localStorage.removeItem('pam_audit_result');
+            localStorage.removeItem('contract_audit_result');
+            localStorage.removeItem('html_projection_result'); // Clear old projection too
+
             setHtmlProjection("");
             setUsage(null);
             setLogs([]);
             setCurrentPass(1);
             setProgress(0);
+            addLog(`[SISTEMA] 🧹 Contexto anterior limpiado.`);
             addLog(`[SISTEMA] Iniciando proyección de: ${selectedFile.name}`);
         } else {
             addLog(`[SISTEMA] 🔄 Resumiendo proyección de: ${selectedFile.name} (Pase ${currentPass + 1})...`);
@@ -185,6 +192,10 @@ export default function PdfProjector() {
         setIsProcessing(false);
         try {
             localStorage.removeItem('html_projection_result');
+            localStorage.removeItem('clinic_audit_result');
+            localStorage.removeItem('pam_audit_result');
+            localStorage.removeItem('contract_audit_result');
+            addLog('[SISTEMA] 🧹 Sesión reiniciada completamente.');
         } catch (e) { }
     };
 
