@@ -20,7 +20,8 @@ import {
     DollarSign,
     Zap,
     MessageSquare,
-    Send
+    Send,
+    Eraser
 } from 'lucide-react';
 import { runForensicAudit } from '../auditService';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
@@ -173,20 +174,18 @@ export default function ForensicApp() {
         );
 
         if (confirmClear) {
-            // Full Wipe
+            // Full Wipe & Reload
             localStorage.removeItem('clinic_audit_result');
             localStorage.removeItem('pam_audit_result');
             localStorage.removeItem('contract_audit_result');
             localStorage.removeItem('html_projection_result');
 
-            checkData(); // Force update UI immediately
-            setStatus('IDLE');
-            setAuditResult(null);
-            setLogs([]);
-            setRealTimeUsage(null);
-            setProgress(0);
-            setError(null);
-            addLog('[SISTEMA] 🧹 Sesión reiniciada. Datos eliminados.');
+            addLog('[SISTEMA] 🧹 Sesión reiniciada. Recargando aplicación...');
+
+            // Force reload to reset all states in all components
+            setTimeout(() => {
+                window.location.reload();
+            }, 500);
         } else {
             // Soft Clear (Screen only)
             // No-op or just clear logs/result if user intended that, but per prompt usually "Cancel" breaks out.

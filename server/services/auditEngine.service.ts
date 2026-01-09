@@ -24,24 +24,24 @@ export async function performForensicAudit(
     let result;
     let lastError;
 
-    // --- LOADING KNOWLEDGE BASE WITH JURISPRUDENCIA ---
-    log('[AuditEngine] 📚 Cargando base de conocimiento legal extendida...');
+    // --- LOADING KNOWLEDGE BASE (JURISPRUDENCIA DISABLED TO SAVE TOKENS) ---
+    log('[AuditEngine] 📚 Cargando base de conocimiento legal...');
 
     // Read all files in knowledge directory
     const files = await fs.readdir(KNOWLEDGE_DIR);
     let knowledgeBaseText = '';
     let hoteleriaRules = '';
 
-    // Load jurisprudencia first
-    try {
-        const jurisprudenciaContent = await loadJurisprudencia();
-        if (jurisprudenciaContent) {
-            knowledgeBaseText += `\n\n--- JURISPRUDENCIA SUPERINTENDENCIA DE SALUD ---\n${jurisprudenciaContent}`;
-            log(`[AuditEngine] ⚖️ Cargada: ${getJurisprudenciaInfo()}`);
-        }
-    } catch (error) {
-        log(`[AuditEngine] ⚠️ No se pudo cargar jurisprudencia: ${error}`);
-    }
+    // Load jurisprudencia first (DISABLED TEMPORARILY)
+    // try {
+    //     const jurisprudenciaContent = await loadJurisprudencia();
+    //     if (jurisprudenciaContent) {
+    //         knowledgeBaseText += `\n\n--- JURISPRUDENCIA SUPERINTENDENCIA DE SALUD ---\n${jurisprudenciaContent}`;
+    //         log(`[AuditEngine] ⚖️ Cargada: ${getJurisprudenciaInfo()}`);
+    //     }
+    // } catch (error) {
+    //     log(`[AuditEngine] ⚠️ No se pudo cargar jurisprudencia: ${error}`);
+    // }
 
     for (const file of files) {
         const filePath = path.join(KNOWLEDGE_DIR, file);
