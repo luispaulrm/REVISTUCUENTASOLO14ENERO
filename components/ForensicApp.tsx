@@ -361,11 +361,6 @@ export default function ForensicApp() {
                                 )}
                             </div>
                         </div>
-
-                        {/* INTERROGATION ZONE */}
-                        {(hasHtml || hasContract || hasPam) && (
-                            <InterrogationZone />
-                        )}
                     </div>
                 )}
 
@@ -575,6 +570,14 @@ export default function ForensicApp() {
                         </div>
                     </div>
                 )}
+
+                {/* INTERROGATION ZONE - Visible if data is loaded, regardless of audit status */}
+                {(hasHtml || hasContract || hasPam) && (
+                    <div className="max-w-5xl mx-auto mb-12 px-4">
+                        <InterrogationZone auditResult={auditResult} />
+                    </div>
+                )}
+
                 {previewData && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
                         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[80vh] flex flex-col overflow-hidden">
@@ -625,7 +628,7 @@ function DataStatusCard({ title, icon, ready, desc, onClick }: { title: string, 
 }
 
 
-function InterrogationZone() {
+function InterrogationZone({ auditResult }: { auditResult?: any }) {
     const [question, setQuestion] = useState('');
     const [history, setHistory] = useState<{ question: string; answer: string }[]>([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -658,7 +661,13 @@ function InterrogationZone() {
             const response = await fetch('/api/audit/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ question: currentQuestion, context })
+                body: JSON.stringify({
+                    question: currentQuestion,
+                    context: {
+                        ...context,
+                        auditResult: auditResult // Include audit findings in context
+                    }
+                })
             });
 
             const reader = response.body?.getReader();

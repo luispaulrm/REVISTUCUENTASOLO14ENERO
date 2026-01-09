@@ -41,6 +41,7 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
     const billJson = context?.billJson || null;
     const contractJson = context?.contractJson || null;
     const pamJson = context?.pamJson || null;
+    const auditResult = context?.auditResult || null;
 
     // --- LOADING KNOWLEDGE BASE ---
     let extraLiterature = "";
@@ -79,12 +80,14 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
            - Cuenta: ${billJson ? "Disponible" : "No disponible"}
            - Contrato: ${contractJson ? "Disponible" : "No disponible"}
            - PAM: ${pamJson ? "Disponible" : "No disponible"}
+           - RESULTADOS AUDITORÍA FORENSE: ${auditResult ? "Disponible (USAR PARA ACLARAR DUDAS SOBRE EL INFORME)" : "No disponible"}
 
         --------------------
         DATOS JSON DEL CASO:
         ${contractJson ? `CONTRATO: ${JSON.stringify(contractJson)}` : ""}
         ${pamJson ? `PAM: ${JSON.stringify(pamJson)}` : ""}
         ${billJson ? `CUENTA: ${JSON.stringify(billJson)}` : ""}
+        ${auditResult ? `RESULTADOS AUDITORÍA: ${JSON.stringify(auditResult)}` : ""}
         --------------------
 
         TU MISIÓN:
