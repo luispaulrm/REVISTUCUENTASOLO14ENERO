@@ -316,16 +316,21 @@ export default function ForensicApp() {
                                     desagregación indebida de insumos y violaciones al principio de evento único.
                                 </p>
 
-                                {/* Validation: Need (Bill OR HTML) AND PAM AND Contract */}
-                                {(!hasBill && !hasHtml) || !hasPam || !hasContract ? (
+                                {/* Validation Logic (Updated):
+                                    1. PAM is always required.
+                                    2. Structured Bill is ALWAYS required (HTML is only for Contract).
+                                    3. Context/Validation is required (either Contract OR HTML Projection).
+                                */}
+                                {!hasPam || !hasBill || (!hasContract && !hasHtml) ? (
                                     <div className="p-6 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-4 text-left max-w-2xl mx-auto">
                                         <AlertCircle className="text-amber-600 shrink-0 mt-0.5" size={20} />
                                         <div>
-                                            <p className="text-sm font-bold text-amber-900">Documentación Incompleta</p>
+                                            <p className="text-sm font-bold text-amber-900">Documentación Insuficiente</p>
                                             <p className="text-xs text-amber-700 mt-1 leading-relaxed">
-                                                Para una auditoría forense efectiva, debes procesar primero el
-                                                <strong> PAM</strong>, el <strong>Contrato</strong> y al menos una de estas opciones para la cuenta:
-                                                la <strong>Cuenta Clínica</strong> estructurada o la <strong>Proyección HTML</strong> (Módulo 5).
+                                                Requisitos para auditar:<br />
+                                                1. <strong>PAM</strong> (Obligatorio).<br />
+                                                2. <strong>Cuenta Clínica</strong> (Obligatorio, cargada en Módulo 1).<br />
+                                                3. <strong>Validación</strong> (Contrato JSON o Proyección HTML de Contrato).
                                             </p>
                                         </div>
                                     </div>
