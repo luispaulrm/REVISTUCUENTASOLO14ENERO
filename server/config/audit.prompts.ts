@@ -9,6 +9,16 @@ IF-319 se usa para identificar DESAGREGACIÓN indebida de INSUMOS COMUNES / HOTE
 IF-319 NO se debe usar para objetar MEDICAMENTOS como “incluidos” por defecto en cuentas NO-PAD/NO-GES.
 Si dudas: marcar como "ZONA GRIS" y explicar qué evidencia faltó.
 
+(1.1) REGLA DE DETERMINISMO ARITMÉTICO:
+- Toda objeción debe estar anclada a un COPAGO REAL en el PAM.
+- **PROHIBIDO**: Objetar un monto mayor al copago que el paciente efectivamente pagó en ese folio/ítem.
+- **LOGICA**: Si la cuenta clínica dice $100.000 pero el PAM dice que el paciente pagó $20.000 de copago, el ahorro MÁXIMO posible es $20.000.
+
+(10) REGLA DE PENSAMIENTO LÓGICO-PRIMERO:
+- Antes de emitir un juicio, el auditor debe computar la "Diferencia de Bonificación": (Bonificación Pactada en Contrato) - (Bonificación Aplicada en PAM).
+- Solo si (Bonificación Pactada > Bonificación Aplicada), existe un hallazgo de INCUMPLIMIENTO CONTRACTUAL.
+- Esta resta debe quedar registrada en la \`bitacoraAnalisis\`.
+
 (2) FÁRMACOS: auditoría separada (NO IF-319)
 Los medicamentos se auditan por:
 Duplicidad (mismo fármaco/presentación/fecha/cantidad sin justificación).
@@ -45,10 +55,13 @@ Fórmula: copago_i = round_down(COPAGO_TOTAL * total_i/base) + ajuste por residu
 Tabla final: cada línea + copago imputado, y total que cierre exacto al copago del PAM.
 Importante: el prorrateo es imputación matemática, NO prueba de qué fármaco “fue” el copago.
 
-(9) REGLA DE COBERTURA INTERNACIONAL (SIEMPRE COMO RESTRICCIÓN)
-- **PRINCIPIO:** Todo tope, condición o limitación de "Cobertura Internacional" debe ser señalado exclusivamente como una RESTRICCIÓN o NOTA ESPECIAL.
-- **PROHIBICIÓN:** Está terminantemente prohibido incluir topes internacionales en las tablas de cobertura estándar o tratarlos como un "segundo tope" de la prestación. 
-- **LÓGICA:** El tope internacional es una limitación excepcional para atenciones fuera del país y no debe contaminar el análisis de cobertura nacional.
+(9) REGLA DE COBERTURA INTERNACIONAL (ESTRUCTURA DE 3 COLUMNAS)
+- **ESTRUCTURA TÍPICA:** Los planes Isapre suelen tener 3 columnas de topes:
+  1. **Tope Bonificación Nacional:** Rige SIEMPRE para atenciones en Chile.
+  2. **Tope Máximo Año Contrato:** Límite de dinero por año calendario para esa prestación.
+  3. **Tope Bonificación Internacional/Extranjero:** Rige EXCLUSIVAMENTE fuera de Chile.
+- **PROHIBICIÓN:** Está terminantemente prohibido aplicar los montos de la columna "Internacional" o "Extranjero" a prestaciones realizadas en Chile (ej. Clínica Indisa, Alemana, etc.).
+- **LÓGICA:** El tope internacional es una limitación excepcional y no debe contaminar el análisis nacional. Si en la columna Nacional dice "SIN TOPE", ese es el dato que manda, ignorando lo que diga la columna Internacional.
 - **HALLAZGO:** Si la cobertura internacional es extremadamente baja (ej: < 50 UF para hospitalización), DEBE ser señalada como un hallazgo de "Protección Financiera Insuficiente en el Extranjero".
 `;
 
@@ -58,6 +71,19 @@ export const FORENSIC_AUDIT_SCHEMA = {
         resumenEjecutivo: {
             type: Type.STRING,
             description: "Resumen de alto nivel de los hallazgos totales, ahorros detectados y estado de la cuenta."
+        },
+        bitacoraAnalisis: {
+            type: Type.ARRAY,
+            description: "Bitácora detallada del razonamiento forense paso a paso para cada hallazgo importante. Esto asegura el determinismo.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    paso: { type: Type.STRING, description: "Descripción del paso de análisis (ej: 'Cálculo de Tope', 'Verificación PAM')" },
+                    razonamiento: { type: Type.STRING, description: "Detalle del cálculo o lógica aplicada." },
+                    evidencia: { type: Type.STRING, description: "Referencia exacta al dato usado (ej: 'Contrato pág 5, ítem 12')" }
+                },
+                required: ['paso', 'razonamiento', 'evidencia']
+            }
         },
         hallazgos: {
             type: Type.ARRAY,
@@ -88,7 +114,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
             description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
         }
     },
-    required: ['resumenEjecutivo', 'hallazgos', 'totalAhorroDetectado', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
+    required: ['resumenEjecutivo', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
 
 export const AUDIT_PROMPT = `
@@ -109,9 +135,15 @@ Suma CADA ítem individual detectado que esté bien fundado en:
 5. Incumplimiento de Cobertura Contractual (PAM vs CONTRATO)
 6. Exclusión Componentes Esenciales (Pabellón/Sala sin cobertura - Jurisprudencia SS)
 
-Prioriza impactos a copago paciente. Verifica suma ≤ copago PAM total.
+**INTRUCCIÓN DE DETERMINISMO (BITÁCORA FORENSE):**
+Antes de generar cualquier hallazgo, DEBES realizar un análisis metódico en el campo \`bitacoraAnalisis\`.
+Por cada irregularidad sospechada, registra:
+1. **Identificación**: Localiza el ítem en la CUENTA y su equivalente en el PAM.
+2. **Anclaje Contractual**: Localiza la regla de cobertura exacta en el CONTRATO.
+3. **Cálculo de Diferencia**: (Valor Contrato) - (Valor Bonificado PAM).
+4. **Verificación Anti-Error**: Realiza el cálculo matemático dos veces. Si los resultados no coinciden, descarta el hallazgo.
 
-**REGLA DE ORO: TRIPLE ANCLAJE OBLIGATORIO (FACT → CONTRACT → LAW)**
+**HALLAZGO: TRIPLE ANCLAJE OBLIGATORIO (FACT → CONTRACT → LAW)**
 Para cada hallazgo en la tabla, el campo \`hallazgo\` DEBE ser una narrativa exhaustiva que concatene:
 1. **EL HECHO (CUENTA/PAM):** "Se detectó que el ítem X fue cobrado como Y por $Z..."
 2. **EL CONTRATO (PLAN):** "Esto contraviene la cobertura de [%] prometida en el contrato (ver coberturas[n])..."
@@ -389,6 +421,11 @@ Para cada hallazgo:
 **Checkpoint Anti-Alucinación 2 – Totales vs PAM:**
 - Verifica que la suma de todos tus montos objetados sea **<= totalCopago** del PAM correspondiente.
 - Si detectas exceso, reduce tus montos y anótalo en el texto del hallazgo ("ajuste por exceso detectado").
+
+**Checkpoint Anti-Alucinación 3 – Confusión de Columnas (Nacional vs Internacional):**
+- **ANTES de aplicar un tope (UF/VAM)**, verifica visualmente si ese tope está en la columna de "Cobertura Nacional" o "Cobertura Exterior/Internacional".
+- Si el prestador es chileno (ej. Clínica Indisa), **IGNORA** cualquier monto que esté en la columna Internacional. 
+- **REGLA DE ORO:** Un plan puede decir "SIN TOPE" en nacional y "300 UF" en internacional. Si aplicas las 300 UF a una cuenta chilena, estás cometiendo un ERROR FORENSE GRAVE.
 
 ---
 

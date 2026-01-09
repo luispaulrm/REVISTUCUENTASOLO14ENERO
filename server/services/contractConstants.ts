@@ -207,31 +207,26 @@ const CHECKLIST_AMB = `
 // --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
 
 const SHARED_MANDATE = `
-  ** MANDATO FORENSE v10.8: LITERALIDAD VISUAL ABSOLUTA **
-  OBJETIVO: Responder al Checklist actuando como un ESCÁNER HUMANIZADO.
+  ** MANDATO FORENSE v11.0: DESCUBRIMIENTO DINÁMICO DE ESTRUCTURA **
+  OBJETIVO: Identificar y mapear la lógica de columnas ANTES de extraer datos.
   
-  ⚠️ PRINCIPIO DE REALIDAD (NO INVENTAR):
-  - SOLO EXISTE LO QUE ESTÁ ESCRITO EN EL PDF.
-  - Si un recuadro está vacío o tiene un guion "-", TU RESPUESTA DEBE REFLEJAR ESO (ej: "No indicado" o "-").
-  - PROHIBIDO "completar" datos basándose en filas o columnas vecinas.
+  ⚠️ FASE 1: DESCUBRIMIENTO DE ENCABEZADOS (OBLIGATORIO)
+  Antes de procesar las filas, debes observar los encabezados de la tabla de beneficios.
+  1. **Identifica y Etiqueta las Columnas**:
+     - **Columna Primaria (Local/Chile)**: Usualmente llamada "Tope de Bonificación", "Bonificación", "Nacional" o simplemente la primera columna de montos. Es la que rige para atenciones en Chile.
+     - **Columna de Límite Anual**: Usualmente "Tope Máximo Año Contrato" o similar. Indica el tope de dinero por año.
+     - **Columna Restringida/Internacional**: Usualmente "Cobertura Internacional", "Extranjero" o "En el Exterior". 
   
-  ⚠️ PROTOCOLO DE PRESTADORES (VERIFICACIÓN VISUAL):
-  1. ¿El checklist pide "Clínica Alemana"? -> BUSCA ESE NOMBRE EN LA COLUMNA "PREFERENTE".
-  2. **¿LO VES ESCRITO AHÍ?**
-     - SI: Extrae valores de la izquierda. Modalidad = "Oferta Preferente".
-     - NO: 
-       - Modalidad = "Libre Elección" (ESTRICTO).
-       - Valores = Extrae de columna DERECHA ("Libre Elección").
-       - Nombre Item = "Clínica Alemana (Fuera de Red - Aplica Libre Elección)".
+  2. **Interpretación de Títulos**: No asumas nombres fijos. Lee el título exacto que el contrato le da a cada columna y actúa según su significado semántico. Si una columna dice "Tope 16 UF" y su encabezado es "Internacional", bajo ninguna circunstancia apliques ese valor a una atención en Chile.
   
-  ⚠️ GEOMETRÍA DE PRECIOS:
-  - "Libre Elección" SIEMPRE tiene precios (UF / V.A / %).
-  - SI LA CELDA DE TOPE TIENE UN VALOR (ej: "2,2 UF"), **ES OBLIGATORIO EXTRAERLO**.
-
-  ⚠️ REGLA INTERNACIONAL (MANDATO):
-  - TODO tope o cobertura "Internacional" o "En el Extranjero" debe ser extraído ÚNICAMENTE como una NOTA O RESTRICCIÓN.
-  - PROHIBIDO incluir columnas de tope internacional en la tabla de coberturas principales.
-  - Si una prestación tiene un tope internacional, colócalo en el campo 'nota_restriccion' del ítem nacional correspondiente.
+  ⚠️ PRINCIPIO DE LITERALIDAD VISUAL:
+  - SOLO existe lo que está escrito. Si un recuadro está vacío, indica "-" o "Sin tope" según corresponda.
+  - PROHIBIDO "trasladar" montos de una columna a otra para "rellenar" espacios vacíos.
+  
+  ⚠️ PROTOCOLO DE PRESTADORES (SELECCIÓN DE COLUMNA):
+  1. Si extraes para un prestador nacional (ej: Clínica Indisa) -> Usa los valores de la **Columna Primaria (Local)**.
+  2. Si la Columna Primaria dice "SIN TOPE", pon "Sin tope" aunque la columna Internacional tenga un valor.
+  3. Los valores de columnas secundarias/internacionales deben ir SIEMPRE al campo 'nota_restriccion'.
 `;
 
 export const PROMPT_HOSP_P1 = `
