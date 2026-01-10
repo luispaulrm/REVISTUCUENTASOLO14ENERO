@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { performForensicAudit } from '../services/auditEngine.service.js';
+import { performForensicAudit, performMultiPassAudit } from '../services/auditEngine.service.js';
 import { GeminiService } from '../services/gemini.service.js';
 import { AI_CONFIG } from '../config/ai.config.js';
 
 export async function handleAuditAnalysis(req: Request, res: Response) {
-    console.log('[AUDIT] New Forensic Audit Request Initiated');
+    console.log('[AUDIT] New Multi-Pass Forensic Audit Request Initiated');
 
     // Setup streaming response
     res.setHeader('Content-Type', 'application/x-ndjson');
@@ -15,7 +15,7 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
     };
 
     try {
-        const { cuentaJson, pamJson, contratoJson, htmlContext } = req.body;
+        const { cuentaJson, pamJson, contratoJson, htmlContext, singlePass } = req.body;
 
         if ((!cuentaJson && !htmlContext) || !pamJson || !contratoJson) {
             sendUpdate({ type: 'error', message: 'Missing required data (Cuenta/HTML, PAM or Contrato)' });
@@ -28,9 +28,13 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
             return res.end();
         }
 
-        sendUpdate({ type: 'progress', progress: 10 });
+        sendUpdate({ type: 'progress', progress: 5 });
+        sendUpdate({ type: 'log', message: singlePass ? '[AUDIT] Usando modo single-pass' : '[AUDIT] Usando modo MULTI-PASS (3 Rondas de Verificación)' });
 
-        const result = await performForensicAudit(
+        // Use multi-pass by default unless explicitly disabled
+        const auditFunction = singlePass ? performForensicAudit : performMultiPassAudit;
+
+        const result = await auditFunction(
             cuentaJson,
             pamJson,
             contratoJson,
@@ -39,7 +43,7 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
             htmlContext
         );
 
-        sendUpdate({ type: 'progress', progress: 90 });
+        sendUpdate({ type: 'progress', progress: 95 });
 
         if (result.usage) {
             // Use audit-specific model pricing (gemini-2.5-flash)
@@ -70,3 +74,4 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
         res.end();
     }
 }
+

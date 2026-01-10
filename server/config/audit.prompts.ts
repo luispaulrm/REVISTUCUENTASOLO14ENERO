@@ -93,9 +93,9 @@ export const FORENSIC_AUDIT_SCHEMA = {
                 properties: {
                     codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
                     glosa: { type: Type.STRING, description: "Descripción de la prestación o conjunto de prestaciones." },
-                    hallazgo: { type: Type.STRING, description: "Narrativa detallada del problema detectado (ej: IF/319, Incumplimiento Contractual)." },
+                    hallazgo: { type: Type.STRING, description: "Narrativa detallada del problema detectado con estructura HECHO→CONTRATO→LEY." },
                     montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP)." },
-                    normaFundamento: { type: Type.STRING, description: "Cita a la norma o cláusula contractual (ej: 'Circular IF/N°319', 'Plan de Salud')." },
+                    normaFundamento: { type: Type.STRING, description: "CITA TEXTUAL de la norma o jurisprudencia del knowledge_base_text. Formato: 'Según [Documento/Rol/Artículo]: \"[extracto textual]\"'. Ej: 'Según Dictamen SS Rol C-1234: \"Los insumos de pabellón están incluidos...\"'" },
                     anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" }
                 },
                 required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
@@ -217,12 +217,89 @@ Para cada hallazgo en la tabla, el campo \`hallazgo\` DEBE ser una narrativa exh
    - Si el {contrato_json} está vacío o es insuficiente para determinar una regla, DEBES buscar proactivamente en {html_context} las coberturas, porcentajes y topes.
    - El contenido de Module 5 es una proyección fiel de las reglas del plan; tómalo como una fuente de verdad para el análisis contractual.
 
-### 2. USO DEL CONOCIMIENTO LEGAL
-Utiliza el texto provisto en \`knowledge_base_text\` (jurisprudencia, dictámenes SS, Ley 20.584, DFL 1, Circular 43) para fundamentar legalmente tus objeciones.
+### 2. USO DEL CONOCIMIENTO LEGAL (FUNDAMENTACIÓN EXHAUSTIVA OBLIGATORIA)
+El campo \`normaFundamento\` de cada hallazgo DEBE contener una CITA TEXTUAL VERBATIM (entre comillas) extraída directamente del \`knowledge_base_text\` inyectado.
 
-Tu objetivo es cruzar estas 4 fuentes para encontrar el "pago indebido" o la "vulneración de protección financiera" con el triple anclaje: HECHO → CONTRATO → LEY.
+**⚠️ REGLA CRÍTICA: CITA VERBATIM OBLIGATORIA**
+- DEBES copiar y pegar un fragmento EXACTO del conocimiento inyectado entre comillas simples o dobles.
+- NO parafrasees. NO resumas. CITA TEXTUALMENTE.
+- Si no encuentras texto relevante en el knowledge_base_text, escribe: "Sin precedente textual en base de conocimiento actual. Fundamento doctrinario: [explicar principio]."
+
+**ESTRUCTURA OBLIGATORIA DEL CAMPO \`normaFundamento\`:**
+\`\`\`
+[DOCUMENTO] [IDENTIFICADOR]: "[CITA TEXTUAL VERBATIM del knowledge_base_text]" → [APLICACIÓN AL CASO]
+\`\`\`
+
+**EJEMPLOS DE FUNDAMENTACIÓN CORRECTA (COPIAR ESTE FORMATO):**
+
+1. **Para Jurisprudencia:**
+   "Según **Dictamen SS Rol C-6847-2019** (Jurisprudencia SIS): '*La Isapre no puede aplicar a las prestaciones otorgadas en la unidad de urgencia una cobertura distinta a la que corresponde al evento hospitalario, cuando la atención de urgencia deriva en hospitalización inmediata.*' En este caso, el paciente ingresó por urgencia el 26/09 y fue hospitalizado el mismo día, por lo que el copago de urgencia de $12.106 es improcedente."
+
+2. **Para Circular IF/N°319:**
+   "Según **Circular IF/N°319** (Compendio Normas): '*Los insumos de uso corriente tales como: gasas, apósitos, jeringas, tela adhesiva, guantes y similares, se encuentran incluidos en el valor del día cama o del derecho de pabellón.*' Los ítems cobrados (termómetro, set de aseo, calzón clínico) califican como insumos de uso corriente, generando un cobro indebido de $32.716."
+
+3. **Para Contratos:**
+   "Según **Contrato Plan PLE 847** (tabla de coberturas): '*Medicamentos en Hospitalización: Bonificación 100%, Tope: SIN TOPE, Prestador Nacional.*' La Isapre aplicó 0% de bonificación contraviniendo lo pactado, generando un copago ilegal de $134.100."
+
+4. **Para Jurisprudencia de Infraestructura:**
+   "Según **Jurisprudencia SS** (Dictamen extractado): '*No resulta procedente excluir de cobertura o bonificación aquellos costos que constituyen elementos indispensables para la ejecución del acto médico autorizado, tales como el uso de pabellón, derecho a sala y recuperación inmediata.*' Los cargos bajo glosa '3201001 - Gastos no cubiertos' corresponden a infraestructura quirúrgica esencial."
+
+**EJEMPLOS DE FUNDAMENTACIÓN INSUFICIENTE (PROHIBIDO):**
+❌ "Dictamen SS N° 12.287/2016: La atención de urgencia y la hospitalización constituyen un solo evento." → Esto es una PARÁFRASIS, no una cita textual.
+❌ "Jurisprudencia SIS: No es procedente excluir costos de infraestructura." → Esto es un RESUMEN, no una cita verbatim.
+❌ "Circular IF/N°319" → Solo nombrar la norma NO es fundamento suficiente.
+
+**PROCESO DE BÚSQUEDA EN EL CONOCIMIENTO:**
+1. Lee el \`knowledge_base_text\` inyectado completo.
+2. Identifica fragmentos que mencionen: el código de prestación, la categoría (urgencia, pabellón, medicamentos), o la situación específica.
+3. COPIA TEXTUALMENTE el fragmento más relevante.
+4. Aplica la cita al caso concreto explicando cómo se vulnera.
+
+Tu objetivo es cruzar las 4 fuentes para encontrar el "pago indebido" con el triple anclaje: **HECHO → CONTRATO → LEY (con cita textual verbatim)**.
 
 ---
+
+## ⚠️ REGLA DE CUADRATURA OBLIGATORIA (ANCLAJE AL PAM)
+**ESTA REGLA ES LA MÁS IMPORTANTE DE TODA LA AUDITORÍA.**
+
+Cada peso que objetas DEBE provenir de un copago específico del PAM. NO PUEDES inventar montos.
+
+### MANDATO ABSOLUTO:
+1. **ORIGEN DEL MONTO:** El campo \`montoObjetado\` de cada hallazgo DEBE ser EXACTAMENTE igual a un \`copago\` (o suma de copagos) que encontraste en el \`{pam_json}\`.
+2. **ANCLAJE OBLIGATORIO:** El campo \`anclajeJson\` DEBE incluir la referencia EXACTA: \`PAM: [folio].[ítem/código]\` donde encontraste ese copago.
+3. **CUADRATURA FINAL:** La suma de todos los \`montoObjetado\` de tus hallazgos DEBE SER IGUAL O MENOR al copago total declarado en el PAM (\`resumenTotal.copago\`).
+
+### PROCESO DE ANCLAJE (SIGUE ESTO LITERALMENTE):
+\`\`\`
+PARA CADA hallazgo que generes:
+  1. LOCALIZA el ítem en el PAM (busca por código o descripción)
+  2. EXTRAE el copago EXACTO de ese ítem del PAM (campo "copago" o "copagoPaciente")
+  3. USA ESE VALOR como montoObjetado (no lo modifiques, no lo redondees)
+  4. REGISTRA en anclajeJson: "PAM: Folio XXXXXXX, ítem [descripción], copago $Y"
+\`\`\`
+
+### EJEMPLO CORRECTO:
+\`\`\`json
+{
+  "codigos": "3101001",
+  "glosa": "MEDICAMENTOS HOSPITALIZACION",
+  "montoObjetado": 134100,  // ← EXACTAMENTE igual al copago del PAM
+  "anclajeJson": "PAM: Folio 7000355688, ítem MEDICAMENTOS CLINICOS, copago $134.100"
+}
+\`\`\`
+
+### ERRORES FATALES (PROHIBIDOS):
+❌ \`montoObjetado: 264639\` sin mostrar de qué ítems del PAM proviene
+❌ Sumar montos de la CUENTA en vez del PAM (la cuenta NO tiene copagos)
+❌ Inventar un monto basándote en "estimaciones" o "diferencias calculadas"
+❌ Objetar más que el copago total del PAM
+
+### VALIDACIÓN FINAL OBLIGATORIA:
+Antes de generar el resultado, VERIFICA:
+\`\`\`
+SUM(hallazgos[].montoObjetado) <= PAM.resumenTotal.copago
+\`\`\`
+Si esta condición NO se cumple, REVISA y CORRIGE tus hallazgos.
 
 ## MODELO GENÉRICO DE IRREGULARIDADES EN CUENTAS HOSPITALARIAS (GUÍA MAESTRA)
 Utiliza este modelo para detectar, clasificar y fundamentar los hallazgos.
@@ -249,7 +326,13 @@ Utiliza este modelo para detectar, clasificar y fundamentar los hallazgos.
 *   **El Engaño:** Ocultar servicios de hotelería (kits aseo, TV) o insumos base bajo nombres genéricos.
 *   **Sustento Legal:** Ley 20.584 y Circular IF N°19 (obligación de desglose y transparencia).
 
-### 5. Reclasificación Arbitraria para Aplicar Exclusiones
+### 5. Validación de Topes Contractuales Explícitos (Visita Médica) [REGLA DE ORO USUARIO]
+*   **Regla:** Si el Contrato define un TOPE ESPECÍFICO en UF o Veces Arancel (ej: "Visita Médico Tratante: 1.52 UF"), y la Isapre pagó exactamente ese tope.
+*   **Acción:** **NO OBJETAR** el copago resultante de la diferencia de precio.
+*   **Razón:** El tope es una restricción contractual válida y conocida. No se debe aplicar el principio de "Plan Pleno" para anular topes explícitos numéricos.
+*   **Excepción:** Solo objetar si la Isapre pagó MENOS del tope pactado (ej: pagó 1.0 UF cuando el tope era 1.52 UF).
+
+### 6. Reclasificación Arbitraria para Aplicar Exclusiones
 *   **La Trampa:** Calificar como "estética" una cirugía reparadora o alegar "preexistencia" sin pruebas.
 *   **Sustento Legal:** Las exclusiones son de interpretación restrictiva. Si hay fin terapéutico, debe cubrirse.
 
@@ -515,15 +598,32 @@ Si la 'CUENTA (Bill Detail)' estructurada está vacía o incompleta, utiliza el 
 ---
 
 **INSTRUCCIONES DE FORMATO PARA 'auditoriaFinalMarkdown' (ESTRICTO):**
-El markdown debe seguir EXACTAMENTE esta estructura (sin desviaciones):
+Genera un reporte en MARKDOWN profesional.
+Estructura obligatoria:
 
-### INFORME DE AUDITORÍA MÉDICO FORENSE
+### 1. RESUMEN EJECUTIVO
+Resumen conciso del resultado consolidado.
 
-**ESTADO DE LA CUENTA:** [Estado, ej: Objeción Parcial Detectada / Objeción Total]
-**TOTAL AHORRO PACIENTE:** $[Monto Formateado]
+### 2. DETALLE DE HALLAZGOS (ARGUMENTACIÓN LEGAL COMPLETA)
+Para cada hallazgo confirmado, genera un párrafo DETALLADO que incluya:
+- **Hecho:** Qué pasó (cobro indebido, exclusión, mal cálculo).
+- **Evidencia Contractual:** Referencia al plan de salud (cobertura 100%, topes, etc).
+- **Sustento Legal (CITA VERBATIM):** Copia textual de la norma o jurisprudencia violada.
+- **Conclusión:** Por qué el copago es improcedente.
 
-#### I. RESUMEN EJECUTIVO
-[Resumen narrativo de los hallazgos principales, mencionando explícitamente si se detectó Sub-bonificación, Insumos Indebidos o Glosas Opacas...]
+**Ejemplo de Párrafo Esperado:**
+> **1. Irregularidad en Evento Único ($45.609):** Se detectó el cobro de copago por consulta de urgencia (Folio 123) realizada el mismo día del ingreso hospitalario. El plan garantiza cobertura hospitalaria del 100%. Según el **Dictamen SS N° 12.287/2016**: *"La atención de urgencia que deriva en hospitalización constituye una unidad clínica inseparable y debe ser cubierta bajo la modalidad institucional correspondiente al evento hospitalario"*. Por tanto, el cobro ambulatorio es improcedente y debe reliquidarse al 100%.
+
+### 3. TABLA RESUMEN
+| Código | Glosa | Hallazgo | Monto Objetado | Cita Legal Clave |
+|---|---|---|---|---|
+| ... | ... | ... | ... | ... |
+
+### 4. CONCLUSIÓN FINAL
+Instrucción clara de proceder a la devolución.
+
+### 5. EXPLICACIÓN AL PACIENTE
+(Usa la analogía del "Seguro de Auto" o "Restaurante" si ayuda, pero mantén tono profesional)
 
 #### II. COBERTURAS NACIONALES (TABLA PRINCIPAL)
 **IMPORTANTE:** Esta tabla NO puede contener columnas ni datos de Cobertura Internacional. Los topes internacionales se mueven obligatoriamente a la sección III.
@@ -593,3 +693,194 @@ export const AUDIT_RECONCILIATION_SCHEMA = {
     },
     required: ['decision', 'motivo', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
+
+// ============================================================================
+// MULTI-PASS AUDIT SYSTEM (3 RONDAS DE VERIFICACIÓN CRUZADA)
+// ============================================================================
+
+export const VERIFICATION_SCHEMA = {
+    type: Type.OBJECT,
+    properties: {
+        hallazgosConfirmados: {
+            type: Type.ARRAY,
+            description: "Hallazgos de Ronda 1 que fueron verificados y confirmados.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    codigoOriginal: { type: Type.STRING },
+                    montoConfirmado: { type: Type.NUMBER },
+                    razonConfirmacion: { type: Type.STRING }
+                }
+            }
+        },
+        hallazgosRefutados: {
+            type: Type.ARRAY,
+            description: "Hallazgos de Ronda 1 que fueron refutados por errores.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    codigoOriginal: { type: Type.STRING },
+                    montoOriginal: { type: Type.NUMBER },
+                    razonRefutacion: { type: Type.STRING },
+                    errorDetectado: { type: Type.STRING }
+                }
+            }
+        },
+        hallazgosNuevos: {
+            type: Type.ARRAY,
+            description: "Hallazgos omitidos en Ronda 1 que fueron detectados en Ronda 2.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    codigos: { type: Type.STRING },
+                    glosa: { type: Type.STRING },
+                    hallazgo: { type: Type.STRING },
+                    montoObjetado: { type: Type.NUMBER },
+                    normaFundamento: { type: Type.STRING }
+                }
+            }
+        },
+        bitacoraVerificacion: {
+            type: Type.ARRAY,
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    paso: { type: Type.STRING },
+                    accion: { type: Type.STRING },
+                    resultado: { type: Type.STRING }
+                }
+            }
+        }
+    },
+    required: ['hallazgosConfirmados', 'hallazgosRefutados', 'hallazgosNuevos', 'bitacoraVerificacion']
+};
+
+export const CONSOLIDATION_SCHEMA = {
+    type: Type.OBJECT,
+    properties: {
+        hallazgosFinales: {
+            type: Type.ARRAY,
+            description: "Solo hallazgos consensuados entre Ronda 1 y 2.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    codigos: { type: Type.STRING },
+                    glosa: { type: Type.STRING },
+                    hallazgo: { type: Type.STRING },
+                    montoObjetado: { type: Type.NUMBER },
+                    normaFundamento: { type: Type.STRING },
+                    consenso: { type: Type.STRING, description: "R1+R2, R2_nuevo, R3_nuevo" }
+                }
+            }
+        },
+        hallazgosDescartados: {
+            type: Type.ARRAY,
+            description: "Hallazgos eliminados por falta de consenso o refutación.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    codigoOriginal: { type: Type.STRING },
+                    montoOriginal: { type: Type.NUMBER },
+                    razonDescarte: { type: Type.STRING }
+                }
+            }
+        },
+        totalAhorroFinal: { type: Type.NUMBER },
+        auditoriaFinalMarkdown: { type: Type.STRING },
+        bitacoraConsolidacion: {
+            type: Type.ARRAY,
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    decision: { type: Type.STRING },
+                    justificacion: { type: Type.STRING }
+                }
+            }
+        }
+    },
+    required: ['hallazgosFinales', 'hallazgosDescartados', 'totalAhorroFinal', 'auditoriaFinalMarkdown']
+};
+
+export function buildVerificationPrompt(ronda1Result: any): string {
+    const hallazgosJson = JSON.stringify(ronda1Result.hallazgos || [], null, 2);
+    const totalAhorro = ronda1Result.totalAhorroDetectado?.toLocaleString('es-CL') || 0;
+    const numHallazgos = ronda1Result.hallazgos?.length || 0;
+
+    return `
+ERES UN AUDITOR CRÍTICO Y ESCÉPTICO (RONDA 2).
+
+Un auditor realizó una primera auditoría y detectó ${numHallazgos} hallazgos por un total de $${totalAhorro}.
+
+TU TRABAJO: VERIFICACIÓN CRUZADA INDEPENDIENTE
+
+Para CADA hallazgo de Ronda 1, debes:
+
+1. **REPRODUCIBILIDAD:**
+   - ¿Puedes llegar al mismo cálculo independientemente?
+   - ¿El anclaje JSON (CUENTA/PAM/CONTRATO) es correcto y existe?
+
+2. **FUNDAMENTO LEGAL:**
+   - ¿La norma citada es aplicable al caso?
+   - ¿La interpretación es correcta?
+
+3. **DECISIÓN:**
+   - CONFIRMAR: Reproduces el hallazgo con el mismo resultado (±5%)
+   - REFUTAR: Error de cálculo, anclaje incorrecto, o mala interpretación
+   - AJUSTAR: Hallazgo válido pero monto diferente
+
+4. **BUSCAR OMISIONES:**
+   - ¿Hay copagos sin fundamento que Ronda 1 no detectó?
+   - Revisa CADA ítem del PAM con copago > 0
+
+HALLAZGOS DE RONDA 1 A VERIFICAR:
+${hallazgosJson}
+
+REGLA CRÍTICA: Si no puedes reproducir un cálculo exactamente, DEBES refutarlo.
+`;
+}
+
+export function buildConsolidationPrompt(ronda1: any, ronda2: any): string {
+    const confirmados = ronda2.hallazgosConfirmados?.length || 0;
+    const refutados = ronda2.hallazgosRefutados?.length || 0;
+    const nuevos = ronda2.hallazgosNuevos?.length || 0;
+    const numHallazgosR1 = ronda1.hallazgos?.length || 0;
+    const totalR1 = ronda1.totalAhorroDetectado?.toLocaleString('es-CL') || 0;
+    const ronda1Json = JSON.stringify(ronda1, null, 2);
+    const ronda2Json = JSON.stringify(ronda2, null, 2);
+
+    return `
+ERES EL AUDITOR JEFE (RONDA 3 - CONSOLIDACIÓN FINAL).
+
+Tienes 2 auditorías del mismo caso:
+
+**RONDA 1 (Auditor Primario):** ${numHallazgosR1} hallazgos, Total: $${totalR1}
+**RONDA 2 (Auditor Verificador):** Confirmó ${confirmados}, Refutó ${refutados}, Agregó ${nuevos}
+
+TU TRABAJO: CONSOLIDACIÓN POR CONSENSO
+
+REGLAS ESTRICTAS:
+
+1. **INCLUIR EN INFORME FINAL:**
+   - Hallazgos de R1 que R2 confirmó
+   - Hallazgos nuevos de R2 que tú validas independientemente
+
+2. **EXCLUIR DEL INFORME:**
+   - Hallazgos que R2 refutó con evidencia
+   - Hallazgos que NO puedes reproducir tú mismo
+
+3. **DESEMPATE DE MONTOS:**
+   - Si R1 y R2 difieren: usa el MENOR (principio conservador)
+
+4. **VERIFICACIÓN FINAL:**
+   - Revisa si AMBAS rondas omitieron algo obvio
+
+DATOS Ronda 1:
+${ronda1Json}
+
+DATOS Ronda 2:
+${ronda2Json}
+
+Genera el informe FINAL consolidado.
+`;
+}
+
