@@ -576,6 +576,14 @@ Para cada hallazgo:
 - **VERIFICACIÓN:** Si extraes un tope de "300 UF", verifica que NO esté en una columna titulada "Internacional", "Extranjero", "Exterior", o similar.
 - **BITÁCORA:** En \`bitacoraAnalisis\`, registra: "Extraído de Columna [N]: [Encabezado] = [Valor]" para asegurar trazabilidad.
 
+**Checkpoint Anti-Alucinación 5 – Integridad de Roles y Cantidades (CRÍTICO):**
+- **SITUACIÓN:** PAM indica Cantidad=1 y Monto=$4.2M (Cirujano Principal).
+- **ALUCINACIÓN PROHIBIDA:** Decir "Debería ser 0.1 ($423k) porque parece un instrumentista".
+- **REGLA:** NUNCA cambies el ROL ni la CANTIDAD (1.0 vs 0.1) basándote en suposiciones de precio.
+- **EXCEPCIÓN:** ÚNICAMENTE si la glosa dice explícitamente "INSTRUMENTISTA", "ARSENALERO" o "2DO CIRUJANO", puedes validar si se aplicó el % correcto (10% o 50%).
+- Si la glosa es genérica (ej: "Resección Tumor"), ASUME SIEMPRE que es el CIRUJANO PRINCIPAL (100%).
+- **CONSECUENCIA:** Si inventas un "error de facturación de clínica" cambiando la cantidad de 1 a 0.1 sin que la glosa diga "Instrumentista", serás penalizado.
+
 ---
 
 **MARCO LEGAL Y REGLAS CANÓNICAS (CONOCIMIENTO):**
