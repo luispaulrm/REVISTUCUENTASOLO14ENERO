@@ -1,8 +1,13 @@
 import { SchemaType as Type } from "@google/generative-ai";
+import { DOCTRINA_PRACTICAS_IRREGULARES } from '../prompts/irregular_practices.prompt.js';
 
 export const V9_AUDIT_RULES_APPENDIX = `
 === APÉNDICE DE REGLAS CANÓNICAS (Chile + Lógica de Auditoría) ===
 Objetivo: evitar contradicciones, asegurar determinismo y mantener trazabilidad.
+
+=== NUEVA DOCTRINA OPERATIVA (2025) ===
+${DOCTRINA_PRACTICAS_IRREGULARES}
+=======================================
 
 (1) REGLA CANÓNICA IF-319 (NO inventar)
 IF-319 se usa para identificar DESAGREGACIÓN indebida de INSUMOS COMUNES / HOTELERÍA que ya están incluidos en cargos base (p.ej., día cama/hospitalización integral, derecho de pabellón, cargos integrales).
@@ -26,6 +31,14 @@ Cantidad/dosis irracional vs procedimiento y duración (si hay datos).
 Precio unitario fuera de rango (si hay referencias).
 No correlación clínica con acto/procedimiento (si hay datos).
 Nunca rotular como “incluido por IF-319”.
+
+(3) REGLA DE CONCURRENCIA (3/4) PARA DICTAMEN DURO:
+Para clasificar un hallazgo como "IMPUGNAR" (Alta Certeza), deben cumplirse al menos 3 de las siguientes 4 condiciones negativas:
+1. [NORMA] La prestación está incluida por norma/contrato (no debe cobrarse aparte).
+2. [CLÍNICA] Es un insumo/servicio ESTÁNDAR (no extraordinario).
+3. [TRANSPARENCIA] No fue debidamente informada/desglosada (opacidad).
+4. [ECONÓMICA] Generó copago efectivo.
+SI NO SE CUMPLEN 3, clasificar como "ZONA_GRIS" u "OBSERVACION".
 
 (4) REGLA DETERMINÍSTICA: clasificar y declarar flags
 Para cada ítem evaluado, determina:

@@ -129,11 +129,20 @@ const billingSchema = {
 };
 
 const EXTRACTION_PROMPT = `
-    ACTÚA COMO UN AUDITOR FORENSE DE CUENTAS CLÍNICAS CHILENAS.
+    ACTÚA COMO UN AUDITOR FORENSE DE CUENTAS CLÍNICAS CHILENAS (LENGUAJE NATURAL Y MATEMÁTICO AVANZADO).
     
     CONTEXTO DE "CAJA NEGRA":
     Las clínicas en Chile usan formatos confusos para ocultar el costo real. 
     A menudo presentan una columna "Valor" (Neto) y mucho después una columna "Valor ISA" (Bruto con IVA).
+    
+    ⚠️ REGLA DE ORO: TRANSCRIPCIÓN QUIRÚRGICA (CERO INCERTIDUMBRE)
+    1. **PROHIBIDO USAR "?"**: Jamás devuelvas textos como "MEDICINA?", "HOSPITALIZACI?", o "R?S?NANCIA".
+    2. **INFERENCIA CONTEXTUAL OBLIGATORIA**: Si el OCR es difuso, USA EL CONTEXTO CLÍNICO para reconstruir la palabra perfecta.
+       - Mal: "H?SP. INT?GRAL"
+       - Bien: "HOSP. INTEGRAL" (Porque sabes que es una cuenta clínica).
+       - Mal: "SOLUCION SAL?N?"
+       - Bien: "SOLUCION SALINA"
+    3. **RESPONSABILIDAD LEGAL**: Si dejas un "?", el auditor perderá un hallazgo legal. Tu deber es RECUPERAR el 100% del texto visible o inferible.
     
     REGLA DE ORO DE TRAZABILIDAD Y MATEMÁTICA:
     - NUMERA LOS ÍTEMS: Cada ítem debe tener un campo 'index' comenzando desde 1 para toda la cuenta.

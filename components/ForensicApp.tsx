@@ -369,7 +369,7 @@ export default function ForensicApp() {
                                 </div>
                                 <div className="bg-slate-950 p-6 rounded-2xl text-white min-w-[250px]">
                                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Ahorro Detectado</p>
-                                    <div className="text-3xl font-black text-emerald-400">${auditResult.totalAhorroDetectado.toLocaleString('es-CL')}</div>
+                                    <div className="text-3xl font-black text-emerald-400">${(auditResult.totalAhorroDetectado || 0).toLocaleString('es-CL')}</div>
                                 </div>
                             </div>
 
@@ -391,7 +391,7 @@ export default function ForensicApp() {
                             )}
 
                             {/* BITÁCORA DE ANÁLISIS TÉCNICO */}
-                            {auditResult.bitacoraAnalisis && auditResult.bitacoraAnalisis.length > 0 && (
+                            {(auditResult.bitacoraAnalisis?.length > 0 || auditResult.bitacoraCompleta) && (
                                 <div className="space-y-6">
                                     <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                         <BrainCircuit size={16} className="text-indigo-600" /> Bitácora de Análisis Técnico (Razonamiento Forense)
@@ -406,7 +406,7 @@ export default function ForensicApp() {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-slate-200">
-                                                {auditResult.bitacoraAnalisis.map((item: any, idx: number) => (
+                                                {(auditResult.bitacoraAnalisis || []).map((item: any, idx: number) => (
                                                     <tr key={idx} className="hover:bg-white transition-colors">
                                                         <td className="px-6 py-4 text-xs font-bold text-slate-700">{idx + 1}. {item.paso}</td>
                                                         <td className="px-6 py-4 text-xs text-slate-600 font-mono">{item.razonamiento}</td>
@@ -422,17 +422,17 @@ export default function ForensicApp() {
                             {/* HALLAZGOS */}
                             <div className="space-y-6">
                                 <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <ChevronRight size={16} className="text-slate-900" /> Hallazgos y Objeciones ({auditResult.hallazgos.length})
+                                    <ChevronRight size={16} className="text-slate-900" /> Hallazgos y Objeciones ({(auditResult.hallazgos || []).length})
                                 </h3>
                                 <div className="grid grid-cols-1 gap-4">
-                                    {auditResult.hallazgos.map((hallazgo: any, idx: number) => (
+                                    {(auditResult.hallazgos || []).map((hallazgo: any, idx: number) => (
                                         <div key={idx} className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-400 transition-all shadow-sm">
                                             <div className="flex justify-between items-center mb-4">
                                                 <div className="flex items-center gap-3">
                                                     <span className="px-2 py-1 bg-slate-900 text-white rounded text-[10px] font-mono">{hallazgo.codigos}</span>
                                                     <h4 className="font-bold text-slate-900">{hallazgo.glosa}</h4>
                                                 </div>
-                                                <div className="text-rose-600 font-black text-lg">-${hallazgo.montoObjetado.toLocaleString()}</div>
+                                                <div className="text-rose-600 font-black text-lg">-${(hallazgo.montoObjetado || 0).toLocaleString()}</div>
                                             </div>
                                             <p className="text-sm text-slate-600 mb-4 whitespace-pre-wrap">{hallazgo.hallazgo}</p>
                                             <div className="flex gap-4 text-[10px] font-bold text-slate-400 uppercase">
@@ -441,6 +441,12 @@ export default function ForensicApp() {
                                             </div>
                                         </div>
                                     ))}
+                                    {(!auditResult.hallazgos || auditResult.hallazgos.length === 0) && (
+                                        <div className="p-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">
+                                            <CheckCircle2 size={32} className="mx-auto mb-2 opacity-50" />
+                                            <p>No se encontraron hallazgos negativos. La cuenta parece estar en orden.</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
