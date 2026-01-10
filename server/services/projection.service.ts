@@ -52,6 +52,12 @@ export class ProjectionService {
                 6. TOKEN MANAGEMENT: If the document is too long, STOP at a logical point (e.g., after a complete </table> row, or a paragraph </p>) and WAIT for the continuation signal. Do NOT summarize or skip content.
                 7. FINAL MARKER: ONLY use "<!-- END_OF_DOCUMENT -->" if you have reached the ABSOLUTE END of the file (including annexes, signatures, and fine print).
                 
+                **CRITICAL: TABLE STRUCTURE RULES**
+                8. **HEADERS:** For ALL tables, you MUST use <thead> with <th> tags for header rows.
+                9. **COLUMN IDENTIFICATION:** When a table has multiple columns with similar data (e.g., "Tope Nacional", "Tope Anual", "Tope Internacional"), ensure each <th> clearly and uniquely identifies the column.
+                10. **ALIGNMENT:** Ensure every <tr> in the <tbody> has the SAME number of <td> elements as there are <th> in the <thead>. Do NOT merge or skip columns.
+                11. **SEMANTIC CLARITY:** If a table header says "Nacional", "Modalidad Libre Elección", "Internacional", etc., preserve those EXACT words in the <th> tags.
+                
                 OUTPUT:
                 A single <div> container containing the HTML projection.
             ` : `
