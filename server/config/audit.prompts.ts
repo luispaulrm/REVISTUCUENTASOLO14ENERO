@@ -78,66 +78,41 @@ Importante: el prorrateo es imputación matemática, NO prueba de qué fármaco 
 - **HALLAZGO:** Si la cobertura internacional es extremadamente baja (ej: < 50 UF para hospitalización), DEBE ser señalada como un hallazgo de "Protección Financiera Insuficiente en el Extranjero".
 
 ========================================
-(11) ÁRBOL DE DECISIÓN: AUDITOR PRUDENTE v1.0
+(11) ÁRBOL DE DECISIÓN: AUDITOR PRUDENTE v2.0 (ARMOR PLATED)
 ========================================
 
-**MANDATO:** Evaluar cumplimiento contractual sin asumir valores no verificables.
+**JERARQUÍA SUPREMA DE INTERPRETACIÓN (NIVEL ZERO-ERROR):**
+1. **TOPE CONTRACTUAL EXPLÍCITO (UF):** Si existe y se cumple, MATA a cualquier otra regla.
+2. **NORMAS DE ORDEN PÚBLICO:** Aplican solo si no contradicen un tope UF válido.
 
-**REGLAS OBLIGATORIAS DEL AUDITOR PRUDENTE:**
+**CLASIFICACIÓN DE TOPES (CAPA 3):**
+- \`TOPE_MAXIMO_BONIFICABLE\` (UF): Límite financiero duro. Si Isapre paga esto, CUMPLIÓ.
+- \`TOPE_INTERNO_NO_AUDITABLE\` (VAM/AC2): No se puede auditar, se asume cumplimiento.
 
-1. **NUNCA asumas incumplimiento solo por la existencia de copago.**
-
-2. **Distingue SIEMPRE entre:**
-   - Porcentaje de cobertura pactado (ej: 100%, 80%)
-   - Tipo de tope contractual (ej: UF, VAM, SIN_TOPE)
-
-3. **TOPES AUDITABLES vs NO AUDITABLES:**
-   - ✅ **AUDITABLES:** UF (Unidad de Fomento), SIN_TOPE
-   - ❌ **NO AUDITABLES:** VAM, VA, AC2, B1, ARANCEL_INTERNO, VECES_ARANCEL, OTRO_INTERNO
-
-4. **Si el tope está expresado en unidades internas de la Isapre (VAM, VA, AC2, B1 u otras):**
-   - **NO calcules** el exceso/déficit
-   - **NO infieras** incumplimiento
-   - **EXPLICA** la limitación al usuario
-   - **CLASIFICA** como: "No es posible verificar incumplimiento por tope no auditable"
-
-5. **Solo declara INCUMPLIMIENTO CONTRACTUAL cuando concurran simultáneamente:**
-   - [A] Cobertura pactada explícita (ej: 100%)
-   - [B] Tope auditable (UF o SIN_TOPE)
-   - [C] Copago incompatible con lo pactado (copago_real > copago_esperable)
-
-6. **Cuando NO sea posible verificar, utiliza lenguaje EXPLICATIVO, nunca acusatorio.**
-
-**ÁRBOL DE DECISIÓN (EJECUTAR EN ORDEN):**
+**ALGORITMO DE DECISIÓN (BINARY PASS):**
 
 \`\`\`
-R1: SI porcentaje_cobertura == 100 → EVALUAR_TOPE
-R2: SI porcentaje_cobertura < 100 → NO_INCUMPLIMIENTO_POR_PORCENTAJE
-    "El contrato no promete cobertura total; la existencia de copago es compatible con el plan."
+INPUT: PrecioCobrado, BonificacionReal, TopeContratoUF
 
-EVALUAR_TOPE:
-R3: SI tipo_tope == 'UF' → AUDITAR_CUANTITATIVAMENTE
-R4: SI tipo_tope IN ['VAM','VA','AC2','B1','ARANCEL_INTERNO'] → TOPE_NO_AUDITABLE
-    "El tope está definido en unidades internas de la Isapre, no verificables externamente."
-R5: SI tipo_tope == 'SIN_TOPE' → APLICAR_SOLO_PORCENTAJE
+1. ¿Existe tope UF en contrato?
+   SI -> Ir a 2.
+   NO -> Aplicar Lógica 100% Pleno (Ir a Hallazgos).
 
-AUDITAR_CUANTITATIVAMENTE:
-R6: SI copago_real > copago_esperable → INCUMPLIMIENTO_CONTRACTUAL (ALTA CERTEZA)
-R7: SI copago_real <= copago_esperable → CUMPLIMIENTO_CONTRACTUAL
+2. ¿BonificacionReal >= TopeContratoUF? (Margen tol. $500 pesos)
+   SI -> DECISIÓN: "TOPE_CUMPLIDO".
+         ACCION: ABORTAR HALLAZGO.
+         OUTPUT: objetable = false.
+         LOG: "La Isapre pagó el tope máximo contractual. Copago es exceso de arancel legítimo."
+   NO -> DECISIÓN: "SUB_BONIFICACION".
+         ACCION: CREAR HALLAZGO.
+         OUTPUT: objetable = true.
 \`\`\`
 
-**SALIDAS POSIBLES (ELIGE SOLO UNA POR ÍTEM):**
-1. "Cumplimiento contractual verificado"
-2. "Incumplimiento contractual verificable"
-3. "No es posible verificar incumplimiento por tope no auditable"
-4. "Copago consistente con contrato"
+**PENALIZACIÓN SEMÁNTICA (CAPA 5):**
+Si el auditor reporta un hallazgo donde \`TopeContratoUF\` existe Y \`BonificacionReal\` >= \`TopeContratoUF\`, se marcará como **FALSO POSITIVO GRAVE**.
 
-**TONO OBLIGATORIO:** Técnico, sobrio, explicativo. Nunca emotivo ni acusatorio.
-
-**REGLA FINAL:** Si no puedes explicar el tope en lenguaje humano, no puedes acusar incumplimiento.
-
-**TEXTO ESTÁNDAR PARA TOPES NO AUDITABLES (INCLUIR EN auditoriaFinalMarkdown):**
-> "En este caso, el contrato define el tope de cobertura usando una unidad interna de la Isapre (por ejemplo, VAM, AC2 o similar), cuyo valor monetario no es público. Por esta razón, no es posible calcular si la Isapre pudo haber cubierto un monto mayor. El copago observado no permite afirmar un incumplimiento contractual, aunque sí refleja las condiciones reales del plan contratado."
+**REGLA FINAL:**
+Antes de escribir en \`hallazgos[]\`, revisa tu \`decision_logica\`. Si \`objetable\` es \`false\`, NO ESCRIBAS NADA en la lista de hallazgos.
 `;
 
 export const FORENSIC_AUDIT_SCHEMA = {
@@ -149,15 +124,25 @@ export const FORENSIC_AUDIT_SCHEMA = {
         },
         bitacoraAnalisis: {
             type: Type.ARRAY,
-            description: "Bitácora detallada del razonamiento forense paso a paso para cada hallazgo importante. Esto asegura el determinismo.",
+            description: "Bitácora DETALLADA y OBLIGATORIA. Antes de escribir un hallazgo, el auditor debe 'pensar' aquí.",
             items: {
                 type: Type.OBJECT,
                 properties: {
-                    paso: { type: Type.STRING, description: "Descripción del paso de análisis (ej: 'Cálculo de Tope', 'Verificación PAM')" },
-                    razonamiento: { type: Type.STRING, description: "Detalle del cálculo o lógica aplicada." },
-                    evidencia: { type: Type.STRING, description: "Referencia exacta al dato usado (ej: 'Contrato pág 5, ítem 12')" }
+                    paso: { type: Type.STRING, description: "Identificación del paso (ej: 'Evaluación de Tope Contractual')." },
+                    input_datos: { type: Type.STRING, description: "Datos crudos: Valor cobrado, % Cobertura, Tope UF Contrato." },
+                    decision_logica: {
+                        type: Type.OBJECT,
+                        properties: {
+                            tope_aplica: { type: Type.BOOLEAN },
+                            tope_cumplido: { type: Type.BOOLEAN, description: "¿La Isapre pagó el monto del tope?" },
+                            objetable: { type: Type.BOOLEAN, description: "SI tope_cumplido ES TRUE -> objetable DEBE SER FALSE." },
+                            motivo_cierre: { type: Type.STRING, description: "Si no es objetable, explicar por qué (ej: 'TOPE_CONTRACTUAL_VALIDO')." }
+                        },
+                        required: ['tope_aplica', 'tope_cumplido', 'objetable', 'motivo_cierre']
+                    },
+                    razonamiento: { type: Type.STRING, description: "Explicación narrativa de la decisión." }
                 },
-                required: ['paso', 'razonamiento', 'evidencia']
+                required: ['paso', 'input_datos', 'decision_logica', 'razonamiento']
             }
         },
         hallazgos: {
@@ -205,8 +190,19 @@ No solo debes detectar errores, debes **CONCATENAR** cada hallazgo con la normat
 **OBJETIVO: PRESUNCIÓN DE IRREGULARIDAD**
 TODO copago en el PAM se considera OBJETABLE hasta que se demuestre que tiene fundamento legal o contractual legítimo.
 
-**PARADIGMA FORENSE:**
-No buscas qué objetar. Buscas POR QUÉ NO objetar.
+**PARADIGMA FORENSE BLINDADO (LEVEL EXPERT):**
+Tu cerebro opera en 2 fases separadas:
+1. **PHASE A (DECISION ENGINE):** Evalúas fríamente si aplica un tope. Si aplica y se cumplió, CIERRAS el caso. (Salida: \`objetable: false\`).
+2. **PHASE B (ARGUMENTATION ENGINE):** Solo si \`objetable: true\`, construyes el argumento jurídico. NUNCA mezcles empatía en la Fase A.
+
+**GLOSARIO VINCULANTE (ANTI-SEMÁNTICA):**
+- **"100% DE COBERTURA":** Significa "La Isapre paga el 100% del valor *hasta el tope en UF*". NO significa "Cobertura Ilimitada" ni "Pago de lo que cobre la clínica".
+- **"TOPE":** Es una frontera financiera válida. Un copago generado por exceso de tope UF es **LEGÍTIMO** y NO es objetable.
+
+**PROHIBICIONES EXPLÍCITAS (SYSTEM HALT):**
+❌ ESTÁ PROHIBIDO invocar "Evento Único" o "Integralidad" para anular un tope UF explícito.
+❌ ESTÁ PROHIBIDO decir "El plan promete 100%" sin añadir "...sujeto a topes".
+❌ ESTÁ PROHIBIDO objetar un copago si \`tope_cumplido\` es TRUE. Hacerlo se considera **ERROR DE SISTEMA (FALSO POSITIVO)**.
 
 **CATEGORÍAS DE HALLAZGOS:**
 1. Circular IF/N°319 (Insumos en Día Cama/Pabellón)
@@ -974,23 +970,21 @@ Tienes 2 auditorías del mismo caso:
 **RONDA 1 (Auditor Primario):** ${numHallazgosR1} hallazgos, Total: $${totalR1}
 **RONDA 2 (Auditor Verificador):** Confirmó ${confirmados}, Refutó ${refutados}, Agregó ${nuevos}
 
-TU TRABAJO: CONSOLIDACIÓN POR CONSENSO
+TU TRABAJO: CONSOLIDACIÓN POR CONSENSO Y RIGOR CONTRACTUAL.
 
-REGLAS ESTRICTAS:
+REGLAS DE ORO PARA LA CONSOLIDACIÓN (JERARQUÍA SUPREMA):
 
-1. **INCLUIR EN INFORME FINAL:**
-   - Hallazgos de R1 que R2 confirmó
-   - Hallazgos nuevos de R2 que tú validas independientemente
-
-2. **EXCLUIR DEL INFORME:**
-   - Hallazgos que R2 refutó con evidencia
-   - Hallazgos que NO puedes reproducir tú mismo
-
-3. **DESEMPATE DE MONTOS:**
-   - Si R1 y R2 difieren: usa el MENOR (principio conservador)
-
-4. **VERIFICACIÓN FINAL:**
-   - Revisa si AMBAS rondas omitieron algo obvio
+1. **RESPETO A LOS TOPES (UF):** Si Ronda 2 refuta un hallazgo de Ronda 1 explicando que la Isapre respetó un **Tope Contractual en UF**, DEBES EXCLUIR ese hallazgo. Los topes numéricos mandan sobre los principios de cobertura total.
+2. **INCLUIR EN INFORME FINAL:**
+   - Hallazgos de R1 que R2 confirmó.
+   - Hallazgos nuevos de R2 que tú validas.
+3. **EXCLUIR DEL INFORME:**
+   - Hallazgos que R2 refutó con evidencia (ej: cálculos erróneos, topes respetados, código ambulatorio legítimo).
+   - Hallazgos que NO puedes reproducir tú mismo.
+4. **DESEMPATE DE MONTOS:**
+   - Si R1 y R2 difieren: usa el MENOR (principio conservador).
+5. **VERIFICACIÓN DE JERARQUÍA:**
+   - Prioriza: 1. Topes UF > 2. Circulares > 3. Promesas generales.
 
 DATOS Ronda 1:
 ${ronda1Json}
@@ -998,7 +992,7 @@ ${ronda1Json}
 DATOS Ronda 2:
 ${ronda2Json}
 
-Genera el informe FINAL consolidado.
+Genera el informe FINAL consolidado, asegurando que el totalAhorroFinal sea la suma exacta de los hallazgosFinales.
 `;
 }
 
