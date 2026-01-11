@@ -165,6 +165,19 @@ export const FORENSIC_AUDIT_SCHEMA = {
             type: Type.NUMBER,
             description: "Suma total de todos los montos objetados."
         },
+        antecedentes: {
+            type: Type.OBJECT,
+            properties: {
+                paciente: { type: Type.STRING },
+                clinica: { type: Type.STRING },
+                isapre: { type: Type.STRING },
+                plan: { type: Type.STRING },
+                fechaIngreso: { type: Type.STRING },
+                fechaAlta: { type: Type.STRING },
+                objetoAuditoria: { type: Type.STRING, description: "Descripción completa de lo que se está auditando (ej: Hospitalización por [Diagnóstico], Folio [Número], Monto Total $[Monto])" }
+            },
+            required: ['paciente', 'clinica', 'isapre', 'plan', 'fechaIngreso', 'fechaAlta', 'objetoAuditoria']
+        },
         requiereRevisionHumana: {
             type: Type.BOOLEAN,
             description: "Indica si el caso tiene complejidades técnicas que requieren un humano."
@@ -174,7 +187,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
             description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
         }
     },
-    required: ['resumenEjecutivo', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
+    required: ['resumenEjecutivo', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
 
 export const AUDIT_PROMPT = `
@@ -189,6 +202,15 @@ No solo debes detectar errores, debes **CONCATENAR** cada hallazgo con la normat
 
 **OBJETIVO: PRESUNCIÓN DE IRREGULARIDAD**
 TODO copago en el PAM se considera OBJETABLE hasta que se demuestre que tiene fundamento legal o contractual legítimo.
+
+**RECOLECCIÓN DE ANTECEDENTES (PASO ZERO):**
+Antes de auditar, localiza y extrae de los documentos (Cuenta, PAM o HTML):
+1. Nombre del Paciente.
+2. Clínica o Prestador.
+3. Isapre y Plan de Salud.
+4. Fechas de ingreso y alta.
+5. Diagnóstico principal y monto total de la cuenta.
+Toda esta información DEBE ir en el objeto \`antecedentes\`.
 
 **PARADIGMA FORENSE BLINDADO (LEVEL EXPERT):**
 Tu cerebro opera en 2 fases separadas:
@@ -684,8 +706,15 @@ Si la 'CUENTA (Bill Detail)' estructurada está vacía o incompleta, utiliza el 
 Genera un reporte en MARKDOWN profesional.
 Estructura obligatoria:
 
+### 0. ANTECEDENTES DE LA AUDITORÍA
+- **Paciente:** [Nombre del Paciente]
+- **Clínica/Prestador:** [Nombre de la Clínica]
+- **Isapre:** [Nombre de la Isapre]
+- **Plan de Salud:** [Nombre/Código del Plan]
+- **Periodo Auditado:** [Fecha Ingreso] al [Fecha Alta]
+- **Objeto de la Auditoría:** [Descripción completa: Ej. Hospitalización por Cirugía X, Folio Y, Cuenta Total $Z]
+
 ### 1. RESUMEN EJECUTIVO
-Resumen conciso del resultado consolidado.
 
 ### 2. DETALLE DE HALLAZGOS (ESTRUCTURA CANÓNICA OBLIGATORIA)
 
@@ -897,6 +926,18 @@ export const CONSOLIDATION_SCHEMA = {
             }
         },
         totalAhorroFinal: { type: Type.NUMBER },
+        antecedentes: {
+            type: Type.OBJECT,
+            properties: {
+                paciente: { type: Type.STRING },
+                clinica: { type: Type.STRING },
+                isapre: { type: Type.STRING },
+                plan: { type: Type.STRING },
+                fechaIngreso: { type: Type.STRING },
+                fechaAlta: { type: Type.STRING },
+                objetoAuditoria: { type: Type.STRING }
+            }
+        },
         auditoriaFinalMarkdown: {
             type: Type.STRING,
             description: "El informe de auditoría final y consolidado en formato Markdown. OBLIGATORIO: Cada hallazgo en la sección 'DETALLE DE HALLAZGOS' debe mostrar las 7 secciones (I-VII) íntegramente."
@@ -912,7 +953,7 @@ export const CONSOLIDATION_SCHEMA = {
             }
         }
     },
-    required: ['hallazgosFinales', 'hallazgosDescartados', 'totalAhorroFinal', 'auditoriaFinalMarkdown']
+    required: ['hallazgosFinales', 'hallazgosDescartados', 'totalAhorroFinal', 'antecedentes', 'auditoriaFinalMarkdown']
 };
 
 export function buildVerificationPrompt(ronda1Result: any): string {
@@ -993,6 +1034,8 @@ DATOS Ronda 2:
 ${ronda2Json}
 
 Genera el informe FINAL consolidado, asegurando que el totalAhorroFinal sea la suma exacta de los hallazgosFinales.
+
+IMPORTANTE: Asegúrate de incluir la sección "0. ANTECEDENTES DE LA AUDITORÍA" al inicio del \`auditoriaFinalMarkdown\` con los datos del paciente, clínica, plan y fechas extraídos correctamente.
 `;
 }
 
