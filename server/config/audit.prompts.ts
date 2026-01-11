@@ -76,6 +76,68 @@ Importante: el prorrateo es imputación matemática, NO prueba de qué fármaco 
 - **PROHIBICIÓN:** Está terminantemente prohibido aplicar los montos de la columna "Internacional" o "Extranjero" a prestaciones realizadas en Chile (ej. Clínica Indisa, Alemana, etc.).
 - **LÓGICA:** El tope internacional es una limitación excepcional y no debe contaminar el análisis nacional. Si en la columna Nacional dice "SIN TOPE", ese es el dato que manda, ignorando lo que diga la columna Internacional.
 - **HALLAZGO:** Si la cobertura internacional es extremadamente baja (ej: < 50 UF para hospitalización), DEBE ser señalada como un hallazgo de "Protección Financiera Insuficiente en el Extranjero".
+
+========================================
+(11) ÁRBOL DE DECISIÓN: AUDITOR PRUDENTE v1.0
+========================================
+
+**MANDATO:** Evaluar cumplimiento contractual sin asumir valores no verificables.
+
+**REGLAS OBLIGATORIAS DEL AUDITOR PRUDENTE:**
+
+1. **NUNCA asumas incumplimiento solo por la existencia de copago.**
+
+2. **Distingue SIEMPRE entre:**
+   - Porcentaje de cobertura pactado (ej: 100%, 80%)
+   - Tipo de tope contractual (ej: UF, VAM, SIN_TOPE)
+
+3. **TOPES AUDITABLES vs NO AUDITABLES:**
+   - ✅ **AUDITABLES:** UF (Unidad de Fomento), SIN_TOPE
+   - ❌ **NO AUDITABLES:** VAM, VA, AC2, B1, ARANCEL_INTERNO, VECES_ARANCEL, OTRO_INTERNO
+
+4. **Si el tope está expresado en unidades internas de la Isapre (VAM, VA, AC2, B1 u otras):**
+   - **NO calcules** el exceso/déficit
+   - **NO infieras** incumplimiento
+   - **EXPLICA** la limitación al usuario
+   - **CLASIFICA** como: "No es posible verificar incumplimiento por tope no auditable"
+
+5. **Solo declara INCUMPLIMIENTO CONTRACTUAL cuando concurran simultáneamente:**
+   - [A] Cobertura pactada explícita (ej: 100%)
+   - [B] Tope auditable (UF o SIN_TOPE)
+   - [C] Copago incompatible con lo pactado (copago_real > copago_esperable)
+
+6. **Cuando NO sea posible verificar, utiliza lenguaje EXPLICATIVO, nunca acusatorio.**
+
+**ÁRBOL DE DECISIÓN (EJECUTAR EN ORDEN):**
+
+\`\`\`
+R1: SI porcentaje_cobertura == 100 → EVALUAR_TOPE
+R2: SI porcentaje_cobertura < 100 → NO_INCUMPLIMIENTO_POR_PORCENTAJE
+    "El contrato no promete cobertura total; la existencia de copago es compatible con el plan."
+
+EVALUAR_TOPE:
+R3: SI tipo_tope == 'UF' → AUDITAR_CUANTITATIVAMENTE
+R4: SI tipo_tope IN ['VAM','VA','AC2','B1','ARANCEL_INTERNO'] → TOPE_NO_AUDITABLE
+    "El tope está definido en unidades internas de la Isapre, no verificables externamente."
+R5: SI tipo_tope == 'SIN_TOPE' → APLICAR_SOLO_PORCENTAJE
+
+AUDITAR_CUANTITATIVAMENTE:
+R6: SI copago_real > copago_esperable → INCUMPLIMIENTO_CONTRACTUAL (ALTA CERTEZA)
+R7: SI copago_real <= copago_esperable → CUMPLIMIENTO_CONTRACTUAL
+\`\`\`
+
+**SALIDAS POSIBLES (ELIGE SOLO UNA POR ÍTEM):**
+1. "Cumplimiento contractual verificado"
+2. "Incumplimiento contractual verificable"
+3. "No es posible verificar incumplimiento por tope no auditable"
+4. "Copago consistente con contrato"
+
+**TONO OBLIGATORIO:** Técnico, sobrio, explicativo. Nunca emotivo ni acusatorio.
+
+**REGLA FINAL:** Si no puedes explicar el tope en lenguaje humano, no puedes acusar incumplimiento.
+
+**TEXTO ESTÁNDAR PARA TOPES NO AUDITABLES (INCLUIR EN auditoriaFinalMarkdown):**
+> "En este caso, el contrato define el tope de cobertura usando una unidad interna de la Isapre (por ejemplo, VAM, AC2 o similar), cuyo valor monetario no es público. Por esta razón, no es posible calcular si la Isapre pudo haber cubierto un monto mayor. El copago observado no permite afirmar un incumplimiento contractual, aunque sí refleja las condiciones reales del plan contratado."
 `;
 
 export const FORENSIC_AUDIT_SCHEMA = {
@@ -106,9 +168,9 @@ export const FORENSIC_AUDIT_SCHEMA = {
                 properties: {
                     codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
                     glosa: { type: Type.STRING, description: "Descripción de la prestación o conjunto de prestaciones." },
-                    hallazgo: { type: Type.STRING, description: "Narrativa detallada del problema detectado con estructura HECHO→CONTRATO→LEY." },
-                    montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP)." },
-                    normaFundamento: { type: Type.STRING, description: "CITA TEXTUAL de la norma o jurisprudencia del knowledge_base_text. Formato: 'Según [Documento/Rol/Artículo]: \"[extracto textual]\"'. Ej: 'Según Dictamen SS Rol C-1234: \"Los insumos de pabellón están incluidos...\"'" },
+                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 7 SECCIONES (I a VII) definida en las instrucciones. Si falta una sección, el hallazgo es inválido." },
+                    montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP). Debe coincidir con la sección VI del hallazgo narrativa." },
+                    normaFundamento: { type: Type.STRING, description: "CITA TEXTUAL de la norma o jurisprudencia del knowledge_base_text. Formato: 'Según [Documento/Rol/Artículo]: \"[extracto textual]\"'." },
                     anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" }
                 },
                 required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
@@ -213,62 +275,66 @@ Por cada irregularidad sospechada, registra:
 3. **Cálculo de Diferencia**: (Valor Contrato) - (Valor Bonificado PAM).
 4. **Verificación Anti-Error**: Realiza el cálculo matemático dos veces. Si los resultados no coinciden, descarta el hallazgo.
 
-**HALLAZGO: TRIPLE ANCLAJE OBLIGATORIO (FACT → CONTRACT → LAW)**
-Para cada hallazgo en la tabla, el campo \`hallazgo\` DEBE ser una narrativa exhaustiva que concatene:
-1. **EL HECHO (CUENTA/PAM):** "Se detectó que el ítem X fue cobrado como Y por $Z..."
-2. **EL CONTRATO (PLAN):** "Esto contraviene la cobertura de [%] prometida en el contrato (ver coberturas[n])..."
-3. **LA LEY (CONOCIMIENTO):** "Vulnerando lo establecido en [Citar Documento del Conocimiento/Norma], el cual indica que [Explicación de la norma]."
+**NUEVO OBJETIVO DEL AUDITOR:**
+El auditor NO debe "dictar sentencia", debe CONSTRUIR UNA IMPUGNACIÓN EXPLICADA.
+
+👉 Cada hallazgo DEBE responder explícitamente a estas 5 preguntas:
+1. ¿Qué se está cobrando?
+2. ¿Por qué ese cobro se cuestiona?
+3. ¿Qué dice el contrato exactamente sobre esa materia?
+4. ¿Cómo se aparta la Isapre o la clínica de lo pactado?
+5. ¿Cuál es la consecuencia económica concreta para el afiliado?
+
+**SI UNA DE ESAS FALTA → EL ARGUMENTO ES DÉBIL Y DEBE SER DESCARTADO.**
+
+========================================
+🧾 ESTRUCTURA CANÓNICA DE ARGUMENTO v1.0
+========================================
+
+El campo \`hallazgo\` de cada item en el array \`hallazgos\` DEBE seguir esta estructura OBLIGATORIA de 7 secciones:
+
+**I. Identificación del ítem cuestionado**
+Aquí se delimita el objeto exacto. NO se juzga todavía.
+> "Se cuestiona el cobro correspondiente a [prestación / grupo de prestaciones], facturado bajo el concepto [nombre clínico / código PAM / glosa], por un monto total de $XXX, el cual fue derivado total o parcialmente a copago del afiliado."
+
+**II. Contexto clínico y administrativo**
+Aquí se explica DÓNDE ocurre el cobro.
+> "Dicho cobro se origina en el marco de un evento hospitalario único, asociado a [diagnóstico / procedimiento principal], con ingreso hospitalario formal, uso de pabellón quirúrgico y alta posterior, según consta en la cuenta clínica y el PAM respectivo."
+
+**III. Norma contractual aplicable**
+Aquí se CITA y TRADUCE el contrato. El auditor demuestra que LEYÓ el contrato.
+> "El plan de salud [nombre y código] establece para las prestaciones hospitalarias de este tipo una cobertura de [X%], sujeta a un tope de [UF / VAM / unidad interna], según lo indicado en la tabla de beneficios contractuales."
+> Si aplica: "En particular, el contrato señala que [ejemplo: medicamentos e insumos clínicos por evento durante la hospitalización] se encuentran incluidos dentro de la cobertura hospitalaria."
+
+**IV. Forma en que se materializa la controversia**
+AQUÍ ESTÁ EL CORAZÓN DEL ARGUMENTO. Se explica QUÉ hicieron mal, no solo que "está mal".
+> Ejemplo (doble cobro / desagregación): "No obstante lo anterior, el prestador y/o la Isapre procedieron a desagregar y cobrar por separado elementos que forman parte estructural de la prestación hospitalaria cubierta, tales como [insumos básicos, fármacos, procedimientos auxiliares, uso de infraestructura], imputándolos como copago o como 'gastos no cubiertos'."
+> O bien (error de modalidad): "Asimismo, se observa que determinadas prestaciones fueron bonificadas bajo modalidad ambulatoria, pese a encontrarse clínicamente asociadas al evento hospitalario principal, lo que redujo artificialmente la cobertura aplicada."
+
+**V. Análisis técnico-contractual**
+Aquí se CONECTA todo con razonamiento explícito.
+> "Desde un punto de vista técnico y contractual, dicha imputación resulta improcedente, toda vez que:
+> - La hospitalización se encuentra debidamente acreditada
+> - La prestación cuestionada es inseparable del acto médico principal
+> - El contrato no contempla su exclusión expresa
+> - Su separación tiene como único efecto trasladar costo al afiliado"
+
+**VI. Efecto económico concreto**
+NUNCA debe faltar. Ancla al copago REAL del PAM.
+> "Como consecuencia directa de esta aplicación incorrecta de la cobertura, el afiliado asumió un copago indebido ascendente a $XXX, monto que debió ser bonificado conforme a las condiciones pactadas en su plan de salud."
+
+**VII. Conclusión de la impugnación**
+RECIÉN AQUÍ se concluye. NUNCA ANTES.
+> "En virtud de lo expuesto, se concluye que el cobro analizado no se ajusta a las condiciones contractuales vigentes, configurándose una imputación improcedente de costos al afiliado respecto del ítem descrito."
+
+========================================
+⚠️ REGLA CRÍTICA: ESTRUCTURA OBLIGATORIA
+========================================
+- Si el campo \`hallazgo\` NO contiene las 7 secciones (I al VII), el hallazgo es INVÁLIDO.
+- Cada sección debe estar claramente separada y etiquetada.
+- La sección VI (Efecto Económico) DEBE coincidir EXACTAMENTE con el campo \`montoObjetado\`.
 
 **INSTRUCCIONES DE USO DEL CONOCIMIENTO Y DATOS:**
-
-### 1. FUENTES DE DATOS: PRIORIDAD Y USO
-1. **Cuenta Clínica ({cuenta_json})**: Fuente primaria de gastos reales facturados por la clínica.
-2. **PAM/Isapre ({pam_json})**: Fuente de lo bonificado por la Isapre. Sirve para detectar qué se pagó y qué no.
-3. **Contrato de Salud ({contrato_json})**: Fuente primaria de REGLAS, TOPES y COBERTURAS.
-4. **Proyección HTML / Módulo 5 ({html_context})**:
-   - **IMPORTANTE**: Este contexto actuaría como fuente de verdad para el análisis cuando no hay JSON de contrato disponible.
-   - Si el {contrato_json} está vacío o es insuficiente para determinar una regla, DEBES buscar proactivamente en {html_context} las coberturas, porcentajes y topes.
-   - El contenido de Module 5 es una proyección fiel de las reglas del plan; tómalo como una fuente de verdad para el análisis contractual.
-
-### 2. USO DEL CONOCIMIENTO LEGAL (FUNDAMENTACIÓN EXHAUSTIVA OBLIGATORIA)
-El campo \`normaFundamento\` de cada hallazgo DEBE contener una CITA TEXTUAL VERBATIM (entre comillas) extraída directamente del \`knowledge_base_text\` inyectado.
-
-**⚠️ REGLA CRÍTICA: CITA VERBATIM OBLIGATORIA**
-- DEBES copiar y pegar un fragmento EXACTO del conocimiento inyectado entre comillas simples o dobles.
-- NO parafrasees. NO resumas. CITA TEXTUALMENTE.
-- Si no encuentras texto relevante en el knowledge_base_text, escribe: "Sin precedente textual en base de conocimiento actual. Fundamento doctrinario: [explicar principio]."
-
-**ESTRUCTURA OBLIGATORIA DEL CAMPO \`normaFundamento\`:**
-\`\`\`
-[DOCUMENTO] [IDENTIFICADOR]: "[CITA TEXTUAL VERBATIM del knowledge_base_text]" → [APLICACIÓN AL CASO]
-\`\`\`
-
-**EJEMPLOS DE FUNDAMENTACIÓN CORRECTA (COPIAR ESTE FORMATO):**
-
-1. **Para Jurisprudencia:**
-   "Según **Dictamen SS Rol C-6847-2019** (Jurisprudencia SIS): '*La Isapre no puede aplicar a las prestaciones otorgadas en la unidad de urgencia una cobertura distinta a la que corresponde al evento hospitalario, cuando la atención de urgencia deriva en hospitalización inmediata.*' En este caso, el paciente ingresó por urgencia el 26/09 y fue hospitalizado el mismo día, por lo que el copago de urgencia de $12.106 es improcedente."
-
-2. **Para Circular IF/N°319:**
-   "Según **Circular IF/N°319** (Compendio Normas): '*Los insumos de uso corriente tales como: gasas, apósitos, jeringas, tela adhesiva, guantes y similares, se encuentran incluidos en el valor del día cama o del derecho de pabellón.*' Los ítems cobrados (termómetro, set de aseo, calzón clínico) califican como insumos de uso corriente, generando un cobro indebido de $32.716."
-
-3. **Para Contratos:**
-   "Según **Contrato Plan PLE 847** (tabla de coberturas): '*Medicamentos en Hospitalización: Bonificación 100%, Tope: SIN TOPE, Prestador Nacional.*' La Isapre aplicó 0% de bonificación contraviniendo lo pactado, generando un copago ilegal de $134.100."
-
-4. **Para Jurisprudencia de Infraestructura:**
-   "Según **Jurisprudencia SS** (Dictamen extractado): '*No resulta procedente excluir de cobertura o bonificación aquellos costos que constituyen elementos indispensables para la ejecución del acto médico autorizado, tales como el uso de pabellón, derecho a sala y recuperación inmediata.*' Los cargos bajo glosa '3201001 - Gastos no cubiertos' corresponden a infraestructura quirúrgica esencial."
-
-**EJEMPLOS DE FUNDAMENTACIÓN INSUFICIENTE (PROHIBIDO):**
-❌ "Dictamen SS N° 12.287/2016: La atención de urgencia y la hospitalización constituyen un solo evento." → Esto es una PARÁFRASIS, no una cita textual.
-❌ "Jurisprudencia SIS: No es procedente excluir costos de infraestructura." → Esto es un RESUMEN, no una cita verbatim.
-❌ "Circular IF/N°319" → Solo nombrar la norma NO es fundamento suficiente.
-
-**PROCESO DE BÚSQUEDA EN EL CONOCIMIENTO:**
-1. Lee el \`knowledge_base_text\` inyectado completo.
-2. Identifica fragmentos que mencionen: el código de prestación, la categoría (urgencia, pabellón, medicamentos), o la situación específica.
-3. COPIA TEXTUALMENTE el fragmento más relevante.
-4. Aplica la cita al caso concreto explicando cómo se vulnera.
-
-Tu objetivo es cruzar las 4 fuentes para encontrar el "pago indebido" con el triple anclaje: **HECHO → CONTRATO → LEY (con cita textual verbatim)**.
 
 ---
 
@@ -625,15 +691,43 @@ Estructura obligatoria:
 ### 1. RESUMEN EJECUTIVO
 Resumen conciso del resultado consolidado.
 
-### 2. DETALLE DE HALLAZGOS (ARGUMENTACIÓN LEGAL COMPLETA)
-Para cada hallazgo confirmado, genera un párrafo DETALLADO que incluya:
-- **Hecho:** Qué pasó (cobro indebido, exclusión, mal cálculo).
-- **Evidencia Contractual:** Referencia al plan de salud (cobertura 100%, topes, etc).
-- **Sustento Legal (CITA VERBATIM):** Copia textual de la norma o jurisprudencia violada.
-- **Conclusión:** Por qué el copago es improcedente.
+### 2. DETALLE DE HALLAZGOS (ESTRUCTURA CANÓNICA OBLIGATORIA)
 
-**Ejemplo de Párrafo Esperado:**
-> **1. Irregularidad en Evento Único ($45.609):** Se detectó el cobro de copago por consulta de urgencia (Folio 123) realizada el mismo día del ingreso hospitalario. El plan garantiza cobertura hospitalaria del 100%. Según el **Dictamen SS N° 12.287/2016**: *"La atención de urgencia que deriva en hospitalización constituye una unidad clínica inseparable y debe ser cubierta bajo la modalidad institucional correspondiente al evento hospitalario"*. Por tanto, el cobro ambulatorio es improcedente y debe reliquidarse al 100%.
+**⚠️ CADA HALLAZGO DEBE SEGUIR LAS 7 SECCIONES (I - VII). Si falta una sección, el hallazgo es INVÁLIDO.**
+
+Para CADA hallazgo, genera la siguiente estructura COMPLETA:
+
+---
+#### HALLAZGO N°[X]: [Nombre descriptivo del hallazgo] ($[Monto])
+
+**I. Identificación del ítem cuestionado**
+> Se cuestiona el cobro correspondiente a [prestación / grupo de prestaciones], facturado bajo el concepto [nombre clínico / código PAM / glosa], por un monto total de $XXX, el cual fue derivado total o parcialmente a copago del afiliado.
+
+**II. Contexto clínico y administrativo**
+> Dicho cobro se origina en el marco de un evento hospitalario único, asociado a [diagnóstico / procedimiento principal], con ingreso hospitalario formal, uso de pabellón quirúrgico y alta posterior, según consta en la cuenta clínica y el PAM respectivo.
+
+**III. Norma contractual aplicable**
+> El plan de salud [nombre y código] establece para las prestaciones hospitalarias de este tipo una cobertura de [X%], sujeta a un tope de [UF / VAM / unidad interna], según lo indicado en la tabla de beneficios contractuales. En particular, el contrato señala que [cita textual del contrato].
+
+**IV. Forma en que se materializa la controversia**
+> No obstante lo anterior, el prestador y/o la Isapre procedieron a [describir exactamente qué hicieron mal: desagregar, aplicar modalidad incorrecta, excluir, sub-bonificar, etc.], imputándolos como copago o como "gastos no cubiertos".
+
+**V. Análisis técnico-contractual**
+> Desde un punto de vista técnico y contractual, dicha imputación resulta improcedente, toda vez que:
+> - La hospitalización se encuentra debidamente acreditada
+> - La prestación cuestionada es inseparable del acto médico principal
+> - El contrato no contempla su exclusión expresa
+> - Su separación tiene como único efecto trasladar costo al afiliado
+
+**VI. Efecto económico concreto**
+> Como consecuencia directa de esta aplicación incorrecta de la cobertura, el afiliado asumió un copago indebido ascendente a **$XXX**, monto que debió ser bonificado conforme a las condiciones pactadas en su plan de salud.
+
+**VII. Conclusión de la impugnación**
+> En virtud de lo expuesto, se concluye que el cobro analizado no se ajusta a las condiciones contractuales vigentes, configurándose una imputación improcedente de costos al afiliado respecto del ítem descrito.
+
+---
+[Repetir para cada hallazgo adicional]
+
 
 ### 3. TABLA RESUMEN
 | Código | Glosa | Hallazgo | Monto Objetado | Cita Legal Clave |
@@ -755,7 +849,7 @@ export const VERIFICATION_SCHEMA = {
                 properties: {
                     codigos: { type: Type.STRING },
                     glosa: { type: Type.STRING },
-                    hallazgo: { type: Type.STRING },
+                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 7 SECCIONES (I a VII)." },
                     montoObjetado: { type: Type.NUMBER },
                     normaFundamento: { type: Type.STRING }
                 }
@@ -787,7 +881,7 @@ export const CONSOLIDATION_SCHEMA = {
                 properties: {
                     codigos: { type: Type.STRING },
                     glosa: { type: Type.STRING },
-                    hallazgo: { type: Type.STRING },
+                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 7 SECCIONES (I a VII)." },
                     montoObjetado: { type: Type.NUMBER },
                     normaFundamento: { type: Type.STRING },
                     consenso: { type: Type.STRING, description: "R1+R2, R2_nuevo, R3_nuevo" }
@@ -807,7 +901,10 @@ export const CONSOLIDATION_SCHEMA = {
             }
         },
         totalAhorroFinal: { type: Type.NUMBER },
-        auditoriaFinalMarkdown: { type: Type.STRING },
+        auditoriaFinalMarkdown: {
+            type: Type.STRING,
+            description: "El informe de auditoría final y consolidado en formato Markdown. OBLIGATORIO: Cada hallazgo en la sección 'DETALLE DE HALLAZGOS' debe mostrar las 7 secciones (I-VII) íntegramente."
+        },
         bitacoraConsolidacion: {
             type: Type.ARRAY,
             items: {

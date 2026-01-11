@@ -1,0 +1,70 @@
+{
+    "version": "1.0",
+    "objetivo": "Determinar si un copago constituye incumplimiento contractual",
+    "orden_evaluacion": [
+        "porcentaje_cobertura",
+        "tipo_tope",
+        "auditable",
+        "copago_real",
+        "conclusion"
+    ],
+    "reglas": [
+        {
+            "id": "R1",
+            "condicion": "porcentaje_cobertura == 100",
+            "siguiente": "EVALUAR_TOPE"
+        },
+        {
+            "id": "R2",
+            "condicion": "porcentaje_cobertura < 100",
+            "accion": "NO_INCUMPLIMIENTO_POR_PORCENTAJE",
+            "explicacion": "El contrato no promete cobertura total; la existencia de copago es compatible con el plan."
+        },
+        {
+            "id": "EVALUAR_TOPE",
+            "condicion": "tipo_tope == 'UF'",
+            "accion": "AUDITAR_CUANTITATIVAMENTE"
+        },
+        {
+            "id": "R3",
+            "condicion": "tipo_tope IN ['VAM','VA','AC2','B1','ARANCEL_INTERNO','OTRO_INTERNO']",
+            "accion": "TOPE_NO_AUDITABLE",
+            "explicacion": "El tope está definido en unidades internas de la Isapre, no verificables externamente."
+        },
+        {
+            "id": "R4",
+            "condicion": "tipo_tope == 'SIN_TOPE'",
+            "accion": "APLICAR_SOLO_PORCENTAJE"
+        },
+        {
+            "id": "R5",
+            "condicion": "tipo_tope == 'UF' AND copago_real > copago_esperable",
+            "accion": "INCUMPLIMIENTO_CONTRACTUAL",
+            "nivel_certeza": "ALTA"
+        },
+        {
+            "id": "R6",
+            "condicion": "tipo_tope == 'UF' AND copago_real <= copago_esperable",
+            "accion": "CUMPLIMIENTO_CONTRACTUAL"
+        }
+    ],
+    "salidas_posibles": [
+        "Cumplimiento contractual verificado",
+        "Incumplimiento contractual verificable",
+        "No es posible verificar incumplimiento por tope no auditable",
+        "Copago consistente con contrato"
+    ],
+    "topes_auditables": [
+        "UF",
+        "SIN_TOPE"
+    ],
+    "topes_no_auditables": [
+        "VAM",
+        "VA",
+        "AC2",
+        "B1",
+        "ARANCEL_INTERNO",
+        "OTRO_INTERNO",
+        "VECES_ARANCEL"
+    ]
+}
