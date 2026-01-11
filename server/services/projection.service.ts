@@ -52,11 +52,98 @@ export class ProjectionService {
                 6. TOKEN MANAGEMENT: If the document is too long, STOP at a logical point (e.g., after a complete </table> row, or a paragraph </p>) and WAIT for the continuation signal. Do NOT summarize or skip content.
                 7. FINAL MARKER: ONLY use "<!-- END_OF_DOCUMENT -->" if you have reached the ABSOLUTE END of the file (including annexes, signatures, and fine print).
                 
-                **CRITICAL: TABLE STRUCTURE RULES**
-                8. **HEADERS:** For ALL tables, you MUST use <thead> with <th> tags for header rows.
-                9. **COLUMN IDENTIFICATION:** When a table has multiple columns with similar data (e.g., "Tope Nacional", "Tope Anual", "Tope Internacional"), ensure each <th> clearly and uniquely identifies the column.
-                10. **ALIGNMENT:** Ensure every <tr> in the <tbody> has the SAME number of <td> elements as there are <th> in the <thead>. Do NOT merge or skip columns.
-                11. **SEMANTIC CLARITY:** If a table header says "Nacional", "Modalidad Libre Elección", "Internacional", etc., preserve those EXACT words in the <th> tags.
+                ========================================
+                🎯 PROTOCOLO KINDERGARTENER PARA TABLAS (OBLIGATORIO)
+                ========================================
+                
+                ANTES de proyectar CUALQUIER tabla, DEBES:
+                
+                **PASO 1: LEER Y CONTAR ENCABEZADOS**
+                - Identifica TODAS las columnas del encabezado de la tabla
+                - Cuenta cuántas columnas hay (ej: 6 columnas)
+                - Los encabezados pueden estar en MÚLTIPLES FILAS (ej: fila 1 tiene categorías, fila 2 tiene sub-columnas)
+                
+                **PASO 2: NOMBRAR CADA COLUMNA**
+                Escribe mentalmente: "Columna 1: [nombre], Columna 2: [nombre], ..."
+                Ejemplo para tabla de prestaciones:
+                - Columna 1: PRESTACIONES
+                - Columna 2: % Bonificación
+                - Columna 3: TOPE BONIFICACIÓN (Nacional)
+                - Columna 4: TOPE MÁXIMO Año Contrato
+                - Columna 5: TOPE Internacional
+                - Columna 6: AMPLIACIÓN COBERTURA
+                
+                **PASO 3: GENERAR HTML CON ENCABEZADOS EXPLÍCITOS**
+                <thead>
+                  <tr>
+                    <th data-col="1">PRESTACIONES</th>
+                    <th data-col="2">% Bonificación</th>
+                    <th data-col="3" data-type="nacional">TOPE BONIFICACIÓN</th>
+                    <th data-col="4" data-type="anual">TOPE MÁXIMO Año</th>
+                    <th data-col="5" data-type="internacional">TOPE Internacional</th>
+                    <th data-col="6">AMPLIACIÓN</th>
+                  </tr>
+                </thead>
+                
+                **PASO 4: LLENAR CADA FILA CON EXACTAMENTE N CELDAS**
+                - Cada <tr> DEBE tener EXACTAMENTE el mismo número de <td> que <th> hay
+                - Si una celda está VACÍA, usa: <td data-col="N" data-empty="true">—</td>
+                - NUNCA omitas celdas vacías
+                - NUNCA fusiones celdas a menos que el PDF original las fusione visualmente
+                
+                **EJEMPLO CORRECTO:**
+                <tr>
+                  <td data-col="1">Medicamentos</td>
+                  <td data-col="2">100%</td>
+                  <td data-col="3" data-type="nacional">SIN TOPE</td>
+                  <td data-col="4" data-empty="true">—</td>
+                  <td data-col="5" data-type="internacional">300,00 UF</td>
+                  <td data-col="6" data-empty="true">—</td>
+                </tr>
+                
+                ========================================
+                🏥 PATRONES ESPECÍFICOS DE ISAPRE
+                ========================================
+                
+                **TABLA DE PRESTACIONES (Hospitalarias/Ambulatorias):**
+                - Columna "TOPE DE BONIFICACION U.F. o Veces Arancel" = NACIONAL (marcar data-type="nacional")
+                - Columna "TOPE MÁXIMO Año Contrato por Beneficiario" = ANUAL
+                - Columna "TOPE BONIFICACION Internacional" = INTERNACIONAL (marcar data-type="internacional")
+                - Si dice "SIN TOPE" en el área de encabezado, ESO es el valor para la columna Nacional
+                
+                **TABLA DE FACTORES DE EDAD:**
+                Cuando veas una tabla con "GRUPOS DE EDAD" y valores como "1,90", "1,80":
+                - Separa CADA valor numérico en su propia celda <td>
+                - Ejemplo INCORRECTO: "0 a menos de 2 Años1,901,901,801,80"
+                - Ejemplo CORRECTO:
+                  <tr>
+                    <td>0 a menos de 2 Años</td>
+                    <td>1,90</td>
+                    <td>1,90</td>
+                    <td>1,80</td>
+                    <td>1,80</td>
+                  </tr>
+                
+                ========================================
+                🚫 REGLA ANTI-MENTIRAS (CRÍTICO)
+                ========================================
+                
+                **NUNCA INVENTES DATOS:**
+                - Si NO puedes leer claramente un valor en el PDF, usa: <td data-uncertain="true">???</td>
+                - Si una celda está VACÍA en el documento original, usa: <td data-empty="true">—</td>
+                - Si NO estás seguro a qué columna pertenece un valor, DETENTE y re-lee los encabezados
+                
+                **PROHIBIDO:**
+                - Copiar un valor de la columna Internacional a la columna Nacional
+                - Inventar valores numéricos que no existen en el PDF
+                - Asumir que un valor pertenece a una columna sin verificar el encabezado
+                
+                **SI NO PUEDES SEPARAR COLUMNAS VISUALMENTE:**
+                - Usa el orden de izquierda a derecha
+                - Cuenta los espacios o líneas verticales del PDF
+                - Si es imposible determinar, marca TODA la fila como data-uncertain="true"
+                
+                ========================================
                 
                 OUTPUT:
                 A single <div> container containing the HTML projection.
