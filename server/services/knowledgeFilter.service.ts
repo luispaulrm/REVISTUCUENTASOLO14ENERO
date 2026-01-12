@@ -134,7 +134,8 @@ const RELEVANCE_MAP: Record<string, DocKey[]> = {
 export function extractCaseKeywords(
     cuentaJson: any,
     pamJson: any,
-    contratoJson: any
+    contratoJson: any,
+    htmlContext: string = ''
 ): string[] {
     const keywords = new Set<string>();
 
@@ -199,6 +200,12 @@ export function extractCaseKeywords(
                 extractWords(regla['SUBCATEGORÍA'], keywords);
             }
         }
+    }
+
+    // === EXTRAER DEL CONTEXTO HTML / RAW TEXT (Módulo 8) ===
+    if (htmlContext) {
+        // En contexto crudo, tomamos fragmentos de texto para encontrar especialidades/conceptos
+        extractWords(htmlContext, keywords);
     }
 
     return Array.from(keywords);

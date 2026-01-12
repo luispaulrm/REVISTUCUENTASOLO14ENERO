@@ -230,10 +230,10 @@ const App: React.FC = () => {
       content += `## DETALLE POR SECCIONES\n\n`;
       result.sections.forEach(s => {
         content += `### ${s.category}\n`;
-        content += `| Descripción | Cant | P. Unit | Total |\n`;
-        content += `| :--- | :--- | :--- | :--- |\n`;
+        content += `| Descripción | Cant | P. Unit | Valor ISA | Bonif | Copago |\n`;
+        content += `| :--- | :--- | :--- | :--- | :--- | :--- |\n`;
         s.items.forEach(i => {
-          content += `| ${i.description} | ${i.quantity} | ${i.unitPrice} | ${i.total} |\n`;
+          content += `| ${i.description} | ${i.quantity} | ${i.unitPrice} | ${i.valorIsa || i.total} | ${i.bonificacion || '-'} | ${i.copago || '-'} |\n`;
         });
         content += `**Total Sección:** ${s.sectionTotal}\n\n`;
       });

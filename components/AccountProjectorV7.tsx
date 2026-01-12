@@ -1,4 +1,4 @@
-import { Zap, ShieldCheck, UploadCloud, Loader2, ZoomIn, ZoomOut, Timer, Cpu, FileJson, FileText, X, Maximize2, Search } from 'lucide-react';
+import { Zap, ShieldCheck, UploadCloud, Loader2, ZoomIn, ZoomOut, Timer, Cpu, FileJson, FileText, X, Maximize2, Search, Filter, LayoutGrid, CheckCircle2 } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import { AI_MODEL } from '../version';
 
@@ -14,6 +14,7 @@ export default function AccountProjectorV7() {
     const [file, setFile] = useState<File | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [htmlProjection, setHtmlProjection] = useState<string>("");
+    const [billOnly, setBillOnly] = useState(true);
     const [usage, setUsage] = useState<Usage | null>(null);
     const [logs, setLogs] = useState<string[]>([]);
     const [scale, setScale] = useState(1);
@@ -83,12 +84,12 @@ export default function AccountProjectorV7() {
             setLogs([]);
             setCurrentPass(1);
             setProgress(0);
-            addLog(`[SISTEMA] Iniciando proyección de: ${selectedFile.name}`);
+            addLog(`[SISTEMA] Iniciando proyección (${billOnly ? 'SOLO CUENTA' : 'FULL'}): ${selectedFile.name}`);
         } else {
             // NOTE: Current server implementation restarts from beginning if a new request is made.
             // We clear the output to avoid duplication, effectively restarting the process.
             setHtmlProjection("");
-            addLog(`[SISTEMA] 🔄 Reiniciando proyección de: ${selectedFile.name} (Forzado)...`);
+            addLog(`[SISTEMA] 🔄 Reiniciando proyección: ${selectedFile.name} (Forzado)...`);
         }
 
         const reader = new FileReader();
@@ -102,6 +103,7 @@ export default function AccountProjectorV7() {
                     body: JSON.stringify({
                         image: base64,
                         mimeType: selectedFile.type,
+                        mode: billOnly ? 'BILL_ONLY' : 'FULL'
                     })
                 });
 
@@ -233,6 +235,29 @@ export default function AccountProjectorV7() {
                 </div>
             </div>
 
+            {!file && (
+                <div className="flex justify-center mb-4">
+                    <button
+                        onClick={() => setBillOnly(!billOnly)}
+                        className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all duration-300 ${billOnly
+                            ? 'bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                            }`}
+                    >
+                        <div className={`p-1.5 rounded-lg transition-colors ${billOnly ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <Filter size={14} />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-xs font-black uppercase tracking-tight">Proyectar Solo Cuenta</p>
+                            <p className="text-[10px] font-medium opacity-70">{billOnly ? 'Optimizado: Ignora registros médicos' : 'Modo Full: Procesa todo el PDF'}</p>
+                        </div>
+                        <div className={`ml-4 w-10 h-5 rounded-full relative transition-colors ${billOnly ? 'bg-indigo-600' : 'bg-slate-200'}`}>
+                            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${billOnly ? 'left-6' : 'left-1'}`} />
+                        </div>
+                    </button>
+                </div>
+            )}
+
             {!file ? (
                 <div className="max-w-xl mx-auto mt-20">
                     <label className="group relative border-2 border-dashed border-slate-300 bg-white rounded-3xl p-16 transition-all duration-500 cursor-pointer block hover:border-slate-900 hover:bg-slate-50 text-center">
@@ -293,6 +318,26 @@ export default function AccountProjectorV7() {
                                     </div>
                                 ))}
                                 <div ref={logEndRef} />
+                            </div>
+                        </div>
+
+                        <div className="p-6 bg-indigo-50 border border-indigo-100 rounded-3xl">
+                            <h4 className="text-[10px] font-black text-indigo-900 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                <LayoutGrid size={14} className="text-indigo-600" /> Tecnología de Alineación Forense
+                            </h4>
+                            <p className="text-[11px] text-indigo-700 leading-relaxed font-bold">
+                                Cada línea del PDF se transforma en una fila de una hoja de cálculo interna virtual.
+                            </p>
+                            <div className="mt-3 space-y-1.5 border-t border-indigo-100 pt-3">
+                                <div className="flex items-center gap-2 text-[9px] font-bold text-indigo-500 uppercase">
+                                    <CheckCircle2 size={10} /> Precios Normalizados
+                                </div>
+                                <div className="flex items-center gap-2 text-[9px] font-bold text-indigo-500 uppercase">
+                                    <CheckCircle2 size={10} /> Códigos Trazables
+                                </div>
+                                <div className="flex items-center gap-2 text-[9px] font-bold text-indigo-500 uppercase">
+                                    <CheckCircle2 size={10} /> Descripciones Limpias
+                                </div>
                             </div>
                         </div>
 

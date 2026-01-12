@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       } : undefined,
       proxy: env.VITE_USE_BACKEND === 'true' ? {
         '/api': {
-          target: env.VITE_BACKEND_TARGET || 'http://127.0.0.1:3001',
+          target: env.VITE_BACKEND_TARGET || 'http://127.0.0.1:5000',
           changeOrigin: true
         }
       } : undefined

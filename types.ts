@@ -7,6 +7,9 @@ export interface BillingItem {
   total: number; // Stated by clinic
   calculatedTotal: number; // calculated by JS: qty * unitPrice
   hasCalculationError: boolean;
+  valorIsa?: number;
+  bonificacion?: number;
+  copago?: number;
 }
 
 export interface BillingSection {

@@ -5,9 +5,10 @@ import ContractApp from './ContractApp';
 import ForensicApp from './ForensicApp';
 import PdfProjector from './PdfProjector';
 import AccountProjectorV7 from './AccountProjectorV7';
-import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet } from 'lucide-react';
+import TotalAuditV8 from './TotalAuditV8';
+import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet, Zap } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7';
+type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'm8';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -104,6 +105,16 @@ export function AppWithTabs() {
                             <FileSpreadsheet size={16} />
                             Cuentas Modulo 7
                         </button>
+                        <button
+                            onClick={() => handleTabChange('m8')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'm8'
+                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                        >
+                            <Zap size={16} />
+                            Auditoría Total M8
+                        </button>
                     </div>
                 </div>
             </div>
@@ -127,6 +138,9 @@ export function AppWithTabs() {
                 </div>
                 <div style={{ display: activeTab === 'm7' ? 'block' : 'none' }}>
                     <AccountProjectorV7 />
+                </div>
+                <div style={{ display: activeTab === 'm8' ? 'block' : 'none' }}>
+                    <TotalAuditV8 />
                 </div>
             </div>
         </div>

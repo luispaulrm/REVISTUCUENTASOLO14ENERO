@@ -29,7 +29,7 @@ export async function performForensicAudit(
     log(`[AuditEngine] ℹ️ ${getKnowledgeFilterInfo()}`);
 
     // Paso 1: Extraer keywords del caso (cuenta, PAM, contrato)
-    const caseKeywords = extractCaseKeywords(cuentaJson, pamJson, contratoJson);
+    const caseKeywords = extractCaseKeywords(cuentaJson, pamJson, contratoJson, htmlContext);
     log(`[AuditEngine] 🔑 Keywords extraídas: ${caseKeywords.length} términos`);
     log(`[AuditEngine] 🔑 Muestra: ${caseKeywords.slice(0, 8).join(', ')}...`);
 
@@ -59,35 +59,29 @@ export async function performForensicAudit(
     const cleanedCuenta = hasStructuredCuenta ? {
         ...cuentaJson,
         sections: cuentaJson.sections?.map((section: any) => ({
-            ...section,
+            category: section.category || section.name,
+            sectionTotal: section.sectionTotal,
             items: section.items?.map((item: any) => ({
-                index: item.index,
                 description: item.description,
-                quantity: item.quantity,
-                unitPrice: item.unitPrice,
                 total: item.total
-                // Removed: calculatedTotal, hasCalculationError, isIVAApplied
             }))
         }))
-    } : { info: "No structured bill provided. Use HTML context if available." };
+    } : { ...cuentaJson, info: "No structured bill provided. Use HTML context if available." };
 
-    // 2. Clean PAM JSON - Remove zero-value items and non-essential fields
+    // 2. Clean PAM JSON - Preserve the structure but minimize items
     const cleanedPam = {
-        ...pamJson,
+        ...pamJson, // This preserves resumenTotal, patient info, etc.
         folios: pamJson.folios?.map((folio: any) => ({
             ...folio,
             desglosePorPrestador: folio.desglosePorPrestador?.map((prestador: any) => ({
                 ...prestador,
                 items: prestador.items
-                    ?.filter((item: any) => item.bonificacion > 0 || item.copago > 0) // Remove $0 items
+                    ?.filter((item: any) => item.bonificacion > 0 || item.copago > 0)
                     ?.map((item: any) => ({
                         codigo: item.codigo,
                         descripcion: item.descripcion,
-                        cantidad: item.cantidad,
-                        valorTotal: item.valorTotal,
                         bonificacion: item.bonificacion,
                         copago: item.copago
-                        // Removed: other metadata fields
                     }))
             }))
         }))
@@ -114,16 +108,25 @@ export async function performForensicAudit(
     };
 
     // 4. Minify JSONs (remove whitespace) - saves ~20% tokens
+    let finalCuentaContext = JSON.stringify(cleanedCuenta);
+    let finalPamContext = JSON.stringify(cleanedPam);
+    let finalContratoContext = JSON.stringify(cleanedContrato);
+
+    // SMARTEST: If we have raw OCR texts, use them if JSON is empty
+    if (htmlContext && htmlContext.includes('--- ORIGEN:')) {
+        log('[AuditEngine] 💎 Detectado Contexto Triple Crudo (Módulo 8). Optimizando prompt para Contexto Largo.');
+    }
+
     const prompt = AUDIT_PROMPT
         .replace('{jurisprudencia_text}', '')
         .replace('{normas_administrativas_text}', '')
         .replace('{evento_unico_jurisprudencia_text}', '')
         .replace('{knowledge_base_text}', knowledgeBaseText)
         .replace('{hoteleria_json}', hoteleriaRules)
-        .replace('{cuenta_json}', JSON.stringify(cleanedCuenta))      // Minified
-        .replace('{pam_json}', JSON.stringify(cleanedPam))            // Minified
-        .replace('{contrato_json}', JSON.stringify(cleanedContrato))  // Minified
-        .replace('{html_context}', htmlContext || 'No HTML context provided.'); // New context
+        .replace('{cuenta_json}', finalCuentaContext)
+        .replace('{pam_json}', finalPamContext)
+        .replace('{contrato_json}', finalContratoContext)
+        .replace('{html_context}', htmlContext || 'No HTML context provided.');
 
     // Log prompt size for debugging
     const promptSize = prompt.length;

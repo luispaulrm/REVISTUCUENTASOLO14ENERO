@@ -31,11 +31,29 @@ export async function handleProjection(req: Request, res: Response) {
     };
 
     try {
-        const { image, mimeType } = req.body;
+        const { image, mimeType, mode } = req.body;
 
         if (!image || !mimeType) {
             sendUpdate({ type: 'error', error: 'Missing image or mimeType' });
             return res.end();
+        }
+
+        let pageCount = 0;
+        if (mimeType === 'application/pdf') {
+            try {
+                const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+                const data = new Uint8Array(Buffer.from(image, 'base64'));
+                const loadingTask = pdfjsLib.getDocument({
+                    data,
+                    disableFontFace: true,
+                    useSystemFonts: false
+                });
+                const pdf = await loadingTask.promise;
+                pageCount = pdf.numPages;
+                console.log(`[PROJECTION] PDF detected with ${pageCount} pages`);
+            } catch (pdfError: any) {
+                console.error('[PROJECTION] Error counting segments:', pdfError.message);
+            }
         }
 
         const apiKeys = getApiKeys();
@@ -46,10 +64,10 @@ export async function handleProjection(req: Request, res: Response) {
 
         const projectionService = new ProjectionService(apiKeys[0]);
 
-        console.log('[PROJECTION] Starting projection stream...');
-        sendUpdate({ type: 'log', text: 'Iniciando proyector maestro...' });
+        console.log('[PROJECTION] Starting projection stream...', { mode, pageCount });
+        sendUpdate({ type: 'log', text: `Iniciando proyector maestro (${mode || 'FULL'}) | ${pageCount || '?'} págs...` });
 
-        const stream = projectionService.projectPdfToHtml(image, mimeType);
+        const stream = projectionService.projectPdfToHtml(image, mimeType, undefined, mode, pageCount);
 
         for await (const chunk of stream) {
             sendUpdate(chunk);

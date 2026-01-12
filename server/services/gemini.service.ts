@@ -98,12 +98,12 @@ export class GeminiService {
 
                     const result = await model.generateContent([
                         { text: prompt },
-                        {
+                        ...(image && mimeType ? [{
                             inlineData: {
                                 data: image,
                                 mimeType: mimeType
                             }
-                        }
+                        }] : [])
                     ]);
 
                     const text = result.response.text();
@@ -127,6 +127,41 @@ export class GeminiService {
             }
         }
         throw lastError || new Error("All API keys and models failed for extraction.");
+    }
+
+    async extractText(
+        prompt: string,
+        config: {
+            maxTokens?: number;
+            responseMimeType?: string;
+            responseSchema?: any;
+            temperature?: number;
+        } = {}
+    ): Promise<string> {
+        let lastError: any;
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
+        for (const modelName of modelsToTry) {
+            if (!modelName) continue;
+            for (const key of this.keys) {
+                try {
+                    const genAI = new GoogleGenerativeAI(key);
+                    const model = genAI.getGenerativeModel({
+                        model: modelName,
+                        generationConfig: {
+                            maxOutputTokens: config.maxTokens,
+                            responseMimeType: config.responseMimeType,
+                            responseSchema: config.responseSchema,
+                            temperature: config.temperature ?? 0.1
+                        }
+                    });
+                    const result = await model.generateContent(prompt);
+                    return result.response.text();
+                } catch (err: any) {
+                    lastError = err;
+                }
+            }
+        }
+        throw lastError || new Error("All keys failed for text extraction.");
     }
 
     async extractWithStream(

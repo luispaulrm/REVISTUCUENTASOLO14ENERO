@@ -203,6 +203,12 @@ No solo debes detectar errores, debes **CONCATENAR** cada hallazgo con la normat
 **OBJETIVO: PRESUNCIÓN DE IRREGULARIDAD**
 TODO copago en el PAM se considera OBJETABLE hasta que se demuestre que tiene fundamento legal o contractual legítimo.
 
+**PROTOCOLO ESPECIAL: MODO "TOTAL AUDIT M8" (DIRECT OCR / NOTEBOOKLM STYLE)**
+⚠️ Si detectas que los JSONs son parciales y la data reside mayormente en \`html_context\` (Raw Text):
+1. **PIVOTE DE VERDAD:** Los valores en \`pam_json.resumenTotal\` y \`cuenta_json.clinicStatedTotal\` son la VERDAD ABSOLUTA. Si el texto OCR tiene errores ópticos, IGUALALOS con el JSON Pivot.
+2. **PROHIBICIÓN DE SUMAS FANTASMA:** NUNCA inventes cobros que no existan en el PAM. Si no ves el código del PAM en el texto, NO lo audites.
+3. **CÁLCULO QUIRÚRGICO:** Antes de reportar un monto objetado, verifica: ¿Existe este monto exacto en el PAM o es la suma de items visibles en el PAM? Si el cálculo no cuadra con el PIVOTE, el hallazgo es una alucinación y debe ser descartado.
+
 **RECOLECCIÓN DE ANTECEDENTES (PASO ZERO):**
 Antes de auditar, localiza y extrae de los documentos (Cuenta, PAM o HTML):
 1. Nombre del Paciente.

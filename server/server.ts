@@ -245,7 +245,7 @@ app.post('/api/extract', async (req, res) => {
           DATE: ...
           GRAND_TOTAL: ...
           SECTION: [Nombre Exacto Sección]
-          [Index]|[Código]|[Descripción]|[Cant]|[PrecioUnit]|[Verif: Cant*Precio]|[Total]
+          [Index]|[Código]|[Descripción]|[Cant]|[PrecioUnit]|[Verif: Cant*Precio]|[ValorIsa]|[Bonificacion]|[Copago]|[Total]
           SECTION_TOTAL: [Subtotal Declarado por la Clínica para esta Sección]
           SECTION: [Siguiente Sección...]
           ...
@@ -573,20 +573,44 @@ app.post('/api/extract', async (req, res) => {
             const cols = robustSplit(line);
             if (cols.length < 4) continue;
 
+            // New logic to handle extra columns (ValorIsa, Bonif, Copago)
+            // Expected: [Index]|[Code]|[Desc]|[Qty]|[UnitPrice]|[Verif]|[ValorIsa]|[Bonif]|[Copago]|[Total]
+
             const idxStr = cols[0];
             const code = cols[1];
             const desc = cols[2];
             const qtyStr = cols[3];
             const unitPriceStr = cols[4];
-            // En el nuevo formato v1.6.3:
-            // cols[5] es la verificación Cant * Precio
-            // cols[6] es el total final
-            const totalStr = cols.length >= 7 ? cols[6] : (cols.length >= 6 ? cols[5] : cols[3]); // Fallback safe
+
+            // Default mappings fallback
+            let totalStr = "";
+            let valorIsaStr = "";
+            let bonifStr = "";
+            let copagoStr = "";
+
+            if (cols.length >= 10) {
+                // Full new format
+                valorIsaStr = cols[6];
+                bonifStr = cols[7];
+                copagoStr = cols[8];
+                totalStr = cols[9];
+            } else if (cols.length >= 7) {
+                // Mid format or old format + verification
+                // Assuming format: ...[Verif]|[Total]
+                totalStr = cols[6];
+            } else {
+                totalStr = cols.length >= 6 ? cols[5] : cols[3];
+            }
 
             const isClinicTotalLine = desc?.toUpperCase().includes("TOTAL SECCIÓN") || desc?.toUpperCase().includes("SUBTOTAL");
             const total = Math.round(cleanCLP(totalStr || "0", false));
-            const quantity = cleanCLP(qtyStr || "1", true); // TRUE: Quantity allows decimals
+            const quantity = cleanCLP(qtyStr || "1", true);
             const unitPrice = Math.round(cleanCLP(unitPriceStr || "0", false));
+
+            const valorIsa = Math.round(cleanCLP(valorIsaStr || "0", false));
+            const bonificacion = Math.round(cleanCLP(bonifStr || "0", false));
+            const copago = Math.round(cleanCLP(copagoStr || "0", false));
+
             const fullDescription = code ? `${desc} ${code}` : desc;
 
             let sectionObj = sectionsMap.get(currentSectionName);
@@ -741,7 +765,10 @@ app.post('/api/extract', async (req, res) => {
                         total: finalTotal,
                         calculatedTotal: finalCalcTotal,
                         hasCalculationError: hasError,
-                        isIVAApplied: isIVAApplied
+                        isIVAApplied: isIVAApplied,
+                        valorIsa: valorIsa,
+                        bonificacion: bonificacion,
+                        copago: copago
                     });
                 }
             }

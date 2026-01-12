@@ -122,9 +122,11 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                         <tr>
                           <th className="px-4 py-3 w-10">#</th>
                           <th className="px-2 py-3">Descripción del Ítem</th>
-                          <th className="py-3 text-center w-16">Cant</th>
-                          <th className="py-3 text-right w-32">Precio (Neto)</th>
-                          <th className="px-4 py-3 text-right w-32">Total ISA</th>
+                          <th className="py-3 text-center w-12">Cant</th>
+                          <th className="py-3 text-right w-24">Precio (Neto)</th>
+                          <th className="px-2 py-3 text-right w-24">Valor ISA</th>
+                          <th className="px-2 py-3 text-right w-24 text-emerald-400">Bonif</th>
+                          <th className="px-4 py-3 text-right w-24 font-black">Copago</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200">
@@ -158,15 +160,21 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                             </td>
                             <td className="py-3 text-center text-slate-600 font-bold font-mono">{item.quantity}</td>
                             <td className="py-3 text-right text-slate-600 font-mono">{formatCurrency(item.unitPrice)}</td>
+                            <td className="px-2 py-3 text-right text-slate-900 font-mono font-bold text-xs">
+                              {item.valorIsa ? formatCurrency(item.valorIsa) : formatCurrency(item.total)}
+                            </td>
+                            <td className="px-2 py-3 text-right text-emerald-600 font-mono font-bold text-xs">
+                              {item.bonificacion ? formatCurrency(item.bonificacion) : '-'}
+                            </td>
                             <td className={`px-4 py-3 text-right font-black font-mono text-sm ${item.hasCalculationError ? 'text-amber-600' : 'text-slate-900'}`}>
-                              {formatCurrency(item.total)}
+                              {item.copago ? formatCurrency(item.copago) : '-'}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                       <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                         <tr>
-                          <td colSpan={3} className="px-4 py-4 text-right font-black text-slate-400 uppercase tracking-widest text-[10px]">Total Real Auditado (Suma de ítems)</td>
+                          <td colSpan={6} className="px-4 py-4 text-right font-black text-slate-400 uppercase tracking-widest text-[10px]">Total Real Auditado (Suma de ítems)</td>
                           <td className={`px-4 py-4 text-right font-black text-base ${section.hasSectionError ? 'text-rose-600' : 'text-slate-900'}`}>
                             {formatCurrency(section.calculatedSectionTotal)}
                           </td>
