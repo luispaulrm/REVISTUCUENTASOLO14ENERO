@@ -31,7 +31,7 @@ export class ProjectionService {
         let fullHtml = "";
         let isFinalized = false;
         let pass = 0;
-        const maxPasses = 10;
+        const maxPasses = 30; // Aumentado de 10 a 30 para documentos largos
 
         while (!isFinalized && pass < maxPasses) {
             pass++;
@@ -41,7 +41,8 @@ export class ProjectionService {
                 ACT AS A HIGH-FIDELITY DOCUMENT PROJECTOR.
                 
                 GOAL:
-                Convert the provided PDF document into a CLEAN, SEMANTIC, and VISUALLY ACCURATE HTML representation.
+                Convert the PROVIDED PDF document into a CLEAN, SEMANTIC, and VISUALLY ACCURATE HTML representation.
+                YOU MUST PROCESS EVERY SINGLE PAGE. DO NOT SKIP ANY CONTENT.
                 
                 ========================================
                 🎯 PROTOCOLO KINDERGARTENER PARA TABLAS (OBLIGATORIO)
@@ -68,6 +69,10 @@ export class ProjectionService {
                 **PASO 5: REGLA ANTI-HALLUCINACIÓN (ANTI-MENTIRAS)**
                 - Si un valor es ilegible, usa <td data-uncertain="true">???</td>.
                 - Prohibido inventar datos o mover valores entre columnas (ej: no mover Internacional a Nacional).
+
+                **PASO 6: COBERTURA TOTAL (SIN OMISIONES)**
+                - Este es un proceso serial. Debes proyectar página por página.
+                - Si el documento es largo, proyecta lo que alcances y continúa en el siguiente pase.
                 
                 INSTRUCTIONS (STRICT):
                 1. PROJECTION TYPE: Full, high-fidelity reconstruction.
@@ -81,14 +86,17 @@ export class ProjectionService {
             ` : `
                 CONTINUE PROJECTING THE DOCUMENT.
                 
-                Last 1000 characters projected: "${fullHtml.slice(-1000)}"
+                YOU MUST CONTINUE FROM THE EXACT POINT WHERE YOU LEFT OFF.
+                DO NOT REPEAT CONTENT AND DO NOT JUMP TO THE END.
+                
+                Last characters projected: "${fullHtml.slice(-1500)}"
                 
                 MANDATORY RULES:
                 1. CONTINUE exactly where you left off. 
                 2. SEAMLESS TRANSITION: If you were in a table, start with the NEXT row tr. 
-                3. NO GAPS: Do not skip content or use placeholders like "[...]".
+                3. NO GAPS: Do not skip content, pages, or use placeholders like "[...]".
                 4. NO REPETITION: Do not repeat what you already projected.
-                5. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE text.
+                5. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE text in the ENTIRE PDF.
             `;
 
             try {
@@ -139,7 +147,7 @@ export class ProjectionService {
                     }
                 }
 
-                // LAZY DETECTION: If the AI claims it's done but uses a placeholder phrase, it's NOT done.
+                // LAZY DETECTION: Catch various common ways LLMs try to skip content
                 const lazyPhrases = [
                     "[Documento continúa",
                     "[Continúa",
@@ -147,6 +155,11 @@ export class ProjectionService {
                     "Continúa con Notas",
                     "Continúa con Tablas",
                     "... [",
+                    "--- FIN PARCIAL ---",
+                    "(Resto del documento omitido)",
+                    "(Se omite el resto",
+                    "The rest of the document is a table",
+                    "Following the same format",
                 ];
                 const isLazy = lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
 
@@ -156,10 +169,11 @@ export class ProjectionService {
                 } else {
                     const logMsg = isLazy ?
                         `[IA] ⚠️ Pereza detectada en el pase ${pass}. Forzando continuación...` :
-                        `[IA] 🔄 Truncamiento detectado en el pase ${pass}. Solicitando continuación...`;
+                        `[IA] 🔄 Truncamiento o fin de pase en ${pass}. Solicitando continuación...`;
                     console.log(`[ProjectionService] ${logMsg}`);
                     yield { type: 'log', text: logMsg };
                 }
+
 
             } catch (err: any) {
                 console.error('[ProjectionService] Error:', err);

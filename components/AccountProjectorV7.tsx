@@ -85,7 +85,10 @@ export default function AccountProjectorV7() {
             setProgress(0);
             addLog(`[SISTEMA] Iniciando proyección de: ${selectedFile.name}`);
         } else {
-            addLog(`[SISTEMA] 🔄 Resumiendo proyección de: ${selectedFile.name} (Pase ${currentPass + 1})...`);
+            // NOTE: Current server implementation restarts from beginning if a new request is made.
+            // We clear the output to avoid duplication, effectively restarting the process.
+            setHtmlProjection("");
+            addLog(`[SISTEMA] 🔄 Reiniciando proyección de: ${selectedFile.name} (Forzado)...`);
         }
 
         const reader = new FileReader();
@@ -135,11 +138,13 @@ export default function AccountProjectorV7() {
                             } else if (data.type === 'log') {
                                 addLog(data.text);
                                 if (data.text.includes('Iniciando Pase')) {
-                                    const match = data.text.match(/Pase (\d+)/);
+                                    const match = data.text.match(/Pase (\d+)\/(\d+)/);
                                     if (match) {
                                         const p = parseInt(match[1]);
+                                        const total = parseInt(match[2]);
                                         setCurrentPass(p);
-                                        setProgress((p - 1) * 10);
+                                        const passSize = 100 / total;
+                                        setProgress((p - 1) * passSize);
                                     }
                                 }
                             } else if (data.type === 'error') {
@@ -367,10 +372,10 @@ export default function AccountProjectorV7() {
                                 <>
                                     <button
                                         onClick={() => file && startProjection(file, true)}
-                                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all animate-pulse"
-                                        title="RESUMIR PROYECCIÓN (FORZAR CONTINUACIÓN)"
+                                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all"
+                                        title="FORZAR REINICIO DE PROYECCIÓN"
                                     >
-                                        <Zap size={16} /> CONTINUAR
+                                        <Zap size={16} /> REINTENTAR
                                     </button>
                                     <button onClick={downloadJson} className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all"><FileJson size={16} /> JSON</button>
                                     <button onClick={downloadMarkdown} className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all"><FileText size={16} /> MD</button>
