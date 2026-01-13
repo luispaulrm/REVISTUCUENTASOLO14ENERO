@@ -113,6 +113,53 @@ Si el auditor reporta un hallazgo donde \`TopeContratoUF\` existe Y \`Bonificaci
 
 **REGLA FINAL:**
 Antes de escribir en \`hallazgos[]\`, revisa tu \`decision_logica\`. Si \`objetable\` es \`false\`, NO ESCRIBAS NADA en la lista de hallazgos.
+
+(12) REGLAS DE VALIDACIÓN Y CONTROL FINANCIERO (PARCHES LÓGICOS)
+Estas reglas operan como "parches" lógicos para prevenir cobros improcedentes y asegurar el cumplimiento normativo.
+
+1. Regla de Integridad del Acto Quirúrgico (Control de Desagregación)
+   * Fundamento: Circular IF N° 319 y Apéndice del Anexo N°4 de la Circular 43/1998.
+   * Lógica de Sistema:
+     - Trigger: Detección de un código de "Derecho de Pabellón" (Grupo 20, 18, 17, etc.).
+     - Acción: Bloqueo automático o flag de auditoría para el cobro separado de insumos básicos.
+     - Ítems No Facturables Aparte: Jeringas, agujas, gasas, algodones, tórulas, apósitos, telas adhesivas, antisépticos, desinfectantes, jabones quirúrgicos, material de sutura básico, hojas de bisturí y equipos de fleboclisis.
+     - Excepción: Solo se permiten insumos de alta especialidad que no estén explícitamente definidos en el listado de "Insumos de uso general" del arancel.
+
+2. Regla de Aplicación de Cobertura Proporcional (Control de Topes)
+   * Fundamento: Compendio de Beneficios, Título II, Numeral 2 y Título V.
+   * Lógica de Sistema:
+     - Input: Consumo actual de la cuenta vs. Tope anual/evento definido en el JSON del contrato (UF o Pesos).
+     - Validación: SI (Gasto_Acumulado_Ítem < Tope_Contractual_UF) AND (Copago_Efectivo > (Valor_Total * (1 - %_Cobertura_Pactada))) THEN Marcar_Sub_bonificación.
+     - Regla de Negocio: La Isapre no puede derivar montos a copago arbitrariamente mientras el tope financiero no haya sido sobrepasado. La bonificación debe ser exactamente el porcentaje pactado sobre el valor real facturado.
+
+3. Regla de Transparencia e Información Financiera (Ley 20.584)
+   * Fundamento: Ley 20.584 Artículo 8 y Circular IF19/2018.
+   * Lógica de Sistema:
+     - Trigger: Presencia de códigos "ajustadores" o genéricos (ej. '0299999', '3201001', '149995').
+     - Requisito: Todo cargo debe tener una glosa descriptiva clara y un código arancelario válido.
+     - Acción: IF (Glosa == "AJUSTE" OR Glosa == "VARIOS") AND (Monto > 0) THEN Rechazo_Automático_por_Falta_de_Respaldo.
+
+4. Regla de Conciliación Obligatoria (PAM vs. Factura)
+   * Fundamento: DFL 1/2005 y normativa de liquidación electrónica.
+   * Lógica de Sistema:
+     - Validación: Cotejo entre el Programa de Atención Médica (PAM) emitido por la Isapre y el estado de cuenta del prestador.
+     - Regla: IF (Bonificación_PAM > Bonificación_Factura) THEN Error_de_Integración.
+     - Acción: El sistema debe exigir la aplicación del beneficio ya validado por el asegurador. Si la Isapre ya autorizó una bonificación en el PAM, el prestador no puede cobrar el 100% al afiliado.
+
+5. Regla de Evento Único (Urgencia -> Hospitalización)
+   * Fundamento: Dictamen SS N°12.287/2016 y Principio de conmutatividad.
+   * Lógica de Sistema:
+     - Trigger: Ingreso por urgencia que deriva en hospitalización continua.
+     - Acción: Los cargos de la urgencia inicial deben integrarse en la liquidación del evento hospitalario principal.
+     - Prohibición: Se prohíbe el cobro de la urgencia como evento ambulatorio independiente con topes/deducibles separados si existe continuidad.
+
+6. Regla de Validez de Presupuesto
+   * Fundamento: Jurisprudencia Administrativa (Ingreso 200074-2013).
+   * Lógica de Sistema:
+     - Validación: Un presupuesto es vinculante SI (Código_Presupuestado == Código_Ejecutado).
+     - Acción: Si el prestador cambia el código en la cuenta final para encarecer el copago (Upcoding), alertar la discrepancia.
+
+Nota de Auditoría: Cualquier cargo que no supere estas validaciones se considera un Perjuicio Económico al Afiliado y debe ser objeto de reliquidación inmediata.
 `;
 
 export const FORENSIC_AUDIT_SCHEMA = {
