@@ -30,7 +30,7 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.setHeader('Transfer-Encoding', 'chunked');
 
-    const { question, context } = req.body;
+    const { question, context, images } = req.body; // Added images support
 
     if (!question) {
         return res.status(400).send("Falta la pregunta.");
@@ -62,9 +62,9 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
 
     // Calculate context size roughly
     const ctxSize = htmlContext.length + JSON.stringify(contractJson || {}).length + JSON.stringify(pamJson || {}).length + extraLiterature.length;
-    console.log(`[ASK] Question: "${question}" | Context Size: ${ctxSize} chars`);
+    console.log(`[ASK] Question: "${question}" | Context Size: ${ctxSize} chars | Images: ${images?.length || 0}`);
 
-    const PROMPT = `
+    const PROMPT_TEXT = `
         ACTÚA COMO UN AUDITOR MÉDICO FORENSE EXPERTO Y METICULOSO CON ACCESO A LITERATURA LEGAL Y REGLAMENTARIA.
         
         LITERATURA Y JURISPRUDENCIA (MARCO DE REFERENCIA):
@@ -91,20 +91,49 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
         --------------------
 
         TU MISIÓN:
-        Responder la pregunta del usuario basándote en la evidencia del caso Y fundamentando con la LITERATURA provista.
+        Responder la pregunta del usuario basándote en la evidencia del caso (texto e IMÁGENES si las hay) Y fundamentando con la LITERATURA provista.
 
         PREGUNTA DEL USUARIO:
         "${question}"
 
         DIRECTRICES DE RESPUESTA:
-        1. PRECISIÓN VISUAL: Si la pregunta es sobre qué se ve en el documento, usa el HTML. Cita líneas exactas si es posible.
+        1. PRECISIÓN VISUAL: Si la pregunta es sobre qué se ve en el documento (HTML o IMAGEN adjunta), usa esa evidencia. Cita líneas exactas si es posible.
         2. PRECISIÓN CONTRACTUAL: Si la pregunta es sobre coberturas, usa el JSON del contrato y cita la regla específica.
-        3. HONESTIDAD: Si el dato no está en el contexto, DI QUE NO ESTÁ. No alucines.
+        3. HONESTIDAD: Si el dato no está en el contexto ni en las imágenes, DI QUE NO ESTÁ. No alucines.
         4. FORMATO: Responde directo al grano. Usa Markdown si ayuda (listas, negritas).
         5. LENGUAJE: Profesional, técnico, directo. Español formal.
 
         RESPUESTA:
     `;
+
+    // Construct parts for the model (Text + Images)
+    const parts: any[] = [{ text: PROMPT_TEXT }];
+
+    if (images && Array.isArray(images)) {
+        for (const imgBase64 of images) {
+            // Check if it has the data:image/... base64 prefix and strip it if necessary for the API
+            // The API expects just the base64 data strings for inlineData
+            const match = imgBase64.match(/^data:(image\/[a-z]+);base64,(.+)$/);
+            if (match) {
+                parts.push({
+                    inlineData: {
+                        mimeType: match[1],
+                        data: match[2]
+                    }
+                });
+            } else {
+                // Assume it's raw base64 png if no prefix, or try to guess. Defaulting to jpeg for safety if unknown or assume validation upstream.
+                // Better to assume the frontend sends data URI.
+                // If raw base64 is sent, we might default to image/png
+                parts.push({
+                    inlineData: {
+                        mimeType: "image/png",
+                        data: imgBase64
+                    }
+                });
+            }
+        }
+    }
 
     const apiKeys = getApiKeys();
     if (apiKeys.length === 0) {
@@ -113,24 +142,46 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
         return;
     }
 
-    try {
-        // Try with Primary Key and Active Model
-        const apiKey = apiKeys[0]; // Simplification for short interaction
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: AI_CONFIG.ACTIVE_MODEL || "gemini-1.5-flash" }); // Fallback safe
+    // --- FALLBACK LOGIC ---
+    // Models to try in order
+    const preferredModel = AI_CONFIG.ACTIVE_MODEL || "gemini-1.5-flash";
+    const modelsToTry = [
+        preferredModel,
+        "gemini-2.5-flash" // User-enforced strict fallback (2.0 and 1.5 are retired/excluded)
+    ];
+    // Removing duplicates while preserving order
+    const uniqueModels = [...new Set(modelsToTry)];
 
-        const result = await model.generateContentStream(PROMPT);
+    let success = false;
+    let lastError: any = null;
 
-        for await (const chunk of result.stream) {
-            const chunkText = chunk.text();
-            res.write(chunkText);
+    for (const modelName of uniqueModels) {
+        if (success) break;
+        try {
+            console.log(`[ASK] Attempting with model: ${modelName}`);
+            // Use Primary Key first, could rotate keys if needed but simple for now
+            const apiKey = apiKeys[0];
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: modelName });
+
+            const result = await model.generateContentStream(parts);
+
+            for await (const chunk of result.stream) {
+                const chunkText = chunk.text();
+                res.write(chunkText);
+            }
+            success = true;
+        } catch (error: any) {
+            console.warn(`[ASK] Failed with model ${modelName}: ${error.message}`);
+            lastError = error;
+            // Continue to next model
         }
-
-        res.end();
-
-    } catch (error: any) {
-        console.error("[ASK] Error generating answer:", error);
-        res.write(`Error al interrogar al auditor: ${error.message}`);
-        res.end();
     }
+
+    if (!success) {
+        console.error("[ASK] All models failed.", lastError);
+        res.write(`Error al interrogar al auditor (Todos los modelos fallaron). Último error: ${lastError?.message}`);
+    }
+
+    res.end();
 };

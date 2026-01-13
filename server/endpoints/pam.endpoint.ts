@@ -60,12 +60,12 @@ export async function handlePamExtraction(req: Request, res: Response) {
         let activeModel: string = "";
 
         // WORKFLOW CONFIGURATION
-        // Testing gemini-3-flash-preview with fallback to gemini-2.5-flash
+        // Primary: AI_CONFIG.ACTIVE_MODEL -> Fallback: Gemini 2.5 Strict
         const workflow = [
             {
-                model: 'gemini-3-flash-preview',
+                model: AI_CONFIG.ACTIVE_MODEL || 'gemini-3-flash-preview',
                 timeout: 60000, // 60s timeout
-                desc: 'Gemini 3 Flash Preview - Testing'
+                desc: 'Primary Model (Active)'
             },
             {
                 model: 'gemini-2.5-flash',

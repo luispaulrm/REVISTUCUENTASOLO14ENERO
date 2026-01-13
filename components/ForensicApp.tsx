@@ -24,7 +24,11 @@ import {
     Eraser,
     BrainCircuit,
     Calculator,
-    Library
+    Library,
+    Image as ImageIcon,
+    Paperclip,
+    Maximize2,
+    Minimize2
 } from 'lucide-react';
 import { runForensicAudit } from '../auditService';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
@@ -357,110 +361,120 @@ export default function ForensicApp() {
                 )}
 
                 {status === 'SUCCESS' && auditResult && (
-                    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                        <div className="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm space-y-10">
-                            <div className="flex flex-col md:flex-row justify-between items-start gap-8 border-b border-slate-100 pb-10">
-                                <div className="space-y-4 max-w-2xl">
-                                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase">
-                                        <CheckCircle2 size={12} /> Análisis Forense Completado
-                                    </div>
-                                    <h2 className="text-4xl font-black text-slate-900 tracking-tighter">Resultados de la Auditoría</h2>
-                                    <p className="text-slate-600 font-medium leading-relaxed">{auditResult.resumenEjecutivo}</p>
-                                </div>
-                                <div className="bg-slate-950 p-6 rounded-2xl text-white min-w-[250px]">
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Ahorro Detectado</p>
-                                    <div className="text-3xl font-black text-emerald-400">${(auditResult.totalAhorroDetectado || 0).toLocaleString('es-CL')}</div>
-                                </div>
-                            </div>
-
-                            {/* TOKEN METRICS */}
-                            {realTimeUsage && (
-                                <div className="grid grid-cols-4 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
-                                    {['Entrada', 'Salida', 'Total', 'Costo CLP'].map((label, idx) => (
-                                        <div key={label}>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase mb-2">{label}</p>
-                                            <p className="text-2xl font-black text-slate-900 font-mono">
-                                                {idx === 0 ? realTimeUsage.promptTokens?.toLocaleString() :
-                                                    idx === 1 ? realTimeUsage.candidatesTokens?.toLocaleString() :
-                                                        idx === 2 ? realTimeUsage.totalTokens?.toLocaleString() :
-                                                            `$${realTimeUsage.estimatedCostCLP}`}
-                                            </p>
+                    <div className="max-w-[1800px] mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
+                        <div className="flex flex-col xl:flex-row gap-8 items-start">
+                            {/* LEFT COLUMN: AUDIT RESULTS (70%) */}
+                            <div className="w-full xl:w-[70%] space-y-10">
+                                <div className="bg-white p-10 rounded-3xl border border-slate-200 shadow-sm space-y-10">
+                                    <div className="flex flex-col md:flex-row justify-between items-start gap-8 border-b border-slate-100 pb-10">
+                                        <div className="space-y-4 max-w-2xl">
+                                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase">
+                                                <CheckCircle2 size={12} /> Análisis Forense Completado
+                                            </div>
+                                            <h2 className="text-4xl font-black text-slate-900 tracking-tighter">Resultados de la Auditoría</h2>
+                                            <p className="text-slate-600 font-medium leading-relaxed">{auditResult.resumenEjecutivo}</p>
                                         </div>
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* BITÁCORA DE ANÁLISIS TÉCNICO */}
-                            {(auditResult.bitacoraAnalisis?.length > 0 || auditResult.bitacoraCompleta) && (
-                                <div className="space-y-6">
-                                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                        <BrainCircuit size={16} className="text-indigo-600" /> Bitácora de Análisis Técnico (Razonamiento Forense)
-                                    </h3>
-                                    <div className="bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden">
-                                        <table className="w-full text-left">
-                                            <thead className="bg-slate-100 border-b border-slate-200">
-                                                <tr>
-                                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase w-1/4">Paso</th>
-                                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase w-1/2">Razonamiento y Cálculo</th>
-                                                    <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Evidencia</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-200">
-                                                {(auditResult.bitacoraAnalisis || []).map((item: any, idx: number) => (
-                                                    <tr key={idx} className="hover:bg-white transition-colors">
-                                                        <td className="px-6 py-4 text-xs font-bold text-slate-700">{idx + 1}. {item.paso}</td>
-                                                        <td className="px-6 py-4 text-xs text-slate-600 font-mono">{item.razonamiento}</td>
-                                                        <td className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase">{item.evidencia}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                        <div className="bg-slate-950 p-6 rounded-2xl text-white min-w-[250px]">
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Ahorro Detectado</p>
+                                            <div className="text-3xl font-black text-emerald-400">${(auditResult.totalAhorroDetectado || 0).toLocaleString('es-CL')}</div>
+                                        </div>
                                     </div>
-                                </div>
-                            )}
 
-                            {/* HALLAZGOS */}
-                            <div className="space-y-6">
-                                <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <ChevronRight size={16} className="text-slate-900" /> Hallazgos y Objeciones ({(auditResult.hallazgos || []).length})
-                                </h3>
-                                <div className="grid grid-cols-1 gap-4">
-                                    {(auditResult.hallazgos || []).map((hallazgo: any, idx: number) => (
-                                        <div key={idx} className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-400 transition-all shadow-sm">
-                                            <div className="flex justify-between items-center mb-4">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="px-2 py-1 bg-slate-900 text-white rounded text-[10px] font-mono">{hallazgo.codigos}</span>
-                                                    <h4 className="font-bold text-slate-900">{hallazgo.glosa}</h4>
+                                    {/* TOKEN METRICS */}
+                                    {realTimeUsage && (
+                                        <div className="grid grid-cols-4 gap-4 p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                                            {['Entrada', 'Salida', 'Total', 'Costo CLP'].map((label, idx) => (
+                                                <div key={label}>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-2">{label}</p>
+                                                    <p className="text-2xl font-black text-slate-900 font-mono">
+                                                        {idx === 0 ? realTimeUsage.promptTokens?.toLocaleString() :
+                                                            idx === 1 ? realTimeUsage.candidatesTokens?.toLocaleString() :
+                                                                idx === 2 ? realTimeUsage.totalTokens?.toLocaleString() :
+                                                                    `$${realTimeUsage.estimatedCostCLP}`}
+                                                    </p>
                                                 </div>
-                                                <div className="text-rose-600 font-black text-lg">-${(hallazgo.montoObjetado || 0).toLocaleString()}</div>
-                                            </div>
-                                            <p className="text-sm text-slate-600 mb-4 whitespace-pre-wrap">{hallazgo.hallazgo}</p>
-                                            <div className="flex gap-4 text-[10px] font-bold text-slate-400 uppercase">
-                                                <span className="flex items-center gap-1"><Scale size={12} /> {hallazgo.normaFundamento}</span>
-                                                <span className="flex items-center gap-1"><Search size={12} /> {hallazgo.anclajeJson}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                    {(!auditResult.hallazgos || auditResult.hallazgos.length === 0) && (
-                                        <div className="p-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">
-                                            <CheckCircle2 size={32} className="mx-auto mb-2 opacity-50" />
-                                            <p>No se encontraron hallazgos negativos. La cuenta parece estar en orden.</p>
+                                            ))}
                                         </div>
                                     )}
+
+                                    {/* BITÁCORA DE ANÁLISIS TÉCNICO */}
+                                    {(auditResult.bitacoraAnalisis?.length > 0 || auditResult.bitacoraCompleta) && (
+                                        <div className="space-y-6">
+                                            <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                <BrainCircuit size={16} className="text-indigo-600" /> Bitácora de Análisis Técnico (Razonamiento Forense)
+                                            </h3>
+                                            <div className="bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden">
+                                                <table className="w-full text-left">
+                                                    <thead className="bg-slate-100 border-b border-slate-200">
+                                                        <tr>
+                                                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase w-1/4">Paso</th>
+                                                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase w-1/2">Razonamiento y Cálculo</th>
+                                                            <th className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase">Evidencia</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-200">
+                                                        {(auditResult.bitacoraAnalisis || []).map((item: any, idx: number) => (
+                                                            <tr key={idx} className="hover:bg-white transition-colors">
+                                                                <td className="px-6 py-4 text-xs font-bold text-slate-700">{idx + 1}. {item.paso}</td>
+                                                                <td className="px-6 py-4 text-xs text-slate-600 font-mono">{item.razonamiento}</td>
+                                                                <td className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase">{item.evidencia}</td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* HALLAZGOS */}
+                                    <div className="space-y-6">
+                                        <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                            <ChevronRight size={16} className="text-slate-900" /> Hallazgos y Objeciones ({(auditResult.hallazgos || []).length})
+                                        </h3>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {(auditResult.hallazgos || []).map((hallazgo: any, idx: number) => (
+                                                <div key={idx} className="p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-400 transition-all shadow-sm">
+                                                    <div className="flex justify-between items-center mb-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="px-2 py-1 bg-slate-900 text-white rounded text-[10px] font-mono">{hallazgo.codigos}</span>
+                                                            <h4 className="font-bold text-slate-900">{hallazgo.glosa}</h4>
+                                                        </div>
+                                                        <div className="text-rose-600 font-black text-lg">-${(hallazgo.montoObjetado || 0).toLocaleString()}</div>
+                                                    </div>
+                                                    <p className="text-sm text-slate-600 mb-4 whitespace-pre-wrap">{hallazgo.hallazgo}</p>
+                                                    <div className="flex gap-4 text-[10px] font-bold text-slate-400 uppercase">
+                                                        <span className="flex items-center gap-1"><Scale size={12} /> {hallazgo.normaFundamento}</span>
+                                                        <span className="flex items-center gap-1"><Search size={12} /> {hallazgo.anclajeJson}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {(!auditResult.hallazgos || auditResult.hallazgos.length === 0) && (
+                                                <div className="p-8 text-center text-slate-400 bg-slate-50 rounded-2xl border border-slate-200">
+                                                    <CheckCircle2 size={32} className="mx-auto mb-2 opacity-50" />
+                                                    <p>No se encontraron hallazgos negativos. La cuenta parece estar en orden.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-slate-950 text-slate-100 p-8 md:p-12 rounded-3xl relative">
+                                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8 border-b border-slate-800 pb-4">Informe Formal del Auditor</h4>
+                                        <div className="prose prose-invert prose-slate max-w-none whitespace-pre-wrap font-mono text-[11px] leading-relaxed">
+                                            {auditResult.auditoriaFinalMarkdown}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-center gap-4 pt-4 print:hidden">
+                                        <button onClick={() => window.print()} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-black transition-all shadow-lg active:scale-95"><Printer size={20} /> IMPRIMIR INFORME</button>
+                                        <button onClick={() => downloadFormat(auditResult, 'json', 'audit_forense')} className="px-6 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2">JSON</button>
+                                        <button onClick={() => downloadFormat(auditResult, 'md', 'audit_forense')} className="px-6 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2">MD</button>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="bg-slate-950 text-slate-100 p-8 md:p-12 rounded-3xl relative">
-                                <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8 border-b border-slate-800 pb-4">Informe Formal del Auditor</h4>
-                                <div className="prose prose-invert prose-slate max-w-none whitespace-pre-wrap font-mono text-[11px] leading-relaxed">
-                                    {auditResult.auditoriaFinalMarkdown}
-                                </div>
-                            </div>
-
-                            <div className="flex justify-center gap-4 pt-4 print:hidden">
-                                <button onClick={() => window.print()} className="px-8 py-4 bg-slate-900 text-white rounded-2xl font-black flex items-center gap-2 hover:bg-black transition-all shadow-lg active:scale-95"><Printer size={20} /> IMPRIMIR INFORME</button>
-                                <button onClick={() => downloadFormat(auditResult, 'json', 'audit_forense')} className="px-6 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2">JSON</button>
-                                <button onClick={() => downloadFormat(auditResult, 'md', 'audit_forense')} className="px-6 py-4 bg-white text-slate-900 border border-slate-200 rounded-2xl font-black flex items-center gap-2">MD</button>
+                            {/* RIGHT COLUMN: CHAT (30%) - STICKY */}
+                            <div className="w-full xl:w-[30%] xl:sticky xl:top-24 h-fit">
+                                <InterrogationZone auditResult={auditResult} compactMode={true} />
                             </div>
                         </div>
                     </div>
@@ -468,7 +482,7 @@ export default function ForensicApp() {
 
                 {status === 'ERROR' && <div className="max-w-md mx-auto py-20 text-center"><AlertCircle size={64} className="text-rose-500 mx-auto mb-6" /><h3 className="text-2xl font-black text-slate-900 mb-2">Error en Auditoría</h3><p className="text-slate-500 mb-8">{error}</p><button onClick={() => setStatus('IDLE')} className="px-6 py-3 bg-slate-900 text-white rounded-xl font-bold">VOLVER A INTENTAR</button></div>}
 
-                {(hasHtml || hasContract || hasPam) && <div className="max-w-5xl mx-auto mb-12 px-4"><InterrogationZone auditResult={auditResult} /></div>}
+                {(hasHtml || hasContract || hasPam) && status !== 'SUCCESS' && <div className="max-w-5xl mx-auto mb-12 px-4"><InterrogationZone auditResult={auditResult} /></div>}
 
                 {previewData && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
@@ -499,29 +513,81 @@ function DataStatusCard({ title, icon, ready, desc, onClick }: { title: string, 
     );
 }
 
-function InterrogationZone({ auditResult }: { auditResult?: any }) {
+function InterrogationZone({ auditResult, compactMode = false }: { auditResult?: any, compactMode?: boolean }) {
     const [question, setQuestion] = useState('');
-    const [history, setHistory] = useState<{ question: string; answer: string }[]>([]);
+    const [history, setHistory] = useState<{ question: string; answer: string; images?: string[] }[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [currentStreamingAnswer, setCurrentStreamingAnswer] = useState('');
+    const [images, setImages] = useState<string[]>([]); // Base64 images
     const scrollRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
 
     useEffect(() => {
         if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }, [history, currentStreamingAnswer]);
+    }, [history, currentStreamingAnswer, images]);
+
+    // Auto-resize textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+        }
+    }, [question]);
+
+    const handlePaste = (e: React.ClipboardEvent) => {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+            if (items[i].type.indexOf('image') !== -1) {
+                e.preventDefault();
+                const blob = items[i].getAsFile();
+                if (blob) {
+                    processFile(blob);
+                }
+            }
+        }
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            processFile(e.target.files[0]);
+        }
+    };
+
+    const processFile = (file: File) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (e.target?.result) {
+                setImages(prev => [...prev, e.target!.result as string]);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const removeImage = (index: number) => {
+        setImages(prev => prev.filter((_, i) => i !== index));
+    };
 
     const handleAsk = async () => {
-        if (!question.trim() || isLoading) return;
+        if ((!question.trim() && images.length === 0) || isLoading) return;
+
         const currentQuestion = question;
+        const currentImages = [...images];
+
         setQuestion('');
+        setImages([]);
+        if (textareaRef.current) textareaRef.current.style.height = 'auto'; // Reset height
+
         setIsLoading(true);
         setCurrentStreamingAnswer('');
+
         try {
             const response = await fetch('/api/audit/ask', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     question: currentQuestion,
+                    images: currentImages,
                     context: {
                         htmlContext: localStorage.getItem('html_projection_result') || '',
                         billJson: JSON.parse(localStorage.getItem('clinic_audit_result') || '{}'),
@@ -542,38 +608,137 @@ function InterrogationZone({ auditResult }: { auditResult?: any }) {
                     setCurrentStreamingAnswer(accumulatedText);
                 }
             }
-            setHistory(prev => [...prev, { question: currentQuestion, answer: accumulatedText }]);
+            setHistory(prev => [...prev, { question: currentQuestion, answer: accumulatedText, images: currentImages }]);
             setCurrentStreamingAnswer('');
         } catch (err: any) {
-            setHistory(prev => [...prev, { question: currentQuestion, answer: `Error: ${err.message}` }]);
+            setHistory(prev => [...prev, { question: currentQuestion, answer: `Error: ${err.message}`, images: currentImages }]);
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-4 mt-8 flex flex-col max-h-[600px]">
-            <div className="flex items-center gap-3 mb-2 shrink-0">
-                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white"><MessageSquare size={20} /></div>
-                <div><h3 className="font-bold text-slate-900">Interrogar al Auditor</h3><p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Verificar contexto cargado</p></div>
+        <div className={`bg-white rounded-3xl border border-slate-200 shadow-xl flex flex-col ${compactMode ? 'h-[calc(100vh-8rem)]' : 'h-[600px] mt-8 p-8 space-y-4'}`}>
+            <div className={`shrink-0 flex items-center gap-3 ${compactMode ? 'p-4 border-b border-slate-100 bg-slate-50/50 rounded-t-3xl' : 'mb-2'}`}>
+                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200"><MessageSquare size={20} /></div>
+                <div>
+                    <h3 className="font-bold text-slate-900 leading-tight">Asistente Forense</h3>
+                    <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Gemini 3 + Vision</p>
+                </div>
             </div>
-            <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-6 p-4 border border-slate-100 rounded-xl bg-slate-50/50 min-h-[200px]">
-                {history.length === 0 && !currentStreamingAnswer && <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-60"><MessageSquare size={48} className="mb-2" /><p className="text-sm font-medium">Haz una pregunta para comenzar...</p></div>}
+
+            <div ref={scrollRef} className={`flex-1 overflow-y-auto space-y-6 ${compactMode ? 'p-4' : 'p-4 border border-slate-100 rounded-xl bg-slate-50/50'}`}>
+                {history.length === 0 && !currentStreamingAnswer && (
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 opacity-60 text-center p-4">
+                        <BrainCircuit size={48} className="mb-4 text-indigo-200" />
+                        <p className="text-sm font-bold text-slate-500">¿Dudas sobre la auditoría?</p>
+                        <p className="text-xs mt-2">Pregunta sobre coberturas, cálculos o pega imágenes de la cuenta para analizar.</p>
+                    </div>
+                )}
+
                 {history.map((item, index) => (
-                    <div key={index} className="space-y-2">
-                        <div className="flex justify-end"><div className="bg-slate-200 text-slate-800 px-4 py-2 rounded-2xl rounded-tr-sm max-w-[80%] text-sm font-medium">{item.question}</div></div>
-                        <div className="flex justify-start"><div className="bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl rounded-tl-sm max-w-[90%] text-sm shadow-sm whitespace-pre-wrap">{item.answer}</div></div>
+                    <div key={index} className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex flex-col items-end gap-1">
+                            {item.images && item.images.length > 0 && (
+                                <div className="flex flex-wrap gap-2 justify-end mb-1">
+                                    {item.images.map((img, i) => (
+                                        <img key={i} src={img} className="w-20 h-20 object-cover rounded-lg border border-indigo-100 shadow-sm" />
+                                    ))}
+                                </div>
+                            )}
+                            {item.question && (
+                                <div className="bg-slate-100 text-slate-800 px-4 py-2.5 rounded-2xl rounded-tr-sm max-w-[90%] text-sm font-medium shadow-sm">
+                                    {item.question}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex justify-start">
+                            <div className="bg-white border border-slate-200 text-slate-700 px-5 py-3.5 rounded-2xl rounded-tl-sm max-w-[95%] text-xs leading-relaxed shadow-sm whitespace-pre-wrap">
+                                <div className="prose prose-xs max-w-none text-slate-600">
+                                    {item.answer}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 ))}
-                {(isLoading) && (
+
+                {isLoading && (
                     <div className="space-y-2">
-                        <div className="flex justify-start"><div className="bg-white border border-slate-200 text-slate-700 px-5 py-3 rounded-2xl rounded-tl-sm max-w-[90%] text-sm shadow-sm whitespace-pre-wrap">{currentStreamingAnswer || <Loader2 size={16} className="animate-spin text-indigo-600" />}</div></div>
+                        <div className="flex justify-start">
+                            <div className="bg-white border border-slate-200 text-slate-700 px-5 py-3.5 rounded-2xl rounded-tl-sm max-w-[90%] text-xs shadow-sm whitespace-pre-wrap">
+                                {currentStreamingAnswer || (
+                                    <div className="flex items-center gap-2 text-indigo-600 font-bold">
+                                        <Loader2 size={14} className="animate-spin" />
+                                        <span>Analizando evidencia...</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
-            <div className="flex gap-2 shrink-0 pt-2">
-                <input type="text" value={question} onChange={(e) => setQuestion(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleAsk()} placeholder="Ej: ¿Qué cobertura tiene el plan para días cama?" className="flex-1 px-4 py-3 border border-slate-200 rounded-xl text-sm outline-none" />
-                <button onClick={handleAsk} disabled={isLoading || !question.trim()} className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold text-sm flex items-center gap-2">{isLoading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}{isLoading ? 'Pensando' : 'Preguntar'}</button>
+
+            {/* INPUT AREA */}
+            <div className={`shrink-0 ${compactMode ? 'p-4 border-t border-slate-100 bg-white rounded-b-3xl' : 'pt-2'}`}>
+                {/* Image Previews */}
+                {images.length > 0 && (
+                    <div className="flex gap-2 overflow-x-auto pb-3 mb-2 px-1">
+                        {images.map((img, idx) => (
+                            <div key={idx} className="relative group shrink-0">
+                                <img src={img} className="w-16 h-16 object-cover rounded-lg border border-slate-200 shadow-sm" />
+                                <button onClick={() => removeImage(idx)} className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white rounded-full p-0.5 shadow-md hover:scale-110 transition-transform">
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                <div className="relative flex items-end gap-2 bg-slate-50 border border-slate-200 rounded-2xl p-2 focus-within:ring-2 focus-within:ring-indigo-100 focus-within:border-indigo-400 transition-all shadow-inner">
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                    />
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-colors shrink-0 tooltip"
+                        title="Adjuntar imagen"
+                    >
+                        <ImageIcon size={20} />
+                    </button>
+
+                    <textarea
+                        ref={textareaRef}
+                        value={question}
+                        onChange={(e) => setQuestion(e.target.value)}
+                        onPaste={handlePaste}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                e.preventDefault();
+                                handleAsk();
+                            }
+                        }}
+                        placeholder="Escribe o pega texto/imágenes..."
+                        className="flex-1 bg-transparent border-none outline-none text-sm text-slate-800 placeholder-slate-400 resize-none max-h-32 py-2"
+                        rows={1}
+                        style={{ minHeight: '40px' }}
+                    />
+
+                    <button
+                        onClick={handleAsk}
+                        disabled={isLoading || (!question.trim() && images.length === 0)}
+                        className={`p-2 rounded-xl transition-all shadow-sm shrink-0 ${isLoading || (!question.trim() && images.length === 0) ? 'bg-slate-200 text-slate-400' : 'bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 active:scale-95'}`}
+                    >
+                        {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                    </button>
+                </div>
+                <div className="text-[9px] text-slate-400 text-center mt-2 font-medium">
+                    Presiona Enter para enviar • Shift+Enter para salto de línea • Ctrl+V para pegar
+                </div>
             </div>
         </div>
     );

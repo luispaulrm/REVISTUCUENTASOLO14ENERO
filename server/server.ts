@@ -281,6 +281,11 @@ app.post('/api/extract', async (req, res) => {
 
                     forensicLog(`Enviando imagen al modelo ${modelName}...`);
 
+                    // Progress ticking to keep user informed during long waits
+                    const waitingInterval = setInterval(() => {
+                        forensicLog(`⏳ Esperando respuesta de ${modelName}... (Procesando)`);
+                    }, 10000);
+
                     // Add timeout wrapper to prevent indefinite hangs
                     const timeoutMs = 90000; // 90 seconds for bill extraction
                     const streamPromise = model.generateContentStream([
@@ -299,7 +304,11 @@ app.post('/api/extract', async (req, res) => {
                         }, timeoutMs);
                     });
 
-                    resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
+                    try {
+                        resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
+                    } finally {
+                        clearInterval(waitingInterval);
+                    }
 
                     // If successful, break both loops
                     if (resultStream) {
