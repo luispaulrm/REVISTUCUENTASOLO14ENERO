@@ -307,175 +307,39 @@ export async function performMultiPassAudit(
     log: (msg: string) => void,
     htmlContext: string = ''
 ) {
-    log('[MULTI-PASS] 🔄 Iniciando Sistema de Auditoría Multi-Pasada (3 Rondas)...');
+    log('[SINGLE-PASS] 🚀 Iniciando Sistema de Auditoría de Tiro Único (Modo Optimizado)...');
 
     try {
-        // ===== RONDA 1: AUDITORÍA PRIMARIA =====
-        log('[MULTI-PASS] 🔍 RONDA 1: Auditoría Primaria - Detección Máxima...');
+        // ===== RONDA ÚNICA: AUDITORÍA FORENSE INTEGRAL =====
+        log('[SINGLE-PASS] 🔍 Ejecutando Auditoría Forense (Fases A y B)...');
         const ronda1 = await performForensicAudit(
             cuentaJson, pamJson, contratoJson, apiKey,
-            (msg) => log(`[R1] ${msg}`), htmlContext
+            (msg) => log(`${msg}`), htmlContext
         );
 
-        const numHallazgosR1 = ronda1.data?.hallazgos?.length || 0;
-        const ahorroR1 = ronda1.data?.totalAhorroDetectado || 0;
-        log(`[MULTI-PASS] ✅ Ronda 1 completada: ${numHallazgosR1} hallazgos, $${ahorroR1.toLocaleString('es-CL')}`);
+        const numHallazgos = ronda1.data?.hallazgos?.length || 0;
+        const ahorro = ronda1.data?.totalAhorroDetectado || 0;
+        log(`[SINGLE-PASS] ✅ Auditoría completada: ${numHallazgos} hallazgos, $${ahorro.toLocaleString('es-CL')}`);
 
-        // ===== RONDA 2: VERIFICACIÓN CRUZADA =====
-        log('[MULTI-PASS] 🔎 RONDA 2: Verificación Cruzada - Validación de Hallazgos...');
-
-        const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({
-            model: AI_CONFIG.ACTIVE_MODEL,
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: VERIFICATION_SCHEMA as any,
-                maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
-                temperature: 0.1  // Lower for more deterministic verification
-            }
-        });
-
-        // Minify JSON for R2/R3 (reducir tokens)
-        const minifiedCuenta = JSON.stringify(cuentaJson);
-        const minifiedPam = JSON.stringify(pamJson);
-        const minifiedContrato = JSON.stringify(contratoJson);
-        log(`[MULTI-PASS] 📦 Contexto minificado: Cuenta=${(minifiedCuenta.length / 1024).toFixed(1)}KB, PAM=${(minifiedPam.length / 1024).toFixed(1)}KB`);
-
-        // Timeout wrapper for R2
-        const ROUND_TIMEOUT_MS = 60000; // 60 seconds
-        const withTimeout = <T>(promise: Promise<T>, ms: number, roundName: string): Promise<T> => {
-            return Promise.race([
-                promise,
-                new Promise<T>((_, reject) =>
-                    setTimeout(() => reject(new Error(`${roundName} timeout after ${ms / 1000}s`)), ms)
-                )
-            ]);
-        };
-
-        const verificationPrompt = buildVerificationPrompt(ronda1.data);
-        let ronda2Data;
-        try {
-            const ronda2Result = await withTimeout(
-                model.generateContent([
-                    { text: verificationPrompt },
-                    { text: `CUENTA: ${minifiedCuenta}` },
-                    { text: `PAM: ${minifiedPam}` },
-                    { text: `CONTRATO: ${minifiedContrato}` }
-                ]),
-                ROUND_TIMEOUT_MS,
-                'Ronda 2'
-            );
-            ronda2Data = JSON.parse(ronda2Result.response.text());
-        } catch (error: any) {
-            log(`[MULTI-PASS] ⚠️ Ronda 2 falló (${error.message}), saltando a consolidación directa`);
-            ronda2Data = {
-                hallazgosConfirmados: ronda1.data?.hallazgos || [],
-                hallazgosRefutados: [],
-                hallazgosNuevos: []
-            };
-        }
-
-        const confirmados = ronda2Data.hallazgosConfirmados?.length || 0;
-        const refutados = ronda2Data.hallazgosRefutados?.length || 0;
-        const nuevos = ronda2Data.hallazgosNuevos?.length || 0;
-        log(`[MULTI-PASS] ✅ Ronda 2 completada: ${confirmados} confirmados, ${refutados} refutados, ${nuevos} nuevos`);
-
-        // ===== RONDA 3: CONSOLIDACIÓN FINAL =====
-        log('[MULTI-PASS] ⚖️  RONDA 3: Consolidación Final - Consenso...');
-
-        const consolidationModel = genAI.getGenerativeModel({
-            model: AI_CONFIG.ACTIVE_MODEL,
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: CONSOLIDATION_SCHEMA as any,
-                maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
-                temperature: 0.1
-            }
-        });
-
-        const consolidationPrompt = buildConsolidationPrompt(ronda1.data, ronda2Data);
-        let ronda3Result;
-        try {
-            ronda3Result = await withTimeout(
-                consolidationModel.generateContent([
-                    { text: consolidationPrompt },
-                    { text: `CUENTA: ${minifiedCuenta}` },
-                    { text: `PAM: ${minifiedPam}` },
-                    { text: `CONTRATO: ${minifiedContrato}` }
-                ]),
-                ROUND_TIMEOUT_MS,
-                'Ronda 3'
-            );
-        } catch (error: any) {
-            log(`[MULTI-PASS] ⚠️ Ronda 3 falló (${error.message}), usando resultado de Ronda 1`);
-            // Fallback: return R1 data directly
-            return {
-                data: {
-                    ...ronda1.data,
-                    metadataMultiPass: {
-                        ronda1: { hallazgos: numHallazgosR1, ahorro: ahorroR1 },
-                        ronda2: { confirmados, refutados, nuevos },
-                        ronda3: { finales: 0, descartados: 0, fallback: true }
-                    }
-                },
-                usage: ronda1.usage
-            };
-        }
-
-        let ronda3Data;
-        try {
-            ronda3Data = JSON.parse(ronda3Result.response.text());
-        } catch {
-            log('[MULTI-PASS] ⚠️ Error parseando Ronda 3, consolidando manualmente');
-            // Fallback: use confirmed from R2 + new from R2
-            ronda3Data = {
-                hallazgosFinales: [
-                    ...(ronda2Data.hallazgosConfirmados || []),
-                    ...(ronda2Data.hallazgosNuevos || [])
-                ],
-                hallazgosDescartados: ronda2Data.hallazgosRefutados || [],
-                totalAhorroFinal: 0,
-                auditoriaFinalMarkdown: ronda1.data?.auditoriaFinalMarkdown || ''
-            };
-        }
-
-        const finales = ronda3Data.hallazgosFinales?.length || 0;
-        const descartados = ronda3Data.hallazgosDescartados?.length || 0;
-        const ahorroFinal = ronda3Data.totalAhorroFinal || 0;
-        log(`[MULTI-PASS] ✅✅✅ AUDITORÍA MULTI-PASADA COMPLETADA`);
-        log(`[MULTI-PASS] 📊 Resumen: ${finales} hallazgos finales (${descartados} descartados), Ahorro: $${ahorroFinal.toLocaleString('es-CL')}`);
-
-        // Calculate total usage across all rounds (R2 doesn't expose usage due to try-catch)
-        const totalUsage = {
-            promptTokens: (ronda1.usage?.promptTokens || 0) +
-                (ronda3Result.response.usageMetadata?.promptTokenCount || 0),
-            candidatesTokens: (ronda1.usage?.candidatesTokens || 0) +
-                (ronda3Result.response.usageMetadata?.candidatesTokenCount || 0),
-            totalTokens: 0
-        };
-        totalUsage.totalTokens = totalUsage.promptTokens + totalUsage.candidatesTokens;
-
+        // Retornamos el formato esperado por el frontend, pero basado en la Ronda 1
         return {
             data: {
-                ...ronda3Data,
-                hallazgos: ronda3Data.hallazgosFinales,
-                totalAhorroDetectado: ronda3Data.totalAhorroFinal,
+                ...ronda1.data,
+                // Mantenemos metadatos mínimos para compatibilidad
                 metadataMultiPass: {
-                    ronda1: { hallazgos: numHallazgosR1, ahorro: ahorroR1 },
-                    ronda2: { confirmados, refutados, nuevos },
-                    ronda3: { finales, descartados }
+                    ronda1: { hallazgos: numHallazgos, ahorro: ahorro },
+                    modo: 'SINGLE_PASS'
                 },
                 bitacoraCompleta: {
-                    ronda1: ronda1.data?.bitacoraAnalisis || [],
-                    ronda2: ronda2Data.bitacoraVerificacion || [],
-                    ronda3: ronda3Data.bitacoraConsolidacion || []
+                    ronda1: ronda1.data?.bitacoraAnalisis || []
                 }
             },
-            usage: totalUsage
+            usage: ronda1.usage
         };
 
     } catch (error: any) {
-        log(`[MULTI-PASS] ❌ Error en auditoría multi-pasada: ${error.message}`);
+        log(`[SINGLE-PASS] ❌ Error en auditoría: ${error.message}`);
         throw error;
     }
 }
+
