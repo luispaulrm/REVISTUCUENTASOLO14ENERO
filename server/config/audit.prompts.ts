@@ -18,6 +18,7 @@ Si dudas: marcar como "ZONA GRIS" y explicar qué evidencia faltó.
 - Toda objeción debe estar anclada a un COPAGO REAL en el PAM.
 - **PROHIBIDO**: Objetar un monto mayor al copago que el paciente efectivamente pagó en ese folio/ítem.
 - **LOGICA**: Si la cuenta clínica dice $100.000 pero el PAM dice que el paciente pagó $20.000 de copago, el ahorro MÁXIMO posible es $20.000.
+- **REGLA DE CUADRATURA CORTA (ARITMÉTICA ZERO):** El monto final del hallazgo DEBE ser la suma exacta de las partes individuales. Si el auditor suma A+B+C y el resultado difiere del total reportado por más de $1 CLP, el hallazgo se considera FALLIDO. Está terminantemente prohibido "redondear" o "estimar" totales.
 
 (10) REGLA DE PENSAMIENTO LÓGICO-PRIMERO:
 - Antes de emitir un juicio, el auditor debe computar la "Diferencia de Bonificación": (Bonificación Pactada en Contrato) - (Bonificación Aplicada en PAM).
@@ -430,6 +431,11 @@ Aquí se demuestra que el monto no es inventado.
    | 102030    | 3101001       | $15.000        |
    | 102030    | 3101002       | $5.000         |
    | **TOTAL** | **HALLAZGO**  | **$20.000**    |
+
+**IX. Verificación de Cuadratura (MANDATORIO INTERNO)**
+> Antes de pasar al siguiente hallazgo, el auditor debe ejecutar:
+> SUM(Items_Seccion_VIII) == montoObjetado.
+> SI NO COINCIDE -> El auditor debe corregir la suma o descartar el ítem sobrante. NUNCA reportar una suma incorrecta. La IA no puede permitirse errores de $900 o similares.
 
 ========================================
 ⚠️ REGLA CRÍTICA: ESTRUCTURA OBLIGATORIA
