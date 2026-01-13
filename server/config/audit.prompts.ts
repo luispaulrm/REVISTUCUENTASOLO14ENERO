@@ -40,6 +40,16 @@ Para clasificar un hallazgo como "IMPUGNAR" (Alta Certeza), deben cumplirse al m
 4. [ECONÓMICA] Generó copago efectivo.
 SI NO SE CUMPLEN 3, clasificar como "ZONA_GRIS" u "OBSERVACION".
 
+(3.1) REGLA DE SUPREMACÍA CONTRACTUAL (PERSONALIDAD SMART / ITERACIÓN 3):
+ANTES de clasificar un ítem como "Desagregación Indebida" (IF-319), el auditor DEBE verificar si existe una "Sub-bonificación Contractual".
+- Lógica: Es más sólido objetar diferencias matemáticas (% Contrato vs % PAM) que discutir la naturaleza clínica de un insumo.
+- Algoritmo:
+  1. Identificar % Bonificación Contractual para ese prestador (Ej: 90% en Clínica Alemana).
+  2. Calcular % Bonificación Real en PAM (Bonif / Total).
+  3. SI (Bonificación Real < Bonificación Contractual) -> OBJETAR LA DIFERENCIA.
+  4. Título del Hallazgo: "Sub-bonificación Contractual ([Contract%] vs [Real%])".
+  5. SOLO si [Bonificación Real == Bonificación Contractual], proceder a evaluar IF-319 (Desagregación).
+
 (4) REGLA DETERMINÍSTICA: clasificar y declarar flags
 Para cada ítem evaluado, determina:
 itemTipo ∈ {MEDICAMENTO, INSUMO_MATERIAL, HOTELERIA, EXAMEN, HONORARIO, OTRO}
@@ -200,8 +210,8 @@ export const FORENSIC_AUDIT_SCHEMA = {
                 properties: {
                     codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
                     glosa: { type: Type.STRING, description: "Descripción de la prestación o conjunto de prestaciones." },
-                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 7 SECCIONES (I a VII) definida en las instrucciones. Si falta una sección, el hallazgo es inválido." },
-                    montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP). Debe coincidir con la sección VI del hallazgo narrativa." },
+                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 8 SECCIONES (I a VIII). Debe incluir la Tabla de Origen en Markdown." },
+                    montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP). Debe coincidir con la sección VI y VIII." },
                     normaFundamento: { type: Type.STRING, description: "CITA TEXTUAL de la norma o jurisprudencia del knowledge_base_text. Formato: 'Según [Documento/Rol/Artículo]: \"[extracto textual]\"'." },
                     anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" }
                 },
@@ -362,7 +372,7 @@ El auditor NO debe "dictar sentencia", debe CONSTRUIR UNA IMPUGNACIÓN EXPLICADA
 🧾 ESTRUCTURA CANÓNICA DE ARGUMENTO v1.0
 ========================================
 
-El campo \`hallazgo\` de cada item en el array \`hallazgos\` DEBE seguir esta estructura OBLIGATORIA de 7 secciones:
+El campo \`hallazgo\` de cada item en el array \`hallazgos\` DEBE seguir esta estructura OBLIGATORIA de 8 secciones:
 
 **I. Identificación del ítem cuestionado**
 Aquí se delimita el objeto exacto. NO se juzga todavía.
@@ -395,13 +405,36 @@ NUNCA debe faltar. Ancla al copago REAL del PAM.
 > "Como consecuencia directa de esta aplicación incorrecta de la cobertura, el afiliado asumió un copago indebido ascendente a $XXX, monto que debió ser bonificado conforme a las condiciones pactadas en su plan de salud."
 
 **VII. Conclusión de la impugnación**
-RECIÉN AQUÍ se concluye. NUNCA ANTES.
 > "En virtud de lo expuesto, se concluye que el cobro analizado no se ajusta a las condiciones contractuales vigentes, configurándose una imputación improcedente de costos al afiliado respecto del ítem descrito."
+
+**VIII. Trazabilidad y Origen del Cobro (MANDATORIO)**
+> Esta sección es la PRUEBA MATEMÁTICA. Debe incluir:
+> 1. **Tabla de Origen:**
+>    | Folio PAM | Código | Descripción | Copago (Monto Base) |
+>    |-----------|--------|-------------|---------------------|
+>    | ...       | ...    | ...         | $...                |
+> 2. **Cálculo del Hallazgo:** (Ej: "Monto Objetado = Suma de Copagos" o "Monto = Diferencia 90% vs 70%")
+> 3. **Anclaje JSON:** [Cita exacta del campo anclajeJson]
+
+**VIII. Trazabilidad y Origen del Cobro (MANDATORIO)**
+Aquí se demuestra que el monto no es inventado.
+1. **Clasificación Forense:**
+   - **[DINERO TRAZABLE]:** Si los ítems tienen nombre y apellido (ej: Jeringas, Pabellón). Se impugna por ilegalidad/unbundling.
+   - **[DINERO INTRAZABLE]:** Si es opacidad pura (ej: "Varios", "Ajustes"). Se impugna por falta de transparencia.
+2. **Desglose Matemático:** Explicar la fórmula exacta.
+   - Ej: "Monto Objetado = Copago Real del PAM ($15.000)".
+   - Ej: "Monto Objetado = (Valor Total $100.000 * 0.20 no cubierto) = $20.000".
+3. **Tabla de Origen (Evidencia):** Listar los ítems del PAM que suman este hallazgo.
+   | Folio PAM | Ítem / Código | Monto (Copago) |
+   |-----------|---------------|----------------|
+   | 102030    | 3101001       | $15.000        |
+   | 102030    | 3101002       | $5.000         |
+   | **TOTAL** | **HALLAZGO**  | **$20.000**    |
 
 ========================================
 ⚠️ REGLA CRÍTICA: ESTRUCTURA OBLIGATORIA
 ========================================
-- Si el campo \`hallazgo\` NO contiene las 7 secciones (I al VII), el hallazgo es INVÁLIDO.
+- Si el campo \`hallazgo\` NO contiene las 8 secciones (I al VIII), el hallazgo es INVÁLIDO.
 - Cada sección debe estar claramente separada y etiquetada.
 - La sección VI (Efecto Económico) DEBE coincidir EXACTAMENTE con el campo \`montoObjetado\`.
 
@@ -771,7 +804,7 @@ Estructura obligatoria:
 
 ### 2. DETALLE DE HALLAZGOS (ESTRUCTURA CANÓNICA OBLIGATORIA)
 
-**⚠️ CADA HALLAZGO DEBE SEGUIR LAS 7 SECCIONES (I - VII). Si falta una sección, el hallazgo es INVÁLIDO.**
+**⚠️ CADA HALLAZGO DEBE SEGUIR LAS 8 SECCIONES (I - VIII). Si falta una sección, el hallazgo es INVÁLIDO.**
 
 Para CADA hallazgo, genera la siguiente estructura COMPLETA:
 
@@ -802,6 +835,18 @@ Para CADA hallazgo, genera la siguiente estructura COMPLETA:
 
 **VII. Conclusión de la impugnación**
 > En virtud de lo expuesto, se concluye que el cobro analizado no se ajusta a las condiciones contractuales vigentes, configurándose una imputación improcedente de costos al afiliado respecto del ítem descrito.
+
+**VIII. Trazabilidad y Origen del Cobro**
+> **1. Tabla de Origen (Datos del PAM):**
+> | Folio PAM | Código | Descripción | Copago Detectado |
+> | :--- | :--- | :--- | :--- |
+> | [Ref Folio] | [Ref Código] | [Ref Descripción] | $[Monto] |
+>
+> **2. Cálculo Matemático:**
+> [Explicar la fórmula usada. Ej: "Suma simple de ítems desagregados" o "Diferencia de Cobertura: $Total * (90% - 70%)"]
+>
+> **3. Anclaje Técnico:**
+> \`{anclajeJson}\`
 
 ---
 [Repetir para cada hallazgo adicional]
