@@ -794,9 +794,12 @@ Si la 'CUENTA (Bill Detail)' estructurada está vacía o incompleta, utiliza el 
 
 ---
 
-**INSTRUCCIONES DE FORMATO PARA 'auditoriaFinalMarkdown' (ESTRICTO):**
-Genera un reporte en MARKDOWN profesional.
-Estructura obligatoria:
+**INSTRUCCIONES DE FORMATO PARA 'auditoriaFinalMarkdown' (MODO INFORME INTEGRAL - EXHAUSTIVO):**
+Genera un reporte en MARKDOWN profesional, **TÉCNICO Y EXHAUSTIVO**. 
+Este reporte es el documento legal final para el afiliado y DEBE contener TODA la información analizada. 
+**PROHIBICIÓN:** Está terminantemente prohibido omitir secciones técnicas o resumir los hallazgos. El JSON y el MD deben ser espejos de la verdad técnica descubierta.
+
+Estructura obligatoria (NO OMITIR NADA):
 
 ### 0. ANTECEDENTES DE LA AUDITORÍA
 - **Paciente:** [Nombre del Paciente]
@@ -804,15 +807,42 @@ Estructura obligatoria:
 - **Isapre:** [Nombre de la Isapre]
 - **Plan de Salud:** [Nombre/Código del Plan]
 - **Periodo Auditado:** [Fecha Ingreso] al [Fecha Alta]
-- **Objeto de la Auditoría:** [Descripción completa: Ej. Hospitalización por Cirugía X, Folio Y, Cuenta Total $Z]
+... (continuar con todos los detalles de antecedentes extraídos)
 
 ### 1. RESUMEN EJECUTIVO
+(Proporcionar una narrativa técnica sólida del total de hallazgos y el impacto financiero real)
 
-### 2. DETALLE DE HALLAZGOS (ESTRUCTURA CANÓNICA OBLIGATORIA)
+### 2. ANÁLISIS DE COBERTURAS (ESTADO DEL PLAN)
+#### A. COBERTURAS NACIONALES (TABLA PRINCIPAL)
+| Categoría | Prestación | % Bonif. | Tope Nacional | Tope Anual | Ampliación |
+|---|---|---|---|---|---|
+(Poblar esta tabla con la información extraída del contrato)
 
-**⚠️ CADA HALLAZGO DEBE SEGUIR LAS 8 SECCIONES (I - VIII). Si falta una sección, el hallazgo es INVÁLIDO.**
+#### B. RESTRICCIONES Y COBERTURA INTERNACIONAL
+(Listar aquí todas las notas, restricciones éticas/etarias y topes internacionales)
 
-Para CADA hallazgo, genera la siguiente estructura COMPLETA:
+### 3. DETALLE DE HALLAZGOS Y OBJECIONES (ESTRUCTURA FORENSE)
+Para CADA hallazgo detectado, genera la estructura COMPLETA de 8 SECCIONES:
+
+---
+#### HALLAZGO N°[X]: [Título] ($[Monto])
+... (Secciones I a VIII íntegras)
+---
+
+### 4. TABLA RESUMEN DE OBJECIONES
+| Código(s) | Glosa | Hallazgo | Monto Objetado | Norma/Cita |
+|---|---|---|---|---|
+(Suma de todos los hallazgos)
+
+### 5. PRORRATEO (Si aplica)
+...
+
+### 6. EXPLICACIÓN EN LENGUAJE SIMPLE (ANALOGÍA)
+(Incluir obligatoriamente la analogía del taller mecánico)
+
+### 7. CONCLUSIÓN FINAL
+(Resumen del derecho a la devolución y pasos a seguir)
+
 
 ---
 #### HALLAZGO N°[X]: [Nombre descriptivo del hallazgo] ($[Monto])
