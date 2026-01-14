@@ -670,23 +670,41 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 - Si aparecen cobrados por separado con Copago > 0 --> **OBJETAR 100%**.
 - **FUNDAMENTO:** "Desagregación Indebida de prestaciones de enfermería inherentes al Día Cama (Circular IF/N°319 y Circular 43)". Explicar que la instalación de vías es un procedimiento básico de hospitalización ya remunerado en el día cama.
 
-### 5. DESAGREGACIÓN INDEBIDA DE PABELLÓN (DOCTRINA UNIVERSAL DE UNBUNDLING) [ALTA PRIORIDAD]
+
+### 5. DESAGREGACIÓN INDEBIDA DE PABELLÓN (DOCTRINA UNIVERSAL DE UNBUNDLING - CIRCULAR 43/1998) [CRÍTICO]
 **APLICACIÓN:** VÁLIDO PARA CUALQUIER PROCEDIMIENTO QUIRÚRGICO (Neuro, Trauma, Abdomen, Cardio, etc.).
+**FUNDAMENTO LEGAL:** Circular 43/1998 SIS (Anexo 4, Apéndice). El "Derecho de Pabellón" es una tarifa integral.
 
 **ALGORITMO DE DETECCIÓN (EJECUTAR EN ORDEN):**
 
 1.  **¿Existe Pabellón/Cirugía en la CUENTA?** Revisa códigos de "Derecho de Pabellón", "Quirófano", "Pabellón Menor/Mayor" o cualquier Cirugía.
 
-2.  **ESCÁNER DE MATERIALES (LISTA NEGRA UNIVERSAL):** Busca activamente en la Cuenta/PAM los siguientes términos prohibidos:
-    *   **"FRESA"**, "BROCA", "SIERRA", "HOJA" (Instrumental de corte/acceso).
-    *   **"KIT DE FIJACION"**, "KIT DE APERTURA", "PACK DESECHABLE", "KIT INSTRUMENTAL" (Kits genéricos).
-    *   **"SURGIFLO"**, "TISSUCOL", "HEMOSTATICO", "SELLO" (Insumos funcionales).
-    *   **"ROPA"**, "PAÑOS", "SABANAS" (Hotelería).
+2.  **ESCÁNER DE MATERIALES (LISTA NEGRA EXTENDIDA - OBJETAR SIEMPRE):**
+    Busca activamente en la Cuenta/PAM los siguientes términos. Si aparecen con copago > 0, **OBJETAR EL 100%**.
+
+    *   **A. INSTRUMENTAL DE TRABAJO (Letra B Circular 43):**
+        *   "FRESA", "BROCA", "SIERRA", "HOJA" (Corte/Acceso).
+        *   "PINZA", "TIJERA", "PORTA AGUJA", "SEPARADOR", "RETRACCION", "LONESTAR".
+        *   "ELECTRODO", "LAPIZ ELECTRO", "PLACA PACIENTE", "PLACA RETORNO" (Electrocirugía).
+        *   "KIT INSTRUMENTAL", "CAJA QUIRURGICA".
+
+    *   **B. INSUMOS DESECHABLES BÁSICOS (Letras C y D Circular 43):**
+        *   "HOJA BISTURI", "JERINGA", "AGUJA", "GUANTE", "GASA", "APOSITO", "PAÑO", "SABANA".
+        *   "SUTURA", "HILO", "VICRYL", "PROLENE", "SEDA", "ETHILON", "MONOCRYL" (**REGLA DE ORO: TODA sutura está incluida**).
+        *   "TUBO ASPIRACION", "CANULA", "SONDA FOLEY" (si es uso intraoperatorio), "RECEPTAL".
+
+    *   **C. ACCESORIOS DE EQUIPOS (Letra B Circular 43):**
+        *   "FUNDA", "COVER", "PROTECTOR" (Microscopio/Robot).
+        *   "ESFERA", "REFLECTOR", "FIDUCIAL" (Navegación).
+        *   "CABLE", "CONEXION", "FIBRA" (Accesorios no fungibles).
+
+    *   **D. AGENTES HEMOSTÁTICOS TÉCNICOS:**
+        *   "SURGIFLO", "TISSUCOL", "SPONGOSTAN", "CERA HUESO", "SURGICEL" (Insumos funcionales del acto médico).
 
 3.  **EVALUACIÓN DE CONDICIONES (TEST FUNCIONAL UNIVERSAL):**
-    Si encuentras una herramienta/insumo cobrado aparte, verifica:
+    Si encuentras un ítem cobrado aparte que no está en la lista anterior pero parece sospechoso:
     1.  ¿Es instrumental de trabajo/corte/acceso? (SÍ)
-    2.  ¿Se usa para ejecutar el acto quirúrgico en CUALQUIER parte del cuerpo (ej: cráneo, hueso, abdomen, piel)? (SÍ)
+    2.  ¿Se usa para ejecutar el acto quirúrgico en CUALQUIER parte del cuerpo? (SÍ)
     3.  ¿Permanece en el paciente como implante definitivo? (NO)
     4.  ¿Es un código de implante identificable (Placa/Tornillo/Lente)? (NO)
     **RESULTADO:** Si cumple condiciones: **ES INSUMO DE PABELLÓN. COBRO APARTE = UNBUNDLING.**
@@ -700,14 +718,14 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
     *   "VÁLVULA"
     *   "MARCAPASOS"
     *   "LENTE INTRAOCULAR"
-    *   "DURAL PATCH" (Solo si es específico)
+    *   "DURAL PATCH" (Solo si es específico y de alto costo)
 
 **REGLA DE OBJECIÓN AUTOMÁTICA:**
 **SI** encuentras un ítem de la LISTA NEGRA cobrado aparte y falla el test de exclusión:
 **ENTONCES:** Marca el ítem con flag **"DESAGREGACIÓN INDEBIDA (UNBUNDLING)"** y **OBJETA EL 100% DEL COPAGO**.
 
 **FUNDAMENTACIÓN OBLIGATORIA (TEXTO):**
-"Desagregación improcedente de instrumental inherente al Derecho de Pabellón. Según Doctrina Forense Universal: El elemento [Nombre] es instrumental de trabajo/acceso necesario para la ejecución del acto quirúrgico, no permanente y no constituye implante. Su cobro separado vulnera el principio de Integridad del Acto Quirúrgico (Circular 43/1998)."
+"Desagregación improcedente de instrumental/insumo inherente al Derecho de Pabellón. El elemento [Nombre] ([Categoría]) está expresamente incluido en la tarifa de pabellón según Circular 43/1998 (SIS), Anexo 4. Su cobro separado constituye duplicidad."
 
 **MEDICAMENTOS (NO IF-319):** Se auditan por reglas clínicas/duplicidad/precio, NO por IF-319.
 
