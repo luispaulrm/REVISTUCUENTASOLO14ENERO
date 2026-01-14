@@ -671,61 +671,100 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 - **FUNDAMENTO:** "Desagregación Indebida de prestaciones de enfermería inherentes al Día Cama (Circular IF/N°319 y Circular 43)". Explicar que la instalación de vías es un procedimiento básico de hospitalización ya remunerado en el día cama.
 
 
-### 5. DESAGREGACIÓN INDEBIDA DE PABELLÓN (DOCTRINA UNIVERSAL DE UNBUNDLING - CIRCULAR 43/1998) [CRÍTICO]
-**APLICACIÓN:** VÁLIDO PARA CUALQUIER PROCEDIMIENTO QUIRÚRGICO (Neuro, Trauma, Abdomen, Cardio, etc.).
-**FUNDAMENTO LEGAL:** Circular 43/1998 SIS (Anexo 4, Apéndice). El "Derecho de Pabellón" es una tarifa integral.
+### 5. DESAGREGACIÓN INDEBIDA DE PABELLÓN (DOCTRINA UNIVERSAL DE UNBUNDLING - EXTENSIÓN DEFINITIVA)
+**APLICACIÓN:** VÁLIDO PARA CUALQUIER PROCEDIMIENTO QUIRÚRGICO.
+**FUNDAMENTO LEGAL:** Circular 43/1998 SIS + Práctica Consolidada. "El acto quirúrgico es indivisible y el riesgo técnico es del prestador".
 
 **ALGORITMO DE DETECCIÓN (EJECUTAR EN ORDEN):**
 
-1.  **¿Existe Pabellón/Cirugía en la CUENTA?** Revisa códigos de "Derecho de Pabellón", "Quirófano", "Pabellón Menor/Mayor" o cualquier Cirugía.
+1.  **¿Existe Pabellón/Cirugía en la CUENTA?** Revisa códigos de "Derecho de Pabellón", "Quirófano", "Pabellón Menor/Mayor".
 
-2.  **ESCÁNER DE MATERIALES (LISTA NEGRA EXTENDIDA - OBJETAR SIEMPRE):**
+2.  **ESCÁNER DE MATERIALES (LISTA NEGRA DEFINITIVA - 10 CATEGORÍAS):**
     Busca activamente en la Cuenta/PAM los siguientes términos. Si aparecen con copago > 0, **OBJETAR EL 100%**.
 
-    *   **A. INSTRUMENTAL DE TRABAJO (Letra B Circular 43):**
-        *   "FRESA", "BROCA", "SIERRA", "HOJA" (Corte/Acceso).
-        *   "PINZA", "TIJERA", "PORTA AGUJA", "SEPARADOR", "RETRACCION", "LONESTAR".
-        *   "ELECTRODO", "LAPIZ ELECTRO", "PLACA PACIENTE", "PLACA RETORNO" (Electrocirugía).
-        *   "KIT INSTRUMENTAL", "CAJA QUIRURGICA".
+    *   **1. INSTRUMENTAL QUIRÚRGICO ADICIONAL (TODO instrumental no implantable):**
+        *   "FRESA", "BROCA", "SIERRA", "HOJA", "CURETA", "ELEVADOR", "DISECTOR", "ESPATULA".
+        *   "PINZA", "TIJERA", "PORTA AGUJA", "SEPARADOR" (Farabeuf, Weitlaner, Gelpi, Lonestar).
+        *   "ASPIRADOR QUIRURGICO" (Yankauer, Frazier), "CANULA", "MANGO BISTURI".
 
-    *   **B. INSUMOS DESECHABLES BÁSICOS (Letras C y D Circular 43):**
-        *   "HOJA BISTURI", "JERINGA", "AGUJA", "GUANTE", "GASA", "APOSITO", "PAÑO", "SABANA".
-        *   "SUTURA", "HILO", "VICRYL", "PROLENE", "SEDA", "ETHILON", "MONOCRYL" (**REGLA DE ORO: TODA sutura está incluida**).
-        *   "TUBO ASPIRACION", "CANULA", "SONDA FOLEY" (si es uso intraoperatorio), "RECEPTAL".
+    *   **2. MATERIAL DE CAMPO ESTÉRIL Y PREPARACIÓN:**
+        *   "CAMPO", "PAQUETE", "SABANA QUIRURGICA", "COBERTOR".
+        *   "FUNDA" (Cables, Brazos, Microscopio, Kinevo, Robot).
+        *   "BOLSA FLUIDOS", "CAMPO ADHESIVO".
 
-    *   **C. ACCESORIOS DE EQUIPOS (Letra B Circular 43):**
-        *   "FUNDA", "COVER", "PROTECTOR" (Microscopio/Robot).
-        *   "ESFERA", "REFLECTOR", "FIDUCIAL" (Navegación).
-        *   "CABLE", "CONEXION", "FIBRA" (Accesorios no fungibles).
+    *   **3. ASPIRACIÓN Y DRENAJE INTRAOPERATORIO:**
+        *   "LINEA ASPIRACION", "RESERVORIO", "FRASCO ASPIRACION", "FILTRO".
+        *   "TUBO CONECTOR", "DRENAJE" (Solo si es intraoperatorio/no queda instalado).
 
-    *   **D. AGENTES HEMOSTÁTICOS TÉCNICOS:**
-        *   "SURGIFLO", "TISSUCOL", "SPONGOSTAN", "CERA HUESO", "SURGICEL" (Insumos funcionales del acto médico).
+    *   **4. ELECTROCIRUGÍA Y ENERGÍA:**
+        *   "PLACA RETORNO", "PLACA PACIENTE", "LAPIZ ELECTRO", "CABLE".
+        *   "MANGO RADIOFRECUENCIA", "ELECTRODO" (Mono/Bipolar).
+        *   "CONSUMIBLE ARMONICO" (Salvo que contrato lo excluya explícitamente).
 
-3.  **EVALUACIÓN DE CONDICIONES (TEST FUNCIONAL UNIVERSAL):**
-    Si encuentras un ítem cobrado aparte que no está en la lista anterior pero parece sospechoso:
-    1.  ¿Es instrumental de trabajo/corte/acceso? (SÍ)
-    2.  ¿Se usa para ejecutar el acto quirúrgico en CUALQUIER parte del cuerpo? (SÍ)
-    3.  ¿Permanece en el paciente como implante definitivo? (NO)
-    4.  ¿Es un código de implante identificable (Placa/Tornillo/Lente)? (NO)
-    **RESULTADO:** Si cumple condiciones: **ES INSUMO DE PABELLÓN. COBRO APARTE = UNBUNDLING.**
+    *   **5. IRRIGACIÓN Y LAVADO:**
+        *   "SUERO FISIOLOGICO" (Irrigación/Lavado), "RINGER LACTATO" (No iv).
+        *   "JERINGA IRRIGACION", "SISTEMA LAVADO PULSATIL".
+
+    *   **6. HEMOSTASIA NO IMPLANTABLE:**
+        *   "SURGIFLO", "SURGICEL", "TACHOSIL", "GELITASPON".
+        *   "ESPONJA", "COMPRESA".
+        *   *(Excepción: Solo cobrar si es implante permanente con marca/lote identificado)*.
+
+    *   **7. CIERRE BÁSICO (NO PRÓTESIS):**
+        *   "SUTURA" (Toda: Vicryl, Prolene, Seda, etc.), "HILO".
+        *   "GRAPA" (Cutánea/Uso), "CLIP" (Temporal), "ADHESIVO TISULAR".
+        *   "APOSITO INMEDIATO", "CINTA APROXIMACION".
+
+    *   **8. PROTECCIÓN PERSONAL Y PACIENTE:**
+        *   "MASCARILLA", "GORRO", "PECHERA", "LENTE", "DELANTAL PLOMADO".
+
+    *   **9. NAVEGACIÓN, IMAGEN Y APOYO:**
+        *   "MARCADOR QUIRURGICO", "PUNTERO", "ESFERA CALIBRACION", "FIDUCIAL".
+        *   "CABLE REFERENCIA", "ADHESIVO SENSOR".
+        *   *(La navegación está incluida si la cirugía base lo contempla)*.
+
+    *   **10. MATERIAL ANESTÉSICO INTRAOPERATORIO (Insumos, no fármacos):**
+        *   "CIRCUITO ANESTESIA", "FILTRO RESPIRATORIO", "MASCARA ANESTESIA".
+        *   "TUBO ENDOTRAQUEAL", "LARINGOSCOPIO", "GUIA INTUBACION".
+
+3.  **REGLA MAESTRA DE FILTRADO (CANON FINAL):**
+    Si un ítem NO está en la lista pero cumple:
+    *   Es Instrumental OR Consumible de Campo OR Uso Intraoperatorio
+    *   AND NO Permanece en Paciente (No Implante)
+    *   AND NO es Identificable como Implante/Prótesis
+    **ENTONCES:** Flag = **"UNBUNDLING_INHERENTE_A_PABELLON"** -> **OBJETAR 100%**.
 
 4.  **FILTRO DE EXCLUSIONES (WHITELIST - Solo cobrar si es IMPLANTE):**
-    *   "PRÓTESIS", "PROTESIS"
-    *   "STENT"
-    *   "MALLA"
-    *   "PLACA" (Con medida)
-    *   "TORNILLO" (Con medida)
-    *   "VÁLVULA"
-    *   "MARCAPASOS"
-    *   "LENTE INTRAOCULAR"
-    *   "DURAL PATCH" (Solo si es específico y de alto costo)
+    *   "PRÓTESIS", "STENT", "MALLA", "PLACA" (Con medida), "TORNILLO" (Con medida).
+    *   "VÁLVULA", "MARCAPASOS", "LENTE INTRAOCULAR".
+    *   "DURAL PATCH" (Implante específico).
 
 **REGLA DE OBJECIÓN AUTOMÁTICA:**
 **SI** encuentras un ítem de la LISTA NEGRA cobrado aparte y falla el test de exclusión:
-**ENTONCES:** Marca el ítem con flag **"DESAGREGACIÓN INDEBIDA (UNBUNDLING)"** y **OBJETA EL 100% DEL COPAGO**.
+**ENTONCES:** Marca el ítem (INDIVIDUALMENTE) con flag **"UNBUNDLING (DESAGREGACIÓN)"** y **OBJETA EL 100% DEL COPAGO**.
+
+**⚠️ PROHIBICIÓN DE AGRUPACIÓN (TRAZABILIDAD TOTAL):**
+Estás **PROHIBIDO** de agrupar estos hallazgos bajo una sola línea como "Materiales Varios".
+Debes reportar **CADA ÍTEM OBJETADO POR SEPARADO** en la tabla final, con su:
+1.  **Código Específico del Prestador**
+2.  **Descripción Exacta** (ej: "FRESA 2mm", "SURGICEL 5x7")
+3.  **Valor Copago Individualizado**
+4.  **Categoría de Infracción** (ej: "Instrumental", "Sutura")
 
 **FUNDAMENTACIÓN OBLIGATORIA (TEXTO):**
-"Desagregación improcedente de instrumental/insumo inherente al Derecho de Pabellón. El elemento [Nombre] ([Categoría]) está expresamente incluido en la tarifa de pabellón según Circular 43/1998 (SIS), Anexo 4. Su cobro separado constituye duplicidad."
+"Desagregación improcedente de instrumental/insumo inherente al Derecho de Pabellón. El elemento [Nombre] corresponde a la categoría '[Categoría Detectada]' y está incluido en la tarifa integral según Circular 43/1998 (SIS). Su cobro separado constituye duplicidad por riesgo operacional."
+
+---
+
+### 5.1. TABLA OBLIGATORIA DE DESAGREGACIÓN (FORMATO REPORTE)
+En el informe final (Markdown), si detectas > 1 ítem de unbundling, DEBES generar una tabla específica llamada:
+**"DETALLE DE ELEMENTOS INCLUIDOS EN PABELLÓN (NO COBRABLES)"**
+| Ítem (Glosa) | Categoría | Norma Vulnerada | Monto (Copago) |
+|---|---|---|---|
+| [Fresa...] | Instrumental | Circ. 43/98 Letra B | $X |
+| [Sutura...] | Cierre | Circ. 43/98 Letra D | $Y |
+| **TOTAL** | | | **$SUMA** |
+*Esta tabla es indispensable para justificar la suma total objetada.*
 
 **MEDICAMENTOS (NO IF-319):** Se auditan por reglas clínicas/duplicidad/precio, NO por IF-319.
 
@@ -862,104 +901,58 @@ Si la 'CUENTA (Bill Detail)' estructurada está vacía o incompleta, utiliza el 
 
 ---
 
-**INSTRUCCIONES DE FORMATO PARA 'auditoriaFinalMarkdown' (MODO INFORME INTEGRAL - EXHAUSTIVO):**
-Genera un reporte en MARKDOWN profesional, **TÉCNICO Y EXHAUSTIVO**. 
-Este reporte es el documento legal final para el afiliado y DEBE contener TODA la información analizada. 
-**PROHIBICIÓN:** Está terminantemente prohibido omitir secciones técnicas o resumir los hallazgos. El JSON y el MD deben ser espejos de la verdad técnica descubierta.
+**INSTRUCCIONES DE FORMATO PARA 'auditoriaFinalMarkdown' (MODO TRAZABILIDAD FORENSE TOTAL):**
+Genera un reporte en MARKDOWN profesional, **TÉCNICO, EXHAUSTIVO Y TRAZABLE**.
+**PROHIBICIÓN ABSOLUTA:** Está prohibido reportar montos agregados sin desglose. Si dices que hay $4.000.000 en objeciones, debes listar los ítems que suman esos $4.000.000 uno por uno.
 
 Estructura obligatoria (NO OMITIR NADA):
 
 ### 0. ANTECEDENTES DE LA AUDITORÍA
-- **Paciente:** [Nombre del Paciente]
-- **Clínica/Prestador:** [Nombre de la Clínica]
-- **Isapre:** [Nombre de la Isapre]
-- **Plan de Salud:** [Nombre/Código del Plan]
-- **Periodo Auditado:** [Fecha Ingreso] al [Fecha Alta]
-... (continuar con todos los detalles de antecedentes extraídos)
-
-### 1. RESUMEN EJECUTIVO
-(Proporcionar una narrativa técnica sólida del total de hallazgos y el impacto financiero real)
-
-### 2. ANÁLISIS DE COBERTURAS (ESTADO DEL PLAN)
-#### A. COBERTURAS NACIONALES (TABLA PRINCIPAL)
-| Categoría | Prestación | % Bonif. | Tope Nacional | Tope Anual | Ampliación |
-|---|---|---|---|---|---|
-(Poblar esta tabla con la información extraída del contrato)
-
-#### B. RESTRICCIONES Y COBERTURA INTERNACIONAL
-(Listar aquí todas las notas, restricciones éticas/etarias y topes internacionales)
-
-### 3. DETALLE DE HALLAZGOS Y OBJECIONES (ESTRUCTURA FORENSE)
-Para CADA hallazgo detectado, genera la estructura COMPLETA de 8 SECCIONES:
-
----
-#### HALLAZGO N°[X]: [Título] ($[Monto])
-... (Secciones I a VIII íntegras)
----
-
-### 4. TABLA RESUMEN DE OBJECIONES
-| Código(s) | Glosa | Hallazgo | Monto Objetado | Norma/Cita |
-|---|---|---|---|---|
-(Suma de todos los hallazgos)
-
-### 5. PRORRATEO (Si aplica)
 ...
 
-### 6. EXPLICACIÓN EN LENGUAJE SIMPLE (ANALOGÍA)
-(Incluir obligatoriamente la analogía del taller mecánico)
+### 1. RESUMEN EJECUTIVO
+(Narrativa general del impacto, PERO DEBE REFERENCIAR LAS TABLAS DETALLADAS).
 
-### 7. CONCLUSIÓN FINAL
-(Resumen del derecho a la devolución y pasos a seguir)
-
-
----
-#### HALLAZGO N°[X]: [Nombre descriptivo del hallazgo] ($[Monto])
-
-**I. Identificación del ítem cuestionado**
-> Se cuestiona el cobro correspondiente a [prestación / grupo de prestaciones], facturado bajo el concepto [nombre clínico / código PAM / glosa], por un monto total de $XXX, el cual fue derivado total o parcialmente a copago del afiliado.
-
-**II. Contexto clínico y administrativo**
-> Dicho cobro se origina en el marco de un evento hospitalario único, asociado a [diagnóstico / procedimiento principal], con ingreso hospitalario formal, uso de pabellón quirúrgico y alta posterior, según consta en la cuenta clínica y el PAM respectivo.
-
-**III. Norma contractual aplicable**
-> El plan de salud [nombre y código] establece para las prestaciones hospitalarias de este tipo una cobertura de [X%], sujeta a un tope de [UF / VAM / unidad interna], según lo indicado en la tabla de beneficios contractuales. En particular, el contrato señala que [cita textual del contrato].
-
-**IV. Forma en que se materializa la controversia**
-> No obstante lo anterior, el prestador y/o la Isapre procedieron a [describir exactamente qué hicieron mal: desagregar, aplicar modalidad incorrecta, excluir, sub-bonificar, etc.], imputándolos como copago o como "gastos no cubiertos".
-
-**V. Análisis técnico-contractual**
-> Desde un punto de vista técnico y contractual, dicha imputación resulta improcedente, toda vez que:
-> - La hospitalización se encuentra debidamente acreditada
-> - La prestación cuestionada es inseparable del acto médico principal
-> - El contrato no contempla su exclusión expresa
-> - Su separación tiene como único efecto trasladar costo al afiliado
-
-**VI. Efecto económico concreto**
-> Como consecuencia directa de esta aplicación incorrecta de la cobertura, el afiliado asumió un copago indebido ascendente a **$XXX**, monto que debió ser bonificado conforme a las condiciones pactadas en su plan de salud.
-
-**VII. Conclusión de la impugnación**
-> En virtud de lo expuesto, se concluye que el cobro analizado no se ajusta a las condiciones contractuales vigentes, configurándose una imputación improcedente de costos al afiliado respecto del ítem descrito.
-
-**VIII. Trazabilidad y Origen del Cobro**
-> **1. Tabla de Origen (Datos del PAM):**
-> | Folio PAM | Código | Descripción | Copago Detectado |
-> | :--- | :--- | :--- | :--- |
-> | [Ref Folio] | [Ref Código] | [Ref Descripción] | $[Monto] |
->
-> **2. Cálculo Matemático:**
-> [Explicar la fórmula usada. Ej: "Suma simple de ítems desagregados" o "Diferencia de Cobertura: $Total * (90% - 70%)"]
->
-> **3. Anclaje Técnico:**
-> \`{anclajeJson}\`
+### 2. DETALLE DE HALLAZGOS Y OBJECIONES (ESTRUCTURA FORENSE TRAZABLE)
+Para CADA hallazgo detectado, genera la estructura COMPLETA de 8 SECCIONES, con énfasis crítico en la Sección VIII:
 
 ---
-[Repetir para cada hallazgo adicional]
+#### HALLAZGO N°[X]: [Título] ($[Monto Total Hallazgo])
 
+**I. Identificación:** ...
+**II. Contexto:** ...
+**III. Norma:** ...
+**IV. Controversia:** ...
+**V. Análisis:** ...
+**VI. Efecto:** ...
+**VII. Conclusión:** ...
 
-### 3. TABLA RESUMEN
+**VIII. TRAZABILIDAD Y EVIDENCIA (EL CORAZÓN DE LA AUDITORÍA)**
+**Debes generar una tabla línea por línea que demuestre matemáticamente de dónde sale el monto objetado.**
+**NO AGRUPES.** Si hay 50 jeringas distintas, lista las 50.
+
+| Código Prestador | Descripción Exacta (Glosa) | Origen (Folio PAM) | Norma Específica (Circular/Ley) | Monto Objetado (Copago) |
+| :--- | :--- | :--- | :--- | :--- |
+| [Código] | [Glosa tal cual aparece en cuenta] | [N° Folio] | [Ej: Circ. 43/98 Letra B] | $[Monto] |
+| ... | ... | ... | ... | ... |
+| **TOTAL** | **Suma exacta verificada** | | | **$[Monto Total]** |
+
+*Nota: La suma de esta tabla DEBE coincidir exactamente con el monto del encabezado.*
+---
+
+[Repetir para cada hallazgo]
+
+### 3. TABLA RESUMEN CONSOLIDADA
 | Código | Glosa | Hallazgo | Monto Objetado | Cita Legal Clave |
 |---|---|---|---|---|
-| ... | ... | ... | ... | ... |
+...
+
+### 4. CONCLUSIÓN FINAL
+...
+
+### 5. EXPLICACIÓN EN LENGUAJE SIMPLE
+(Con analogía del taller mecánico)
+
 
 ### 4. CONCLUSIÓN FINAL
 Instrucción clara de proceder a la devolución.
