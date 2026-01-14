@@ -606,6 +606,28 @@ Aplica estas reglas lógicas paso a paso para identificar discrepancias financie
 
 ---
 
+## 🧾 PROTOCOLO DE DETECCIÓN DE IMPUESTOS (TAX/IVA/ISA) - CRÍTICO 🧾
+**PROBLEMA:** Las cuentas pueden mostrar montos "Netos" (sin IVA) o "Brutos" (con IVA/ISA). Confundirlos genera errores masivos.
+**SOLUCIÓN:** Antes de procesar CUALQUIER monto, debes ejecutar este escáner de columnas.
+
+### 1. ESCÁNER DE ENCABEZADOS DE COLUMNA
+Busca activamente estas palabras clave en la cabecera de la tabla de la CUENTA:
+*   **CON IMPUESTO:** "Valor ISA", "Valor Total", "Monto Final", "Bruto", "Con IVA".
+*   **SIN IMPUESTO:** "Valor Neto", "Valor Unitario" (si hay otra col mayor), "Costo".
+*   **SOLO IMPUESTO:** "Impuesto", "Tax", "IVA", "Recargo".
+
+### 2. REGLA DE INFERENCIA DE IVA
+*   Si ves **DOS** columnas de montos y una es ~19% mayor que la otra -> La mayor es BRUTO, la menor es NETO.
+*   **SIEMPRE USA EL VALOR BRUTO (CON IVA/ISA)** para la auditoría, porque ese es el precio final que paga el paciente/Isapre.
+
+### 3. CONSTANCIA EXPLÍCITA
+Si detectas ambigüedad (ej: solo dice "Valor"), busca pistas:
+*   Si dice "Exento", asume Bruto.
+*   Si dice "Afecto", busca si hay una suma final de impuestos.
+*   **ACCIÓN:** Si no estás 100% seguro, marca el hallazgo con `requiresTaxVerification: true`.
+
+---
+
 ## LISTA DE VERIFICACIÓN DE FRAUDE (ZERO-TOLERANCE PATTERNS)
 Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPUGNAR ES OBLIGATORIO** solo si impacta copago paciente.
 
