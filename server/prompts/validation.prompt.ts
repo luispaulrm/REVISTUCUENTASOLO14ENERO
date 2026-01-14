@@ -9,7 +9,8 @@ Categories:
 1. "CUENTA" (Cuenta Clínica / Bill / Detalle de Cuenta)
 2. "PAM" (Programa de Atención Médica / Bono / Liquidación de Seguro)
 3. "CONTRATO" (Plan de Salud / Tabla de Beneficios / Condiciones Generales)
-4. "UNKNOWN" (Anything else: memes, irrelevant docs, landscapes, receipts for pizza, etc.)
+4. "CUENTA_PAM" (Mixed: Both Clinic Bill AND insurance PAM in the same document)
+5. "UNKNOWN" (Anything else: memes, irrelevant docs, landscapes, receipts for pizza, etc.)
 
 ---
 

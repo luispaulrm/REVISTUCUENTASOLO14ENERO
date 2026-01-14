@@ -14,6 +14,7 @@ if (!API_KEY) {
 // Mock Data
 const MOCK_BILL_TEXT = "CLINICA INDISA\nCuenta N° 123456\nFecha: 12/12/2025\n\nDETALLE DE CUENTA\n1.0 | 3010 HA | DIA CAMA UCI | $500.000\nTOTAL: $500.000";
 const MOCK_PAM_TEXT = "ISAPRE CRUZBLANCA\nBONO DE ATENCION MEDICA\nFOLIO: 99887766\nBonificación: $80.000\nCopago: $20.000";
+const MOCK_MIXED_TEXT = "CLINICA INDISA\nCuenta N° 123456\nDETALLE DE CUENTA\n1.0 | 3010 | DIA CAMA | $500.000\n...\nISAPRE CRUZBLANCA\nBONO DE ATENCION MEDICA\nFOLIO: 99887766";
 const MOCK_MEME_TEXT = "MEME: When you write code and it works on the first try.\n(Funny cat picture)";
 
 // We need to encode these as base64 to simulate an image upload for the service
@@ -42,6 +43,11 @@ async function runTest() {
     console.log("--- TEST 4: Mismatch PAM as CUENTA (Expected: INVALID) ---");
     const res4 = await service.validateDocumentType(encode(MOCK_PAM_TEXT), "text/plain", "CUENTA");
     console.log(`Result: ${!res4.isValid ? '✅ PASS' : '❌ FAIL'} | Detected: ${res4.detectedType} | Reason: ${res4.reason}\n`);
+
+    // TEST 5: Mixed Document (Cuenta + PAM) as CUENTA
+    console.log("--- TEST 5: Mixed (Cuenta + PAM) as CUENTA (Expected: Valid) ---");
+    const res5 = await service.validateDocumentType(encode(MOCK_MIXED_TEXT), "text/plain", "CUENTA");
+    console.log(`Result: ${res5.isValid ? '✅ PASS' : '❌ FAIL'} | Detected: ${res5.detectedType} | Reason: ${res5.reason}\n`);
 }
 
 runTest();

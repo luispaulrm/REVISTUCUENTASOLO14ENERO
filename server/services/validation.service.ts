@@ -64,8 +64,10 @@ export class ValidationService {
             const detected = jsonResponse.classification?.toUpperCase();
             const reasoning = jsonResponse.reasoning;
 
-            // Strict matching
-            if (detected === expectedType) {
+            // Strict matching or Mixed document handling
+            const isMixedValid = (detected === "CUENTA_PAM" && (expectedType === "CUENTA" || expectedType === "PAM"));
+
+            if (detected === expectedType || isMixedValid) {
                 return { isValid: true, detectedType: detected, reason: reasoning };
             }
 
