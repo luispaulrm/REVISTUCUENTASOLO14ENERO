@@ -2,7 +2,10 @@ export const DOCUMENT_CLASSIFICATION_PROMPT = `
 ACT AS AN EXPERT DOCUMENT CLASSIFIER FOR CHILEAN HEALTHCARE AUDIT.
 
 YOUR GOAL:
-Analyze the first page (or image) provided and classify it into exactly one of the following categories:
+Analyze the ENTIRE provided document (all pages) and classify it into exactly one of the following categories.
+DO NOT STOP at the first page. Use the context window to look for identifying tables (e.g. "Tabla de Beneficios", "Detalle de Cuenta") that may appear after a cover page.
+
+Categories:
 1. "CUENTA" (Cuenta Clínica / Bill / Detalle de Cuenta)
 2. "PAM" (Programa de Atención Médica / Bono / Liquidación de Seguro)
 3. "CONTRATO" (Plan de Salud / Tabla de Beneficios / Condiciones Generales)
