@@ -92,7 +92,7 @@ export function AppWithTabs() {
                                 }`}
                         >
                             <Eye size={16} />
-                            Proyector HTML
+                            Contrato Proyector
                         </button>
 
                         <button
