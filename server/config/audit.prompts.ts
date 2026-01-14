@@ -198,7 +198,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
     properties: {
         resumenEjecutivo: {
             type: Type.STRING,
-            description: "Resumen de alto nivel de los hallazgos totales, ahorros detectados y estado de la cuenta."
+            description: "Resumen de alto nivel. DEBE INCLUIR UNA SECCIÓN 'EXPLICACIÓN SIMPLE' CON UNA ANALOGÍA (ej: Taller Mecánico) para que el paciente entienda el fraude técnico. Resumir hallazgos, ahorros y estado."
         },
         bitacoraAnalisis: {
             type: Type.ARRAY,
@@ -648,36 +648,44 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 - Si aparecen cobrados por separado con Copago > 0 --> **OBJETAR 100%**.
 - **FUNDAMENTO:** "Desagregación Indebida de prestaciones de enfermería inherentes al Día Cama (Circular IF/N°319 y Circular 43)". Explicar que la instalación de vías es un procedimiento básico de hospitalización ya remunerado en el día cama.
 
-### 5. DESAGREGACIÓN INDEBIDA DE PABELLÓN (IF-319: INSUMOS COMUNES/HOTELERÍA, NO MEDICAMENTOS) [ALTA PRIORIDAD]
+### 5. DESAGREGACIÓN INDEBIDA DE PABELLÓN (DOCTRINA UNIVERSAL DE UNBUNDLING) [ALTA PRIORIDAD]
+**APLICACIÓN:** VÁLIDO PARA CUALQUIER PROCEDIMIENTO QUIRÚRGICO (Neuro, Trauma, Abdomen, Cardio, etc.).
 
 **ALGORITMO DE DETECCIÓN (EJECUTAR EN ORDEN):**
 
-1. **¿Existe Pabellón en la CUENTA?** Revisa si existe algún código de "Derecho de Pabellón" o Cirugía Mayor (ej. **311013**, **311011**, **311012** o glosa "PABELLON").
+1.  **¿Existe Pabellón/Cirugía en la CUENTA?** Revisa códigos de "Derecho de Pabellón", "Quirófano", "Pabellón Menor/Mayor" o cualquier Cirugía.
 
-2. **¿Existen INSUMOS/MATERIALES/HOTELERÍA en el PAM?** Busca en el PAM ítems con códigos **3101*** o descripciones como "MATERIALES", "INSUMOS", "HOTELERIA" y glosas tipo gasas/guantes/jeringas/campos/mascarillas/catéteres/sueros genéricos/insumos de aseo.
-   **NO** uses **3218*** ni "MEDICAMENTOS"/"FARMACIA" para disparar IF-319.
+2.  **ESCÁNER DE MATERIALES (LISTA NEGRA UNIVERSAL):** Busca activamente en la Cuenta/PAM los siguientes términos prohibidos:
+    *   **"FRESA"**, "BROCA", "SIERRA", "HOJA" (Instrumental de corte/acceso).
+    *   **"KIT DE FIJACION"**, "KIT DE APERTURA", "PACK DESECHABLE", "KIT INSTRUMENTAL" (Kits genéricos).
+    *   **"SURGIFLO"**, "TISSUCOL", "HEMOSTATICO", "SELLO" (Insumos funcionales).
+    *   **"ROPA"**, "PAÑOS", "SABANAS" (Hotelería).
 
-3. **FILTRO DE EXCLUSIONES (WHITELIST):** Verifica si la descripción de esos ítems contiene alguna de estas palabras clave (son las únicas permitidas para cobro aparte):
-   - "PRÓTESIS", "PROTESIS"
-   - "STENT"
-   - "MALLA"
-   - "PLACA"
-   - "TORNILLO"
-   - "OSTEOSINTESIS"
-   - "MARCAPASOS"
-   - "VÁLVULA", "VALVULA"
+3.  **EVALUACIÓN DE CONDICIONES (TEST FUNCIONAL UNIVERSAL):**
+    Si encuentras una herramienta/insumo cobrado aparte, verifica:
+    1.  ¿Es instrumental de trabajo/corte/acceso? (SÍ)
+    2.  ¿Se usa para ejecutar el acto quirúrgico en CUALQUIER parte del cuerpo (ej: cráneo, hueso, abdomen, piel)? (SÍ)
+    3.  ¿Permanece en el paciente como implante definitivo? (NO)
+    4.  ¿Es un código de implante identificable (Placa/Tornillo/Lente)? (NO)
+    **RESULTADO:** Si cumple condiciones: **ES INSUMO DE PABELLÓN. COBRO APARTE = UNBUNDLING.**
+
+4.  **FILTRO DE EXCLUSIONES (WHITELIST - Solo cobrar si es IMPLANTE):**
+    *   "PRÓTESIS", "PROTESIS"
+    *   "STENT"
+    *   "MALLA"
+    *   "PLACA" (Con medida)
+    *   "TORNILLO" (Con medida)
+    *   "VÁLVULA"
+    *   "MARCAPASOS"
+    *   "LENTE INTRAOCULAR"
+    *   "DURAL PATCH" (Solo si es específico)
 
 **REGLA DE OBJECIÓN AUTOMÁTICA:**
-**SI** (Pabellón presente) **Y** (Ítem es insumo/material/hotelería) **Y** (Descripción NO contiene palabras de la Whitelist):
-**ENTONCES:** Marca el ítem como "Insumos comunes de pabellón" y **OBJETA EL 100% DEL COPAGO**.
+**SI** encuentras un ítem de la LISTA NEGRA cobrado aparte y falla el test de exclusión:
+**ENTONCES:** Marca el ítem con flag **"DESAGREGACIÓN INDEBIDA (UNBUNDLING)"** y **OBJETA EL 100% DEL COPAGO**.
 
-**IMPORTANTE: DESGLOSE OBLIGATORIO (NO AGRUPAR)**
-No generes un solo hallazgo gigante llamado "Insumos Varios".
-**Debes generar una línea en la tabla por cada grupo relevante o listar explícitamente los productos:**
-- Ej: "Desagregación Pabellón: Jeringas (x15), Gasas (x20), Suturas (x5)".
-- El usuario DEBE ver qué productos específicos se están cuestionando.
-
-**ACCIÓN:** Suma los copagos, pero MANTÉN LA TRAZABILIDAD de los nombres de los productos en la glosa del hallazgo.
+**FUNDAMENTACIÓN OBLIGATORIA (TEXTO):**
+"Desagregación improcedente de instrumental inherente al Derecho de Pabellón. Según Doctrina Forense Universal: El elemento [Nombre] es instrumental de trabajo/acceso necesario para la ejecución del acto quirúrgico, no permanente y no constituye implante. Su cobro separado vulnera el principio de Integridad del Acto Quirúrgico (Circular 43/1998)."
 
 **MEDICAMENTOS (NO IF-319):** Se auditan por reglas clínicas/duplicidad/precio, NO por IF-319.
 
