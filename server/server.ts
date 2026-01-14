@@ -251,6 +251,25 @@ app.post('/api/extract', async (req, res) => {
           ...
         `;
 
+        // --- VALIDATION LAYER START (HOTFIX) ---
+        // Ensure this is actually a BILL (Cuenta) and not a PAM or random meme.
+        const { ValidationService } = await import('./services/validation.service.js');
+        const validationService = new ValidationService(apiKeys[0]);
+
+        forensicLog("🕵️ Validando identidad del documento (Debe ser CUENTA)...");
+        const validation = await validationService.validateDocumentType(image, mimeType, 'CUENTA');
+
+        if (!validation.isValid) {
+            console.warn(`[EXTRACT] VALIDATION REJECTED: ${validation.detectedType}. Reason: ${validation.reason}`);
+            sendUpdate({
+                type: 'error',
+                message: `VALIDACIÓN FALLIDA: Sube una CUENTA CLÍNICA. Se detectó: "${validation.detectedType}". (${validation.reason})`
+            });
+            return res.end();
+        }
+        forensicLog(`✅ Documento validado como CUENTA CLÍNICA.`);
+        // --- VALIDATION LAYER END ---  
+
         let resultStream;
         let lastError: any;
         let activeApiKey: string | undefined;
