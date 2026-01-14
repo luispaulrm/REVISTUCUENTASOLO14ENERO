@@ -606,21 +606,12 @@ Aplica estas reglas lógicas paso a paso para identificar discrepancias financie
 
 ---
 
-**ORDEN MANDATORIO DE EJECUCIÓN (NO SALTAR NINGÚN PASO):**
-
-1.  **ANÁLISIS CONTRACTUAL (EL "ELEFANTE EN LA HABITACIÓN" - SUB-BONIFICACIÓN):**
-    *   **PRIORIDAD MÁXIMA:** Este suele ser el hallazgo de mayor impacto financiero.
-    *   **REGLA DE ORO:** Si el PAM muestra coberturas del 20%, 30% o 0% en ítems hospitalarios cuando el Plan promete 90% o 100%:
-    *   **ACCIÓN:** Debes generar un hallazgo llamado "SUB-BONIFICACIÓN CONTRACTUAL".
-    *   **CÁLCULO:** Monto Objetado = (Copago Real - Copago Esperado según Plan).
-    *   **TRAZABILIDAD:** Agrupa por Folio PAM (ej: "Folio 244-xxx: Diferencia Cobertura Materiales") para evitar listas de 200 ítems en este punto, PERO declara el monto total.
-
-2.  **ANÁLISIS DE UNBUNDLING ("TOTAL RECALL"):**
-    *   Ejecuta la "Regla Maestra de Filtrado" para materiales e insumos.
-    *   Aquí SÍ debes listar ítem por ítem (fresas, suturas, etc.) con prohibición de agrupación.
-
-3.  **VALIDACIÓN DE IMPUESTOS Y OTROS:**
-    *   Continúa con las reglas estándar.
+**MANDATO DE INTEGRIDAD FORENSE (ZERO FABRICATION POLICY):**
+1.  **NO INVENTES HALLAZGOS:** Si no encuentras la diferencia de dinero en los ítems línea por línea, **NO LA INVENTES**.
+2.  **PROHIBICIÓN DE "AJUSTES POR CÁLCULO":** Está prohibido crear hallazgos basados en "estimaciones de lo que debió ser".
+    *   Ejemplo PROHIBIDO: "Objetar $3.000.000 porque la cobertura debió ser 80%". (Esto genera alucinaciones en honorarios médicos).
+    *   **SOLO PUEDES OBJETAR LO TANGIBLE:** Ítems específicos mal cobrados (Unbundling) o errores matemáticos explícitos.
+3.  **FOCO EN UNBUNDLING REAL:** Tu misión principal es el **"BARRIDO EXHAUSTIVO" (Inventory Mode)** de insumos. Ahí es donde se esconde el dinero. Encuentra las 100 jeringas, no inventes un "error de honorarios".
 
 ---
 
@@ -748,14 +739,17 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 3.  **REGLA MAESTRA DE FILTRADO (TOTAL RECALL - INVERSIÓN DE LA CARGA DE PRUEBA):**
     **PREMISA:** En una cirugía, el paciente paga por "Derecho de Pabellón" e "Implantes". TODO lo demás es cargo del prestador.
 
-    **ALGORITMO DRACONIANO:**
-    Si existe un ítem en la sección "MATERIALES CLÍNICOS" (o similar) con Copago > 0:
-    1.  **¿Es un Medicamento/Fármaco?** (Verifica principios activos). -> Si SÍ, pasa a Regla 6 (Fármacos).
-    2.  **¿Es un Implante VERIFICABLE?** (Busca palabras clave: "TORNILLO", "PLACA", "CLAVO", "LENTE", "MALLA", "STENT", "PROTESIS"). -> Si SÍ, es COBRABLE (Whitelisted).
-    3.  **SI NO ES FÁRMACO Y NO ES IMPLANTE:**
-        -> **ES UNBUNDLING AUTOMÁTICO.** (Flag = "UNBUNDLING_TOTAL").
-        -> Esto incluye: Cualquier insumo, herramienta, cable, sonda, paño, aguja, jeringa, sensor, guía, consumible, etc.
-        -> **NO IMPORTA SI NO ESTÁ EN LA LISTA NEGRA ESPECÍFICA.** La ausencia de evidencia de que sea implante es suficiente para objetar.
+    **ALGORITMO DRACONIANO (BARRIDO EXHAUSTIVO - INVENTORY MODE):**
+    **OBJETIVO:** Tu meta es detectar la MAYOR CANTIDAD de ítems desagregados. Un reporte con 50 ítems pequeños es MEJOR que uno con solo 2 grandes.
+
+    Recorre línea por línea la sección "MATERIALES CLÍNICOS" (o similar). Para CADA ítem con Copago > 0:
+    1.  **¿Es Fármaco?** -> Pasa a Regla 6.
+    2.  **¿Es Implante?** -> Whitelist (solo si dice PLACA/TORNILLO/LENTE/MALLA/PRÓTESIS/DURAL/VÁLVULA explícitamente).
+    3.  **SI NO ES FÁRMACO NI IMPLANTE -> ES UNBUNDLING (OBJETAR).**
+        *   **NO DISCRIMINES POR PRECIO:** Una jeringa de $500 es tan ilegal como una fresa de $400.000.
+        *   **NO RESUMAS:** Si hay 10 jeringas distintas, lista las 10.
+        *   **NO TE DETENGAS:** No pares de buscar cuando encuentres los ítems caros. Barre la lista completa.
+        *   **PATRONES CLAVE:** Cables, Sondas, Guías, Tubos, Paños, Ropa, Sensores, Electrodos, Hojas, Agujas, Jeringas, Conectores, Llaves, Bajadas, Kit, Set.
 
 **4. FILTRO DE EXCLUSIONES (LISTA BLANCA ESTRICTA):**
     *   Solo se permite cobro separado si la glosa dice explícitamente:
@@ -767,18 +761,15 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
 **REGLA DE OBJECIÓN AUTOMÁTICA (MODO AGRESIVO):**
 **SI** un ítem cae en "UNBUNDLING_TOTAL" (No es fármaco ni implante):
 **ENTONCES:**
-1.  Marca el ítem (INDIVIDUALMENTE) con flag **"DESAGREGACIÓN DE PABELLÓN"**.
+1.  Marca el ítem (INDIVIDUALMENTE) con flag **"UNBUNDLING_PABELLON"**.
 2.  **OBJETA EL 100% DEL COPAGO.**
-3.  **FUNDAMENTACIÓN:** "Cobro improcedente de insumo/material fungible incluido en Derecho de Pabellón (Circular 43/1998). No corresponde a implante ni fármaco."
-
+3.  **FUNDAMENTACIÓN:** "Cobro improcedente de insumo fungible (no implante) incluido en Derecho de Pabellón (Circular 43/1998)."
 
 **⚠️ PROHIBICIÓN DE AGRUPACIÓN (TRAZABILIDAD TOTAL):**
-Estás **PROHIBIDO** de agrupar estos hallazgos bajo una sola línea como "Materiales Varios".
-Debes reportar **CADA ÍTEM OBJETADO POR SEPARADO** en la tabla final, con su:
-1.  **Código Específico del Prestador**
-2.  **Descripción Exacta** (ej: "FRESA 2mm", "SURGICEL 5x7")
-3.  **Valor Copago Individualizado**
-4.  **Categoría de Infracción** (ej: "Instrumental", "Sutura")
+Estás **PROHIBIDO** de agrupar estos hallazgos.
+Debes generar la tabla "DETALLE DE ELEMENTOS INCLUIDOS EN PABELLÓN" con TODO lo que encuentres.
+**SI LA TABLA TIENE 100 FILAS, QUE TENGA 100 FILAS.** No ahorres espacio aquí.
+La ausencia de los ítems pequeños (jeringas, suturas) se considera una **FALLA GRAVE DE AUDITORÍA**.
 
 **FUNDAMENTACIÓN OBLIGATORIA (TEXTO):**
 "Desagregación improcedente de instrumental/insumo inherente al Derecho de Pabellón. El elemento [Nombre] corresponde a la categoría '[Categoría Detectada]' y está incluido en la tarifa integral según Circular 43/1998 (SIS). Su cobro separado constituye duplicidad por riesgo operacional."
