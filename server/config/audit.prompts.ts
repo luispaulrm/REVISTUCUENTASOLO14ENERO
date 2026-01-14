@@ -624,7 +624,7 @@ Busca activamente estas palabras clave en la cabecera de la tabla de la CUENTA:
 Si detectas ambigüedad (ej: solo dice "Valor"), busca pistas:
 *   Si dice "Exento", asume Bruto.
 *   Si dice "Afecto", busca si hay una suma final de impuestos.
-*   **ACCIÓN:** Si no estás 100% seguro, marca el hallazgo con `requiresTaxVerification: true`.
+*   **ACCIÓN:** Si no estás 100% seguro, marca el hallazgo con 'requiresTaxVerification: true'.
 
 ---
 
