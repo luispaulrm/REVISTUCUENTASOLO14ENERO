@@ -606,6 +606,24 @@ Aplica estas reglas lógicas paso a paso para identificar discrepancias financie
 
 ---
 
+**ORDEN MANDATORIO DE EJECUCIÓN (NO SALTAR NINGÚN PASO):**
+
+1.  **ANÁLISIS CONTRACTUAL (EL "ELEFANTE EN LA HABITACIÓN" - SUB-BONIFICACIÓN):**
+    *   **PRIORIDAD MÁXIMA:** Este suele ser el hallazgo de mayor impacto financiero.
+    *   **REGLA DE ORO:** Si el PAM muestra coberturas del 20%, 30% o 0% en ítems hospitalarios cuando el Plan promete 90% o 100%:
+    *   **ACCIÓN:** Debes generar un hallazgo llamado "SUB-BONIFICACIÓN CONTRACTUAL".
+    *   **CÁLCULO:** Monto Objetado = (Copago Real - Copago Esperado según Plan).
+    *   **TRAZABILIDAD:** Agrupa por Folio PAM (ej: "Folio 244-xxx: Diferencia Cobertura Materiales") para evitar listas de 200 ítems en este punto, PERO declara el monto total.
+
+2.  **ANÁLISIS DE UNBUNDLING ("TOTAL RECALL"):**
+    *   Ejecuta la "Regla Maestra de Filtrado" para materiales e insumos.
+    *   Aquí SÍ debes listar ítem por ítem (fresas, suturas, etc.) con prohibición de agrupación.
+
+3.  **VALIDACIÓN DE IMPUESTOS Y OTROS:**
+    *   Continúa con las reglas estándar.
+
+---
+
 ## 🧾 PROTOCOLO DE DETECCIÓN DE IMPUESTOS (TAX/IVA/ISA) - CRÍTICO 🧾
 **PROBLEMA:** Las cuentas pueden mostrar montos "Netos" (sin IVA) o "Brutos" (con IVA/ISA). Confundirlos genera errores masivos.
 **SOLUCIÓN:** Antes de procesar CUALQUIER monto, debes ejecutar este escáner de columnas.
@@ -727,21 +745,32 @@ Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPU
         *   "CIRCUITO ANESTESIA", "FILTRO RESPIRATORIO", "MASCARA ANESTESIA".
         *   "TUBO ENDOTRAQUEAL", "LARINGOSCOPIO", "GUIA INTUBACION".
 
-3.  **REGLA MAESTRA DE FILTRADO (CANON FINAL):**
-    Si un ítem NO está en la lista pero cumple:
-    *   Es Instrumental OR Consumible de Campo OR Uso Intraoperatorio
-    *   AND NO Permanece en Paciente (No Implante)
-    *   AND NO es Identificable como Implante/Prótesis
-    **ENTONCES:** Flag = **"UNBUNDLING_INHERENTE_A_PABELLON"** -> **OBJETAR 100%**.
+3.  **REGLA MAESTRA DE FILTRADO (TOTAL RECALL - INVERSIÓN DE LA CARGA DE PRUEBA):**
+    **PREMISA:** En una cirugía, el paciente paga por "Derecho de Pabellón" e "Implantes". TODO lo demás es cargo del prestador.
 
-4.  **FILTRO DE EXCLUSIONES (WHITELIST - Solo cobrar si es IMPLANTE):**
-    *   "PRÓTESIS", "STENT", "MALLA", "PLACA" (Con medida), "TORNILLO" (Con medida).
-    *   "VÁLVULA", "MARCAPASOS", "LENTE INTRAOCULAR".
-    *   "DURAL PATCH" (Implante específico).
+    **ALGORITMO DRACONIANO:**
+    Si existe un ítem en la sección "MATERIALES CLÍNICOS" (o similar) con Copago > 0:
+    1.  **¿Es un Medicamento/Fármaco?** (Verifica principios activos). -> Si SÍ, pasa a Regla 6 (Fármacos).
+    2.  **¿Es un Implante VERIFICABLE?** (Busca palabras clave: "TORNILLO", "PLACA", "CLAVO", "LENTE", "MALLA", "STENT", "PROTESIS"). -> Si SÍ, es COBRABLE (Whitelisted).
+    3.  **SI NO ES FÁRMACO Y NO ES IMPLANTE:**
+        -> **ES UNBUNDLING AUTOMÁTICO.** (Flag = "UNBUNDLING_TOTAL").
+        -> Esto incluye: Cualquier insumo, herramienta, cable, sonda, paño, aguja, jeringa, sensor, guía, consumible, etc.
+        -> **NO IMPORTA SI NO ESTÁ EN LA LISTA NEGRA ESPECÍFICA.** La ausencia de evidencia de que sea implante es suficiente para objetar.
 
-**REGLA DE OBJECIÓN AUTOMÁTICA:**
-**SI** encuentras un ítem de la LISTA NEGRA cobrado aparte y falla el test de exclusión:
-**ENTONCES:** Marca el ítem (INDIVIDUALMENTE) con flag **"UNBUNDLING (DESAGREGACIÓN)"** y **OBJETA EL 100% DEL COPAGO**.
+**4. FILTRO DE EXCLUSIONES (LISTA BLANCA ESTRICTA):**
+    *   Solo se permite cobro separado si la glosa dice explícitamente:
+        *   "PRÓTESIS", "IMPLANTE", "STENT", "MALLA".
+        *   "PLACA [MEDIDA]", "TORNILLO [MEDIDA]".
+        *   "VÁLVULA", "MARCAPASOS", "LENTE INTRAOCULAR".
+        *   "DURAL PATCH" (Implante específico).
+
+**REGLA DE OBJECIÓN AUTOMÁTICA (MODO AGRESIVO):**
+**SI** un ítem cae en "UNBUNDLING_TOTAL" (No es fármaco ni implante):
+**ENTONCES:**
+1.  Marca el ítem (INDIVIDUALMENTE) con flag **"DESAGREGACIÓN DE PABELLÓN"**.
+2.  **OBJETA EL 100% DEL COPAGO.**
+3.  **FUNDAMENTACIÓN:** "Cobro improcedente de insumo/material fungible incluido en Derecho de Pabellón (Circular 43/1998). No corresponde a implante ni fármaco."
+
 
 **⚠️ PROHIBICIÓN DE AGRUPACIÓN (TRAZABILIDAD TOTAL):**
 Estás **PROHIBIDO** de agrupar estos hallazgos bajo una sola línea como "Materiales Varios".
