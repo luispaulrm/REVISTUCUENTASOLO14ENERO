@@ -49,6 +49,24 @@ export async function handlePamExtraction(req: Request, res: Response) {
             return res.end();
         }
 
+        // --- VALIDATION LAYER START ---
+        const { ValidationService } = await import('../services/validation.service.js');
+        const validationService = new ValidationService(apiKeys[0]);
+
+        sendUpdate({ type: 'log', message: '🕵️ Validando documento PAM...' });
+        const validation = await validationService.validateDocumentType(image, mimeType, 'PAM');
+
+        if (!validation.isValid) {
+            console.warn(`[PAM] VALIDATION REJECTED: ${validation.detectedType}. Reason: ${validation.reason}`);
+            sendUpdate({
+                type: 'error',
+                message: `VALIDACIÓN FALLIDA: Se esperaba un "PAM" (bono/liquidación) pero se detectó: "${validation.detectedType}". (${validation.reason})`
+            });
+            return res.end();
+        }
+        sendUpdate({ type: 'log', message: `✅ Documento validado: ${validation.detectedType}` });
+        // --- VALIDATION LAYER END ---
+
         sendUpdate({ type: 'log', message: 'Iniciando extracción de datos PAM...' });
         sendUpdate({ type: 'progress', progress: 10 });
 

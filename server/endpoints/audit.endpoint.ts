@@ -40,26 +40,33 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
             contratoJson,
             apiKey,
             (msg) => sendUpdate({ type: 'log', message: msg }),
-            htmlContext
+            htmlContext,
+            // onUsageUpdate
+            (usage) => {
+                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(
+                    'gemini-2.5-flash',
+                    usage.promptTokenCount || usage.promptTokens,
+                    usage.candidatesTokenCount || usage.candidatesTokens
+                );
+                sendUpdate({
+                    type: 'usage',
+                    usage: {
+                        promptTokens: usage.promptTokenCount || usage.promptTokens,
+                        candidatesTokens: usage.candidatesTokenCount || usage.candidatesTokens,
+                        totalTokens: usage.totalTokenCount || usage.totalTokens,
+                        estimatedCost,
+                        estimatedCostCLP
+                    }
+                });
+            },
+            // onProgressUpdate
+            (prog) => sendUpdate({ type: 'progress', progress: prog })
         );
 
         sendUpdate({ type: 'progress', progress: 95 });
 
         if (result.usage) {
-            // Use audit-specific model pricing (gemini-2.5-flash)
-            const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(
-                'gemini-2.5-flash', // Audit uses economical model
-                result.usage.promptTokens,
-                result.usage.candidatesTokens
-            );
-            sendUpdate({
-                type: 'usage',
-                usage: {
-                    ...result.usage,
-                    estimatedCost,
-                    estimatedCostCLP
-                }
-            });
+            // Final usage check (if not already sent by streaming)
         }
 
         sendUpdate({ type: 'final', data: result.data });

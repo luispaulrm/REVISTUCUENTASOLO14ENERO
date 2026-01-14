@@ -62,6 +62,46 @@ export async function handleProjection(req: Request, res: Response) {
             return res.end();
         }
 
+        // --- VALIDATION LAYER START ---
+        // Dynamically determine expected type based on "mode"
+        // 'BILL_ONLY' -> CUENTA
+        // 'FULL' -> CONTRATO (though sometimes it could be a full cuenta, validation service handles ambiguity if needed or we default to 'CONTRATO' for full docs as per current UI flow which uses 'FULL' for contracts)
+        // User flow usually is: "Analizar Cuenta" (BILL_ONLY) or "Analizar Contrato" (FULL).
+        // Let's enforce strict mapping.
+
+        let expectedType: 'CUENTA' | 'PAM' | 'CONTRATO' = 'CONTRATO';
+        if (mode === 'BILL_ONLY') {
+            expectedType = 'CUENTA';
+        } else if (mode === 'PAM') {
+            // If the UI sends PAM mode (which it might in future or if we adapt this endpoint for PAM too)
+            expectedType = 'PAM';
+        } else {
+            // Default to CONTRATO for "FULL" mode, but we should be careful. 
+            // If the user uploads a PAM in FULL mode, we should probably allow it if we accept PAMs via this endpoint.
+            // But currently projection is used for Contracts (FULL) and Bills (BILL_ONLY).
+            // Let's assume FULL = CONTRATO for now as per "Proyectar Contrato" usage.
+            expectedType = 'CONTRATO';
+        }
+
+        const { ValidationService } = await import('../services/validation.service.js');
+        const validationService = new ValidationService(apiKeys[0]); // Use first key
+
+        sendUpdate({ type: 'log', text: `🕵️ Validando si el documento es realmente un ${expectedType}...` });
+
+        const validation = await validationService.validateDocumentType(image, mimeType, expectedType);
+
+        if (!validation.isValid) {
+            console.warn(`[VALIDATION] REJECTED. Detected: ${validation.detectedType}. Expected: ${expectedType}. Reason: ${validation.reason}`);
+            sendUpdate({
+                type: 'error',
+                error: `VALIDACIÓN FALLIDA: Se esperaba un documento tipo ${expectedType}, pero se detectó "${validation.detectedType}". (${validation.reason})`
+            });
+            return res.end();
+        }
+
+        sendUpdate({ type: 'log', text: `✅ Documento validado correctamente (${validation.detectedType}).` });
+        // --- VALIDATION LAYER END ---
+
         const projectionService = new ProjectionService(apiKeys[0]);
 
         console.log('[PROJECTION] Starting projection stream...', { mode, pageCount });

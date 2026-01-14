@@ -37,6 +37,35 @@ export async function handleContractExtraction(req: Request, res: Response) {
             return res.status(500).json({ error: 'API Key not configured' });
         }
 
+        // --- VALIDATION LAYER START ---
+        const { ValidationService } = await import('../services/validation.service.js');
+        const validationService = new ValidationService(apiKey);
+
+        // Streaming updates for contract are done differently (sendUpdate wrapper inside try block)
+        // But here we can send a preliminary check or just reject.
+        // The contract endpoint supports streaming NDJSON output.
+        // Let's emulate the validation log.
+        if (res.writable) {
+            sendUpdate({ type: 'chunk', text: '[VALIDATION] 🕵️ Verificando si el documento es un CONTRATO de Salud...\n' });
+        }
+
+        const validation = await validationService.validateDocumentType(image, mimeType, 'CONTRATO');
+
+        if (!validation.isValid) {
+            console.warn(`[CONTRACT] VALIDATION REJECTED: ${validation.detectedType}. Reason: ${validation.reason}`);
+            // If using NDJSON, we should send error type? Or just 400? 
+            // The client expects NDJSON.
+            sendUpdate({
+                type: 'error',
+                message: `VALIDACIÓN FALLIDA: Se esperaba un "CONTRATO" (Plan de Salud) pero se detectó: "${validation.detectedType}". (${validation.reason})`
+            });
+            return res.end();
+        }
+        if (res.writable) {
+            sendUpdate({ type: 'chunk', text: `[VALIDATION] ✅ Documento validado: ${validation.detectedType}\n` });
+        }
+        // --- VALIDATION LAYER END ---
+
         // Convert base64 to Buffer for the engine
         const buffer = Buffer.from(image, 'base64');
         const file = {

@@ -14,18 +14,23 @@ export async function performForensicAudit(
     contratoJson: any,
     apiKey: string,
     log: (msg: string) => void,
-    htmlContext: string = ''
+    htmlContext: string = '',
+    onUsageUpdate?: (usage: any) => void,
+    onProgressUpdate?: (progress: number) => void
 ) {
     // AUDIT-SPECIFIC: Gemini 3 Flash primary, 2.5 Flash fallback
     const modelsToTry = ['gemini-3-flash-preview', 'gemini-2.5-flash'];
     let result;
     let lastError;
+    let accumulatedTokens = 0;
+    const ESTIMATED_TOTAL_TOKENS = 4000; // Estimate for progress bar
 
     // =========================================================================
     // MINI-RAG: BIBLIOTECARIO INTELIGENTE
     // Carga dinámica de conocimiento legal relevante para este caso específico
     // =========================================================================
     log('[AuditEngine] 📚 Activando Bibliotecario Inteligente (Mini-RAG)...');
+    onProgressUpdate?.(10);
     log(`[AuditEngine] ℹ️ ${getKnowledgeFilterInfo()}`);
 
     // Paso 1: Extraer keywords del caso (cuenta, PAM, contrato)
@@ -40,6 +45,7 @@ export async function performForensicAudit(
 
     log(`[AuditEngine] 📊 Conocimiento inyectado: ${sources.length} fuentes (~${tokenEstimate} tokens)`);
     log(`[AuditEngine] 📚 Fuentes: ${sources.join(' | ')}`);
+    onProgressUpdate?.(20);
 
     // Paso 3: Cargar reglas de hotelería (siempre, es pequeño)
     const hoteleriaRules = await loadHoteleriaRules();
@@ -48,6 +54,7 @@ export async function performForensicAudit(
     }
 
     log('[AuditEngine] 🧠 Sincronizando datos y analizando hallazgos con Super-Contexto...');
+    onProgressUpdate?.(30);
 
     // ============================================================================
     // TOKEN OPTIMIZATION: Reduce input costs by 30-40%
@@ -153,6 +160,7 @@ export async function performForensicAudit(
             });
 
             log('[AuditEngine] 📡 Enviando consulta a Gemini (Streaming)...');
+            onProgressUpdate?.(40);
 
             // Use streaming for real-time feedback
             const timeoutMs = 120000; // 120 seconds for audit (larger prompt)
@@ -177,11 +185,17 @@ export async function performForensicAudit(
                 // Update usage metadata if available
                 if (chunk.usageMetadata) {
                     usage = chunk.usageMetadata;
+                    onUsageUpdate?.(usage); // EMIT USAGE REAL-TIME
                 }
 
-                // Log progress every 1000 characters
-                if (fullText.length % 1000 < chunkText.length) {
-                    log(`[AuditEngine] 📊 Procesando... ${Math.floor(fullText.length / 1000)}KB recibidos`);
+                // Log progress every 500 characters
+                if (fullText.length % 500 < chunkText.length) {
+                    const kbReceived = Math.floor(fullText.length / 1024);
+                    log(`[AuditEngine] 📊 Procesando... ${kbReceived}KB recibidos`);
+
+                    // Dynamic progress calculation (40% to 90%)
+                    const simulatedProgress = Math.min(90, 40 + (fullText.length / ESTIMATED_TOTAL_TOKENS) * 50);
+                    onProgressUpdate?.(simulatedProgress);
                 }
             }
 
@@ -305,7 +319,9 @@ export async function performMultiPassAudit(
     contratoJson: any,
     apiKey: string,
     log: (msg: string) => void,
-    htmlContext: string = ''
+    htmlContext: string = '',
+    onUsageUpdate?: (usage: any) => void,
+    onProgressUpdate?: (progress: number) => void
 ) {
     log('[SINGLE-PASS] 🚀 Iniciando Sistema de Auditoría de Tiro Único (Modo Optimizado)...');
 
@@ -314,7 +330,9 @@ export async function performMultiPassAudit(
         log('[SINGLE-PASS] 🔍 Ejecutando Auditoría Forense (Fases A y B)...');
         const ronda1 = await performForensicAudit(
             cuentaJson, pamJson, contratoJson, apiKey,
-            (msg) => log(`${msg}`), htmlContext
+            (msg) => log(`${msg}`), htmlContext,
+            onUsageUpdate,
+            onProgressUpdate
         );
 
         const numHallazgos = ronda1.data?.hallazgos?.length || 0;
