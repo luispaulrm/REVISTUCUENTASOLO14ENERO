@@ -76,8 +76,10 @@ export class ProjectionService {
                 - Si un valor es ilegible, usa <td data-uncertain="true">???</td>.
                 - Prohibido inventar datos o mover valores entre columnas (ej: no mover Internacional a Nacional).
 
-                **PASO 6: COBERTURA TOTAL (SIN OMISIONES)**
+                **PASO 6: COBERTURA Y FIDELIDAD 100% (PROHIBIDO RESUMIR)**
                 ${isBillOnly ? '- Locate the billing section and project it page by page.' : '- Este es un proceso serial. Debes proyectar página por página.'}
+                - **STRICT VERBATIM:** Proyecta CADA PALABRA tal como aparece. No omitas artículos (el, la, de, del, los, las).
+                - **PROHIBIDO RESUMIR:** No intentes "ahorrar" espacio o palabras. Si el texto es largo, proyéctalo completo.
                 - Si el documento es largo, proyecta lo que alcances y continúa en el siguiente pase.
                 
                 ${isBillOnly ? `
@@ -103,16 +105,23 @@ export class ProjectionService {
                 YOU MUST CONTINUE FROM THE EXACT POINT WHERE YOU LEFT OFF.
                 DO NOT REPEAT CONTENT AND DO NOT JUMP TO THE END.
                 
+                DANGER: If you see many pages remaining, DO NOT summarize or skip. You must project every page one by one.
+                TOTAL PAGES IN DOCUMENT: ${pageCount || 'Unknown'}
+                CURRENT PASS: ${pass}
+                
                 ${isBillOnly ? 'REMINDER: Only project the billing section. Keep skipping non-billing pages if they appear.' : ''}
 
-                Last characters projected: "${fullHtml.slice(-1500)}"
+                LAST PROJECTED CONTENT (CONTEXT):
+                "...${fullHtml.slice(-4000)}"
                 
                 MANDATORY RULES:
                 1. CONTINUE exactly where you left off. 
                 2. SEAMLESS TRANSITION: If you were in a table, start with the NEXT row tr. 
-                3. NO GAPS: Do not skip content, pages, or use placeholders like "[...]".
+                3. NO GAPS / NO SUMMARIES: Do not skip content, pages, or use placeholders like "[...]".
                 4. NO REPETITION: Do not repeat what you already projected.
-                5. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE billing data in the ENTIRE PDF (check all subsequent pages before marking as end).
+                5. STRICT FIDELITY: Copy every single word, article, and particle (de, del, el, la, etc.) VERBATIM. DO NOT PARAPHRASE.
+                6. PROGRESS: You are on pass ${pass}. If there are ${pageCount} pages, ensure you cover them all.
+                7. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE data in the ENTIRE PDF.
             `;
 
             let streamSuccess = false;
@@ -193,6 +202,9 @@ export class ProjectionService {
                             "(Se omite el resto",
                             "The rest of the document is a table",
                             "Following the same format",
+                            "The rest of the document",
+                            "[Continúa en la siguiente",
+                            "(Resto de la tabla",
                         ];
                         const isLazy = lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
 
