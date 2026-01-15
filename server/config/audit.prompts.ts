@@ -18,7 +18,7 @@ Si dudas: marcar como "ZONA GRIS" y explicar qué evidencia faltó.
 - Toda objeción debe estar anclada a un COPAGO REAL en el PAM.
 - **PROHIBIDO**: Objetar un monto mayor al copago que el paciente efectivamente pagó en ese folio/ítem.
 - **LOGICA**: Si la cuenta clínica dice $100.000 pero el PAM dice que el paciente pagó $20.000 de copago, el ahorro MÁXIMO posible es $20.000.
-- **REGLA DE CUADRATURA CORTA (ARITMÉTICA ZERO):** El monto final del hallazgo DEBE ser la suma exacta de las partes individuales. Si el auditor suma A+B+C y el resultado difiere del total reportado por más de $1 CLP, el hallazgo se considera FALLIDO. Está terminantemente prohibido "redondear" o "estimar" totales.
+- **REGLA DE CUADRATURA CORTA (ARITMÉTICA ZERO):** El monto final del hallazgo DEBE ser la suma exacta de las partes individuales. Si el auditor suma A+B+C y el resultado difiere del total reportado por más de $1 CLP, el hallazgo se considera FALLIDO. Está terminantemente prohibido "redondear" o "estimar" totales. SIEMPRE utiliza el valor BRUTO (con impuestos) para evitar diferencias de centavos.
 
 (10) REGLA DE PENSAMIENTO LÓGICO-PRIMERO:
 - Antes de emitir un juicio, el auditor debe computar la "Diferencia de Bonificación": (Bonificación Pactada en Contrato) - (Bonificación Aplicada en PAM).
@@ -283,8 +283,9 @@ TODO copago en el PAM se considera OBJETABLE hasta que se demuestre que tiene fu
 
 **PROTOCOLO ESPECIAL: MODO "TOTAL AUDIT M8" (DIRECT OCR / NOTEBOOKLM STYLE)**
 ⚠️ Si detectas que los JSONs son parciales y la data reside mayormente en \`html_context\` (Raw Text):
-1. **PIVOTE DE VERDAD:** Los valores en \`pam_json.resumenTotal\` y \`cuenta_json.clinicStatedTotal\` son la VERDAD ABSOLUTA. Si el texto OCR tiene errores ópticos, IGUALALOS con el JSON Pivot.
-2. **PROHIBICIÓN DE SUMAS FANTASMA:** NUNCA inventes cobros que no existan en el PAM. Si no ves el código del PAM en el texto, NO lo audites.
+1. **PIVOTE DE VERDAD:** Los valores en \`pam_json.resumenTotal\` y \`cuenta_json.grand_total_bruto\` (o el valor más alto declarado) son la VERDAD ABSOLUTA. 
+2. **GESTIÓN DE DISCREPANCIAS FISCALES:** Si detectas que la suma de ítems coincide con el \`grand_total_bruto\` pero el \`grand_total_neto\` es menor, NO reportes una discrepancia de sistema. La auditoría debe ser sobre el valor FINAL (Bruto).
+3. **PROHIBICIÓN DE SUMAS FANTASMA:** NUNCA inventes cobros que no existan en el PAM. Si no ves el código del PAM en el texto, NO lo audites.
 3. **CÁLCULO QUIRÚRGICO:** Antes de reportar un monto objetado, verifica: ¿Existe este monto exacto en el PAM o es la suma de items visibles en el PAM? Si el cálculo no cuadra con el PIVOTE, el hallazgo es una alucinación y debe ser descartado.
 
 **RECOLECCIÓN DE ANTECEDENTES (PASO ZERO):**
@@ -634,15 +635,17 @@ Si detectas ambigüedad (ej: solo dice "Valor"), busca pistas:
 *   Si dice "Exento", asume Bruto.
 *   Si dice "Afecto", busca si hay una suma final de impuestos.
 *   **ACCIÓN:** Si no estás 100% seguro, marca el hallazgo con 'requiresTaxVerification: true'.
+*   **MANDATO:** SIEMPRE usa el valor **BRUTO** para evitar reclamos por diferencias de centavos o impuestos. El sistema no acepta valores que no incluyan la carga tributaria final.
 
 ---
 
 ## LISTA DE VERIFICACIÓN DE FRAUDE (ZERO-TOLERANCE PATTERNS)
 Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPUGNAR ES OBLIGATORIO** solo si impacta copago paciente.
 
-### 1. CÓDIGOS 3201001 y 3201002 (GLOSAS GENÉRICAS)
-- Si encuentras glosas como "GASTOS NO CUBIERTOS", "INSUMOS VARIOS", "PRESTACION NO ARANCELADA".
+### 1. CÓDIGOS 3201001 y 3201002 (GLOSAS GENÉRICAS / OPACIDAD)
+- Si encuentras glosas como "GASTOS NO CUBIERTOS", "INSUMOS VARIOS", "PRESTACION NO ARANCELADA" o códigos como 3201001, 3201002.
 - **ACCIÓN:** Objetar el 100% por falta de transparencia (Ley 20.584) si copago > 0 en PAM.
+- **ALERTA DE SISTEMA:** La presencia de estos montos sin IVA claro o desglose dispara una alerta de Falta de Transparencia.
 - *Ejemplo real:* "Instalación de Vía Venosa" o "Fleboclisis" cobrada como genérico. Son inherentes al Día Cama.
 
 ### 2. CÓDIGOS DE INSUMOS DE HOTELERÍA (CIRCULAR IF-319)

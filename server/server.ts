@@ -13,6 +13,7 @@ import { handleContractExtraction } from './endpoints/contract.endpoint.js';
 import { handleAuditAnalysis } from './endpoints/audit.endpoint.js';
 import { handleProjection } from './endpoints/projection.endpoint.js';
 import { handleAskAuditor } from './endpoints/ask.endpoint.js';
+import { BILL_PROMPT } from './prompts/bill.prompt.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -128,55 +129,7 @@ const billingSchema = {
     required: ["clinicName", "sections", "clinicStatedTotal"]
 };
 
-const EXTRACTION_PROMPT = `
-    ACTÚA COMO UN AUDITOR FORENSE DE CUENTAS CLÍNICAS CHILENAS (LENGUAJE NATURAL Y MATEMÁTICO AVANZADO).
-    
-    CONTEXTO DE "CAJA NEGRA":
-    Las clínicas en Chile usan formatos confusos para ocultar el costo real. 
-    A menudo presentan una columna "Valor" (Neto) y mucho después una columna "Valor ISA" (Bruto con IVA).
-    
-    ⚠️ REGLA DE ORO: TRANSCRIPCIÓN QUIRÚRGICA (CERO INCERTIDUMBRE)
-    1. **PROHIBIDO USAR "?"**: Jamás devuelvas textos como "MEDICINA?", "HOSPITALIZACI?", o "R?S?NANCIA".
-    2. **INFERENCIA CONTEXTUAL OBLIGATORIA**: Si el OCR es difuso, USA EL CONTEXTO CLÍNICO para reconstruir la palabra perfecta.
-       - Mal: "H?SP. INT?GRAL"
-       - Bien: "HOSP. INTEGRAL" (Porque sabes que es una cuenta clínica).
-       - Mal: "SOLUCION SAL?N?"
-       - Bien: "SOLUCION SALINA"
-    3. **RESPONSABILIDAD LEGAL**: Si dejas un "?", el auditor perderá un hallazgo legal. Tu deber es RECUPERAR el 100% del texto visible o inferible.
-    
-    REGLA DE ORO DE TRAZABILIDAD Y MATEMÁTICA:
-    - NUMERA LOS ÍTEMS: Cada ítem debe tener un campo 'index' comenzando desde 1 para toda la cuenta.
-    - NO AGRUPES SECCIONES: Extrae cada sección por separado como aparece en el papel.
-    - PRIORIZA VALORES BRUTOS (VALOR ISA): La auditoría se basa en el costo real final.
-    - CONSISTENCIA MATEMÁTICA OBLIGATORIA: Antes de escribir cada línea, verifica que (unitPrice * quantity = total).
-    - NORMALIZACIÓN: Si el documento muestra un Precio Neto pero el Total es Bruto (con IVA), DEBES extraer el unitPrice como (Total / Cantidad). El objetivo es que Price * Qty NUNCA de error de cálculo.
-    - HONORARIOS FRACCIONARIOS (0.1, 0.25, etc.): El 'total' DEBE ser proporcional (ej: 0.1 * 4.000.000 = 400.000). Prohibido alucinar el total de la cirugía completa en líneas de porcentaje.
-    - BLOQUE DE CÁLCULO: En el formato de salida, DEBES incluir el resultado de tu multiplicación en la columna de verificación.
-
-    REGLA DE RECONCILIACIÓN MATEMÁTICA (AUDITORÍA INTERNA):
-    - TU PRIORIDAD ES LA EXHAUSTIVIDAD: Si el subtotal de la sección no coincide con lo que estás viendo en los ítems, NO TE DETENGAS NI RESUMAS. Extrae CADA ítem exactamente como aparece.
-    - TU VERDAD SON LOS ÍTEMS: Si la clínica sumó mal, el auditor lo verá después. Tu trabajo es listar el 100% de las filas.
-
-    REGLA DE HONORARIOS Y PORCENTAJES:
-    - En secciones de Honorarios (6010, 6011, etc.), si la cantidad es fraccionaria (0.1, 0.2, 0.25, etc.), el Total DEBE ser el resultado de esa fracción (ej: 0.1 * 4.000.000 = 400.000). Prohibido poner el total de la cirugía completa en una línea de porcentaje.
-    - Si el papel muestra el total de la cirugía pero tú estás extrayendo una línea de "Primer Ayudante (0.25)", el total de esa línea es el 25%.
-
-    REGLA ANTIFUSIÓN Y PRECIOS:
-    - IVA Y ARITMÉTICA: A veces el Precio Unitario es NETO y el Total es BRUTO (Precio * 1.19 * Cantidad). Si ves esto, extrae el precio tal cual.
-    - "PRICE BLEED": Separa códigos de precio (ej: 2.470500501 -> 2.470).
-
-    REGLA DE NEGATIVOS (REVERSIONES):
-    - Las líneas con signo menos (-) o entre paréntesis ( ) son CRÉDITOS/REVERSIONES.
-    - DEBES extraer el valor como NEGATIVO (ej: -1, -3006). Esto es vital para que la suma cuadre.
-
-    INSTRUCCIONES DE EXTRACCIÓN EXHAUSTIVA:
-    0. MARCADOR DE PÁGINA: Cada vez que comiences a leer una nueva página, escribe obligatoriamente "PAGE: n".
-    1. Identifica las cabeceras de sección y sus subtotales declarados.
-    2. EXTRAE CADA LÍNEA DEL DESGLOSE SIN EXCEPCIÓN. Si hay 56 fármacos, deben salir 56 fármacos.
-    3. FORMATO NUMÉRICO ESTRICTO: Solo números enteros en precios/totales.
-    4. PROHIBIDO INVENTAR O RESUMIR.
-    5. Absolutamente prohibido usar puntos suspensivos (...) o detenerse antes del final de la cuenta.
-`;
+// Redundant EXTRACTION_PROMPT removed. Now using BILL_PROMPT from ./prompts/bill.prompt.js
 
 // Helper to get all API keys
 const getApiKeys = () => {
@@ -227,29 +180,7 @@ app.post('/api/extract', async (req, res) => {
             return res.status(500).json({ error: 'Server configuration error: Gemini API Key not found' });
         }
 
-        const CSV_PROMPT = `
-        ${EXTRACTION_PROMPT}
-
-        INSTRUCCIONES DE FORMATO SALIDA (JERÁRQUICO):
-        1. Al principio, extrae estos metadatos si están visibles (si no, usa "N/A"):
-           CLINIC: [Nombre de la Clínica/Institución]
-           PATIENT: [Nombre del Paciente]
-           INVOICE: [Número de Cuenta/Folio/Factura]
-           DATE: [Fecha de la Cuenta]
-           GRAND_TOTAL: [Valor Total Final de la Cuenta]
-        2. NO repitas el nombre de la sección en cada línea. Úsalo como CABECERA.
-        3. Estructura:
-          CLINIC: ...
-          PATIENT: ...
-          INVOICE: ...
-          DATE: ...
-          GRAND_TOTAL: ...
-          SECTION: [Nombre Exacto Sección]
-          [Index]|[Código]|[Descripción]|[Cant]|[PrecioUnit]|[Verif: Cant*Precio]|[ValorIsa]|[Bonificacion]|[Copago]|[Total]
-          SECTION_TOTAL: [Subtotal Declarado por la Clínica para esta Sección]
-          SECTION: [Siguiente Sección...]
-          ...
-        `;
+        const CSV_PROMPT = BILL_PROMPT;
 
         // --- VALIDATION LAYER START (HOTFIX) ---
         // Ensure this is actually a BILL (Cuenta) and not a PAM or random meme.
@@ -536,10 +467,19 @@ app.post('/api/extract', async (req, res) => {
 
         const processedItemsSet = new Set<string>();
         for (const line of lines) {
-            if (line.startsWith('GRAND_TOTAL:')) {
+            if (line.startsWith('GRAND_TOTAL_BRUTO:')) {
+                const rawVal = line.replace('GRAND_TOTAL_BRUTO:', '').trim();
+                clinicGrandTotalField = Math.round(cleanCLP(rawVal, false));
+                console.log(`[PARSER] Raw GRAND_TOTAL_BRUTO: "${rawVal}" -> Parsed: ${clinicGrandTotalField}`);
+                continue;
+            }
+            if (line.startsWith('GRAND_TOTAL_NETO:')) {
+                // We capture it but the primary pivot for Audit M8 is the BRUTO
+                continue;
+            }
+            if (line.startsWith('GRAND_TOTAL:')) { // Fallback for old models
                 const rawVal = line.replace('GRAND_TOTAL:', '').trim();
                 clinicGrandTotalField = Math.round(cleanCLP(rawVal, false));
-                console.log(`[PARSER] Raw GRAND_TOTAL: "${rawVal}" -> Parsed: ${clinicGrandTotalField}`);
                 continue;
             }
             if (line.startsWith('CLINIC:')) {
