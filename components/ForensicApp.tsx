@@ -712,7 +712,7 @@ function InterrogationZone({ auditResult, compactMode = false, responsiveHeight 
                             </div>
                         </div>
                         <div className="flex justify-start">
-                            <div className="bg-indigo-600 text-white px-4 py-3 rounded-2xl rounded-tl-none shadow-md max-w-[95%] text-sm selection:bg-white/30">
+                            <div className="bg-slate-50 border border-slate-200 text-slate-800 px-4 py-3 rounded-2xl rounded-tl-none shadow-sm max-w-[95%] text-sm">
                                 <MarkdownRenderer content={item.answer} />
                             </div>
                         </div>

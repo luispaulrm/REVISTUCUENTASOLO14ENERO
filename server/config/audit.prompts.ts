@@ -453,6 +453,15 @@ Si encuentras líneas con glosas como "VARIOS", "OTROS", "INSUMOS GENERALES", "A
    - "Podría haber activado CAEC" NO es un hallazgo, es una RECOMENDACIÓN ESTRATÉGICA.
    - NUNCA pongas en la tabla de ahorros "Ahorro por CAEC" si el CAEC no está activo procesalmente.
 
+**PROTOCOLO ANTI-DUPLICIDAD (DETECTOR DE SUBTOTALES):**
+⚠️ En muchos PAM, el OCR captura la fila de "TOTAL" o "SUBTOTAL" como si fuera un ítem más.
+**SÍNTOMA:** La suma de los ítems de un grupo (ej: Honorarios) es aprox. el **DOBLE** del valor real, o encuentras un ítem grande ($600k) y varios pequeños ($100k, $200k, $300k) que suman lo mismo.
+**ACCIÓN:**
+1. **Identifica el "Item Resumen":** Suele tener descripción genérica ("Colecistectomía", "Honorarios", "Total").
+2. **Realiza la Suma de Prueba:** Suma los ítems pequeños. Si (Suma Pequeños ≈ Item Grande), entonces **EL ÍTEM GRANDE ES UN SUBTOTAL**.
+3. **DEPURACIÓN:** **IGNORA** el ítem subtotal para el cálculo de hallazgos (o ignora los pequeños si el subtotal es más claro). **NUNCA SUMES AMBOS.**
+4. **VERIFICACIÓN:** Si el copago resultante de tu suma es > 50% del valor total, ¡ALERTA! Probablemente estás duplicando. El copago promedio es 20-30%.
+
 **CATEGORÍAS DE HALLAZGOS (PRIORIDAD DE IMPUGNACIÓN):**
 1. **FALTA DE DESGLOSE / OPACIDAD (Violación Ley 20.584)**: [PRIORIDAD MÁXIMA] Códigos genéricos sin detalle (Cajas Negras: 3101302, 3101304, 3201001).
 2. **UNBUNDLING / DESAGREGACIÓN (Circular IF/319)**: Cobro separado de insumos inherentes a Día Cama/Pabellón.
