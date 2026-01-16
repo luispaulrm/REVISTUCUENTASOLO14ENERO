@@ -441,7 +441,7 @@ export default function ForensicApp() {
                                                         </div>
                                                         <div className="text-rose-600 font-black text-lg">-${(hallazgo.montoObjetado || 0).toLocaleString()}</div>
                                                     </div>
-                                                    <p className="text-sm text-slate-600 mb-4 whitespace-pre-wrap">{hallazgo.hallazgo}</p>
+                                                    <MarkdownRenderer content={hallazgo.hallazgo} />
                                                     <div className="flex gap-4 text-[10px] font-bold text-slate-400 uppercase">
                                                         <span className="flex items-center gap-1"><Scale size={12} /> {hallazgo.normaFundamento}</span>
                                                         <span className="flex items-center gap-1"><Search size={12} /> {hallazgo.anclajeJson}</span>
@@ -742,4 +742,101 @@ function InterrogationZone({ auditResult, compactMode = false }: { auditResult?:
             </div>
         </div>
     );
+}
+
+function MarkdownRenderer({ content }: { content: string }) {
+    if (!content) return null;
+
+    const lines = content.split('\n');
+    const elements: React.ReactNode[] = [];
+    let tableBuffer: string[] = [];
+    let processingTable = false;
+
+    const renderTable = (rows: string[], key: number) => {
+        if (rows.length < 2) return null; // Need at least header + separator or header + body
+
+        // Parse header
+        const headerRow = rows[0].replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+
+        // Check if second row is separator (---|---), if so skip it
+        let startIndex = 1;
+        if (rows[1].includes('---')) {
+            startIndex = 2;
+        }
+
+        const bodyRows = rows.slice(startIndex).map(row =>
+            row.replace(/^\||\|$/g, '').split('|').map(c => c.trim())
+        );
+
+        return (
+            <div key={key} className="my-4 overflow-x-auto rounded-lg border border-slate-200">
+                <table className="w-full text-sm text-left">
+                    <thead className="bg-slate-100 text-slate-600 uppercase font-black text-[10px] tracking-wider">
+                        <tr>
+                            {headerRow.map((h, i) => (
+                                <th key={i} className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">{h}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                        {bodyRows.map((row, i) => (
+                            <tr key={i} className="hover:bg-slate-50">
+                                {row.map((cell, j) => (
+                                    <td key={j} className="px-4 py-2 border-r border-slate-100 last:border-r-0 font-mono text-xs text-slate-600 whitespace-nowrap">
+                                        {cell}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
+
+    lines.forEach((line, index) => {
+        const trimmed = line.trim();
+        const isTableLine = trimmed.startsWith('|') && trimmed.endsWith('|');
+
+        if (isTableLine) {
+            if (!processingTable) {
+                processingTable = true;
+            }
+            tableBuffer.push(trimmed);
+        } else {
+            if (processingTable) {
+                // Flush table
+                elements.push(renderTable(tableBuffer, index));
+                tableBuffer = [];
+                processingTable = false;
+            }
+            // Render normal line
+            if (trimmed === '') {
+                // elements.push(<br key={index} />); // Skip excessive newlines
+            } else {
+                // Check if it's a list item
+                if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
+                    elements.push(
+                        <div key={index} className="flex gap-2 ml-4 mb-1 text-sm text-slate-600">
+                            <span className="text-slate-400">•</span>
+                            <span>{trimmed.substring(2)}</span>
+                        </div>
+                    );
+                } else if (trimmed.startsWith('**') && trimmed.endsWith('**')) { // Simple bold header detection
+                    elements.push(<h5 key={index} className="font-bold text-slate-900 mt-4 mb-2 text-sm uppercase tracking-wide">{trimmed.replace(/\*\*/g, '')}</h5>);
+                } else if (trimmed.startsWith('###')) {
+                    elements.push(<h4 key={index} className="font-black text-slate-800 mt-4 mb-2 text-sm uppercase">{trimmed.replace(/###/g, '')}</h4>);
+                } else {
+                    elements.push(<p key={index} className="text-sm text-slate-600 mb-1 leading-relaxed">{line}</p>);
+                }
+            }
+        }
+    });
+
+    // Flush remaining table if file ends with table
+    if (processingTable && tableBuffer.length > 0) {
+        elements.push(renderTable(tableBuffer, lines.length));
+    }
+
+    return <div className="space-y-1">{elements}</div>;
 }

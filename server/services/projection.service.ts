@@ -41,18 +41,32 @@ export class ProjectionService {
 
             const isBillOnly = mode === 'BILL_ONLY';
             const prompt = pass === 1 ? `
-                ACT AS A HIGH-FIDELITY DOCUMENT PROJECTOR.
+                ACT AS A HIGH-FIDELITY DOCUMENT PROJECTOR (OCR CALCO MODE).
                 
                 GOAL:
-                Convert the PROVIDED PDF document into a CLEAN, SEMANTIC, and VISUALLY ACCURATE HTML representation.
+                Create an EXACT VISUAL REPLICA (CARBON COPY) of the provided contract/document in HTML.
+                
+                CRITICAL INSTRUCTION:
+                - YOU ARE A "DUMB" OCR CLONER. YOU DO NOT THINK. YOU DO NOT DECIDE. YOU DO NOT SUMMARIZE.
+                - YOUR ONLY JOB IS TO COPY PIXEL-PERFECT CONTENT INTO HTML.
+                - IF CAEC/GES IS NOT MENTIONED, DO NOT INVENT IT.
+                - IF A VALUE IS "SIN TOPE", WRITE "SIN TOPE". DO NOT CHANGE IT TO NUMBERS.
+                - IF A VALUE IS BLANK, WRITE BLANK.
+                - DO NOT "HELP" BY FILLING IN GAPS.
+
                 TOTAL PAGES IN DOCUMENT: ${pageCount || 'Unknown'}
                 ${isBillOnly ? 'TARGET: You must ONLY project the "CUENTA HOSPITALARIA" (the bill/account breakdown). IGNORE medical records, clinical logs, or consent forms.' : 'YOU MUST PROCESS EVERY SINGLE PAGE. DO NOT SKIP ANY CONTENT.'}
                 
                 ========================================
-                🎯 PROTOCOLO KINDERGARTENER PARA TABLAS (OBLIGATORIO)
+                🎯 PROTOCOLO "CALCO PERFECTO" (ZERO CREATIVITY)
                 ========================================
                 
-                **PASO 1: ANÁLISIS DE FRONTERA (ENCABEZADO vs CUERPO)**
+                **PASO 1: FIDELIDAD VISUAL ABSOLUTA**
+                - Copia EXACTAMENTE lo que ves. No corrijas ortografía. No interpretes siglas.
+                - Si la tabla tiene 4 columnas, tu HTML tiene 4 columnas.
+                - Si una celda dice "-", escribe "-". No escribas "N/A" ni "No aplica".
+                
+                **PASO 2: ANÁLISIS DE FRONTERA (ENCABEZADO vs CUERPO)**
                 - Identifica visualmente dónde termina el encabezado y comienzan los datos.
                 - NUNCA mezcles texto del encabezado dentro de las filas de datos.
                 - Si el encabezado tiene varias filas de alto, agrúpalas todas en el elemento thead.
