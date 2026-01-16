@@ -1,0 +1,48 @@
+@media print {
+    @page {
+        size: auto;
+        margin: 10mm;
+    }
+
+    body {
+        background-color: white !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Force hide specific UI elements but KEEP chat */
+    header,
+    footer,
+    .logs-panel,
+    .actions-bar {
+        display: none !important;
+    }
+
+    /* Force Report visibility */
+    #audit-report-content {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+
+    /* Force Chat visibility */
+    #chat-container {
+        display: block !important;
+        position: static !important;
+        /* Disable sticky */
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        margin-top: 20px !important;
+        page-break-before: always;
+        /* Start chat on new page */
+    }
+
+    #chat-container * {
+        overflow: visible !important;
+        /* Expand scrollable areas */
+        max-height: none !important;
+    }
+}

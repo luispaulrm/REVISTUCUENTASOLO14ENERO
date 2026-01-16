@@ -1,3 +1,4 @@
+import '../print.css';
 import React, { useState, useEffect, useRef } from 'react';
 import {
     Gavel,
@@ -318,7 +319,7 @@ export default function ForensicApp() {
             <main className="flex-grow max-w-[1800px] mx-auto w-full p-3 sm:p-6 lg:p-10">
                 {status === 'IDLE' && (
                     <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 print:hidden">
                             <DataStatusCard title="Cuenta Clínica" icon={<FileText size={20} className="sm:w-6 sm:h-6" />} ready={hasBill} desc="Detalle de gastos" onDelete={clearBill} />
                             <DataStatusCard title="PAM (Isapre)" icon={<ShieldCheck size={20} className="sm:w-6 sm:h-6" />} ready={hasPam} desc="Bonificaciones" onDelete={clearPam} />
                             <DataStatusCard title="Reglas Contrato" icon={<Scale size={20} className="sm:w-6 sm:h-6" />} ready={hasContract} desc="(Legacy) Coberturas" onDelete={clearContract} />
@@ -357,7 +358,7 @@ export default function ForensicApp() {
                 {status === 'PROCESSING' && (
                     <div className="max-w-[1800px] mx-auto py-2 sm:py-6 animate-in fade-in slide-in-from-bottom-8 duration-700 flex flex-col lg:flex-row gap-4 sm:gap-6">
                         {/* LEFT COLUMN: LOGS (Responsive) */}
-                        <div className="w-full lg:w-[70%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden h-[400px] sm:h-[500px] lg:h-[600px] flex flex-col relative order-2 lg:order-1">
+                        <div className="w-full lg:w-[70%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden h-[400px] sm:h-[500px] lg:h-[600px] flex flex-col relative order-2 lg:order-1 print:hidden">
                             <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                                 <div className="flex items-center gap-2">
                                     <Terminal size={14} className="text-slate-400" />
@@ -376,12 +377,12 @@ export default function ForensicApp() {
                         </div>
 
                         {/* RIGHT COLUMN: CHAT (Responsive) */}
-                        <div className="w-full lg:w-[30%] order-1 lg:order-2">
+                        <div className="w-full lg:w-[30%] order-1 lg:order-2 print:hidden">
                             <InterrogationZone auditResult={auditResult} compactMode={false} responsiveHeight={true} />
                         </div>
 
                         {/* FOOTER METRICS (Fixed at bottom) */}
-                        <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 h-16 sm:h-20 flex items-center justify-between px-4 sm:px-8 shadow-2xl">
+                        <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 h-16 sm:h-20 flex items-center justify-between px-4 sm:px-8 shadow-2xl print:hidden">
                             <div className="flex gap-4 sm:gap-8 overflow-x-auto no-scrollbar">
                                 <div><p className="text-[8px] sm:text-[9px] text-slate-500 uppercase font-black">Time</p><p className="font-mono text-sm sm:text-xl font-black">T+{formatTime(seconds)}</p></div>
                                 <div><p className="text-[8px] sm:text-[9px] text-slate-500 uppercase font-black">Payload</p><p className="font-mono text-sm sm:text-xl font-black text-slate-300">{realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}</p></div>
@@ -396,8 +397,8 @@ export default function ForensicApp() {
                     <div className="max-w-[1800px] mx-auto animate-in fade-in slide-in-from-bottom-6 duration-700">
                         <div className="flex flex-col xl:flex-row gap-6 sm:gap-8 items-start">
                             {/* LEFT COLUMN: AUDIT RESULTS (Responsive) */}
-                            <div className="w-full xl:w-[70%] space-y-6 sm:space-y-10 order-2 xl:order-1">
-                                <div id="audit-report-content" className="bg-white p-5 sm:p-10 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm space-y-6 sm:space-y-10">
+                            <div className="w-full xl:w-[70%] space-y-6 sm:space-y-10 order-2 xl:order-1 print:w-full">
+                                <div id="audit-report-content" className="bg-white p-5 sm:p-10 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm space-y-6 sm:space-y-10 print:shadow-none print:border-none print:p-0">
                                     <div className="flex flex-col gap-6 border-b border-slate-100 pb-6 sm:pb-10">
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-3 sm:space-y-4 max-w-2xl">
@@ -408,25 +409,11 @@ export default function ForensicApp() {
                                                 <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">{auditResult.resumenEjecutivo}</p>
                                             </div>
                                             <button
-                                                onClick={() => {
-                                                    // @ts-ignore
-                                                    import('html2pdf.js').then(html2pdf => {
-                                                        const element = document.getElementById('audit-report-content');
-                                                        const opt = {
-                                                            margin: 10, // top, left, bottom, right
-                                                            filename: `Auditoria_Forense_${new Date().getTime()}.pdf`,
-                                                            image: { type: 'jpeg' as const, quality: 0.98 },
-                                                            html2canvas: { scale: 2, useCORS: true, logging: false },
-                                                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                                                            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-                                                        };
-                                                        html2pdf.default().set(opt).from(element).save();
-                                                    });
-                                                }}
-                                                className="shrink-0 p-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2 text-xs font-bold uppercase tracking-wider"
-                                                title="Descargar Reporte PDF"
+                                                onClick={() => window.print()}
+                                                className="shrink-0 p-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2 text-xs font-bold uppercase tracking-wider print:hidden"
+                                                title="Imprimir o Guardar como PDF"
                                             >
-                                                <Download size={16} /> <span className="hidden sm:inline">PDF</span>
+                                                <Printer size={16} /> <span className="hidden sm:inline">IMPRIMIR / PDF</span>
                                             </button>
                                         </div>
                                         <div className="bg-slate-950 p-5 sm:p-6 rounded-2xl text-white w-full sm:w-fit self-start sm:min-w-[250px]">
@@ -511,7 +498,7 @@ export default function ForensicApp() {
                             </div>
 
                             {/* RIGHT COLUMN: CHAT (Responsive - Sticky only on Desktop) */}
-                            <div className="w-full xl:w-[30%] xl:sticky xl:top-24 h-fit order-1 xl:order-2">
+                            <div id="chat-container" className="w-full xl:w-[30%] xl:sticky xl:top-24 h-fit order-1 xl:order-2">
                                 <InterrogationZone auditResult={auditResult} compactMode={true} responsiveHeight={true} />
                             </div>
                         </div>
