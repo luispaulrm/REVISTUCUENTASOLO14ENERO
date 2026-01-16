@@ -14,21 +14,21 @@ export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
 
     // Clear session data on refresh (mount)
-    React.useEffect(() => {
-        const hasData = localStorage.getItem('clinic_audit_result') ||
-            localStorage.getItem('pam_audit_result') ||
-            localStorage.getItem('contract_audit_result') ||
-            localStorage.getItem('html_projection_result');
+    // Clear session data on refresh (mount) - DISABLED FOR PERSISTENCE
+    // React.useEffect(() => {
+    //     const hasData = localStorage.getItem('clinic_audit_result') ||
+    //         localStorage.getItem('pam_audit_result') ||
+    //         localStorage.getItem('contract_audit_result') ||
+    //         localStorage.getItem('html_projection_result');
 
-        if (hasData) {
-            console.log('[System] 🧹 Limpiando sesión anterior por refresh...');
-            localStorage.removeItem('clinic_audit_result');
-            localStorage.removeItem('pam_audit_result');
-            localStorage.removeItem('contract_audit_result');
-            localStorage.removeItem('html_projection_result');
-            // We don't verify here, just wipe to ensure clean slate on F5
-        }
-    }, []);
+    //     if (hasData) {
+    //         console.log('[System] ℹ️ Sesión anterior detectada y preservada.');
+    //         // localStorage.removeItem('clinic_audit_result');
+    //         // localStorage.removeItem('pam_audit_result');
+    //         // localStorage.removeItem('contract_audit_result');
+    //         // localStorage.removeItem('html_projection_result');
+    //     }
+    // }, []);
 
     const handleTabChange = (tab: DocumentType) => {
         setActiveTab(tab);

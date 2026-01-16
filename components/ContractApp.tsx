@@ -70,6 +70,30 @@ export default function ContractApp() {
         const file = event.target.files?.[0];
         if (!file) return;
 
+        // Smart Cache Check
+        try {
+            const cached = JSON.parse(localStorage.getItem('contract_audit_result') || 'null');
+            const cachedFingerprint = localStorage.getItem('contract_audit_file_fingerprint'); // { name, size }
+
+            if (cached && cachedFingerprint) {
+                const fingerprint = JSON.parse(cachedFingerprint);
+                if (fingerprint.name === file.name && fingerprint.size === file.size) {
+                    addLog(`[SISTEMA] ⚡ Contrato '${file.name}' ya encontrado en memoria. Carga instantánea.`);
+                    setContractResult(cached);
+                    setFileName(file.name);
+                    setStatus(AppStatus.SUCCESS);
+
+                    // Asegurar métricas visuales si existen en caché
+                    if (cached.usage) {
+                        setRealTimeUsage(cached.usage);
+                    }
+                    return;
+                }
+            }
+        } catch (e) {
+            console.warn('Cache check failed', e);
+        }
+
         setStatus(AppStatus.UPLOADING);
         setError(null);
         setContractResult(null);
@@ -134,7 +158,7 @@ export default function ContractApp() {
                     // Asegurar que las métricas finales se incluyan en el objeto
                     const finalData = {
                         ...result.data,
-                        usage: result.usage || (result.data as any).metrics?.tokenUsage
+                        usage: result.usage || (result.data as any).metrics?.tokenUsage || realTimeUsage // Fallback to accumulated usage
                     };
 
                     setContractResult(finalData);
@@ -143,6 +167,8 @@ export default function ContractApp() {
                     // Persistir el contrato para auditoría cruzada (con protección de cuota)
                     try {
                         localStorage.setItem('contract_audit_result', JSON.stringify(finalData));
+                        // SAVE FINGERPRINT
+                        localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify({ name: file.name, size: file.size }));
                         addLog('[SISTEMA] ✅ Contrato persistido localmente para auditoría cruzada.');
                     } catch (storageErr) {
                         addLog('[SISTEMA] ⚠️ No se pudo persistir en localStorage (posible límite excedido), pero el análisis es válido.');

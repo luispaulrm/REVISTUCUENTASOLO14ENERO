@@ -143,8 +143,42 @@ export default function PAMApp() {
             })
         );
 
-        setFileQueue(queue);
-        processQueue(queue);
+        // Smart Cache Check
+        const queueToProcess = await Promise.all(queue.map(async (item) => {
+            // Check if this specific file result is already cached to avoid re-processing
+            if (hasCache) {
+                try {
+                    const cached = JSON.parse(localStorage.getItem('pam_audit_result') || 'null');
+                    const cachedFingerprint = localStorage.getItem('pam_audit_file_fingerprint'); // { name, size }
+
+                    if (cached && cachedFingerprint) {
+                        const fingerprint = JSON.parse(cachedFingerprint);
+                        // Strict check: Name + Size must match
+                        if (fingerprint.name === item.file.name && fingerprint.size === item.file.size && !processingLockRef.current) {
+                            addLog(`[SISTEMA] ⚡ Archivo PAM '${item.file.name}' ya encontrado en memoria. Carga instantánea.`);
+
+                            // If it's a match, we update the state immediately
+                            setPamResult(cached);
+                            setHasCache(true);
+                            setStatus(AppStatus.SUCCESS);
+
+                            return { ...item, status: 'done' as const, result: cached };
+                        }
+                    }
+                } catch (e) { }
+            }
+            return item;
+        }));
+
+        setFileQueue(queueToProcess);
+
+        const remainingToProcess = queueToProcess.filter(i => i.status !== 'done');
+        if (remainingToProcess.length === 0) {
+            addLog('[SISTEMA] 🎉 Carga PAM desde memoria completada.');
+            return;
+        }
+
+        processQueue(queueToProcess);
     };
 
     const processQueue = async (queue: typeof fileQueue) => {
@@ -156,6 +190,12 @@ export default function PAMApp() {
         processingLockRef.current = true;
         for (let i = 0; i < queue.length; i++) {
             const queueItem = queue[i];
+
+            // SKIP IF ALREADY DONE (Optimized Cache)
+            if (queueItem.status === 'done') {
+                continue;
+            }
+
             setCurrentFileIndex(i);
             setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'processing' } : item));
 
@@ -253,6 +293,8 @@ export default function PAMApp() {
                     if (current) {
                         try {
                             localStorage.setItem('pam_audit_result', JSON.stringify(current));
+                            // SAVE FINGERPRINT
+                            localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify({ name: queueItem.file.name, size: queueItem.file.size }));
                         } catch (e) {
                             console.warn('Failed to save PAM result to localStorage:', e);
                         }

@@ -151,8 +151,49 @@ const App: React.FC = () => {
     setFileQueue(queue);
     setStatus(AppStatus.UPLOADING);
 
-    // Start processing queue
-    processQueue(queue);
+    // Start processing queue (checking cache first)
+    // Start processing queue (checking cache first)
+    const queueToProcess = await Promise.all(queue.map(async (item) => {
+      // Check if this specific file result is already cached to avoid re-processing
+      if (hasCache) {
+        try {
+          const cached = JSON.parse(localStorage.getItem('clinic_audit_result') || 'null');
+          const cachedFingerprint = localStorage.getItem('clinic_audit_file_fingerprint'); // { name, size }
+
+          if (cached && cachedFingerprint) {
+            const fingerprint = JSON.parse(cachedFingerprint);
+            // Check if file matches fingerprint AND we are not currently processing something else
+            if (fingerprint.name === item.file.name && fingerprint.size === item.file.size && !processingLockRef.current) {
+              addLog(`[SISTEMA] ⚡ Archivo '${item.file.name}' ya encontrado en memoria. Carga instantánea.`);
+              setResult(cached);
+              setHasCache(true);
+              setStatus(AppStatus.SUCCESS);
+
+              // Mark as done in queue visibly
+              return { ...item, status: 'done' as const, result: cached };
+            }
+          }
+        } catch (e) {
+          console.warn('Cache check failed', e);
+        }
+      }
+      return item;
+    }));
+
+    // Filter out items that were just marked as done from the "to process" list? 
+    // Actually processQueue expects the full queue but might re-process. 
+    // Let's optimize: only process items that are NOT 'done'.
+
+    setFileQueue(queueToProcess);
+
+    const remainingToProcess = queueToProcess.filter(i => i.status !== 'done');
+    if (remainingToProcess.length === 0) {
+      addLog('[SISTEMA] 🎉 Carga desde memoria completada.');
+      return;
+    }
+
+    processQueue(queueToProcess); // We need to be careful, processQueue iterates all. 
+    // Let's modify processQueue to skip 'done' items.
   };
 
   const processQueue = async (queue: typeof fileQueue) => {
@@ -164,6 +205,12 @@ const App: React.FC = () => {
     processingLockRef.current = true;
     for (let i = 0; i < queue.length; i++) {
       const queueItem = queue[i];
+
+      // SKIP IF ALREADY DONE (Optimized Cache)
+      if (queueItem.status === 'done') {
+        continue;
+      }
+
       setCurrentFileIndex(i);
       setFileQueue(prev => prev.map((item, idx) => idx === i ? { ...item, status: 'processing' } : item));
 
@@ -190,9 +237,10 @@ const App: React.FC = () => {
         // Add to history
         setResultsHistory(prev => [...prev, { fileName: queueItem.file.name, result: data }]);
 
-        // Save last result for cross-audit
+        // Save last result for cross-audit AND FINGERPRINT
         try {
           localStorage.setItem('clinic_audit_result', JSON.stringify(data));
+          localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify({ name: queueItem.file.name, size: queueItem.file.size }));
         } catch (e) {
           console.warn('Failed to save to localStorage:', e);
         }
