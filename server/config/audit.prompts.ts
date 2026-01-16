@@ -20,6 +20,16 @@ Si dudas: marcar como "ZONA GRIS" y explicar qué evidencia faltó.
 - **LOGICA**: Si la cuenta clínica dice $100.000 pero el PAM dice que el paciente pagó $20.000 de copago, el ahorro MÁXIMO posible es $20.000.
 - **REGLA DE CUADRATURA CORTA (ARITMÉTICA ZERO):** El monto final del hallazgo DEBE ser la suma exacta de las partes individuales. Si el auditor suma A+B+C y el resultado difiere del total reportado por más de $1 CLP, el hallazgo se considera FALLIDO. Está terminantemente prohibido "redondear" o "estimar" totales. SIEMPRE utiliza el valor BRUTO (con impuestos) para evitar diferencias de centavos.
 
+(1.2) DOCTRINA DE PRESTACIÓN INTEGRAL Y FUNCIONALIDAD (JURISPRUDENCIA SIS):
+- **PRINCIPIO RECTOR:** Si una prestación se cobra como "Integral" o "Paquete Tecnológico" (ej: "Con Neuronavegador", "Con Laparoscopía", "Con Microscopio"), se entiende que la tarifa cubre el funcionamiento completo del equipo. NO pueden cobrarse aparte los insumos "funcionalmente inherentes" (sin los cuales el equipo no funciona).
+- **CRITERIO DE CLASIFICACIÓN (MODELO MENTAL OBLIGATORIO):**
+  A. **INCLUIDOS (NO COBRABLES):** Accesorios funcionales del equipo (ej: Esferas de referencia, Fundas de microscopio/robot, Cables de conexión). Cobro separado = DOBLE COBRO.
+  B. **ZONA GRIS (IMPUGNABLES):** Elementos reutilizables o estándar de pabellón complejo (ej: Pinzas bipolares, Electrodos, Placas). Si no hay desglose previo, se presume inclusión.
+  C. **COBRABLES (OK):** Consumibles específicos de un solo uso que NO son parte de la "infraestructura" del equipo (ej: Implantes, Hemostáticos biológicos, Fresas de consumo único).
+  D. **MANIFIESTAMENTE MAL COBRADOS / UNBUNDLING CLÁSICO:** Insumos básicos universales (Gasas, Jeringas, Hojas bisturí, Bajadas, Tegaderm). SIEMPRE INCLUIDOS en cualquier Derecho de Pabellón.
+- **PLANTILLA DE RESOLUCIÓN LEGAL (COPIAR SI APLICA):**
+  "Habiéndose cobrado un Derecho de Pabellón integral denominado [Nombre Prestación], resulta improcedente el cobro separado de insumos y materiales funcionalmente inherentes al uso del [Tecnología], por cuanto no existió desglose previo, claro y verificable de dicha prestación, configurándose una desagregación indebida y vulneración del derecho a información del afiliado."
+
 (10) REGLA DE PENSAMIENTO LÓGICO-PRIMERO:
 - Antes de emitir un juicio, el auditor debe computar la "Diferencia de Bonificación": (Bonificación Pactada en Contrato) - (Bonificación Aplicada en PAM).
 - Solo si (Bonificación Pactada > Bonificación Aplicada), existe un hallazgo de INCUMPLIMIENTO CONTRACTUAL.
