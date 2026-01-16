@@ -816,6 +816,10 @@ function MarkdownRenderer({ content }: { content: string }) {
     // --- ULTRA-ROBUST PRE-PROCESSING ---
     let processedContent = content;
 
+    // 0. SAD FIX: Remove AI pagination artifacts (e.g. "...851", "...852", "...")
+    // This effectively hides the "split" markers the AI hallucinates
+    processedContent = processedContent.replace(/^\s*\.{3,}\d*\s*$/gm, '');
+
     // 1. Unstick tables from headings (e.g., "VIII. Trazabilidad: | Col 1 |")
     processedContent = processedContent.replace(/(:\s*)(\|)/g, '$1\n$2');
 
@@ -829,16 +833,11 @@ function MarkdownRenderer({ content }: { content: string }) {
     // 4. Force newline before any table starting in middle of line
     processedContent = processedContent.replace(/([^\n])(\|)/g, '$1\n$2');
 
-    // 5. Detect and Fix "Vertical Key-Value Tables" (New Issue)
-    // Sometimes traceability comes as:
-    // | Folio |
-    // | 7000... |
-    // | Código |
-    // | 310... |
-    // We want to detect this pattern of single-column stacks and potentially reformat or at least clean them.
-    // For now, we will ensure that double-newlines between single-pipe lines are removed to keep them together.
-    processedContent = processedContent.replace(/(\|.*)\n\n(\|.*)/g, '$1\n$2');
-    processedContent = processedContent.replace(/(\|.*)\n\n(\|.*)/g, '$1\n$2'); // Run twice for triple gaps
+    // 5. Detect and Fix "Vertical Key-Value Tables" AND remove gaps between table rows
+    // We aggressively remove newlines between pipe-lines to merge them into a single table block
+    // This fixes the "Elongated Table" issue where empty lines or artifacts broke the table into many small tables
+    processedContent = processedContent.replace(/(\|.*)\n+?(\|.*)/g, '$1\n$2');
+    processedContent = processedContent.replace(/(\|.*)\n+?(\|.*)/g, '$1\n$2'); // Run twice for triple gaps
 
     const rawLines = processedContent.split('\n');
     const elements: React.ReactNode[] = [];
@@ -855,12 +854,21 @@ function MarkdownRenderer({ content }: { content: string }) {
         );
 
         const header = dataRows[0];
-        let bodyStartIndex = 1;
 
-        // Skip separator row if it exists
-        if (dataRows[1] && dataRows[1].some(cell => cell.match(/^[-: ]+$/))) {
-            bodyStartIndex = 2;
-        }
+        // FILTERING LOGIC: Remove internal headers/separators if we merged multiple tables
+        const filteredBodyRows = dataRows.slice(1).filter(row => {
+            // 1. Filter out separators (only dashes/colons/spaces)
+            const isSeparator = row.every(cell => /^[-: ]+$/.test(cell) || cell === '');
+            if (isSeparator) return false;
+
+            // 2. Filter out repeated headers (identical logic to header row)
+            const isRepeatedHeader = JSON.stringify(row) === JSON.stringify(header);
+            if (isRepeatedHeader) return false;
+
+            return true;
+        });
+
+        // Skip rendering if body is empty (unless it's just a 1-row table, but that's rare/headers only)
 
         return (
             <div key={key} className="my-4 overflow-x-auto rounded-xl border border-slate-200 shadow-sm transition-all duration-300">
@@ -875,7 +883,7 @@ function MarkdownRenderer({ content }: { content: string }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
-                        {dataRows.slice(bodyStartIndex).map((row, i) => (
+                        {filteredBodyRows.map((row, i) => (
                             <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
                                 {header.map((_, j) => (
                                     <td key={j} className="px-4 py-2.5 border-r border-slate-50 last:border-r-0 font-mono text-[11px] text-slate-700 whitespace-pre-wrap align-top">
