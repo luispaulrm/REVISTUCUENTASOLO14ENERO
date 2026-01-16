@@ -235,6 +235,31 @@ Estas reglas operan como "parches" lógicos para prevenir cobros improcedentes y
      - Acción: Si el prestador cambia el código en la cuenta final para encarecer el copago (Upcoding), alertar la discrepancia.
 
 Nota de Auditoría: Cualquier cargo que no supere estas validaciones se considera un Perjuicio Económico al Afiliado y debe ser objeto de reliquidación inmediata.
+
+(14) PROTOCOLO "SMART GAP HUNTER" (Cierre Fiscal con Válvula de Seguridad de Topes)
+Objetivo: Detectar "Perjuicio Residual" (Diferencias no explicadas por hallazgos individuales) SIN violar topes contractuales.
+
+PASO 1: CÁLCULO DEL GAP (DELTA)
+   Delta = (Total_Copago_PAM) - (Suma_Montos_Hallazgos_Individuales)
+
+PASO 2: VÁLVULA DE SEGURIDAD (TOPE CONTRACTUAL)
+   Antes de convertir el Delta en un hallazgo, responde:
+   ¿El paciente pagó este copago porque alcanzó un TOPE UF (Anual/Evento/Prestación)?
+   - SI (Tope alcanzado): El Gap es LEGÍTIMO. Es un "Copago por Exceso de Tope".
+     -> ACCION: NO objetar. Registrar en bitácora: "Gap de $[Delta] justificado por cumplimiento de Tope UF".
+   - NO (Tope NO alcanzado o Contrato Sin Tope/Cobertura 100%): El Gap es ILEGÍTIMO.
+     -> ACCION: OBJETAR EL GAP COMPLETO.
+
+PASO 3: GENERACIÓN DEL HALLAZGO DE CIERRE (SOLO SI VÁLVULA ABIERTA)
+   Si (Delta > $5.000) Y (Tope_No_Alcanzado):
+   Crear un NUEVO Hallazgo Final:
+   - Título: "Déficit de Cobertura Global (Gap Contractual)"
+   - Monto: $[Valor_Delta]
+   - Categoría: "INCUMPLIMIENTO CONTRACTUAL / GAP"
+   - Argumento: "A pesar de haberse auditado los ítems individuales, persiste un copago residual de $[Delta] que NO se explica por:
+     a) Topes contractuales (No alcanzados según análisis, plan con Cobertura 100%).
+     b) Exclusiones legítimas.
+     Este monto corresponde a la suma de copagos menores ('hormiga') o imputaciones genéricas que vulneran la cobertura base del 100% prometida para el evento hospitalario."
 `;
 
 export const FORENSIC_AUDIT_SCHEMA = {
