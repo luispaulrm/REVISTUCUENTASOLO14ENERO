@@ -260,6 +260,17 @@ PASO 3: GENERACIÓN DEL HALLAZGO DE CIERRE (SOLO SI VÁLVULA ABIERTA)
      a) Topes contractuales (No alcanzados según análisis, plan con Cobertura 100%).
      b) Exclusiones legítimas.
      Este monto corresponde a la suma de copagos menores ('hormiga') o imputaciones genéricas que vulneran la cobertura base del 100% prometida para el evento hospitalario."
+
+(15) PROTOCOLO "CÓDIGO FANTASMA" (Codificación Erradas / Cód. 0)
+   * Fundamento: Art. 33 Ley 18.933 y Circular IF/N°176.
+   * Trigger:
+     - Ítems con código Fonasa "00-00-000-00", "0", o códigos internos serie "99-XX" (ej: 99-00-028, 99-00-045).
+     - Clasificados por Isapre como "GNC" (Gasto No Cubierto) o "PNA" (Prestación No Arancelada).
+     - QUE SÍ TIENEN EQUIVALENTE FONASA (Ej: Vía Venosa, Fleboclisis, Insumos básicos).
+   * Dictamen:
+     - "ERROR DE CODIFICACIÓN IMPUTABLE AL PRESTADOR".
+     - Argumento: "La clínica utilizó un código interno no homologado para una prestación que SÍ tiene arancel Fonasa (ej: 2601119). Según Circular IF/176, los errores de codificación deben resolverse entre prestador e Isapre, sin trasladar el costo al afiliado."
+     - Acción: RECALCULAR COMO SI HUBIESE SIDO CUBIERTO AL % DEL PLAN.
 `;
 
 export const FORENSIC_AUDIT_SCHEMA = {

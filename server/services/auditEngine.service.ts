@@ -286,6 +286,151 @@ export async function performForensicAudit(
         }
 
         const usage = result.response.usageMetadata;
+
+        // --- POST-PROCESSING: DETERMINISTIC GAP RECONCILIATION ---
+        try {
+            const pamTotalCopago = pamJson?.global?.totalCopagoDeclarado || pamJson?.resumenTotal?.totalCopago || 0;
+
+            const parseAmount = (val: any) => {
+                if (typeof val === 'number') return val;
+                if (typeof val === 'string') return parseInt(val.replace(/[^0-9-]/g, ''), 10) || 0;
+                return 0;
+            };
+
+            const numericTotalCopago = parseAmount(pamTotalCopago);
+
+            if (numericTotalCopago > 0 && Array.isArray(auditResult.hallazgos)) {
+                const sumFindings = auditResult.hallazgos.reduce((sum: number, h: any) => sum + (h.montoObjetado || 0), 0);
+                const gap = numericTotalCopago - sumFindings;
+
+                // Threshold: $5000 CLP
+                if (gap > 5000) {
+                    log(`[AuditEngine] 🚨 GAP DETECTADO: $${gap} (Total: $${numericTotalCopago} - Hallazgos: $${sumFindings})`);
+
+                    // 1. SCAN FOR ORPHANED ITEMS (The "Ghost Code Hunter")
+                    const orphanedItems: any[] = [];
+                    let remainingGap = gap;
+
+                    if (pamJson && pamJson.folios) {
+                        for (const folio of pamJson.folios) {
+                            if (folio.desglosePorPrestador) {
+                                for (const prestador of folio.desglosePorPrestador) {
+                                    if (prestador.items) {
+                                        for (const item of prestador.items) {
+                                            const itemCopago = parseAmount(item.copago);
+                                            // Heuristic: If item has copay > 0 AND fits within the gap AND is likely a "Ghost Code" (00-00-000-00 or 99-XX)
+                                            // We prioritize these as the culprits.
+                                            if (itemCopago > 0 && itemCopago <= (remainingGap + 500)) {
+                                                const isCode0 = item.codigo?.includes('00-00-000') || item.codigo?.startsWith('0') || item.codigo?.startsWith('99-');
+                                                const description = (item.descripcion || '').toUpperCase();
+                                                const isGeneric = description.includes('INSUMO') || description.includes('MATERIAL') || description.includes('VARIO');
+
+                                                // Check if this item was already "caught" (approximate match by amount/code)
+                                                const alreadyCaught = auditResult.hallazgos.some((h: any) =>
+                                                    (h.montoObjetado === itemCopago) ||
+                                                    (h.codigos && h.codigos.includes(item.codigo))
+                                                );
+
+                                                if (!alreadyCaught && (isCode0 || isGeneric)) {
+                                                    orphanedItems.push(item);
+                                                    remainingGap -= itemCopago;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // 2. ASSIGN GAP TO ORPHANS (Traceability)
+                    if (orphanedItems.length > 0) {
+                        log(`[AuditEngine] 🕵️‍♂️ Ítems Huérfanos encontrados: ${orphanedItems.length}`);
+
+                        orphanedItems.forEach(item => {
+                            const monto = parseAmount(item.copago);
+                            auditResult.hallazgos.push({
+                                codigos: item.codigo || "SIN-CODIGO",
+                                glosa: item.descripcion || "ÍTEM SIN DESCRIPCION",
+                                hallazgo: `
+**I. Identificación del ítem cuestionado**
+Se cuestiona el cobro de **$${monto.toLocaleString('es-CL')}** asociado a la prestación codificada como "${item.codigo}".
+
+**II. Contexto clínico y administrativo**
+Este ítem aparece con copago positivo en el PAM pero no cuenta con bonificación adecuada ni código arancelario estándar (Código Fantasma/0), generando una "fuga de cobertura" silenciosa.
+
+**III. Norma contractual aplicable**
+Según Circular IF/N°176 y Art. 33 Ley 18.933, los errores de codificación o el uso de códigos internos (no homologados) por parte del prestador NO pueden traducirse en copagos para el afiliado. La Isapre debe cubrir la prestación al 100% (Plan Pleno) asimilándola al código Fonasa más cercano (ej: Vía Venosa, Insumos de Pabellón).
+
+**IV. Forma en que se materializa la controversia**
+Se configura un **Error de Codificación Imputable al Prestador**. La clínica utilizó un código interno (99-XX o 00-00) que la Isapre rechazó o bonificó parcialmente como "No Arancelado", cuando en realidad corresponde a insumos/procedimientos cubiertos.
+
+**VI. Efecto económico concreto**
+El afiliado paga $${monto.toLocaleString('es-CL')} indebidamente por un error administrativo de catalogación.
+
+**VII. Conclusión de la impugnación**
+Se solicita la re-liquidación total de este ítem bajo el principio de homologación y cobertura integral.
+
+**VIII. Trazabilidad y Origen del Cobro**
+Anclaje exacto en PAM: Ítem "${item.descripcion}" (Copago: $${monto}).
+                                 `,
+                                montoObjetado: monto,
+                                normaFundamento: "Circular IF/176 (Errores de Codificación) y Ley 18.933",
+                                anclajeJson: `PAM_AUTO_DETECT: ${item.codigo}`
+                            });
+                            auditResult.totalAhorroDetectado = (auditResult.totalAhorroDetectado || 0) + monto;
+                        });
+
+                        // If there is still a residual gap, create a smaller generic finding
+                        if (remainingGap > 5000) {
+                            // ... (Add generic finding logic for remainingGap if needed, or ignore if small)
+                            log(`[AuditEngine] ⚠️ Aún queda un gap residual de $${remainingGap} no asignable a ítems específicos.`);
+                        }
+
+                    } else {
+                        // 3. FALLBACK TO GENERIC GAP (If no orphans found)
+                        auditResult.hallazgos.push({
+                            codigos: "GAP_RECONCILIATION",
+                            glosa: "DIFERENCIA NO EXPLICADA (DÉFICIT DE COBERTURA)",
+                            hallazgo: `
+**I. Identificación del ítem cuestionado**
+Se detecta un monto residual de **$${gap.toLocaleString('es-CL')}** que no fue cubierto por la Isapre.
+
+**II. Contexto clínico y administrativo**
+Diferencia aritmética entre Copago Total ($${numericTotalCopago.toLocaleString('es-CL')}) y Hallazgos Auditados ($${sumFindings.toLocaleString('es-CL')}).
+
+**III. Norma contractual aplicable**
+El plan (cobertura preferente) no debería generar copagos residuales salvo Topes Contractuales alcanzados o Exclusiones legítimas.
+
+**IV. Forma en que se materializa la controversia**
+Existe un **Déficit de Cobertura Global**. Si este monto de $${gap.toLocaleString('es-CL')} corresponde a prestaciones no aranceladas, debe ser acreditado. De lo contrario, se presume cobro en exceso por falta de bonificación integral.
+
+**VI. Efecto económico concreto**
+Costo adicional de $${gap.toLocaleString('es-CL')} sin justificación.
+
+**VII. Conclusión de la impugnación**
+Se objeta este remanente por falta de transparencia.
+
+**VIII. Trazabilidad y Origen del Cobro**
+| Concepto | Monto |
+| :--- | :--- |
+| Copago Total PAM | $${numericTotalCopago.toLocaleString('es-CL')} |
+| (-) Suma Hallazgos | -$${sumFindings.toLocaleString('es-CL')} |
+| **= GAP (DIFERENCIA)** | **$${gap.toLocaleString('es-CL')}** |
+                            `,
+                            montoObjetado: gap,
+                            normaFundamento: "Principio de Cobertura Integral y Transparencia (Ley 20.584)",
+                            anclajeJson: "CÁLCULO_AUTOMÁTICO_SISTEMA"
+                        });
+                        auditResult.totalAhorroDetectado = (auditResult.totalAhorroDetectado || 0) + gap;
+                        log('[AuditEngine] ✅ GAP GENÉRICO inyectado (no se encontraron ítems huérfanos específicos).');
+                    }
+                }
+            }
+        } catch (gapError: any) {
+            const errMsg = gapError?.message || String(gapError);
+            log(`[AuditEngine] ⚠️ Error en cálculo de Gap: ${errMsg}`);
+        }
         log('[AuditEngine] ✅ Auditoría forense completada.');
 
         return {

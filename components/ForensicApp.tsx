@@ -803,16 +803,23 @@ function InterrogationZone({ auditResult, compactMode = false, responsiveHeight 
 function MarkdownRenderer({ content }: { content: string }) {
     if (!content) return null;
 
-    // Fix for tables where newlines are lost and rows are joined by '||'
-    // This happens sometimes with LLM output or storage round-trips
+    // ROBUST PRE-PROCESSING FOR BROKEN TABLES
     let processedContent = content;
-    if (content.includes('|') && (content.includes('||') || !content.includes('\n'))) {
-        // Ensure separator row starts on new line
-        processedContent = processedContent
-            .replace(/\|\|/g, '|\n|')
-            .replace(/\|\s*:---/g, '|\n:---') // Fix start of separator if not caught by ||
-            .replace(/\|\s*---/g, '|\n---');
+
+    // 1. Fix "Squashed Tables" (Single line tables like "| Head | Val || Head2 | Val2 |")
+    // Replace "||" with "|\n|" to force new row, but only if it looks like a table row end/start
+    if (processedContent.includes('||')) {
+        processedContent = processedContent.replace(/\|\|/g, '|\n|');
     }
+
+    // 2. Fix "Missing Newlines after Separators"
+    // e.g. "| Col A | Col B |---|---|" -> "| Col A | Col B |\n|---|---|"
+    // We look for patterns where a pipe is immediately followed by a dash sequence
+    processedContent = processedContent.replace(/\|(\s*:?-+:?\s*\|)/g, '|\n$1');
+
+    // 3. Fix "Missing Newline before Header"
+    // Sometimes text merges with table: "Here is table:| Col 1 |" -> "Here is table:\n| Col 1 |"
+    processedContent = processedContent.replace(/([^\n])(\|.*\|)/g, '$1\n$2');
 
     const lines = processedContent.split('\n');
     const elements: React.ReactNode[] = [];
@@ -820,38 +827,44 @@ function MarkdownRenderer({ content }: { content: string }) {
     let processingTable = false;
 
     const renderTable = (rows: string[], key: number) => {
-        if (rows.length < 2) return null; // Need at least header + separator or header + body
+        // Filter empty rows or purely separator rows that got detached
+        const validRows = rows.filter(r => r.trim().replace(/\|/g, '').length > 0);
+        if (validRows.length < 2) return null;
 
         // Parse header
-        const headerRow = rows[0].replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+        const headerRow = validRows[0].split('|').filter(c => c.trim() !== '').map(c => c.trim());
 
-        // Check if second row is separator (---|---), if so skip it
-        let startIndex = 1;
-        if (rows[1].includes('---')) {
-            startIndex = 2;
+        // Identify separator row index
+        let bodyStartIndex = 1;
+        if (validRows.length > 1 && validRows[1].includes('---')) {
+            bodyStartIndex = 2;
         }
 
-        const bodyRows = rows.slice(startIndex).map(row =>
-            row.replace(/^\||\|$/g, '').split('|').map(c => c.trim())
+        const bodyRows = validRows.slice(bodyStartIndex).map(row =>
+            row.split('|').filter(c => c.trim() !== '').map(c => c.trim())
         );
 
         return (
-            <div key={key} className="my-4 overflow-x-auto rounded-lg border border-slate-200">
-                <table className="w-full text-sm text-left">
-                    <thead className="bg-slate-100 text-slate-600 uppercase font-black text-[10px] tracking-wider">
+            <div key={key} className="my-4 overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+                <table className="w-full text-sm text-left border-collapse">
+                    <thead className="bg-slate-100 text-slate-700 uppercase font-bold text-[10px] tracking-wider">
                         <tr>
                             {headerRow.map((h, i) => (
-                                <th key={i} className="px-4 py-3 border-b border-slate-200 whitespace-nowrap">{h}</th>
+                                <th key={i} className="px-4 py-3 border-b border-slate-300 whitespace-nowrap bg-slate-100">{h}</th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-slate-200 bg-white">
                         {bodyRows.map((row, i) => (
-                            <tr key={i} className="hover:bg-slate-50">
+                            <tr key={i} className="hover:bg-indigo-50/50 transition-colors">
                                 {row.map((cell, j) => (
-                                    <td key={j} className="px-4 py-2 border-r border-slate-100 last:border-r-0 font-mono text-xs text-slate-600 whitespace-nowrap">
+                                    <td key={j} className="px-4 py-2 border-r border-slate-100 last:border-r-0 font-mono text-xs text-slate-600 whitespace-pre-wrap">
                                         {cell}
                                     </td>
+                                ))}
+                                {/* Fill empty cells if row matches header length */}
+                                {row.length < headerRow.length && Array.from({ length: headerRow.length - row.length }).map((_, k) => (
+                                    <td key={`empty-${k}`} className="px-4 py-2 border-r border-slate-100"></td>
                                 ))}
                             </tr>
                         ))}
@@ -863,25 +876,21 @@ function MarkdownRenderer({ content }: { content: string }) {
 
     lines.forEach((line, index) => {
         const trimmed = line.trim();
-        const isTableLine = trimmed.startsWith('|') && trimmed.endsWith('|');
+        // Broader detection for table lines: must have at least one internal pipe or start/end with pipe
+        const isTableLine = trimmed.startsWith('|') || (trimmed.includes('|') && trimmed.includes('---'));
 
         if (isTableLine) {
-            if (!processingTable) {
-                processingTable = true;
-            }
+            if (!processingTable) processingTable = true;
             tableBuffer.push(trimmed);
         } else {
             if (processingTable) {
-                // Flush table
                 elements.push(renderTable(tableBuffer, index));
                 tableBuffer = [];
                 processingTable = false;
             }
-            // Render normal line
-            if (trimmed === '') {
-                // elements.push(<br key={index} />); // Skip excessive newlines
-            } else {
-                // Check if it's a list item
+
+            // Normal rendering (P, H1-H6, LI)
+            if (trimmed !== '') {
                 if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                     elements.push(
                         <div key={index} className="flex gap-2 ml-4 mb-1 text-sm text-slate-600">
@@ -889,18 +898,17 @@ function MarkdownRenderer({ content }: { content: string }) {
                             <span>{trimmed.substring(2)}</span>
                         </div>
                     );
-                } else if (trimmed.startsWith('**') && trimmed.endsWith('**')) { // Simple bold header detection
+                } else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
                     elements.push(<h5 key={index} className="font-bold text-slate-900 mt-4 mb-2 text-sm uppercase tracking-wide">{trimmed.replace(/\*\*/g, '')}</h5>);
-                } else if (trimmed.startsWith('###')) {
-                    elements.push(<h4 key={index} className="font-black text-slate-800 mt-4 mb-2 text-sm uppercase">{trimmed.replace(/###/g, '')}</h4>);
+                } else if (trimmed.startsWith('###') || trimmed.startsWith('####')) {
+                    elements.push(<h4 key={index} className="font-black text-slate-800 mt-4 mb-2 text-xs uppercase border-b border-slate-100 pb-1">{trimmed.replace(/#/g, '')}</h4>);
                 } else {
-                    elements.push(<p key={index} className="text-sm text-slate-600 mb-1 leading-relaxed">{line}</p>);
+                    elements.push(<p key={index} className="text-sm text-slate-600 mb-1 leading-relaxed whitespace-pre-line">{line}</p>);
                 }
             }
         }
     });
 
-    // Flush remaining table if file ends with table
     if (processingTable && tableBuffer.length > 0) {
         elements.push(renderTable(tableBuffer, lines.length));
     }
