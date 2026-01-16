@@ -581,14 +581,15 @@ SI EL HALLAZGO ES POR "OPACIDAD" / "FALTA DE DESGLOSE" / "GENÉRICO":
 =====================================================================
 DEBES, OBLIGATORIAMENTE, REALIZAR UNA "CACERÍA FORENSE" EN LA \`cuenta_json\`.
 Tu misión es encontrar qué ítems individuales suman el monto del código agrupador del PAM.
-Genera una **TABLA DE DESGLOSE VERTICAL** con los ítems que la clínica "escondió" en ese paquete.
+Genera una **TABLA DE DESGLOSE VERTICAL** con TODOS los ítems que la clínica "escondió" en ese paquete.
 **CRÍTICO:** Asegúrate de que la suma de la tabla llegue al 100% del monto objetado. Si encuentras solo una parte, sigue buscando ítems como "Fresas", "Sets", "Catéteres" o "Sondas" que encajen en la diferencia.
+**PROHIBICIÓN:** NUNCA uses "..." para resumir. Si son 50 ítems, LISTA LOS 50 ÍTEMS. El paciente necesita ver cada peso.
 
 | Sección Origen (Cuenta) | Ítem Individual (Detalle) | Cant | P. Unit | Total |
 | :--- | :--- | :---: | :---: | :---: |
 | Materiales | NEURO FLAPFIX KIT | 1 | $707.103 | $707.103 |
 | Materiales | FRESA A. P/ADAPT | 1 | $392.135 | $392.135 |
-| ... | ... | ... | ... | ... |
+| Materiales | (Siguiente ítem...) | ... | ... | ... |
 | **TOTAL** | **COINCIDE CON CODIGO PAM XXX** | | | **$3.653.647** |
 
 SI EL HALLAZGO NO ES DE OPACIDAD (ES CLÁSICO):
@@ -596,8 +597,9 @@ SI EL HALLAZGO NO ES DE OPACIDAD (ES CLÁSICO):
 1. **Clasificación Forense:**
    - **[DINERO TRAZABLE]:** Si los ítems tienen nombre y apellido (ej: Jeringas, Pabellón).
 2. **Desglose Matemático:** Explicar la fórmula exacta.
-3. **Tabla de Origen (Evidencia):** Listar los ítems del PAM que suman este hallazgo.
+3. **Tabla de Origen (Evidencia):** Listar TODOS los ítems del PAM que suman este hallazgo.
    | Folio PAM | Ítem / Código | Monto (Copago) |
+
    |-----------|---------------|----------------|
    | 102030    | 3101001       | $15.000        |
    | **TOTAL** | **HALLAZGO**  | **$20.000**    |
