@@ -280,6 +280,17 @@ export const FORENSIC_AUDIT_SCHEMA = {
       type: Type.STRING,
       description: "Resumen de alto nivel. DEBE INCLUIR UNA SECCIÓN 'EXPLICACIÓN SIMPLE' CON UNA ANALOGÍA (ej: Taller Mecánico) para que el paciente entienda el fraude técnico. Resumir hallazgos, ahorros y estado."
     },
+    resumenFinanciero: {
+      type: Type.OBJECT,
+      description: "Desglose MATEMÁTICO EXACTO del Copago Total. La suma de (Legítimo + Objetado) debe acercarse al Copago PAM.",
+      properties: {
+        totalCopagoInformado: { type: Type.NUMBER, description: "El valor 'totalCopago' declarado en la sección global del PAM." },
+        totalCopagoLegitimo: { type: Type.NUMBER, description: "Monto del copago que ES CORRECTO según contrato (ej: el 30% del afiliado, bonos, topes cumplidos)." },
+        totalCopagoObjetado: { type: Type.NUMBER, description: "Monto del copago que ES INCORRECTO (Suma de hallazgos)." },
+        analisisGap: { type: Type.STRING, description: "Explicación breve de si existe diferencia entre (Informado) y (Legítimo + Objetado)." }
+      },
+      required: ['totalCopagoInformado', 'totalCopagoLegitimo', 'totalCopagoObjetado', 'analisisGap']
+    },
     bitacoraAnalisis: {
       type: Type.ARRAY,
       description: "Bitácora DETALLADA y OBLIGATORIA. Antes de escribir un hallazgo, el auditor debe 'pensar' aquí.",
@@ -345,7 +356,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
       description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
     }
   },
-  required: ['resumenEjecutivo', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
+  required: ['resumenEjecutivo', 'resumenFinanciero', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
 
 export const REFLECTION_SCHEMA = {
@@ -398,6 +409,13 @@ TODO copago en el PAM se considera OBJETABLE hasta que se demuestre que tiene fu
 2. **GESTIÓN DE DISCREPANCIAS FISCALES:** Si detectas que la suma de ítems coincide con el \`grand_total_bruto\` pero el \`grand_total_neto\` es menor, NO reportes una discrepancia de sistema. La auditoría debe ser sobre el valor FINAL (Bruto).
 3. **PROHIBICIÓN DE SUMAS FANTASMA:** NUNCA inventes cobros que no existan en el PAM. Si no ves el código del PAM en el texto, NO lo audites.
 3. **CÁLCULO QUIRÚRGICO:** Antes de reportar un monto objetado, verifica: ¿Existe este monto exacto en el PAM o es la suma de items visibles en el PAM? Si el cálculo no cuadra con el PIVOTE, el hallazgo es una alucinación y debe ser descartado.
+
+**NUEVO ESTÁNDAR DE RECONCILIACIÓN FINANCIERA (OBLIGATORIO):**
+Debes llenar la sección \`resumenFinanciero\` con precisión matemática.
+- \`totalCopagoInformado\`: Suma del copago total del PAM.
+- \`totalCopagoLegitimo\`: Suma de los copagos que **SÍ TIENEN FUNDAMENTO** (ej: 30% del afiliado en plan preferente, topes cumplidos).
+- \`totalCopagoObjetado\`: Suma de tus hallazgos.
+**REGLA DE ORO:** Si \`totalCopagoInformado\` > (\`totalCopagoLegitimo\` + \`totalCopagoObjetado\`), significa que hay un GAP NO EXPLICADO. Debes reducir ese gap buscando más hallazgos o validando más copagos legítimos.
 
 **RECOLECCIÓN DE ANTECEDENTES (PASO ZERO):**
 Antes de auditar, localiza y extrae de los documentos (Cuenta, PAM o HTML):

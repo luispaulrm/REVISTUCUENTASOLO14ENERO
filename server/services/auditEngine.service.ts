@@ -298,43 +298,68 @@ export async function performForensicAudit(
             };
 
             const numericTotalCopago = parseAmount(pamTotalCopago);
+            const sumFindings = auditResult.hallazgos.reduce((sum: number, h: any) => sum + (h.montoObjetado || 0), 0);
 
-            if (numericTotalCopago > 0 && Array.isArray(auditResult.hallazgos)) {
-                const sumFindings = auditResult.hallazgos.reduce((sum: number, h: any) => sum + (h.montoObjetado || 0), 0);
-                const gap = numericTotalCopago - sumFindings;
+            // NEW LOGIC: Use AI's financial summary if available to deduce Legitimate Copay
+            const financialSummary = auditResult.resumenFinanciero || {};
+            const legitimadoPorIA = parseAmount(financialSummary.totalCopagoLegitimo || 0);
 
-                // Threshold: $5000 CLP
-                if (gap > 5000) {
-                    log(`[AuditEngine] 🚨 GAP DETECTADO: $${gap} (Total: $${numericTotalCopago} - Hallazgos: $${sumFindings})`);
+            // True Gap = TotalCopago - (Legitimate + Objected)
+            // If AI says $1.4M is legitimate (30% copay) and $395k is objected, and Total is $1.8M
+            // Gap = 1.8M - (1.4M + 0.395M) = ~0.
 
-                    // 1. SCAN FOR ORPHANED ITEMS (The "Ghost Code Hunter")
-                    const orphanedItems: any[] = [];
-                    let remainingGap = gap;
+            // Verify consistency:
+            // If AI didn't provide breakdown, we default to the old "Gap = Total - Findings" logic BUT
+            // ONLY if the gap is massive.
 
-                    if (pamJson && pamJson.folios) {
-                        for (const folio of pamJson.folios) {
-                            if (folio.desglosePorPrestador) {
-                                for (const prestador of folio.desglosePorPrestador) {
-                                    if (prestador.items) {
-                                        for (const item of prestador.items) {
-                                            const itemCopago = parseAmount(item.copago);
-                                            // Heuristic: If item has copay > 0 AND fits within the gap AND is likely a "Ghost Code" (00-00-000-00 or 99-XX)
-                                            // We prioritize these as the culprits.
-                                            if (itemCopago > 0 && itemCopago <= (remainingGap + 500)) {
-                                                const isCode0 = item.codigo?.includes('00-00-000') || item.codigo?.startsWith('0') || item.codigo?.startsWith('99-');
-                                                const description = (item.descripcion || '').toUpperCase();
-                                                const isGeneric = description.includes('INSUMO') || description.includes('MATERIAL') || description.includes('VARIO');
+            let gap = 0;
+            if (legitimadoPorIA > 0) {
+                gap = numericTotalCopago - (legitimadoPorIA + sumFindings);
+            } else {
+                // If AI was lazy and didn't fill legitimado, we can't assume everything is a Gap.
+                // We trust the AI's "hallazgos". If AI says "No findings", then Copay matches Contract.
+                // So Gap should be 0 unless we forced it.
+                // BUT, to catch "Ghost Codes", we can check if there are 00-00 codes that are NOT in findings.
+                // For now, let's be conservative: If no explicit legitimization, assume AI did its job.
+                // Only creating Gap finding if explicit "resumenFinanciero" indicates a mismatch.
+                gap = 0;
+                if (financialSummary.analisisGap && financialSummary.analisisGap.toLowerCase().includes('diferencia')) {
+                    // Try to parse number from text or default to simple arithmetic
+                    gap = numericTotalCopago - sumFindings; // Fallback to simple math only if AI admits a gap
+                }
+            }
 
-                                                // Check if this item was already "caught" (approximate match by amount/code)
-                                                const alreadyCaught = auditResult.hallazgos.some((h: any) =>
-                                                    (h.montoObjetado === itemCopago) ||
-                                                    (h.codigos && h.codigos.includes(item.codigo))
-                                                );
+            // Threshold: $5000 CLP
+            if (gap > 5000) {
+                log(`[AuditEngine] 🚨 GAP REAL DETECTADO: $${gap} (Total: $${numericTotalCopago} - Validado: $${legitimadoPorIA} - Hallazgos: $${sumFindings})`);
 
-                                                if (!alreadyCaught && (isCode0 || isGeneric)) {
-                                                    orphanedItems.push(item);
-                                                    remainingGap -= itemCopago;
-                                                }
+                // 1. SCAN FOR ORPHANED ITEMS (The "Ghost Code Hunter")
+                const orphanedItems: any[] = [];
+                let remainingGap = gap;
+
+                if (pamJson && pamJson.folios) {
+                    for (const folio of pamJson.folios) {
+                        if (folio.desglosePorPrestador) {
+                            for (const prestador of folio.desglosePorPrestador) {
+                                if (prestador.items) {
+                                    for (const item of prestador.items) {
+                                        const itemCopago = parseAmount(item.copago);
+                                        // Heuristic: If item has copay > 0 AND fits within the gap AND is likely a "Ghost Code" (00-00-000-00 or 99-XX)
+                                        // We prioritize these as the culprits.
+                                        if (itemCopago > 0 && itemCopago <= (remainingGap + 500)) {
+                                            const isCode0 = item.codigo?.includes('00-00-000') || item.codigo?.startsWith('0') || item.codigo?.startsWith('99-');
+                                            const description = (item.descripcion || '').toUpperCase();
+                                            const isGeneric = description.includes('INSUMO') || description.includes('MATERIAL') || description.includes('VARIO');
+
+                                            // Check if this item was already "caught" (approximate match by amount/code)
+                                            const alreadyCaught = auditResult.hallazgos.some((h: any) =>
+                                                (h.montoObjetado === itemCopago) ||
+                                                (h.codigos && h.codigos.includes(item.codigo))
+                                            );
+
+                                            if (!alreadyCaught && (isCode0 || isGeneric)) {
+                                                orphanedItems.push(item);
+                                                remainingGap -= itemCopago;
                                             }
                                         }
                                     }
@@ -342,17 +367,18 @@ export async function performForensicAudit(
                             }
                         }
                     }
+                }
 
-                    // 2. ASSIGN GAP TO ORPHANS (Traceability)
-                    if (orphanedItems.length > 0) {
-                        log(`[AuditEngine] 🕵️‍♂️ Ítems Huérfanos encontrados: ${orphanedItems.length}`);
+                // 2. ASSIGN GAP TO ORPHANS (Traceability)
+                if (orphanedItems.length > 0) {
+                    log(`[AuditEngine] 🕵️‍♂️ Ítems Huérfanos encontrados: ${orphanedItems.length}`);
 
-                        orphanedItems.forEach(item => {
-                            const monto = parseAmount(item.copago);
-                            auditResult.hallazgos.push({
-                                codigos: item.codigo || "SIN-CODIGO",
-                                glosa: item.descripcion || "ÍTEM SIN DESCRIPCION",
-                                hallazgo: `
+                    orphanedItems.forEach(item => {
+                        const monto = parseAmount(item.copago);
+                        auditResult.hallazgos.push({
+                            codigos: item.codigo || "SIN-CODIGO",
+                            glosa: item.descripcion || "ÍTEM SIN DESCRIPCION",
+                            hallazgo: `
 **I. Identificación del ítem cuestionado**
 Se cuestiona el cobro de **$${monto.toLocaleString('es-CL')}** asociado a la prestación codificada como "${item.codigo}".
 
@@ -373,31 +399,31 @@ Se solicita la re-liquidación total de este ítem bajo el principio de homologa
 
 **VIII. Trazabilidad y Origen del Cobro**
 Anclaje exacto en PAM: Ítem "${item.descripcion}" (Copago: $${monto}).
-                                 `,
-                                montoObjetado: monto,
-                                normaFundamento: "Circular IF/176 (Errores de Codificación) y Ley 18.933",
-                                anclajeJson: `PAM_AUTO_DETECT: ${item.codigo}`
-                            });
-                            auditResult.totalAhorroDetectado = (auditResult.totalAhorroDetectado || 0) + monto;
+                             `,
+                            montoObjetado: monto,
+                            normaFundamento: "Circular IF/176 (Errores de Codificación) y Ley 18.933",
+                            anclajeJson: `PAM_AUTO_DETECT: ${item.codigo}`
                         });
+                        auditResult.totalAhorroDetectado = (auditResult.totalAhorroDetectado || 0) + monto;
+                    });
 
-                        // If there is still a residual gap, create a smaller generic finding
-                        if (remainingGap > 5000) {
-                            // ... (Add generic finding logic for remainingGap if needed, or ignore if small)
-                            log(`[AuditEngine] ⚠️ Aún queda un gap residual de $${remainingGap} no asignable a ítems específicos.`);
-                        }
+                    // If there is still a residual gap, create a smaller generic finding
+                    if (remainingGap > 5000) {
+                        // ... (Add generic finding logic for remainingGap if needed, or ignore if small)
+                        log(`[AuditEngine] ⚠️ Aún queda un gap residual de $${remainingGap} no asignable a ítems específicos.`);
+                    }
 
-                    } else {
-                        // 3. FALLBACK TO GENERIC GAP (If no orphans found)
-                        auditResult.hallazgos.push({
-                            codigos: "GAP_RECONCILIATION",
-                            glosa: "DIFERENCIA NO EXPLICADA (DÉFICIT DE COBERTURA)",
-                            hallazgo: `
+                } else {
+                    // 3. FALLBACK TO GENERIC GAP (If no orphans found)
+                    auditResult.hallazgos.push({
+                        codigos: "GAP_RECONCILIATION",
+                        glosa: "DIFERENCIA NO EXPLICADA (DÉFICIT DE COBERTURA)",
+                        hallazgo: `
 **I. Identificación del ítem cuestionado**
-Se detecta un monto residual de **$${gap.toLocaleString('es-CL')}** que no fue cubierto por la Isapre.
+Se detecta un monto residual de **$${gap.toLocaleString('es-CL')}** que no fue cubierto por la Isapre y NO corresponde al copago contractual legítimo.
 
 **II. Contexto clínico y administrativo**
-Diferencia aritmética entre Copago Total ($${numericTotalCopago.toLocaleString('es-CL')}) y Hallazgos Auditados ($${sumFindings.toLocaleString('es-CL')}).
+Diferencia aritmética entre Copago Total y la suma de (Copago Legítimo + Hallazgos).
 
 **III. Norma contractual aplicable**
 El plan (cobertura preferente) no debería generar copagos residuales salvo Topes Contractuales alcanzados o Exclusiones legítimas.
@@ -406,7 +432,7 @@ El plan (cobertura preferente) no debería generar copagos residuales salvo Tope
 Existe un **Déficit de Cobertura Global**. Si este monto de $${gap.toLocaleString('es-CL')} corresponde a prestaciones no aranceladas, debe ser acreditado. De lo contrario, se presume cobro en exceso por falta de bonificación integral.
 
 **VI. Efecto económico concreto**
-Costo adicional de $${gap.toLocaleString('es-CL')} sin justificación.
+Costo adicional de $${gap.toLocaleString('es-CL')} sin justificación contractual.
 
 **VII. Conclusión de la impugnación**
 Se objeta este remanente por falta de transparencia.
@@ -415,16 +441,16 @@ Se objeta este remanente por falta de transparencia.
 | Concepto | Monto |
 | :--- | :--- |
 | Copago Total PAM | $${numericTotalCopago.toLocaleString('es-CL')} |
+| (-) Copago Legítimo (Contrato) | -$${legitimadoPorIA.toLocaleString('es-CL')} |
 | (-) Suma Hallazgos | -$${sumFindings.toLocaleString('es-CL')} |
 | **= GAP (DIFERENCIA)** | **$${gap.toLocaleString('es-CL')}** |
-                            `,
-                            montoObjetado: gap,
-                            normaFundamento: "Principio de Cobertura Integral y Transparencia (Ley 20.584)",
-                            anclajeJson: "CÁLCULO_AUTOMÁTICO_SISTEMA"
-                        });
-                        auditResult.totalAhorroDetectado = (auditResult.totalAhorroDetectado || 0) + gap;
-                        log('[AuditEngine] ✅ GAP GENÉRICO inyectado (no se encontraron ítems huérfanos específicos).');
-                    }
+                        `,
+                        montoObjetado: gap,
+                        normaFundamento: "Principio de Cobertura Integral y Transparencia (Ley 20.584)",
+                        anclajeJson: "CÁLCULO_AUTOMÁTICO_SISTEMA"
+                    });
+                    auditResult.totalAhorroDetectado = (auditResult.totalAhorroDetectado || 0) + gap;
+                    log('[AuditEngine] ✅ GAP GENÉRICO inyectado (no se encontraron ítems huérfanos específicos).');
                 }
             }
         } catch (gapError: any) {

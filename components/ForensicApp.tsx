@@ -813,10 +813,22 @@ function MarkdownRenderer({ content }: { content: string }) {
     processedContent = processedContent.replace(/\|\|/g, '|\n|');
 
     // 3. Fix missing newlines after standard markdown table separator
+    // Looks for: |---|---|Text -> |---|---|\nText
     processedContent = processedContent.replace(/(\|[:\s-]+\|)(\s*[^\n\s|])/g, '$1\n$2');
 
     // 4. Force newline before any table starting in middle of line
     processedContent = processedContent.replace(/([^\n])(\|)/g, '$1\n$2');
+
+    // 5. Detect and Fix "Vertical Key-Value Tables" (New Issue)
+    // Sometimes traceability comes as:
+    // | Folio |
+    // | 7000... |
+    // | Código |
+    // | 310... |
+    // We want to detect this pattern of single-column stacks and potentially reformat or at least clean them.
+    // For now, we will ensure that double-newlines between single-pipe lines are removed to keep them together.
+    processedContent = processedContent.replace(/(\|\s*\n)(\n)(\|)/g, '$1$3');
+
 
     const rawLines = processedContent.split('\n');
     const elements: React.ReactNode[] = [];
@@ -824,6 +836,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     let processingTable = false;
 
     const renderTable = (rows: string[], key: number) => {
+        // Filter out empty rows or purely separator rows that don't have enough pipes
         const validRows = rows.map(r => r.trim()).filter(r => r.includes('|'));
         if (validRows.length < 2) return null;
 
@@ -831,9 +844,15 @@ function MarkdownRenderer({ content }: { content: string }) {
             row.replace(/^\||\|$/g, '').split('|').map(c => c.trim())
         );
 
+        // Detect if it's a "Vertical Transposed Table" (Many rows, 1-2 cols, no clear header)
+        // Heuristic: If header has empty cells or looks like a value, treat differently?
+        // For now, standard rendering is usually safer than trying to transpose on the fly unless we are sure.
+
         const header = dataRows[0];
         let bodyStartIndex = 1;
-        if (dataRows[1] && dataRows[1].some(cell => cell.includes('---'))) {
+
+        // Skip separator row if it exists
+        if (dataRows[1] && dataRows[1].some(cell => cell.match(/^[-: ]+$/))) {
             bodyStartIndex = 2;
         }
 
@@ -843,7 +862,7 @@ function MarkdownRenderer({ content }: { content: string }) {
                     <thead className="bg-slate-50 text-slate-900 border-b border-slate-200">
                         <tr>
                             {header.map((h, i) => (
-                                <th key={i} className="px-4 py-3 font-black text-[10px] uppercase tracking-wider bg-slate-100/50">
+                                <th key={i} className="px-4 py-3 font-black text-[10px] uppercase tracking-wider bg-slate-100/50 whitespace-nowrap">
                                     {h || '---'}
                                 </th>
                             ))}
@@ -853,7 +872,7 @@ function MarkdownRenderer({ content }: { content: string }) {
                         {dataRows.slice(bodyStartIndex).map((row, i) => (
                             <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
                                 {header.map((_, j) => (
-                                    <td key={j} className="px-4 py-2.5 border-r border-slate-50 last:border-r-0 font-mono text-[11px] text-slate-700 whitespace-pre-wrap">
+                                    <td key={j} className="px-4 py-2.5 border-r border-slate-50 last:border-r-0 font-mono text-[11px] text-slate-700 whitespace-pre-wrap align-top">
                                         {row[j] || ''}
                                     </td>
                                 ))}
@@ -867,7 +886,9 @@ function MarkdownRenderer({ content }: { content: string }) {
 
     rawLines.forEach((line, index) => {
         const trimmed = line.trim();
-        const isTableLine = (trimmed.split('|').length > 2) || (trimmed.includes('|') && trimmed.includes('---'));
+        // A table line MUST have at least 2 pipes OR be a separator line
+        // Also allow single pipe lines if they seem to be part of a vertical list table (heuristic)
+        const isTableLine = (trimmed.split('|').length > 1) || (trimmed.includes('|') && trimmed.includes('---'));
 
         if (isTableLine) {
             if (!processingTable) processingTable = true;
@@ -880,6 +901,7 @@ function MarkdownRenderer({ content }: { content: string }) {
             }
 
             if (trimmed !== '') {
+                // List Items
                 if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                     elements.push(
                         <div key={index} className="flex gap-2 ml-4 mb-2 text-sm text-slate-600 animate-in fade-in slide-in-from-left-2 duration-300">
@@ -888,6 +910,7 @@ function MarkdownRenderer({ content }: { content: string }) {
                         </div>
                     );
                 }
+                // Bold Headers (Internal Sections)
                 else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
                     elements.push(
                         <h5 key={index} className="font-black text-slate-900 mt-6 mb-3 text-[11px] uppercase tracking-widest border-l-4 border-slate-900 pl-3">
@@ -895,6 +918,7 @@ function MarkdownRenderer({ content }: { content: string }) {
                         </h5>
                     );
                 }
+                // Sub-headers
                 else if (trimmed.startsWith('#')) {
                     const level = (trimmed.match(/^#+/) || ['#'])[0].length;
                     const content = trimmed.replace(/^#+\s*/, '');
@@ -905,6 +929,7 @@ function MarkdownRenderer({ content }: { content: string }) {
                         </h4>
                     );
                 }
+                // Regular Paragraphs
                 else {
                     elements.push(
                         <p key={index} className="text-sm text-slate-600 mb-3 leading-relaxed whitespace-pre-line px-1">
