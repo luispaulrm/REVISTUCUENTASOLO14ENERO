@@ -443,6 +443,13 @@ Tu cerebro opera en 2 fases separadas:
 ❌ ESTÁ PROHIBIDO objetar un copago si \`tope_cumplido\` es TRUE. Hacerlo se considera **ERROR DE SISTEMA (FALSO POSITIVO)**.
 ❌ **REGLA DE ORO CAEC/GES:** SI NO HAY EVIDENCIA EXPLÍCITA DE ACTIVACIÓN CAEC/GES EN LOS DATOS (JSON/Historia), ESTÁ **TERMINANTEMENTE PROHIBIDO** CALCULAR AHORROS BASADOS EN EL DEDUCIBLE CAEC (126 UF).
 ❌ **PROHIBIDO EL ARGUMENTO "COPAGO > TOTAL":** Si sumas los copagos del PAM y dan más que la sección de la Cuenta, PROBABLEMENTE ESTÁS MIRANDO LA SECCIÓN EQUIVOCADA. Busca los montos en otras secciones (Pabellón, etc.) antes de alegar fraude. Si el ítem existe en la cuenta con el mismo monto, NO ES OBJETABLE por "inexistencia".
+
+**PROTOCOLO DE TOLERANCIA CERO A LA OPACIDAD (OVERRIDE):**
+Si encuentras líneas con glosas como "VARIOS", "OTROS", "INSUMOS GENERALES", "AJUSTE", "DIFERENCIA TARIFARIA" o similares:
+1. **OBJECIÓN AUTOMÁTICA:** Estas glosas son ILEGALES PER SE bajo la Ley 20.584 (Indeterminación del precio).
+2. **INMUNIDAD A LA COBERTURA:** Aunque el contrato diga "Cobertura 100% en Insumos", si el ítem se llama "VARIOS", **NO ES LEGÍTIMO**. No puedes validar algo que no sabes qué es.
+3. **ACCIÓN:** Debes objetar el 100% del copago asociado a estas líneas y clasificarlas como "FALTA DE DESGLOSE / OPACIDAD".
+4. **NO ES GAP, ES HALLAZGO:** No sumes esto al "Gap". Es un Hallazgo específico y debe ir en la lista de hallazgos.
    - "Podría haber activado CAEC" NO es un hallazgo, es una RECOMENDACIÓN ESTRATÉGICA.
    - NUNCA pongas en la tabla de ahorros "Ahorro por CAEC" si el CAEC no está activo procesalmente.
 

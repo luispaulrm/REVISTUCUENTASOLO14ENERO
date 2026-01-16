@@ -827,8 +827,8 @@ function MarkdownRenderer({ content }: { content: string }) {
     // | 310... |
     // We want to detect this pattern of single-column stacks and potentially reformat or at least clean them.
     // For now, we will ensure that double-newlines between single-pipe lines are removed to keep them together.
-    processedContent = processedContent.replace(/(\|\s*\n)(\n)(\|)/g, '$1$3');
-
+    processedContent = processedContent.replace(/(\|.*)\n\n(\|.*)/g, '$1\n$2');
+    processedContent = processedContent.replace(/(\|.*)\n\n(\|.*)/g, '$1\n$2'); // Run twice for triple gaps
 
     const rawLines = processedContent.split('\n');
     const elements: React.ReactNode[] = [];
@@ -844,10 +844,6 @@ function MarkdownRenderer({ content }: { content: string }) {
             row.replace(/^\||\|$/g, '').split('|').map(c => c.trim())
         );
 
-        // Detect if it's a "Vertical Transposed Table" (Many rows, 1-2 cols, no clear header)
-        // Heuristic: If header has empty cells or looks like a value, treat differently?
-        // For now, standard rendering is usually safer than trying to transpose on the fly unless we are sure.
-
         const header = dataRows[0];
         let bodyStartIndex = 1;
 
@@ -858,11 +854,11 @@ function MarkdownRenderer({ content }: { content: string }) {
 
         return (
             <div key={key} className="my-4 overflow-x-auto rounded-xl border border-slate-200 shadow-sm transition-all duration-300">
-                <table className="w-full text-sm text-left border-collapse border-hidden">
+                <table className="min-w-[500px] w-full text-sm text-left border-collapse border-hidden">
                     <thead className="bg-slate-50 text-slate-900 border-b border-slate-200">
                         <tr>
                             {header.map((h, i) => (
-                                <th key={i} className="px-4 py-3 font-black text-[10px] uppercase tracking-wider bg-slate-100/50 whitespace-nowrap">
+                                <th key={i} className="px-4 py-3 font-black text-[10px] uppercase tracking-wider bg-slate-100/50 whitespace-normal">
                                     {h || '---'}
                                 </th>
                             ))}
@@ -887,8 +883,10 @@ function MarkdownRenderer({ content }: { content: string }) {
     rawLines.forEach((line, index) => {
         const trimmed = line.trim();
         // A table line MUST have at least 2 pipes OR be a separator line
-        // Also allow single pipe lines if they seem to be part of a vertical list table (heuristic)
-        const isTableLine = (trimmed.split('|').length > 1) || (trimmed.includes('|') && trimmed.includes('---'));
+        // Also allow single pipe lines IF they start and end with pipe (Vertical List Item)
+        // Heuristic: If it starts AND ends with pipe, treat as table row even if split logic yields 1 (should be 2 empty strings around)
+        const isPipeline = trimmed.startsWith('|') && trimmed.endsWith('|');
+        const isTableLine = (trimmed.split('|').length > 1) || (trimmed.includes('|') && trimmed.includes('---')) || isPipeline;
 
         if (isTableLine) {
             if (!processingTable) processingTable = true;
