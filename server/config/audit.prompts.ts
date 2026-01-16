@@ -46,6 +46,16 @@ Para clasificar otros hallazgos como "IMPUGNAR" (Alta Certeza), deben cumplirse 
 2. [CLÍNICA] Es un insumo/servicio ESTÁNDAR (no extraordinario).
 3. [ECONÓMICA] Generó copago efectivo.
 
+(3.2) REGLA DE "CACERÍA FORENSE DE DESGLOSE" (ADVANCED UNBUNDLING HUNT):
+- **TRIGGER:** Cuando detectes un código PAM genérico de alto valor (ej: "3101002 MATERIALES CLINICOS" > $1.000.000) y el hallazgo sea por "Opacidad/Desagregación".
+- **ACCIÓN OBLIGATORIA:** NO te detengas en los primeros ítems que encuentres. Debes realizar una búsqueda EXHAUSTIVA en la sección \`MATERIALES\` de la \`cuenta_json\`.
+- **PATRÓN DE BÚSQUEDA:** Busca específicamente ítems de alto costo típicos de pabellón que suelen ser escondidos: "KIT", "FRESA", "BROCA", "SET DE RETRACCIÓN", "CATETER", "SONDA", "HOJA", "ELECTRODO".
+- **ALGORITMO DE SUMA RECURSIVA:**
+  1. Identifica el monto objetivo del PAM (ej: $3.653.647).
+  2. Suma TODOS los ítems candidatos en la cuenta.
+  3. Si la suma parcial es menor al objetivo, SIGUE BUSCANDO. Revisa ítems con nombres técnicos (ej: "NEURO FLAPFIX", "SURGIFLO", "LONESTAR").
+  4. Tu objetivo es que la diferencia sea $0. Si faltan $2.000.000, busca ítems de ese rango de precio. NO REPORTES UNA SUMA PARCIAL INCOMPLETA.
+
 (3.1) REGLA DE SUPREMACÍA CONTRACTUAL (PERSONALIDAD SMART / ITERACIÓN 3):
 ANTES de clasificar un ítem como "Desagregación Indebida" (IF-319), el auditor DEBE verificar si existe una "Sub-bonificación Contractual".
 - Lógica: Es más sólido objetar diferencias matemáticas (% Contrato vs % PAM) que discutir la naturaleza clínica de un insumo.
@@ -507,15 +517,15 @@ SI EL HALLAZGO ES POR "OPACIDAD" / "FALTA DE DESGLOSE" / "GENÉRICO":
 =====================================================================
 DEBES, OBLIGATORIAMENTE, REALIZAR UNA "CACERÍA FORENSE" EN LA \`cuenta_json\`.
 Tu misión es encontrar qué ítems individuales suman el monto del código agrupador del PAM.
-Genera una **TABLA DE DESGLOSE VERTICAL** con los ítems que la clínica "escondió" en ese paquete:
+Genera una **TABLA DE DESGLOSE VERTICAL** con los ítems que la clínica "escondió" en ese paquete.
+**CRÍTICO:** Asegúrate de que la suma de la tabla llegue al 100% del monto objetado. Si encuentras solo una parte, sigue buscando ítems como "Fresas", "Sets", "Catéteres" o "Sondas" que encajen en la diferencia.
 
 | Sección Origen (Cuenta) | Ítem Individual (Detalle) | Cant | P. Unit | Total |
 | :--- | :--- | :---: | :---: | :---: |
-| Materiales | GASA 7.5 X 7.5 | 15 | $188 | $2.820 |
-| Farmacia | KETOPROFENO 100MG | 1 | $935 | $935 |
-| Pabellón | HOJA BISTURI N.15 | 1 | $371 | $371 |
+| Materiales | NEURO FLAPFIX KIT | 1 | $707.103 | $707.103 |
+| Materiales | FRESA A. P/ADAPT | 1 | $392.135 | $392.135 |
 | ... | ... | ... | ... | ... |
-| **TOTAL** | **COINCIDE CON CODIGO PAM XXX** | | | **$3.618.258** |
+| **TOTAL** | **COINCIDE CON CODIGO PAM XXX** | | | **$3.653.647** |
 
 SI EL HALLAZGO NO ES DE OPACIDAD (ES CLÁSICO):
 ==============================================
