@@ -803,68 +803,59 @@ function InterrogationZone({ auditResult, compactMode = false, responsiveHeight 
 function MarkdownRenderer({ content }: { content: string }) {
     if (!content) return null;
 
-    // ROBUST PRE-PROCESSING FOR BROKEN TABLES
+    // --- ULTRA-ROBUST PRE-PROCESSING ---
     let processedContent = content;
 
-    // 1. Fix "Squashed Tables" (Single line tables like "| Head | Val || Head2 | Val2 |")
-    // Replace "||" with "|\n|" to force new row, but only if it looks like a table row end/start
-    if (processedContent.includes('||')) {
-        processedContent = processedContent.replace(/\|\|/g, '|\n|');
-    }
+    // 1. Unstick tables from headings (e.g., "VIII. Trazabilidad: | Col 1 |")
+    processedContent = processedContent.replace(/(:\s*)(\|)/g, '$1\n$2');
 
-    // 2. Fix "Missing Newlines after Separators"
-    // e.g. "| Col A | Col B |---|---|" -> "| Col A | Col B |\n|---|---|"
-    // We look for patterns where a pipe is immediately followed by a dash sequence
-    processedContent = processedContent.replace(/\|(\s*:?-+:?\s*\|)/g, '|\n$1');
+    // 2. Fix squashed rows (|| as row separator)
+    processedContent = processedContent.replace(/\|\|/g, '|\n|');
 
-    // 3. Fix "Missing Newline before Header"
-    // Sometimes text merges with table: "Here is table:| Col 1 |" -> "Here is table:\n| Col 1 |"
-    processedContent = processedContent.replace(/([^\n])(\|.*\|)/g, '$1\n$2');
+    // 3. Fix missing newlines after standard markdown table separator
+    processedContent = processedContent.replace(/(\|[:\s-]+\|)(\s*[^\n\s|])/g, '$1\n$2');
 
-    const lines = processedContent.split('\n');
+    // 4. Force newline before any table starting in middle of line
+    processedContent = processedContent.replace(/([^\n])(\|)/g, '$1\n$2');
+
+    const rawLines = processedContent.split('\n');
     const elements: React.ReactNode[] = [];
     let tableBuffer: string[] = [];
     let processingTable = false;
 
     const renderTable = (rows: string[], key: number) => {
-        // Filter empty rows or purely separator rows that got detached
-        const validRows = rows.filter(r => r.trim().replace(/\|/g, '').length > 0);
+        const validRows = rows.map(r => r.trim()).filter(r => r.includes('|'));
         if (validRows.length < 2) return null;
 
-        // Parse header
-        const headerRow = validRows[0].split('|').filter(c => c.trim() !== '').map(c => c.trim());
+        const dataRows = validRows.map(row =>
+            row.replace(/^\||\|$/g, '').split('|').map(c => c.trim())
+        );
 
-        // Identify separator row index
+        const header = dataRows[0];
         let bodyStartIndex = 1;
-        if (validRows.length > 1 && validRows[1].includes('---')) {
+        if (dataRows[1] && dataRows[1].some(cell => cell.includes('---'))) {
             bodyStartIndex = 2;
         }
 
-        const bodyRows = validRows.slice(bodyStartIndex).map(row =>
-            row.split('|').filter(c => c.trim() !== '').map(c => c.trim())
-        );
-
         return (
-            <div key={key} className="my-4 overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
-                <table className="w-full text-sm text-left border-collapse">
-                    <thead className="bg-slate-100 text-slate-700 uppercase font-bold text-[10px] tracking-wider">
+            <div key={key} className="my-4 overflow-x-auto rounded-xl border border-slate-200 shadow-sm transition-all duration-300">
+                <table className="w-full text-sm text-left border-collapse border-hidden">
+                    <thead className="bg-slate-50 text-slate-900 border-b border-slate-200">
                         <tr>
-                            {headerRow.map((h, i) => (
-                                <th key={i} className="px-4 py-3 border-b border-slate-300 whitespace-nowrap bg-slate-100">{h}</th>
+                            {header.map((h, i) => (
+                                <th key={i} className="px-4 py-3 font-black text-[10px] uppercase tracking-wider bg-slate-100/50">
+                                    {h || '---'}
+                                </th>
                             ))}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200 bg-white">
-                        {bodyRows.map((row, i) => (
-                            <tr key={i} className="hover:bg-indigo-50/50 transition-colors">
-                                {row.map((cell, j) => (
-                                    <td key={j} className="px-4 py-2 border-r border-slate-100 last:border-r-0 font-mono text-xs text-slate-600 whitespace-pre-wrap">
-                                        {cell}
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                        {dataRows.slice(bodyStartIndex).map((row, i) => (
+                            <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
+                                {header.map((_, j) => (
+                                    <td key={j} className="px-4 py-2.5 border-r border-slate-50 last:border-r-0 font-mono text-[11px] text-slate-700 whitespace-pre-wrap">
+                                        {row[j] || ''}
                                     </td>
-                                ))}
-                                {/* Fill empty cells if row matches header length */}
-                                {row.length < headerRow.length && Array.from({ length: headerRow.length - row.length }).map((_, k) => (
-                                    <td key={`empty-${k}`} className="px-4 py-2 border-r border-slate-100"></td>
                                 ))}
                             </tr>
                         ))}
@@ -874,10 +865,9 @@ function MarkdownRenderer({ content }: { content: string }) {
         );
     };
 
-    lines.forEach((line, index) => {
+    rawLines.forEach((line, index) => {
         const trimmed = line.trim();
-        // Broader detection for table lines: must have at least one internal pipe or start/end with pipe
-        const isTableLine = trimmed.startsWith('|') || (trimmed.includes('|') && trimmed.includes('---'));
+        const isTableLine = (trimmed.split('|').length > 2) || (trimmed.includes('|') && trimmed.includes('---'));
 
         if (isTableLine) {
             if (!processingTable) processingTable = true;
@@ -889,28 +879,45 @@ function MarkdownRenderer({ content }: { content: string }) {
                 processingTable = false;
             }
 
-            // Normal rendering (P, H1-H6, LI)
             if (trimmed !== '') {
                 if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                     elements.push(
-                        <div key={index} className="flex gap-2 ml-4 mb-1 text-sm text-slate-600">
-                            <span className="text-slate-400">•</span>
-                            <span>{trimmed.substring(2)}</span>
+                        <div key={index} className="flex gap-2 ml-4 mb-2 text-sm text-slate-600 animate-in fade-in slide-in-from-left-2 duration-300">
+                            <span className="text-emerald-500 font-bold shrink-0">•</span>
+                            <span className="leading-relaxed">{trimmed.substring(2)}</span>
                         </div>
                     );
-                } else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
-                    elements.push(<h5 key={index} className="font-bold text-slate-900 mt-4 mb-2 text-sm uppercase tracking-wide">{trimmed.replace(/\*\*/g, '')}</h5>);
-                } else if (trimmed.startsWith('###') || trimmed.startsWith('####')) {
-                    elements.push(<h4 key={index} className="font-black text-slate-800 mt-4 mb-2 text-xs uppercase border-b border-slate-100 pb-1">{trimmed.replace(/#/g, '')}</h4>);
-                } else {
-                    elements.push(<p key={index} className="text-sm text-slate-600 mb-1 leading-relaxed whitespace-pre-line">{line}</p>);
+                }
+                else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
+                    elements.push(
+                        <h5 key={index} className="font-black text-slate-900 mt-6 mb-3 text-[11px] uppercase tracking-widest border-l-4 border-slate-900 pl-3">
+                            {trimmed.replace(/\*\*/g, '')}
+                        </h5>
+                    );
+                }
+                else if (trimmed.startsWith('#')) {
+                    const level = (trimmed.match(/^#+/) || ['#'])[0].length;
+                    const content = trimmed.replace(/^#+\s*/, '');
+                    const sizeClass = level === 1 ? 'text-2xl' : level === 2 ? 'text-xl' : 'text-lg';
+                    elements.push(
+                        <h4 key={index} className={`${sizeClass} font-black text-slate-900 mt-8 mb-4 tracking-tighter`}>
+                            {content}
+                        </h4>
+                    );
+                }
+                else {
+                    elements.push(
+                        <p key={index} className="text-sm text-slate-600 mb-3 leading-relaxed whitespace-pre-line px-1">
+                            {line}
+                        </p>
+                    );
                 }
             }
         }
     });
 
     if (processingTable && tableBuffer.length > 0) {
-        elements.push(renderTable(tableBuffer, lines.length));
+        elements.push(renderTable(tableBuffer, rawLines.length));
     }
 
     return <div className="space-y-1">{elements}</div>;
