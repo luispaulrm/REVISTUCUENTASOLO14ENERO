@@ -24,7 +24,8 @@ import {
   ShieldCheck,
   Code2,
   Settings,
-  Key
+  Key,
+  Save
 } from 'lucide-react';
 import { AppStatus, ExtractedAccount, UsageMetrics } from './types';
 import { extractBillingData } from './geminiService';
@@ -47,6 +48,7 @@ const App: React.FC = () => {
   const [seconds, setSeconds] = useState(0);
   const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [hasCache, setHasCache] = useState(false);
 
   // Multi-file batch processing state
   const [fileQueue, setFileQueue] = useState<Array<{ file: File, preview: string, status: 'pending' | 'processing' | 'done' | 'error', result?: ExtractedAccount, error?: string }>>([]);
@@ -71,6 +73,15 @@ const App: React.FC = () => {
   useEffect(() => {
     if (logEndRef.current) logEndRef.current.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
+
+  useEffect(() => {
+    const checkCache = () => {
+      setHasCache(!!localStorage.getItem('clinic_audit_result'));
+    };
+    checkCache();
+    const interval = setInterval(checkCache, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) {
@@ -185,6 +196,7 @@ const App: React.FC = () => {
         } catch (e) {
           console.warn('Failed to save to localStorage:', e);
         }
+        setHasCache(true);
         addLog('[SISTEMA] ✅ Procesamiento completado.');
 
       } catch (err: any) {
@@ -296,6 +308,31 @@ const App: React.FC = () => {
     setLogs([]);
     setSeconds(0);
     setProgress(0);
+    try {
+      localStorage.removeItem('clinic_audit_result');
+      setHasCache(false);
+    } catch (e) { }
+  };
+
+  const saveToCache = () => {
+    if (!result) return;
+    try {
+      localStorage.setItem('clinic_audit_result', JSON.stringify(result));
+      setHasCache(true);
+      addLog('[SISTEMA] ✅ CUENTA GUARDADA EN MEMORIA FORENSE.');
+      alert("✅ Cuenta Clínica guardada exitosamente en memoria forense.");
+    } catch (e) {
+      addLog(`[ERROR] No se pudo guardar en caché: ${String(e)}`);
+    }
+  };
+
+  const clearCache = () => {
+    try {
+      localStorage.removeItem('clinic_audit_result');
+      setHasCache(false);
+      addLog('[SISTEMA] 🗑️ Memoria forense de Cuenta Clínica eliminada.');
+      alert("🗑️ Memoria forense de Cuenta Clínica limpiada.");
+    } catch (e) { }
   };
 
   return (
@@ -320,8 +357,27 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+          </div>
+          <div className="flex items-center gap-3">
+            {/* NEW EXPLICIT CONTROLS */}
+            {hasCache && (
+              <button
+                onClick={clearCache}
+                className="flex items-center gap-2 px-3 py-2 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-xs font-bold hover:bg-rose-100 transition-all shadow-sm"
+              >
+                <Trash2 size={16} /> BORRAR MEMORIA
+              </button>
+            )}
+
             {status === AppStatus.SUCCESS && (
               <>
+                <button
+                  onClick={saveToCache}
+                  className="flex items-center gap-2 px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-all shadow-md animate-pulse active:scale-95"
+                >
+                  <Save size={16} /> GUARDAR MEMORIA
+                </button>
+                <div className="w-px h-6 bg-slate-300 mx-1"></div>
                 <button onClick={() => downloadFormat('json')} className="flex items-center gap-2 px-3 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all shadow-sm">
                   <FileJson size={16} /> JSON
                 </button>

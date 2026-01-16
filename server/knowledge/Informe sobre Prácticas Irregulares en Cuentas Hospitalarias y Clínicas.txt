@@ -39,3 +39,808 @@ Solicitar cuentas provisorias actualizadas durante la hospitalización: La ley l
 
 --- PÁGINA 14 ---
 En conclusión, la mejor defensa del paciente frente a cuentas hospitalarias abultadas es la información y la acción oportuna . Conocer estas prácticas irregulares le permite identificarlas y enfrentarlas. Apóyese en los respaldo legales (ley del paciente, normativa Superintendencia) y evidencias objetivas (ficha, PAM, arancel) para fundamentar sus reclamos. Si bien puede ser engorroso, los ahorros pueden ser sustanciales y, más importante aún, contribuirá a frenar los abusos en el sistema de salud. Referencias: Este informe se basó en normativa chilena vigente, jurisprudencia reciente y análisis forense de cuentas médicas (incluyendo evidencias de herramientas de auditoría automática y liquidaciones reales de seguros de salud), entre ellas: aranceles de isapres, disposiciones de la Ley 20.584, definiciones internacionales de fraude en salud , y ejemplos concretos extraídos de estados de cuenta de pacientes. Estos antecedentes respaldan cada una de las prácticas descritas, evidenciando la necesidad de mayor transparencia y rigor en la facturación hospitalaria en favor de los pacientes. Esperamos que esta información empodere a los pacientes para revisar sus cuentas con ojo crítico y exigir un trato justo, pues ningún paciente debería pagar de más por errores o abusos en su atención de salud . Su mejor herramienta es el conocimiento y la determinación para hacer valer sus derechos. ¡Revise su cuenta, infórmese y no dude en reclamar: su salud financiera también importa! Abogados de denunciante de fraude de atención médica en Milwaukee, Wisconsin | Cross Law Firm, S.C. https://www.crosslawfirm.com/inicio/denunciante-dentro-de-su-empresa-whistle-blowing/acciones-de-denunciantes-de- fraude-de-atencion-medica/ nuevamasvida.cl https://www.nuevamasvida.cl/wp-content/uploads/2025/05/ARANCEL-2025-NUEVA-MASVIDA.pdf 1 2 1 2 3 14
+
+
+
+
+Cobertura de cirugías de alta complejidad e innovaciones médicas en Chile
+Introducción y contexto
+
+En el sistema de salud chileno, las cirugías de alta complejidad –así como los procedimientos médicos innovadores– presentan desafíos especiales en materia de cobertura financiera y normativa. Estos procedimientos suelen involucrar tecnologías o técnicas avanzadas (por ejemplo, cirugía robótica, radiocirugía cerebral tipo Gamma Knife, implantes neuroestimuladores, etc.) cuyo alto costo y novedad generan dudas sobre quién debe financiarlos. En Chile coexisten dos subsistemas de aseguramiento de salud: el público (Fonasa) y el privado (Isapres). Comprender cómo cada uno aborda la cobertura de intervenciones complejas es clave, pues actualmente existen vacíos regulatorios que han derivado en conflictos, jurisprudencia y la necesidad de actualizaciones normativas. A continuación, se presenta un informe detallado enfocado en Chile, recopilando legislación, circulares de la autoridad, fallos judiciales y otros antecedentes para aclarar este tema.
+
+Cobertura en Fonasa vs. Isapres: marco general
+
+Tanto Fonasa (Fondo Nacional de Salud, asegurador público) como las Isapres (Instituciones de Salud Previsional, aseguradoras privadas) ofrecen cobertura según un arancel de prestaciones médicas. Por ley, las Isapres están obligadas a cubrir al menos lo mismo que Fonasa cubre a sus beneficiarios en la modalidad de libre elección, es decir, todas las prestaciones listadas en el Arancel Fonasa, además de las garantías explícitas de salud del Plan AUGE/GES. En la práctica, las Isapres definen sus planes de salud basándose en ese arancel público de referencia, pudiendo incluso ofrecer coberturas adicionales. Fonasa, por su parte, cubre a sus afiliados mediante prestadores públicos (modalidad institucional) o reembolsa atenciones en prestadores privados conforme al arancel (modalidad libre elección).
+
+Prestaciones no aranceladas: Un punto crítico es que cualquier prestación médica no incluida en el Arancel Fonasa se considera “no arancelada” o “sin código”. Históricamente, las Isapres han excluido tales prestaciones de sus coberturas por contrato. De hecho, la normativa vigente permite que los contratos de Isapre establezcan exclusiones, entre las cuales típicamente figuran: tratamientos o cirugías no codificadas en el arancel, medicamentos no arancelados, procedimientos experimentales, etc. Por ejemplo, según la Superintendencia de Salud, no son cubiertas por la Isapre aquellas prestaciones no aranceladas (salvo casos de homologación excepcional), tratamientos con fines estéticos, procedimientos dentales, tratamientos de infertilidad, entre otros. Fonasa igualmente limita sus reembolsos a prestaciones codificadas; si un procedimiento no tiene código Fonasa, no habrá bonificación en modalidad libre elección, quedando el costo enteramente a cargo del paciente (en el sistema público, la realización de procedimientos sin código puede depender de decisiones administrativas y presupuestarias del Ministerio de Salud).
+
+Cirugías de alta complejidad: No existe una lista única oficial de qué constituye “alta complejidad”, pero en general se refiere a intervenciones quirúrgicas que requieren tecnología sofisticada, especialistas altamente entrenados y costos elevados. Ejemplos van desde neurocirugías avanzadas (como estimuladores cerebrales profundos para Parkinson o radiocirugías cerebrales), hasta cirugías robóticas u otros procedimientos innovadores. Muchos de estos no estaban incluidos en el Arancel Fonasa tradicional, lo que generó vacíos de cobertura. Por ello, a medida que la medicina ha incorporado nuevas técnicas, ha surgido la necesidad de actualizar la lista de prestaciones cubiertas o buscar mecanismos para financiarlas.
+
+Prestaciones innovadoras sin codificación: el problema de la homologación
+
+El principal desafío surge cuando un paciente requiere un procedimiento innovador que no tiene código Fonasa vigente. En tal caso, la Isapre (o Fonasa en modo libre elección) típicamente niega cobertura, amparándose en que la prestación no figura en el arancel que define sus obligaciones. Este escenario –antes considerado un asunto meramente contractual– se ha transformado en un problema de garantías de salud, dada su incidencia en el derecho a la vida y a la integridad física de los pacientes.
+
+Mecanismo legal de homologación: La legislación chilena prevé un mecanismo para abordar estas situaciones. El D.F.L. Nº1 de 2005 del Ministerio de Salud (que rige a las Isapres) faculta a la Superintendencia de Salud para homologar prestaciones no aranceladas en casos excepcionales. En términos simples, homologar significa equiparar una prestación nueva (sin código) a otra similar que sí esté codificada, con el fin de otorgar cobertura. Para activar esta herramienta, el afiliado debe primero solicitar formalmente a su Isapre la cobertura de la prestación no codificada; si la Isapre rechaza, el paciente puede elevar el caso a la Superintendencia【28†】. La Superintendencia analiza la factibilidad técnica y, de estar justificado médicamente, puede ordenar a la Isapre que otorgue cobertura utilizando un código existente equivalente (por ejemplo, equiparar un dispositivo novedoso a otro análogo ya incluido en el arancel). Este procedimiento –establecido en el artículo 117 del DFL 1 y atribuciones del artículo 190 Nº8– busca evitar que la falta de actualización del arancel deje sin protección al paciente. No obstante, en la práctica muchos afiliados han debido recurrir a recursos judiciales de protección ante negativas iniciales, ya que la respuesta administrativa puede ser lenta o desfavorable.
+
+Actualización del arancel: El problema de fondo es que el Arancel Fonasa no siempre refleja al ritmo adecuado las innovaciones médicas. La autoridad sanitaria realiza procesos periódicos de revisión junto a sociedades científicas para incorporar nuevas prestaciones al listado arancelario, pero esto depende de evaluaciones técnicas y disponibilidad de financiamiento público【28†】. Así, existe un desfase temporal entre la aparición de una técnica (p. ej., cirugía robótica) y su reconocimiento oficial en el arancel. Durante ese ínterin, tales prestaciones quedan excluidas formalmente de cobertura, a menos que se recurra a la homologación caso a caso.
+
+En palabras del entonces Superintendente de Salud, Sebastián Pavlovic, la creciente frecuencia de reclamos por “negativa de cobertura de prestaciones no aranceladas” evidencia la necesidad de actualizar oportunamente el arancel y utilizar las facultades de homologación. De lo contrario, se transfiere al paciente la carga financiera completa de avances terapéuticos que deberían considerarse parte del estándar de atención, generando inequidades【28†】. La autoridad ha reconocido que se trata de un desafío de gestión importante: mantener el arancel al día para que los seguros (público y privado) cubran efectivamente las nuevas prestaciones y evitar la judicialización de estos casos.
+
+Rol de la Superintendencia de Salud y avances administrativos
+
+La Superintendencia de Salud, ente regulador, ha ejercido sus facultades tanto para resolver reclamos individuales como para dictar normas generales que mejoren la cobertura de altas complejidades. Un ejemplo notable es la Circular IF Nº 331, de 27 de agosto de 2019, mediante la cual la Superintendencia instruyó a las Isapres sobre la cobertura mínima que debían otorgar en tratamientos de reproducción asistida de alta complejidad. Hasta entonces, los tratamientos de infertilidad (como fertilización in vitro) estaban excluidos de la mayoría de los planes. Gracias a esta circular –que modificó el Compendio de Beneficios de Isapres– se precisó que las Isapres deben incorporar y bonificar dichos tratamientos, al menos parcialmente, en sus planes complementarios. Este avance normativo vino a saldar una deuda en cobertura, equiparando en parte la situación chilena con estándares internacionales en salud reproductiva.
+
+En cuanto a la homologación de prestaciones no codificadas, la Superintendencia ha resuelto casos particulares ordenando cobertura. La vía administrativa, sin embargo, ha mostrado limitaciones: hasta donde se sabe, la Superintendencia no suele homologar proactivamente prestaciones de forma general, sino que actúa ante casos presentados. Un análisis jurisprudencial señalaba que “la Superintendencia no ha ordenado homologar la instalación o retiro de [cierto] dispositivo respecto de ninguna otra prestación de salud” salvo cuando se le ha solicitado formalmente. En otras palabras, sin la presión de un reclamo específico (o un fallo judicial), muchas innovaciones permanecen sin cobertura explícita.
+
+No obstante, se observan señales de cambio: la Ley Ricarte Soto (Nº20.850), vigente desde 2015, creó un sistema de protección financiera para tratamientos de alto costo por enfermedades graves o raras. Si bien este fondo está separado de Fonasa/Isapres, su existencia evidencia el reconocimiento estatal de que ciertos tratamientos innovadores (medicamentos o dispositivos de altísimo costo) requieren financiamiento especial. Algunos dispositivos neurológicos de última generación han sido incorporados a la cobertura de la Ley Ricarte Soto para patologías específicas (por ejemplo, el estimulador cerebral profundo para distonía generalizada fue incluido como prestación garantizada por la Ley 20.850). Esto significa que, al menos para esas condiciones, tanto Fonasa como Isapres deben cubrir el dispositivo vía Ricarte Soto. Sin embargo, cuando un paciente requiere la misma tecnología para una enfermedad no cubierta por Ricarte Soto, surge nuevamente la brecha de cobertura (y la posibilidad de litigio, como se verá más adelante).
+
+Jurisprudencia judicial relevante en cirugías de alta complejidad
+
+Ante la falta de soluciones expeditas en el contrato o la regulación, muchos afiliados han recurrido a la vía judicial (recursos de protección) para obtener cobertura de sus tratamientos de alta complejidad. En los últimos años, los tribunales –y especialmente la Corte Suprema– han sentado una importante jurisprudencia ordenando a Isapres e incluso a Fonasa financiar prestaciones innovadoras, priorizando el derecho a la salud y a la vida por sobre exclusiones contractuales. A continuación se resumen algunos fallos destacados:
+
+Radiocirugía cerebral (Gamma Knife) – Corte Suprema 2018: En diciembre de 2018, la Tercera Sala de la Corte Suprema acogió un recurso de protección de una afiliada de Isapre Vida Tres, ordenando cubrir un tratamiento de radiocirugía Gamma Knife indicado para un tumor cerebral. Este procedimiento no contaba con código Fonasa vigente y la Isapre se negaba a financiarlo invocando la cláusula de exclusión de prestaciones no aranceladas. La Corte Suprema revocó la decisión previa y razonó que, habiendo sido prescrito por el médico tratante como alternativa necesaria y pertinente (con menos riesgos que una cirugía convencional), la aseguradora debe adaptarse a la recomendación médica. El fallo sostiene que permitir la negativa implicaría “tolerar una pasividad de la Administración” que excluye medios aptos y comprobados para recuperar la salud. En consecuencia, se ordenó a la Isapre otorgar la cobertura, activando incluso la Cobertura Adicional para Enfermedades Catastróficas (CAEC) que correspondiera. Este caso marcó un precedente importante al cuestionar el funcionamiento del sistema: confirmó judicialmente que la falta de codificación no justifica dejar sin tratamiento a un paciente, estableciendo que la prescripción médica debe primar sobre tecnicismos administrativos.
+
+Cirugía robótica asistida por Da Vinci – Corte de Apelaciones de Santiago 2018: También en 2018, un afiliado llevó a tribunales a Isapre Banmédica por no reembolsar el uso de tecnología robótica en una cirugía. La Cirugía Robótica Da Vinci –empleada en su caso para una reparación inguinal bilateral mínimamente invasiva– generaba un costo adicional (cobrado por la clínica por uso del robot) de aproximadamente $690.000, no cubierto por el plan al no estar previsto en el arancel. En un fallo de fines de 2018, la Corte de Apelaciones de Santiago (en fallo dividido) estimó arbitraria la negativa de la Isapre, señalando que la cirugía con apoyo del robot debía entenderse como un avance de la técnica quirúrgica aplicado a la patología del paciente. La corte ordenó dar cobertura total tanto al instrumental robótico como a los medicamentos e insumos usados en la operación. En su fundamento, recalcó que no había razón lógica para que un progreso tecnológico validado quedara fuera de cobertura, imponiendo al paciente un costo significativo sin justificación. (Cabe destacar que hubo voto de minoría: un ministro consideró que el asunto era netamente contractual y escapaba al recurso de protección, citando jurisprudencia previa más restrictiva. No obstante, la tendencia reciente se ha alejado de ese criterio estricto).
+
+Dispositivo CPAP para apnea del sueño – Corte de Apelaciones de Valdivia 2021: Un ejemplo de homologación exigida judicialmente lo dio la Corte de Valdivia en octubre de 2021. Una afiliada de Isapre Colmena recurrió de protección porque su aseguradora rechazó cubrir un dispositivo CPAP (equipamiento de ventilación nocturna para tratar apnea obstructiva del sueño) argumentando que carecía de código Fonasa. El tribunal de alzada valdiviano acogió la acción, afirmando que la Isapre actuó arbitrariamente al no homologar la prestación, pese a que la ley lo permite. De hecho, la propia Isapre había reconocido ante la Superintendencia la posibilidad de homologar ese procedimiento a otro código (mencionado como “prestación JAC2”). La Corte señaló que el aparato CPAP, aunque no listado en el arancel, es equivalente en fin terapéutico a otros dispositivos con cobertura (p. ej., un marcapasos cardíaco cubierto por GES). Por tanto, no existía justificación para negarlo: “no se divisa la razón por la cual el dispositivo que necesita el actor […] no puede ser homologado, a fin de obtener el código faltante y así dar la cobertura solicitada”. La negativa de cobertura solo por no estar bonificado por Fonasa carecía de razonabilidad y desproporcionaba el derecho a la integridad y la vida del paciente. El fallo recordó además que las Isapres, aunque privadas, integran la red sanitaria del Estado para garantizar la recuperación de la salud, según el art. 19 Nº9 de la Constitución. En consecuencia, ordenó a Colmena dar cobertura CAEC al CPAP utilizando el código Fonasa más similar en el arancel vigente. Este caso es ilustrativo de cómo los tribunales han aplicado directamente el concepto de homologación cuando la Isapre no lo hace voluntariamente.
+
+Implante de Neuroestimulador Cerebral Profundo (DBS) – Corte Suprema 2023: Un reciente fallo de marzo de 2023 (Rol 106.097-2022) reforzó esta línea jurisprudencial. Un paciente con enfermedad de Parkinson requirió la implantación de un estimulador cerebral profundo (Deep Brain Stimulation) –un dispositivo neuroquirúrgico de alta tecnología– realizada en Clínica Dávila en 2021. La Isapre Cruz Blanca se negó a otorgar la Cobertura Adicional para Enfermedades Catastróficas (CAEC) para costear el dispositivo, aduciendo que carecía de código Fonasa. La Corte de Apelaciones de Santiago inicialmente rechazó el recurso de protección, considerando que se trataba de un asunto contractual complejo ajeno a la acción cautelar. Sin embargo, la Corte Suprema revocó esa decisión y ordenó a la Isapre cubrir el dispositivo bajo CAEC, homologándolo al código de marcapasos del arancel Fonasa. En su fundamentación, la Suprema destacó que la falta de código no implica que el procedimiento sea experimental o carezca de sustento técnico –de hecho, la estimulación cerebral profunda es un tratamiento con décadas de uso terapéutico–. Subrayó que la indicación médica especializada y la evidencia de eficacia deben primar, y que para la Isapre el costo no es imprevisto si se limita al valor del código equivalente en el arancel. Aceptar la negativa implicaría validar una omisión administrativa que excluye medios válidos para la salud. Por tanto, el dispositivo debía ser homologado y cubierto por CAEC. El fallo concluye que la negativa de la Isapre fue arbitraria y vulneró garantías constitucionales como la igualdad ante la ley (art. 19 Nº2) y el derecho de propiedad (art. 19 Nº24) en relación con el derecho a la protección de la salud. Como nota adicional, la sentencia menciona que, paradójicamente, la Ley Ricarte Soto ya contempla la cobertura de este mismo dispositivo para otra patología (distonía), lo que refuerza la idea de que el elemento en sí es reconocido como necesario en el sistema de salud.
+
+Tratamiento farmacológico de alto costo (cáncer) – Corte Suprema 2021: No solo las cirugías y aparatos han generado litigios; también los medicamentos innovadores de alto costo. Un ejemplo emblemático es el caso de una paciente con leucemia linfática crónica que requería ibrutinib, una droga oncológica de última generación no incluida en el GES de ese cáncer ni en el arancel común. En agosto de 2021, la Corte Suprema (Rol 39.102-2020) ordenó a Isapre Consalud otorgar cobertura CAEC al 100% del medicamento ibrutinib, sin aplicar deducible, pese a que la paciente lamentablemente falleció durante el litigio. El fallo sostiene que la Isapre incurrió en un acto arbitrario al negar la cobertura “sobre la base de consideraciones formales” –la falta de codificación o de inclusión explícita– dejando a la paciente sin acceso oportuno al fármaco imprescindible para su sobrevida. Se enfatizó que razones meramente económicas no podían primar por sobre el derecho a la vida; de hecho, la paciente y su familia hicieron esfuerzos enormes para costear de su bolsillo el medicamento, evidenciando el impacto de la negativa. La sentencia cita además la recién promulgada Ley Nacional del Cáncer (Ley 21.258), que insta a la cooperación público-privada para garantizar tratamientos oncológicos, dada su importancia como problema de salud pública. Con base en ello, ordenó al seguro privado alinear su actuar con la política pública y financiar integralmente el fármaco innovador. Este veredicto reafirma que, tratándose de condiciones graves como el cáncer, el sistema debe procurar el acceso a terapias avanzadas, aunque no estén inicialmente en sus catálogos de prestaciones.
+
+Otros casos y tendencia general: La judicialización se ha extendido a diversos ámbitos: por ejemplo, la cobertura de procedimientos bariátricos (obesidad mórbida) antes de ser AUGE fue obtenida vía tribunales en algunos casos, al igual que ciertas terapias off-label. Sin embargo, los expuestos arriba ilustran la tendencia central: los tribunales chilenos, en especial la Corte Suprema, han privilegiado la protección de la salud por sobre cláusulas contractuales de exclusión, cuando está en riesgo la vida o integridad de las personas. Esto ha consolidado el criterio de que la falta de un código arancelario no es razón válida para negar cobertura si el tratamiento es médicamente necesario y existe una prestación análoga que se pueda tomar como referencia. De hecho, la jurisprudencia reciente considera arbitraria y carente de razonabilidad la postura de las aseguradoras de escudarse únicamente en la ausencia de codificación para eludir su responsabilidad. La Isapre, al igual que Fonasa, tiene un rol en garantizar el derecho a la salud de sus afiliados, integrando el sistema sanitario nacional. Esta línea jurisprudencial ha provocado que muchas prestaciones innovadoras sean finalmente cubiertas, aunque caso a caso, evidenciando un cambio respecto de posturas más antiguas (hace una década, era común que recursos de protección en estos temas fueran rechazados por considerarse materia contractual ajena a derechos fundamentales).
+
+Cobertura en el sistema público (Fonasa) y fallos relacionados
+
+Si bien gran parte de la discusión se centra en las Isapres, el sistema público (Fonasa y el Ministerio de Salud) también ha enfrentado retos con prestaciones de alta complejidad. En general, un paciente Fonasa que se atiende en un hospital público recibirá los tratamientos que el equipo médico disponga, incluso de alta complejidad, ya que el financiamiento proviene del presupuesto estatal más que de un “plan contratado”. No obstante, cuando se trata de terapias ultra costosas o no disponibles en la red pública, también ha habido acciones judiciales para obtener cobertura estatal. Un caso citado frecuentemente ocurrió en 2018: la Corte Suprema ordenó a Fonasa y al Ministerio de Salud financiar el tratamiento de un niño con una enfermedad degenerativa, cuyo medicamento no estaba cubierto por la Ley Ricarte Soto y costaba alrededor de $500 millones anuales. Este fallo sentó un precedente obligando al Estado a asumir un tratamiento fuera de las prestaciones garantizadas, con fundamento en el derecho a la vida del menor. Del mismo modo, antes de la creación de la Ley Ricarte Soto, varios pacientes lograron por vía judicial que el Estado proveyera fármacos de altísimo costo para enfermedades poco frecuentes.
+
+Actualmente, Fonasa cuenta con mecanismos especiales para atenciones de alto costo: el mencionado Fondo Ricarte Soto cubre un listado acotado de patologías y tratamientos caros (ej. ciertos medicamentos oncológicos, enfermedades raras, dispositivos como bombas de insulina, implantes cocleares, etc.), y el GES/AUGE cubre 87 problemas de salud con prestaciones definidas (varios tipos de cáncer, trasplantes, infartos, etc., incluyendo algunas cirugías complejas como bypass gástrico para obesidad mórbida, neurocirugía de aneurismas cerebrales, etc.). Fuera de esos programas, Fonasa puede financiar caso a caso prestaciones en su red institucional según priorización médica y disponibilidad. Sin embargo, cuando un afiliado Fonasa opta por atenderse en el sistema privado en modalidad libre elección, enfrenta las mismas limitaciones de arancel que un afiliado Isapre: si la prestación no está codificada, Fonasa no bonifica nada y el paciente debe pagar el 100%. En tal circunstancia, un beneficiario Fonasa podría igualmente recurrir de protección, aunque es menos común, dado que generalmente quienes judicializan son afiliados a Isapres con expectativas contractuales de mayor cobertura.
+
+Un aspecto importante es que la brecha de cobertura afecta tanto a afiliados Isapre como Fonasa, pero en la práctica los primeros han tenido más recursos legales. No obstante, las sentencias que amplían cobertura crean presión también sobre Fonasa: por ejemplo, tras la jurisprudencia que ordenó cubrir ciertos fármacos oncológicos, es esperable que el sistema público evalúe incorporarlos vía Ley Ricarte Soto o programas especiales, para evitar futuros litigios y asegurar equidad entre pacientes.
+
+Debates actuales y consideraciones finales
+
+La situación descrita ha detonado un debate sobre cómo equilibrar la incorporación de nuevas tecnologías médicas con la sostenibilidad financiera del sistema de salud. Representantes de las Isapres han manifestado que estos fallos judiciales evidencian la falta de una institucionalidad técnica y autónoma que defina qué deben cubrir los seguros, públicos y privados, de forma oportuna y basada en criterios sanitarios. Argumentan que no es deseable que sean los tribunales quienes, caso a caso, terminen fijando la cobertura, ya que aquello favorece solo a quienes litigan y puede desordenar la política pública. En efecto, expertos en salud pública advierten que el quehacer judicial está determinando niveles de gasto y distribución de recursos en salud, funciones que idealmente corresponderían al legislador y la autoridad sanitaria democrática.
+
+Por otro lado, desde la perspectiva de los pacientes y derechos ciudadanos, se valora que el Poder Judicial ha actuado como contrapeso cuando el sistema no da respuesta a necesidades vitales. La interpretación constitucional pro-persona que ha hecho la Corte Suprema –vinculando la protección de la salud con el derecho a la vida, a la integridad física y a la igualdad ante la ley– ha permitido salvar brechas inmediatas. Sin estos fallos, muchos pacientes habrían quedado sin acceso a tratamientos disponibles por una cuestión burocrática o de retraso normativo.
+
+En el horizonte, se discuten posibles reformas estructurales. La crisis reciente de las Isapres (derivada de otros fallos que las obligan a restituir cobros indebidos y adaptar sus planes) abre la puerta a cambios mayores en el sistema de seguros. Cualquier nuevo diseño debiera abordar explícitamente cómo se incorporan las prestaciones de salud de alto costo o innovadoras. Una opción en evaluación es crear un plan de salud universal con un listado amplio y actualizado de prestaciones cubiertas, financiado solidariamente. De concretarse, esto podría reducir la incertidumbre actual, haciendo que la cobertura de nuevas cirugías o terapias sea automática tras su aprobación sanitaria, sin esperar litigios.
+
+En conclusión, el tema de la cobertura de cirugías de alta complejidad y otras innovaciones médicas en Chile es complejo y multifacético. Se ha avanzado mediante instrucciones administrativas (p. ej. fertilización in vitro) y sentencias judiciales que han empujado los límites de la cobertura tradicional. No obstante, persisten vacíos que requieren atención sistémica. Para los usuarios –ya sea en Fonasa o Isapre– la recomendación es informarse bien de sus derechos: ante una negativa de cobertura por “prestación no codificada”, saber que existe la vía de reclamo ante la Superintendencia de Salud y, de ser necesario, la acción de protección ante tribunales. La máxima jurisprudencia ha respaldado que la protección de la salud y la vida del paciente debe primar sobre tecnicismos contractuales, especialmente cuando existe un método eficaz para su condición aunque no esté contemplado explícitamente en el plan. Siguiendo esa línea, el desafío país es institucionalizar estos criterios –actualizando aranceles, fortaleciendo el fondo de enfermedades catastróficas y definiendo claramente las coberturas– para que el acceso a tratamientos de alta complejidad no dependa de una batalla legal, sino que sea una garantía real y oportuna para todos los chilenos.
+
+Fuentes y jurisprudencia consultadas: Este informe se ha elaborado con base en normativa vigente, instructivos de la Superintendencia de Salud, y múltiples fallos judiciales recientes, entre ellos sentencias de la Corte Suprema y Cortes de Apelaciones de Chile, además de artículos de prensa especializada que han recogido el detalle de estos casos. Se incluyen referencias específicas a lo largo del texto para mayor detalle de cada punto discutido. Todas las referencias corresponden a fuentes chilenas oficiales o periodísticas, reflejando el estado del arte en la materia hasta el año 2025.
+
+CIRCULAR IF/Nº 
+SANTIAGO, 
+470 
+o 1 .JUM2024 
+INSTRUYE SOBRE EL MODO DE HACER EFECTIVA LA ADECUACIÓN DE TODOS 
+LOS CONTRATOS DE SALUD PREVISIONAL A LA TABLA ÚNICA DE FACTORES, 
+RESTITUCIONES, AJUSTE EXCEPCIONAL A LA COTIZACIÓN LEGAL 
+OBLIGATORIA, PLAN DE PAGO Y AJUSTES, Y OTRAS MATERIAS QUE SE 
+INDICAN, EN CUMPLIMIENTO DE LO ESTABLECIDO EN LA LEY 21.674 
+Esta Intendencia de Fondos y Seguros Previsionales de Salud, en ejerc1c10 de las 
+atribuciones que le confiere la normativa, en especial, lo dispuesto en los artículos 110, 
+Nº2, Nº4 y 114 del DFL Nºl/2005 de Salud y en la Ley Nº21.674, viene en impartir las 
+siguientes instrucciones generales: 
+I. 
+INTRODUCCIÓN 
+Como es de conocimiento público, en el mes de noviembre de 2022, la Excma. Corte 
+Suprema, resolvió dejar sin efecto las Tablas de Factores que las Isapres tuvieran 
+asociadas a sus planes de salud, que fueran distintas a la definida por la 
+Superintendencia de Salud a través de la Circular IF/Nº 343, de fecha 11 de diciembre 
+de 2019. 
+Para lo anterior, la Excma. Corte Suprema instruyó a cada Isapre calcular el precio final 
+de todos los contratos de salud administrados, multiplicando el valor del plan base 
+correspondiente por la suma de los factores del grupo familiar, en aplicación de la Tabla 
+de Factores Única (en adelante TFU) contenida en la referida Circular, estableciendo, 
+además, que la aplicación de dicho procedimiento no podía impo'rtar un alza del precio 
+final de los contratos de las personas afiliadas y que, sólo podría autorizarse un alza del 
+precio final de estos, cuando se fundara en la incorporación de nuevas cargas o personas 
+beneficiarias y la suma de los factores de riesgo del grupo familiar allí previstos así lo 
+determinase. Sin perjuicio de aquello, dispuso que el cobro de dichas nuevas cargas o 
+personas beneficiarias se suspendería hasta que éstas cumplieran los dos años de edad. 
+Finalmente, por dichas sentencias, se ordenó a esta Superintendencia de Salud que, en 
+ejercicio de sus facultades, determinase el modo de hacer efectiva la adecuación precio 
+final de todos los contratos de salud administrados por las Isapres a los términos de la 
+Tabla Única de Factores contenida en la Circular IF/Nº 343 y que dispusiera las medidas 
+administrativas para que, en el evento que, de la aplicación de la Tabla Única de Factores 
+de la Superintendencia, se determinase un precio final del contrato inferior al cobrado y 
+percibido por las ISAPRE, las cantidades recibidas en exceso fueran restituidas como 
+excedentes de cotizaciones a las personas afiliadas. 
+En cumplimiento de la primera directriz, este Organismo, con fecha 13 de mayo de 2024, 
+dictó la Circular IF/Nº 468, que tuvo por objetivo formalizar la incorporación de la Tabla 
+de Factores Única a todos los contratos de salud suscritos con anterioridad al 1° de abril 
+de 2020, y señalar la manera de determinar el precio de los planes en virtud de las 
+sentencias judiciales emitidas por la Excma. Corte Suprema, para lo cual impartió 
+instrucciones a las Isapres en ese sentido, al tenor de lo ordenado en dichos fallos. 
+Posteriormente, el día 24 de mayo de 2024, se publicó en el Diario Oficial la Ley 21.674 
+que Modifica el Decreto con Fuerza de Ley Nº 1, de 2005, del Ministerio De Salud, en las 
+Materias que Indica, Crea un Nuevo Modelo de Atención en el Fondo Nacional De Salud, 
+Otorga Facultades a la Superintendencia De Salud, y Modifica Normas Relativas a las 
+Instituciones De Salud Previsional, la que, tuvo como objetivo, entre otras cosas, 
+"viabilizar el cumplimiento de la jurisprudencia de la Excelentísima Corte Suprema" y 
+"asegur:af"~I 'cump.limiento de las obligaciones establecidas en dicha jurisprudencia por 
+parte de las ISAPRE protegiendo la viabilidad financiera de las mismas". 
+Al respecto, la Ley en su artículo 2° establece que esta Superintendencia de Salud, 
+"determinará por medio de una circular dictada especialmente para estos efectos, el 
+modo de hacer efectiva la adecuación del precio final de todos los contratos de salud 
+previsional a los que las Instituciones de Salud Previsional aplicaron una tabla de factores 
+elaboradas por ellas mismas y distinta a la Tabla Única de Factores establecida por la 
+Superintendencia de Salud", señalando a continuación el contenido mínimo que deberá 
+contener dicho acto. 
+Por otra parte, en su artículo segundo transitorio dispone, que la circular que debe emitir 
+la superintendencia de conformidad al artículo 2°, deberá dictarse dentro de los diez días 
+siguientes de publicada la ley. 
+Por lo anterior, esta Superintendencia, en cumplimiento de dicho mandato legal, 
+procederá por este acto a impartir las instrucciones necesarias para, entre otras cosas, 
+efectuar la adecuación del precio final de los contratos de salud de conformidad a la TFU, 
+complementando las instrucciones previamente dictadas a través de la Circular IF/Nº 
+468, las que se mantendrán vigentes, en todo aquello que no resulte incompatible con 
+esta normativa y regulando materias tratadas exclusivamente en la Ley, tales como la 
+instrucción de restituir las cantidades percibidas en exceso y el establecimiento de los 
+parámetros técnicos y metodológicos para la presentación de los planes de pago y 
+ajustes, por parte de las isapres. 
+Por su parte, el artículo 9°, dispone que "Sin perjuicio de lo dispuesto en el inciso octavo 
+del artículo 188 del decreto con fuerza de ley Nº 1, promulgado en 2005 y publicado en 
+2006, del Ministerio de Salud, de forma excepcional y por una sola vez, todos aquellos 
+contratos de salud que tengan un precio pactado que sea inferior a la cotización legal 
+obligatoria, se ajustarán al valor de dicha cotización". Respecto de este punto, se señala 
+que dicho ajuste se realizará previa instrucción de la Superintendencia de Salud, la que 
+podrá estar incluida en la circular que trata el artículo 2° antes mencionado. 
+En virtud de lo señalado, se procederá a regular dicho ajuste excepcional, al valor de la 
+cotización legal obligatoria de los contratos de salud que tengan un precio pactado 
+inferior a dicha cotización, de forma conjunta en un solo acto, en apego a lo dispuesto 
+en el artículo 9° de la mencionada Ley. 
+II. 
+OBJETIVO. 
+Indicar el modo de hacer efectiva la adecuación del precio final de todos los contratos 
+de salud previsional que, encontrándose vigentes al 1 de diciembre de 2022, empleaban 
+una tabla de riesgo distinta a la Tabla de Factores Única establecida por la 
+Superintendencia de Salud, además de instruir las restituciones de las cantidades 
+percibidas en exceso, en los términos dispuestos por la Ley Nº21.674. 
+2 
+Dar cumplimiento al artículo 9° de la Ley Nº21.674, sobre el ajuste al valor de la 
+cotización legal obligatoria, de forma excepcional y por una sola vez, de los contratos de 
+salud que tengan un precio pactado que sea inferior a dicha cotización. 
+Asimismo, precisar los parámetros técnicos y metodológicos para que las Instituciones 
+de Salud Previsional presenten sus planes de pago y ajustes, a que alude el artículo 3° 
+de'la antedicha ley. 
+III. 
+INSTRUCCIONES SOBRE LA ADECUACIÓN DEL PRECIO FINAL A LA 
+TABLA DE FACTORES ÚNICA. 
+Las isapres deberán adecuar el precio final de los planes de todos los contratos 
+previsionales de salud vigentes al 30 de noviembre de 2022 y que no empleaban la TFU, 
+contenida en la Circular IF/Nº343, de 11 de diciembre de 2019, de la Superintendencia 
+de Salud, en los términos que establece el artículo 2° de la Ley Nº21.674. 
+En consideración a lo anterior, esta adecuación no podrá importar un alza del precio final 
+de los contratos vigentes, ni tampoco una reducción del precio pactado que lo sitúe bajo 
+el valor de la cotización legal obligatoria. 
+Sin embargo, si en forma previa a la aplicación de estas instrucciones, el precio pactado 
+se encontraba bajo el mínimo obligatorio, esta adecuación no podrá modificarlo, no 
+obstante, lo indicado en el artículo 9 de dicha ley. 
+Para los fines expuestos, el valor de la cotización legal obligatoria se calculará sobre el 
+monto promedio de los últimos seis meses de la remuneración, renta o pensión, según 
+sea el caso, contados desde el cálculo de la adecuación. Por lo tanto, la isapre deberá 
+emplear los datos disponibles más próximos para determinar dicho promedio, 
+identificando, en cada una de las gestiones que hagan referencia al mismo, cuáles fueron 
+los meses utilizados. 
+Conjuntamente con las instrucciones del presente apartado, las isapres deberán dar 
+cumplimiento a las contenidas en la Circular IF/Nº468, de 13 de mayo de 2024, de esta 
+Superintendencia, mediante la cual se impartieron las directrices para formalizar la 
+incorporación de la TFU atendido lo resuelto por la Excma. Corte Suprema, en lo que no 
+resulte incompatible con esta normativa. 
+Atendido lo expuesto, entre las reglas que debe considerar la isapre para la 
+determinación del precio final producto de la ejecución de esta adecuación, será el uso 
+del precio base vigente de cada contrato, en esa oportunidad. 
+Una vez formalizado el cálculo del precio final de los contratos en la forma instruida, las 
+isapres sólo podrán alzarlo fundado en la incorporación de nuevas cargas o personas 
+beneficiarias y en la medida que la suma de los factores de riesgo del grupo familiar así 
+lo determinen, es decir, ya no se podrá emplear la tabla de riesgo como mecanismo de 
+aj uste de precio. 
+El cobro de dicha alza se suspenderá hasta que la carga que se adiciona cumpla dos 
+años de edad, de encontrarse en tal supuesto. 
+En este mismo sentido, tanto para la incorporación como para el retiro de una carga, en 
+la determinación del precio final se empleará el precio base vigente del contrato de salud, 
+a la fecha de ocurrencia de este hecho. 
+3 
+Para calcular el precio final al momento del retiro de una carga, se utilizará el tramo de 
+la Tabla de Factores Única (TFU) que dicha carga tenía asignado, ya sea al 1 de abril de 
+2020 o aquél de la TFU que se le fijó al momento de su incorporación a la isapre. 
+Por su parte, en el caso de los contratos a los que no se les aplicare la adecuación del 
+precio final, por las excepciones a las que alude el presente título, para el retiro de las 
+cargas se empleará el factor de la TFU correspondiente a la edad de la persona 
+beneficiaria, al momento de ocurrencia de esta modificación contractual. 
+IV. 
+INSTRUCCIONES SOBRE LA OBLIGACIÓN DE INFORMAR LOS 
+CONTRATOS QUE, CON OCASIÓN DE LA APLICACIÓN DE LA TABLA 
+DE FACTORES ÚNICA, RESULTEN CON UN PRECIO FINAL INFERIOR 
+AL COBRADO Y PERCIBIDO POR LA ISAPRE. 
+Dentro del plan de pago y ajustes a que refiere el artículo 3° de la Ley N°21.674, en un 
+apartado especialmente destinado a dicho fin, las isapres deberán informar todos los 
+contratos que, con ocasión de la adecuación a la TFU resulten con un precio final inferior 
+al cobrado y percibido, debiendo señalar esas diferencias en unidades de fomento, por 
+cada uno de ellos. 
+Con esta finalidad, la Isapre informará a la Superintendencia mediante dos archivos 
+secundarios de verificación de la deuda, los contratos que se especifican: 
+1) "ARCHIVO MAESTRO SECUNDARIO DE VERIFICACIÓN DEUDA ABRIL 2020 
+NOVIEMBRE 2022" 
+Contiene datos de la deuda por contrato y de otras variables necesarias para su 
+determinación, por cada mes dentro del período de de cotizaciones descontadas de las 
+remuneraciones de abril 2020 a noviembre 2022. 
+Considera información mensual de todos los contratos de salud administrados por la 
+Isapre en el mes de noviembre de 2022 que utilizan una tabla de factores distinta a la 
+tabla de factores única (TFU) definida en la Circular IF Nº343 de esta Superintendencia 
+y que presentan disminuciones de precios por aplicación del Fallo de la Corte Suprema 
+referido a la Tabla de Factores, dentro del período señalado. 
+Este Archivo maestro debe ser entregado el 5 de julio 2024. 
+2) ARCHIVO SECUNDARIO DEUDA DICIEMBRE 2022 - AGOSTO 2024 
+Contiene datos de la deuda por contrato y de otras variables necesarias para su 
+determinación, entre los meses de diciembre 2022 y agosto 2024 (cotizaciones 
+descontadas de las remuneraciones de diciembre 2022 a abril 2024). 
+Considera información de todos los contratos de salud administrados por la Isapre desde 
+el mes noviembre de 2022 hasta el mes de julio 2024 (cotizaciones descontadas de las 
+remuneraciones de diciembre 2022 a agosto 2024), que utilicen una tabla de factores 
+para la determinación del precio de sus planes y que presenten disminuciones en sus 
+precios por aplicación del Fallo de la Corte Suprema referido a la Tabla de Factores y al 
+No Cobro a personas beneficiarias no natas y menores de 2 años, en el mes que se 
+informa. 
+Este Archivo maestro constará de dos entregas: 
+Primera entrega: 5 de julio 2024 referida al período entre noviembre 2022 y marzo 2024 
+Segunda entrega: 5 de noviembre 2024 referida al período entre noviembre 2022 hasta 
+julio 2024 (remuneraciones diciembre 2022 a agosto 2024). 
+4 
+La descripción de las características y definiciones de estos dos archivos maestros 
+secundarios de verificación en relación, se incluyen como anexos en la presente Circular. 
+Se anexa también la metodología de cálculo de la deuda por contrato, que complementa 
+la estructura de los dos archivos maestros ya señalados. 
+Es importante destacar que en la metodología de cálculo todos los campos señalados 
+hacen referencia al Archivo maestro "Cambio de Factores de Riesgo de las Personas 
+Beneficiarias", que se construye a partir del Oficio Circular IF/NºS que solicitaba dicho 
+archivo y detalla sus campos. 
+En efecto, esto implica que se define que este es el archivo primario de verificación, con 
+base en el cual se definen los valores que la Isapre reportará en los archivos secundarios 
+de verificación. 
+Por · último, se señala que los campos "período de información" y "fecha de 
+remuneración", tanto en el archivo maestro primario "Cambio de Factores de Riesgo de 
+las Personas Beneficiarias", como en los dos archivos secundarios de verificación, 
+corresponden al "mes de producción" y al "mes de cotización", respectivamente. 
+V. 
+INSTRUCCIONES SOBRE LA OBLIGACIÓN DE RESTITUIR LAS 
+CANTIDADES PERCIBIDAS EN EXCESO, PRODUCTO DE LA 
+ADECUACIÓN A LA TABLA DE FACTORES ÚNICA. 
+1. Procedimiento de restitución. 
+Una vez formalizada la adecuación a la Tabla de Factores Única (TFU), conforme a las 
+reglas previamente expuestas, las isapres deberán restituir las cantidades en exceso 
+descontadas de la remuneración por dicho concepto entre el 1° de abril de 2020 y el 31 
+de agosto de 2024, incluyendo aquellas cotizaciones que se perciban con posterioridad 
+a esta última fecha, pero deriven de tales periodos. Lo anterior, ya que a contar del 1 ° 
+de septiembre de 2024, todos los contratos deberán encontrarse adecuados a la nueva 
+tabla, conforme a las instrucciones impartidas por la Circular IF/N°468. 
+Los contratos afectos a restitución, el monto, plazo y modalidad de pago de la respectiva 
+deuda, deberá ser informado a esta Superintendencia mediante el Plan de Pago y Ajustes 
+(en adelante PPA) a que alude el artículo 3° de la Ley N°21.674. 
+La deuda se devengará mensualmente y se reconocerá en una cuenta corriente 
+individual que la Institución de Salud Previsional deberá abrir en favor de cada cotizante 
+o ex cotizante sujeto a restitución, dentro del plazo de 10 días hábiles, contado desde la 
+resolución que aprueba el plan respectivo y no podrá ser cerrada, sino hasta su pago 
+total. 
+La cuota de la deuda, de haberse planteado dicha modalidad de pago en el plan de la 
+isapre, se pondrá a disposición de la persona acreedora o de sus herederos, según el 
+plazo de devolución previsto en el plan de pago y ajustes. 
+Esta cuenta no generará gastos de mantención, el fondo acumulado en ella será 
+reajustado conforme a la variación que experimente el Índice de Precios al Consumidor, 
+y dicho reajuste, cada seis meses, se pondrá a disposición en la cuenta de la persona 
+acreedora. 
+2. Información a las personas acreedoras. 
+5 
+Para garantizar el acceso a la información de todo el universo de titulares de estas 
+restituciones, la Isapre deberá generar un vínculo directo en su página institucional, para 
+que las personas puedan consultar sobre la existencia y monto de la deuda, además de 
+las cuotas en las cuales se ha dividido su reintegro, de haberse optado por tal modalidad 
+en el Plan de Pago y Ajustes. 
+El medio de autenticación para que los acreedores conozcan la existencia de un crédito 
+a su favor, deberá facilitar el acceso y, a su vez, contar con los resguardos de protección 
+de la información, en la misma forma en que se realiza para conocer los excedentes de 
+cotización a que se refiere el artículo 188 del DFL Nºl de Salud, de 2005. 
+Asimismo, y por razones de accesibilidad universal, en los términos indicados en el 
+artículo 12 de la Ley Nº21.674, la información sobre las devoluciones deberá estar 
+disponible en todas las sucursales de atención al público, ya sea, mediante la habilitación 
+de un trámite en los tótems de otorgamiento de números, como en los de auto-atención. 
+De igual manera, se debe incluir en el menú de trámites telefónicos o IVR con que cuente 
+la isapre y demás mecanismos que estime pertinentes para dicho fin, cuidando, en todo 
+caso, la protección de datos personales. 
+La isapre siempre deberá estar en condiciones de aportar tales antecedentes a esta 
+Superintendencia, para los fines de fiscalización y difusión que se estimen pertinentes. 
+VI. 
+INSTRUCCIONES SOBRE LA OBLIGACIÓN DE RESTITUIR LAS 
+CANTIDADES PERCIBIDAS EN EXCESO, PRODUCTO DE LA 
+SUSPENSIÓN DEL COBRO POR CARGAS NO NATAS Y MENORES DE 
+DOS AÑOS. 
+Además de la adecuación de todos los contratos previsionales de salud a la Tabla de 
+Factores Única, en los términos dispuestos por la Ley Nº21.674 y las instrucciones 
+impartidas por esta Superintendencia, las isapres deberán restituir las cantidades 
+descontadas en exceso de la remuneración por concepto de cobro de cargas no natas y 
+menores de dos años a contar del 1 ° de diciembre de 2022 y hasta el 29 de febrero de 
+2024, incluyendo aquellas cotizaciones que se perciban con posterioridad, pero deriven 
+de tales periodos, referidas a todos los contratos de salud que utilizan tabla de factores. 
+Esta última fecha, en atención a la suspensión de estos cobros decretada por la Circular 
+IF/Nº455, de 5 de enero de 2024. 
+Estas restituciones aplicarán a las cargas que, cumpliendo con el rango etario aludido, 
+se encontraban incorporadas a los planes de salud al 1 de diciembre de 2022 y aquéllas 
+que lo hicieron con posterioridad a dicha fecha. 
+Lo expuesto es, sin perjuicio, del cobro del precio GES correspondiente. 
+Los contratos afectos a restitución por este motivo, el monto, plazo y modalidad de pago 
+de la respectiva deuda, deberá ser informado a esta Superintendencia mediante el Plan 
+de Pago Y Ajustes a que alude el artículo 3° de la Ley Nº21.674, resultándole aplicables 
+las reglas consignadas en el numeral IV anterior, en lo que no resulte incompatible. 
+VII. 
+INSTRUCCIONES SOBRE EL AJUSTE EXCEPCIONAL DE CONTRATOS 
+DE SALUD A LA COTIZACIÓN LEGAL OBLIGATORIA 
+6 
+l. Oportunidad del ajuste excepcional a la cotización legal obligatoria 
+El artículo 2° de la citada Ley Nº 21.674, referido a la adecuación del precio final de 
+todos los contratos de salud previsional a los que las isapres aplicaron una tabla de 
+factores elaborada por ellas mismas y distinta a la Tabla de Factores Única establecida 
+por la Superintendencia de Salud, dispone en su número 1) inciso final que "Esta 
+adecuación se realizará simultáneamente con el ajuste al que hace referencia el artículo 
+9º de la presente ley". 
+Por su parte, la Circular IF/Nº 468, de 2024, estableció que el ajuste de los contratos a 
+la Tabla de Factores Única deberá efectuarse el 1 de septiembre de 2024, de lo que se 
+concluye que en la misma fecha deberá realizarse también el ajuste excepcional a la 
+cotización legal obligatoria de los contratos cuyo precio pactado sea inferior a dicha 
+cotización. 
+No obstante, debe tenerse presente que, de acuerdo al artículo 9°, "Respecto de los 
+contratos de salud que sus precios finales hayan sido o deban ser adecuados de 
+conformidad al artículo 2° de la presente ley, este ajuste operará sobre el valor del plan 
+obtenido al aplicar lo dispuesto en el numeral 1) de dicho artículo". 
+Por lo tanto, si bien ambos ajustes deberán ser simultáneos, la ley establece un orden: 
+Como primera operación, se aplica la adecuación por cambio de tabla de factores y, 
+como segunda operación, al precio resultante se le ajusta a la cotización legal obligatoria, 
+si procede. 
+2.- Conceptos de cotización legal obligatoria y de precio pactado 
+2.1.- Por cotización legal obligatoria se entenderá la fijada en las normas de rango legal 
+vigentes sobre la materia, en especial los artículos 84, 85 y 92 del Decreto Ley 3.500 de 
+1980, sin perjuicio de su inaplicabilidad a los pensionados que indica la Ley Nº 20.531, 
+para quienes no rige la obligatoriedad de efectuar dicha cotización legal. 
+2.2.- Para los efectos de lo instruido en la presente Circular, se entenderá por precio 
+pactado del contrato de salud previsional, la cotización para salud del afiliado, en los 
+términos del artículo 20º de las CONDICIONES GENERALES DEL CONTRATO DE SALUD 
+PREVISIONAL, además de la Prima Extraordinaria de la Ley Nº 21647 y de la Prima 
+Extraordinaria de la Ley Nº 21.674, si correspondiere. 
+En consecuencia, el precio pactado será la suma del precio final del Plan de Salud 
+Complementario, calculado en la forma indicada en el artículo 19° de las citadas 
+Condiciones Generales; más el precio de la Prima Extraordinaria de la Ley Nº 21.647, si 
+correspondiere; más el precio de la Prima Extraordinaria de la Ley Nº 21.674, si 
+correspondiere; más el precio de la Cobertura Adicional para Enfermedades Catastróficas 
+en Chile (CAEC), si corresponde; más el precio que la isapre cobre por el aseguramiento 
+de las Garantías Explícitas en Salud (GES); y más el precio de los beneficios adicionales 
+contratados por el afiliado, si corresponde. 
+3.- Independencia del ajuste excepcional a la cotización legal obligatoria 
+La procedencia del ajuste excepcional a la cotización legal obligatoria no está 
+condicionada al hecho de que también proceda la adecuación por cambio de tabla de 
+factores a que se refiere el artículo 2° de la Ley. 
+La única condición que impone la Ley para su procedencia, es que se trate de contratos 
+de salud que tengan un precio pactado que sea inferior a la cotización legal obligatoria. 
+Así, este ajuste a dicha cotización legal obligatoria se debe aplicar a todos los contratos 
+7 
+que cumplan la citada condición, aun cuando no se les deba aplicar la adecuación a la 
+TFU. 
+4.- Operación conjunta de los ajustes por cambio de tabla de factores y a la cotización 
+legal obligatoria. 
+Respecto al primero de los referidos ajustes de precio (a la Tabla de Factores Única, 
+TFU), el citado artículo 2º Nº 1 de la mencionada Ley dispone que "Esta adecuación no 
+podrá importar un alza del precio final de los contratos vigentes". 
+En seguida, agrega que la obligación de adecuar tampoco podrá importar una reducción 
+del precio pactado de los contratos bajo el valor de la cotización legal obligatoria vigente 
+al momento en que fue calculada la adecuación del precio final. 
+Para estos efectos, el valor de la cotización legal obligatoria se calculará sobre el monto 
+promedio de los últimos seis meses de la remuneración, renta o pensión según sea el 
+caso, contados desde el cálculo de la adecuación. 
+Finalmente, si, al momento de aplicar la adecuación señalada en este numeral, la 
+persona afiliada contaba con un contrato previsional de salud con un precio pactado 
+inferior a su cotización legal, el procedimiento de adecuación no podrá importar una 
+modificación de dicho precio. 
+Entonces, pueden distinguirse las siguientes situaciones en relación con la cotización 
+legal obligatoria: 
+a) Cotizante cuyo precio pactado al 31 de agosto de 2024, precio anterior a la adecuación 
+a la TFU, es inferior a la cotización legal obligatoria: Al aplicar la tabla da un precio 
+superior al que traía, por tanto, no se le modifica el precio por adecuación a la Tabla de 
+Factores Única (art. 2°), pero sí se le ajusta a la cotización legal obligatoria por la 
+aplicación del artículo 9° de la Ley. 
+En este caso, en la operación del art. 2° de la Ley se respeta inicialmente el precio 
+inferior a la cotización legal obligatoria, para luego establecer, en el mismo acto, un 
+procedimiento especial para ajustarlo a la cotización legal obligatoria por aplicación del 
+art. 9°. 
+Sin embargo, la aplicación del artículo 9° implica que, si bien el precio pactado se 
+ajustará, este ajuste irá aparejado con nuevos beneficios o planes alternativos acordes 
+al nuevo precio, lo que no ocurriría si se aplicara sólo el artículo 2º. 
+b) Cotizante cuyo precio pactado al 31 de agosto de 2024, precio anterior a la adecuación 
+a la TFU, es igual o superior a la cotización legal obligatoria: Pueden darse las siguientes 
+hipótesis: 
+b.1) El cálculo de la adecuación por cambio a la TFU da como resultado un precio inferior 
+a la cotización legal obligatoria: En ese caso, queda con un precio equivalente a su 
+cotización legal obligatoria (límite a la reducción de precio). 
+b.2) El cálculo de la adecuación por cambio a la TFU da como resultado un precio igual 
+o superior a la cotización legal obligatoria: En ese caso, se aplica dicho resultado para 
+determinar el precio, siempre y cuando no sea superior al pactado anterior. 
+8 
+VIII. INSTRUCCIONES SOBRE LOS PARÁMETROS TÉCNICOS Y 
+METODOLÓGICOS PARA LA PRESENTACIÓN DEL PLAN DE PAGO Y 
+AJUSTES POR LAS ISAPRES. 
+l. Introducción. 
+Desde la fecha de notificación de la presente Circular, la cual además será publicada en 
+la página institucional, las isapres contarán con el plazo de un mes, prorrogable por igual 
+término, para presentar a esta Superintendencia su Plan de Pago y Ajustes, en adelante 
+también PPA, documento que deberá incluir una propuesta de devolución de la deuda, 
+de reducción de costos y determinación de una prima extraordinaria para el 
+cumplimiento de los contratos de salud. 
+Para la elaboración de dicho plan, la isapre deberá dar cumplimiento a las menciones 
+obligatorias contenidas en el artículo 3° de la Ley Nº21.674, además de las descripciones 
+técnicas y metodológicas que se indican en la presente Circular y sus Anexos, todas las 
+cuales serán ponderadas al momento de aprobar y/o instruir correcciones del respectivo 
+PPA, en la forma y condiciones dispuestas por la ley. 
+2. Aspectos mínimos que debe considerar el Plan de Pago y Ajustes 
+de la isapre, con relación a la propuesta de pago de la deuda. 
+En cumplimiento de la obligación que les impone la letra a) del artículo 3º de la Ley 
+N°21.674, las isapres deberán elaborar y presentar a esta Superintendencia una 
+propuesta de devolución de la deuda calculada conforme a las instrucciones precedentes, 
+precisando el número de contratos afectos a devolución; los montos a devolver a cada 
+persona afiliada por contrato de salud, expresados en unidades de fomento; el plazo 
+máximo de devolución; las modalidades de devolución; propuestas de compensación, si 
+procedieren, y todos los antecedentes que den cuenta de la valorización de la deuda. 
+2.1 
+En cuanto al número de contratos y monto de la deuda, dicha información debe 
+ser explicitada en el PPA y respaldada en los términos expuestos en los Anexos de la 
+presente circular, indicando el acreedor de tales pagos. 
+Sobre este punto, se debe precisar la existencia de dos posibles escenarios: 
+Si el exceso derivado de la implementación de la TFU o suspensión del cobro de 
+los no natos y menores de dos años de edad se produjo durante el tiempo que el 
+titular de la deuda se encontraba haciendo uso de licencia médica con cargo al 
+Fondo Único de Prestaciones Familiares, el plan deberá informar la propuesta 
+definida por la isapre para restituir los excesos a dicho Fondo, empleando el 
+mecanismo dispuesto por la Superintendencia de Seguridad Social para estos 
+efectos. 
+En todos los demás casos, la devolución se destinará a los cotizantes, ex 
+cotizantes o sus herederos, esto último, atendido el tratamiento de excedentes 
+que la ley otorgó a las aludidas restituciones. 
+2.2 
+En cuanto al plazo, el término máximo para saldar la totalidad de la deuda será 
+de trece años, desde la fecha de implementación del plan a que aluden las presentes 
+instrucciones. No obstante, si los acreedores de estos excesos fueran mayores de 80 
+años, tal plazo no podrá superar los 24 meses, y 60 meses, si fueran mayores de 65 
+años. 
+Si durante la ejecución del plan, alguno de los beneficiarios de la deuda alcanzase las 
+edades antes señaladas, a saber, 65 y 80 años respectivamente, las cuotas insolutas 
+deberán recalcularse y acelerarse, a efectos de dar cumplimiento a los plazos legales. 
+El PPA propuesto por cada isapre deberá ser claro en cuanto al cumplimiento de esta 
+exigencia y los ajustes que se implementarán cuando los cotizantes y ex cotizantes, 
+vayan alcanzando las aludidas edades. 
+9 
+2.3 
+En lo que respecta a las compensaciones, operarán tal como con el régimen de 
+excedentes, con acuerdo del acreedor. y deberán incluirse, en caso de proceder, en el 
+respectivo plan, para su aprobación. Tratándose de deudas de cotizaciones, éstas deben 
+ser de responsabilidad de los cotizantes y, en ningún caso, deben provenir de lo no 
+pagado por el empleador o ente encargado de la pensión. 
+2.4 
+Sobre los mecanismos de pago anticipado, para el caso que la isapre decida 
+efectuar una transacción con el titular del crédito, a efectos de enterar todo o parte de 
+su deuda, dichos acuerdos deberán constar por escrito y ser notificados a esta 
+Superintendencia dentro del plazo de 5 días hábiles siguientes a su suscripción. 
+Adicionalmente, en el Plan de Pagos y Ajustes, cada isapre deberá informar si hará uso 
+de esta alternativa, junto a los criterios financieros u otros de similar naturaleza que, sin 
+importar discriminación, permitan resolver las solicitudes de prepago planteadas por 
+cotizantes o ex cotizantes. 
+2.5. 
+Para dar cuenta de la valorización actualizada de la deuda, el plan de pagos 
+deberá incluir los medios y mecanismos que utilizará para comunicar a los titulares de 
+estos créditos sobre los pagos efectuados y el saldo insoluto de la deuda, detallando los 
+movimientos, reajustes, devoluciones anuales, mecanismo de aplicación de intereses en 
+caso de mora, etcétera. 
+3. Aspectos mínimos que debe considerar el Plan de Pago y Ajustes 
+de la isapre, con relación a la propuesta de reducción de costos. 
+En cumplimiento de la obligación que les impone la letra b) del artículo 3° de la Ley 
+N°21.674, las isa pres deberán elaborar y presentar a esta Superintendencia una efectiva 
+estrategia para reducir los costos operacionales y no operacionales, la cual no podrá 
+afectar el acceso, oportunidad y financiamiento de los beneficios a las personas y debe 
+enmarcarse dentro de la normativa vigente. 
+La propuesta deberá contener aspectos tales como: 
+3.1 
+Diseño de una estrategia efectiva de reducción de costos, a corto, mediano y 
+largo plazo. Definiendo para ello un plan específico por centros de costos. 
+3.2 
+Diseño de una política de transparencia de los gastos para los afiliados, indicando 
+en detalle la información que se divulgará, la periodicidad, los mecanismos y los medios 
+que se utilizarán para dicho propósito. 
+3.3 
+Auditoría interna o externa orientada a identificar áreas, procesos y actividades 
+con debilidades de control interno sobre los costos. Seguimiento y control de las medidas 
+que surjan de la misma. 
+3.4 
+3.5 
+Designación de cargos responsables y ejecutores del plan de reducción de costos. 
+Renegociación de convenios con prestadores, incluyendo alternativas como: 
+paquetización de prestaciones, convenios de telemedicina, monitoreo remoto de 
+pacientes, pre-compra de cirugías, prestaciones y procedimientos costo cero, descuentos 
+especiales, indicadores de eficiencia. 
+3.6 
+Plan de reducción de plazos de pago a prestadores, mejoras en la tramitación y 
+bonificación de programas médicos, control de cobro de prestaciones mediante la 
+revisión de cuentas y convenios (aranceles), GRD, entre otros. 
+3. 7 
+3.8 
+Medidas para evitar fraudes en la resolución de las licencias médicas. 
+Campaña comunicacional para incentivar el correcto uso del plan de salud 
+explicitar, los topes, redes de prestadores preferentes, redes CAEC y GES, ley Ricart~ 
+Soto, etcetera. 
+10 
+3.9 
+Perfeccionar los planes de Prevención en Salud (EMP), junto con otras acciones 
+de bienestar y educación a los beneficiarios, particularmente, dirigidos al manejo de 
+enfermedades crónicas. 
+3.10 Renegociación en la prestación de serv1c1os de terceros, al igual que con las 
+empresas relacionadas, como servicios de arrendamiento, asesorías, leasing, entre 
+otros, informando indicadores de eficiencia. 
+3.11 
+Optimización de los procesos de la institución, mediante técnicas como la 
+automatización y simulación, orientados a detectar áreas de reducción de costos. 
+3.12 Elaboración y control de presupuestos, con identificación de responsables por 
+áreas y medidas preventivas para su cumplimiento. 
+3.13 Evaluación de incorporación de nuevas tecnologías y reingeniería de procesos. 
+3.14 Medidas para disminuir costos financieros, fortalecer el Gobierno Corporativo y 
+Gestión de Riesgos de las Instituciones. 
+3.15 Medidas para fomentar entre los trabajadores prácticas de ahorro de costos y 
+para canalizar propuestas de reducción. 
+3.16 Diseño y seguimiento de indicadores de control y reducción de costos con las 
+metas propuestas y plazos asociados para su logro. 
+3.17 Mejora en la Gestión de Reclamos, incorporando medidas de contención y 
+mediación, a fin de limitar las consecuencias adversas del conflicto. 
+3.18 Incluir el uso de analítica avanzada y tecnologías de Inteligencia Artificial en los 
+procesos. 
+Las propuestas de cada isapre, deberán ser cuantificadas, detallar el cronograma de 
+implementación, las medidas de control interno para su desarrollo e identificación de los 
+responsables. 
+El grado avance de la referida propuesta deberá ser remitida a la Intendencia de Fondos 
+y 
+Seguros Previsionales de Salud, a través del Subdepartamento de Fiscalización 
+Financiera de manera trimestral, conjuntamente con el envío de los estados financieros 
+( FEFI) trimestrales. 
+Si alguna de las medidas hubiere sido implementada con anterioridad a la emisión de la 
+presente circular, deberá proporcionar evidencia cualitativa y cuantitativa, que permita 
+su verificación y seguimiento. 
+Para evaluar si las medidas propuestas por las isapres en relación a las variables que se 
+consideran determinantes para calcular el valor de la prima extraordinaria, esta 
+Superintendencia monitoreará mensualmente, entre otros aspectos, los tres indicadores 
+siguientes que permitan revelar comportamientos inusuales, ineficiencia e ineficacia de 
+las medidas propuestas en el plan de pago y ajuste. 
+Cuenta FEFI Periodidad 
+Nombre indicador 
+l. Sirwestrealidad 
+2. Eficienia Adrrintstrativa 
+3. Gestión Adrrin1strativa 
+Indicador 
+Costos de ventas 
+Inaeso por actividades ordinarias 
+GAV 
+Inaeso oor acbvldades ord1nanas 
+de 
+(IFRS) 
+monitoreo 
+30020 Mensual 
+30010 
+Medio de infonnación 
+Informe Complementario, FEFI 
+Informe Complementario, FEFl 
+30080 Mensual 
+30010 
+¡costo de ventas+ GAV) 
+Inq-eso por actividades ordinarias 
+30020, 30080 Mensual 
+30010 
+Informe Complementario, FEFI, Ordnario Circular IF/Nº21 
+Informe Complementario, FEFI 
+Informe Complementario, FEFI 
+Informe Complementario. FEFI 
+4. Aspectos mínimos que debe considerar el Plan de Pago y Ajustes 
+de la isapre, con relación a la propuesta de una prima 
+extraordinaria. 
+En cumplimiento de la obligación que les impone la letra c) del artículo 3° de la Ley 
+Nº21.674, el plan de pago y ajustes de las isapres deberá considerar una propuesta de 
+11 
+prima extraordinaria por beneficiario, a efectos de cubrir los costos precisos para dar 
+cumplimiento a los contratos de salud, en los términos que se disponen en dicho 
+apartado. 
+Para la determinación de dicha prima, las isapres deberán considerar, los topes 
+establecidos en la ley, por tanto, dicha prima, en conformidad con la ley, no podrá 
+importar un alza mayor a un 10% por contrato respecto de la cotización para salud 
+descontada de las remuneraciones, pensiones y rentas afectas a aquellas 
+correspondientes al mes de julio de 2023 o al momento de la aplicación de la prima si el 
+contrato fuese posterior a esa fecha. En el caso de cotizantes independientes y 
+voluntarios, la prima no podrá implicar un alza mayor al 10% por contrato respecto de 
+la cotización pactada en el mes de julio de 2023 o al momento de la aplicación de la 
+prima extraordinaria si el contrato fuese posterior a dicha fecha. 
+Además, deberán determinar la variación de los ingresos por actividades ordinarias, los 
+costos de ventas como costos operacionales y los gastos de administración y ventas 
+como costos no operacionales, a efectos de cuantificar el déficit de los ingresos y calcular 
+el equilibrio necesario que permita a las isapres dar cumplimiento a los contratos de 
+salud. 
+Dado lo anterior, para efectuar este cálculo, las isapres deberán establecer, inicialmente, 
+el déficit de la siguiente manera: 
+Imagen Nºl Variables para determinación del déficit para cálculo de prima 
+extraordinaria 
+Ingreso por actividades ordinarias 
+(-) Baja de ingresos por aplicación de tabla de factores única (TFU) 
+(-) Costos de ventas 
+(-)Gastos de administracón y ventas 
+(-) Monto mensual de devenga miento de la deuda 
+Déficit 
+Una vez determinado el déficit, para calcular la prima extraordinaria, la isapre deberá 
+hacerlo de la siguiente manera: 
+Imagen Nº2 Determinación del porcentaje de prima extraordinaria 
+Porcentaje de prima 
+extraordinaria 
+= 
+Déficit 
+Nº de beneficiarios vigentes 
+El periodo de referencia corresponderá a los meses de remuneración de marzo, abril y 
+mayo de 2024, ya que en este periodo se refleja el efecto de la aplicación de los fallos 
+de disminución de valor de prima GES, prima por menores de 2 años, ICSA y de las 
+medidas de contención de costos que las isapres han implementado en el último año. 
+Asimismo, deberá determinar la baja de ingresos por aplicación de la tabla de factores, 
+la que tendrá que calcularse en base al porcentaje que cada isapre determine, tomando 
+como referencia el promedio de ingresos por actividades ordinarias, del mismo período 
+referencial. 
+Este porcentaje de merma de ingresos por la aplicación de la tabla de factores, deberá 
+ser técnicamente respaldada, informando a esta Superintendencia, la forma en que se 
+determinó, detallando las variables consideradas para dicha proyección. 
+Respecto del monto mensual de devengamiento de la deuda, éste deberá ser informado 
+de acuerdo a los montos a restituir calculados por las isapres, según las definiciones y 
+medios de verificación que la ley, en conjunto con la presente Circular, establezcan. 
+Las cuentas a utilizar son las siguientes: 
+12 
+- Ingresos por actividades ordinarias (30010, FEFI IFRS) - Costo de Ventas (30020, FEFI IFRS) - Gastos de Administración y Ventas (30080, FEFI IFRS) 
+Asimismo, deberán enviar las estimaciones de la disminución de los ingresos por 
+actividades ordinarias por la modificación de las tablas de factores, según la Circular 
+IF/Nº468, de 2024. 
+Los datos a que alude el presente apartado, deberán incluirse en el respectivo PPA y, 
+adicionalmente, por corresponder a datos financieros y/o contables, deberán enviarse 
+en archivo formato Excel, mientras que las otras medidas de reducción de costos podrán 
+hacerse mediante archivos en formatos Pdf, Word y Ppt. 
+IX. 
+NOTIFICACIÓN A LAS PERSONAS SOBRE LAS MATERIAS A QUE 
+ALUDE LA LEY Nº21.674 Y LA NORMATIVA DE ESTA 
+SUPERINTENDENCIA, EN LOS TÉRMINOS QUE INDICA. 
+La isapre deberá informar a las personas cotizantes cuyos contratos fueron suscritos 
+antes del 1 de abril de 2020 y que se encuentren vigentes al 31 de agosto de 2024, 
+sobre los cambios efectuados a sus contratos de salud en aplicación de las presentes 
+instrucciones, mediante correo electrónico o, en caso de no contar con aquél, por carta 
+certificada, a más tardar el día 31 de agosto de 2024, conjuntamente con el Formulario 
+Único de Notificación (FUN), a que alude la Circular IF/Nº468, de 13 de mayo de 2024. 
+1. 
+Información sobre la adecuación del precio a la Tabla de factores Única 
+Se deberá informar sobre la adecuación del precio a la Tabla de Factores Única de 
+acuerdo a las instrucciones impartidas en el numeral III.4 "Información a las Personas 
+Cotizantes" de la Circular IF/N°468, en lo que no sea incompatible con la presente 
+Circular. 
+2. 
+Información sobre el ajuste del precio pactado a la cotización legal 
+obligatoria 
+También se deberá informar a las personas afiliadas, si correspondiere, el ajuste del 
+precio pactado a la cotización legal obligatoria, cuando éste sea inferior a ella. 
+Asimismo, informará, en los casos en que corresponda, el ajuste del precio pactado a la 
+cotización legal obligatoria, a las personas afiliadas cuyo precio de sus contratos no deba 
+ser adecuado por incorporación de la Tabla de Factores Única. 
+La comunicación deberá contener, a lo menos, lo siguiente: 
+l. Fundamento del ajuste del precio a la cotización legal obligatoria. 
+2. Identificación del plan actual e indicación del precio pactado vigente antes del 
+ajuste que se le comunica. 
+3. Precio a pagar por el plan de salud, luego de la aplicación del ajuste. 
+4. 
+Fecha en que entrarán en vigencia los nuevos precios. 
+S. 
+6. 
+Plazo que tiene la persona afiliada para cambiarse de plan de salud o para ejercer 
+la opción de desafiliarse, en caso de que no esté de acuerdo con la oferta de 
+beneficios adicionales o planes alternativos, conforme a las reglas que siguen. 
+FUN de ajuste a la cotización legal obligatoria. 
+Además, en esta comunicación la isapre deberá informar a las personas afiliadas los 
+nuevos beneficios y los planes alternativos que deberá ofrecerles. 
+13 
+Los nuevos beneficios que ofrezca a cada persona cotizante deberán ser relevantes, 
+útiles y accesibles para ésta y/o sus cargas. 
+Los nuevos beneficios deberán cumplir. a lo menos, con los siguientes requisitos: 
+• No podrá exigirse una nueva Declaración de Salud para incorporarlos al contrato 
+• No se podrá cobrar adicionalmente por ellos 
+• Deberán ser distintos a las ayudas u orientaciones telefónicas y 24/7 
+• No podrán tener restricciones mayores a las establecidas en las normas generales 
+• No se podrán suspender por el no pago de cotizaciones. 
+En cuanto a los planes alternativos, deberá ofrecer aquellos cuyo precio pactado sea más 
+cercano al valor de la cotización legal para salud de la persona afiliada y que hayan sido 
+comercializados dentro de los seis meses anteriores al ofrecimiento. Las condiciones 
+generales de cada plan de salud ofrecido deberán ser las mismas que se estén ofreciendo 
+a esa fecha a los nuevos contratantes del respectivo plan y no podrán importar una 
+discriminación entre dichos afiliados. 
+3. Información sobre la incorporación de la prima extraordinaria al 
+contrato de salud 
+Si con anterioridad al 31 de agosto de 2024, la isapre tuviera un Plan de Pago y Ajustes 
+(PPA) aprobado por esta Superintendencia, deberá informar a las personas afiliadas la 
+incorporación de la prima extraordinaria por beneficiario establecida en el artículo 3° de 
+la Ley Nº 21.674 y ofrecer uno o más planes alternativos cuyo precio sea equivalente al 
+vigente. 
+Las instituciones de salud deberán estar siempre en condiciones de acreditar la remisión 
+de la comunicación a sus cotizantes ·a que se refiere el presente Título, sea que ésta 
+haya sido enviada por correo electrónico o por carta certificada, según sea el caso. 
+Cuando la persona afiliada no esté de acuerdo con la oferta señalada en los numerales 
+2 y 3 anteriores, podrá recurrir a la isapre, la que deberá ofrecerle otros planes en 
+comercialización. 
+En el caso de las isapres cerradas, las instrucciones señaladas en los numerales 2 y 3 
+anteriores que hacen referencia a planes alternativos regirán en aquello que les sea 
+aplicable según corresponda, lo que podrá ser evaluado por esta Superintendencia. 
+4. Información sobre la restitución de cantidades percibidas en 
+exceso 
+Si con anterioridad al 31 de agosto de 2024, la isapre tuviera un Plan de Pago y Ajustes 
+(PPA) aprobado por esta Superintendencia, cuando corresponda, en dicha comunicación 
+deberá informar esta circunstancia, además de transcribir las menciones de la resolución 
+aprobatoria y que refieren a las condiciones conforme a las cuales la isapre hará las 
+restituciones, cuotas y plazo máximo de devolución, así como el valor de la nueva prima 
+extraordinaria, en los términos dispuestos por el artículo 4º de la Ley Nº21.674. 
+En el caso de las personas acreedoras, la isapre les deberá informar, además, el monto 
+de la deuda, un detalle de las cuotas en que se ha dividido su pago, de haberse optado 
+por ese mecanismo y sobre la apertura de una cuenta corriente especial para el pago de 
+la deuda, además de la posibilidad de destinarlos a alguno de los fines consignados en 
+el artículo 188 del DFL Nºl /2005 de Salud. 
+14 
+Tratándose de beneficiarios de estas acreencias que no se encuentren vigentes en la 
+isapre deudora y de sus herederos, la isapre deberá comunicar en su página institucional 
+y sucursales sobre la existencia de estas devoluciones en los términos regulados por la 
+presente Circular. 
+X. 
+PRONUNCIAMIENTO DE LA PERSONA AFILIADA 
+Las personas afiliadas que reciban la comunicación del ajuste del precio pactado a la 
+cotización legal obligatoria y/o la incorporación de la prima extraordinaria, dispondrán 
+hasta el último día del mes de septiembre de 2024 para pronunciarse. 
+La persona afiliada podrá optar por mantener su plan con los beneficios ofrecidos, al 
+nuevo precio pactado, aceptar alguno de los planes alternativos ofrecidos por la isapre, 
+al menos uno cuyo precio pactado sea más cercano al valor de la cotización legal (en el 
+caso del ajuste a la cotización legal obligatoria) y cuyo precio sea equivalente al vigente 
+(para el caso de la incorporación de la prima extraordinaria), o bien desafiliarse de la 
+Institución de Salud Previsional. En el evento de que nada diga, se entenderá que la 
+persona acepta mantener su plan con la prima extraordinaria y/o los nuevos beneficios 
+propuestos por la isapre. 
+En los casos en que la persona cotizante no acepte el ajuste de precio con los nuevos 
+beneficios propuestos o la aplicación de la prima extraordinaria y opte por un plan 
+alternativo u otro que comercialice la isapre o por desahuciar el contrato de salud 
+previsional, la isapre deberá dejar sin efecto el FUN enviado junto a la comunicación del 
+ajuste de precio, emitir el respectivo FUN y, en caso de que corresponda, proceder a la 
+reliquidación de prestaciones y restitución de diferencias de cotizaciones y/o copagos 
+que se hubieren generado entre la vigencia del FUN enviado y del que lo reemplace. 
+Con todo, dentro de los seis meses siguientes a la notificación, las personas afiliadas que 
+no se hayan pronunciado expresamente dentro del plazo indicado en el primer párrafo 
+de esta letra, podrán cambiarse a alguno de los planes que les fueran ofrecidos por su 
+Institución de Salud Previsional u otros en comercialización, para lo cual no se les podrá 
+exigir una nueva declaración de salud, manteniéndose la entregada al momento de 
+celebrar el contrato que fue ajustado. En caso de que corresponda, se deberá proceder 
+a la reliquidación de prestaciones y restitución de diferencias de cotizaciones y/o copagos 
+que se hubieren generado entre la vigencia del FUN enviado y del que lo reemplace. 
+XI. 
+NOTIFICACIÓN AL EMPLEADOR O ENTIDAD ENCARGADA DEL PAGO 
+DE LA PENSIÓN 
+Dentro de los primeros 10 días del mes de septiembre de 2024, la isapre deberá notificar 
+al empleador o a la entidad encargada del pago de la pensión, la nueva cotización, 
+conforme a las presentes instrucciones, a fin de que se descuente de la remuneración 
+del referido mes el nuevo precio a enterar en favor de la isapre en el mes de octubre. 
+XII.- NORMAS SUPLETORIAS 
+En todo lo que no se encuentre expresamente regulado por la presente Circular, y en 
+cuanto no se opongan a ésta, se aplicarán las instrucciones contenidas en los 
+Compendios de Normas Administrativas de la Superintendencia de Salud y las demás 
+normas vigentes sobre la materia. 
+15 
+XIII. VIGENCIA 
+La presente Circular entrará en vigencia a contar de la fecha de su notificación. 
+El registro contable de la deuda, cuyo origen corresponde a los montos a restituir 
+producto del cumplimiento del fallo emitido por la Excma. Corte Suprema en noviembre 
+de 2022, será regulado de manera específica por esta Superintendencia, una vez 
+revisados los montos de este pasivo por parte del Consejo Consultivo y verificados por 
+la Superintendencia de Salud, en conjunto con la aprobación del plan de pago y ajuste 
+presentado por cada una de las isapres. 

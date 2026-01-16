@@ -1,4 +1,4 @@
-import { Zap, ShieldCheck, UploadCloud, Loader2, ZoomIn, ZoomOut, Timer, Cpu, FileJson, FileText, X, Maximize2, Search, Filter, LayoutGrid, CheckCircle2 } from 'lucide-react';
+import { Zap, ShieldCheck, UploadCloud, Loader2, ZoomIn, ZoomOut, Timer, Cpu, FileJson, FileText, X, Maximize2, Search, Filter, LayoutGrid, CheckCircle2, Save, Trash2 } from 'lucide-react';
 import React, { useState, useRef, useEffect } from 'react';
 import { AI_MODEL } from '../version';
 
@@ -21,8 +21,18 @@ export default function AccountProjectorV7() {
     const [ms, setMs] = useState(0);
     const [progress, setProgress] = useState(0);
     const [currentPass, setCurrentPass] = useState(1);
+    const [hasCache, setHasCache] = useState(false);
     const logEndRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<number | null>(null);
+
+    useEffect(() => {
+        const checkCache = () => {
+            setHasCache(!!localStorage.getItem('clinic_audit_result'));
+        };
+        checkCache();
+        const interval = setInterval(checkCache, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     const addLog = (msg: string) => {
         const timestamp = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -214,10 +224,36 @@ export default function AccountProjectorV7() {
         URL.revokeObjectURL(url);
     };
 
+    const saveToCache = () => {
+        if (!htmlProjection) return;
+        const exportData = {
+            filename: file?.name,
+            timestamp: new Date().toISOString(),
+            usage: usage,
+            content: htmlProjection
+        };
+        try {
+            localStorage.setItem('clinic_audit_result', JSON.stringify(exportData));
+            setHasCache(true);
+            addLog(`[SISTEMA] ✅ DATOS GUARDADOS EN MEMORIA FORENSE. Listo para auditoría.`);
+            alert("✅ Cuenta Clínica guardada exitosamente en memoria forense.");
+        } catch (e) {
+            addLog(`[ERROR] No se pudo guardar en caché: ${String(e)}`);
+        }
+    };
+
+    const clearCache = () => {
+        localStorage.removeItem('clinic_audit_result');
+        setHasCache(false);
+        addLog('[SISTEMA] 🗑️ Memoria forense de Cuenta Clínica eliminada.');
+        alert("🗑️ Memoria forense limpiada.");
+    };
+
     return (
         <div className="max-w-[1800px] mx-auto p-6 space-y-6 animate-in fade-in duration-500">
             {/* Header Area */}
-            <div className="flex items-center justify-between mb-8 px-2">
+            {/* Header Area */}
+            <div className="flex items-center justify-between mb-8 px-2 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
                 <div>
                     <h2 className="text-3xl font-black text-slate-900 tracking-tighter flex items-center gap-3">
                         <FileText className="text-indigo-600" />
@@ -225,7 +261,29 @@ export default function AccountProjectorV7() {
                     </h2>
                     <p className="text-slate-500 font-medium text-sm">Proyección de alta fidelidad optimizada para auditorías (V7).</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
+                    {/* NEW EXPLICIT CONTROLS */}
+                    {hasCache && (
+                        <button
+                            onClick={clearCache}
+                            className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-rose-600 border border-rose-200 rounded-lg text-xs font-bold hover:bg-rose-100 transition-all"
+                        >
+                            <Trash2 size={16} /> BORRAR MEMORIA
+                        </button>
+                    )}
+
+                    {htmlProjection && !isProcessing && (
+                        <button
+                            onClick={saveToCache}
+                            className="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-black transition-all shadow-lg shadow-emerald-200 animate-pulse active:scale-95"
+                            title="Incorporar a memoria forense"
+                        >
+                            <Save size={16} /> GUARDAR EN MEMORIA
+                        </button>
+                    )}
+
+                    <div className="w-px h-8 bg-slate-200 mx-2"></div>
+
                     <span className="px-3 py-1 bg-white border border-slate-200 rounded-lg text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
                         <ShieldCheck size={12} className="text-emerald-500" /> CERO PERSISTENCIA
                     </span>
@@ -421,6 +479,13 @@ export default function AccountProjectorV7() {
                                         title="FORZAR REINICIO DE PROYECCIÓN"
                                     >
                                         <Zap size={16} /> REINTENTAR
+                                    </button>
+                                    <button
+                                        onClick={saveToCache}
+                                        className="flex items-center gap-2 px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black transition-all shadow-lg shadow-emerald-200 animate-pulse active:scale-95"
+                                        title="Incorporar a memoria forense para auditoría"
+                                    >
+                                        <Save size={16} /> GUARDAR EN MEMORIA
                                     </button>
                                     <button onClick={downloadJson} className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all"><FileJson size={16} /> JSON</button>
                                     <button onClick={downloadMarkdown} className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 rounded-xl text-xs font-bold transition-all"><FileText size={16} /> MD</button>

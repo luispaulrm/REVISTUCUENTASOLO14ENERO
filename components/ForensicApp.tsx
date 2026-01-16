@@ -230,8 +230,33 @@ export default function ForensicApp() {
         }
     };
 
+    const clearBill = () => {
+        localStorage.removeItem('clinic_audit_result');
+        setHasBill(false);
+        addLog('[SISTEMA] 🗑️ Cuenta Clínica eliminada de caché.');
+    };
+
+    const clearPam = () => {
+        localStorage.removeItem('pam_audit_result');
+        setHasPam(false);
+        addLog('[SISTEMA] 🗑️ PAM eliminado de caché.');
+    };
+
+    const clearContract = () => {
+        localStorage.removeItem('contract_audit_result');
+        setHasContract(false);
+        addLog('[SISTEMA] 🗑️ Reglas de Contrato eliminadas de caché.');
+    };
+
+    const clearHtml = () => {
+        localStorage.removeItem('html_projection_result');
+        setHasHtml(false);
+        addLog('[SISTEMA] 🗑️ Proyección HTML eliminada de caché.');
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 relative pb-32">
+            {/* ... header ... */}
             <header className="bg-white/80 border-b border-slate-200 sticky top-16 z-[40] print:hidden backdrop-blur-sm shadow-sm transition-all duration-300">
                 <div className="max-w-[1800px] mx-auto px-6 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -283,7 +308,7 @@ export default function ForensicApp() {
                             <Eraser size={16} />
                             {auditResult ? 'LIMPIAR RESULTADO' : 'LIMPIAR'}
                         </button>
-                        <button onClick={clearAllData} className="p-3 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all">
+                        <button onClick={clearAllData} className="p-3 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Borrar TODOS los datos">
                             <Trash2 size={24} />
                         </button>
                     </div>
@@ -293,11 +318,11 @@ export default function ForensicApp() {
             <main className="flex-grow max-w-[1800px] mx-auto w-full p-6 sm:p-10">
                 {status === 'IDLE' && (
                     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <DataStatusCard title="Cuenta Clínica" icon={<FileText size={24} />} ready={hasBill} desc="Detalle de gastos extraído" />
-                            <DataStatusCard title="PAM (Isapre)" icon={<ShieldCheck size={24} />} ready={hasPam} desc="Bonificaciones y copagos" />
-                            <DataStatusCard title="Contrato Salud" icon={<Scale size={24} />} ready={hasContract} desc="Reglas y coberturas del plan" />
-                            <DataStatusCard title="Proyección HTML" icon={<Zap size={24} />} ready={hasHtml} desc="Contexto visual del Módulo 5" onClick={() => handlePreview('HTML')} />
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <DataStatusCard title="Cuenta Clínica" icon={<FileText size={24} />} ready={hasBill} desc="Detalle de gastos" onDelete={clearBill} />
+                            <DataStatusCard title="PAM (Isapre)" icon={<ShieldCheck size={24} />} ready={hasPam} desc="Bonificaciones" onDelete={clearPam} />
+                            <DataStatusCard title="Reglas Contrato" icon={<Scale size={24} />} ready={hasContract} desc="(Legacy) Coberturas" onDelete={clearContract} />
+                            <DataStatusCard title="Proyección HTML" icon={<Zap size={24} />} ready={hasHtml} desc="Contexto Módulo 5" onClick={() => handlePreview('HTML')} onDelete={clearHtml} />
                         </div>
 
                         <div className="bg-white rounded-3xl p-10 border border-slate-200 shadow-xl shadow-slate-200/50 text-center space-y-6">
@@ -507,14 +532,49 @@ export default function ForensicApp() {
     );
 }
 
-function DataStatusCard({ title, icon, ready, desc, onClick }: { title: string, icon: React.ReactNode, ready: boolean, desc: string, onClick?: () => void }) {
+function DataStatusCard({ title, icon, ready, desc, onClick, onDelete }: { title: string, icon: React.ReactNode, ready: boolean, desc: string, onClick?: () => void, onDelete?: () => void }) {
     return (
-        <div onClick={ready && onClick ? onClick : undefined} className={`p-6 rounded-2xl border transition-all duration-300 ${ready ? 'bg-white border-slate-200 shadow-sm cursor-pointer hover:shadow-md hover:border-slate-300 active:scale-95' : 'bg-slate-50 border-slate-200 opacity-60'} relative group`}>
-            <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 rounded-xl ${ready ? 'bg-slate-900 text-white' : 'bg-slate-200 text-slate-400'}`}>{icon}</div>
-                {ready ? <span className="px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded text-[10px] font-black uppercase tracking-wider border border-emerald-100">Listo</span> : <span className="px-2 py-0.5 bg-slate-100 text-slate-400 rounded text-[10px] font-black uppercase tracking-wider border border-slate-200">Falta</span>}
+        <div
+            onClick={ready && onClick ? onClick : undefined}
+            className={`p-6 rounded-2xl border transition-all duration-300 relative group overflow-hidden ${ready
+                ? 'bg-white border-emerald-200 shadow-sm hover:shadow-md hover:border-emerald-300'
+                : 'bg-slate-50 border-slate-200 opacity-80'
+                }`}
+        >
+            {/* CACHE INDICATOR (PIN) */}
+            {ready && (
+                <div className="absolute top-0 right-0 p-2">
+                    <div className="bg-emerald-100 text-emerald-600 p-1.5 rounded-bl-xl rounded-tr-xl shadow-sm">
+                        <div className="flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span className="text-[10px] font-black uppercase tracking-tight">EN CACHÉ</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            <div className="flex items-center justify-between mb-4 mt-2">
+                <div className={`p-3 rounded-xl transition-colors ${ready ? 'bg-slate-900 text-white shadow-lg shadow-slate-200' : 'bg-slate-200 text-slate-400'}`}>
+                    {icon}
+                </div>
+
+                {ready && onDelete && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(`¿Seguro que deseas eliminar ${title} de la memoria?`)) {
+                                onDelete();
+                            }
+                        }}
+                        className="p-2 bg-white text-slate-300 hover:bg-rose-50 hover:text-rose-600 rounded-lg border border-transparent hover:border-rose-100 transition-all z-10"
+                        title="Borrar de memoria"
+                    >
+                        <Trash2 size={18} />
+                    </button>
+                )}
             </div>
-            <h4 className="font-bold text-slate-900 mb-1">{title}</h4>
+
+            <h4 className={`font-bold mb-1 transition-colors ${ready ? 'text-slate-900' : 'text-slate-400'}`}>{title}</h4>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{desc}</p>
         </div>
     );
