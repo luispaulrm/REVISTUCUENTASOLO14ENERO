@@ -330,8 +330,9 @@ export default function ForensicApp() {
                 )}
 
                 {status === 'PROCESSING' && (
-                    <div className="max-w-4xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden h-[600px] flex flex-col relative">
+                    <div className="max-w-[1800px] mx-auto py-6 animate-in fade-in slide-in-from-bottom-8 duration-700 flex gap-6">
+                        {/* LEFT COLUMN: LOGS (70%) */}
+                        <div className="w-[70%] bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden h-[600px] flex flex-col relative">
                             <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                                 <div className="flex items-center gap-2">
                                     <Terminal size={16} className="text-slate-400" />
@@ -348,7 +349,13 @@ export default function ForensicApp() {
                                 <div ref={logEndRef} />
                             </div>
                         </div>
-                        {/* FOOTER METRICS */}
+
+                        {/* RIGHT COLUMN: CHAT (30%) */}
+                        <div className="w-[30%]">
+                            <InterrogationZone auditResult={auditResult} compactMode={false} />
+                        </div>
+
+                        {/* FOOTER METRICS (Fixed at bottom) */}
                         <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 h-20 flex items-center justify-between px-8">
                             <div className="flex gap-8">
                                 <div><p className="text-[9px] text-slate-500 uppercase font-black">Time</p><p className="font-mono text-xl font-black">T+{formatTime(seconds)}</p></div>
@@ -747,7 +754,18 @@ function InterrogationZone({ auditResult, compactMode = false }: { auditResult?:
 function MarkdownRenderer({ content }: { content: string }) {
     if (!content) return null;
 
-    const lines = content.split('\n');
+    // Fix for tables where newlines are lost and rows are joined by '||'
+    // This happens sometimes with LLM output or storage round-trips
+    let processedContent = content;
+    if (content.includes('|') && (content.includes('||') || !content.includes('\n'))) {
+        // Ensure separator row starts on new line
+        processedContent = processedContent
+            .replace(/\|\|/g, '|\n|')
+            .replace(/\|\s*:---/g, '|\n:---') // Fix start of separator if not caught by ||
+            .replace(/\|\s*---/g, '|\n---');
+    }
+
+    const lines = processedContent.split('\n');
     const elements: React.ReactNode[] = [];
     let tableBuffer: string[] = [];
     let processingTable = false;
