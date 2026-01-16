@@ -397,14 +397,37 @@ export default function ForensicApp() {
                         <div className="flex flex-col xl:flex-row gap-6 sm:gap-8 items-start">
                             {/* LEFT COLUMN: AUDIT RESULTS (Responsive) */}
                             <div className="w-full xl:w-[70%] space-y-6 sm:space-y-10 order-2 xl:order-1">
-                                <div className="bg-white p-5 sm:p-10 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm space-y-6 sm:space-y-10">
+                                <div id="audit-report-content" className="bg-white p-5 sm:p-10 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm space-y-6 sm:space-y-10">
                                     <div className="flex flex-col gap-6 border-b border-slate-100 pb-6 sm:pb-10">
-                                        <div className="space-y-3 sm:space-y-4 max-w-2xl">
-                                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase w-fit">
-                                                <CheckCircle2 size={12} /> Análisis Forense Completado
+                                        <div className="flex justify-between items-start">
+                                            <div className="space-y-3 sm:space-y-4 max-w-2xl">
+                                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase w-fit">
+                                                    <CheckCircle2 size={12} /> Análisis Forense Completado
+                                                </div>
+                                                <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tighter leading-tight">Resultados de la Auditoría</h2>
+                                                <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">{auditResult.resumenEjecutivo}</p>
                                             </div>
-                                            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tighter leading-tight">Resultados de la Auditoría</h2>
-                                            <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">{auditResult.resumenEjecutivo}</p>
+                                            <button
+                                                onClick={() => {
+                                                    // @ts-ignore
+                                                    import('html2pdf.js').then(html2pdf => {
+                                                        const element = document.getElementById('audit-report-content');
+                                                        const opt = {
+                                                            margin: 10, // top, left, bottom, right
+                                                            filename: `Auditoria_Forense_${new Date().getTime()}.pdf`,
+                                                            image: { type: 'jpeg' as const, quality: 0.98 },
+                                                            html2canvas: { scale: 2, useCORS: true, logging: false },
+                                                            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                                                            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+                                                        };
+                                                        html2pdf.default().set(opt).from(element).save();
+                                                    });
+                                                }}
+                                                className="shrink-0 p-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2 text-xs font-bold uppercase tracking-wider"
+                                                title="Descargar Reporte PDF"
+                                            >
+                                                <Download size={16} /> <span className="hidden sm:inline">PDF</span>
+                                            </button>
                                         </div>
                                         <div className="bg-slate-950 p-5 sm:p-6 rounded-2xl text-white w-full sm:w-fit self-start sm:min-w-[250px]">
                                             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Ahorro Detectado</p>

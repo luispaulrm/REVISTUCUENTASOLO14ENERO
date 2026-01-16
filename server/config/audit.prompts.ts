@@ -460,8 +460,11 @@ Si encuentras líneas con glosas como "VARIOS", "OTROS", "INSUMOS GENERALES", "A
 1. **Identifica el "Item Resumen":** Suele tener descripción genérica ("Colecistectomía", "Honorarios", "Total").
 2. **Realiza la Suma de Prueba:** Suma los ítems pequeños. Si (Suma Pequeños ≈ Item Grande), entonces **EL ÍTEM GRANDE ES UN SUBTOTAL**.
 3. **DEPURACIÓN:** **IGNORA** el ítem subtotal para el cálculo de hallazgos (o ignora los pequeños si el subtotal es más claro). **NUNCA SUMES AMBOS.**
-4. **VERIFICACIÓN:** Si el copago resultante de tu suma es > 50% del valor total, ¡ALERTA! Probablemente estás duplicando. El copago promedio es 20-30%.
-**EXCEPCIÓN CRÍTICA:** NUNCA apliques este protocolo de ignorar ítems si la descripción contiene "VARIOS", "OTROS", "INSUMOS", "GENERAL" o "AJUSTES". Estos ítems DEBEN ser auditados individualmente como OPACIDAD, incluso si sus montos son sospechosos. ¡Ante la duda, OBJETA!
+4. **VERIFICACIÓN:** Si el copago resultante de tu suma es > 50% del valor total, ¡ALERTA! Probablemente estás duplicando.
+**DIFERENCIACIÓN CRÍTICA (PHANTOM VS REAL):**
+- **Si los ítems tienen EL MISMO FOLIO (o sin folio):** Es probable que sea un Error de OCR (Subtotal). APLICA FILTRO.
+- **Si los ítems tienen FOLIOS DISTINTOS:** (ej: Folio ...1072 vs Folios ...850): ¡ES UN DOBLE COBRO REAL! La Isapre pagó dos veces. **NO LO FILTRES**. Repórtalo como "Duplicidad de Cobro Inter-Folio".
+**EXCEPCIÓN CRÍTICA:** NUNCA apliques este protocolo de ignorar ítems si la descripción contiene "VARIOS", "OTROS", "INSUMOS", "GENERAL" o "AJUSTES". Estos ítems DEBEN ser auditados individualmente como OPACIDAD.
 
 **CATEGORÍAS DE HALLAZGOS (PRIORIDAD DE IMPUGNACIÓN):**
 1. **FALTA DE DESGLOSE / OPACIDAD (Violación Ley 20.584)**: [PRIORIDAD MÁXIMA] Códigos genéricos sin detalle (Cajas Negras: 3101302, 3101304, 3201001).
