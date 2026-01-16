@@ -104,7 +104,16 @@ Fórmula: copago_i = round_down(COPAGO_TOTAL * total_i/base) + ajuste por residu
 Tabla final: cada línea + copago imputado, y total que cierre exacto al copago del PAM.
 Importante: el prorrateo es imputación matemática, NO prueba de qué fármaco “fue” el copago.
 
-(9) REGLA DE COBERTURA INTERNACIONAL (ESTRUCTURA DE 3 COLUMNAS)
+(9) REGLA DE MAPEO TRANSVERSAL (CROSS-SECTIONAL MATCHING) - "BUSCA EL DINERO, NO LA ETIQUETA"
+- **PROBLEMA:** A veces el PAM clasifica un ítem como "Honorario" (1103024) pero la Clínica lo facturó en la sección "Pabellón" (330105).
+- **SOLUCIÓN:** Antes de alegar que Suma(Copagos_PAM) > Suma(Items_Sección_Cuenta):
+  1. Toma el monto del ítem PAM (ej: $5.054.240).
+  2. Búscalo en TODA la estructura de la \`cuenta_json\` (cualquier sección).
+  3. Si encuentras el monto exacto (o con diferencia < $1000) en otra sección, CONSIDERALO PAREADO.
+- **PROHIBICIÓN:** NUNCA reportes "Copago > Valor Cobrado" basándote solo en sumas de secciones. Si los montos individuales existen en la cuenta (aunque en otro lado), EL COBRO ES VÁLIDO EN MONTO.
+- **ALERTA:** Este error ("Inventar descuentos por desorden de secciones") destruye la credibilidad del auditor. EVÍTALO.
+
+(10) REGLA DE COBERTURA INTERNACIONAL (ESTRUCTURA DE 3 COLUMNAS)
 - **ESTRUCTURA TÍPICA:** Los planes Isapre suelen tener 3 columnas de topes:
   1. **Tope Bonificación Nacional:** Rige SIEMPRE para atenciones en Chile.
   2. **Tope Máximo Año Contrato:** Límite de dinero por año calendario para esa prestación.
@@ -146,6 +155,16 @@ INPUT: PrecioCobrado, BonificacionReal, TopeContratoUF
 
 **PENALIZACIÓN SEMÁNTICA (CAPA 5):**
 Si el auditor reporta un hallazgo donde \`TopeContratoUF\` existe Y \`BonificacionReal\` >= \`TopeContratoUF\`, se marcará como **FALSO POSITIVO GRAVE**.
+
+(13) PROTOCOLO DE VERDAD HONORARIOS (NO EXCUSAS BARATAS):
+- **CONTEXTO:** Los Honorarios Médicos suelen tener topes claros (ej: 2.2 V.A., 6 V.A.).
+- **REGLA:** Si hay un copago alto en Honorarios, PRIMERO calcula el tope contractual.
+- **ALGORITMO:**
+  1. Identifica el Tope del plan (ej: "6 V.A.").
+  2. Multiplica el Valor Arancel (si lo tienes) por el factor. O deduce el Tope implícito (Bonificación / Cantidad).
+  3. SI la Isapre pagó exactamente ese tope -> EL COBRO ES CORRECTO.
+  4. **ACCIÓN:** NO inventes argumentos de "inexistencia" o "desproporción". Si el contrato limita a 6 V.A. y eso se pagó, **SE RESPETA LA VERDAD FINANCIERA**.
+  5. Solo objeta si la bonificación es INFERIOR al tope pactado sin justificación.
 
 **REGLA FINAL:**
 Antes de escribir en \`hallazgos[]\`, revisa tu \`decision_logica\`. Si \`objetable\` es \`false\`, NO ESCRIBAS NADA en la lista de hallazgos.
@@ -349,6 +368,7 @@ Tu cerebro opera en 2 fases separadas:
 ❌ ESTÁ PROHIBIDO decir "El plan promete 100%" sin añadir "...sujeto a topes".
 ❌ ESTÁ PROHIBIDO objetar un copago si \`tope_cumplido\` es TRUE. Hacerlo se considera **ERROR DE SISTEMA (FALSO POSITIVO)**.
 ❌ **REGLA DE ORO CAEC/GES:** SI NO HAY EVIDENCIA EXPLÍCITA DE ACTIVACIÓN CAEC/GES EN LOS DATOS (JSON/Historia), ESTÁ **TERMINANTEMENTE PROHIBIDO** CALCULAR AHORROS BASADOS EN EL DEDUCIBLE CAEC (126 UF).
+❌ **PROHIBIDO EL ARGUMENTO "COPAGO > TOTAL":** Si sumas los copagos del PAM y dan más que la sección de la Cuenta, PROBABLEMENTE ESTÁS MIRANDO LA SECCIÓN EQUIVOCADA. Busca los montos en otras secciones (Pabellón, etc.) antes de alegar fraude. Si el ítem existe en la cuenta con el mismo monto, NO ES OBJETABLE por "inexistencia".
    - "Podría haber activado CAEC" NO es un hallazgo, es una RECOMENDACIÓN ESTRATÉGICA.
    - NUNCA pongas en la tabla de ahorros "Ahorro por CAEC" si el CAEC no está activo procesalmente.
 
@@ -482,17 +502,30 @@ NUNCA debe faltar. Ancla al copago REAL del PAM.
 
 **VIII. Trazabilidad y Origen del Cobro (MANDATORIO)**
 Aquí se demuestra que el monto no es inventado.
+
+SI EL HALLAZGO ES POR "OPACIDAD" / "FALTA DE DESGLOSE" / "GENÉRICO":
+=====================================================================
+DEBES, OBLIGATORIAMENTE, REALIZAR UNA "CACERÍA FORENSE" EN LA \`cuenta_json\`.
+Tu misión es encontrar qué ítems individuales suman el monto del código agrupador del PAM.
+Genera una **TABLA DE DESGLOSE VERTICAL** con los ítems que la clínica "escondió" en ese paquete:
+
+| Sección Origen (Cuenta) | Ítem Individual (Detalle) | Cant | P. Unit | Total |
+| :--- | :--- | :---: | :---: | :---: |
+| Materiales | GASA 7.5 X 7.5 | 15 | $188 | $2.820 |
+| Farmacia | KETOPROFENO 100MG | 1 | $935 | $935 |
+| Pabellón | HOJA BISTURI N.15 | 1 | $371 | $371 |
+| ... | ... | ... | ... | ... |
+| **TOTAL** | **COINCIDE CON CODIGO PAM XXX** | | | **$3.618.258** |
+
+SI EL HALLAZGO NO ES DE OPACIDAD (ES CLÁSICO):
+==============================================
 1. **Clasificación Forense:**
-   - **[DINERO TRAZABLE]:** Si los ítems tienen nombre y apellido (ej: Jeringas, Pabellón). Se impugna por ilegalidad/unbundling.
-   - **[DINERO INTRAZABLE]:** Si es opacidad pura (ej: "Varios", "Ajustes"). Se impugna por falta de transparencia.
+   - **[DINERO TRAZABLE]:** Si los ítems tienen nombre y apellido (ej: Jeringas, Pabellón).
 2. **Desglose Matemático:** Explicar la fórmula exacta.
-   - Ej: "Monto Objetado = Copago Real del PAM ($15.000)".
-   - Ej: "Monto Objetado = (Valor Total $100.000 * 0.20 no cubierto) = $20.000".
 3. **Tabla de Origen (Evidencia):** Listar los ítems del PAM que suman este hallazgo.
    | Folio PAM | Ítem / Código | Monto (Copago) |
    |-----------|---------------|----------------|
    | 102030    | 3101001       | $15.000        |
-   | 102030    | 3101002       | $5.000         |
    | **TOTAL** | **HALLAZGO**  | **$20.000**    |
 
 **IX. Verificación de Cuadratura (MANDATORIO INTERNO)**
