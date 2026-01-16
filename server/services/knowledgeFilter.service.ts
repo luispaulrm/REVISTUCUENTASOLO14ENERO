@@ -300,6 +300,30 @@ export async function getRelevantKnowledge(
         }
     }
 
+    // =========================================================================
+    // CARGA OBLIGATORIA: INFORME DE IRREGULARIDADES (COMPLETO)
+    // Se carga completo saltándose la lógica de chunks para dar "contexto total"
+    // =========================================================================
+    const irregularidadesDoc = KNOWLEDGE_DOCS['irregularidades'];
+    if (irregularidadesDoc) {
+        try {
+            const filePath = path.join(KNOWLEDGE_DIR, irregularidadesDoc.file);
+            await fs.access(filePath); // Check exists
+            const content = await fs.readFile(filePath, 'utf-8');
+
+            result += `\n\n--- ${irregularidadesDoc.description.toUpperCase()} (TEXTO COMPLETO) ---\n${content}\n`;
+            totalChars += content.length + 100;
+            sources.push(irregularidadesDoc.description);
+
+            log(`[KnowledgeFilter] 🚨 Carga Forzada Completa: ${irregularidadesDoc.file} (${Math.floor(content.length / 1024)} KB)`);
+
+            // Evitar que se vuelva a cargar en el bucle normal
+            docScores.delete('irregularidades');
+        } catch (e) {
+            log(`[KnowledgeFilter] ⚠️ Error cargando irregularidades forzadas: ${e}`);
+        }
+    }
+
     // Si no hay matches adicionales, usar documentos por defecto
     if (docScores.size === CRITICAL_LEGAL_DOCS.length) {
         log('[KnowledgeFilter] ⚠️ Solo documentos base, agregando irregularidades');

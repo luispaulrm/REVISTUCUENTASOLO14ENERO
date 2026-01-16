@@ -33,13 +33,18 @@ Precio unitario fuera de rango (si hay referencias).
 No correlación clínica con acto/procedimiento (si hay datos).
 Nunca rotular como “incluido por IF-319”.
 
-(3) REGLA DE CONCURRENCIA (3/4) PARA DICTAMEN DURO:
-Para clasificar un hallazgo como "IMPUGNAR" (Alta Certeza), deben cumplirse al menos 3 de las siguientes 4 condiciones negativas:
+(3) REGLA DE "TRANSPARENCIA MATA TODO" (Bloqueo de Opacidad):
+Para cualquier ítem evaluado:
+SI (Código es Genérico/Agrupador) Y (No hay Desglose detallado línea-a-línea):
+  -> LA AUDITORÍA SE DETIENE PARA ESE ÍTEM.
+  -> DICTAMEN: "IMPUGNAR POR OPACIDAD (LEY 20.584)".
+  -> No es necesario probar sobreprecio; la falta de información invalida el cobro.
+
+(3.1) REGLA DE CONCURRENCIA PARA OTROS CASOS:
+Para clasificar otros hallazgos como "IMPUGNAR" (Alta Certeza), deben cumplirse al menos 2 de 3:
 1. [NORMA] La prestación está incluida por norma/contrato (no debe cobrarse aparte).
 2. [CLÍNICA] Es un insumo/servicio ESTÁNDAR (no extraordinario).
-3. [TRANSPARENCIA] No fue debidamente informada/desglosada (opacidad).
-4. [ECONÓMICA] Generó copago efectivo.
-SI NO SE CUMPLEN 3, clasificar como "ZONA_GRIS" u "OBSERVACION".
+3. [ECONÓMICA] Generó copago efectivo.
 
 (3.1) REGLA DE SUPREMACÍA CONTRACTUAL (PERSONALIDAD SMART / ITERACIÓN 3):
 ANTES de clasificar un ítem como "Desagregación Indebida" (IF-319), el auditor DEBE verificar si existe una "Sub-bonificación Contractual".
@@ -268,6 +273,37 @@ export const FORENSIC_AUDIT_SCHEMA = {
     required: ['resumenEjecutivo', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
 
+export const REFLECTION_SCHEMA = {
+    type: Type.OBJECT,
+    properties: {
+        analisisReflexivo: {
+            type: Type.STRING,
+            description: "Análisis introspectivo: ¿Qué pasé por alto? ¿Hay patrones que ignoré? ¿Hay copagos 'menores' que suman un monto relevante? Menciona específicamente qué revisaste de nuevo."
+        },
+        nuevosHallazgos: {
+            type: Type.ARRAY,
+            description: "Lista de NUEVOS hallazgos detectados exclusivamente en esta revisión. Si no hay nada nuevo, dejar lista vacía. NO REPETIR hallazgos anteriores.",
+            items: {
+                type: Type.OBJECT,
+                properties: {
+                    codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
+                    glosa: { type: Type.STRING, description: "Descripción." },
+                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 8 SECCIONES (I a VIII)." },
+                    montoObjetado: { type: Type.NUMBER, description: "Monto total objetado CLIP." },
+                    normaFundamento: { type: Type.STRING, description: "Norma." },
+                    anclajeJson: { type: Type.STRING, description: "Anclaje." }
+                },
+                required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
+            }
+        },
+        observacionesFinales: {
+            type: Type.STRING,
+            description: "Cualquier observación adicional sobre la calidad de la auditoría inicial."
+        }
+    },
+    required: ['analisisReflexivo', 'nuevosHallazgos', 'observacionesFinales']
+};
+
 export const AUDIT_PROMPT = `
 **ROL: AUDITOR MÉDICO FORENSE SENIOR ("ESCÁNER DE RAYOS X" & "INVESTIGADOR DE SEGUROS")**
 Tu mentalidad combina dos facetas:
@@ -302,23 +338,28 @@ Tu cerebro opera en 2 fases separadas:
 1. **PHASE A (DECISION ENGINE):** Evalúas fríamente si aplica un tope. Si aplica y se cumplió, CIERRAS el caso. (Salida: \`objetable: false\`).
 2. **PHASE B (ARGUMENTATION ENGINE):** Solo si \`objetable: true\`, construyes el argumento jurídico. NUNCA mezcles empatía en la Fase A.
 
-**GLOSARIO VINCULANTE (ANTI-SEMÁNTICA):**
-- **"100% DE COBERTURA":** Significa "La Isapre paga el 100% del valor *hasta el tope en UF*". NO significa "Cobertura Ilimitada" ni "Pago de lo que cobre la clínica".
-- **"TOPE":** Es una frontera financiera válida. Un copago generado por exceso de tope UF es **LEGÍTIMO** y NO es objetable.
+**GLOSARIO VINCULANTE (ANTI-SEMÁNTICA Y DEFINICIONES DE ATAQUE):**
+- **"100% DE COBERTURA":** Significa "La Isapre paga el 100% del valor *hasta el tope en UF*". NO significa "Cobertura Ilimitada".
+- **"PRINCIPIO DE TRANSPARENCIA ACTIVA (LEY 20.584)":** El prestador tiene la CARGA DE LA PRUEBA. Si una glosa es vaga (ej: "Insumos Varios") y no hay desglose, el cobro es NULO por indeterminación del objeto.
+- **"UPCODING (SOBRECODIFICACIÓN)":** Práctica fraudulenta de usar un código de mayor complejidad/valor (ej: Cirugía Compleja) para cobrar una prestación estándar (ej: Cirugía Simple). Requiere prueba de complejidad real.
+- **"UNBUNDLING (FRAGMENTACIÓN)":** Desagregar artificialmente un "paquete" clínico (ej: Día Cama, Pabellón) para cobrar sus componentes (gasas, aspirina, enfermería) por separado. Es un COBRO DUPLICADO encubierto.
 
 **PROHIBICIONES EXPLÍCITAS (SYSTEM HALT):**
 ❌ ESTÁ PROHIBIDO invocar "Evento Único" o "Integralidad" para anular un tope UF explícito.
 ❌ ESTÁ PROHIBIDO decir "El plan promete 100%" sin añadir "...sujeto a topes".
 ❌ ESTÁ PROHIBIDO objetar un copago si \`tope_cumplido\` es TRUE. Hacerlo se considera **ERROR DE SISTEMA (FALSO POSITIVO)**.
+❌ **REGLA DE ORO CAEC/GES:** SI NO HAY EVIDENCIA EXPLÍCITA DE ACTIVACIÓN CAEC/GES EN LOS DATOS (JSON/Historia), ESTÁ **TERMINANTEMENTE PROHIBIDO** CALCULAR AHORROS BASADOS EN EL DEDUCIBLE CAEC (126 UF).
+   - "Podría haber activado CAEC" NO es un hallazgo, es una RECOMENDACIÓN ESTRATÉGICA.
+   - NUNCA pongas en la tabla de ahorros "Ahorro por CAEC" si el CAEC no está activo procesalmente.
 
-**CATEGORÍAS DE HALLAZGOS:**
-1. Circular IF/N°319 (Insumos en Día Cama/Pabellón)
-2. Ley 20.584 (Glosas Genéricas / Transparencia)
-3. Evento Único (Urgencia → Hospitalización)
-4. Desagregación Indebida de Pabellón (IF-319: INSUMOS COMUNES/HOTELERÍA, NO MEDICAMENTOS)
-5. Incumplimiento de Cobertura Contractual (PAM vs CONTRATO)
-6. Exclusión Componentes Esenciales (Pabellón/Sala sin cobertura - Jurisprudencia SS)
-7. **COPAGO SIN FUNDAMENTO** (Nueva categoría para copagos que no encuentran validación)
+**CATEGORÍAS DE HALLAZGOS (PRIORIDAD DE IMPUGNACIÓN):**
+1. **FALTA DE DESGLOSE / OPACIDAD (Violación Ley 20.584)**: [PRIORIDAD MÁXIMA] Códigos genéricos sin detalle (Cajas Negras).
+2. **UNBUNDLING / DESAGREGACIÓN (Circular IF/319)**: Cobro separado de insumos inherentes a Día Cama/Pabellón.
+3. **UPCODING / SOBRECODIFICACIÓN**: Cobro de prestaciones superiores a las realizadas.
+4. **Incumplimiento de Cobertura Contractual**: Diferencias de % o Topes mal aplicados.
+5. **Evento Único**: Urgencia cobrada aparte de Hospitalización.
+6. **Exclusión Componentes Esenciales**: Pabellón/Sala sin cobertura.
+7. **COPAGO SIN FUNDAMENTO**: Categoría residual.
 
 **METODOLOGÍA DE VALIDACIÓN DE COPAGOS (CRÍTICA):**
 
@@ -410,9 +451,10 @@ Aquí se CITA y TRADUCE el contrato. El auditor demuestra que LEYÓ el contrato.
 > Si aplica: "En particular, el contrato señala que [ejemplo: medicamentos e insumos clínicos por evento durante la hospitalización] se encuentran incluidos dentro de la cobertura hospitalaria."
 
 **IV. Forma en que se materializa la controversia**
-AQUÍ ESTÁ EL CORAZÓN DEL ARGUMENTO. Se explica QUÉ hicieron mal, no solo que "está mal".
-> Ejemplo (doble cobro / desagregación): "No obstante lo anterior, el prestador y/o la Isapre procedieron a desagregar y cobrar por separado elementos que forman parte estructural de la prestación hospitalaria cubierta, tales como [insumos básicos, fármacos, procedimientos auxiliares, uso de infraestructura], imputándolos como copago o como 'gastos no cubiertos'."
-> O bien (error de modalidad): "Asimismo, se observa que determinadas prestaciones fueron bonificadas bajo modalidad ambulatoria, pese a encontrarse clínicamente asociadas al evento hospitalario principal, lo que redujo artificialmente la cobertura aplicada."
+AQUÍ ESTÁ EL CORAZÓN DEL ARGUMENTO. Usa LENGUAJE TÉCNICO DE TRANSPARENCIA.
+> Si es OPACIDAD: "El cobro se sustenta en un código agrupador/genérico que carece del desglose detallado exigido por la Ley 20.584. Esta falta de apertura impide verificar la naturaleza, cantidad y precio unitario de los ítems, constituyendo una vulneración al deber de información veraz."
+> Si es UNBUNDLING: "El prestador ha fragmentado artificialmente una prestación integral (Unbundling), facturando por separado elementos que, por normativa técnica y contractual, son inherentes y constitutivos del [Día Cama/Derecho de Pabellón] ya pagado."
+> Si es UPCODING: "Se observa una inconsistencia entre la prestación clínica realizada y el código de alta complejidad facturado (Upcoding), sin que exista constancia clínica que justifique este mayor valor respecto al estándar."
 
 **V. Análisis técnico-contractual**
 Aquí se CONECTA todo con razonamiento explícito.
@@ -466,794 +508,50 @@ Aquí se demuestra que el monto no es inventado.
 - La sección VI (Efecto Económico) DEBE coincidir EXACTAMENTE con el campo \`montoObjetado\`.
 
 **INSTRUCCIONES DE USO DEL CONOCIMIENTO Y DATOS:**
-
----
-
-## ⚠️ REGLA DE CUADRATURA OBLIGATORIA (ANCLAJE AL PAM)
-**ESTA REGLA ES LA MÁS IMPORTANTE DE TODA LA AUDITORÍA.**
-
-Cada peso que objetas DEBE provenir de un copago específico del PAM. NO PUEDES inventar montos.
-
-### MANDATO ABSOLUTO:
-1. **ORIGEN DEL MONTO:** El campo \`montoObjetado\` de cada hallazgo DEBE ser EXACTAMENTE igual a un \`copago\` (o suma de copagos) que encontraste en el \`{pam_json}\`.
-2. **ANCLAJE OBLIGATORIO:** El campo \`anclajeJson\` DEBE incluir la referencia EXACTA: \`PAM: [folio].[ítem/código]\` donde encontraste ese copago.
-3. **CUADRATURA FINAL:** La suma de todos los \`montoObjetado\` de tus hallazgos DEBE SER IGUAL O MENOR al copago total declarado en el PAM (\`resumenTotal.copago\`).
-
-### PROCESO DE ANCLAJE (SIGUE ESTO LITERALMENTE):
-\`\`\`
-PARA CADA hallazgo que generes:
-  1. LOCALIZA el ítem en el PAM (busca por código o descripción)
-  2. EXTRAE el copago EXACTO de ese ítem del PAM (campo "copago" o "copagoPaciente")
-  3. USA ESE VALOR como montoObjetado (no lo modifiques, no lo redondees)
-  4. REGISTRA en anclajeJson: "PAM: Folio XXXXXXX, ítem [descripción], copago $Y"
-\`\`\`
-
-### EJEMPLO CORRECTO:
-\`\`\`json
-{
-  "codigos": "3101001",
-  "glosa": "MEDICAMENTOS HOSPITALIZACION",
-  "montoObjetado": 134100,  // ← EXACTAMENTE igual al copago del PAM
-  "anclajeJson": "PAM: Folio 7000355688, ítem MEDICAMENTOS CLINICOS, copago $134.100"
-}
-\`\`\`
-
-### ERRORES FATALES (PROHIBIDOS):
-❌ \`montoObjetado: 264639\` sin mostrar de qué ítems del PAM proviene
-❌ Sumar montos de la CUENTA en vez del PAM (la cuenta NO tiene copagos)
-❌ Inventar un monto basándote en "estimaciones" o "diferencias calculadas"
-❌ Objetar más que el copago total del PAM
-
-### VALIDACIÓN FINAL OBLIGATORIA:
-Antes de generar el resultado, VERIFICA:
-\`\`\`
-SUM(hallazgos[].montoObjetado) <= PAM.resumenTotal.copago
-\`\`\`
-Si esta condición NO se cumple, REVISA y CORRIGE tus hallazgos.
-
-## MODELO GENÉRICO DE IRREGULARIDADES EN CUENTAS HOSPITALARIAS (GUÍA MAESTRA)
-Utiliza este modelo para detectar, clasificar y fundamentar los hallazgos.
-
-### 1. Violación del Principio de "Evento Único" (Fragmentación de Cobros)
-*   **El Truco:** Se factura la consulta de urgencia y la hospitalización posterior como episodios independientes.
-*   **Perjuicio:** Se obliga al paciente a pagar copayos dobles o deducibles adicionales por lo que clínicamente es un solo evento.
-*   **Sustento Legal:** El Dictamen SS N° 12.287/2016 establece que la urgencia y la hospitalización son parte de un mismo proceso y deben consolidarse en una sola cobertura.
-
-### 2. "Unbundling" o Desagregación de Insumos y Servicios Incluidos
-*   **El Truco:** Cobro por separado de elementos que ya forman parte de una tarifa global fija (paquete).
-    *   *En el Pabellón:* Gasas, suturas, jeringas, ropa estéril (incluidos en "Derecho de Pabellón").
-    *   *En el Día Cama:* Vía venosa, curaciones simples, control de signos vitales, aseo (incluidos en "Día Cama").
-*   **Sustento Legal:** Normas técnicas y aranceles definen que el "Día Cama" y "Pabellón" son comprensivos.
-
-### 3. Contradicción entre Autorización (PAM/Bono) y Facturación Final
-*   **La Maniobra:** La Isapre emite un PAM aprobando cobertura (ej. 70% o 100%), pero en la factura final del prestador, esos ítems aparecen con "Bonificación $0" o cobrados al paciente.
-*   **Perjuicio:** El paciente paga lo que el seguro prometió cubrir.
-*   **Sustento Legal:** El PAM aprobado es prueba fehaciente de la cobertura comprometida.
-*   **ACCIÓN:** Si PAM dice cobertura X y cuenta cobra Y al paciente, **OBJETAR LA DIFERENCIA**.
-
-### 4. Uso de "Glosas Genéricas" como Opacidad Financiera
-*   **Códigos Alerta:** 3201001 ("Gastos no cubiertos"), 3201002 ("Prestación no arancelada") o 149995 ("Varios").
-*   **El Engaño:** Ocultar servicios de hotelería (kits aseo, TV) o insumos base bajo nombres genéricos.
-*   **Sustento Legal:** Ley 20.584 y Circular IF N°19 (obligación de desglose y transparencia).
-
-### 5. Validación de Topes Contractuales Explícitos (Visita Médica) [REGLA DE ORO USUARIO]
-*   **Regla:** Si el Contrato define un TOPE ESPECÍFICO en UF o Veces Arancel (ej: "Visita Médico Tratante: 1.52 UF"), y la Isapre pagó exactamente ese tope.
-*   **Acción:** **NO OBJETAR** el copago resultante de la diferencia de precio.
-*   **Razón:** El tope es una restricción contractual válida y conocida. No se debe aplicar el principio de "Plan Pleno" para anular topes explícitos numéricos.
-*   **Excepción:** Solo objetar si la Isapre pagó MENOS del tope pactado (ej: pagó 1.0 UF cuando el tope era 1.52 UF).
-
-### 6. Reclasificación Arbitraria para Aplicar Exclusiones
-*   **La Trampa:** Calificar como "estética" una cirugía reparadora o alegar "preexistencia" sin pruebas.
-*   **Sustento Legal:** Las exclusiones son de interpretación restrictiva. Si hay fin terapéutico, debe cubrirse.
-
----
-
-## PROTOCOLO DE AUDITORÍA FORENSE DE SALUD (PASOS DE ANÁLISIS)
-Aplica estas reglas lógicas paso a paso para identificar discrepancias financieras y vulneraciones legales.
-
-### A. Validación del "Evento Único" (Dictamen SS N° 12.287/2016)
-*   **Regla:** Verificar si hay un cobro de Urgencia y uno de Hospitalización el mismo día por el mismo diagnóstico.
-*   **Acción:** Si existen dos folios, **CONSOLIDAR** como un solo evento hospitalario. Todo copago de urgencia es reclamable.
-*   **Sustento:** Dictamen SS N° 12.287/2016: Urgencia y Hospitalización son un mismo proceso continuo.
-
-### B. Auditoría de Coberturas Críticas (100% o Preferente)
-*   **Regla:** Comparar Bonificación PAM vs Contrato para: Medicamentos, Materiales, Insumos y Exámenes Hospitalarios.
-*   **Acción:** Si Contrato estipula 100% (o cobertura preferente) y PAM muestra copago (ej. 70%), marcar como **INCUMPLIMIENTO CONTRACTUAL DIRECTO**.
-*   **Sustento:** El Contrato de Salud es ley para las partes.
-
-### C. Detección de Desagregación (Unbundling) - Circular 43
-*   **Regla:** Identificar cobro simultáneo de "Derecho de Pabellón" / "Día Cama" E insumos básicos (gasas, jeringas, vías, fleboclisis).
-*   **Acción:** Marcar cargos individuales como **COBROS DUPLICADOS**.
-*   **Sustento:** Circular 43 de 1998: Estos elementos están incluidos en el valor del recinto.
-
-### D. Control de Opacidad (Glosas Genéricas 3201XXX / 149995)
-*   **Regla:** Rastrear "Gastos no cubiertos", "Prestación no arancelada" o "Varios".
-*   **Acción:** Exigir desglose obligatorio. Si ocultan procedimientos básicos (vías venosas), **IMPUGNAR** por falta de transparencia.
-*   **Sustento:** Circular IF N°19 de 2018 (Transparencia en cuentas).
-
-### E. Contradicción PAM vs. Cuenta (Bonificación Errónea)
-*   **Regla:** Verificar prestaciones con Bonificación $0 en la Cuenta que SÍ tienen bonificación aprobada en el PAM.
-*   **Acción:** Identificar el monto "perdido" y marcarlo como **BONIFICACIÓN ERRÓNEA DE PROCEDENCIA ALTA**.
-
----
-
-## AUDITORÍA DE INSUFICIENCIA DE RED Y PROTECCIÓN FINANCIERA (CASOS COMPLEJOS)
-**OBJETIVO:** Identificar si la Isapre transformó un beneficio contractual en "ilusorio" vulnerando la Protección Financiera.
-
-### Paso 1: Análisis de Coherencia Red vs. Complejidad (Caída de Red)
-*   **Regla:** Si el procedimiento es de ALTA COMPLEJIDAD (Neurocirugía, Cardiovascular, UCI) y se realizó fuera de la Red Preferente.
-*   **Acción:** Verificar si hubo URGENCIA VITAL o INSUFICIENCIA TÉCNICA (falta de cupo/especialista).
-*   **Sustento:** Jurisprudencia SIS: Si la red no era idónea, la Isapre **DEBE PAGAR COBERTURA PREFERENTE (90-100%)** al prestador externo.
-
-### Paso 2: Detección de "Beneficio Ilusorio" (Castillo vs Mediagua)
-*   **Regla:** Comparar el % de bonificación Prometido vs Real.
-*   **Acción:** Si el plan promete "90% cobertura" pero paga <10% del valor real facturado, marcar como **INCUMPLIMIENTO DEL DEBER DE INFORMACIÓN** (Circular IF N°19).
-*   **Hallazgo:** "Beneficio Ilusorio: Cobertura nominal del 90% se reduce a un X% real, dejando al paciente indefenso."
-
-### Paso 3: Auditoría de Topes en "Día Cama" Críticos
-*   **Regla:** Verificar topes fijos (ej. 5 UF) en unidades UCI/UTI/UCE.
-*   **Acción:** Si el tope cubre <30% del costo real, señalar como **IRREGULARIDAD**. Los topes administrativos deben ceder ante la necesidad médica de estabilización.
-
-### Paso 4: Fraude por Desagregación en Insumos Quirúrgicos (Kits)
-*   **Regla:** Buscar cobro de "Kits Básicos" + insumos sueltos (gasas, suturas, fresas) simultáneamente.
-*   **Acción:** Marcar como **DOBLE COBRO INDEBIDO** bajo el principio de Integridad del Acto Médico.
-
----
-
-## RECOMENDACIONES PARA UNA INVESTIGACIÓN SISTEMÁTICA
-1.  **Auditoría Cruzada:** Compara SIEMPRE Detalle Cuenta vs PAM vs Contrato.
-2.  **Rastreo de Diferencias:** Si PAM promete cobertura y la cuenta la niega, es un cobro indebido.
-3.  **Impugnación "Varios":** Todo cobro genérico sin desglose claro se debe objetar por falta de transparencia.
-
----
-
-**MANDATO DE INTEGRIDAD FORENSE (ZERO FABRICATION POLICY):**
-1.  **NO INVENTES HALLAZGOS:** Si no encuentras la diferencia de dinero en los ítems línea por línea, **NO LA INVENTES**.
-2.  **PROHIBICIÓN DE "AJUSTES POR CÁLCULO":** Está prohibido crear hallazgos basados en "estimaciones de lo que debió ser".
-    *   Ejemplo PROHIBIDO: "Objetar $3.000.000 porque la cobertura debió ser 80%". (Esto genera alucinaciones en honorarios médicos).
-    *   **SOLO PUEDES OBJETAR LO TANGIBLE:** Ítems específicos mal cobrados (Unbundling) o errores matemáticos explícitos.
-3.  **FOCO EN UNBUNDLING REAL:** Tu misión principal es el **"BARRIDO EXHAUSTIVO" (Inventory Mode)** de insumos. Ahí es donde se esconde el dinero. Encuentra las 100 jeringas, no inventes un "error de honorarios".
-
----
-
-## 🧾 PROTOCOLO DE DETECCIÓN DE IMPUESTOS (TAX/IVA/ISA) - CRÍTICO 🧾
-**PROBLEMA:** Las cuentas pueden mostrar montos "Netos" (sin IVA) o "Brutos" (con IVA/ISA). Confundirlos genera errores masivos.
-**SOLUCIÓN:** Antes de procesar CUALQUIER monto, debes ejecutar este escáner de columnas.
-
-### 1. ESCÁNER DE ENCABEZADOS DE COLUMNA
-Busca activamente estas palabras clave en la cabecera de la tabla de la CUENTA:
-*   **CON IMPUESTO:** "Valor ISA", "Valor Total", "Monto Final", "Bruto", "Con IVA".
-*   **SIN IMPUESTO:** "Valor Neto", "Valor Unitario" (si hay otra col mayor), "Costo".
-*   **SOLO IMPUESTO:** "Impuesto", "Tax", "IVA", "Recargo".
-
-### 2. REGLA DE INFERENCIA DE IVA
-*   Si ves **DOS** columnas de montos y una es ~19% mayor que la otra -> La mayor es BRUTO, la menor es NETO.
-*   **SIEMPRE USA EL VALOR BRUTO (CON IVA/ISA)** para la auditoría, porque ese es el precio final que paga el paciente/Isapre.
-
-### 3. CONSTANCIA EXPLÍCITA
-Si detectas ambigüedad (ej: solo dice "Valor"), busca pistas:
-*   Si dice "Exento", asume Bruto.
-*   Si dice "Afecto", busca si hay una suma final de impuestos.
-*   **ACCIÓN:** Si no estás 100% seguro, marca el hallazgo con 'requiresTaxVerification: true'.
-*   **MANDATO:** SIEMPRE usa el valor **BRUTO** para evitar reclamos por diferencias de centavos o impuestos. El sistema no acepta valores que no incluyan la carga tributaria final.
-
----
-
-## LISTA DE VERIFICACIÓN DE FRAUDE (ZERO-TOLERANCE PATTERNS)
-Debes buscar activamente estos códigos y situaciones. Si los encuentras, **IMPUGNAR ES OBLIGATORIO** solo si impacta copago paciente.
-
-### 1. CÓDIGOS 3201001 y 3201002 (GLOSAS GENÉRICAS / OPACIDAD)
-- Si encuentras glosas como "GASTOS NO CUBIERTOS", "INSUMOS VARIOS", "PRESTACION NO ARANCELADA" o códigos como 3201001, 3201002.
-- **ACCIÓN:** Objetar el 100% por falta de transparencia (Ley 20.584) si copago > 0 en PAM.
-- **ALERTA DE SISTEMA:** La presencia de estos montos sin IVA claro o desglose dispara una alerta de Falta de Transparencia.
-- *Ejemplo real:* "Instalación de Vía Venosa" o "Fleboclisis" cobrada como genérico. Son inherentes al Día Cama.
-
-### 2. CÓDIGOS DE INSUMOS DE HOTELERÍA (CIRCULAR IF-319)
-- Busca palabras clave: "TERMOMETRO", "SET DE ASEO", "SABANAS", "ROPA", "KIT DE ASEO", etc.
-- Estos insumos de hotelería deben estar incluidos en el Día Cama.
-- **ACCIÓN:** Objetar el 100% del copago por Desagregación Indebida si copago > 0 en PAM.
-  Si el ítem está completamente bonificado (copago = 0), clasificar como 'ajuste Isapre' (no suma al monto objetado paciente).
-
-### 3. PRINCIPIO DE EVENTO ÚNICO (URGENCIA → HOSPITALIZACIÓN) - REGLA DURA
-**SI** existe EVENTO HOSPITALARIO **Y** aparece una prestación de URGENCIA:
-- código = "0101031" **O** descripción contiene "URGENCIA"
-- **Y** su fecha es el mismo día que \`CUENTA.encabezado.fechaIngreso\` o el día previo (D-1),
-
-**ENTONCES:**
-1. Está **PROHIBIDO** clasificarla como "no_impugnar" por "condición ambulatoria".
-2. Debes clasificar ese ítem como:
-   - "impugnar" si el ítem existe en el UNIVERSO PAM con copago > 0 (monto objetado = copago exacto del PAM).
-   - "zona_gris" si NO puedes anclarlo al PAM o NO puedes determinar fecha (monto = 0; requiereRevisionHumana = true; causaInseguridad indicando qué falta).
-3. Fundamento mínimo obligatorio cuando sea "impugnar":
-   - Citar "Principio de Evento Único" + Dictamen SS N°12.287/2016.
-   - Explicar que la urgencia que deriva a hospitalización se reliquida con reglas/cobertura del evento hospitalario.
-
-**EXCEPCIÓN (ÚNICA):**
-- Solo puedes dejar 0101031 como "no_impugnar" si encuentras una CLÁUSULA CONTRACTUAL explícita que autorice copago fijo/bonificación distinta para urgencia aun cuando deriva en hospitalización, y la citas (anclaje al contrato).
-- Si no encuentras esa cláusula, NO puedes validarla.
-
-### 4. PROCEDIMIENTOS DE ENFERMERÍA INHERENTES (VÍA VENOSA / FLEBOCLISIS) [NOVA]
-**CONTEXTO:** Estos procedimientos son parte de la "Atención Integral de Enfermería" incluida en el Día Cama.
-**BUSCAR:**
-- Descripciones: "VIA VENOSA", "INSTALACION VIA", "FLEBOCLISIS", "CATETERISMO VENOSO", "TOMA DE MUESTRA VENOSA".
-- Códigos sospechosos: a veces ocultos en **3201001** o **3201002**.
-
-**ACCIÓN:**
-- Si aparecen cobrados por separado con Copago > 0 --> **OBJETAR 100%**.
-- **FUNDAMENTO:** "Desagregación Indebida de prestaciones de enfermería inherentes al Día Cama (Circular IF/N°319 y Circular 43)". Explicar que la instalación de vías es un procedimiento básico de hospitalización ya remunerado en el día cama.
-
-
-### 5. DESAGREGACIÓN INDEBIDA DE PABELLÓN (DOCTRINA UNIVERSAL DE UNBUNDLING - EXTENSIÓN DEFINITIVA)
-**APLICACIÓN:** VÁLIDO PARA CUALQUIER PROCEDIMIENTO QUIRÚRGICO.
-**FUNDAMENTO LEGAL:** Circular 43/1998 SIS + Práctica Consolidada. "El acto quirúrgico es indivisible y el riesgo técnico es del prestador".
-
-**ALGORITMO DE DETECCIÓN (EJECUTAR EN ORDEN):**
-
-1.  **¿Existe Pabellón/Cirugía en la CUENTA?** Revisa códigos de "Derecho de Pabellón", "Quirófano", "Pabellón Menor/Mayor".
-
-2.  **ESCÁNER DE MATERIALES (LISTA NEGRA DEFINITIVA - 10 CATEGORÍAS):**
-    Busca activamente en la Cuenta/PAM los siguientes términos. Si aparecen con copago > 0, **OBJETAR EL 100%**.
-
-    *   **1. INSTRUMENTAL QUIRÚRGICO ADICIONAL (TODO instrumental no implantable):**
-        *   "FRESA", "BROCA", "SIERRA", "HOJA", "CURETA", "ELEVADOR", "DISECTOR", "ESPATULA".
-        *   "PINZA", "TIJERA", "PORTA AGUJA", "SEPARADOR" (Farabeuf, Weitlaner, Gelpi, Lonestar).
-        *   "ASPIRADOR QUIRURGICO" (Yankauer, Frazier), "CANULA", "MANGO BISTURI".
-
-    *   **2. MATERIAL DE CAMPO ESTÉRIL Y PREPARACIÓN:**
-        *   "CAMPO", "PAQUETE", "SABANA QUIRURGICA", "COBERTOR".
-        *   "FUNDA" (Cables, Brazos, Microscopio, Kinevo, Robot).
-        *   "BOLSA FLUIDOS", "CAMPO ADHESIVO".
-
-    *   **3. ASPIRACIÓN Y DRENAJE INTRAOPERATORIO:**
-        *   "LINEA ASPIRACION", "RESERVORIO", "FRASCO ASPIRACION", "FILTRO".
-        *   "TUBO CONECTOR", "DRENAJE" (Solo si es intraoperatorio/no queda instalado).
-
-    *   **4. ELECTROCIRUGÍA Y ENERGÍA:**
-        *   "PLACA RETORNO", "PLACA PACIENTE", "LAPIZ ELECTRO", "CABLE".
-        *   "MANGO RADIOFRECUENCIA", "ELECTRODO" (Mono/Bipolar).
-        *   "CONSUMIBLE ARMONICO" (Salvo que contrato lo excluya explícitamente).
-
-    *   **5. IRRIGACIÓN Y LAVADO:**
-        *   "SUERO FISIOLOGICO" (Irrigación/Lavado), "RINGER LACTATO" (No iv).
-        *   "JERINGA IRRIGACION", "SISTEMA LAVADO PULSATIL".
-
-    *   **6. HEMOSTASIA NO IMPLANTABLE:**
-        *   "SURGIFLO", "SURGICEL", "TACHOSIL", "GELITASPON".
-        *   "ESPONJA", "COMPRESA".
-        *   *(Excepción: Solo cobrar si es implante permanente con marca/lote identificado)*.
-
-    *   **7. CIERRE BÁSICO (NO PRÓTESIS):**
-        *   "SUTURA" (Toda: Vicryl, Prolene, Seda, etc.), "HILO".
-        *   "GRAPA" (Cutánea/Uso), "CLIP" (Temporal), "ADHESIVO TISULAR".
-        *   "APOSITO INMEDIATO", "CINTA APROXIMACION".
-
-    *   **8. PROTECCIÓN PERSONAL Y PACIENTE:**
-        *   "MASCARILLA", "GORRO", "PECHERA", "LENTE", "DELANTAL PLOMADO".
-
-    *   **9. NAVEGACIÓN, IMAGEN Y APOYO:**
-        *   "MARCADOR QUIRURGICO", "PUNTERO", "ESFERA CALIBRACION", "FIDUCIAL".
-        *   "CABLE REFERENCIA", "ADHESIVO SENSOR".
-        *   *(La navegación está incluida si la cirugía base lo contempla)*.
-
-    *   **10. MATERIAL ANESTÉSICO INTRAOPERATORIO (Insumos, no fármacos):**
-        *   "CIRCUITO ANESTESIA", "FILTRO RESPIRATORIO", "MASCARA ANESTESIA".
-        *   "TUBO ENDOTRAQUEAL", "LARINGOSCOPIO", "GUIA INTUBACION".
-
-3.  **REGLA MAESTRA DE FILTRADO (TOTAL RECALL - INVERSIÓN DE LA CARGA DE PRUEBA):**
-    **PREMISA:** En una cirugía, el paciente paga por "Derecho de Pabellón" e "Implantes". TODO lo demás es cargo del prestador.
-
-    **ALGORITMO DRACONIANO (BARRIDO EXHAUSTIVO - INVENTORY MODE):**
-    **OBJETIVO:** Tu meta es detectar la MAYOR CANTIDAD de ítems desagregados. Un reporte con 50 ítems pequeños es MEJOR que uno con solo 2 grandes.
-
-    Recorre línea por línea la sección "MATERIALES CLÍNICOS" (o similar). Para CADA ítem con Copago > 0:
-    1.  **¿Es Fármaco?** -> Pasa a Regla 6.
-    2.  **¿Es Implante?** -> Whitelist (solo si dice PLACA/TORNILLO/LENTE/MALLA/PRÓTESIS/DURAL/VÁLVULA explícitamente).
-    3.  **SI NO ES FÁRMACO NI IMPLANTE -> ES UNBUNDLING (OBJETAR).**
-        *   **NO DISCRIMINES POR PRECIO:** Una jeringa de $500 es tan ilegal como una fresa de $400.000.
-        *   **NO RESUMAS:** Si hay 10 jeringas distintas, lista las 10.
-        *   **NO TE DETENGAS:** No pares de buscar cuando encuentres los ítems caros. Barre la lista completa.
-        *   **PATRONES CLAVE:** Cables, Sondas, Guías, Tubos, Paños, Ropa, Sensores, Electrodos, Hojas, Agujas, Jeringas, Conectores, Llaves, Bajadas, Kit, Set.
-
-**4. FILTRO DE EXCLUSIONES (LISTA BLANCA ESTRICTA):**
-    *   Solo se permite cobro separado si la glosa dice explícitamente:
-        *   "PRÓTESIS", "IMPLANTE", "STENT", "MALLA".
-        *   "PLACA [MEDIDA]", "TORNILLO [MEDIDA]".
-        *   "VÁLVULA", "MARCAPASOS", "LENTE INTRAOCULAR".
-        *   "DURAL PATCH" (Implante específico).
-
-**REGLA DE OBJECIÓN AUTOMÁTICA (MODO AGRESIVO):**
-**SI** un ítem cae en "UNBUNDLING_TOTAL" (No es fármaco ni implante):
-**ENTONCES:**
-1.  Marca el ítem (INDIVIDUALMENTE) con flag **"UNBUNDLING_PABELLON"**.
-2.  **OBJETA EL 100% DEL COPAGO.**
-3.  **FUNDAMENTACIÓN:** "Cobro improcedente de insumo fungible (no implante) incluido en Derecho de Pabellón (Circular 43/1998)."
-
-**⚠️ PROHIBICIÓN DE AGRUPACIÓN (TRAZABILIDAD TOTAL):**
-Estás **PROHIBIDO** de agrupar estos hallazgos.
-Debes generar la tabla "DETALLE DE ELEMENTOS INCLUIDOS EN PABELLÓN" con TODO lo que encuentres.
-**SI LA TABLA TIENE 100 FILAS, QUE TENGA 100 FILAS.** No ahorres espacio aquí.
-La ausencia de los ítems pequeños (jeringas, suturas) se considera una **FALLA GRAVE DE AUDITORÍA**.
-
-**FUNDAMENTACIÓN OBLIGATORIA (TEXTO):**
-"Desagregación improcedente de instrumental/insumo inherente al Derecho de Pabellón. El elemento [Nombre] corresponde a la categoría '[Categoría Detectada]' y está incluido en la tarifa integral según Circular 43/1998 (SIS). Su cobro separado constituye duplicidad por riesgo operacional."
-
----
-
-### 5.1. TABLA OBLIGATORIA DE DESAGREGACIÓN (FORMATO REPORTE)
-En el informe final (Markdown), si detectas > 1 ítem de unbundling, DEBES generar una tabla específica llamada:
-**"DETALLE DE ELEMENTOS INCLUIDOS EN PABELLÓN (NO COBRABLES)"**
-| Ítem (Glosa) | Categoría | Norma Vulnerada | Monto (Copago) |
-|---|---|---|---|
-| [Fresa...] | Instrumental | Circ. 43/98 Letra B | $X |
-| [Sutura...] | Cierre | Circ. 43/98 Letra D | $Y |
-| **TOTAL** | | | **$SUMA** |
-*Esta tabla es indispensable para justificar la suma total objetada.*
-
-**MEDICAMENTOS (NO IF-319):** Se auditan por reglas clínicas/duplicidad/precio, NO por IF-319.
-
-### 5. MEDICAMENTOS E INSUMOS EN HOSPITALIZACIÓN (CONTRATO)
-- Lee el CONTRATO y detecta reglas sobre "Medicamentos, Materiales e Insumos Clínicos" en hospitalización (ej. porcentajes especiales, topes por evento o por año, coberturas sin tope, etc.).
-- Si el contrato indica una cobertura mayor (o 100% sin tope) para medicamentos/insumos hospitalarios y el PAM muestra copago >0 en ítems de medicamentos/insumos (códigos 3101***, 3218*** u otros equivalentes),
-- **ACCIÓN:** Impugnar la diferencia entre lo cobrado al paciente y lo que debió ser cubierto, como "Incumplimiento de cobertura contractual".
-
-### 6. EXÁMENES E INSUMOS CLÍNICOS EN EVENTO HOSPITALARIO (e.g., 08xxxx)
-- Revisa el contrato por menciones a "Medicamentos, Materiales e Insumos Clínicos", "Evento Hospitalario", "Prestaciones Hospitalarias", "Día Cama Estándar", etc.
-- Si hay exámenes o procedimientos claramente inherentes a la cirugía o a la hospitalización (ej. biopsias, estudios histopatológicos, apoyo fluoroscópico intraoperatorio, etc.) con copago >0 en PAM,
-- **ACCIÓN:** Impugnar la diferencia como "Desagregación indebida" o "Incumplimiento contractual", según corresponda.
-
-### 7. INTEGRIDAD DEL EQUIPO QUIRÚRGICO (NO SON DUPLICADOS)
-**CONTEXTO:** En cirugías, es estándar cobrar el mismo código para Cirujano (100%), 1er Ayudante, 2do Ayudante y/o Arsenalera.
-**REGLA:**
-- SI encuentras múltiples cargos del MISMO código quirúrgico en la MISMA fecha pero con:
-  a) Diferentes Profesionales/Médicos.
-  b) Cantidades Fraccionarias o Porcentuales (ej: 1.0, 0.25, 0.20, 0.10).
-  c) Montos proporcionales al cargo principal.
-- **ACCIÓN:** **VALIDAR COMO EQUIPO QUIRÚRGICO**. NUNCA marques como "Cargo Injustificado" o "Duplicado".
-- Solo objetar si la suma de porcentajes excede lo permitido por normativa (ej: >2 ayudantes sin justificación en cirugía simple).
-
-### 8. EXCLUSIÓN DE COMPONENTES ESENCIALES (PABELLÓN/SALA/RECUPERACIÓN) [JURISPRUDENCIA SS]
-**PRINCIPIO:** "No resulta procedente excluir de cobertura o bonificación costos que constituyen elementos indispensables para la ejecución del acto médico autorizado" (Superintendencia de Salud).
-
-**ÁMBITO DE APLICACIÓN:**
-- Uso de Pabellón / Quirófano.
-- Derecho a Sala / Día Cama.
-- Sala de Recuperación Inmediata.
-- Infraestructura Clínica Mínima.
-
-**DETECCIÓN:**
-- Busca ítems de infraestructura crítica (Pabellón, Sala, Recuperación) que tengan **BONIFICACIÓN $0** o hayan sido derivados íntegramente a COPAGO DEL PACIENTE.
-- Frecuentemente rechazados bajo glosas como: "Prestación no arancelada", "No codificada", "Código Genérico 3201002" o "Insumos/Servicios no pactados".
-
-**ACCIÓN:**
-- **OBJETAR EL 100% DEL COPAGO** generado por esta exclusión.
-- **FUNDAMENTO OBLIGATORIO:**
-  "Exclusión improcedente de componente esencial del acto médico. Según Jurisprudencia Administrativa de la Superintendencia de Salud (DFL N°1/2005), los costos de infraestructura indispensable para la ejecución del procedimiento autorizado (como Pabellón o Sala) NO pueden ser excluidos de cobertura ni bonificación, aun cuando no se encuentren individualizados como prestaciones valorizadas en el arancel. Se vulnera la naturaleza del evento quirúrgico cubierto."
-
-### 7. DETERMINACIÓN DE MODALIDAD (CRÍTICO - ANTES DE AUDITAR)
-**PASO 1:** Identifica el PRESTADOR PRINCIPAL en el PAM. Si tiene RUT chileno o es una clínica en Chile, la Modalidad es **OBLIGATORIAMENTE "NACIONAL"**.
-- **PROHIBIDO** usar topes/coberturas de la fila "INTERNACIONAL" para prestadores chilenos.
-- **REGLA INTERNACIONAL:** Todo dato de la columna "Internacional" o "Cobertura Exterior" debe ir SIEMPRE a la sección de RESTRICCIONES y NOTAS. Jamás debe aparecer en la tabla de coberturas del punto I.
-
-**PASO 2:** Busca el nombre del prestador en el array \`CONTRATO.coberturas\`.
-
-**PASO 3 - CLASIFICACIÓN:**
-- **CASO A (PREFERENTE):** Si el prestador aparece explícitamente en una fila "Preferente", ESA es la cobertura que rige.
-- **CASO B (LIBRE ELECCIÓN):** Si el prestador NO aparece en ninguna red preferente, APLICA las reglas de **"Libre Elección" / "Modalidad Nacional"**.
-
-### 8. VERIFICACIÓN DE COBERTURA Y TOPES (BASE DE CÁLCULO)
-**OBJETIVO:** Detectar sub-bonificación (Isapre pagando menos de lo pactado).
-
-**REGLAS ESPECÍFICAS:**
-1. **EXÁMENES DE LABORATORIO:**
-   - Verifica si existe una cobertura "Exámenes de Laboratorio (Hospitalario)" o "Ambulatorio" según corresponda.
-   - Si el contrato dice "100% de bonificación" (aunque tenga tope VAM), y el monto cobrado es bajo (no supera el tope VAM probable), **LA ISAPRE DEBE CUBRIR EL 100%**.
-   - **ERROR COMÚN:** Aplicar bonificación de 80% (ambulatorio) a exámenes tomados durante una hospitalización. Si es hospitalizado, busca la fila "Hospitalario" y exige el 100% si así lo dice el plan.
-
-2. **TOPES VAM/UF:**
-   - Un tope (ej. 6 VAM) no baja el % de cobertura a menos que el valor supere el tope.
-   - Si (ValorCobrado < TopeCalculado) Y (Cobertura = 100%), el Copago debe ser $0.
-   - Si PAM muestra Copago > 0 en estos casos, **OBJETAR COMO SUB-BONIFICACIÓN**.
-
-3. **CÁLCULO:**
-   - Bonificación Mínima = min(ValorTotal, TopeContractual) * %Cobertura.
-   - Si (Bonificación Real < Bonificación Mínima) -> DIFERENCIA ES OBJETO DE RECLAMO.
-
----
-
-## SISTEMA DE CONTENCIÓN ANTI-ALUCINACIÓN (SCAA)
-
-**Checkpoint Anti-Alucinación 0 – Errores de Cálculo en CUENTA:**
-- Algunos ítems de la CUENTA pueden tener \`hasCalculationError: true\` cuando la IA extrajo mal la cantidad.
-- **REGLA OBLIGATORIA:** Si un ítem tiene \`hasCalculationError: true\`, usa SIEMPRE el campo \`total\` (valor real de la cuenta) y NO el \`calculatedTotal\`.
-- Ejemplo: Si quantity=180000 (error de OCR) pero total=212486 (correcto), usa 212486 como base para tu análisis.
-- NO objetes ítems solo por tener \`hasCalculationError\`; ese flag indica un problema de extracción, no de facturación.
-
-**Checkpoint Anti-Alucinación 1 – Anclaje obligatorio:**
-Para cada hallazgo:
-- Ancla SIEMPRE a referencias JSON explícitas y REALES.
-- **CUENTA:** Usa \'CUENTA.sections[i].items[j]\'. (Nota: la clave es "sections", en inglés).
-- **PAM:** Usa \'PAM.folios[i].desglosePorPrestador[j].items[k]\'. (Nota: PAM es un objeto que contiene un array "folios").
-- **CONTRATO:** Usa \'CONTRATO.coberturas[i]\'.
-- **NUEVA REGLA:** Objeta TODO copago que no puedas validar con fundamento contractual/legal explícito según la METODOLOGÍA DE VALIDACIÓN.
-- **IMPORTANTE:** Si detectas un cobro irregular completamente bonificado por la Isapre (copago=$0), DEBES reportarlo como hallazgo informativo con montoObjetado=totalBonificado, aclarando "Bonificación irregular aplicada por Isapre. No afecta copago del paciente pero constituye cobro indebido al sistema."
-- Rechaza todo hallazgo que no tenga anclaje claro.
-
-**Checkpoint Anti-Alucinación 2 – Totales vs PAM:**
-- Verifica que la suma de todos tus montos objetados sea **<= totalCopago** del PAM correspondiente.
-- Si detectas exceso, reduce tus montos y anótalo en el texto del hallazgo ("ajuste por exceso detectado").
-
-**Checkpoint Anti-Alucinación 3 – Confusión de Columnas (Nacional vs Internacional):**
-- **ANTES de aplicar un tope (UF/VAM)**, verifica visualmente si ese tope está en la columna de "Cobertura Nacional" o "Cobertura Exterior/Internacional".
-- Si el prestador es chileno (ej. Clínica Indisa), **IGNORA** cualquier monto que esté en la columna Internacional. 
-- **REGLA DE ORO:** Un plan puede decir "SIN TOPE" en nacional y "300 UF" en internacional. Si aplicas las 300 UF a una cuenta chilena, estás cometiendo un ERROR FORENSE GRAVE.
-
-**Checkpoint Anti-Alucinación 4 – Escaneo Preciso de Columnas en HTML:**
-- **CONTEXTO:** Los planes Isapre proyectados en HTML tienen tablas con 3+ columnas: % Bonificación, Tope Nacional, Tope Anual, Tope Internacional.
-- **REGLA OBLIGATORIA DE ESCANEO:** Antes de extraer un valor, IDENTIFICA EXPLÍCITAMENTE el índice de la columna.
-  - Ejemplo: "Columna 1: % Bonificación, Columna 2: Tope Bonificación Nacional (UF/VAM), Columna 3: Tope Máximo Año, Columna 4: Tope Internacional".
-- **PROHIBICIÓN:** NUNCA asumas que el primer número que ves es el tope. Los topes suelen estar en la columna 2 o 3.
-- **VERIFICACIÓN:** Si extraes un tope de "300 UF", verifica que NO esté en una columna titulada "Internacional", "Extranjero", "Exterior", o similar.
-- **BITÁCORA:** En \`bitacoraAnalisis\`, registra: "Extraído de Columna [N]: [Encabezado] = [Valor]" para asegurar trazabilidad.
-
-**Checkpoint Anti-Alucinación 5 – Integridad de Roles y Cantidades (CRÍTICO):**
-- **SITUACIÓN:** PAM indica Cantidad=1 y Monto=$4.2M (Cirujano Principal).
-- **ALUCINACIÓN PROHIBIDA:** Decir "Debería ser 0.1 ($423k) porque parece un instrumentista".
-- **REGLA:** NUNCA cambies el ROL ni la CANTIDAD (1.0 vs 0.1) basándote en suposiciones de precio.
-- **EXCEPCIÓN:** ÚNICAMENTE si la glosa dice explícitamente "INSTRUMENTISTA", "ARSENALERO" o "2DO CIRUJANO", puedes validar si se aplicó el % correcto (10% o 50%).
-- Si la glosa es genérica (ej: "Resección Tumor"), ASUME SIEMPRE que es el CIRUJANO PRINCIPAL (100%).
-- **CONSECUENCIA:** Si inventas un "error de facturación de clínica" cambiando la cantidad de 1 a 0.1 sin que la glosa diga "Instrumentista", serás penalizado.
-
----
-
-**MARCO LEGAL Y REGLAS CANÓNICAS (CONOCIMIENTO):**
-{knowledge_base_text}
-
-**REGLAS DE HOTELERÍA (Detección IF-319):**
-\`\`\`json
-{hoteleria_json}
-\`\`\`
-
-**INSUMOS DE TRABAJO:**
-1. CUENTA (Bill Detail): \`\`\`json {cuenta_json} \`\`\`
-2. PAM (Isapre Processing): \`\`\`json {pam_json} \`\`\`
-3. CONTRATO (Health Plan): \`\`\`json {contrato_json} \`\`\`
-4. CONTEXTO HTML (Módulo 5): \`\`\`html {html_context} \`\`\`
-
-**INSTRUCCIÓN SOBRE CONTEXTO HTML:**
-Si la 'CUENTA (Bill Detail)' estructurada está vacía o incompleta, utiliza el 'CONTEXTO HTML' como fuente primaria de verdad para identificar los ítems facturados, sus descripciones, cantidades y montos. Si ambos están presentes, usa el HTML para validar o enriquecer la estructura del JSON.
-
----
-
-**INSTRUCCIONES DE FORMATO PARA 'auditoriaFinalMarkdown' (MODO TRAZABILIDAD FORENSE TOTAL):**
-Genera un reporte en MARKDOWN profesional, **TÉCNICO, EXHAUSTIVO Y TRAZABLE**.
-**PROHIBICIÓN ABSOLUTA:** Está prohibido reportar montos agregados sin desglose. Si dices que hay $4.000.000 en objeciones, debes listar los ítems que suman esos $4.000.000 uno por uno.
-
-Estructura obligatoria (NO OMITIR NADA):
-
-### 0. ANTECEDENTES DE LA AUDITORÍA
-...
-
-### 1. RESUMEN EJECUTIVO
-(Narrativa general del impacto, PERO DEBE REFERENCIAR LAS TABLAS DETALLADAS).
-
-### 2. DETALLE DE HALLAZGOS Y OBJECIONES (ESTRUCTURA FORENSE TRAZABLE)
-Para CADA hallazgo detectado, genera la estructura COMPLETA de 8 SECCIONES, con énfasis crítico en la Sección VIII:
-
----
-#### HALLAZGO N°[X]: [Título] ($[Monto Total Hallazgo])
-
-**I. Identificación:** ...
-**II. Contexto:** ...
-**III. Norma:** ...
-**IV. Controversia:** ...
-**V. Análisis:** ...
-**VI. Efecto:** ...
-**VII. Conclusión:** ...
-
-**VIII. TRAZABILIDAD Y EVIDENCIA (EL CORAZÓN DE LA AUDITORÍA)**
-**Debes generar una tabla línea por línea que demuestre matemáticamente de dónde sale el monto objetado.**
-**NO AGRUPES.** Si hay 50 jeringas distintas, lista las 50.
-
-| Código Prestador | Descripción Exacta (Glosa) | Origen (Folio PAM) | Norma Específica (Circular/Ley) | Monto Objetado (Copago) |
-| :--- | :--- | :--- | :--- | :--- |
-| [Código] | [Glosa tal cual aparece en cuenta] | [N° Folio] | [Ej: Circ. 43/98 Letra B] | $[Monto] |
-| ... | ... | ... | ... | ... |
-| **TOTAL** | **Suma exacta verificada** | | | **$[Monto Total]** |
-
-*Nota: La suma de esta tabla DEBE coincidir exactamente con el monto del encabezado.*
----
-
-[Repetir para cada hallazgo]
-
-### 3. TABLA RESUMEN CONSOLIDADA
-| Código | Glosa | Hallazgo | Monto Objetado | Cita Legal Clave |
-|---|---|---|---|---|
-...
-
-### 4. CONCLUSIÓN FINAL
-...
-
-### 5. EXPLICACIÓN EN LENGUAJE SIMPLE
-(Con analogía del taller mecánico)
-
-
-### 4. CONCLUSIÓN FINAL
-Instrucción clara de proceder a la devolución.
-
-### 5. EXPLICACIÓN AL PACIENTE
-(Usa la analogía del "Seguro de Auto" o "Restaurante" si ayuda, pero mantén tono profesional)
-
-#### II. COBERTURAS NACIONALES (TABLA PRINCIPAL)
-**IMPORTANTE:** Esta tabla NO puede contener columnas ni datos de Cobertura Internacional. Los topes internacionales se mueven obligatoriamente a la sección III.
-| Categoría | Prestación | % Bonif. | Tope de Bonificación (Nacional) | Tope Máximo Anual | Ampliación |
-|---|---|---|---|---|---|
-[Filas de la tabla...]
-
-#### III. RESTRICCIONES ESPECIALES Y COBERTURA INTERNACIONAL
-[Esta sección es OBLIGATORIA. Aquí se deben listar todos los topes de la columna 'Internacional', notas al pie (*, **, ***) y cualquier limitación etaria o diagnóstica detectada.]
-
-#### IV. TABLA DE HALLAZGOS Y OBJECIONES FINALES (FORENSE)
-**NOTA:** En hallazgos agrupados (ej. Insumos Pabellón), LISTAR los productos principales en la columna 'Glosa'.
-| Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |
-|---|---|---|---|---|---|
-[Filas de la tabla...]
-
-#### V. PRORRATEO COPAGO [CÓDIGO o 'MULTIPLE'] (MATERIALES)
-*(Solo si aplica prorrateo por IF-319 o PAM agregado. Si no aplica, OMITE esta sección)*
-Dado que el PAM agrupa el copago de materiales... [Explicación del factor de copago calculado]
-
-*   **[Nombre Item] (Item [Index]):** $[Valor Total] -> Copago: $[Valor Copago Imputado] (Objetado 100%)
-*   ...
-*   **[Items No Objetados]:** (Whitelist - No objetado)
-
-#### VI. EXPLICACIÓN EN LENGUAJE SIMPLE (PARA EL PACIENTE)
-[Escribe un párrafo amigable explicando los hallazgos. **OBLIGATORIO: USA ESTA ANALOGÍA PARA EXPLICAR LA SITUACIÓN:**
-"Imagine que va a un taller mecánico tras un choque y el seguro le entrega un certificado prometiendo pagar el 100% de la reparación. Sin embargo, al retirar el auto, el taller le cobra aparte por los tornillos, la limpieza de las herramientas y el uso de la luz del local bajo el ítem 'Gastos Varios'. Usted termina pagando una suma considerable por elementos que son esenciales para la reparación que el seguro ya dijo que cubriría. El taller y el seguro están usando la complejidad de las piezas para confundirlo y que usted asuma costos que no le corresponden."
-Adapta esta analogía a los hallazgos médicos encontrados (ej. cambiando tornillos por jeringas/insumos).]
-
-**Resultado:** El ahorro total para el paciente tras reliquidación de topes y eliminación de cargos indebidos asciende a **$[Total Ahorro]**.
-
-${V9_AUDIT_RULES_APPENDIX}
+1. Confía SOLAMENTE en los datos provistos en los JSONs.
+2. Usa el \`knowledge_base_text\` para CITAR leyes y normas exactas.
+3. Si el HTML contradice al JSON, dale prioridad a los Montos del PAM (JSON) pero usa el HTML para entender el "concepto clínico".
+
+BASE DE CONOCIMIENTO (LEYES Y JURISPRUDENCIA FILTRADA PARA ESTE CASO):
+"{knowledge_base_text}"
+
+DATOS DEL CASO:
+CUENTA CLÍNICA: "{cuenta_json}"
+PAM (COBERTURA): "{pam_json}"
+CONTRATO SALUD: "{contrato_json}"
+REGLAS HOTELERÍA: "{hoteleria_json}"
+CONTEXTO VISUAL (HTML):
+"{html_context}"
+
+REGLA DE SALIDA: Responde SOLAMENTE con el JSON de auditoría definido en el esquema.
 `;
 
-export const AUDIT_RECONCILIATION_SCHEMA = {
-    type: Type.OBJECT,
-    properties: {
-        decision: {
-            type: Type.STRING,
-            description: "La decisión final sobre qué auditoría usar o cómo combinarlas.",
-            enum: ['mantener_anterior', 'usar_nuevo', 'fusionar', 'marcar_ambiguo'],
-        },
-        motivo: {
-            type: Type.STRING,
-            description: "Explicación detallada de por qué se tomó esa decisión."
-        },
-        cambiosClave: {
-            type: Type.ARRAY,
-            description: "Lista de los cambios más significativos entre las auditorías.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    codigoPrestacion: { type: Type.STRING },
-                    tipoCambio: { type: Type.STRING },
-                    detalle: { type: Type.STRING },
-                }
-            }
-        },
-        requiereRevisionHumana: {
-            type: Type.BOOLEAN,
-            description: "Indica si las diferencias son lo suficientemente complejas como para requerir una revisión humana."
-        },
-        auditoriaFinalMarkdown: {
-            type: Type.STRING,
-            description: "El informe de auditoría final y consolidado en formato Markdown."
-        }
-    },
-    required: ['decision', 'motivo', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
-};
+export const REFLECTION_PROMPT = `
+**SISTEMA DE REFLEXIÓN FORENSE: AUDITORÍA DE SEGUNDA VUELTA**
 
-// ============================================================================
-// MULTI-PASS AUDIT SYSTEM (3 RONDAS DE VERIFICACIÓN CRUZADA)
-// ============================================================================
+ACTÚA COMO UN AUDITOR SUPERVISOR QUE REVISA EL TRABAJO DE UN AUDITOR JUNIOR (LA RONDA 1).
+TU OBJETIVO ES RESPONDER A ESTA PREGUNTA INTERNA:
+**"¿HAY ALGO QUE NO HAYAS VISTO QUE SE HAYA PASADO POR ALTO?"**
 
-export const VERIFICATION_SCHEMA = {
-    type: Type.OBJECT,
-    properties: {
-        hallazgosConfirmados: {
-            type: Type.ARRAY,
-            description: "Hallazgos de Ronda 1 que fueron verificados y confirmados.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    codigoOriginal: { type: Type.STRING },
-                    montoConfirmado: { type: Type.NUMBER },
-                    razonConfirmacion: { type: Type.STRING }
-                }
-            }
-        },
-        hallazgosRefutados: {
-            type: Type.ARRAY,
-            description: "Hallazgos de Ronda 1 que fueron refutados por errores.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    codigoOriginal: { type: Type.STRING },
-                    montoOriginal: { type: Type.NUMBER },
-                    razonRefutacion: { type: Type.STRING },
-                    errorDetectado: { type: Type.STRING }
-                }
-            }
-        },
-        hallazgosNuevos: {
-            type: Type.ARRAY,
-            description: "Hallazgos omitidos en Ronda 1 que fueron detectados en Ronda 2.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    codigos: { type: Type.STRING },
-                    glosa: { type: Type.STRING },
-                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 7 SECCIONES (I a VII)." },
-                    montoObjetado: { type: Type.NUMBER },
-                    normaFundamento: { type: Type.STRING }
-                }
-            }
-        },
-        bitacoraVerificacion: {
-            type: Type.ARRAY,
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    paso: { type: Type.STRING },
-                    accion: { type: Type.STRING },
-                    resultado: { type: Type.STRING }
-                }
-            }
-        }
-    },
-    required: ['hallazgosConfirmados', 'hallazgosRefutados', 'hallazgosNuevos', 'bitacoraVerificacion']
-};
+**TAREA:**
+1. Revisa los hallazgos ya detectados en la Ronda 1.
+2. Vuelve a escanear los DATOS ORIGINALES (PAM y Cuenta) buscando activamente lo que se pudo ignorar.
+3. PREGUNTATE A TI MISMO:
+   - "¿Ignoré algún ítem de 'HOTELERÍA' o 'INSUMO' pequeño porque el monto parecía irrelevante?" (El robo hormiga suma).
+   - "¿Pasé por alto alguna diferencia de fechas sospechosa (Evento Único)?"
+   - "¿Hay algún copago en el PAM que dejé pasar como 'válido' demasiado rápido?"
+   - "¿La suma total de lo objetado es mucho menor al copago total del paciente? Si es así, ¿dónde está el resto del dinero?"
 
-export const CONSOLIDATION_SCHEMA = {
-    type: Type.OBJECT,
-    properties: {
-        hallazgosFinales: {
-            type: Type.ARRAY,
-            description: "Solo hallazgos consensuados entre Ronda 1 y 2.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    codigos: { type: Type.STRING },
-                    glosa: { type: Type.STRING },
-                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 7 SECCIONES (I a VII)." },
-                    montoObjetado: { type: Type.NUMBER },
-                    normaFundamento: { type: Type.STRING },
-                    consenso: { type: Type.STRING, description: "R1+R2, R2_nuevo, R3_nuevo" }
-                }
-            }
-        },
-        hallazgosDescartados: {
-            type: Type.ARRAY,
-            description: "Hallazgos eliminados por falta de consenso o refutación.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    codigoOriginal: { type: Type.STRING },
-                    montoOriginal: { type: Type.NUMBER },
-                    razonDescarte: { type: Type.STRING }
-                }
-            }
-        },
-        totalAhorroFinal: { type: Type.NUMBER },
-        antecedentes: {
-            type: Type.OBJECT,
-            properties: {
-                paciente: { type: Type.STRING },
-                clinica: { type: Type.STRING },
-                isapre: { type: Type.STRING },
-                plan: { type: Type.STRING },
-                fechaIngreso: { type: Type.STRING },
-                fechaAlta: { type: Type.STRING },
-                objetoAuditoria: { type: Type.STRING }
-            }
-        },
-        auditoriaFinalMarkdown: {
-            type: Type.STRING,
-            description: "El informe de auditoría final y consolidado en formato Markdown. OBLIGATORIO: Cada hallazgo en la sección 'DETALLE DE HALLAZGOS' debe mostrar las 7 secciones (I-VII) íntegramente."
-        },
-        bitacoraConsolidacion: {
-            type: Type.ARRAY,
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    decision: { type: Type.STRING },
-                    justificacion: { type: Type.STRING }
-                }
-            }
-        }
-    },
-    required: ['hallazgosFinales', 'hallazgosDescartados', 'totalAhorroFinal', 'antecedentes', 'auditoriaFinalMarkdown']
-};
+**DATOS:**
+DATOS ORIGINALES DEL PAM: "{pam_json}"
+DATOS ORIGINALES DEL CONTRATO: "{contrato_json}"
+HALLAZGOS RONDA 1: {findings_json}
 
-export function buildVerificationPrompt(ronda1Result: any): string {
-    const hallazgosJson = JSON.stringify(ronda1Result.hallazgos || [], null, 2);
-    const totalAhorro = ronda1Result.totalAhorroDetectado?.toLocaleString('es-CL') || 0;
-    const numHallazgos = ronda1Result.hallazgos?.length || 0;
+**INSTRUCCIONES:**
+- Si encuentras ALGO NUEVO, añádelo a la lista de \`nuevosHallazgos\`.
+- Si los hallazgos originales cubren todo, devuelve una lista vacía.
+- SÉ EXTREMADAMENTE CRÍTICO. Busca el error de omisión.
 
-    return `
-ERES UN AUDITOR CRÍTICO Y ESCÉPTICO (RONDA 2).
-
-Un auditor realizó una primera auditoría y detectó ${numHallazgos} hallazgos por un total de $${totalAhorro}.
-
-TU TRABAJO: VERIFICACIÓN CRUZADA INDEPENDIENTE
-
-Para CADA hallazgo de Ronda 1, debes:
-
-1. **REPRODUCIBILIDAD:**
-   - ¿Puedes llegar al mismo cálculo independientemente?
-   - ¿El anclaje JSON (CUENTA/PAM/CONTRATO) es correcto y existe?
-
-2. **FUNDAMENTO LEGAL:**
-   - ¿La norma citada es aplicable al caso?
-   - ¿La interpretación es correcta?
-
-3. **DECISIÓN:**
-   - CONFIRMAR: Reproduces el hallazgo con el mismo resultado (±5%)
-   - REFUTAR: Error de cálculo, anclaje incorrecto, o mala interpretación
-   - AJUSTAR: Hallazgo válido pero monto diferente
-
-4. **BUSCAR OMISIONES:**
-   - ¿Hay copagos sin fundamento que Ronda 1 no detectó?
-   - Revisa CADA ítem del PAM con copago > 0
-
-HALLAZGOS DE RONDA 1 A VERIFICAR:
-${hallazgosJson}
-
-REGLA CRÍTICA: Si no puedes reproducir un cálculo exactamente, DEBES refutarlo.
+**REGLA DE RIGOR:**
+NO inventes hallazgos para "rellenar". Solo reporta si encuentras evidencia matemática sólida en el PAM que fue ignorada anteriormente.
 `;
-}
-
-export function buildConsolidationPrompt(ronda1: any, ronda2: any): string {
-    const confirmados = ronda2.hallazgosConfirmados?.length || 0;
-    const refutados = ronda2.hallazgosRefutados?.length || 0;
-    const nuevos = ronda2.hallazgosNuevos?.length || 0;
-    const numHallazgosR1 = ronda1.hallazgos?.length || 0;
-    const totalR1 = ronda1.totalAhorroDetectado?.toLocaleString('es-CL') || 0;
-    const ronda1Json = JSON.stringify(ronda1, null, 2);
-    const ronda2Json = JSON.stringify(ronda2, null, 2);
-
-    return `
-ERES EL AUDITOR JEFE (RONDA 3 - CONSOLIDACIÓN FINAL).
-
-Tienes 2 auditorías del mismo caso:
-
-**RONDA 1 (Auditor Primario):** ${numHallazgosR1} hallazgos, Total: $${totalR1}
-**RONDA 2 (Auditor Verificador):** Confirmó ${confirmados}, Refutó ${refutados}, Agregó ${nuevos}
-
-TU TRABAJO: CONSOLIDACIÓN POR CONSENSO Y RIGOR CONTRACTUAL.
-
-REGLAS DE ORO PARA LA CONSOLIDACIÓN (JERARQUÍA SUPREMA):
-
-1. **RESPETO A LOS TOPES (UF):** Si Ronda 2 refuta un hallazgo de Ronda 1 explicando que la Isapre respetó un **Tope Contractual en UF**, DEBES EXCLUIR ese hallazgo. Los topes numéricos mandan sobre los principios de cobertura total.
-2. **INCLUIR EN INFORME FINAL:**
-   - Hallazgos de R1 que R2 confirmó.
-   - Hallazgos nuevos de R2 que tú validas.
-3. **EXCLUIR DEL INFORME:**
-   - Hallazgos que R2 refutó con evidencia (ej: cálculos erróneos, topes respetados, código ambulatorio legítimo).
-   - Hallazgos que NO puedes reproducir tú mismo.
-4. **DESEMPATE DE MONTOS:**
-   - Si R1 y R2 difieren: usa el MENOR (principio conservador).
-5. **VERIFICACIÓN DE JERARQUÍA:**
-   - Prioriza: 1. Topes UF > 2. Circulares > 3. Promesas generales.
-
-DATOS Ronda 1:
-${ronda1Json}
-
-DATOS Ronda 2:
-${ronda2Json}
-
-Genera el informe FINAL consolidado, asegurando que el totalAhorroFinal sea la suma exacta de los hallazgosFinales.
-
-IMPORTANTE: Asegúrate de incluir la sección "0. ANTECEDENTES DE LA AUDITORÍA" al inicio del \`auditoriaFinalMarkdown\` con los datos del paciente, clínica, plan y fechas extraídos correctamente.
-`;
-}
-

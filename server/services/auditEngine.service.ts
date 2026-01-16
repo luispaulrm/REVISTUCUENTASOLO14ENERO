@@ -129,7 +129,7 @@ export async function performForensicAudit(
         .replace('{normas_administrativas_text}', '')
         .replace('{evento_unico_jurisprudencia_text}', '')
         .replace('{knowledge_base_text}', knowledgeBaseText)
-        .replace('{hoteleria_json}', hoteleriaRules)
+        .replace('{hoteleria_json}', hoteleriaRules || '')
         .replace('{cuenta_json}', finalCuentaContext)
         .replace('{pam_json}', finalPamContext)
         .replace('{contrato_json}', finalContratoContext)
@@ -301,63 +301,3 @@ export async function performForensicAudit(
         throw error;
     }
 }
-
-// ============================================================================
-// MULTI-PASS AUDIT SYSTEM (3 RONDAS DE VERIFICACIÓN CRUZADA)
-// ============================================================================
-
-import {
-    buildVerificationPrompt,
-    buildConsolidationPrompt,
-    VERIFICATION_SCHEMA,
-    CONSOLIDATION_SCHEMA
-} from '../config/audit.prompts.js';
-
-export async function performMultiPassAudit(
-    cuentaJson: any,
-    pamJson: any,
-    contratoJson: any,
-    apiKey: string,
-    log: (msg: string) => void,
-    htmlContext: string = '',
-    onUsageUpdate?: (usage: any) => void,
-    onProgressUpdate?: (progress: number) => void
-) {
-    log('[SINGLE-PASS] 🚀 Iniciando Sistema de Auditoría de Tiro Único (Modo Optimizado)...');
-
-    try {
-        // ===== RONDA ÚNICA: AUDITORÍA FORENSE INTEGRAL =====
-        log('[SINGLE-PASS] 🔍 Ejecutando Auditoría Forense (Fases A y B)...');
-        const ronda1 = await performForensicAudit(
-            cuentaJson, pamJson, contratoJson, apiKey,
-            (msg) => log(`${msg}`), htmlContext,
-            onUsageUpdate,
-            onProgressUpdate
-        );
-
-        const numHallazgos = ronda1.data?.hallazgos?.length || 0;
-        const ahorro = ronda1.data?.totalAhorroDetectado || 0;
-        log(`[SINGLE-PASS] ✅ Auditoría completada: ${numHallazgos} hallazgos, $${ahorro.toLocaleString('es-CL')}`);
-
-        // Retornamos el formato esperado por el frontend, pero basado en la Ronda 1
-        return {
-            data: {
-                ...ronda1.data,
-                // Mantenemos metadatos mínimos para compatibilidad
-                metadataMultiPass: {
-                    ronda1: { hallazgos: numHallazgos, ahorro: ahorro },
-                    modo: 'SINGLE_PASS'
-                },
-                bitacoraCompleta: {
-                    ronda1: ronda1.data?.bitacoraAnalisis || []
-                }
-            },
-            usage: ronda1.usage
-        };
-
-    } catch (error: any) {
-        log(`[SINGLE-PASS] ❌ Error en auditoría: ${error.message}`);
-        throw error;
-    }
-}
-
