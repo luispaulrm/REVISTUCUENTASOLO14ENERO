@@ -57,7 +57,7 @@ Para clasificar otros hallazgos como "IMPUGNAR" (Alta Certeza), deben cumplirse 
 3. [ECONÓMICA] Generó copago efectivo.
 
 (3.2) REGLA DE "CACERÍA FORENSE DE DESGLOSE" (ADVANCED UNBUNDLING HUNT):
-- **TRIGGER:** Cuando detectes un código PAM genérico de alto valor (ej: "3101002 MATERIALES CLINICOS" > $1.000.000) y el hallazgo sea por "Opacidad/Desagregación".
+- **TRIGGER:** Cuando detectes un código PAM genérico de alto valor (ej: "3101002", "3101302", "3101304" MATERIALES/MEDICAMENTOS) y el hallazgo sea por "Opacidad/Desagregación".
 - **ACCIÓN OBLIGATORIA:** NO te detengas en los primeros ítems que encuentres. Debes realizar una búsqueda EXHAUSTIVA en la sección \`MATERIALES\` de la \`cuenta_json\`.
 - **PATRÓN DE BÚSQUEDA:** Busca específicamente ítems de alto costo típicos de pabellón que suelen ser escondidos: "KIT", "FRESA", "BROCA", "SET DE RETRACCIÓN", "CATETER", "SONDA", "HOJA", "ELECTRODO".
 - **ALGORITMO DE SUMA RECURSIVA:**
@@ -210,7 +210,7 @@ Estas reglas operan como "parches" lógicos para prevenir cobros improcedentes y
 3. Regla de Transparencia e Información Financiera (Ley 20.584)
    * Fundamento: Ley 20.584 Artículo 8 y Circular IF19/2018.
    * Lógica de Sistema:
-     - Trigger: Presencia de códigos "ajustadores" o genéricos (ej. '0299999', '3201001', '149995').
+     - Trigger: Presencia de códigos "ajustadores" o genéricos (ej. '0299999', '3201001', '3101302', '3101304', '149995').
      - Requisito: Todo cargo debe tener una glosa descriptiva clara y un código arancelario válido.
      - Acción: IF (Glosa == "AJUSTE" OR Glosa == "VARIOS") AND (Monto > 0) THEN Rechazo_Automático_por_Falta_de_Respaldo.
 
@@ -238,109 +238,109 @@ Nota de Auditoría: Cualquier cargo que no supere estas validaciones se consider
 `;
 
 export const FORENSIC_AUDIT_SCHEMA = {
-    type: Type.OBJECT,
-    properties: {
-        resumenEjecutivo: {
-            type: Type.STRING,
-            description: "Resumen de alto nivel. DEBE INCLUIR UNA SECCIÓN 'EXPLICACIÓN SIMPLE' CON UNA ANALOGÍA (ej: Taller Mecánico) para que el paciente entienda el fraude técnico. Resumir hallazgos, ahorros y estado."
-        },
-        bitacoraAnalisis: {
-            type: Type.ARRAY,
-            description: "Bitácora DETALLADA y OBLIGATORIA. Antes de escribir un hallazgo, el auditor debe 'pensar' aquí.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    paso: { type: Type.STRING, description: "Identificación del paso (ej: 'Evaluación de Tope Contractual')." },
-                    input_datos: { type: Type.STRING, description: "Datos crudos: Valor cobrado, % Cobertura, Tope UF Contrato." },
-                    decision_logica: {
-                        type: Type.OBJECT,
-                        properties: {
-                            tope_aplica: { type: Type.BOOLEAN },
-                            tope_cumplido: { type: Type.BOOLEAN, description: "¿La Isapre pagó el monto del tope?" },
-                            objetable: { type: Type.BOOLEAN, description: "SI tope_cumplido ES TRUE -> objetable DEBE SER FALSE." },
-                            motivo_cierre: { type: Type.STRING, description: "Si no es objetable, explicar por qué (ej: 'TOPE_CONTRACTUAL_VALIDO')." }
-                        },
-                        required: ['tope_aplica', 'tope_cumplido', 'objetable', 'motivo_cierre']
-                    },
-                    razonamiento: { type: Type.STRING, description: "Explicación narrativa de la decisión." }
-                },
-                required: ['paso', 'input_datos', 'decision_logica', 'razonamiento']
-            }
-        },
-        hallazgos: {
-            type: Type.ARRAY,
-            description: "Lista detallada de objeciones y hallazgos.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
-                    glosa: { type: Type.STRING, description: "Descripción de la prestación o conjunto de prestaciones." },
-                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 8 SECCIONES (I a VIII). Debe incluir la Tabla de Origen en Markdown." },
-                    montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP). Debe coincidir con la sección VI y VIII." },
-                    normaFundamento: { type: Type.STRING, description: "CITA TEXTUAL de la norma o jurisprudencia del knowledge_base_text. Formato: 'Según [Documento/Rol/Artículo]: \"[extracto textual]\"'." },
-                    anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" }
-                },
-                required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
-            }
-        },
-        totalAhorroDetectado: {
-            type: Type.NUMBER,
-            description: "Suma total de todos los montos objetados."
-        },
-        antecedentes: {
+  type: Type.OBJECT,
+  properties: {
+    resumenEjecutivo: {
+      type: Type.STRING,
+      description: "Resumen de alto nivel. DEBE INCLUIR UNA SECCIÓN 'EXPLICACIÓN SIMPLE' CON UNA ANALOGÍA (ej: Taller Mecánico) para que el paciente entienda el fraude técnico. Resumir hallazgos, ahorros y estado."
+    },
+    bitacoraAnalisis: {
+      type: Type.ARRAY,
+      description: "Bitácora DETALLADA y OBLIGATORIA. Antes de escribir un hallazgo, el auditor debe 'pensar' aquí.",
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          paso: { type: Type.STRING, description: "Identificación del paso (ej: 'Evaluación de Tope Contractual')." },
+          input_datos: { type: Type.STRING, description: "Datos crudos: Valor cobrado, % Cobertura, Tope UF Contrato." },
+          decision_logica: {
             type: Type.OBJECT,
             properties: {
-                paciente: { type: Type.STRING },
-                clinica: { type: Type.STRING },
-                isapre: { type: Type.STRING },
-                plan: { type: Type.STRING },
-                fechaIngreso: { type: Type.STRING },
-                fechaAlta: { type: Type.STRING },
-                objetoAuditoria: { type: Type.STRING, description: "Descripción completa de lo que se está auditando (ej: Hospitalización por [Diagnóstico], Folio [Número], Monto Total $[Monto])" }
+              tope_aplica: { type: Type.BOOLEAN },
+              tope_cumplido: { type: Type.BOOLEAN, description: "¿La Isapre pagó el monto del tope?" },
+              objetable: { type: Type.BOOLEAN, description: "SI tope_cumplido ES TRUE -> objetable DEBE SER FALSE." },
+              motivo_cierre: { type: Type.STRING, description: "Si no es objetable, explicar por qué (ej: 'TOPE_CONTRACTUAL_VALIDO')." }
             },
-            required: ['paciente', 'clinica', 'isapre', 'plan', 'fechaIngreso', 'fechaAlta', 'objetoAuditoria']
+            required: ['tope_aplica', 'tope_cumplido', 'objetable', 'motivo_cierre']
+          },
+          razonamiento: { type: Type.STRING, description: "Explicación narrativa de la decisión." }
         },
-        requiereRevisionHumana: {
-            type: Type.BOOLEAN,
-            description: "Indica si el caso tiene complejidades técnicas que requieren un humano."
-        },
-        auditoriaFinalMarkdown: {
-            type: Type.STRING,
-            description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
-        }
+        required: ['paso', 'input_datos', 'decision_logica', 'razonamiento']
+      }
     },
-    required: ['resumenEjecutivo', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
+    hallazgos: {
+      type: Type.ARRAY,
+      description: "Lista detallada de objeciones y hallazgos.",
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
+          glosa: { type: Type.STRING, description: "Descripción de la prestación o conjunto de prestaciones." },
+          hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 8 SECCIONES (I a VIII). Debe incluir la Tabla de Origen en Markdown." },
+          montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP). Debe coincidir con la sección VI y VIII." },
+          normaFundamento: { type: Type.STRING, description: "CITA TEXTUAL de la norma o jurisprudencia del knowledge_base_text. Formato: 'Según [Documento/Rol/Artículo]: \"[extracto textual]\"'." },
+          anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" }
+        },
+        required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
+      }
+    },
+    totalAhorroDetectado: {
+      type: Type.NUMBER,
+      description: "Suma total de todos los montos objetados."
+    },
+    antecedentes: {
+      type: Type.OBJECT,
+      properties: {
+        paciente: { type: Type.STRING },
+        clinica: { type: Type.STRING },
+        isapre: { type: Type.STRING },
+        plan: { type: Type.STRING },
+        fechaIngreso: { type: Type.STRING },
+        fechaAlta: { type: Type.STRING },
+        objetoAuditoria: { type: Type.STRING, description: "Descripción completa de lo que se está auditando (ej: Hospitalización por [Diagnóstico], Folio [Número], Monto Total $[Monto])" }
+      },
+      required: ['paciente', 'clinica', 'isapre', 'plan', 'fechaIngreso', 'fechaAlta', 'objetoAuditoria']
+    },
+    requiereRevisionHumana: {
+      type: Type.BOOLEAN,
+      description: "Indica si el caso tiene complejidades técnicas que requieren un humano."
+    },
+    auditoriaFinalMarkdown: {
+      type: Type.STRING,
+      description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
+    }
+  },
+  required: ['resumenEjecutivo', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
 
 export const REFLECTION_SCHEMA = {
-    type: Type.OBJECT,
-    properties: {
-        analisisReflexivo: {
-            type: Type.STRING,
-            description: "Análisis introspectivo: ¿Qué pasé por alto? ¿Hay patrones que ignoré? ¿Hay copagos 'menores' que suman un monto relevante? Menciona específicamente qué revisaste de nuevo."
-        },
-        nuevosHallazgos: {
-            type: Type.ARRAY,
-            description: "Lista de NUEVOS hallazgos detectados exclusivamente en esta revisión. Si no hay nada nuevo, dejar lista vacía. NO REPETIR hallazgos anteriores.",
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
-                    glosa: { type: Type.STRING, description: "Descripción." },
-                    hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 8 SECCIONES (I a VIII)." },
-                    montoObjetado: { type: Type.NUMBER, description: "Monto total objetado CLIP." },
-                    normaFundamento: { type: Type.STRING, description: "Norma." },
-                    anclajeJson: { type: Type.STRING, description: "Anclaje." }
-                },
-                required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
-            }
-        },
-        observacionesFinales: {
-            type: Type.STRING,
-            description: "Cualquier observación adicional sobre la calidad de la auditoría inicial."
-        }
+  type: Type.OBJECT,
+  properties: {
+    analisisReflexivo: {
+      type: Type.STRING,
+      description: "Análisis introspectivo: ¿Qué pasé por alto? ¿Hay patrones que ignoré? ¿Hay copagos 'menores' que suman un monto relevante? Menciona específicamente qué revisaste de nuevo."
     },
-    required: ['analisisReflexivo', 'nuevosHallazgos', 'observacionesFinales']
+    nuevosHallazgos: {
+      type: Type.ARRAY,
+      description: "Lista de NUEVOS hallazgos detectados exclusivamente en esta revisión. Si no hay nada nuevo, dejar lista vacía. NO REPETIR hallazgos anteriores.",
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          codigos: { type: Type.STRING, description: "Código o códigos de prestación involucrados (ej: '3101304 / 3101302')" },
+          glosa: { type: Type.STRING, description: "Descripción." },
+          hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 8 SECCIONES (I a VIII)." },
+          montoObjetado: { type: Type.NUMBER, description: "Monto total objetado CLIP." },
+          normaFundamento: { type: Type.STRING, description: "Norma." },
+          anclajeJson: { type: Type.STRING, description: "Anclaje." }
+        },
+        required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
+      }
+    },
+    observacionesFinales: {
+      type: Type.STRING,
+      description: "Cualquier observación adicional sobre la calidad de la auditoría inicial."
+    }
+  },
+  required: ['analisisReflexivo', 'nuevosHallazgos', 'observacionesFinales']
 };
 
 export const AUDIT_PROMPT = `
@@ -393,7 +393,7 @@ Tu cerebro opera en 2 fases separadas:
    - NUNCA pongas en la tabla de ahorros "Ahorro por CAEC" si el CAEC no está activo procesalmente.
 
 **CATEGORÍAS DE HALLAZGOS (PRIORIDAD DE IMPUGNACIÓN):**
-1. **FALTA DE DESGLOSE / OPACIDAD (Violación Ley 20.584)**: [PRIORIDAD MÁXIMA] Códigos genéricos sin detalle (Cajas Negras).
+1. **FALTA DE DESGLOSE / OPACIDAD (Violación Ley 20.584)**: [PRIORIDAD MÁXIMA] Códigos genéricos sin detalle (Cajas Negras: 3101302, 3101304, 3201001).
 2. **UNBUNDLING / DESAGREGACIÓN (Circular IF/319)**: Cobro separado de insumos inherentes a Día Cama/Pabellón.
 3. **UPCODING / SOBRECODIFICACIÓN**: Cobro de prestaciones superiores a las realizadas.
 4. **Incumplimiento de Cobertura Contractual**: Diferencias de % o Topes mal aplicados.

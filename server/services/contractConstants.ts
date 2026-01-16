@@ -210,23 +210,22 @@ const SHARED_MANDATE = `
   ** MANDATO FORENSE v11.0: DESCUBRIMIENTO DINÁMICO DE ESTRUCTURA **
   OBJETIVO: Identificar y mapear la lógica de columnas ANTES de extraer datos.
   
-  ⚠️ FASE 1: DESCUBRIMIENTO DE ENCABEZADOS (OBLIGATORIO)
-  Antes de procesar las filas, debes observar los encabezados de la tabla de beneficios.
-  1. **Identifica y Etiqueta las Columnas**:
-     - **Columna Primaria (Local/Chile)**: Usualmente llamada "Tope de Bonificación", "Bonificación", "Nacional" o simplemente la primera columna de montos. Es la que rige para atenciones en Chile.
-     - **Columna de Límite Anual**: Usualmente "Tope Máximo Año Contrato" o similar. Indica el tope de dinero por año.
-     - **Columna Restringida/Internacional**: Usualmente "Cobertura Internacional", "Extranjero" o "En el Exterior". 
+  ⚠️ FASE 1: DESCUBRIMIENTO DE ENCABEZADOS (CRÍTICO)
+  Antes de procesar, analiza los encabezados de la tabla.
+  1. **Columna Primaria (NACIONAL)**: Encabezado tipo "Tope de Bonificación UF", "% Bonificación", o la PRIMERA columna de montos. Rige para Chile.
+  2. **Columna Secundaria (AÑO CONTRATO)**: Tope "Año Contrato" o acumulado anual.
+  3. **Columna Terciaria (INTERNACIONAL/EXTRANJERO)**: Encabezados "Internacional", "Extranjero", "Exterior", "Libre Elección Internacional".
   
-  2. **Interpretación de Títulos**: No asumas nombres fijos. Lee el título exacto que el contrato le da a cada columna y actúa según su significado semántico. Si una columna dice "Tope 16 UF" y su encabezado es "Internacional", bajo ninguna circunstancia apliques ese valor a una atención en Chile.
+  ⚠️ REGLA DE ORO DE EXTRACCIÓN (LEYES DE LA FÍSICA VISUAL):
+  - **SI ESTÁS EXTRAYENDO PARA UNA CLÍNICA CHILENA (Alemana, Indisa, UC, Santa María, etc.): USAR EXCLUSIVAMENTE LA COLUMNA PRIMARIA (NACIONAL).**
+  - **PROHIBICIÓN TOTAL:** NUNCA, bajo NINGUNA CIRCUNSTANCIA, tomes el valor de la columna "Internacional" (ej: 300 UF Meds, 100 UF Insumos) para un prestador nacional.
+  - **SI LA COLUMNA NACIONAL ESTÁ UNIDA/COMBINADA** con el texto "100% SIN TOPE", ese es el valor real. IGNORA las columnas vecinas que tengan números.
+  - **SI LA CELDA ESTÁ VACÍA (-):** Reporta "Sin tope" o "Cobertura Completa" si el contexto lo indica.
   
-  ⚠️ PRINCIPIO DE LITERALIDAD VISUAL:
-  - SOLO existe lo que está escrito. Si un recuadro está vacío, indica "-" o "Sin tope" según corresponda.
-  - PROHIBIDO "trasladar" montos de una columna a otra para "rellenar" espacios vacíos.
-  
-  ⚠️ PROTOCOLO DE PRESTADORES (SELECCIÓN DE COLUMNA):
-  1. Si extraes para un prestador nacional (ej: Clínica Indisa) -> Usa los valores de la **Columna Primaria (Local)**.
-  2. Si la Columna Primaria dice "SIN TOPE", pon "Sin tope" aunque la columna Internacional tenga un valor.
-  3. Los valores de columnas secundarias/internacionales deben ir SIEMPRE al campo 'nota_restriccion'.
+  ⚠️ PROTOCOLO DE CONFLICTO: 
+  Si ves "100% SIN TOPE" en la primera columna y "300 UF" en la tercera:
+  -> COBERTURA REAL = "100% SIN TOPE".
+  -> NOTA RESTRICCIÓN = "Tope Internacional: 300 UF".
 `;
 
 export const PROMPT_HOSP_P1 = `
