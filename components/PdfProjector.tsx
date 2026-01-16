@@ -81,6 +81,27 @@ export default function PdfProjector() {
         const selectedFile = e.target.files?.[0];
         if (selectedFile && selectedFile.type === 'application/pdf') {
             setFile(selectedFile);
+
+            // Smart Cache Check
+            try {
+                const cachedHtml = localStorage.getItem('html_projection_result');
+                const cachedFingerprint = localStorage.getItem('html_projection_file_fingerprint'); // { name, size }
+
+                if (cachedHtml && cachedFingerprint) {
+                    const fingerprint = JSON.parse(cachedFingerprint);
+                    if (fingerprint.name === selectedFile.name && fingerprint.size === selectedFile.size) {
+                        addLog(`[SISTEMA] ⚡ Archivo PDF '${selectedFile.name}' ya proyectado en memoria. Carga instantánea.`);
+                        setHtmlProjection(cachedHtml);
+                        setHasCache(true);
+                        setIsProcessing(false);
+                        setProgress(100);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn('Cache check failed', e);
+            }
+
             startProjection(selectedFile);
         }
     };
@@ -88,8 +109,10 @@ export default function PdfProjector() {
     const startProjection = async (selectedFile: File, isResume: boolean = false) => {
         setIsProcessing(true);
         if (!isResume) {
-            // Clear only the old HTML projection to start fresh
+            // Clear only the old HTML projection to start fresh if it's a NEW file (and not cached)
+            // Note: handleFileChange handles the cache check. If we are here, it means we MUST process.
             localStorage.removeItem('html_projection_result');
+            localStorage.removeItem('html_projection_file_fingerprint');
 
             setHtmlProjection("");
             setUsage(null);
@@ -177,6 +200,10 @@ export default function PdfProjector() {
                 // Persist to localStorage for Auditor access
                 try {
                     localStorage.setItem('html_projection_result', fullHtml);
+                    // SAVE FINGERPRINT
+                    if (selectedFile) {
+                        localStorage.setItem('html_projection_file_fingerprint', JSON.stringify({ name: selectedFile.name, size: selectedFile.size }));
+                    }
                     addLog('[SISTEMA] 📡 Datos sincronizados con el Auditor Forense.');
                 } catch (e) {
                     console.error('Error saving to localStorage:', e);
