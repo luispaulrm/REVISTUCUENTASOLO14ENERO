@@ -598,9 +598,10 @@ SI EL HALLAZGO ES POR "OPACIDAD" / "FALTA DE DESGLOSE" / "GENÉRICO":
 =====================================================================
 DEBES, OBLIGATORIAMENTE, REALIZAR UNA "CACERÍA FORENSE" EN LA \`cuenta_json\`.
 Tu misión es encontrar qué ítems individuales suman el monto del código agrupador del PAM.
-Genera una **TABLA DE DESGLOSE VERTICAL** con TODOS los ítems que la clínica "escondió" en ese paquete.
+Genera una **TABLA DETALLADA DE ÍTEMS (ESTÁNDAR)** con TODOS los ítems que la clínica "escondió" en ese paquete.
 **CRÍTICO:** Asegúrate de que la suma de la tabla llegue al 100% del monto objetado. Si encuentras solo una parte, sigue buscando ítems como "Fresas", "Sets", "Catéteres" o "Sondas" que encajen en la diferencia.
 **PROHIBICIÓN:** NUNCA uses "..." para resumir. Si son 50 ítems, LISTA LOS 50 ÍTEMS. El paciente necesita ver cada peso.
+**FORMATO:** Usa una tabla Markdown estándar (Horizontal), NO una lista vertical.
 
 | Sección Origen (Cuenta) | Ítem Individual (Detalle) | Cant | P. Unit | Total |
 | :--- | :--- | :---: | :---: | :---: |
