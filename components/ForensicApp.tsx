@@ -821,7 +821,8 @@ function MarkdownRenderer({ content }: { content: string }) {
     processedContent = processedContent.replace(/^\s*\.{3,}\d*\s*$/gm, '');
 
     // 1. Unstick tables from headings (e.g., "VIII. Trazabilidad: | Col 1 |")
-    processedContent = processedContent.replace(/(:\s*)(\|)/g, '$1\n$2');
+    // Safe version: Only if colon is not part of a separator like ":---|":
+    processedContent = processedContent.replace(/(:[ \t]*)(\|)/g, '$1\n$2');
 
     // 2. Fix squashed rows (|| as row separator)
     processedContent = processedContent.replace(/\|\|/g, '|\n|');
@@ -830,8 +831,7 @@ function MarkdownRenderer({ content }: { content: string }) {
     // Looks for: |---|---|Text -> |---|---|\nText
     processedContent = processedContent.replace(/(\|[:\s-]+\|)(\s*[^\n\s|])/g, '$1\n$2');
 
-    // 4. Force newline before any table starting in middle of line
-    processedContent = processedContent.replace(/([^\n])(\|)/g, '$1\n$2');
+    // 4. (REMOVED) Force newline regex - WAS BUGGY (Splitting cells)
 
     // 5. Detect and Fix "Vertical Key-Value Tables" AND remove gaps between table rows
     // We aggressively remove newlines between pipe-lines to merge them into a single table block
