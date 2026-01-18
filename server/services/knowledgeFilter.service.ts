@@ -18,8 +18,8 @@ const KNOWLEDGE_DIR = path.join(__dirname, '../knowledge');
 // CONFIGURACIÓN
 // =============================================================================
 
-const MAX_TOKENS_DEFAULT = 50000;  // Aumentado para garantizar carga de jurisprudencia
-const CHARS_PER_TOKEN = 4; // Estimación conservadora para español
+const MAX_TOKENS_DEFAULT = 3000;  // REDUCED: Prompt Diet (User Request)
+const CHARS_PER_TOKEN = 4;
 
 // Mapeo de documentos disponibles
 const KNOWLEDGE_DOCS = {
@@ -301,27 +301,11 @@ export async function getRelevantKnowledge(
     }
 
     // =========================================================================
-    // CARGA OBLIGATORIA: INFORME DE IRREGULARIDADES (COMPLETO)
-    // Se carga completo saltándose la lógica de chunks para dar "contexto total"
+    // CARGA OBLIGATORIA: REMOVIDA (PROMPT DIET)
+    // Se trata como documento normal para respetar límite de tokens.
     // =========================================================================
-    const irregularidadesDoc = KNOWLEDGE_DOCS['irregularidades'];
-    if (irregularidadesDoc) {
-        try {
-            const filePath = path.join(KNOWLEDGE_DIR, irregularidadesDoc.file);
-            await fs.access(filePath); // Check exists
-            const content = await fs.readFile(filePath, 'utf-8');
-
-            result += `\n\n--- ${irregularidadesDoc.description.toUpperCase()} (TEXTO COMPLETO) ---\n${content}\n`;
-            totalChars += content.length + 100;
-            sources.push(irregularidadesDoc.description);
-
-            log(`[KnowledgeFilter] 🚨 Carga Forzada Completa: ${irregularidadesDoc.file} (${Math.floor(content.length / 1024)} KB)`);
-
-            // Evitar que se vuelva a cargar en el bucle normal
-            docScores.delete('irregularidades');
-        } catch (e) {
-            log(`[KnowledgeFilter] ⚠️ Error cargando irregularidades forzadas: ${e}`);
-        }
+    if (!docScores.has('irregularidades')) {
+        docScores.set('irregularidades', 1); // Ensure it's in the mix with low priority
     }
 
     // Si no hay matches adicionales, usar documentos por defecto

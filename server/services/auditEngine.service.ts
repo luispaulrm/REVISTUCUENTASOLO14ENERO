@@ -129,6 +129,21 @@ export async function performForensicAudit(
     const eventosHospitalarios = preProcessEventos(pamJson);
     log(`[AuditEngine] 📋 Eventos detectados: ${eventosHospitalarios.length}`);
 
+    // --- INTEGRITY CHECK (FAIL FAST - NO MONEY NO HONEY) ---
+    // If PAM has money but Events show $0, abort to prevent hallucinations.
+    const pamTotalCopago = pamJson?.global?.totalCopagoDeclarado || pamJson?.resumenTotal?.totalCopago || 0;
+    const numericPamCopago = typeof pamTotalCopago === 'string' ? parseInt(pamTotalCopago.replace(/[^0-9]/g, '')) : pamTotalCopago;
+
+    // Sum from events (using the newly added total_copago field)
+    const eventsTotalCopago = eventosHospitalarios.reduce((sum, e) => sum + (e.total_copago || 0), 0);
+
+    // Allow small tolerance? Or strict? User said "FAIL FAST".
+    // If PAM > 0 and Events == 0 -> CRITICAL ERROR.
+    if (numericPamCopago > 0 && eventsTotalCopago === 0) {
+        throw new Error(`[DATA_INTEGRITY_FAIL] El PAM declara copago ($${numericPamCopago}) pero los eventos sumaron $0. ` +
+            `Revisar parsing de montos en eventProcessor. Abortando para evitar alucinaciones.`);
+    }
+
     eventosHospitalarios.forEach((evento, idx) => {
         log(`[AuditEngine]   ${idx + 1}. Tipo: ${evento.tipo_evento}, Prestador: ${evento.prestador}, Copago: $${evento.total_copago?.toLocaleString('es-CL') || 0}`);
         if (evento.honorarios_consolidados && evento.honorarios_consolidados.length > 0) {
@@ -516,21 +531,31 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
     const traceResults: string[] = [];
 
     // 1. Identify "Generic/Adjustments" in Account
-    // Strategy: Look for specific codes or keywords in Description
+    // Strategy: Look for specific codes or keywords in Description (Regex Robustness)
     const adjustments: any[] = [];
-    if (cuenta.items) { // Flat structure or Sections? cleanedCuenta has sections.
+    // Regex patterns provided by Forensic Expert
+    const REGEX_GENERIC = /(ajuste|vario|diferencia|suministro|cargo admin|otros|insumos)/i;
+    const REGEX_CODES = /^(14|02|99)\d+/;
+
+    if (cuenta.items) {
         cuenta.sections?.forEach((sec: any) => {
             sec.items?.forEach((item: any) => {
                 const desc = (item.description || "").toUpperCase();
-                const isAdjust = desc.includes("AJUSTE") || desc.includes("VARIOS") || desc.includes("SUMINISTROS");
-                if (isAdjust && (item.total || 0) > 5000) { // Only trace significant amounts
+                const code = (item.code || "").toString(); // Assuming code field exists
+
+                // Check regex matches
+                const isKeyword = REGEX_GENERIC.test(desc);
+                const isInternalCode = REGEX_CODES.test(code);
+                const isSectionGeneric = /(varios|ajustes|exento|diferencias)/i.test(sec.category || "");
+
+                if ((isKeyword || isInternalCode || isSectionGeneric) && (item.total || 0) > 0) {
                     adjustments.push(item);
                 }
             });
         });
     }
 
-    if (adjustments.length === 0) return "No se detectaron cargos genéricos relevantes para trazar.";
+    if (adjustments.length === 0) return "No se detectaron cargos genéricos relevantes para trazar (Clean Bill).";
 
     // 2. Identify Candidates in PAM (Bonified Items)
     // We look for any PAM item that might explain the adjustment.

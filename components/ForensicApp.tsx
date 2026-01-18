@@ -137,7 +137,12 @@ export default function ForensicApp() {
         URL.revokeObjectURL(url);
     };
 
+    const isRunningRef = useRef(false);
+
     const handleExecuteAudit = async () => {
+        if (isRunningRef.current) return; // Prevent double execution
+        isRunningRef.current = true;
+
         setStatus('PROCESSING');
         setError(null);
         setLogs([]);
@@ -168,6 +173,8 @@ export default function ForensicApp() {
         } catch (err: any) {
             setError(err.message || 'Error durante la auditoría forense.');
             setStatus('ERROR');
+        } finally {
+            isRunningRef.current = false;
         }
     };
 

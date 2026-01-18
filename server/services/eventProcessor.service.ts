@@ -282,7 +282,11 @@ export function preProcessEventos(pamJson: any): EventoHospitalario[] {
             prestador: ep.prestador,
             fecha_inicio: ep.startDate.toISOString(),
             fecha_fin: ep.endDate.toISOString(),
+            // Calculate totals from ALL items in the episode
+            total_copago: ep.items.reduce((sum, item) => sum + parseMonto(item.copago), 0),
+            total_bonificacion: ep.items.reduce((sum, item) => sum + parseMonto(item.bonificacion), 0),
             posible_continuidad: false,
+            subeventos: [], // Flat structure for now, required by type
             honorarios_consolidados: honorarios,
             analisis_financiero: {
                 tope_cumplido: topeCumplidoGlobal,

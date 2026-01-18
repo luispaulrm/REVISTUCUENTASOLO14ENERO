@@ -99,7 +99,7 @@ export enum AppStatus {
 // ============================================================================
 
 export type TipoEvento = 'QUIRURGICO' | 'MEDICO' | 'MIXTO';
-export type TipoAnclaje = 'CODIGO_PRINCIPAL' | 'INGRESO' | 'UCI' | 'PROTOCOLO';
+export type TipoAnclaje = 'CODIGO_PRINCIPAL' | 'INGRESO' | 'UCI' | 'PROTOCOLO' | 'PRESTADOR_FECHA';
 export type NivelConfianza = 'ALTA' | 'MEDIA' | 'BAJA';
 export type RecomendacionAccion = 'IMPUGNAR' | 'SOLICITAR_ACLARACION' | 'ACEPTAR';
 export type OrigenProbable = 'CLINICA_FACTURACION' | 'ISAPRE_LIQUIDACION' | 'PAM_ESTRUCTURA' | 'MIXTO' | 'DESCONOCIDO';
@@ -148,12 +148,12 @@ export interface EventoHospitalario {
   fecha_inicio: string;
   fecha_fin: string;
   posible_continuidad: boolean; // Gap < 48h, same provider
+  total_copago?: number; // Sum of items to prevent "0 copay" hallucinations
+  total_bonificacion?: number;
   subeventos: EventoHospitalario[]; // Max depth 2
   honorarios_consolidados: HonorarioConsolidado[];
   nivel_confianza: NivelConfianza;
   recomendacion_accion: RecomendacionAccion;
   origen_probable: OrigenProbable;
-  total_copago?: number;
-  total_bonificacion?: number;
   analisis_financiero?: AnalisisFinanciero;
 }

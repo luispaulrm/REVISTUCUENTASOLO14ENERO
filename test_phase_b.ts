@@ -56,8 +56,15 @@ async function runTests() {
         console.warn("⚠️ Financial Validation WARNING (Check numbers if mock data aligns with logic)");
     }
 
-    // 3. Syntax Check for AuditEngine
-    console.log("\n[TEST 3] Checking imports of auditEngine.service...");
+    // Check Total Copago (Phase C)
+    if ((eventos[0].total_copago || 0) > 0) {
+        console.log("✅ Phase C: Total Copago Calculated ($" + eventos[0].total_copago + ")");
+    } else {
+        console.error("❌ Phase C: Total Copago FAILED (Red Flag #1)");
+    }
+
+    // 3. Syntax Check for AuditEngine & Regex Tracing
+    console.log("\n[TEST 3] Checking imports and Regex Tracing...");
     if (performForensicAudit) {
         console.log("✅ auditEngine imported successfully (Syntax OK)");
     }
