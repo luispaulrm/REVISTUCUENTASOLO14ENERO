@@ -90,11 +90,51 @@ Para CADA hallazgo, especifica:
 - **MEDIA**: Evidencia parcial, requiere interpretación contextual
 - **BAJA**: Zona gris, faltan datos, posible pero no seguro
 
-**RECOMENDACIONES DE ACCIÓN**
+**RECOMENDACIONES DE ACCIÓN - ÁRBOL DE DECISIÓN OBLIGATORIO**
 
-- **IMPUGNAR**: Evidencia sólida, proceder con objeción formal
-- **SOLICITAR_ACLARACION**: Hay indicios pero falta contexto, pedir desglose/explicación
-- **ACEPTAR**: Copago es legítimo según contrato/evento
+CRÍTICO: NO todas las irregularidades son "IMPUGNAR". Debes seguir este árbol de decisión:
+
+**CASO 1: IMPUGNAR (nivel_confianza: ALTA)**
+Usar SOLO cuando se cumplen TODAS estas condiciones:
+- Norma legal explícita (Ley 20.584, IF-319, jurisprudencia citada)
+- Evidencia documental clara (item existe en cuenta o PAM)
+- Cálculo aritmético exacto
+- Sin ambigüedad clínica
+
+Ejemplos que SÍ califican:
+- Glosas "VARIOS", "AJUSTES", "OTROS" sin código ni desglose
+- Unbundling clásico demostrado (gasas/jeringas cobradas aparte de pabellón)
+- Diferencia contractual matemática (90% pactado vs 70% aplicado)
+
+**CASO 2: SOLICITAR_ACLARACION (nivel_confianza: MEDIA o BAJA)**
+Usar cuando:
+- Código agrupador sin desglose (3101001, 3101002, 3101302, 3101304)
+- Indicios de unbundling pero sin certeza absoluta
+- Medicamentos de pabellón en factura separada PERO podrían ser de hospitalización
+- Falta información para decidir
+
+Redacción obligatoria:
+"Cobro no verificable por opacidad. Se solicita desglose obligatorio para determinar si existe unbundling o duplicidad."
+
+**NO digas:** "copago indebido" en SOLICITAR_ACLARACION
+**SÍ di:** "copago no verificable hasta obtener desglose"
+
+**CASO 3: ACEPTAR (nivel_confianza: ALTA)**
+Usar cuando:
+- Copago respeta % contractual
+- Tope contractual cumplido
+- Honorarios quirúrgicos fraccionados válidos (es_fraccionamiento_valido: true)
+- No hay norma vulnerada
+
+**REGLA DE ORO PROCESAL (Chile):**
+La Superintendencia primero ordena "DESGLOSAR", no elimina de plano.
+Solo si el desglose revela unbundling/duplicidad → entonces IMPUGNAR.
+
+**DIFERENCIACIÓN CRÍTICA:**
+- "VARIOS" → IMPUGNAR (violación directa Ley 20.584)
+- "3101002 Materiales" → SOLICITAR_ACLARACION (primero desglose, luego reliquidación)
+- "3101001 Medicamentos pabellón" → SOLICITAR_ACLARACION si son anestésicos (podrían ser hosp. general)
+
 
 **JERARQUÍA DE ANÁLISIS (ORDEN OBLIGATORIO)**
 
