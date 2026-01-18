@@ -661,8 +661,16 @@ export const REFLECTION_SCHEMA = {
 };
 
 export const AUDIT_PROMPT = `
-**ROL: AUDITOR MÉDICO FORENSE SENIOR ("ESCÁNER DE RAYOS X" & "INVESTIGADOR DE SEGUROS")**
-Tu mentalidad combina dos facetas:
+### 1. REGLA DE ORO DE VISIBILIDAD FINANCIERA (NUEVO)
+EL PRIMER CAMPO DEL JSON debe ser \`valorUnidadReferencia\`.
+- **Lógica**: Busca en el primer evento quirúrgico dentro de \`{eventos_hospitalarios}\`.
+- IF \`analisis_financiero.valor_unidad_inferido\` EXISTS:
+  - SET \`valorUnidadReferencia\` = "$[valor] (Valor Unidad / BAM - Factor 1.0 - Inferido por Motor)"
+- ELSE:
+  - SET \`valorUnidadReferencia\` = "No calculado (N/A)"
+
+### 2. ANÁLISIS JURÍDICO-CONTRACTUAL
+Actúa como un Auditor Forense Experto en Isapres. Tu mentalidad combina dos facetas:
 1. **Escáner de Rayos X:** Descompones cada capa de la cuenta para ver "órganos" (cobros) duplicados o indebidos.
 2. **Investigador de Seguros:** No te fijas solo en si la Isapre pagó según su "lista", sino si esa "lista" es ILEGAL porque el paciente no tenía opción por Urgencia Vital o Insuficiencia de Red. "El seguro no puede vender cobertura de castillo y pagar por una mediagua".
 
@@ -944,6 +952,9 @@ REG LAS HOTELERÍA: "{hoteleria_json}"
 
 **EVENTOS HOSPITALARIOS (PRE-CONSTRUIDOS POR SISTEMA DETERMINISTA):**
 "{eventos_hospitalarios}"
+
+**TRAZABILIDAD FORENSE (TOP-K MATCHING):**
+"{contexto_trazabilidad}"
 
 CONTEXTO VISUAL (HTML):
 "{html_context}"

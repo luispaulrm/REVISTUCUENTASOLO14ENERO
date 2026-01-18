@@ -1,14 +1,10 @@
 /**
- * Event Pre-Processor Service
- * 
- * This service implements the deterministic layer of the hybrid architecture.
- * It constructs EventoHospitalario objects from raw PAM data BEFORE LLM analysis.
+ * Event Pre-Processor Service (V2 - Episodic & Financial)
  * 
  * Key Responsibilities:
- * 1. Identify surgical vs medical events using catalog (not heuristic groups)
- * 2. Collapse fractional honoraries mathematically
- * 3. Detect event continuity
- * 4. Pre-tag probable error origins
+ * 1. Construct "Episodes" (Provider + Time Window) instead of fragmented events.
+ * 2. Classify Event Type using 'Signals' (Scoring) instead of strict Catalog.
+ * 3. Integrate Deterministic Financial Validation (Unit Value & Topes).
  */
 
 import { v4 as uuidv4 } from 'uuid';
@@ -18,426 +14,285 @@ import type {
     HonorarioConsolidado,
     ItemOrigen,
     Anclaje,
-    OrigenProbable,
     AnalisisFinanciero
 } from '../../types.js';
+import { inferUnidadReferencia, validateTopeHonorarios, UnidadReferencia } from './financialValidator.service.js';
 
-// Surgical code catalog - expandable over time
-const SURGICAL_CODE_PATTERNS = [
-    /^1801/, // Surgical procedures
-    /^1802/, // Complex surgeries
-    /^1803/,
-    /^1804/,
-    /^1805/,
-    /^1806/,
-    /^1807/,
-    /^1808/,
-];
-
-// FACTORES ESTÁNDAR (Puntos 2024 aprox)
-// Used for reverse-engineering unit values when contract isn't explicit
-const SURGICAL_FACTORS: Record<string, number> = {
-    '1802081': 6.0,  // Colecistectomía
-    '1802082': 6.0,  // Colecistectomía compleja
-    '1801001': 3.0,  // Apendicectomía
-    '1801006': 5.0,  // Hernia inguinal
-    '1101001': 1.0,  // Visita médica (referencia)
+// --- SIGNALS FOR EVENT CLASSIFICATION ---
+const SIGNALS = {
+    PABELLON: ['2001', '2002', '3301', 'DERECHO DE PABELLON'],
+    ANESTESIA: ['2201', '2202', 'ANESTESIA'],
+    RECUPERACION: ['2003', 'RECUPERACION'],
+    IMAGENOLOGIA: ['0401', '0402', '0403', '0404'],
+    LABORATORIO: ['0301', '0302', '0303']
 };
 
-const PABELLON_INDICATORS = [
-    '2001', // Derecho de Pabellón variants
-    '2002',
-    '3301', // Pabellón services
-];
-
-const ANESTHESIA_INDICATORS = [
-    '2201', // Anestesia
-    '2202',
-    '3301', // Sometimes bundled
-];
-
-const GENERIC_CODES = [
-    '3101302', // Medicamentos genéricos
-    '3101304', // Insumos genéricos
-    '3201001', // Otros genéricos
-];
-
 interface PAMItem {
-    codigo: string;
+    codigoGC: string;
     descripcion: string;
-    cantidad: number | string;
-    valorTotal: number | string;
-    bonificacion: number | string;
-    copago: number | string;
+    cantidad: string; // PAM service uses strings
+    valorTotal: string;
+    bonificacion: string;
+    copago: string;
     fecha?: string;
     folio?: string;
+    prestador?: string;
 }
 
-interface GroupedHonoraries {
-    [key: string]: PAMItem[]; // key: codigo_prestador_fecha
+interface EpisodeCandidate {
+    id: string;
+    prestador: string;
+    startDate: Date;
+    endDate: Date;
+    items: PAMItem[];
+    signals: Set<string>;
 }
 
-/**
- * Determines if a code is surgical based on catalog
- */
-function isSurgicalCode(codigo: string): boolean {
-    if (!codigo) return false;
-    return SURGICAL_CODE_PATTERNS.some(pattern => pattern.test(codigo));
+function parseMonto(val: string | number | undefined): number {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    const clean = val.replace(/\./g, '').replace(',', '.');
+    return parseFloat(clean) || 0;
 }
 
-/**
- * Checks if items contain pabellón indicators
- */
-function hasPabellonIndicator(items: PAMItem[]): boolean {
-    return items.some(item =>
-        PABELLON_INDICATORS.some(ind => item.codigo?.includes(ind))
-    );
-}
-
-/**
- * Checks if items contain anesthesia
- */
-function hasAnesthesiaIndicator(items: PAMItem[]): boolean {
-    return items.some(item =>
-        ANESTHESIA_INDICATORS.some(ind => item.codigo?.includes(ind))
-    );
-}
-
-/**
- * Determines event type based on surgical catalog + markers
- */
-function determineEventType(items: PAMItem[]): TipoEvento {
-    const hasSurgicalCodes = items.some(item => isSurgicalCode(item.codigo));
-    const hasPabellon = hasPabellonIndicator(items);
-    const hasAnesthesia = hasAnesthesiaIndicator(items);
-
-    // Surgical: Has catalog match OR (pabellón + anesthesia)
-    if (hasSurgicalCodes || (hasPabellon && hasAnesthesia)) {
-        return 'QUIRURGICO';
+function parseFecha(fechaStr?: string): Date | null {
+    if (!fechaStr) return null;
+    // Assume DD/MM/YYYY or YYYY-MM-DD
+    const parts = fechaStr.split('/');
+    if (parts.length === 3) {
+        return new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
     }
-
-    // Medical: No surgery indicators
-    if (!hasSurgicalCodes && !hasPabellon) {
-        return 'MEDICO';
-    }
-
-    // Mixed: Has some indicators but not conclusive
-    return 'MIXTO';
+    return new Date(fechaStr); // Fallback
 }
 
 /**
- * Groups PAM items by codigo + prestador + fecha for honorary collapsing
+ * Groups raw PAM items into "Episodes" based on Provider + Time Window (e.g. 48h clustering).
  */
-function groupHonorariesForCollapsing(items: PAMItem[], prestador: string): GroupedHonoraries {
-    const grouped: GroupedHonoraries = {};
-
-    items.forEach(item => {
-        // Only group surgical codes
-        if (!isSurgicalCode(item.codigo)) return;
-
-        const fecha = item.fecha || 'UNKNOWN_DATE';
-        const key = `${item.codigo}_${prestador}_${fecha}`;
-
-        if (!grouped[key]) {
-            grouped[key] = [];
-        }
-        grouped[key].push(item);
+function groupIntoEpisodes(items: PAMItem[]): EpisodeCandidate[] {
+    const episodes: EpisodeCandidate[] = [];
+    // Sort by date to facilitate linear grouping
+    const sortedItems = [...items].sort((a, b) => {
+        const dA = parseFecha(a.fecha)?.getTime() || 0;
+        const dB = parseFecha(b.fecha)?.getTime() || 0;
+        return dA - dB;
     });
 
-    return grouped;
-}
+    for (const item of sortedItems) {
+        const itemDate = parseFecha(item.fecha);
+        const itemPrestador = item.prestador || "UNKNOWN";
 
-/**
- * Parses amount fields that might be strings
- */
-function parseAmount(value: number | string): number {
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string') {
-        return parseFloat(value.replace(/[^0-9.-]/g, '')) || 0;
-    }
-    return 0;
-}
+        // Find matching episode: Same Provider + Gap <= 48h
+        let match = episodes.find(e => {
+            if (e.prestador !== itemPrestador) return false;
+            // If item has no date, maybe attach to last episode of same provider? 
+            if (!itemDate) return true;
 
-/**
- * Collapses grouped items into consolidated honoraries
- */
-function collapseHonoraries(grouped: GroupedHonoraries): HonorarioConsolidado[] {
-    const consolidated: HonorarioConsolidado[] = [];
+            // Check gap overlap
+            const gapStart = Math.abs(itemDate.getTime() - e.startDate.getTime());
+            const gapEnd = Math.abs(itemDate.getTime() - e.endDate.getTime());
+            const hours48 = 48 * 60 * 60 * 1000;
 
-    Object.entries(grouped).forEach(([key, items]) => {
-        if (items.length === 0) return;
-
-        const totalQuantity = items.reduce((sum, item) =>
-            sum + parseAmount(item.cantidad), 0
-        );
-
-        const tolerance = 0.1;
-        const isCloseToOne = Math.abs(totalQuantity - 1.0) <= tolerance;
-        const isMultiple = totalQuantity > 1.2;
-
-        // Create ItemOrigen array
-        const items_origen: ItemOrigen[] = items.map(item => ({
-            folio: item.folio,
-            codigo: item.codigo,
-            cantidad: parseAmount(item.cantidad),
-            total: parseAmount(item.valorTotal),
-            copago: parseAmount(item.copago),
-            descripcion: item.descripcion
-        }));
-
-        consolidated.push({
-            codigo: items[0].codigo,
-            descripcion: items[0].descripcion,
-            items_origen,
-            es_fraccionamiento_valido: isCloseToOne && items.length > 1,
-            heuristica: {
-                sum_cantidades: totalQuantity,
-                tolerancia: tolerance,
-                razon: isCloseToOne ? 'EQUIPO_QUIRURGICO' :
-                    isMultiple ? 'UNKNOWN' : 'UNKNOWN'
-            }
+            return gapStart <= hours48 || gapEnd <= hours48;
+            // Also consider if date is strictly BETWEEN start and end? Implicitly handled if gaps are checked.
         });
-    });
 
-    return consolidated;
-}
-
-/**
- * Determines probable origin of error based on item characteristics
- */
-function determineOrigenProbable(item: PAMItem): OrigenProbable {
-    // Generic codes = PAM structure issue
-    if (GENERIC_CODES.some(code => item.codigo?.includes(code))) {
-        return 'PAM_ESTRUCTURA';
-    }
-
-    // Will be determined by LLM or further analysis
-    return 'DESCONOCIDO';
-}
-
-/**
- * Detects if two events might be continuous
- */
-function detectContinuity(fecha1: string, fecha2: string, prestador1: string, prestador2: string): boolean {
-    if (prestador1 !== prestador2) return false;
-
-    try {
-        const date1 = new Date(fecha1);
-        const date2 = new Date(fecha2);
-        const diffHours = Math.abs(date2.getTime() - date1.getTime()) / (1000 * 60 * 60);
-
-        return diffHours <= 48;
-    } catch {
-        return false;
-    }
-}
-
-/**
- * FINANCIAL VERIFICATION LOGIC (Phase A)
- * Reverse-engineers unit value (Valor Unidad / BAM / AC2) from clean PAM items.
- * NOTE: This is NOT the UF (Unidad de Fomento). It is the internal contractual unit value.
- */
-function computeUnidadBase(items: PAMItem[]): number | null {
-    // 1. Find a "Clean Item" (Surgical, Bonified, >0 Copay, Standard Factor known)
-    const cleanItem = items.find(item => {
-        const codigo = item.codigo;
-        const bonif = parseAmount(item.bonificacion);
-        const copago = parseAmount(item.copago);
-        const factor = SURGICAL_FACTORS[codigo];
-
-        return factor && bonif > 0 && copago > 0;
-    });
-
-    if (!cleanItem) return null;
-
-    // 2. Calculate Implied Unit Value
-    // Assumption: Standard Coverage is often 70% or 80%. We check implied total.
-    const bonif = parseAmount(cleanItem.bonificacion);
-    const copago = parseAmount(cleanItem.copago);
-    const realTotal = bonif + copago;
-    const factor = SURGICAL_FACTORS[cleanItem.codigo];
-
-    // Method: ValuePerUnit = RealTotal / Factor
-    // This assumes the RealTotal tracked the Cap exactly. 
-    // If bonif was capped, RealTotal might be > Cap.
-    // Better: ValuePerUnit = Bonification / (Coverage% * Factor) ?? We don't know coverage % yet.
-
-    // Alternative: ValuePerUnit = Bonification / Factor (If coverage was 100% of cap... wait)
-
-    // User's formula: "Valor Unidad = Valor Técnico / Factor" where "Valor Técnico = Bonification / %Cobertura"
-    // We'll guess coverage % based on ratio (approx 0.70)
-    const ratio = bonif / realTotal;
-    let impliedCoverage = 0.70; // Default guess
-
-    if (ratio > 0.78) impliedCoverage = 0.80;
-    if (ratio > 0.88) impliedCoverage = 0.90;
-    if (ratio < 0.65) impliedCoverage = 0.60;
-    // If ratio is very low (e.g. 0.39), it means cap was hit hard. We can't use it to infer base unless we assume the cap IS the limit.
-
-    // If ratio is low (~0.39), it's likely the CAP was applied.
-    // So Technical Price (Toped) = Bonification / ContractCoverage (e.g. 0.70)
-    // Then Unit Value = Technical Price / Factor
-
-    // We'll trust the User's example: 
-    // bonif=1.5M, coverage=0.70 -> TechPrice=2.16M. Factor=6 -> Unit=360k.
-
-    // For SAFETY: We calculate Unit Value assuming the CAP was hit.
-    // ImpliedUnitValue = (Bonification / 0.70) / Factor
-    // (We assume 0.70 as standard preferential coverage - this is a heuristic)
-
-    return (bonif / 0.70) / factor;
-}
-
-function verifyTopes(items: PAMItem[], unidadBase: number | null): AnalisisFinanciero | undefined {
-    if (!unidadBase) return undefined;
-
-    // Check if the TOTAL bonification across items aligns with the Unit Base
-    // Iterate specific surgical items that we know factors for
-    let consistentCount = 0;
-    let inconsistentCount = 0;
-
-    items.forEach(item => {
-        const factor = SURGICAL_FACTORS[item.codigo];
-        if (!factor) return;
-
-        const bonif = parseAmount(item.bonificacion);
-        const expectedBonif = (unidadBase * factor) * 0.70; // Assuming 70% coverage
-
-        // Tolerance 5%
-        if (Math.abs(bonif - expectedBonif) / expectedBonif < 0.05) {
-            consistentCount++;
+        if (match) {
+            match.items.push(item);
+            if (itemDate) {
+                if (itemDate < match.startDate) match.startDate = itemDate;
+                if (itemDate > match.endDate) match.endDate = itemDate;
+            }
         } else {
-            // Check if it matches other coverage tiers (80%, 90%)?
-            // Or maybe the CAP wasn't reached for this smaller item?
-            // If bonif < expected, maybe calculated Total < Cap.
-            inconsistentCount++;
+            episodes.push({
+                id: uuidv4(),
+                prestador: itemPrestador,
+                startDate: itemDate || new Date(),
+                endDate: itemDate || new Date(),
+                items: [item],
+                signals: new Set()
+            });
+        }
+    }
+    return episodes;
+}
+
+/**
+ * Scores an episode to determine if it is SURGICAL, MEDICAL, or MIXED.
+ */
+function classifyEpisode(episode: EpisodeCandidate): TipoEvento {
+    let scoreSurgical = 0;
+
+    // Check Signals
+    episode.items.forEach(item => {
+        const desc = (item.descripcion || "").toUpperCase();
+        const code = (item.codigoGC || "");
+
+        if (SIGNALS.PABELLON.some(s => code.includes(s) || desc.includes(s))) {
+            episode.signals.add("PABELLON");
+            scoreSurgical += 5;
+        }
+        if (SIGNALS.ANESTESIA.some(s => code.includes(s) || desc.includes(s))) {
+            episode.signals.add("ANESTESIA");
+            scoreSurgical += 3;
+        }
+        if (code.startsWith("1802") || code.startsWith("1801")) {
+            episode.signals.add("CIRUGIA_MAYOR");
+            scoreSurgical += 5;
         }
     });
 
-    // If we have consistency, we declare Tope Cumplido
-    if (consistentCount > 0 && consistentCount >= inconsistentCount) {
-        return {
-            tope_cumplido: true,
-            valor_unidad_inferido: Math.round(unidadBase),
-            metodo_validacion: 'FACTOR_ESTANDAR',
-            glosa_tope: `Tope inferido consistente con valor unidad $${Math.round(unidadBase).toLocaleString('es-CL')}`
-        };
-    }
-
-    return undefined;
+    if (scoreSurgical >= 5) return 'QUIRURGICO';
+    if (scoreSurgical > 0) return 'MIXTO';
+    return 'MEDICO';
 }
 
-
 /**
- * Main pre-processing function
- * Constructs EventoHospitalario objects from PAM data
+ * Deterministically collapses fractional honoraries
  */
-export function preProcessEventos(pamJson: any): EventoHospitalario[] {
-    const eventos: EventoHospitalario[] = [];
+function collapseHonorarios(episode: EpisodeCandidate): HonorarioConsolidado[] {
+    const map = new Map<string, HonorarioConsolidado>();
 
-    if (!pamJson?.folios || !Array.isArray(pamJson.folios)) {
-        return eventos;
-    }
+    episode.items.forEach(item => {
+        const code = item.codigoGC;
+        // Check if honorary (starts with 1 or 2, heuristic)
+        // Or better: Is it a "Professional Fee"? usually group 1 or 2 in PAM?
+        // Let's assume all items in a Surgical episode *might* be honoraries if they match patterns.
+        // Or explicit check: isSurgicalCode or similar.
+        // For collapsing, we specifically target 180x codes usually.
 
-    // Process each folio
-    pamJson.folios.forEach((folio: any) => {
-        const prestador = folio.prestadorPrincipal || 'DESCONOCIDO';
+        const isSurgical = code.startsWith("180") || code.startsWith("1101");
+        if (!isSurgical) return;
 
-        // Get all items from desglose
-        const allItems: PAMItem[] = [];
-        if (folio.desglosePorPrestador && Array.isArray(folio.desglosePorPrestador)) {
-            folio.desglosePorPrestador.forEach((desglose: any) => {
-                if (desglose.items && Array.isArray(desglose.items)) {
-                    allItems.push(...desglose.items.map((item: any) => ({
-                        ...item,
-                        folio: folio.folioPAM,
-                        fecha: folio.periodoCobro
-                    })));
-                }
+        const key = `${code}-${parseFecha(item.fecha)?.toISOString() || 'NODATE'}`;
+
+        if (!map.has(key)) {
+            map.set(key, {
+                codigo: code,
+                descripcion: item.descripcion,
+                items_origen: [],
+                es_fraccionamiento_valido: false,
+                heuristica: { sum_cantidades: 0, tolerancia: 0, razon: "UNKNOWN" },
+                // copago_total_evento: 0 // Removed from type as per lint error
             });
         }
 
-        if (allItems.length === 0) return;
+        const entry = map.get(key)!;
+        const qty = parseMonto(item.cantidad); // Quantities are also strings in PAM
+        const copago = parseMonto(item.copago);
+        const bonif = parseMonto(item.bonificacion);
+        const total = parseMonto(item.valorTotal);
 
-        // Determine event type
-        const tipoEvento = determineEventType(allItems);
+        entry.items_origen.push({
+            folio: item.folio || "SIN_FOLIO",
+            codigo: code,
+            cantidad: qty,
+            total: total,
+            copago: copago,
+            descripcion: item.descripcion
+            // bonificacion property removed from public type ItemOrigen, needed internally for math?
+            // ItemOrigen definition in types.ts does not have bonificacion. 
+            // This is a disconnect. We might need it for validation later.
+            // But we reconstruct validation object anyway.
+        });
 
-        // FINANCIAL VERIFICATION (New V3)
-        // 1. Try to compute Unit Value
-        const unidadBase = computeUnidadBase(allItems);
-        // 2. Verify Topes
-        const analisisFinanciero = verifyTopes(allItems, unidadBase);
-
-        // Find anchor
-        let anclaje: Anclaje;
-        const surgicalCode = allItems.find(item => isSurgicalCode(item.codigo));
-        if (surgicalCode) {
-            anclaje = {
-                tipo: 'CODIGO_PRINCIPAL',
-                valor: surgicalCode.codigo
-            };
-        } else {
-            anclaje = {
-                tipo: 'INGRESO',
-                valor: folio.periodoCobro || 'FECHA_DESCONOCIDA'
-            };
-        }
-
-        // Collapse honoraries (only for surgical)
-        const consolidados = tipoEvento === 'QUIRURGICO'
-            ? collapseHonoraries(groupHonorariesForCollapsing(allItems, prestador))
-            : [];
-
-        // Calculate totals
-        const total_copago = allItems.reduce((sum, item) =>
-            sum + parseAmount(item.copago), 0
-        );
-        const total_bonificacion = allItems.reduce((sum, item) =>
-            sum + parseAmount(item.bonificacion), 0
-        );
-
-        // Determine probable origin
-        const origenProbable = allItems.some(item =>
-            GENERIC_CODES.some(code => item.codigo?.includes(code))
-        ) ? 'PAM_ESTRUCTURA' : 'DESCONOCIDO';
-
-        // Create event
-        const evento: EventoHospitalario = {
-            id_evento: uuidv4(),
-            tipo_evento: tipoEvento,
-            anclaje,
-            prestador,
-            fecha_inicio: folio.periodoCobro || '',
-            fecha_fin: folio.periodoCobro || '',
-            posible_continuidad: false, // Will be set after comparing all events
-            subeventos: [], // Sub-events require explicit evidence
-            honorarios_consolidados: consolidados,
-            nivel_confianza: 'ALTA', // Default, LLM can adjust
-            recomendacion_accion: analisisFinanciero ? (analisisFinanciero.tope_cumplido ? 'ACEPTAR' : 'ACEPTAR') : 'ACEPTAR', // Default to ACCEPT if matched
-            origen_probable: origenProbable,
-            total_copago,
-            total_bonificacion,
-            analisis_financiero: analisisFinanciero
-        };
-
-        eventos.push(evento);
+        entry.heuristica.sum_cantidades += qty;
     });
 
-    // Detect continuity between events
-    for (let i = 0; i < eventos.length; i++) {
-        for (let j = i + 1; j < eventos.length; j++) {
-            const continuity = detectContinuity(
-                eventos[i].fecha_inicio,
-                eventos[j].fecha_inicio,
-                eventos[i].prestador,
-                eventos[j].prestador
-            );
-            if (continuity) {
-                eventos[i].posible_continuidad = true;
-                eventos[j].posible_continuidad = true;
-            }
+    // Finalize logic
+    return Array.from(map.values()).map(h => {
+        const diff = Math.abs(h.heuristica.sum_cantidades - 1.0);
+        if (diff <= 0.15) {
+            h.es_fraccionamiento_valido = true;
+            h.heuristica.razon = "EQUIPO_QUIRURGICO";
         }
+        return h;
+    });
+}
+
+/**
+ * MAIN ENTRY POINT
+ */
+export function preProcessEventos(pamJson: any): EventoHospitalario[] {
+    // 1. Flatten PAM Items
+    const rawItems: PAMItem[] = [];
+    if (pamJson && pamJson.folios) {
+        pamJson.folios.forEach((folio: any) => {
+            folio.desglosePorPrestador?.forEach((desglose: any) => {
+                desglose.items?.forEach((item: any) => {
+                    rawItems.push({
+                        ...item,
+                        prestador: folio.prestadorPrincipal || desglose.nombrePrestador, // Ensure provider linkage
+                        folio: folio.folioPAM, // Link folio
+                        fecha: item.fecha || folio.fechaEmision // Fallback date, 
+                    });
+                });
+            });
+        });
     }
 
-    return eventos;
+    // 2. Infer Unit Value Global Context (Root Cause Fix)
+    const unidadReferencia = inferUnidadReferencia({}, pamJson);
+
+    // 3. Group into Episodes
+    const candidateEpisodes = groupIntoEpisodes(rawItems);
+
+    // 4. Transform to EventoHospitalario
+    return candidateEpisodes.map(ep => {
+        const tipo = classifyEpisode(ep);
+        const honorarios = collapseHonorarios(ep);
+
+        // 5. Apply Financial Validation to Honorarios
+        let topeCumplidoGlobal = false;
+        let valorUnidadInferido = unidadReferencia.valor_pesos_estimado;
+
+        honorarios.forEach(h => {
+            if (h.items_origen.length > 0) {
+                const proxyItem = h.items_origen[0];
+
+                // Need original bonificacion to validate.
+                // We lost it in ItemOrigen mapping.
+                // Solution: Find it in original episode items or pass it temporarily?
+                // Let's find matches in ep.items
+                const originalItem = ep.items.find(i =>
+                    i.codigoGC === proxyItem.codigo &&
+                    i.folio === proxyItem.folio
+                );
+
+                if (originalItem) {
+                    const validation = validateTopeHonorarios({
+                        codigoGC: originalItem.codigoGC,
+                        bonificacion: parseMonto(originalItem.bonificacion),
+                        copago: parseMonto(originalItem.copago)
+                    } as any, unidadReferencia);
+
+                    if (validation.tope_cumplido) {
+                        topeCumplidoGlobal = true;
+                    }
+                }
+            }
+        });
+
+        return {
+            id_evento: ep.id,
+            tipo_evento: tipo,
+            anclaje: {
+                tipo: 'PRESTADOR_FECHA',
+                valor: `${ep.prestador} | ${ep.startDate.toISOString().split('T')[0]}`
+            },
+            prestador: ep.prestador,
+            fecha_inicio: ep.startDate.toISOString(),
+            fecha_fin: ep.endDate.toISOString(),
+            posible_continuidad: false,
+            honorarios_consolidados: honorarios,
+            analisis_financiero: {
+                tope_cumplido: topeCumplidoGlobal,
+                valor_unidad_inferido: valorUnidadInferido,
+                metodo_validacion: unidadReferencia.confianza === 'ALTA' ? 'FACTOR_ESTANDAR' : 'MANUAL',
+                glosa_tope: unidadReferencia.evidencia[0] || "No determinado"
+            },
+            nivel_confianza: "ALTA",
+            recomendacion_accion: topeCumplidoGlobal ? "ACEPTAR" : "SOLICITAR_ACLARACION",
+            origen_probable: "PAM_ESTRUCTURA"
+        };
+    });
 }
