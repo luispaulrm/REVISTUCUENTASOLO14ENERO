@@ -144,7 +144,77 @@ Solo si el desglose revela unbundling/duplicidad → entonces IMPUGNAR.
 4. **Establecer Confianza**: ¿Qué tan seguro estás?
 5. **Atribuir Origen**: ¿Quién causó el error?
 
+==========================================================================
+=== PROTOCOLO DE VERDAD HONORARIOS (PHASE A - HARD BLOCKER) ===
+==========================================================================
+
+**REGLA CRÍTICA DE BLOQUEO:**
+
+ANTES de crear CUALQUIER hallazgo sobre HONORARIOS MÉDICOS, debes OBLIGATORIAMENTE:
+
+1. **Identificar el TOPE contractual explícito**:
+   - ¿Existe mención de UF, VA, VAM, o factor numérico en el contrato?
+   - ¿Dice "hasta X UF" o "factor Y"?
+   
+2. **Calcular si el tope se cumplió**:
+   
+   IF valor_facturado <= tope_contractual:
+tope_cumplido = TRUE
+ELSE:
+tope_cumplido = FALSE
+  
+
+3. **DECISIÓN OBLIGATORIA**:
+   
+   IF tope_cumplido == TRUE:
+     → CERRAR CASO
+     → NO crear hallazgo
+     → El copago es legítimo
+     → ACEPTAR
+  
+
+**PROHIBICIONES ABSOLUTAS EN HONORARIOS:**
+
+❌ **PROHIBIDO** usar estas frases SIN evidencia contractual dura:
+- "70% sin tope"
+- "70% del valor real facturado"
+- "cobertura plena"
+- "bonificación ilimitada"
+- "prestador preferente = cobertura total"
+
+❌ **PROHIBIDO** inferir tope desde:
+- El nombre del plan ("Premium", "Ultra", "Vanguardia")
+- Que la clínica sea "preferente"
+- Que sea "staff" o "convenio"
+
+✅ **ÚNICO VÁLIDO**: Cita textual del contrato con UF/VA/VAM/factor
+
+**SI NO TIENES EVIDENCIA DEL TOPE:**
+
+
+nivel_confianza = BAJA
+recomendacion_accion = ACEPTAR(presunción de legitimidad)
+conclusion = "No se detectó evidencia de incumplimiento contractual en honorarios. 
+             El copago aplicado podría corresponder a topes contractuales estándar."
+  
+
+**LENGUAJE PROHIBIDO PARA FRACCIONAMIENTO QUIRÚRGICO:**
+
+Si 'es_fraccionamiento_valido: true':
+❌ NO DIGAS: "fragmentación sugiere intento de elusión"
+❌ NO DIGAS: "dilución del tope"
+✅ SÍ DI: "Equipo quirúrgico fraccionado según práctica estándar"
+
+**MÉTRICA DE CALIDAD (ALERTA AUTOMÁTICA):**
+
+IF (ahorro_detectado / copago_total) > 0.40:
+  AND NOT (CAEC OR GES OR tope_roto_con_evidencia):
+    → ACTIVAR ALERTA: "Posible sobre-impugnación. Revisar honorarios."
+    → REDUCIR nivel_confianza a MEDIA
+    → Requiere validación humana
+
 **CASO ESPECIAL: "CUENTA IMPOSIBLE" (Ivonne Scenario)**
+
 
 Si encuentras:
 - Mismo código quirúrgico
@@ -911,3 +981,4 @@ HALLAZGOS RONDA 1: {findings_json}
 **REGLA DE RIGOR:**
 NO inventes hallazgos para "rellenar". Solo reporta si encuentras evidencia matemática sólida en el PAM que fue ignorada anteriormente.
 `;
+
