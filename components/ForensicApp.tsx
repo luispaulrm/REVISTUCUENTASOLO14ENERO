@@ -496,8 +496,15 @@ export default function ForensicApp() {
                                             </button>
                                         </div>
                                         <div className="bg-slate-950 p-5 sm:p-6 rounded-2xl text-white w-full sm:w-fit self-start sm:min-w-[250px]">
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Ahorro Detectado</p>
-                                            <div className="text-2xl sm:text-3xl font-black text-emerald-400">${(auditResult.totalAhorroDetectado || 0).toLocaleString('es-CL')}</div>
+                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
+                                                {auditResult.decisionGlobal?.estado === 'COPAGO_INDETERMINADO_POR_OPACIDAD'
+                                                    ? 'Monto en Controversia (No Validable)'
+                                                    : 'Ahorro Detectado'}
+                                            </p>
+                                            <div className={`text-2xl sm:text-3xl font-black ${auditResult.decisionGlobal?.estado === 'COPAGO_INDETERMINADO_POR_OPACIDAD'
+                                                ? 'text-amber-400'
+                                                : 'text-emerald-400'
+                                                }`}>${(auditResult.totalAhorroDetectado || 0).toLocaleString('es-CL')}</div>
                                         </div>
                                     </div>
 

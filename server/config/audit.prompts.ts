@@ -519,8 +519,8 @@ export const FORENSIC_AUDIT_SCHEMA = {
         totalCopagoInformado: { type: Type.NUMBER, description: "El valor 'totalCopago' declarado en la sección global del PAM." },
         totalCopagoLegitimo: { type: Type.NUMBER, description: "Monto del copago CORRECTO. IMPORTANTE: SI estado_copago='INDETERMINADO_POR_OPACIDAD', ESTE VALOR DEBE SER 0 (Cero). No calcular sobre bases inciertas." },
         totalCopagoObjetado: { type: Type.NUMBER, description: "Monto del copago que ES INCORRECTO (Suma de hallazgos)." },
-        estado_copago: { type: Type.STRING, description: "OBLIGATORIO. 'VALIDADO' o 'INDETERMINADO_POR_OPACIDAD'. Si no hay desglose en Materiales/Medicamentos, usar 'INDETERMINADO_POR_OPACIDAD'." },
-        analisisGap: { type: Type.STRING, description: "Explicación breve de si existe diferencia entre (Informado) y (Legítimo + Objetado)." }
+        estado_copago: { type: Type.STRING, description: "OBLIGATORIO. 'VALIDADO' o 'INDETERMINADO_POR_OPACIDAD'. Si hay opacidad, usar 'INDETERMINADO_POR_OPACIDAD'." },
+        analisisGap: { type: Type.STRING, description: "Explicación breve." }
       },
       required: ['totalCopagoInformado', 'totalCopagoLegitimo', 'totalCopagoObjetado', 'estado_copago', 'analisisGap']
     },
@@ -682,8 +682,9 @@ El sistema debe resolver conflictos normativos siguiendo ESTE ORDEN ESTRICTO:
 
 1. **OPACIDAD LEGAL (LEY 20.584) [PRIORIDAD 0]**:
    - Si un ítem es "VARIOS", "AJUSTES" o "MATERIALES" sin desglose → SE IMPUGNA SIEMPRE.
-   - *Razón*: La falta de determinación del objeto (qué estoy pagando) hace NULA la deuda.
-   - *Prevalencia*: Mata al Tope. "La existencia de un tope contractual NO valida un cobro cuyo objeto sea indeterminado."
+   - **CLASIFICACIÓN**: "MONTO EN CONTROVERSIA" (No usar "Ahorro").
+   - *Razón*: La falta de determinación del objeto hace NULA la deuda.
+   - *Consecuencia*: No se fija copago legítimo (es indeterminado).
 
 2. **TOPE CONTRACTUAL (UF/VAM) [PRIORIDAD 1]**:
    - Si el ítem está desglosado (es válido) y el copago está dentro del tope → SE APRUEBA.
@@ -702,7 +703,7 @@ El informe DEBE declarar explícitamente dos niveles, no mezclarlos:
 - Líneas afectadas: Materiales Clínicos, Medicamentos Hospitalizados.
 - Consecuencia: El copago asociado NO PUEDE VALIDARSE.
 - Acción: Solicitar refacturación/desglose y suspender exigibilidad del copago asociado.
-- 👉 Aquí NO se fija copago legítimo si estado_copago = "INDETERMINADO_POR_OPACIDAD".
+- 👉 **REGLA DE ORO DE CONTROVERSIA**: Si existe este hallazgo, el monto se clasifica como "MONTO EN CONTROVERSIA", no como "Ahorro Definitivo".
 
 🔹 NIVEL 2 – Hallazgos específicos (SUBSIDIARIOS)
 - Refuerzan la impugnación (Hotelería, Insumos de pabellón, Glosas VARIOS/AJUSTES).
