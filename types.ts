@@ -93,3 +93,59 @@ export enum AppStatus {
   SUCCESS = 'SUCCESS',
   ERROR = 'ERROR'
 }
+
+// ============================================================================
+// EventoHospitalario - New Architecture Types (v3)
+// ============================================================================
+
+export type TipoEvento = 'QUIRURGICO' | 'MEDICO' | 'MIXTO';
+export type TipoAnclaje = 'CODIGO_PRINCIPAL' | 'INGRESO' | 'UCI' | 'PROTOCOLO';
+export type NivelConfianza = 'ALTA' | 'MEDIA' | 'BAJA';
+export type RecomendacionAccion = 'IMPUGNAR' | 'SOLICITAR_ACLARACION' | 'ACEPTAR';
+export type OrigenProbable = 'CLINICA_FACTURACION' | 'ISAPRE_LIQUIDACION' | 'PAM_ESTRUCTURA' | 'MIXTO' | 'DESCONOCIDO';
+export type RazonHeuristica = 'EQUIPO_QUIRURGICO' | 'MULTIPLE_SESSIONS' | 'UNKNOWN';
+
+export interface ItemOrigen {
+  folio?: string;
+  codigo: string;
+  cantidad: number;
+  total: number;
+  copago: number;
+  descripcion?: string;
+}
+
+export interface HeursiticaConsolidacion {
+  sum_cantidades: number;
+  tolerancia: number;
+  razon: RazonHeuristica;
+}
+
+export interface HonorarioConsolidado {
+  codigo: string;
+  descripcion: string;
+  items_origen: ItemOrigen[];
+  es_fraccionamiento_valido: boolean;
+  heuristica: HeursiticaConsolidacion;
+}
+
+export interface Anclaje {
+  tipo: TipoAnclaje;
+  valor: string; // The code or 'FECHA_INGRESO'
+}
+
+export interface EventoHospitalario {
+  id_evento: string;
+  tipo_evento: TipoEvento;
+  anclaje: Anclaje;
+  prestador: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+  posible_continuidad: boolean; // Gap < 48h, same provider
+  subeventos: EventoHospitalario[]; // Max depth 2
+  honorarios_consolidados: HonorarioConsolidado[];
+  nivel_confianza: NivelConfianza;
+  recomendacion_accion: RecomendacionAccion;
+  origen_probable: OrigenProbable;
+  total_copago?: number;
+  total_bonificacion?: number;
+}

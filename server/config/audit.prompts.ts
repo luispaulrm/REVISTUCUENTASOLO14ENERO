@@ -9,6 +9,118 @@ Objetivo: evitar contradicciones, asegurar determinismo y mantener trazabilidad.
 ${DOCTRINA_PRACTICAS_IRREGULARES}
 =======================================
 
+==========================================================================
+=== PROTOCOLO EVENTO_HOSPITALARIO (ARQUITECTURA V3 - OBLIGATORIO) ===
+==========================================================================
+
+**CAMBIO FUNDAMENTAL: De Item-Based a Event-Based Analysis**
+
+Desde ahora, NO analizas ítems sueltos. Analizas **EVENTOS HOSPITALARIOS** pre-construidos por el sistema determinista.
+
+**¿QUÉ ES UN EVENTO HOSPITALARIO?**
+Evento Hospitalario = **Mismo Beneficiario + Mismo Prestador + Mismo Procedimiento Principal + Ventana Temporal**
+
+El sistema YA AGRUPÓ los ítems del PAM en eventos lógicos. Tu rol es:
+1. Analizar la legitimidad del evento
+2. Ajustar 'nivel_confianza' basado en evidencia contractual
+3. Establecer 'recomendacion_accion' (IMPUGNAR | SOLICITAR_ACLARACION | ACEPTAR)
+4. Atribuir 'origen_probable' del error
+
+**DOCTRINA DE HONORARIOS CONSOLIDADOS (ANTI-FALSO POSITIVO)**
+
+El sistema detectó matemáticamente si un código quirúrgico está "fraccionado" (equipo quirúrgico):
+
+IF 'es_fraccionamiento_valido: true':
+  → Las cantidades suman ≈ 1.0 (±0.1)
+  → Esto es UN SOLO ACTO QUIRÚRGICO con equipo (cirujano 1.0 + ayudante 0.25 + anestesia 0.1...)
+  → **PROHIBIDO** reportar esto como "duplicidad"
+  → El copago se aplica UNA VEZ al evento, NO a cada fracción
+  → Clasificación: FRACCIONAMIENTO VÁLIDO
+
+IF 'es_fraccionamiento_valido: false' AND 'sum_cantidades > 1.2':
+  → Posible duplicidad real
+  → Analiza contexto: ¿Hay evidencia de doble cobro? ¿Folios distintos pero mismo día/código?
+  → Si hay duda: 'nivel_confianza: MEDIA', 'recomendacion_accion: SOLICITAR_ACLARACION'
+  → NO declares "fraude" sin evidencia sólida
+
+**METADATA HEURÍSTICA (EXPLAINABILITY)**
+
+Cada honorario consolidado incluye 'heuristica':
+- 'sum_cantidades': La suma matemática de fracciones
+- 'tolerancia': El margen usado (0.1)
+- 'razon': "EQUIPO_QUIRURGICO" | "MULTIPLE_SESSIONS" | "UNKNOWN"
+
+Usa esta metadata para explicar tus conclusiones. Ejemplo:
+"La suma de cantidades es 0.95, dentro de la tolerancia de fraccionamiento quirúrgico estándar."
+
+**CONTINUIDAD DE EVENTOS (posible_continuidad)**
+
+IF 'posible_continuidad: true':
+  → Hay otro evento del mismo prestador dentro de 48h
+  → Evalúa si clínicamente son el mismo evento (urgencia → hospitalización, complicación inmediata)
+  → Si SÍ: fusiona conceptualmente, aplica Doctrina Evento Único
+  → Si NO: mantén separados pero documenta por qué
+
+**SUB-EVENTOS (HARD EVIDENCE ONLY)**
+
+El sistema solo crea sub-eventos si hay evidencia dura:
+- Nuevo código quirúrgico + nuevo pabellón
+- Nueva admisión/alta registrada
+
+**PROHIBIDO** inferir sub-eventos solo por intuición. Si no existe en la estructura, no lo inventes.
+
+**ATRIBUCIÓN DE RESPONSABILIDAD (origen_probable) - OBLIGATORIO**
+
+Para CADA hallazgo, debes especificar quién es responsable:
+
+- **CLINICA_FACTURACION**: Error originado en la facturación de la clínica (ej: unbundling, upcoding, ítems fantasma)
+- **ISAPRE_LIQUIDACION**: Error en la liquidación de la Isapre (ej: aplicó copago múltiple a fractioning, sub-bonificó sin justificación)
+- **PAM_ESTRUCTURA**: Error estructural del PAM (ej: códigos genéricos 3101302, agrupadores sin desglose)
+- **MIXTO**: Responsabilidad compartida
+- **DESCONOCIDO**: No hay suficiente información para atribuir
+
+Esta atribución es CRÍTICA. Permite distinguir:
+✅ "Duplicidad clínica real" (CLINICA)  
+✅ "Error de procesamiento PAM" (ISAPRE/PAM_ESTRUCTURA)  
+
+**NIVELES DE CONFIANZA (OBLIGATORIO)**
+
+Para CADA hallazgo, especifica:
+- **ALTA**: Evidencia contractual clara + aritmética exacta + norma explícita
+- **MEDIA**: Evidencia parcial, requiere interpretación contextual
+- **BAJA**: Zona gris, faltan datos, posible pero no seguro
+
+**RECOMENDACIONES DE ACCIÓN**
+
+- **IMPUGNAR**: Evidencia sólida, proceder con objeción formal
+- **SOLICITAR_ACLARACION**: Hay indicios pero falta contexto, pedir desglose/explicación
+- **ACEPTAR**: Copago es legítimo según contrato/evento
+
+**JERARQUÍA DE ANÁLISIS (ORDEN OBLIGATORIO)**
+
+1. **Validar Evento**: ¿El evento está correctamente construido? ¿Tipo correcto (QUIRURGICO/MEDICO)?
+2. **Validar Copago por Evento**: ¿El copago total del evento respeta el contrato?
+3. **Validar Detalles**: ¿Hay ítems individuales objetables dentro del evento?
+4. **Establecer Confianza**: ¿Qué tan seguro estás?
+5. **Atribuir Origen**: ¿Quién causó el error?
+
+**CASO ESPECIAL: "CUENTA IMPOSIBLE" (Ivonne Scenario)**
+
+Si encuentras:
+- Mismo código quirúrgico
+- Misma fecha
+- Sum ≈ 1.0 (fraccionamiento válido)
+- PERO TAMBIÉN existe un folio con "procedimiento completo"
+
+Clasificación correcta:
+- 'nivel_confianza: MEDIA'
+- 'origen_probable: ISAPRE_LIQUIDACION' (procesaron mal el evento)
+- 'recomendacion_accion: SOLICITAR_ACLARACION'
+- Hallazgo: "Error de procesamiento en liquidación PAM. El evento quirúrgico fue facturado correctamente como equipo fraccionado, pero la Isapre aparentemente liquidó tanto las fracciones como un cargo consolidado, generando copagos múltiples sobre el mismo acto. Se recomienda reliquidación por evento."
+
+**NO** digas: "duplicidad fraudulenta", "cobro doble intencional", etc.
+
+
 (1) REGLA CANÓNICA IF-319 (NO inventar)
 IF-319 se usa para identificar DESAGREGACIÓN indebida de INSUMOS COMUNES / HOTELERÍA que ya están incluidos en cargos base (p.ej., día cama/hospitalización integral, derecho de pabellón, cargos integrales).
 IF-319 NO se debe usar para objetar MEDICAMENTOS como “incluidos” por defecto en cuentas NO-PAD/NO-GES.
@@ -291,6 +403,53 @@ export const FORENSIC_AUDIT_SCHEMA = {
       },
       required: ['totalCopagoInformado', 'totalCopagoLegitimo', 'totalCopagoObjetado', 'analisisGap']
     },
+    eventos_hospitalarios: {
+      type: Type.ARRAY,
+      description: "Lista de eventos hospitalarios analizados. Estos eventos fueron PRE-CONSTRUIDOS por el sistema determinista. Tu rol es analizar su legitimidad, ajustar nivel_confianza y recomendacion_accion basado en contexto contractual.",
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          id_evento: { type: Type.STRING },
+          tipo_evento: { type: Type.STRING, description: "QUIRURGICO | MEDICO | MIXTO. Ya determinado por el sistema." },
+          anclaje: {
+            type: Type.OBJECT,
+            properties: {
+              tipo: { type: Type.STRING },
+              valor: { type: Type.STRING }
+            }
+          },
+          prestador: { type: Type.STRING },
+          fecha_inicio: { type: Type.STRING },
+          fecha_fin: { type: Type.STRING },
+          posible_continuidad: { type: Type.BOOLEAN, description: "True si gap < 48h con mismo prestador. Evalúa si deberían fusionarse clínicamente." },
+          honorarios_consolidados: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                codigo: { type: Type.STRING },
+                descripcion: { type: Type.STRING },
+                es_fraccionamiento_valido: { type: Type.BOOLEAN, description: "True si sum ≈ 1.0. Esto es un equipo quirúrgico válido, NO es duplicidad." },
+                heuristica: {
+                  type: Type.OBJECT,
+                  properties: {
+                    sum_cantidades: { type: Type.NUMBER },
+                    tolerancia: { type: Type.NUMBER },
+                    razon: { type: Type.STRING }
+                  }
+                }
+              }
+            }
+          },
+          nivel_confianza: { type: Type.STRING, description: "ALTA | MEDIA | BAJA. Ajusta basado en análisis contractual." },
+          recomendacion_accion: { type: Type.STRING, description: "IMPUGNAR | SOLICITAR_ACLARACION | ACEPTAR. Define según hallazgo." },
+          origen_probable: { type: Type.STRING, description: "CLINICA_FACTURACION | ISAPRE_LIQUIDACION | PAM_ESTRUCTURA | MIXTO | DESCONOCIDO. Atribuye responsabilidad del error." },
+          total_copago: { type: Type.NUMBER },
+          total_bonificacion: { type: Type.NUMBER }
+        },
+        required: ['id_evento', 'tipo_evento', 'nivel_confianza', 'recomendacion_accion', 'origen_probable']
+      }
+    },
     bitacoraAnalisis: {
       type: Type.ARRAY,
       description: "Bitácora DETALLADA y OBLIGATORIA. Antes de escribir un hallazgo, el auditor debe 'pensar' aquí.",
@@ -325,9 +484,11 @@ export const FORENSIC_AUDIT_SCHEMA = {
           hallazgo: { type: Type.STRING, description: "Narrativa detallada siguiendo OBLIGATORIAMENTE la ESTRUCTURA CANÓNICA DE 8 SECCIONES (I a VIII). Debe incluir la Tabla de Origen en Markdown." },
           montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP). Debe coincidir con la sección VI y VIII." },
           normaFundamento: { type: Type.STRING, description: "CITA TEXTUAL de la norma o jurisprudencia del knowledge_base_text. Formato: 'Según [Documento/Rol/Artículo]: \"[extracto textual]\"'." },
-          anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" }
+          anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" },
+          origen_probable: { type: Type.STRING, description: "OBLIGATORIO. CLINICA_FACTURACION | ISAPRE_LIQUIDACION | PAM_ESTRUCTURA | MIXTO | DESCONOCIDO. Identifica quién es responsable del error." },
+          nivel_confianza: { type: Type.STRING, description: "ALTA | MEDIA | BAJA. Nivel de certeza del hallazgo." }
         },
-        required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson']
+        required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson', 'origen_probable', 'nivel_confianza']
       }
     },
     totalAhorroDetectado: {
@@ -356,7 +517,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
       description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
     }
   },
-  required: ['resumenEjecutivo', 'resumenFinanciero', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
+  required: ['resumenEjecutivo', 'resumenFinanciero', 'eventos_hospitalarios', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
 
 export const REFLECTION_SCHEMA = {
@@ -670,7 +831,11 @@ DATOS DEL CASO:
 CUENTA CLÍNICA: "{cuenta_json}"
 PAM (COBERTURA): "{pam_json}"
 CONTRATO SALUD: "{contrato_json}"
-REGLAS HOTELERÍA: "{hoteleria_json}"
+REG LAS HOTELERÍA: "{hoteleria_json}"
+
+**EVENTOS HOSPITALARIOS (PRE-CONSTRUIDOS POR SISTEMA DETERMINISTA):**
+"{eventos_hospitalarios}"
+
 CONTEXTO VISUAL (HTML):
 "{html_context}"
 

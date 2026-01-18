@@ -7,6 +7,7 @@ import {
     loadHoteleriaRules,
     getKnowledgeFilterInfo
 } from './knowledgeFilter.service.js';
+import { preProcessEventos } from './eventProcessor.service.js';
 
 export async function performForensicAudit(
     cuentaJson: any,
@@ -114,10 +115,32 @@ export async function performForensicAudit(
         }))
     };
 
-    // 4. Minify JSONs (remove whitespace) - saves ~20% tokens
+    //  4. Minify JSONs (remove whitespace) - saves ~20% tokens
     let finalCuentaContext = JSON.stringify(cleanedCuenta);
     let finalPamContext = JSON.stringify(cleanedPam);
     let finalContratoContext = JSON.stringify(cleanedContrato);
+
+    // ============================================================================
+    // EVENT PRE-PROCESSING (DETERMINISTIC LAYER - V3 ARCHITECTURE)
+    // ============================================================================
+    log('[AuditEngine] 🏥 Pre-procesando Eventos Hospitalarios (Arquitectura V3)...');
+    onProgressUpdate?.(35);
+
+    const eventosHospitalarios = preProcessEventos(pamJson);
+    log(`[AuditEngine] 📋 Eventos detectados: ${eventosHospitalarios.length}`);
+
+    eventosHospitalarios.forEach((evento, idx) => {
+        log(`[AuditEngine]   ${idx + 1}. Tipo: ${evento.tipo_evento}, Prestador: ${evento.prestador}, Copago: $${evento.total_copago?.toLocaleString('es-CL') || 0}`);
+        if (evento.honorarios_consolidados && evento.honorarios_consolidados.length > 0) {
+            const validFractions = evento.honorarios_consolidados.filter(h => h.es_fraccionamiento_valido);
+            if (validFractions.length > 0) {
+                log(`[AuditEngine]      └─ Fraccionamientos válidos detectados: ${validFractions.length} (NO son duplicidad)`);
+            }
+        }
+    });
+
+    const eventosContext = JSON.stringify(eventosHospitalarios);
+    log(`[AuditEngine] ✅ Eventos serializados (~${(eventosContext.length / 1024).toFixed(2)} KB)`);
 
     // SMARTEST: If we have raw OCR texts, use them if JSON is empty
     if (htmlContext && htmlContext.includes('--- ORIGEN:')) {
@@ -133,6 +156,7 @@ export async function performForensicAudit(
         .replace('{cuenta_json}', finalCuentaContext)
         .replace('{pam_json}', finalPamContext)
         .replace('{contrato_json}', finalContratoContext)
+        .replace('{eventos_hospitalarios}', eventosContext)
         .replace('{html_context}', htmlContext || 'No HTML context provided.');
 
     // Log prompt size for debugging
