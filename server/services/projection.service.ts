@@ -89,11 +89,11 @@ export class ProjectionService {
                 **PASO 5: REGLA ANTI-HALLUCINACIÓN Y FORMATO NUMÉRICO (ANTI-MENTIRAS)**
                 - Si un valor es ilegible, usa <td data-uncertain="true">???</td>.
                 - Prohibido inventar datos o mover valores entre columnas (ej: no mover Internacional a Nacional).
-                - **FORMATO NUMÉRICO CHILENO (CRÍTICO):**
-                  - El separador de miles es el PUNTO (.). Ejemplo: $1.500 (mil quinientos).
-                  - El separador decimal es la COMA (,). Ejemplo: 0,330 (trescientos treinta milésimos).
-                  - **PROHIBIDO CONVERTIR:** Si la imagen dice "0,330", ESCRIBE "0,330". NO escribas "0.330", NI "0.0033", NI "330".
-                  - **PROHIBIDO INTERPRETAR:** Copia los números exactamente como se ven (verbatim), respetando puntos y comas originales.
+                - **FORMATO NUMÉRICO (VERBATIM ESTRICTO):**
+                  - COPIA EXACTAMENTE lo que ves en la imagen.
+                  - Si la imagen dice "0,330", ESCRIBE "0,330".
+                  - Si la imagen dice "3.000", ESCRIBE "3.000".
+                  - **PROHIBIDO INTERPRETAR O CONVERTIR:** No decidas si el punto es mil o decimal. Tu trabajo es SOLO COPIAR SÍMBOLOS. Deja que el motor de auditoría decida el valor matemático después.
 
                 **PASO 6: COBERTURA Y FIDELIDAD 100% (PROHIBIDO RESUMIR)**
                 ${isBillOnly ? '- Locate the billing section and project it page by page.' : '- Este es un proceso serial. Debes proyectar página por página.'}
@@ -114,7 +114,7 @@ export class ProjectionService {
                 2. FORMATTING: Use semantic HTML5 (table, h1, h2, p, span, div).
                 3. STYLING: Use INLINE CSS style attributes to replicate layout and fonts.
                 4. ACCURACY: PROJECT exactly what is visible. Copy text VERBATIM.
-                5. NUMBERS: Respect Chilean format (Dot=Thousands, Comma=Decimal). Copy exactly.
+                5. NUMBERS: Copy digits and separators EXACTLY as seen. Do not normalize.
                 6. FINAL MARKER: ONLY use "<!-- END_OF_DOCUMENT -->" at the absolute end ${isBillOnly ? 'after verifying NO more billing data exists in ANY subsequent pages' : 'of the document'}.
                 
                 OUTPUT:
@@ -140,7 +140,7 @@ export class ProjectionService {
                 3. NO GAPS / NO SUMMARIES: Do not skip content, pages, or use placeholders like "[...]".
                 4. NO REPETITION: Do not repeat what you already projected.
                 5. STRICT FIDELITY: Copy every single word, article, and particle (de, del, el, la, etc.) VERBATIM. DO NOT PARAPHRASE.
-                6. NUMBERS: Respect Chilean format (Dot=Thousands, Comma=Decimal). Copy exactly. "0,330" stays "0,330".
+                6. NUMBERS: Copy digits and separators EXACTLY. "3.000" stays "3.000". "0,330" stays "0,330".
                 7. PROGRESS: You are on pass ${pass}. If there are ${pageCount} pages, ensure you cover them all.
                 8. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE data in the ENTIRE PDF.
             `;

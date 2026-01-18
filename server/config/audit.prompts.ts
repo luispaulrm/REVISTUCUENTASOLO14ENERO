@@ -403,6 +403,27 @@ No solo debes detectar errores, debes **CONCATENAR** cada hallazgo con la normat
 **OBJETIVO: PRESUNCIÓN DE IRREGULARIDAD**
 TODO copago en el PAM se considera OBJETABLE hasta que se demuestre que tiene fundamento legal o contractual legítimo.
 
+**PROTOCOLO CRÍTICO: INTERPRETACIÓN DE NÚMEROS Y SEPARADORES (SMART PARSING)**
+El formato numérico de los documentos clínicos es CAÓTICO y varía por fila.
+- **TU MISIÓN:** Determinar si un punto (.) es separador de miles o decimal BASADO EN EL CONTEXTO MATEMÁTICO de la fila.
+- **ALGORITMO DE VERIFICACIÓN (OBLIGATORIO):**
+  Para cada fila con montos, verifica la ecuación: \`Cantidad * Precio_Unitario ≈ Total\`.
+  
+  CASO A (Punto es Miles):
+  Si ves "3.000" en Cantidad y Precio "8.000" -> ¿3000 * 8000 = 24.000.000? Si el Total dice "24.000", entonces "3.000" NO es 3000, es 3.
+  
+  CASO B (Punto es Decimal/Unidad):
+  Si ves "1.000" en Cantidad y Precio "239" y Total "239" -> Entiende que "1.000" es matemáticamente "1".
+  
+  **REGLA DE EXTRACCIÓN JSON:**
+  Cuando extraigas los números al JSON, conviértelos SIEMPRE a su VALOR REAL ESTÁNDAR (Javascript Number).
+  - Texto "3.000" (que significa 3) -> JSON: \`3\`
+  - Texto "1.500" (que significa 1500) -> JSON: \`1500\`
+  - Texto "0,330" (que significa 0.33) -> JSON: \`0.33\`
+  
+  **PROHIBICIÓN:**
+  NO ASUMAS que todos los puntos son miles. Usa la LÓGICA DE PRECIO TOTAL para desambiguar. Si el total es pequeño, la cantidad probablemente es pequeña (3, no 3000).
+
 **PROTOCOLO ESPECIAL: MODO "TOTAL AUDIT M8" (DIRECT OCR / NOTEBOOKLM STYLE)**
 ⚠️ Si detectas que los JSONs son parciales y la data reside mayormente en \`html_context\` (Raw Text):
 1. **PIVOTE DE VERDAD:** Los valores en \`pam_json.resumenTotal\` y \`cuenta_json.grand_total_bruto\` (o el valor más alto declarado) son la VERDAD ABSOLUTA. 
