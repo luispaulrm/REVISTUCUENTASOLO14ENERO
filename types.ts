@@ -133,6 +133,13 @@ export interface Anclaje {
   valor: string; // The code or 'FECHA_INGRESO'
 }
 
+export interface AnalisisFinanciero {
+  tope_cumplido: boolean;
+  valor_unidad_inferido?: number;
+  metodo_validacion: 'FACTOR_ESTANDAR' | 'INFERENCIA_BAM' | 'MANUAL';
+  glosa_tope?: string; // e.g., "70% tope 2.2 VAM"
+}
+
 export interface EventoHospitalario {
   id_evento: string;
   tipo_evento: TipoEvento;
@@ -148,4 +155,5 @@ export interface EventoHospitalario {
   origen_probable: OrigenProbable;
   total_copago?: number;
   total_bonificacion?: number;
+  analisis_financiero?: AnalisisFinanciero;
 }

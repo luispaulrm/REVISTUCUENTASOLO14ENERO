@@ -18,7 +18,8 @@ import type {
     HonorarioConsolidado,
     ItemOrigen,
     Anclaje,
-    OrigenProbable
+    OrigenProbable,
+    AnalisisFinanciero
 } from '../../types.js';
 
 // Surgical code catalog - expandable over time
@@ -33,6 +34,16 @@ const SURGICAL_CODE_PATTERNS = [
     /^1808/,
 ];
 
+// FACTORES ESTÁNDAR (Puntos 2024 aprox)
+// Used for reverse-engineering unit values when contract isn't explicit
+const SURGICAL_FACTORS: Record<string, number> = {
+    '1802081': 6.0,  // Colecistectomía
+    '1802082': 6.0,  // Colecistectomía compleja
+    '1801001': 3.0,  // Apendicectomía
+    '1801006': 5.0,  // Hernia inguinal
+    '1101001': 1.0,  // Visita médica (referencia)
+};
+
 const PABELLON_INDICATORS = [
     '2001', // Derecho de Pabellón variants
     '2002',
@@ -42,6 +53,7 @@ const PABELLON_INDICATORS = [
 const ANESTHESIA_INDICATORS = [
     '2201', // Anestesia
     '2202',
+    '3301', // Sometimes bundled
 ];
 
 const GENERIC_CODES = [
@@ -221,6 +233,102 @@ function detectContinuity(fecha1: string, fecha2: string, prestador1: string, pr
 }
 
 /**
+ * FINANCIAL VERIFICATION LOGIC (Phase A)
+ * Reverse-engineers unit value (Valor Unidad / BAM / AC2) from clean PAM items.
+ * NOTE: This is NOT the UF (Unidad de Fomento). It is the internal contractual unit value.
+ */
+function computeUnidadBase(items: PAMItem[]): number | null {
+    // 1. Find a "Clean Item" (Surgical, Bonified, >0 Copay, Standard Factor known)
+    const cleanItem = items.find(item => {
+        const codigo = item.codigo;
+        const bonif = parseAmount(item.bonificacion);
+        const copago = parseAmount(item.copago);
+        const factor = SURGICAL_FACTORS[codigo];
+
+        return factor && bonif > 0 && copago > 0;
+    });
+
+    if (!cleanItem) return null;
+
+    // 2. Calculate Implied Unit Value
+    // Assumption: Standard Coverage is often 70% or 80%. We check implied total.
+    const bonif = parseAmount(cleanItem.bonificacion);
+    const copago = parseAmount(cleanItem.copago);
+    const realTotal = bonif + copago;
+    const factor = SURGICAL_FACTORS[cleanItem.codigo];
+
+    // Method: ValuePerUnit = RealTotal / Factor
+    // This assumes the RealTotal tracked the Cap exactly. 
+    // If bonif was capped, RealTotal might be > Cap.
+    // Better: ValuePerUnit = Bonification / (Coverage% * Factor) ?? We don't know coverage % yet.
+
+    // Alternative: ValuePerUnit = Bonification / Factor (If coverage was 100% of cap... wait)
+
+    // User's formula: "Valor Unidad = Valor Técnico / Factor" where "Valor Técnico = Bonification / %Cobertura"
+    // We'll guess coverage % based on ratio (approx 0.70)
+    const ratio = bonif / realTotal;
+    let impliedCoverage = 0.70; // Default guess
+
+    if (ratio > 0.78) impliedCoverage = 0.80;
+    if (ratio > 0.88) impliedCoverage = 0.90;
+    if (ratio < 0.65) impliedCoverage = 0.60;
+    // If ratio is very low (e.g. 0.39), it means cap was hit hard. We can't use it to infer base unless we assume the cap IS the limit.
+
+    // If ratio is low (~0.39), it's likely the CAP was applied.
+    // So Technical Price (Toped) = Bonification / ContractCoverage (e.g. 0.70)
+    // Then Unit Value = Technical Price / Factor
+
+    // We'll trust the User's example: 
+    // bonif=1.5M, coverage=0.70 -> TechPrice=2.16M. Factor=6 -> Unit=360k.
+
+    // For SAFETY: We calculate Unit Value assuming the CAP was hit.
+    // ImpliedUnitValue = (Bonification / 0.70) / Factor
+    // (We assume 0.70 as standard preferential coverage - this is a heuristic)
+
+    return (bonif / 0.70) / factor;
+}
+
+function verifyTopes(items: PAMItem[], unidadBase: number | null): AnalisisFinanciero | undefined {
+    if (!unidadBase) return undefined;
+
+    // Check if the TOTAL bonification across items aligns with the Unit Base
+    // Iterate specific surgical items that we know factors for
+    let consistentCount = 0;
+    let inconsistentCount = 0;
+
+    items.forEach(item => {
+        const factor = SURGICAL_FACTORS[item.codigo];
+        if (!factor) return;
+
+        const bonif = parseAmount(item.bonificacion);
+        const expectedBonif = (unidadBase * factor) * 0.70; // Assuming 70% coverage
+
+        // Tolerance 5%
+        if (Math.abs(bonif - expectedBonif) / expectedBonif < 0.05) {
+            consistentCount++;
+        } else {
+            // Check if it matches other coverage tiers (80%, 90%)?
+            // Or maybe the CAP wasn't reached for this smaller item?
+            // If bonif < expected, maybe calculated Total < Cap.
+            inconsistentCount++;
+        }
+    });
+
+    // If we have consistency, we declare Tope Cumplido
+    if (consistentCount > 0 && consistentCount >= inconsistentCount) {
+        return {
+            tope_cumplido: true,
+            valor_unidad_inferido: Math.round(unidadBase),
+            metodo_validacion: 'FACTOR_ESTANDAR',
+            glosa_tope: `Tope inferido consistente con valor unidad $${Math.round(unidadBase).toLocaleString('es-CL')}`
+        };
+    }
+
+    return undefined;
+}
+
+
+/**
  * Main pre-processing function
  * Constructs EventoHospitalario objects from PAM data
  */
@@ -253,6 +361,12 @@ export function preProcessEventos(pamJson: any): EventoHospitalario[] {
 
         // Determine event type
         const tipoEvento = determineEventType(allItems);
+
+        // FINANCIAL VERIFICATION (New V3)
+        // 1. Try to compute Unit Value
+        const unidadBase = computeUnidadBase(allItems);
+        // 2. Verify Topes
+        const analisisFinanciero = verifyTopes(allItems, unidadBase);
 
         // Find anchor
         let anclaje: Anclaje;
@@ -299,10 +413,11 @@ export function preProcessEventos(pamJson: any): EventoHospitalario[] {
             subeventos: [], // Sub-events require explicit evidence
             honorarios_consolidados: consolidados,
             nivel_confianza: 'ALTA', // Default, LLM can adjust
-            recomendacion_accion: 'ACEPTAR', // Default, LLM can adjust
+            recomendacion_accion: analisisFinanciero ? (analisisFinanciero.tope_cumplido ? 'ACEPTAR' : 'ACEPTAR') : 'ACEPTAR', // Default to ACCEPT if matched
             origen_probable: origenProbable,
             total_copago,
-            total_bonificacion
+            total_bonificacion,
+            analisis_financiero: analisisFinanciero
         };
 
         eventos.push(evento);

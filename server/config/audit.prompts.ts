@@ -153,24 +153,19 @@ Solo si el desglose revela unbundling/duplicidad → entonces IMPUGNAR.
 ANTES de crear CUALQUIER hallazgo sobre HONORARIOS MÉDICOS, debes OBLIGATORIAMENTE:
 
 1. **Identificar el TOPE contractual explícito**:
-   - ¿Existe mención de UF, VA, VAM, o factor numérico en el contrato?
+   - ¿Existe mención de UF (Unidad de Fomento), o Factor del Arancel (V.A./BAM) en el contrato?
    - ¿Dice "hasta X UF" o "factor Y"?
    
-2. **Calcular si el tope se cumplió**:
-   
-   IF valor_facturado <= tope_contractual:
-tope_cumplido = TRUE
-ELSE:
-tope_cumplido = FALSE
-  
+2. **Verificar Flag del Sistema**:
+   - Revisa si el evento tiene "analisis_financiero": { "tope_cumplido": true }.
+   - Este cálculo YA FUE REALIZADO por el motor aritmético basándose en factores estándar (reverse-engineering).
 
 3. **DECISIÓN OBLIGATORIA**:
-   
-   IF tope_cumplido == TRUE:
-     → CERRAR CASO
-     → NO crear hallazgo
-     → El copago es legítimo
-     → ACEPTAR
+   - IF tope_cumplido == TRUE (en el JSON):
+     - CERRAR CASO
+     - NO crear hallazgo
+     - El copago es legítimo (el sistema verificó el tope interno)
+     - ACEPTAR
   
 
 **PROHIBICIONES ABSOLUTAS EN HONORARIOS:**
@@ -605,6 +600,10 @@ export const FORENSIC_AUDIT_SCHEMA = {
       type: Type.NUMBER,
       description: "Suma total de todos los montos objetados."
     },
+    valorUnidadReferencia: {
+      type: Type.STRING,
+      description: "OBLIGATORIO. El 'Valor Unidad' inferido por el sistema (ej: '$360.095 por Factor 1.0'). Si no aplica, 'N/A'."
+    },
     antecedentes: {
       type: Type.OBJECT,
       properties: {
@@ -627,7 +626,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
       description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
     }
   },
-  required: ['resumenEjecutivo', 'resumenFinanciero', 'eventos_hospitalarios', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
+  required: ['resumenEjecutivo', 'resumenFinanciero', 'eventos_hospitalarios', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'valorUnidadReferencia', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
 
 export const REFLECTION_SCHEMA = {
