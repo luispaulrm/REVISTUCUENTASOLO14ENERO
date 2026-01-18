@@ -39,6 +39,8 @@ export default function ForensicApp() {
     const [error, setError] = useState<string | null>(null);
     const [logs, setLogs] = useState<string[]>([]);
     const [auditResult, setAuditResult] = useState<any>(null);
+    const [preCheckResult, setPreCheckResult] = useState<any>(null);
+    const [isPreChecking, setIsPreChecking] = useState(false);
 
     // Telemetry State
     const [progress, setProgress] = useState(0);
@@ -200,8 +202,53 @@ export default function ForensicApp() {
             setError(null);
             checkData();
             addLog('[SISTEMA] 🧹 Pantalla limpia. Datos de origen preservados.');
+            setPreCheckResult(null);
         }
     };
+
+    const performPreCheck = async () => {
+        if (!hasBill || !hasPam || (!hasContract && !hasHtml)) return;
+        if (isPreChecking || preCheckResult) return;
+
+        setIsPreChecking(true);
+        addLog('[SISTEMA] 🔍 Iniciando Pre-chequeo determinístico de V.A/VAM...');
+
+        try {
+            const pamString = localStorage.getItem('pam_audit_result');
+            const contratoString = localStorage.getItem('contract_audit_result');
+
+            if (!pamString || !contratoString) return;
+
+            const pamJson = JSON.parse(pamString);
+            const contratoJson = JSON.parse(contratoString);
+
+            const response = await fetch('/api/audit/pre-check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ pamJson, contratoJson })
+            });
+
+            if (!response.ok) throw new Error('Pre-check failed');
+
+            const data = await response.json();
+            if (data.success) {
+                setPreCheckResult(data);
+                addLog(`[SISTEMA] ✅ Pre-chequeo completado. ${data.v_a_deducido.tipo}: $${data.v_a_deducido.valor.toLocaleString('es-CL')}`);
+            }
+        } catch (e) {
+            console.error('[PRE-CHECK ERROR]', e);
+            addLog('[SISTEMA] ⚠️ Error en pre-chequeo. Se intentará de nuevo o se usará fallback.');
+        } finally {
+            setIsPreChecking(false);
+        }
+    };
+
+    useEffect(() => {
+        if (hasBill && hasPam && (hasContract || hasHtml) && !preCheckResult && !isPreChecking && status === 'IDLE') {
+            const timer = setTimeout(() => performPreCheck(), 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [hasBill, hasPam, hasContract, hasHtml, preCheckResult, isPreChecking, status]);
 
     const handlePreview = (type: 'BILL' | 'PAM' | 'CONTRACT' | 'HTML') => {
         try {
@@ -322,6 +369,31 @@ export default function ForensicApp() {
                     </div>
                 </div>
             </header>
+
+            {/* BIG V.A/VAM BADGE - IN A CORNER */}
+            {preCheckResult && (
+                <div className="fixed top-32 right-10 z-[100] animate-in slide-in-from-right-10 duration-500">
+                    <div className="bg-slate-900 border-2 border-indigo-400 text-white rounded-2xl shadow-2xl p-6 flex flex-col items-end min-w-[180px] hover:scale-105 transition-transform cursor-help group">
+                        <div className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em] mb-1">
+                            UNIDAD DE REFERENCIA (DEDUCIDA)
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                            <span className="text-3xl font-black text-white italic">{preCheckResult.v_a_deducido.tipo}</span>
+                            <span className="text-5xl font-black text-indigo-400">
+                                ${(preCheckResult.v_a_deducido.valor || 0).toLocaleString('es-CL')}
+                            </span>
+                        </div>
+                        <div className="mt-3 text-[10px] font-mono text-slate-400 max-w-[250px] text-right line-clamp-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                            {preCheckResult.v_a_deducido.evidencia?.[0] || 'Deducción matemática desde PAM + Contrato'}
+                        </div>
+                        {isPreChecking && (
+                            <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                                <Loader2 className="animate-spin text-white" />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <main className="flex-grow max-w-[1800px] mx-auto w-full p-3 sm:p-6 lg:p-10">
                 {status === 'IDLE' && (

@@ -10,6 +10,12 @@ ${DOCTRINA_PRACTICAS_IRREGULARES}
 =======================================
 
 ==========================================================================
+=== CONTEXTO DETERMINISTA DE PRE-PROCESAMIENTO (SISTEMA) ===
+==========================================================================
+Referencia calculada por el motor matemático:
+{va_deduction_context}
+
+==========================================================================
 === PROTOCOLO EVENTO_HOSPITALARIO (ARQUITECTURA V3 - OBLIGATORIO) ===
 ==========================================================================
 

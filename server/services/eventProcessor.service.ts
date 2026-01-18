@@ -212,7 +212,7 @@ function collapseHonorarios(episode: EpisodeCandidate): HonorarioConsolidado[] {
 /**
  * MAIN ENTRY POINT
  */
-export function preProcessEventos(pamJson: any): EventoHospitalario[] {
+export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoHospitalario[] {
     // 1. Flatten PAM Items
     const rawItems: PAMItem[] = [];
     if (pamJson && pamJson.folios) {
@@ -231,7 +231,8 @@ export function preProcessEventos(pamJson: any): EventoHospitalario[] {
     }
 
     // 2. Infer Unit Value Global Context (Root Cause Fix)
-    const unidadReferencia = inferUnidadReferencia({}, pamJson);
+    // Dynamic triangulation using real contract data
+    const unidadReferencia = inferUnidadReferencia(contratoJson, pamJson);
 
     // 3. Group into Episodes
     const candidateEpisodes = groupIntoEpisodes(rawItems);

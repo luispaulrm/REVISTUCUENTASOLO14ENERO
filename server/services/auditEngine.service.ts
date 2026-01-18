@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.js';
-import { AI_CONFIG, GENERATION_CONFIG } from '../config/ai.config.js';
+import { AI_CONFIG, AI_MODELS, GENERATION_CONFIG } from '../config/ai.config.js';
 import {
     extractCaseKeywords,
     getRelevantKnowledge,
@@ -19,8 +19,8 @@ export async function performForensicAudit(
     onUsageUpdate?: (usage: any) => void,
     onProgressUpdate?: (progress: number) => void
 ) {
-    // AUDIT-SPECIFIC: Gemini 3 Flash primary, 2.5 Flash fallback
-    const modelsToTry = ['gemini-3-flash-preview', 'gemini-2.5-flash'];
+    // AUDIT-SPECIFIC: Reasoner First (Pro), then Fallback (2.5) if needed
+    const modelsToTry = [AI_MODELS.reasoner, AI_MODELS.fallback];
     let result;
     let lastError;
     let accumulatedTokens = 0;
@@ -126,7 +126,17 @@ export async function performForensicAudit(
     log('[AuditEngine] 🏥 Pre-procesando Eventos Hospitalarios (Arquitectura V3)...');
     onProgressUpdate?.(35);
 
-    const eventosHospitalarios = preProcessEventos(pamJson);
+    const eventosHospitalarios = preProcessEventos(pamJson, contratoJson);
+
+    // --- LOG V.A DEDUCTION EVIDENCE ---
+    let vaDeductionSummary = "⚠️ No se pudo deducir el V.A/VAM automáticamente por falta de ítems ancla conocidos.";
+    if (eventosHospitalarios.length > 0 && eventosHospitalarios[0].analisis_financiero) {
+        const fin = eventosHospitalarios[0].analisis_financiero;
+        if (fin.valor_unidad_inferido) {
+            vaDeductionSummary = `💎 DEDUCCIÓN V.A/VAM: $${fin.valor_unidad_inferido?.toLocaleString('es-CL')} | EVIDENCIA: ${fin.glosa_tope}`;
+            log(`[AuditEngine] ${vaDeductionSummary}`);
+        }
+    }
     log(`[AuditEngine] 📋 Eventos detectados: ${eventosHospitalarios.length}`);
 
     // --- INTEGRITY CHECK (FAIL FAST - NO MONEY NO HONEY) ---
@@ -179,6 +189,7 @@ export async function performForensicAudit(
         .replace('{contrato_json}', finalContratoContext)
         .replace('{eventos_hospitalarios}', eventosContext)
         .replace('{contexto_trazabilidad}', traceAnalysis)
+        .replace('{va_deduction_context}', vaDeductionSummary)
         .replace('{html_context}', htmlContext || 'No HTML context provided.');
 
     // Log prompt size for debugging
@@ -618,43 +629,40 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
 // ============================================================================
 // HELPER: Post-Validate LLM Response (The "Safety Belt")
 // ============================================================================
+// ============================================================================
+// HELPER: Post-Validate LLM Response (The "Safety Belt" - Cross-Validation v9)
+// ============================================================================
 function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
     const validatedResult = { ...resultRaw };
 
-    // 1. Table VIII Enforcement
+    // 1. Table VIII Enforcement & Hallmark Check (Cross-Validation v9)
     if (validatedResult.hallazgos) {
-        validatedResult.hallazgos = validatedResult.hallazgos.map((h: any) => {
-            // Skip logic for "ACEPTAR" findings (which shouldn't exist in hallazgos usually, but just in case)
-
-            // Check if finding is IMPUGNAR
+        validatedResult.hallazgos = validatedResult.hallazgos.filter((h: any) => {
+            // Skip logic for "ACEPTAR" findings
             const isImpugnar = h.hallazgo?.toUpperCase().includes("IMPUGNAR") || (h.montoObjetado || 0) > 0;
 
             if (isImpugnar) {
-                // Check for Table VIII presence
+                // Check for Table VIII presence (Strict)
                 const hasTableCheck = h.hallazgo?.includes("|") && h.hallazgo?.includes("---");
+
+                // CRITICAL BLOQUEO v9: Si es genérico/opacidad Y no tiene tabla de traza -> BLOQUEAR (ELIMINAR)
                 const isGenericOrOpacidad = h.categoria === "OPACIDAD" || h.glosa?.includes("GNERICO");
 
-                // Rule: If Opacity/Generic finding AND Table Missing -> DOWNGRADE
                 if (isGenericOrOpacidad && !hasTableCheck) {
-                    return {
-                        ...h,
-                        glosa: `[DEGRADADO POR SISTEMA] ${h.glosa}`,
-                        hallazgo: h.hallazgo + "\n\n**NOTA DEL SISTEMA:** Hallazgo degradado a SOLICITAR_ACLARACION por falta de tabla de trazabilidad (sección VIII incompleta).",
-                        recomendacion_accion: "SOLICITAR_ACLARACION",
-                        // Keep montoObjetado? User said "Degradar o invalidar". 
-                        // If Asking for Clarification, amount is technically "in dispute" but not "rejected".
-                    };
+                    console.log(`[Cross-Validation v9] 🛡️ BLOQUEADO hallazgo inválido: ${h.titulo} (Falta Tabla VIII en hallazgo de opacidad)`);
+                    return false; // Remove entirely
+                }
+
+                // Check for "Hallucinated" High Value Objections
+                // If finding > $1M and no specific code provided -> BLOCK
+                if ((h.montoObjetado || 0) > 1000000 && (!h.codigos || h.codigos === "SIN-CODIGO")) {
+                    console.log(`[Cross-Validation v9] 🛡️ BLOQUEADO hallazgo de alto valor sin código: ${h.titulo}`);
+                    return false;
                 }
             }
-            return h;
+            return true;
         });
     }
-
-    // 2. Financial Contradiction Check (Tope Cumplido vs Finding)
-    // Map findings to events? Hard without ID. 
-    // Heuristic: If global analysis says "Tope Cumplido" (we need to know which event the finding belongs to).
-    // User requested "id_evento" in finding. If LLM puts it, we use it. 
-    // If not, we scan text for event keywords.
 
     return validatedResult;
 }

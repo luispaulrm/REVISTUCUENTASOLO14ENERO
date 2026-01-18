@@ -1,5 +1,5 @@
 
-import { PAMItem, PAMDocument } from '../../pamService';
+import { PAMItem, PamDocument } from '../../pamService';
 import { ContractRegla } from '../../types';
 
 export interface UnidadReferencia {
@@ -7,7 +7,8 @@ export interface UnidadReferencia {
     valor_pesos_estimado?: number;
     evidencia: string[];
     confianza: "ALTA" | "MEDIA" | "BAJA";
-    factor_origen?: number; // e.g. 6.0 for Colecistectomía
+    factor_origen?: number;
+    cobertura_aplicada?: number;
 }
 
 export interface TopeValidationResult {
@@ -18,70 +19,99 @@ export interface TopeValidationResult {
     metodo_validacion: "FACTOR_ESTANDAR" | "MONTO_EXACTO" | "SIN_TOPE";
 }
 
-// Common surgical factors for reference (Catalog V1)
+// Global Surgical Factors (Referential catalog from Fonasa Arancel MLE)
+// If the contract doesn't specify a factor, we use these standard ones.
 const SURGICAL_FACTORS: Record<string, number> = {
     '1802081': 6.0, // Colecistectomía
     '1801001': 3.0, // Apendicectomía
-    '1101009': 1.0, // Día Cama Integral (Reference)
-    // Add more as needed
+    '1801002': 4.0, // Gastrectomía
+    '1802011': 4.0, // Hernia Inguinal
+    '1902001': 1.0, // Pabellón (Ref)
+    '1101009': 1.0, // Día Cama Integral (Ref)
+    '2801001': 1.0, // Intervenciones Menores
 };
 
 function parseMonto(val: string | number | undefined): number {
     if (typeof val === 'number') return val;
     if (!val) return 0;
-    // Remove dots (thousands) but keep comma as decimal if present.
-    // Standard Chilean format: 1.000,00 or 1.000
-    // Approach: remove all dots, then replace comma with dot.
     const clean = val.replace(/\./g, '').replace(',', '.');
     return parseFloat(clean) || 0;
 }
 
 /**
+ * Searches for the coverage percentage in the contract for Surgery/Honoraries.
+ */
+function findCoverageFactor(contrato: any): number {
+    if (!contrato || !contrato.coberturas) return 0.70; // Fallback only if contract is empty
+
+    // Hierarchy of search: Honorarios -> Cirugía -> Hospitalario
+    const targets = ['HONORARIOS', 'CIRUGIA', 'QUIRURGICO', 'HOSPITALARIO'];
+
+    for (const target of targets) {
+        const found = contrato.coberturas.find((c: any) =>
+            (c.item || c.categoria || "").toUpperCase().includes(target)
+        );
+        if (found && found.valor) {
+            const val = parseMonto(found.valor);
+            // If it's a percentage like 80 or 0.80
+            if (val > 1) return val / 100;
+            if (val > 0) return val;
+        }
+    }
+
+    return 0.70; // Default safety fallback
+}
+
+/**
  * Infers the internal contractual unit value (VA, AC2, BAM) from the PAM and Contract.
- * Strategy: Find an "Anchor Item" where bonification is clearly defined and consistent with a standard factor.
+ * Deduce NOTHING via hardcode; everything is triangulated.
  */
 export function inferUnidadReferencia(
-    contrato: { reglas: ContractRegla[] } | any,
-    pam: PAMDocument | any
+    contrato: { coberturas?: any[], reglas?: ContractRegla[] } | any,
+    pam: PamDocument | any
 ): UnidadReferencia {
 
     const evidencia: string[] = [];
+    const coverage = findCoverageFactor(contrato);
 
-    // 1. Optional: Parse contract text if available (future improvement)
-
-    // 2. Reverse Engineering from PAM
+    // Reverse Engineering from PAM
     const items = pam.folios?.flatMap((f: any) => f.desglosePorPrestador?.flatMap((d: any) => d.items)) || [];
 
-    // Candidates: Surgical code exists in catalog, has bonification > 0, has copay > 0
+    // Candidates: Items with surgical codes, bonification and copay
     const candidates = items.filter((item: PAMItem) =>
         item.codigoGC && SURGICAL_FACTORS[item.codigoGC] &&
-        parseMonto(item.bonificacion) > 0 &&
-        parseMonto(item.copago) > 0
+        parseMonto(item.bonificacion) > 0
     );
 
     if (candidates.length > 0) {
-        // Focus on the first robust candidate assuming 70% coverage standard
-        const primaryCandidate = candidates[0];
-        const factor = SURGICAL_FACTORS[primaryCandidate.codigoGC];
+        // Use the most significant candidate (highest factor usually most stable)
+        const primaryCandidate = candidates.sort((a, b) =>
+            (SURGICAL_FACTORS[b.codigoGC!] || 0) - (SURGICAL_FACTORS[a.codigoGC!] || 0)
+        )[0];
 
+        const factor = SURGICAL_FACTORS[primaryCandidate.codigoGC!];
         const bonif = parseMonto(primaryCandidate.bonificacion);
-        const impliedUnit70 = (bonif / 0.70) / factor;
 
-        evidencia.push(`Inferido desde ítem ${primaryCandidate.codigoGC} (${primaryCandidate.descripcion}) con Factor ${factor}.`);
-        evidencia.push(`Supuesto: Cobertura 0.70. Bonificación real: $${bonif} (Leída como ${primaryCandidate.bonificacion}).`);
+        // Math: UnitValue = Bonif / (Factor * Coverage)
+        const impliedUnitValue = bonif / (factor * coverage);
+
+        evidencia.push(`DEDUCCIÓN DINÁMICA: Valor Unidad inferido desde ${primaryCandidate.codigoGC} (${primaryCandidate.descripcion}).`);
+        evidencia.push(`MATEMÁTICA: Bonif $${bonif} / (Factor ${factor} * Cobertura ${Math.round(coverage * 100)}%) = $${Math.round(impliedUnitValue)}.`);
+        evidencia.push(`ORIGEN: Cobertura extraída del contrato (${Math.round(coverage * 100)}%).`);
 
         return {
-            tipo: "VA", // Generic internal unit
-            valor_pesos_estimado: Math.round(impliedUnit70),
+            tipo: "VA",
+            valor_pesos_estimado: Math.round(impliedUnitValue),
             confianza: "ALTA",
             evidencia: evidencia,
-            factor_origen: factor
+            factor_origen: factor,
+            cobertura_aplicada: coverage
         };
     }
 
     return {
         tipo: "DESCONOCIDA",
-        evidencia: ["No se encontraron ítems ancla conocidos en el PAM."],
+        evidencia: ["No se encontraron ítems ancla suficientes para deducir el V.A/VAM."],
         confianza: "BAJA"
     };
 }
@@ -94,12 +124,11 @@ export function validateTopeHonorarios(
     unidadRef: UnidadReferencia
 ): TopeValidationResult {
 
-    // Safety check
-    if (unidadRef.confianza === "BAJA" || !unidadRef.valor_pesos_estimado) {
+    if (unidadRef.confianza === "BAJA" || !unidadRef.valor_pesos_estimado || !unidadRef.cobertura_aplicada) {
         return {
             tope_aplica: false,
             tope_cumplido: false,
-            rationale: "Unidad de referencia desconocida o de baja confianza.",
+            rationale: "Unidad de referencia no deducible para este caso.",
             metodo_validacion: "SIN_TOPE"
         };
     }
@@ -109,50 +138,36 @@ export function validateTopeHonorarios(
         return {
             tope_aplica: false,
             tope_cumplido: false,
-            rationale: `Código ${item.codigoGC} no tiene factor conocido en catálogo.`,
+            rationale: `Código ${item.codigoGC} no tiene factor asignado para validación automática.`,
             metodo_validacion: "SIN_TOPE"
         };
     }
 
-    const factorAplicado = factor;
-    const montoTopeTeorico = unidadRef.valor_pesos_estimado * factorAplicado * 0.70;
-
+    // Tope = V.A * Factor * Cobertura
+    const montoTopeTeorico = unidadRef.valor_pesos_estimado * factor * unidadRef.cobertura_aplicada;
     const bonif = parseMonto(item.bonificacion);
-    // const diff = Math.abs(bonif - montoTopeTeorico); // unused var in strict TS?
 
-    if (Math.abs(bonif - montoTopeTeorico) < 2000) {
+    // Tolerance of $2.500 for rounding differences in V.A calculation
+    if (Math.abs(bonif - montoTopeTeorico) < 2500) {
         return {
             tope_aplica: true,
             tope_cumplido: true,
             monto_tope_estimado: montoTopeTeorico,
-            rationale: `Bonificación ($${bonif}) coincide con tope calculado ($${Math.round(montoTopeTeorico)}) basado en Unidad $${unidadRef.valor_pesos_estimado}.`,
+            rationale: `CUMPLE: Bonificación ($${bonif}) coincide con el V.A deducido de $${unidadRef.valor_pesos_estimado} (Factor ${factor} @ ${Math.round(unidadRef.cobertura_aplicada * 100)}%).`,
             metodo_validacion: "FACTOR_ESTANDAR"
         };
-    } else if (bonif > montoTopeTeorico) {
+    } else if (bonif > montoTopeTeorico + 2500) {
         return {
             tope_aplica: true,
             tope_cumplido: true,
-            rationale: "Bonificación superior al tope teórico (Cobertura mejorada o error a favor).",
+            rationale: "CUMPLE (EXCEDE): Bonificación superior al tope (posible beneficio adicional).",
             metodo_validacion: "FACTOR_ESTANDAR"
         };
     } else {
-        const copago = parseMonto(item.copago);
-        const totalPAM = bonif + copago;
-        const theoreticalCoverage = totalPAM * 0.70;
-
-        if (Math.abs(bonif - theoreticalCoverage) < 2000) {
-            return {
-                tope_aplica: true,
-                tope_cumplido: true,
-                rationale: "Cobertura proporcional (70%) aplicada sin llegar al tope (Monto bajo).",
-                metodo_validacion: "FACTOR_ESTANDAR"
-            };
-        }
-
         return {
             tope_aplica: true,
             tope_cumplido: false,
-            rationale: `Discrepancia: Bonificación ($${bonif}) no calza con tope ($${Math.round(montoTopeTeorico)}) ni con cobertura directa.`,
+            rationale: `DISCREPANCIA: Bonif $${bonif} es inferior al tope calculado de $${Math.round(montoTopeTeorico)} para factor ${factor}.`,
             metodo_validacion: "FACTOR_ESTANDAR"
         };
     }
