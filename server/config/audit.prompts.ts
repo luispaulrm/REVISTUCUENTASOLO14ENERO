@@ -499,6 +499,15 @@ PASO 3: GENERACIÓN DEL HALLAZGO DE CIERRE (SOLO SI VÁLVULA ABIERTA)
 export const FORENSIC_AUDIT_SCHEMA = {
   type: Type.OBJECT,
   properties: {
+    decisionGlobal: {
+      type: Type.OBJECT,
+      description: "Veredicto final de alto nivel antes de entrar en detalles.",
+      properties: {
+        estado: { type: Type.STRING, description: "COPAGO_VALIDO | COPAGO_INDETERMINADO_POR_OPACIDAD | COPAGO_IMPUGNABLE" },
+        fundamento: { type: Type.STRING, description: "Resumen en una frase del por qué principal." }
+      },
+      required: ['estado', 'fundamento']
+    },
     resumenEjecutivo: {
       type: Type.STRING,
       description: "Resumen de alto nivel. DEBE INCLUIR UNA SECCIÓN 'EXPLICACIÓN SIMPLE' CON UNA ANALOGÍA (ej: Taller Mecánico) para que el paciente entienda el fraude técnico. Resumir hallazgos, ahorros y estado."
@@ -508,11 +517,12 @@ export const FORENSIC_AUDIT_SCHEMA = {
       description: "Desglose MATEMÁTICO EXACTO del Copago Total. La suma de (Legítimo + Objetado) debe acercarse al Copago PAM.",
       properties: {
         totalCopagoInformado: { type: Type.NUMBER, description: "El valor 'totalCopago' declarado en la sección global del PAM." },
-        totalCopagoLegitimo: { type: Type.NUMBER, description: "Monto del copago que ES CORRECTO según contrato (ej: el 30% del afiliado, bonos, topes cumplidos)." },
+        totalCopagoLegitimo: { type: Type.NUMBER, description: "Monto del copago CORRECTO. IMPORTANTE: SI estado_copago='INDETERMINADO_POR_OPACIDAD', ESTE VALOR DEBE SER 0 (Cero). No calcular sobre bases inciertas." },
         totalCopagoObjetado: { type: Type.NUMBER, description: "Monto del copago que ES INCORRECTO (Suma de hallazgos)." },
+        estado_copago: { type: Type.STRING, description: "OBLIGATORIO. 'VALIDADO' o 'INDETERMINADO_POR_OPACIDAD'. Si no hay desglose en Materiales/Medicamentos, usar 'INDETERMINADO_POR_OPACIDAD'." },
         analisisGap: { type: Type.STRING, description: "Explicación breve de si existe diferencia entre (Informado) y (Legítimo + Objetado)." }
       },
-      required: ['totalCopagoInformado', 'totalCopagoLegitimo', 'totalCopagoObjetado', 'analisisGap']
+      required: ['totalCopagoInformado', 'totalCopagoLegitimo', 'totalCopagoObjetado', 'estado_copago', 'analisisGap']
     },
     eventos_hospitalarios: {
       type: Type.ARRAY,
@@ -629,10 +639,10 @@ export const FORENSIC_AUDIT_SCHEMA = {
     },
     auditoriaFinalMarkdown: {
       type: Type.STRING,
-      description: "El informe de auditoría final formateado para visualización (Markdown), incluyendo la tabla de hallazgos."
+      description: "El informe de auditoría final formateado para visualización (Markdown). DEBE SEGUIR ESTRICTAMENTE EL ESQUELETO DE 2 NIVELES: NIVEL 1 (Hallazgo Estructural Principal) y NIVEL 2 (Hallazgos Específicos Subsidiarios)."
     }
   },
-  required: ['resumenEjecutivo', 'resumenFinanciero', 'eventos_hospitalarios', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'valorUnidadReferencia', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
+  required: ['decisionGlobal', 'resumenEjecutivo', 'resumenFinanciero', 'eventos_hospitalarios', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'valorUnidadReferencia', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
 };
 
 export const REFLECTION_SCHEMA = {
@@ -667,6 +677,41 @@ export const REFLECTION_SCHEMA = {
 };
 
 export const AUDIT_PROMPT = `
+### 0. JERARQUÍA SUPREMA DE DECISIÓN (PRECEDENCIA ABSOLUTA)
+El sistema debe resolver conflictos normativos siguiendo ESTE ORDEN ESTRICTO:
+
+1. **OPACIDAD LEGAL (LEY 20.584) [PRIORIDAD 0]**:
+   - Si un ítem es "VARIOS", "AJUSTES" o "MATERIALES" sin desglose → SE IMPUGNA SIEMPRE.
+   - *Razón*: La falta de determinación del objeto (qué estoy pagando) hace NULA la deuda.
+   - *Prevalencia*: Mata al Tope. "La existencia de un tope contractual NO valida un cobro cuyo objeto sea indeterminado."
+
+2. **TOPE CONTRACTUAL (UF/VAM) [PRIORIDAD 1]**:
+   - Si el ítem está desglosado (es válido) y el copago está dentro del tope → SE APRUEBA.
+   - *Prevalencia*: Mata a IF-319.
+
+3. **NORMAS DE CONTENIDO (IF-319 / UNBUNDLING) [PRIORIDAD 2]**:
+   - Si está desglosado y bajo tope, revisamos si es un cobro duplicado o improcedente.
+
+4. **RESTO (COHERENCIA, ARITMÉTICA) [PRIORIDAD 3]**
+
+### 0.1 DOCTRINA DE SEPARACIÓN DE NIVELES (CRÍTICO)
+El informe DEBE declarar explícitamente dos niveles, no mezclarlos:
+
+🔹 NIVEL 1 – Hallazgo estructural (PRINCIPAL)
+- Imposibilidad de auditoría del PAM por falta de desglose.
+- Líneas afectadas: Materiales Clínicos, Medicamentos Hospitalizados.
+- Consecuencia: El copago asociado NO PUEDE VALIDARSE.
+- Acción: Solicitar refacturación/desglose y suspender exigibilidad del copago asociado.
+- 👉 Aquí NO se fija copago legítimo si estado_copago = "INDETERMINADO_POR_OPACIDAD".
+
+🔹 NIVEL 2 – Hallazgos específicos (SUBSIDIARIOS)
+- Refuerzan la impugnación (Hotelería, Insumos de pabellón, Glosas VARIOS/AJUSTES).
+- No reemplazan el hallazgo estructural.
+
+👉 REGLA DE MOTOR:
+- No recalcular “copago legítimo” si falta desglose.
+- Usar: \`estado_copago: "INDETERMINADO_POR_OPACIDAD"\`.
+
 ### 1. REGLA DE ORO DE VISIBILIDAD FINANCIERA (NUEVO)
 EL PRIMER CAMPO DEL JSON debe ser \`valorUnidadReferencia\`.
 - **Lógica**: Busca en el primer evento quirúrgico dentro de \`{eventos_hospitalarios}\`.
@@ -742,12 +787,23 @@ Tu cerebro opera en 2 fases separadas:
 - **"UPCODING (SOBRECODIFICACIÓN)":** Práctica fraudulenta de usar un código de mayor complejidad/valor (ej: Cirugía Compleja) para cobrar una prestación estándar (ej: Cirugía Simple). Requiere prueba de complejidad real.
 - **"UNBUNDLING (FRAGMENTACIÓN)":** Desagregar artificialmente un "paquete" clínico (ej: Día Cama, Pabellón) para cobrar sus componentes (gasas, aspirina, enfermería) por separado. Es un COBRO DUPLICADO encubierto.
 
-**PROHIBICIONES EXPLÍCITAS (SYSTEM HALT):**
-❌ ESTÁ PROHIBIDO invocar "Evento Único" o "Integralidad" para anular un tope UF explícito.
-❌ ESTÁ PROHIBIDO decir "El plan promete 100%" sin añadir "...sujeto a topes".
-❌ ESTÁ PROHIBIDO objetar un copago si \`tope_cumplido\` es TRUE. Hacerlo se considera **ERROR DE SISTEMA (FALSO POSITIVO)**.
-❌ **REGLA DE ORO CAEC/GES:** SI NO HAY EVIDENCIA EXPLÍCITA DE ACTIVACIÓN CAEC/GES EN LOS DATOS (JSON/Historia), ESTÁ **TERMINANTEMENTE PROHIBIDO** CALCULAR AHORROS BASADOS EN EL DEDUCIBLE CAEC (126 UF).
-❌ **PROHIBIDO EL ARGUMENTO "COPAGO > TOTAL":** Si sumas los copagos del PAM y dan más que la sección de la Cuenta, PROBABLEMENTE ESTÁS MIRANDO LA SECCIÓN EQUIVOCADA. Busca los montos en otras secciones (Pabellón, etc.) antes de alegar fraude. Si el ítem existe en la cuenta con el mismo monto, NO ES OBJETABLE por "inexistencia".
+**PROHIBICIONES SISTÉMICAS DE AUDITORÍA (META-REGLAS)**
+
+❌ **GRUPO 1: PROHIBICIONES FINANCIERAS**
+- PROHIBIDO objetar un copago si \`tope_cumplido\` es TRUE, **SALVO** que exista Opacidad/Falta de Desglose (Prioridad 0).
+- PROHIBIDO usar "Copago > Total" basado en sumas parciales. Usa siempre el TOTAL BRUTO como pivote.
+- PROHIBIDO calcular ahorros CAEC si no hay evidencia explícita de activación ("RED CAEC").
+
+❌ **GRUPO 2: PROHIBICIONES SEMÁNTICAS**
+- PROHIBIDO usar frases vagas como "100% de cobertura" sin añadir "...sujeto a topes".
+- PROHIBIDO inferir topes desde nombres de planes ("Plan 100", "Vanguardia"). Solo vale el dato numérico.
+- PROHIBIDO decir "cobro indebido" en casos donde solo falta información (usar "no verificable").
+
+❌ **GRUPO 3: PROHIBICIONES PROCESALES**
+- NO inventar sub-eventos si no existen en la data.
+- NO aplicar topes internacionales a prestaciones nacionales.
+- NO generar hallazgos con nivel_confianza: ALTA si el evento asociado tiene nivel_confianza: BAJA. (COHERENCIA).
+
 
 **PROTOCOLO DE TOLERANCIA CERO A LA OPACIDAD (OVERRIDE):**
 Si encuentras líneas con glosas como "VARIOS", "OTROS", "INSUMOS GENERALES", "AJUSTE", "DIFERENCIA TARIFARIA" o similares:
@@ -964,6 +1020,41 @@ REG LAS HOTELERÍA: "{hoteleria_json}"
 
 CONTEXTO VISUAL (HTML):
 "{html_context}"
+
+
+**ESQUELETO CANÓNICO DEL INFORME (Markdown):**
+
+# INFORME DE AUDITORÍA FORENSE
+
+**Paciente:** [Nombre]
+**Prestador:** [Nombre]
+**Isapre:** [Nombre]
+**Fecha:** [Fecha]
+
+## 1. Resumen Ejecutivo
+[Un solo resumen. Detectar opacidad estructural. Mencionar que impide validar copagos.]
+
+## 2. Hallazgo Principal (Estructural): Imposibilidad de Validación del Copago PAM
+**Líneas afectadas:**
+- Materiales Clínicos Quirúrgicos
+- Medicamentos Hospitalizados
+
+**Norma vulnerada:**
+- Ley 20.584
+- Circular IF/319
+
+**Conclusión:**
+El copago asociado a estas líneas es indeterminado mientras no exista desglose.
+
+## 3. Hallazgos Específicos (Refuerzo)
+3.1 Cobros fuera del PAM (Ej: VARIOS/AJUSTES)
+3.2 Insumos improcedentes (Hotelería, Pabellón)
+
+## 4. Recomendación Final
+Se recomienda IMPUGNAR el PAM y exigir:
+- Desglose ítem por ítem
+- Exclusión de cargos no clínicos
+- Regularización de cobros fuera del sistema de bonificación
 
 REGLA DE SALIDA: Responde SOLAMENTE con el JSON de auditoría definido en el esquema.
 `;

@@ -365,10 +365,18 @@ export async function performForensicAudit(
             // NEW LOGIC: Use AI's financial summary if available to deduce Legitimate Copay
             const financialSummary = auditResult.resumenFinanciero || {};
             const legitimadoPorIA = parseAmount(financialSummary.totalCopagoLegitimo || 0);
+            const estadoCopago = financialSummary.estado_copago || 'VALIDADO';
 
             // True Gap = TotalCopago - (Legitimate + Objected)
             // If AI says $1.4M is legitimate (30% copay) and $395k is objected, and Total is $1.8M
             // Gap = 1.8M - (1.4M + 0.395M) = ~0.
+
+            // NEW LOGIC: If state is INDETERMINADO, we don't fix a legitimate copay.
+            if (estadoCopago === 'INDETERMINADO_POR_OPACIDAD') {
+                log(`[AuditEngine] 🔍 Estado detectado: INDETERMINADO_POR_OPACIDAD. Omitiendo cuadratura de copago legítimo.`);
+                // In this state, the gap reconciliation might be confusing if we force math.
+                // We'll trust the AI findings as the primary reinforcement.
+            }
 
             // Verify consistency:
             // If AI didn't provide breakdown, we default to the old "Gap = Total - Findings" logic BUT
