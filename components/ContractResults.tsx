@@ -47,7 +47,7 @@ const TokenStatsBadge: React.FC<{ metadata?: any }> = ({ metadata }) => {
 };
 
 const SmartValueBadge: React.FC<{ value: string }> = ({ value }) => {
-    if (!value || value === '-' || value === 'N/A' || value === 'SIN TOPE') {
+    if (!value || value === '-' || value === 'N/A') {
         return <span className="text-slate-300 font-bold">-</span>;
     }
 
@@ -57,6 +57,14 @@ const SmartValueBadge: React.FC<{ value: string }> = ({ value }) => {
         return (
             <span className="inline-flex items-center px-2 py-1 rounded bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-black tracking-tighter shadow-sm whitespace-nowrap">
                 {cleanVal}
+            </span>
+        );
+    }
+
+    if (cleanVal.includes('SIN TOPE') || cleanVal.includes('ILIMITADO') || cleanVal.includes('100%')) {
+        return (
+            <span className="inline-flex items-center px-2 py-1 rounded bg-emerald-600 text-white border border-emerald-700 text-[10px] font-black tracking-tighter shadow-md whitespace-nowrap">
+                SIN TOPE
             </span>
         );
     }

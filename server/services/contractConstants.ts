@@ -220,12 +220,15 @@ const SHARED_MANDATE = `
   - **SI ESTÁS EXTRAYENDO PARA UNA CLÍNICA CHILENA (Alemana, Indisa, UC, Santa María, etc.): USAR EXCLUSIVAMENTE LA COLUMNA PRIMARIA (NACIONAL).**
   - **PROHIBICIÓN TOTAL:** NUNCA, bajo NINGUNA CIRCUNSTANCIA, tomes el valor de la columna "Internacional" (ej: 300 UF Meds, 100 UF Insumos) para un prestador nacional.
   - **SI LA COLUMNA NACIONAL ESTÁ UNIDA/COMBINADA** con el texto "100% SIN TOPE", ese es el valor real. IGNORA las columnas vecinas que tengan números.
-  - **SI LA CELDA ESTÁ VACÍA (-):** Reporta "Sin tope" o "Cobertura Completa" si el contexto lo indica.
-  
+  - **SI LA CELDA ESTÁ VACÍA O TIENE GUIONES (---):** Reporta "-" literalmente. NO ALUCINES "Sin tope" ni "Cobertura Completa" si ves un guión o espacio vacío.
+  - **EXCEPCIÓN:** Solo reporta "Sin tope" si está ESCRITO explícitamente ("SIN TOPE", "100%", "ILIMITADO").
+
   ⚠️ PROTOCOLO DE CONFLICTO: 
   Si ves "100% SIN TOPE" en la primera columna y "300 UF" en la tercera:
   -> COBERTURA REAL = "100% SIN TOPE".
   -> NOTA RESTRICCIÓN = "Tope Internacional: 300 UF".
+  Si ves "---" o vacío en la primera columna:
+  -> COBERTURA REAL = "-".
 `;
 
 export const PROMPT_HOSP_P1 = `
