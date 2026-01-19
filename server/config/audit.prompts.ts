@@ -929,40 +929,51 @@ NUNCA debe faltar. Ancla al copago REAL del PAM.
 > 3. **Anclaje JSON:** [Cita exacta del campo anclajeJson]
 
 **VIII. Trazabilidad y Origen del Cobro (MANDATORIO)**
-Aquí se demuestra que el monto no es inventado.
+Esta sección es la PRUEBA FORENSE. El informe NO tiene validez sin esta tabla detallada.
 
-SI EL HALLAZGO ES POR "OPACIDAD" / "FALTA DE DESGLOSE" / "GENÉRICO":
+SI EL HALLAZGO ES POR 'OPACIDAD' / 'FALTA DE DESGLOSE' / 'GENÉRICO' (CAT B):
 =====================================================================
-DEBES, OBLIGATORIAMENTE, REALIZAR UNA "CACERÍA FORENSE" EN LA \`cuenta_json\`.
-Tu misión es encontrar qué ítems individuales suman el monto del código agrupador del PAM.
-Genera una **TABLA DETALLADA DE ÍTEMS (ESTÁNDAR)** con TODOS los ítems que la clínica "escondió" en ese paquete.
-**CRÍTICO:** Asegúrate de que la suma de la tabla llegue al 100% del monto objetado. Si encuentras solo una parte, sigue buscando ítems como "Fresas", "Sets", "Catéteres" o "Sondas" que encajen en la diferencia.
-**PROHIBICIÓN:** NUNCA uses "..." para resumir. Si son 50 ítems, LISTA LOS 50 ÍTEMS. El paciente necesita ver cada peso.
-**FORMATO:** Usa una tabla Markdown estándar (Horizontal), NO una lista vertical.
+DEBES realizar una 'CACERÍA FORENSE' EXHAUSTIVA en la 'cuenta_json'.
+1. Busca TODOS los ítems individuales que componen el monto del PAM.
+2. Genera una **TABLA DETALLADA (ESTÁNDAR MARKDOWN)** con CADA ÍTEM.
+3. **REGLA DE ORO:** Está terminantemente prohibido resumir o usar '...'. Si hay 100 ítems, SE LISTAN LOS 100 ÍTEMS.
+4. **FORMATO OBLIGATORIO:** Usa exclusivamente el formato de tabla con pipes '|'. NO uses tabs ni espacios.
 
-| Sección Origen (Cuenta) | Ítem Individual (Detalle) | Cant | P. Unit | Total |
-| :--- | :--- | :---: | :---: | :---: |
-| Materiales | NEURO FLAPFIX KIT | 1 | $707.103 | $707.103 |
-| Materiales | FRESA A. P/ADAPT | 1 | $392.135 | $392.135 |
-| Materiales | (Siguiente ítem...) | ... | ... | ... |
-| **TOTAL** | **COINCIDE CON CODIGO PAM XXX** | | | **$3.653.647** |
+| Sección Origen (Cuenta) | Cód | Ítem Individual (Detalle) | Cant | P. Unit | Total |
+| :--- | :--- | :--- | :---: | :---: | :---: |
+| Materiales | 3101 | NEURO FLAPFIX KIT | 1 | $707.103 | $707.103 |
+| Materiales | 3101 | FRESA A. P/ADAPT | 1 | $392.135 | $392.135 |
+| **TOTAL** | | **COINCIDE CON CODIGO PAM XXX** | | | **$3.653.647** |
 
-SI EL HALLAZGO NO ES DE OPACIDAD (ES CLÁSICO):
+SI EL HALLAZGO ES POR "COBRO IMPROCEDENTE" (CAT A - VARIOS/AJUSTES):
+==============================================================
+DEBES listar cada ítem encontrado en esas secciones sospechosas.
+**REGLA:** No pongas solo el nombre de la sección. Pon cada fila que sume el monto.
+
+| Sección Origen (Cuenta) | Cód | Descripción Ítem | Cant | P. Unit | Total |
+| :--- | :--- | :--- | :---: | :---: | :---: |
+| 9994 VARIOS EXENTO | 029 | AJUSTE HABITACION | 1 | $120.000 | $120.000 |
+| 9100 VARIOS LTDA | 999 | CARGO ADMINISTRATIVO | 1 | $246.006 | $246.006 |
+| **TOTAL** | | **MONTO OBJETADO FINAL** | | | **$366.006** |
+
+SI EL HALLAZGO NO ES DE OPACIDAD (ES OTRO TIPO):
 ==============================================
-1. **Clasificación Forense:**
-   - **[DINERO TRAZABLE]:** Si los ítems tienen nombre y apellido (ej: Jeringas, Pabellón).
-2. **Desglose Matemático:** Explicar la fórmula exacta.
-3. **Tabla de Origen (Evidencia):** Listar TODOS los ítems del PAM que suman este hallazgo.
-   | Folio PAM | Ítem / Código | Monto (Copago) |
-
-   |-----------|---------------|----------------|
-   | 102030    | 3101001       | $15.000        |
-   | **TOTAL** | **HALLAZGO**  | **$20.000**    |
+1. **Tabla de Origen (Evidencia):** Listar TODOS los ítems del PAM que suman este hallazgo.
+   | Folio PAM | Código | Ítem / Descripción | Bonif Isapre | Copago (Monto) |
+   |-----------|--------|---------------------|--------------|----------------|
+   | 328131070 | 3101001| MATERIALES          | $1.200.000   | $150.000       |
+   | **TOTAL** | | **HALLAZGO TOTAL**  | | **$150.000**   |
 
 **IX. Verificación de Cuadratura (MANDATORIO INTERNO)**
 > Antes de pasar al siguiente hallazgo, el auditor debe ejecutar:
 > SUM(Items_Seccion_VIII) == montoObjetado.
 > SI NO COINCIDE -> El auditor debe corregir la suma o descartar el ítem sobrante. NUNCA reportar una suma incorrecta. La IA no puede permitirse errores de $900 o similares.
+
+🚨 **CONTROL DE CALIDAD DE TABLAS (DETERMINANTE):**
+Está prohibido generar tablas con celdas vacías o resumidas.
+- Si el monto objetado es $366.006, la tabla DEBE listar ítems que sumen $366.006.
+- Si no encuentras el detalle en el JSON, busca en el 'html_context' (Raw OCR) y extrae las líneas literales.
+- Si la tabla queda vacía, el hallazgo se considera 'ALUCINADO' y será rechazado por el sistema.
 
 ========================================
 ⚠️ REGLA CRÍTICA: ESTRUCTURA OBLIGATORIA
@@ -1024,7 +1035,10 @@ El copago asociado a estas líneas es indeterminado mientras no exista desglose.
 3.1 Cobros fuera del PAM (Ej: VARIOS/AJUSTES)
 3.2 Insumos improcedentes (Hotelería, Pabellón)
 
-## 4. Recomendación Final
+## 4. Detalle de Hallazgos e Impugnaciones (Desglose Individual)
+[Aquí debes incluir, para CADA hallazgo del array 'hallazgos', el texto completo generado, incluyendo todas las secciones I a VIII, con especial énfasis en las TABLAS DE TRAZABILIDAD].
+
+## 5. Recomendación Final
 Se recomienda IMPUGNAR el PAM y exigir:
 - Desglose ítem por ítem
 - Exclusión de cargos no clínicos

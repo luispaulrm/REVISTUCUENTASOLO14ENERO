@@ -110,7 +110,10 @@ export async function performForensicAudit(
             category: section.category || section.name,
             sectionTotal: section.sectionTotal,
             items: section.items?.map((item: any) => ({
+                code: item.code,
                 description: item.description,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
                 total: item.total
             }))
         }))
