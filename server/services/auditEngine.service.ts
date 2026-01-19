@@ -248,7 +248,8 @@ export async function performForensicAudit(
     const apiKeys = [
         apiKey,
         process.env.GEMINI_API_KEY_SECONDARY,
-        process.env.GEMINI_API_KEY_TERTIARY
+        process.env.GEMINI_API_KEY_TERTIARY,
+        process.env.GEMINI_API_KEY_QUATERNARY
     ].filter(k => k && k.length > 5);
 
     const geminiService = new GeminiService(apiKeys);
@@ -257,93 +258,95 @@ export async function performForensicAudit(
     for (const modelName of modelsToTry) {
         if (!modelName) continue;
 
-        try {
-            log(`[AuditEngine] 🛡️ Strategy: Intentando con modelo ${modelName}...`);
-            log('[AuditEngine] 📡 Enviando consulta a Gemini (Streaming)...');
-            onProgressUpdate?.(40);
+        for (let keyIdx = 0; keyIdx < apiKeys.length; keyIdx++) {
+            const currentKey = apiKeys[keyIdx];
+            const keyMask = currentKey.substring(0, 4) + '...';
 
-            // Use GeminiService's extractText with streaming simulation
-            const timeoutMs = 120000;
-            const startTime = Date.now();
+            try {
+                log(`[AuditEngine] 🛡️ Strategy: Intentando con modelo ${modelName} (Key ${keyIdx + 1}/${apiKeys.length}: ${keyMask})...`);
+                onProgressUpdate?.(40);
 
-            let fullText = '';
-            let usage: any = null;
+                const timeoutMs = 120000;
+                let fullText = '';
+                let usage: any = null;
 
-            // Use non-streaming call for JSON schema response
-            // GeminiService doesn't expose streaming with schema yet, so we use direct call
-            const genAI = new GoogleGenerativeAI(apiKeys[0]);
-            const model = genAI.getGenerativeModel({
-                model: modelName,
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: FORENSIC_AUDIT_SCHEMA as any,
-                    maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
-                    temperature: GENERATION_CONFIG.temperature,
-                    topP: GENERATION_CONFIG.topP,
-                    topK: GENERATION_CONFIG.topK
+                const genAI = new GoogleGenerativeAI(currentKey);
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: FORENSIC_AUDIT_SCHEMA as any,
+                        maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
+                        temperature: GENERATION_CONFIG.temperature,
+                        topP: GENERATION_CONFIG.topP,
+                        topK: GENERATION_CONFIG.topK
+                    }
+                });
+
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error(`Timeout: La API no respondió en ${timeoutMs / 1000} segundos`)), timeoutMs);
+                });
+
+                log('[AuditEngine] 📡 Enviando consulta a Gemini (Streaming)...');
+                const streamResult = await Promise.race([
+                    model.generateContentStream(prompt),
+                    timeoutPromise
+                ]) as any;
+
+                log('[AuditEngine] 📥 Recibiendo respuesta en tiempo real...');
+                for await (const chunk of streamResult.stream) {
+                    const chunkText = chunk.text();
+                    fullText += chunkText;
+
+                    if (chunk.usageMetadata) {
+                        usage = chunk.usageMetadata;
+                        onUsageUpdate?.(usage);
+                    }
+
+                    if (fullText.length % 500 < chunkText.length) {
+                        const kbReceived = Math.floor(fullText.length / 1024);
+                        log(`[AuditEngine] 📊 Procesando... ${kbReceived}KB recibidos`);
+                        const simulatedProgress = Math.min(90, 40 + (fullText.length / ESTIMATED_TOTAL_TOKENS) * 50);
+                        onProgressUpdate?.(simulatedProgress);
+                    }
                 }
-            });
 
-            const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => reject(new Error(`Timeout: La API no respondió en ${timeoutMs / 1000} segundos`)), timeoutMs);
-            });
+                result = {
+                    response: {
+                        text: () => fullText,
+                        usageMetadata: usage
+                    }
+                };
 
-            const streamResult = await Promise.race([
-                model.generateContentStream(prompt),
-                timeoutPromise
-            ]) as any;
+                log(`[AuditEngine] ✅ Éxito con modelo ${modelName} y Key ${keyIdx + 1}`);
+                break; // Exit key loop on success
 
-            log('[AuditEngine] 📥 Recibiendo respuesta en tiempo real...');
-            for await (const chunk of streamResult.stream) {
-                const chunkText = chunk.text();
-                fullText += chunkText;
+            } catch (error: any) {
+                lastError = error;
+                const errStr = (error?.toString() || "") + (error?.message || "");
+                const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || error?.status === 429 || error?.status === 503;
+                const isTimeout = errStr.includes('Timeout');
 
-                // Update usage metadata if available
-                if (chunk.usageMetadata) {
-                    usage = chunk.usageMetadata;
-                    onUsageUpdate?.(usage); // EMIT USAGE REAL-TIME
+                if (isTimeout) {
+                    log(`[AuditEngine] ⏱️ Timeout en ${modelName} con Key ${keyIdx + 1}.`);
+                    // Try next key
+                    continue;
+                } else if (isQuota) {
+                    log(`[AuditEngine] ⚠️ Fallo en ${modelName} con Key ${keyIdx + 1} por Quota/Server. Probando siguiente clave...`);
+                    // Small backoff
+                    await new Promise(r => setTimeout(r, 2000));
+                    continue;
+                } else {
+                    log(`[AuditEngine] ❌ Error no recuperable en ${modelName} / Key ${keyIdx + 1}: ${error.message}`);
+                    // Depending on error, we might want to try next key or bail
+                    // If it's 400 (Bad Request), trying next key won't help.
+                    // But for robustness, let's try at least one more key or switch model.
+                    if (errStr.includes('400')) throw error;
+                    continue;
                 }
-
-                // Log progress every 500 characters
-                if (fullText.length % 500 < chunkText.length) {
-                    const kbReceived = Math.floor(fullText.length / 1024);
-                    log(`[AuditEngine] 📊 Procesando... ${kbReceived}KB recibidos`);
-
-                    // Dynamic progress calculation (40% to 90%)
-                    const simulatedProgress = Math.min(90, 40 + (fullText.length / ESTIMATED_TOTAL_TOKENS) * 50);
-                    onProgressUpdate?.(simulatedProgress);
-                }
-            }
-
-            // Create result object compatible with existing code
-            result = {
-                response: {
-                    text: () => fullText,
-                    usageMetadata: usage
-                }
-            };
-
-            log(`[AuditEngine] ✅ Éxito con modelo ${modelName} (${fullText.length} caracteres)`);
-            break;
-
-        } catch (error: any) {
-            lastError = error;
-            const errStr = (error?.toString() || "") + (error?.message || "");
-            const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || error?.status === 429 || error?.status === 503;
-            const isTimeout = errStr.includes('Timeout');
-
-            if (isTimeout) {
-                log(`[AuditEngine] ⏱️ Timeout en ${modelName}. El modelo no respondió a tiempo.`);
-                log(`[AuditEngine] 💡 Sugerencia: El prompt puede ser demasiado grande(${promptSizeKB} KB).`);
-                throw error; // Don't retry on timeout, it's likely a prompt size issue
-            } else if (isQuota) {
-                log(`[AuditEngine] ⚠️ Fallo en ${modelName} por Quota / Server(${error.message}).Probando siguiente...`);
-                continue;
-            } else {
-                log(`[AuditEngine] ❌ Error no recuperable en ${modelName}: ${error.message} `);
-                throw error; // Si no es quota, fallamos inmediatamente
             }
         }
+        if (result) break; // Exit model loop on success
     }
 
     if (!result) {

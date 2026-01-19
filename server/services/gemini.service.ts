@@ -27,6 +27,8 @@ export class GeminiService {
         if (getEnv("GEMINI_API_KEY")) envKeys.push(getEnv("GEMINI_API_KEY")!);
         if (getEnv("API_KEY")) envKeys.push(getEnv("API_KEY")!);
         if (getEnv("GEMINI_API_KEY_SECONDARY")) envKeys.push(getEnv("GEMINI_API_KEY_SECONDARY")!);
+        if (getEnv("GEMINI_API_KEY_TERTIARY")) envKeys.push(getEnv("GEMINI_API_KEY_TERTIARY")!);
+        if (getEnv("GEMINI_API_KEY_QUATERNARY")) envKeys.push(getEnv("GEMINI_API_KEY_QUATERNARY")!);
 
         // Combine and unique
         this.keys = [...new Set([...initialKeys, ...envKeys])].filter(k => !!k && k.length > 5);

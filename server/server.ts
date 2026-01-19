@@ -60,10 +60,15 @@ if (!GEMINI_API_KEY) {
 
 const GEMINI_SEC = envGet("GEMINI_API_KEY_SECONDARY");
 if (GEMINI_SEC) {
-    console.log(`✅ GEMINI_API_KEY_SECONDARY LOADED`);
-    console.log(`   Key preview: ${GEMINI_SEC.substring(0, 8)}...${GEMINI_SEC.slice(-4)}`);
-} else {
-    console.log(`⚪ NO SECONDARY KEY FOUND (Optional)`);
+    console.log(`✅ GEMINI_API_KEY_SECONDARY LOADED: ${GEMINI_SEC.substring(0, 8)}...`);
+}
+const GEMINI_TER = envGet("GEMINI_API_KEY_TERTIARY");
+if (GEMINI_TER) {
+    console.log(`✅ GEMINI_API_KEY_TERTIARY LOADED: ${GEMINI_TER.substring(0, 8)}...`);
+}
+const GEMINI_QUA = envGet("GEMINI_API_KEY_QUATERNARY");
+if (GEMINI_QUA) {
+    console.log(`✅ GEMINI_API_KEY_QUATERNARY LOADED: ${GEMINI_QUA.substring(0, 8)}...`);
 }
 console.log("=".repeat(50) + "\n");
 
@@ -138,8 +143,10 @@ const getApiKeys = () => {
     if (envGet("GEMINI_API_KEY")) keys.push(envGet("GEMINI_API_KEY"));
     if (envGet("API_KEY")) keys.push(envGet("API_KEY"));
     if (envGet("GEMINI_API_KEY_SECONDARY")) keys.push(envGet("GEMINI_API_KEY_SECONDARY"));
+    if (envGet("GEMINI_API_KEY_TERTIARY")) keys.push(envGet("GEMINI_API_KEY_TERTIARY"));
+    if (envGet("GEMINI_API_KEY_QUATERNARY")) keys.push(envGet("GEMINI_API_KEY_QUATERNARY"));
     // Deduplicate
-    return [...new Set(keys)].filter(k => !!k);
+    return [...new Set(keys)].filter((k): k is string => !!k && k.length > 5);
 };
 
 app.post('/api/audit/ask', handleAskAuditor);
@@ -187,7 +194,7 @@ app.post('/api/extract', async (req, res) => {
         // --- VALIDATION LAYER START (HOTFIX) ---
         // Ensure this is actually a BILL (Cuenta) and not a PAM or random meme.
         const { ValidationService } = await import('./services/validation.service.js');
-        const validationService = new ValidationService(apiKeys[0]);
+        const validationService = new ValidationService(apiKeys);
 
         forensicLog("🕵️ Validando identidad del documento (Debe ser CUENTA)...");
         const validation = await validationService.validateDocumentType(image, mimeType, 'CUENTA');

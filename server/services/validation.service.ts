@@ -9,11 +9,11 @@ interface ValidationResult {
 }
 
 export class ValidationService {
-    private client: GoogleGenerativeAI;
+    private apiKeys: string[];
     private modelName: string;
 
-    constructor(apiKey: string) {
-        this.client = new GoogleGenerativeAI(apiKey);
+    constructor(apiKeyOrKeys: string | string[]) {
+        this.apiKeys = Array.isArray(apiKeyOrKeys) ? apiKeyOrKeys : [apiKeyOrKeys];
         // Use Flash for speed and low cost validation
         this.modelName = AI_CONFIG.FALLBACK_MODEL || "gemini-1.5-flash";
     }
@@ -38,60 +38,68 @@ export class ValidationService {
         // Mapping might be needed if UI types differ slightly from Prompt types, 
         // but currently they align: CUENTA, PAM, CONTRATO.
 
-        try {
-            const model = this.client.getGenerativeModel({
-                model: this.modelName,
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    temperature: 0.1, // Strict determinism
-                }
-            });
+        let lastError: any;
 
-            const result = await model.generateContent([
-                { text: DOCUMENT_CLASSIFICATION_PROMPT },
-                {
-                    inlineData: {
-                        data: imageBase64,
-                        mimeType: mimeType
+        for (const key of this.apiKeys) {
+            const mask = key.substring(0, 4) + '...';
+            try {
+                const client = new GoogleGenerativeAI(key);
+                const model = client.getGenerativeModel({
+                    model: this.modelName,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        temperature: 0.1,
                     }
+                });
+
+                const result = await model.generateContent([
+                    { text: DOCUMENT_CLASSIFICATION_PROMPT },
+                    {
+                        inlineData: {
+                            data: imageBase64,
+                            mimeType: mimeType
+                        }
+                    }
+                ]);
+
+                const responseText = result.response.text();
+                console.log(`[VALIDATION] Raw AI Response: ${responseText}`);
+
+                const jsonResponse = JSON.parse(responseText);
+                const detected = jsonResponse.classification?.toUpperCase();
+                const reasoning = jsonResponse.reasoning;
+
+                // Strict matching or Mixed document handling
+                const isMixedValid = (detected === "CUENTA_PAM" && (expectedType === "CUENTA" || expectedType === "PAM"));
+
+                if (detected === expectedType || isMixedValid) {
+                    return { isValid: true, detectedType: detected, reason: reasoning };
                 }
-            ]);
 
-            const responseText = result.response.text();
-            console.log(`[VALIDATION] Raw AI Response: ${responseText}`);
+                return {
+                    isValid: false,
+                    detectedType: detected || "UNKNOWN",
+                    reason: `Documento identificado como ${detected} pero se esperaba ${expectedType}. Razón: ${reasoning}`
+                };
+            } catch (error: any) {
+                lastError = error;
+                const errStr = (error?.toString() || "") + (error?.message || "");
+                const isQuota = errStr.includes('429') || errStr.includes('503');
 
-            const jsonResponse = JSON.parse(responseText);
-            const detected = jsonResponse.classification?.toUpperCase();
-            const reasoning = jsonResponse.reasoning;
-
-            // Strict matching or Mixed document handling
-            const isMixedValid = (detected === "CUENTA_PAM" && (expectedType === "CUENTA" || expectedType === "PAM"));
-
-            if (detected === expectedType || isMixedValid) {
-                return { isValid: true, detectedType: detected, reason: reasoning };
+                if (isQuota) {
+                    console.warn(`[VALIDATION] Quota error on key ${mask}. Rotating...`);
+                    continue;
+                }
+                // For other errors, log and try next or break? Let's try next for robustness.
+                console.error(`[VALIDATION] Error on key ${mask}:`, error.message);
             }
-
-            // Fallback for "UNKNOWN" or mismatches
-            return {
-                isValid: false,
-                detectedType: detected || "UNKNOWN",
-                reason: `Documento identificado como ${detected} pero se esperaba ${expectedType}. Razón: ${reasoning}`
-            };
-
-        } catch (error: any) {
-            console.error("[VALIDATION] AI Error:", error);
-            // On AI failure (rare), we default to ALLOW usually to avoid blocking valid users during outages,
-            // OR we strict block? 
-            // The user requested strict validation for "estupideces". 
-            // If AI crashes, we probably should fail-safe to valid or throw.
-            // Let's return invalid to be safe if strictly requested, but maybe too aggressive.
-            // Let's try to assume it's valid if AI fails, to avoid "Server Error" blocks.
-            // BUT for this task, the goal is strict filtering. Let's return false.
-            return {
-                isValid: false,
-                detectedType: "ERROR",
-                reason: "Validation service failed to classify document."
-            };
         }
+
+        console.error("[VALIDATION] All keys failed:", lastError);
+        return {
+            isValid: false,
+            detectedType: "ERROR",
+            reason: `Validation service failed after trying ${this.apiKeys.length} keys: ${lastError?.message}`
+        };
     }
 }
