@@ -518,11 +518,14 @@ export const FORENSIC_AUDIT_SCHEMA = {
       properties: {
         totalCopagoInformado: { type: Type.NUMBER, description: "El valor 'totalCopago' declarado en la sección global del PAM." },
         totalCopagoLegitimo: { type: Type.NUMBER, description: "Monto del copago CORRECTO. IMPORTANTE: SI estado_copago='INDETERMINADO_POR_OPACIDAD', ESTE VALOR DEBE SER 0 (Cero). No calcular sobre bases inciertas." },
-        totalCopagoObjetado: { type: Type.NUMBER, description: "Monto del copago que ES INCORRECTO (Suma de hallazgos)." },
+        totalCopagoObjetado: { type: Type.NUMBER, description: "Monto total detectado como irregular (Suma de A + B). NO es el ahorro." },
+        cobros_improcedentes_exigibles: { type: Type.NUMBER, description: "🔴 CATEGORÍA A: Suma de montos facturados en CUENTA que NO están en PAM o son glosas genéricas (Anulables)." },
+        copagos_bajo_controversia: { type: Type.NUMBER, description: "🟠 CATEGORÍA B: Suma de montos en PAM sin desglose (Indeterminados). NO se suman al ahorro." },
+        ahorro_confirmado: { type: Type.NUMBER, description: "Monto recuperable real. DEBE SER IGUAL A cobros_improcedentes_exigibles." },
         estado_copago: { type: Type.STRING, description: "OBLIGATORIO. 'VALIDADO' o 'INDETERMINADO_POR_OPACIDAD'. Si hay opacidad, usar 'INDETERMINADO_POR_OPACIDAD'." },
         analisisGap: { type: Type.STRING, description: "Explicación breve." }
       },
-      required: ['totalCopagoInformado', 'totalCopagoLegitimo', 'totalCopagoObjetado', 'estado_copago', 'analisisGap']
+      required: ['totalCopagoInformado', 'totalCopagoLegitimo', 'totalCopagoObjetado', 'cobros_improcedentes_exigibles', 'copagos_bajo_controversia', 'ahorro_confirmado', 'estado_copago', 'analisisGap']
     },
     eventos_hospitalarios: {
       type: Type.ARRAY,
@@ -606,10 +609,11 @@ export const FORENSIC_AUDIT_SCHEMA = {
           montoObjetado: { type: Type.NUMBER, description: "Monto total objetado en pesos (CLP). Debe coincidir con la sección VI y VIII." },
           normaFundamento: { type: Type.STRING, description: "CITA TEXTUAL de la norma o jurisprudencia del knowledge_base_text. Formato: 'Según [Documento/Rol/Artículo]: \"[extracto textual]\"'." },
           anclajeJson: { type: Type.STRING, description: "Referencia exacta al JSON de origen (ej: 'PAM: items21 & CONTRATO: coberturas17')" },
+          tipo_monto: { type: Type.STRING, description: "OBLIGATORIO. COBRO_IMPROCEDENTE (Cat A) | COPAGO_OPACO (Cat B)." },
           origen_probable: { type: Type.STRING, description: "OBLIGATORIO. CLINICA_FACTURACION | ISAPRE_LIQUIDACION | PAM_ESTRUCTURA | MIXTO | DESCONOCIDO. Identifica quién es responsable del error." },
           nivel_confianza: { type: Type.STRING, description: "ALTA | MEDIA | BAJA. Nivel de certeza del hallazgo." }
         },
-        required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson', 'origen_probable', 'nivel_confianza']
+        required: ['codigos', 'glosa', 'hallazgo', 'montoObjetado', 'normaFundamento', 'anclajeJson', 'tipo_monto', 'origen_probable', 'nivel_confianza']
       }
     },
     totalAhorroDetectado: {
@@ -706,19 +710,44 @@ El informe final DEBE seguir estrictamente esta estructura lógica y de presenta
 - Ahorro definitivo: ❌ No determinable
 - Estado jurídico del monto objetado: INDETERMINADO
 
-### 0.1 REGLA DURA DE SISTEMA (SYSTEM OVERRIDE)
-SI detectas \`Hallazgo_Principal = OPACIDAD_ESTRUCTURAL\` (ítems genéricos sin desglose):
-ENTONCES:
-- \`decisionGlobal.estado\` = "COPAGO_INDETERMINADO_POR_OPACIDAD"
-- \`resumenFinanciero.estado_copago\` = "INDETERMINADO_POR_OPACIDAD"
-- \`resumenFinanciero.totalCopagoLegitimo\` = 0
-- Acción Recomendada = "IMPUGNAR / SOLICITAR ACLARACIÓN"
+### 0.2 ARQUITECTURA DE DECISIÓN (S.O.P. - OBLIGATORIO)
+Este es un protocolo de clasificación jurídica, no de redacción.
 
-Esta regla MATA cualquier otra validación parcial sobre esos ítems. No intentes "estimar" lo justo si no ves el detalle.
+#### 1. PRINCIPIO DE NATURALEZA DEL MONTO (Regla Cero)
+NO TODO MONTO OBJETADO ES UN AHORRO. El motor debe clasificar primero la naturaleza jurídica del monto antes de sumarlo.
 
+#### 2. CLASIFICACIÓN OBLIGATORIA (CORE LOGIC)
+Todo monto detectado debe caer en EXACTAMENTE UNA de estas categorías:
 
+🔴 **CATEGORÍA A — COBRO IMPROCEDENTE DIRECTO (Anulable / Exigible)**
+- **Definición**: Monto facturado en CUENTA CLÍNICA que NO aparece en PAM o tiene glosa genérica sin prestación identificable.
+- **Ejemplos**: VARIOS, AJUSTES, DIFERENCIAS, CARGOS ADMINISTRATIVOS.
+- **Efecto JSON**: 
+  - \`tipo_monto\`: "COBRO_IMPROCEDENTE"
+  - Se suma a \`cobros_improcedentes_exigibles\` y \`ahorro_confirmado\`.
 
-- Usar: \`estado_copago: "INDETERMINADO_POR_OPACIDAD"\`.
+🟠 **CATEGORÍA B — COPAGO BAJO CONTROVERSIA (No validable / No anulable aún)**
+- **Definición**: Monto que SI aparece en PAM pero corresponde a líneas agrupadoras (Materiales / Medicamentos) SIN desglose ítem por ítem.
+- **Ejemplos**: MATERIALES CLÍNICOS QUIRÚRGICOS, MEDICAMENTOS HOSPITALIZADOS.
+- **Efecto JSON**:
+  - \`tipo_monto\`: "COPAGO_OPACO"
+  - Se suma a \`copagos_bajo_controversia\`. 
+  - 🚫 **PROHIBIDO**: Sumar a \`ahorro_confirmado\`.
+
+#### 3. REGLA DE ORO: PROHIBICIÓN DE SUMA CRUZADA
+- ❌ **PROHIBIDO**: \`COBRO_IMPROCEDENTE\` + \`COPAGO_OPACO\` = “Monto total en controversia” (No mezclar peras con manzanas).
+- ✔️ **PERMITIDO**: Sumar solo Categoría A para determinar el ahorro real.
+
+#### 4. REGLA DE LENGUAJE (EVITACIÓN DE RIESGO JURÍDICO)
+- ❌ **PROHIBIDO DECIR**: “no debe pagarse”, “debe devolverse”, “es ilegal”.
+- ✔️ **SOLUCIÓN**: Usar “no puede ser validado”, “requiere desglose”, “se solicita aclaración / reliquidación”.
+
+#### 5. TEST CANÓNICO (EL BUG DE LOS $606.780)
+Si el caso tiene:
+- Categoría A (VARIOS/AJUSTES) = $366.004
+- Categoría B (PAM Materiales) = $240.776
+**EL RESULTADO CORRECTO ES**: Ahorro Confirmado: $366.004.
+(Si sumas ambos en el campo ahorro, el motor falla por BUG CRÍTICO).
 
 ### 1. REGLA DE ORO DE VISIBILIDAD FINANCIERA (NUEVO)
 EL PRIMER CAMPO DEL JSON debe ser \`valorUnidadReferencia\`.

@@ -495,24 +495,52 @@ export default function ForensicApp() {
                                                 <Printer size={16} /> <span className="hidden sm:inline">IMPRIMIR / PDF</span>
                                             </button>
                                         </div>
-                                        <div className="bg-slate-950 p-5 sm:p-6 rounded-2xl text-white w-full sm:w-fit self-start sm:min-w-[250px]">
-                                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                                                {auditResult.decisionGlobal?.estado === 'COPAGO_INDETERMINADO_POR_OPACIDAD'
-                                                    ? 'Monto en Controversia (No Validable)'
-                                                    : 'Ahorro Detectado'}
-                                            </p>
-                                            <div className={`text-2xl sm:text-3xl font-black ${auditResult.decisionGlobal?.estado === 'COPAGO_INDETERMINADO_POR_OPACIDAD'
-                                                ? 'text-amber-400'
-                                                : 'text-emerald-400'
-                                                }`}>${(auditResult.totalAhorroDetectado || 0).toLocaleString('es-CL')}</div>
+                                        <div className="flex flex-wrap gap-4 print:flex-nowrap">
+                                            {/* CATEGORÍA A: AHORRO CONFIRMADO */}
+                                            <div className="bg-slate-900 p-5 sm:p-6 rounded-2xl text-white min-w-[220px] border border-emerald-900/50 shadow-lg relative overflow-hidden group">
+                                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                    <ShieldCheck size={40} className="text-emerald-500" />
+                                                </div>
+                                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                    <ShieldCheck size={12} /> Ahorro Confirmado (Cat A)
+                                                </p>
+                                                <div className="text-2xl sm:text-3xl font-black text-emerald-400">
+                                                    ${(auditResult.resumenFinanciero?.ahorro_confirmado || 0).toLocaleString('es-CL')}
+                                                </div>
+                                                <p className="text-[8px] text-slate-500 mt-1 uppercase font-bold tracking-tighter">Cobros Improcedentes Exigibles</p>
+                                            </div>
+
+                                            {/* CATEGORÍA B: COPAGO BAJO CONTROVERSIA */}
+                                            <div className="bg-slate-900 p-5 sm:p-6 rounded-2xl text-white min-w-[220px] border border-amber-900/50 shadow-lg relative overflow-hidden group">
+                                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                    <AlertCircle size={40} className="text-amber-500" />
+                                                </div>
+                                                <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                    <AlertCircle size={12} /> En Controversia (Cat B)
+                                                </p>
+                                                <div className="text-2xl sm:text-3xl font-black text-amber-400">
+                                                    ${(auditResult.resumenFinanciero?.copagos_bajo_controversia || 0).toLocaleString('es-CL')}
+                                                </div>
+                                                <p className="text-[8px] text-slate-500 mt-1 uppercase font-bold tracking-tighter">Indeterminado por Opacidad</p>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    {/* BITÁCORA DE ANÁLISIS TÉCNICO */}
+                                    {/* 1. NARRATIVA DEL INFORME FORMAL (Moved to Top) */}
+                                    <div className="border-b border-slate-100 pb-10">
+                                        <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+                                            <FileText size={16} className="text-slate-900" /> Informe de Auditoría Forense
+                                        </h3>
+                                        <div className="prose prose-slate max-w-none prose-sm sm:prose-base">
+                                            <MarkdownRenderer content={auditResult.auditoriaFinalMarkdown} />
+                                        </div>
+                                    </div>
+
+                                    {/* 2. BITÁCORA DE ANÁLISIS TÉCNICO (Evidencia de Respaldo) */}
                                     {(auditResult.bitacoraAnalisis?.length > 0 || auditResult.bitacoraCompleta) && (
                                         <div className="space-y-4 sm:space-y-6">
                                             <h3 className="text-xs sm:text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                <BrainCircuit size={16} className="text-indigo-600" /> Bitácora Técnica
+                                                <BrainCircuit size={16} className="text-indigo-600" /> Bitácora Técnica de Respaldo
                                             </h3>
                                             <div className="bg-slate-50 border border-slate-200 rounded-2xl sm:rounded-3xl overflow-hidden overflow-x-auto">
                                                 <table className="w-full text-left min-w-[600px]">
@@ -537,20 +565,27 @@ export default function ForensicApp() {
                                         </div>
                                     )}
 
-                                    {/* HALLAZGOS */}
+                                    {/* 3. DETALLE DE HALLAZGOS (Anexo Técnico) */}
                                     <div className="space-y-4 sm:space-y-6">
                                         <h3 className="text-xs sm:text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                            <ChevronRight size={16} className="text-slate-900" /> Hallazgos ({(auditResult.hallazgos || []).length})
+                                            <ChevronRight size={16} className="text-slate-900" /> Detalle de Hallazgos Individuales ({(auditResult.hallazgos || []).length})
                                         </h3>
                                         <div className="grid grid-cols-1 gap-4">
                                             {(auditResult.hallazgos || []).map((hallazgo: any, idx: number) => (
                                                 <div key={idx} className="p-4 sm:p-6 bg-white rounded-2xl border border-slate-200 hover:border-slate-400 transition-all shadow-sm">
                                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                                                         <div className="flex items-center gap-3">
-                                                            <span className="px-2 py-1 bg-slate-900 text-white rounded text-[10px] font-mono">{hallazgo.codigos}</span>
+                                                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                                                                <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-tighter ${hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                                    {hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'Exigible (Cat A)' : 'Controversia (Cat B)'}
+                                                                </span>
+                                                                <span className="px-2 py-1 bg-slate-900 text-white rounded text-[10px] font-mono">{hallazgo.codigos}</span>
+                                                            </div>
                                                             <h4 className="font-bold text-slate-900 text-sm sm:text-base">{hallazgo.glosa}</h4>
                                                         </div>
-                                                        <div className="text-rose-600 font-black text-base sm:text-lg">-${(hallazgo.montoObjetado || 0).toLocaleString()}</div>
+                                                        <div className={`font-black text-base sm:text-lg ${hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                                            -${(hallazgo.montoObjetado || 0).toLocaleString()}
+                                                        </div>
                                                     </div>
                                                     <MarkdownRenderer content={hallazgo.hallazgo} />
                                                     <div className="flex flex-wrap gap-2 sm:gap-4 text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase mt-2">
@@ -565,13 +600,6 @@ export default function ForensicApp() {
                                                     <p>No se encontraron hallazgos negativos.</p>
                                                 </div>
                                             )}
-                                        </div>
-                                    </div>
-
-                                    <div className="bg-slate-950 text-slate-100 p-6 sm:p-8 md:p-12 rounded-3xl relative">
-                                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 sm:mb-8 border-b border-slate-800 pb-4">Informe Formal</h4>
-                                        <div className="prose prose-invert prose-slate max-w-none whitespace-pre-wrap font-mono text-[10px] sm:text-[11px] leading-relaxed">
-                                            {auditResult.auditoriaFinalMarkdown}
                                         </div>
                                     </div>
 

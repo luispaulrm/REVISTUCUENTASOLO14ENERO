@@ -471,10 +471,11 @@ Se solicita la re-liquidación total de este ítem bajo el principio de homologa
 Anclaje exacto en PAM: Ítem "${item.descripcion}" (Copago: $${monto}).
                              `,
                             montoObjetado: monto,
+                            tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Orphan items are exigible
                             normaFundamento: "Circular IF/176 (Errores de Codificación) y Ley 18.933",
                             anclajeJson: `PAM_AUTO_DETECT: ${item.codigo}`
                         });
-                        auditResult.totalAhorroDetectado = (auditResult.totalAhorroDetectado || 0) + monto;
+                        // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
                     });
 
                     // If there is still a residual gap, create a smaller generic finding
@@ -516,10 +517,11 @@ Se objeta este remanente por falta de transparencia.
 | **= GAP (DIFERENCIA)** | **$${gap.toLocaleString('es-CL')}** |
                         `,
                         montoObjetado: gap,
+                        tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Generic coverage deficit is exigible
                         normaFundamento: "Principio de Cobertura Integral y Transparencia (Ley 20.584)",
                         anclajeJson: "CÁLCULO_AUTOMÁTICO_SISTEMA"
                     });
-                    auditResult.totalAhorroDetectado = (auditResult.totalAhorroDetectado || 0) + gap;
+                    // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
                     log('[AuditEngine] ✅ GAP GENÉRICO inyectado (no se encontraron ítems huérfanos específicos).');
                 }
             }
@@ -683,6 +685,40 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
         });
     }
 
+    // --- ARQUITECTURA DE DECISIÓN: RECALCULO DE TOTALES (Anti-Sumas Fantasmas) ---
+    if (validatedResult.hallazgos) {
+        let sumA = 0; // COBRO_IMPROCEDENTE
+        let sumB = 0; // COPAGO_OPACO
+
+        validatedResult.hallazgos.forEach((h: any) => {
+            const monto = Number(h.montoObjetado || 0);
+
+            // Heuristic if LLM didn't set tipo_monto correctly
+            const isCatB = h.tipo_monto === "COPAGO_OPACO" ||
+                h.categoria === "OPACIDAD" ||
+                (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMACO/i.test(h.glosa));
+
+            // 🚨 NUCLEAR RULE: If OPACIDAD exists, GAP cannot be ahorro (it's indeterminate)
+            const isGapInOpacityContext = hasStructuralOpacity &&
+                (h.codigos === "GAP_RECONCILIATION" || h.anclajeJson?.includes("PAM_AUTO_DETECT"));
+
+            if (isCatB || isGapInOpacityContext) {
+                h.tipo_monto = "COPAGO_OPACO";
+                sumB += monto;
+            } else {
+                h.tipo_monto = "COBRO_IMPROCEDENTE";
+                sumA += monto;
+            }
+        });
+
+        if (!validatedResult.resumenFinanciero) validatedResult.resumenFinanciero = {};
+
+        validatedResult.resumenFinanciero.cobros_improcedentes_exigibles = sumA;
+        validatedResult.resumenFinanciero.copagos_bajo_controversia = sumB;
+        validatedResult.resumenFinanciero.ahorro_confirmado = sumA; // SOLO CAT A
+        validatedResult.resumenFinanciero.totalCopagoObjetado = sumA + sumB;
+    }
+
     // --- CANONICAL OPACITY OVERRIDE (HARD RULE) ---
     if (hasStructuralOpacity) {
         console.log('[AuditEngine] 🛡️ DETECTADA OPACIDAD ESTRUCTURAL. Aplicando Regla Canónica de Indeterminación.');
@@ -698,13 +734,18 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
         validatedResult.resumenFinanciero.totalCopagoLegitimo = 0; // Cannot act as legitimizer
         validatedResult.resumenFinanciero.analisisGap = "No aplicable por indeterminación del copago.";
 
-        // 3. Mark findings as controversial (optional metadata enhancement)
-        validatedResult.hallazgos.forEach((h: any) => {
-            if (h.categoria === 'OPACIDAD' || /MATERIAL|INSUMO|MEDICAMENTO|VARIOS/i.test(h.glosa || '')) {
-                h.estado_juridico = "EN_CONTROVERSIA";
-            }
-        });
+        // 3. Mark findings as controversial
+        if (validatedResult.hallazgos) {
+            validatedResult.hallazgos.forEach((h: any) => {
+                if (h.tipo_monto === 'COPAGO_OPACO') {
+                    h.estado_juridico = "EN_CONTROVERSIA";
+                }
+            });
+        }
     }
+
+    // Ensure totalAhorroDetectado for UI compatibility matches ahorro_confirmado
+    validatedResult.totalAhorroDetectado = validatedResult.resumenFinanciero?.ahorro_confirmado || 0;
 
     return validatedResult;
 }
