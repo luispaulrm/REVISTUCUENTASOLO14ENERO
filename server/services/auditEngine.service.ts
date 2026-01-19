@@ -73,12 +73,19 @@ export async function performForensicAudit(
     log(`[AuditEngine] 🔑 Muestra: ${caseKeywords.slice(0, 8).join(', ')}...`);
 
     // Paso 2: Filtrar y cargar solo conocimiento relevante (máx 30K tokens)
+    /*
     const MAX_KNOWLEDGE_TOKENS = 40000;  // Reduced to 40k for better prompt stability
     const { text: knowledgeBaseText, sources, tokenEstimate, keywordsMatched } =
         await getRelevantKnowledge(caseKeywords, MAX_KNOWLEDGE_TOKENS, log);
+    */
 
-    log(`[AuditEngine] 📊 Conocimiento inyectado: ${sources.length} fuentes(~${tokenEstimate} tokens)`);
-    log(`[AuditEngine] 📚 Fuentes: ${sources.join(' | ')} `);
+    // DISABLE MINI-RAG PER USER REQUEST
+    const knowledgeBaseText = "(Base de conocimiento legal omitida en esta iteración para optimización de rendimiento).";
+    const sources: string[] = ["Mini-RAG Desactivado"];
+    const tokenEstimate = 0;
+
+    log(`[AuditEngine] 📊 Conocimiento inyectado: 0 fuentes (Mini-RAG OFF)`);
+    // log(`[AuditEngine] 📚 Fuentes: ${sources.join(' | ')} `);
     onProgressUpdate?.(20);
 
     // Paso 3: Cargar reglas de hotelería (siempre, es pequeño)
