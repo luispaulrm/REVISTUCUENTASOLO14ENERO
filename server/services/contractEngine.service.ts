@@ -231,13 +231,15 @@ export async function analyzeSingleContract(
         let finalResult = null;
         let finalMetrics = { tokensInput: 0, tokensOutput: 0, cost: 0 };
 
-        // Multi-Model Fallback: Contract-specific configuration
-        // Primary: AI_CONFIG.ACTIVE_MODEL (e.g., gemini-3-flash-preview)
-        // Fallback: gemini-2.5-flash (STRICT USER REQUIREMENT)
+        // Multi-Model Fallback Strategy (v3.0):
+        // 1. Primary: Gemini 3 Pro (High Intellect) - CONTRACT_FAST_MODEL
+        // 2. Secondary: Gemini 3 Flash (Speed/Reasoning) - CONTRACT_REASONING_MODEL
+        // 3. Fallback: Gemini 2.5 Flash (Legacy Reliability) - CONTRACT_FALLBACK_MODEL
         const modelsToTry = [
-            AI_CONFIG.ACTIVE_MODEL || 'gemini-3-flash-preview',
-            'gemini-2.5-flash'
-        ];
+            CONTRACT_FAST_MODEL,
+            CONTRACT_REASONING_MODEL,
+            CONTRACT_FALLBACK_MODEL
+        ].filter(m => !!m && m.length > 0); // Ensure no empty models
 
         // Retry with exponential backoff for 503 errors
         const attemptExtraction = async (currentKey: string, modelName: string): Promise<any> => {
