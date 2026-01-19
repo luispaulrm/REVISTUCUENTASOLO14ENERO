@@ -642,6 +642,7 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
 // ============================================================================
 function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
     const validatedResult = { ...resultRaw };
+    let hasStructuralOpacity = false;
 
     // 1. Table VIII Enforcement & Hallmark Check (Cross-Validation v9)
     if (validatedResult.hallazgos) {
@@ -668,7 +669,40 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
                     return false;
                 }
             }
+
+            // DETECTOR DE OPACIDAD ESTRUCTURAL
+            // Si el hallazgo es de Opacidad o Materiales/Medicamentos con mención de falta de desglose
+            const isOpacidad = h.categoria === "OPACIDAD" ||
+                (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMACO|VARIOS/i.test(h.glosa) && /DESGLOSE|OPACIDAD/i.test(h.hallazgo || ""));
+
+            if (isOpacidad) {
+                hasStructuralOpacity = true;
+            }
+
             return true;
+        });
+    }
+
+    // --- CANONICAL OPACITY OVERRIDE (HARD RULE) ---
+    if (hasStructuralOpacity) {
+        console.log('[AuditEngine] 🛡️ DETECTADA OPACIDAD ESTRUCTURAL. Aplicando Regla Canónica de Indeterminación.');
+
+        // 1. Force Global Status
+        if (!validatedResult.decisionGlobal) validatedResult.decisionGlobal = {};
+        validatedResult.decisionGlobal.estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
+        validatedResult.decisionGlobal.fundamento = "La auditoría no puede validar el copago debido a una opacidad estructural en ítems genéricos (Materiales/Medicamentos) sin desglose que vulnera la Ley 20.584.";
+
+        // 2. Force Financial Summary
+        if (!validatedResult.resumenFinanciero) validatedResult.resumenFinanciero = {};
+        validatedResult.resumenFinanciero.estado_copago = "INDETERMINADO_POR_OPACIDAD";
+        validatedResult.resumenFinanciero.totalCopagoLegitimo = 0; // Cannot act as legitimizer
+        validatedResult.resumenFinanciero.analisisGap = "No aplicable por indeterminación del copago.";
+
+        // 3. Mark findings as controversial (optional metadata enhancement)
+        validatedResult.hallazgos.forEach((h: any) => {
+            if (h.categoria === 'OPACIDAD' || /MATERIAL|INSUMO|MEDICAMENTO|VARIOS/i.test(h.glosa || '')) {
+                h.estado_juridico = "EN_CONTROVERSIA";
+            }
         });
     }
 

@@ -677,40 +677,47 @@ export const REFLECTION_SCHEMA = {
 };
 
 export const AUDIT_PROMPT = `
-### 0. JERARQUÍA SUPREMA DE DECISIÓN (PRECEDENCIA ABSOLUTA)
-El sistema debe resolver conflictos normativos siguiendo ESTE ORDEN ESTRICTO:
+### 0. ESTRUCTURA CANÓNICA DE REPORTE (HARD RULE - NO MODIFICAR)
+El informe final DEBE seguir estrictamente esta estructura lógica y de presentación. Cualquier desviación será considerada una alucinación técnica.
 
-1. **OPACIDAD LEGAL (LEY 20.584) [PRIORIDAD 0]**:
-   - Si un ítem es "VARIOS", "AJUSTES" o "MATERIALES" sin desglose → SE IMPUGNA SIEMPRE.
-   - **CLASIFICACIÓN**: "MONTO EN CONTROVERSIA" (No usar "Ahorro").
-   - *Razón*: La falta de determinación del objeto hace NULA la deuda.
-   - *Consecuencia*: No se fija copago legítimo (es indeterminado).
+#### 1. CONCLUSIÓN EJECUTIVA (CLARA Y SIN CONTRADICCIONES)
+- Si detectas OPACIDAD en líneas genéricas (Materiales, Medicamentos sin desglose) o "VARIOS":
+  - El resultado es: "La auditoría forense NO permite validar completamente el copago informado en el PAM, debido a una OPACIDAD ESTRUCTURAL."
+  - Resultado jurídico-técnico final: "El copago es INDETERMINADO y se encuentra BAJO CONTROVERSIA."
+  - ⚠️ PROHIBIDO establecer "Ahorro Definitivo" sobre estos montos.
 
-2. **TOPE CONTRACTUAL (UF/VAM) [PRIORIDAD 1]**:
-   - Si el ítem está desglosado (es válido) y el copago está dentro del tope → SE APRUEBA.
-   - *Prevalencia*: Mata a IF-319.
+#### 2. ALCANCE DE LA AUDITORÍA (DELIMITACIÓN CLAVE)
+- ✔️ Sí se valida: Honorarios médicos, Día cama, Cobertura % (si aplica).
+- ❌ No se valida: Materiales clínicos, Medicamentos hospitalizados (si no hay desglose).
 
-3. **NORMAS DE CONTENIDO (IF-319 / UNBUNDLING) [PRIORIDAD 2]**:
-   - Si está desglosado y bajo tope, revisamos si es un cobro duplicado o improcedente.
+#### 3. HALLAZGO PRINCIPAL (ESTRUCTURAL)
+- Si hay opacidad:
+  - Título: "Opacidad en líneas genéricas del PAM"
+  - Categoría: "OPACIDAD"
+  - Líneas afectadas: MATERIALES CLÍNICOS QUIRÚRGICOS, MEDICAMENTOS HOSPITALIZADOS.
+  - Copago asociado: Suma total de estos ítems.
+  - Normativa vulnerada: Ley 20.584 (Derecho a cuenta detallada).
 
-4. **RESTO (COHERENCIA, ARITMÉTICA) [PRIORIDAD 3]**
+#### 4. RESULTADO FINANCIERO CORRECTO
+- Concepto -> Estado
+- Copago total informado en PAM: [Monto]
+- Copago validado sin objeción: [Monto]
+- Copago bajo controversia: [Monto Opaco]
+- Ahorro definitivo: ❌ No determinable
+- Estado jurídico del monto objetado: INDETERMINADO
 
-### 0.1 DOCTRINA DE SEPARACIÓN DE NIVELES (CRÍTICO)
-El informe DEBE declarar explícitamente dos niveles, no mezclarlos:
+### 0.1 REGLA DURA DE SISTEMA (SYSTEM OVERRIDE)
+SI detectas \`Hallazgo_Principal = OPACIDAD_ESTRUCTURAL\` (ítems genéricos sin desglose):
+ENTONCES:
+- \`decisionGlobal.estado\` = "COPAGO_INDETERMINADO_POR_OPACIDAD"
+- \`resumenFinanciero.estado_copago\` = "INDETERMINADO_POR_OPACIDAD"
+- \`resumenFinanciero.totalCopagoLegitimo\` = 0
+- Acción Recomendada = "IMPUGNAR / SOLICITAR ACLARACIÓN"
 
-🔹 NIVEL 1 – Hallazgo estructural (PRINCIPAL)
-- Imposibilidad de auditoría del PAM por falta de desglose.
-- Líneas afectadas: Materiales Clínicos, Medicamentos Hospitalizados.
-- Consecuencia: El copago asociado NO PUEDE VALIDARSE.
-- Acción: Solicitar refacturación/desglose y suspender exigibilidad del copago asociado.
-- 👉 **REGLA DE ORO DE CONTROVERSIA**: Si existe este hallazgo, el monto se clasifica como "MONTO EN CONTROVERSIA", no como "Ahorro Definitivo".
+Esta regla MATA cualquier otra validación parcial sobre esos ítems. No intentes "estimar" lo justo si no ves el detalle.
 
-🔹 NIVEL 2 – Hallazgos específicos (SUBSIDIARIOS)
-- Refuerzan la impugnación (Hotelería, Insumos de pabellón, Glosas VARIOS/AJUSTES).
-- No reemplazan el hallazgo estructural.
 
-👉 REGLA DE MOTOR:
-- No recalcular “copago legítimo” si falta desglose.
+
 - Usar: \`estado_copago: "INDETERMINADO_POR_OPACIDAD"\`.
 
 ### 1. REGLA DE ORO DE VISIBILIDAD FINANCIERA (NUEVO)
