@@ -81,12 +81,12 @@ function safeJsonParse<T>(text: string): T {
 
 /**
  * Detects column boundaries in a table by analyzing X-coordinates of text items.
- * Returns an array of column boundary objects with start/end X positions.
+ * Uses dynamic clustering based on gap analysis.
  */
-function detectColumnBoundaries(items: any[]): Array<{ start: number, end: number, index: number }> {
+function detectColumnBoundaries(items: any[], log?: (msg: string) => void): Array<{ start: number, end: number, index: number }> {
     if (!items || items.length === 0) return [];
 
-    // Collect all X positions
+    // 1. Collect and Sort unique X positions
     const xPositions = items
         .filter(item => item.transform && item.transform.length >= 6)
         .map(item => item.transform[4]) // X position
@@ -94,25 +94,58 @@ function detectColumnBoundaries(items: any[]): Array<{ start: number, end: numbe
 
     if (xPositions.length === 0) return [];
 
-    // Detect clusters of X positions (column starts)
-    const CLUSTER_TOLERANCE = 30; // pixels
+    // 2. Calculate Gaps to determine dynamic tolerance
+    const gaps: number[] = [];
+    for (let i = 1; i < xPositions.length; i++) {
+        const gap = xPositions[i] - xPositions[i - 1];
+        if (gap > 1.0) gaps.push(gap); // Ignore tiny jitter
+    }
+
+    // Default to 30 if no significant gaps, otherwise use median-ish heuristic
+    let clusterTolerance = 30;
+    if (gaps.length > 0) {
+        gaps.sort((a, b) => a - b);
+        const medianGap = gaps[Math.floor(gaps.length / 2)];
+        // A column gap is usually significantly larger than character spacing jitter
+        // We set tolerance to be slightly larger than the median alignment jitter
+        clusterTolerance = Math.max(10, medianGap * 2);
+    }
+
+    // log?.(`[DEBUG_OCR] Dynamic Cluster Tolerance: ${clusterTolerance.toFixed(1)}px`);
+
+    // 3. Cluster X positions
     const clusters: number[] = [];
-    let currentCluster = xPositions[0];
+    let currentClusterSum = xPositions[0];
+    let currentClusterCount = 1;
+    let lastX = xPositions[0];
 
     for (let i = 1; i < xPositions.length; i++) {
-        if (xPositions[i] - currentCluster > CLUSTER_TOLERANCE) {
-            clusters.push(currentCluster);
-            currentCluster = xPositions[i];
+        const x = xPositions[i];
+        if (x - lastX > clusterTolerance) {
+            // End of cluster, save centroid
+            clusters.push(currentClusterSum / currentClusterCount);
+            // Start new cluster
+            currentClusterSum = x;
+            currentClusterCount = 1;
+        } else {
+            // Add to current cluster
+            currentClusterSum += x;
+            currentClusterCount++;
         }
+        lastX = x;
     }
-    clusters.push(currentCluster);
+    clusters.push(currentClusterSum / currentClusterCount); // Push last cluster
 
-    // Create column boundaries
-    const columns = clusters.map((start, index) => ({
-        start,
-        end: index < clusters.length - 1 ? clusters[index + 1] : start + 200,
-        index
-    }));
+    // 4. Create boundaries (midpoints between clusters)
+    const columns = clusters.map((centroid, index) => {
+        const nextCentroid = clusters[index + 1];
+        const end = nextCentroid ? (centroid + nextCentroid) / 2 : centroid + 100;
+        // Start is midpoint from previous, or slightly before centroid for first
+        const prevCentroid = clusters[index - 1];
+        const start = prevCentroid ? (prevCentroid + centroid) / 2 : centroid - 20;
+
+        return { start, end, index };
+    });
 
     return columns;
 }
@@ -122,30 +155,21 @@ function detectColumnBoundaries(items: any[]): Array<{ start: number, end: numbe
  */
 function assignToColumn(item: any, columns: Array<{ start: number, end: number, index: number }>): number {
     if (!item.transform || item.transform.length < 6) return -1;
-    const x = item.transform[4];
+    const x = item.transform[4]; // Start X
+    // Use center point of text ideally, but start is usually enough for left-aligned
+    // Let's stick to start X for consistency with detection
 
     for (const col of columns) {
         if (x >= col.start && x < col.end) {
             return col.index;
         }
     }
-
-    // If not in any column, assign to nearest
-    let nearest = 0;
-    let minDist = Math.abs(x - columns[0].start);
-    for (let i = 1; i < columns.length; i++) {
-        const dist = Math.abs(x - columns[i].start);
-        if (dist < minDist) {
-            minDist = dist;
-            nearest = i;
-        }
-    }
-    return nearest;
+    return -1; // Out of bounds
 }
 
 async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<{ text: string, totalPages: number, structuredData?: any }> {
     try {
-        log(`[ContractEngine] 🔍 Escaneando PDF con Detector de Columnas Geométricas (v12.0)...`);
+        log(`[ContractEngine] 🔍 Escaneando PDF con Detector de Columnas Geométricas v13.5 (Debug Mode)...`);
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
         const fontPathRaw = path.resolve(__dirname, '../../node_modules/pdfjs-dist/standard_fonts');
@@ -161,7 +185,7 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
         const pdf = await loadingTask.promise;
 
         const pagesToScan = Math.min(pdf.numPages, Number.isFinite(maxPages) ? maxPages : pdf.numPages);
-        log(`[ContractEngine] 📗 PDF cargado (${pdf.numPages} págs). Procesando ${pagesToScan} con detección de columnas.`);
+        log(`[ContractEngine] 📗 PDF cargado (${pdf.numPages} págs). Procesando ${pagesToScan}.`);
 
         let formattedText = '';
         const structuredTables: any[] = [];
@@ -172,11 +196,12 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
                 const items: any[] = textContent.items || [];
 
                 // --- STEP 1: DETECT COLUMN BOUNDARIES ---
-                const columns = detectColumnBoundaries(items);
-                log(`[ContractEngine] 📊 Pág ${pageNumber}: Detectadas ${columns.length} columnas en coordenadas: ${columns.map(c => `${c.start.toFixed(0)}px`).join(', ')}`);
+                const columns = detectColumnBoundaries(items, log);
+                log(`[DEBUG_OCR] Pág ${pageNumber}: ${columns.length} columnas detectadas.`);
+                columns.forEach(c => log(`  -> Col ${c.index}: ${c.start.toFixed(0)}px - ${c.end.toFixed(0)}px`));
 
                 // --- STEP 2: GROUP ITEMS BY ROW (Y-coordinate) ---
-                const Y_TOLERANCE = 4.0;
+                const Y_TOLERANCE = 5.0; // Slightly increased vertical tolerance
                 const lines: { y: number, items: any[] }[] = [];
 
                 for (const item of items) {
@@ -199,10 +224,13 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
                 for (const line of lines) {
                     const row: string[] = new Array(columns.length).fill('');
 
+                    // Sort items in line by X to ensure logical reading order even within cells
+                    line.items.sort((a, b) => a.transform[4] - b.transform[4]);
+
                     for (const item of line.items) {
                         const colIndex = assignToColumn(item, columns);
                         if (colIndex >= 0 && colIndex < columns.length) {
-                            row[colIndex] += (row[colIndex] ? ' ' : '') + item.str;
+                            row[colIndex] += (row[colIndex].length > 0 ? ' ' : '') + item.str;
                         }
                     }
 
@@ -218,10 +246,17 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
                     rows: tableRows
                 });
 
-                // --- STEP 4: FORMAT AS TEXT FOR AI (WITH COLUMN MARKERS) ---
+                // --- STEP 4: DEBUG OUTPUT & FORMATTING ---
                 const pageLines = tableRows.map(row => {
-                    return row.map((cell, idx) => `[COL${idx}]${cell.trim()}`).join(' | ');
+                    const formattedRow = row.map((cell, idx) => `[COL${idx}]${cell.trim()}`).join(' | ');
+                    return formattedRow;
                 });
+
+                // Log a sample of rows for debugging
+                if (pageLines.length > 0) {
+                    log(`[DEBUG_OCR] --- Muestra de Filas Detectadas (Pág ${pageNumber}) ---`);
+                    pageLines.slice(0, 10).forEach(l => log(`  ${l.substring(0, 150)}...`));
+                }
 
                 return pageLines.join('\n');
             });
