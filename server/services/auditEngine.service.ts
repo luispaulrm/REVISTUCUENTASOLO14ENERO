@@ -640,47 +640,56 @@ export async function performForensicAudit(
 function finalizeAudit(result: any): any {
     const hallazgos = result.hallazgos || [];
 
+    // 0. Detect Structural Opacity Parent to avoid double counting
+    const hasCanonicalOpacity = hallazgos.some((h: any) => h.codigos === "OPACIDAD_ESTRUCTURAL");
+
     // 1. Freeze Categories
     const hallazgosFrozen = hallazgos.map((h: HallazgoInternal) => {
         let cat: HallazgoCategoria = "Z"; // Default indeterminate
 
         // Analyze Basis & Opacity
-        const isOpacity = h.categoria === "OPACIDAD" ||
-            h.codigos === "OPACIDAD_ESTRUCTURAL" ||
-            (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO/i.test(h.glosa) && /DESGLOSE|OPACIDAD/i.test(h.hallazgo));
+        const isOpacityParent = h.codigos === "OPACIDAD_ESTRUCTURAL";
+        const isGenericMaterialOrMed = (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMAC/i.test(h.glosa));
 
-        const isNutrition = h.codigos?.includes("3101306") || /ALIMENTA|NUTRICI/i.test(h.glosa || "");
-        const isGap = h.codigos === "GAP_RECONCILIATION";
-
-        if (isOpacity) {
-            cat = "B"; // Always Controversy
-        } else if (isNutrition) {
-            // Nutrition is A only if marked as MATCH_EXACTO
-            if (h.anclajeJson?.includes("MATCH_EXACTO")) {
-                cat = "A";
-            } else {
-                cat = "Z"; // Partial/No match -> Indeterminate
-            }
-        } else if (isGap) {
-            // Gap is A (Confirmed Savings / Unjustified) unless context dictates otherwise
-            cat = "Z"; // Usually we want Gap to be "Indeterminate" or "Controversy" unless proven unbundling. 
-            // Plan said: "Indeterminate: $15.396 (si el PAM insiste...)" -> So Z.
-            // But if it's "Cobro Improcedente", maybe A? 
-            // Let's stick to safe: Gap is Z (Indeterminate) until proven.
+        // Logic: If we have the Canonical Parent, then any other generic material/med finding is a "Child" 
+        // that is technically subsumed by the structural opacity. We mark it so we don't double sum.
+        if (hasCanonicalOpacity && isGenericMaterialOrMed && !isOpacityParent) {
+            h.isSubsumed = true;
+            cat = "B"; // It is still controversy, but won't be summed
+        } else if (isOpacityParent) {
+            cat = "B";
+        } else if (h.categoria === "OPACIDAD") {
+            // Fallback for legacy items if no canonical parent exists
+            cat = "B";
         } else {
-            // Default "Cobro Improcedente" (e.g. Pabellon, Dias Cama) -> A
-            // Check if explicitly "COBRO_IMPROCEDENTE" and high confidence
-            if (h.tipo_monto === "COBRO_IMPROCEDENTE" && h.nivel_confianza !== "BAJA") {
-                cat = "A";
+            // NUTRITION & OTHERS
+            const isNutrition = h.codigos?.includes("3101306") || /ALIMENTA|NUTRICI/i.test(h.glosa || "");
+            const isGap = h.codigos === "GAP_RECONCILIATION";
+
+            if (isNutrition) {
+                // Nutrition is A only if marked as MATCH_EXACTO
+                if (h.anclajeJson?.includes("MATCH_EXACTO")) {
+                    cat = "A";
+                } else {
+                    cat = "Z"; // Partial/No match -> Indeterminate
+                }
+            } else if (isGap) {
+                cat = "Z"; // Gap is always Indeterminate until proven
             } else {
-                cat = "B";
+                // Default "Cobro Improcedente" (e.g. Pabellon, Dias Cama) -> A
+                // Check if explicitly "COBRO_IMPROCEDENTE" and high confidence
+                if (h.tipo_monto === "COBRO_IMPROCEDENTE" && h.nivel_confianza !== "BAJA") {
+                    cat = "A";
+                } else {
+                    cat = "B";
+                }
             }
         }
 
         // Apply to object
         h.categoria_final = cat;
 
-        // Update Legacy Labels for UI compatibility (until UI full rewrite)
+        // Update Legacy Labels for UI compatibility
         if (cat === "A") {
             h.tipo_monto = "COBRO_IMPROCEDENTE";
             h.estado_juridico = "CONFIRMADO_EXIGIBLE";
@@ -688,17 +697,25 @@ function finalizeAudit(result: any): any {
             h.tipo_monto = "COPAGO_OPACO";
             h.estado_juridico = "EN_CONTROVERSIA";
         } else {
-            h.tipo_monto = "COPAGO_OPACO"; // Grey area
+            h.tipo_monto = "COPAGO_OPACO";
             h.estado_juridico = "INDETERMINADO";
         }
 
         return h;
     });
 
-    // 2. Compute KPI Totals
-    const sumA = hallazgosFrozen.filter((h: any) => h.categoria_final === "A").reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
-    const sumB = hallazgosFrozen.filter((h: any) => h.categoria_final === "B").reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
-    const sumZ = hallazgosFrozen.filter((h: any) => h.categoria_final === "Z").reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
+    // 2. Compute KPI Totals (EXCLUDING SUBSUMED ITEMS)
+    const sumA = hallazgosFrozen
+        .filter((h: any) => h.categoria_final === "A" && !h.isSubsumed)
+        .reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
+
+    const sumB = hallazgosFrozen
+        .filter((h: any) => h.categoria_final === "B" && !h.isSubsumed)
+        .reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
+
+    const sumZ = hallazgosFrozen
+        .filter((h: any) => h.categoria_final === "Z" && !h.isSubsumed)
+        .reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
 
     // 3. Update Result
     result.hallazgos = hallazgosFrozen;
@@ -707,12 +724,15 @@ function finalizeAudit(result: any): any {
 
     // OVERWRITE KPIs
     result.resumenFinanciero.ahorro_confirmado = sumA; // Green Card
+    result.resumenFinanciero.cobros_improcedentes_exigibles = sumA; // Sync
+
     result.resumenFinanciero.copagos_bajo_controversia = sumB; // Amber Card
     result.resumenFinanciero.monto_indeterminado = sumZ; // Grey Card
+
     result.resumenFinanciero.totalCopagoObjetado = sumA + sumB + sumZ;
 
     // Legacy support
-    result.totalAhorroDetectado = sumA; // Only confirmed counts as "Ahorro Detectado" for old logic
+    result.totalAhorroDetectado = sumA;
 
     return result;
 }
