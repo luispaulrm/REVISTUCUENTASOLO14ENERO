@@ -686,10 +686,17 @@ function finalizeAudit(result: any): any {
             }
         }
 
+        // --- STRICT OVERRIDE FOR SUSPECTED PARTIAL MATCHES ---
+        // If we have a finding that mentions "Alimentación" or "Sin Bonificación" but was NOT marked as "A" above (Exact Match),
+        // we force it to Z (Indeterminate) to avoid "Green" oscillation.
+        if ((h.titulo?.includes("ALIMENTACION") || h.glosa?.includes("SIN BONIF")) && cat !== "A") {
+            cat = "Z";
+        }
+
         // Apply to object
         h.categoria_final = cat;
 
-        // Update Legacy Labels for UI compatibility
+        // Update Legacy Labels for UI compatibility (until UI full rewrite)
         if (cat === "A") {
             h.tipo_monto = "COBRO_IMPROCEDENTE";
             h.estado_juridico = "CONFIRMADO_EXIGIBLE";
@@ -697,14 +704,15 @@ function finalizeAudit(result: any): any {
             h.tipo_monto = "COPAGO_OPACO";
             h.estado_juridico = "EN_CONTROVERSIA";
         } else {
-            h.tipo_monto = "COPAGO_OPACO";
+            h.tipo_monto = "COPAGO_OPACO"; // Grey area
             h.estado_juridico = "INDETERMINADO";
         }
 
         return h;
     });
 
-    // 2. Compute KPI Totals (EXCLUDING SUBSUMED ITEMS)
+    // 2. Compute KPI Totals (STRICT SINGLE SOURCE OF TRUTH)
+    // Only sum what is in hallazgosFrozen. NO other inputs.
     const sumA = hallazgosFrozen
         .filter((h: any) => h.categoria_final === "A" && !h.isSubsumed)
         .reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
@@ -1038,43 +1046,40 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: 
                 );
 
                 if (nutritionCheck.matchFound) {
-                    // EXACT MATCH: Confirm or Inject Finding
-                    console.log(`[AuditEngine] 🍎 ALIMENTACION: Match Exacto ($${nutritionCheck.targetAmount}). items: ${nutritionCheck.items.length}`);
+                    // EXACT MATCH LOGIC
 
-                    // If finding exists, confirm it. If not, create it.
-                    const findingPayload = {
-                        codigos: "3101306",
-                        titulo: "UNBUNDLING EN ALIMENTACIÓN – COBRO IMPROCEDENTE",
-                        glosa: "PRESTACIONES SIN BONIFICACIÓN (ALIMENTACION)",
-                        hallazgo: `**I. Identificación del ítem**
-PRESTACIONES SIN BONIFICACIÓN (GC 3101306 / ALIMENTACIÓN)
-Copago: **$${nutritionCheck.targetAmount.toLocaleString('es-CL')}**
+                    // We need to check if the targetAmount found in PAM is EXACTLY matching the Finding Amount.
+                    // Often the LLM creates a finding for the whole "PRESTACIONES SIN BONIFICACION" line ($66.752).
+                    // But nutrition match is only $51.356. 
+                    // Case A: Perfect Match ($51.356 vs $51.356) -> Cat A.
+                    // Case B: Partial ($66.752 vs $51.356) -> Cat Z (Conservative).
 
-**II. Contexto**
-El paciente se encontraba hospitalizado. El concepto Día Cama, ya cobrado y bonificado, incluye por definición técnica y contractual la alimentación básica del paciente.
+                    // Logic: Search for the finding that matches the PAM Line
+                    const targetFindingIndex = validatedResult.hallazgos.findIndex((h: any) =>
+                        (h.montoObjetado === nutritionCheck.targetAmount) ||
+                        (h.glosa && h.glosa.includes("SIN BONIF") && Math.abs(h.montoObjetado - nutritionCheck.targetAmount) < 20000)
+                    );
 
-**III. Análisis**
-El cobro separado de alimentación constituye una desagregación improcedente (unbundling) de una prestación integral ya arancelada. Se ha verificado matemáticamente que el monto cobrado corresponde exactamente a la suma de los siguientes ítems de alimentación en la cuenta:
-${nutritionCheck.items.map((i: any) => `- ${i.description}: $${i.total.toLocaleString('es-CL')}`).join('\n')}
+                    if (targetFindingIndex >= 0) {
+                        const existingFinding = validatedResult.hallazgos[targetFindingIndex];
+                        const diff = Math.abs(existingFinding.montoObjetado - nutritionCheck.targetAmount);
 
-**IV. Conclusión**
-El monto de **$${nutritionCheck.targetAmount.toLocaleString('es-CL')}** debe ser impugnado como cobro improcedente, por duplicar un componente inherente al Día Cama.`,
-                        montoObjetado: nutritionCheck.targetAmount,
-                        tipo_monto: "COBRO_IMPROCEDENTE",
-                        recomendacion_accion: "IMPUGNAR",
-                        nivel_confianza: "ALTA",
-                        normaFundamento: "Circular IF/319 (Cobertura Integral dia cama) y Definición Arancelaria Día Cama",
-                        anclajeJson: "MATCH_EXACTO_SUBSET_SUM"
-                    };
-
-                    if (nutriFindingIndex >= 0) {
-                        // Update existing
-                        validatedResult.hallazgos[nutriFindingIndex] = { ...validatedResult.hallazgos[nutriFindingIndex], ...findingPayload };
-                    } else {
-                        // Inject new
-                        validatedResult.hallazgos.push(findingPayload);
+                        if (diff < 20) {
+                            // EXACT MATCH CONFIRMED
+                            console.log(`[AuditEngine] 🍎 ALIMENTACION: Match Exacto Confirmado. Elevando a Cat A.`);
+                            existingFinding.categoria_final = "A"; // Pre-seed for finalizeAudit
+                            existingFinding.anclajeJson = "MATCH_EXACTO_SUBSET_SUM";
+                            existingFinding.nivel_confianza = "ALTA";
+                            existingFinding.hallazgo = `**I. Trazabilidad Exacta (Confirmada)**\nSe ha verificado matemáticamente que el cobro de $${existingFinding.montoObjetado.toLocaleString('es-CL')} corresponde exactamente a la suma de ítems de alimentación (Almuerzos, Colaciones, etc.) presentes en la cuenta clínica.\n\nEste cobro duplica la cobertura de hotelería incluida en el Día Cama.`;
+                        } else {
+                            // PARTIAL / MISMATCH -> CONSERVATIVE Z
+                            console.log(`[AuditEngine] 🍎 ALIMENTACION: Match Parcial (${nutritionCheck.targetAmount} vs ${existingFinding.montoObjetado}). Dejando en Cat Z.`);
+                            existingFinding.categoria_final = "Z";
+                            existingFinding.anclajeJson = "MATCH_PARCIAL_SOLO_ALIMENTACION";
+                            existingFinding.nivel_confianza = "MEDIA";
+                            existingFinding.hallazgo = `**I. Indeterminación de Trazabilidad**\nEl monto cobrado ($${existingFinding.montoObjetado.toLocaleString('es-CL')}) NO CALZA exactamente con la suma de alimentación ($${nutritionCheck.targetAmount.toLocaleString('es-CL')}).\n\nExiste un diferencial no explicado que impide confirmar la naturaleza total del cobro. Se requiere desglose.`;
+                        }
                     }
-
                 } else {
                     // NO MATCH: Downgrade logic
                     console.log(`[AuditEngine] 🍎 ALIMENTACION: NO cuadra (Target $${nutritionCheck.targetAmount}). Downgrading...`);
