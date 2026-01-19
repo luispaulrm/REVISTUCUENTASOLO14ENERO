@@ -1070,6 +1070,7 @@ REG LAS HOTELERÍA: "{hoteleria_json}"
 "{eventos_hospitalarios}"
 
 **TRAZABILIDAD FORENSE (TOP-K MATCHING):**
+(Lista autogenerada. REGLA: Si un ítem dice "NO_TRAZABLE", tu recomendación DEBE ser "SOLICITAR_ACLARACION", prohibido deducir fraude).
 "{contexto_trazabilidad}"
 
 CONTEXTO VISUAL (HTML):

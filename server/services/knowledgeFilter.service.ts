@@ -18,7 +18,8 @@ const KNOWLEDGE_DIR = path.join(__dirname, '../knowledge');
 // CONFIGURACIÓN
 // =============================================================================
 
-const MAX_TOKENS_DEFAULT = 3000;  // REDUCED: Prompt Diet (User Request)
+const MAX_TOKENS_DEFAULT = 35000;  // Increased Global Limit (Multi-Doc Strategy)
+const TOKENS_PER_DOC = 12000;      // Cap per document to prevent monopoly
 const CHARS_PER_TOKEN = 4;
 
 // Mapeo de documentos disponibles
@@ -326,7 +327,7 @@ export async function getRelevantKnowledge(
     // Cargar chunks relevantes de cada documento
     for (const [docKey, score] of sortedDocs) {
         if (totalChars >= maxChars) {
-            log(`[KnowledgeFilter] ⚡ Límite de tokens alcanzado (${Math.floor(totalChars / CHARS_PER_TOKEN)})`);
+            log(`[KnowledgeFilter] ⚡ Límite GLOBAL de tokens alcanzado (${Math.floor(totalChars / CHARS_PER_TOKEN)})`);
             break;
         }
 
@@ -342,8 +343,12 @@ export async function getRelevantKnowledge(
             const content = await fs.readFile(filePath, 'utf-8');
             const lines = content.split('\n');
 
+            // Calculate max chars for this specific doc (Cap vs Remaining Global)
+            const remainingGlobal = maxChars - totalChars;
+            const maxDocChars = Math.min(remainingGlobal, TOKENS_PER_DOC * CHARS_PER_TOKEN);
+
             // Buscar chunks relevantes dentro del documento
-            const relevantChunks = findRelevantChunks(lines, keywords, maxChars - totalChars);
+            const relevantChunks = findRelevantChunks(lines, keywords, maxDocChars);
 
             if (relevantChunks.text.length > 0) {
                 result += `\n\n--- ${docInfo.description.toUpperCase()} ---\n`;

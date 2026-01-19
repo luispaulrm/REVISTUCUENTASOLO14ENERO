@@ -208,7 +208,8 @@ export async function performForensicAudit(
     // TRACEABILITY CHECK (DETERMINISTIC LAYER - V3)
     // ============================================================================
     const traceAnalysis = traceGenericChargesTopK(cleanedCuenta, cleanedPam);
-    log(`[AuditEngine] 🔍 Trazabilidad de Ajustes: \n${traceAnalysis}`);
+    log('[AuditEngine] 🔍 Trazabilidad de Ajustes:');
+    traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line}`));
 
     const prompt = AUDIT_PROMPT
         .replace('{jurisprudencia_text}', '')
@@ -613,7 +614,7 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
             d.items?.forEach((i: any) => {
                 pamItems.push({
                     ...i,
-                    amount: typeof i.bonificacion === 'string' ? parseInt(i.bonificacion.replace(/\./g, '')) : i.bonificacion
+                    amount: parseAmountCLP(i.bonificacion)
                 });
             });
         });
@@ -644,7 +645,7 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
                 // Calculate folio total bonification
                 let totalB = 0;
                 f.desglosePorPrestador?.forEach((d: any) => d.items?.forEach((i: any) => {
-                    totalB += (typeof i.bonificacion === 'string' ? parseInt(i.bonificacion.replace(/\./g, '')) : i.bonificacion) || 0;
+                    totalB += parseAmountCLP(i.bonificacion) || 0;
                 }));
                 return Math.abs(totalB - target) <= 2000;
             });
@@ -656,7 +657,7 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
         }
 
         if (!matchFound) {
-            traceResults.push(`- AJUSTE '${adj.description}' ($${target}) NO TIENE CORRELACIÓN aritmética evidente en PAM. ESTATUS: POSIBLE COBRO INDEBIDO (100% Copago).`);
+            traceResults.push(`- AJUSTE '${adj.description}' ($${target}) NO TIENE CORRELACIÓN aritmética evidente en PAM. ESTATUS: NO_TRAZABLE (requiere aclaración: ¿fuera del PAM o absorbido en agrupadores?).`);
         }
     });
 
