@@ -9,6 +9,38 @@ import {
 } from './knowledgeFilter.service.js';
 import { preProcessEventos } from './eventProcessor.service.js';
 
+// ============================================================================
+// UTILITY: Canonical Amount Parser (CLP - Chilean Peso)
+// ============================================================================
+function parseAmountCLP(val: any): number {
+    if (val == null) return 0;
+    if (typeof val === "number") return Math.round(val);
+    if (typeof val === "string") {
+        const n = parseInt(val.replace(/[^0-9-]/g, ""), 10);
+        return Number.isFinite(n) ? n : 0;
+    }
+    return 0;
+}
+
+// ============================================================================
+// UTILITY: Deterministic Finding Classifier (CAT A vs CAT B)
+// ============================================================================
+function classifyFinding(h: any): "A" | "B" {
+    const gl = (h.glosa || "").toUpperCase();
+    const text = (h.hallazgo || "").toUpperCase();
+
+    // CAT A: Cobros improcedentes de cuenta (glosas genéricas sin PAM)
+    const isCuentaOpaca = /VARIOS|AJUSTE|DIFERENCIA/.test(gl) || /VARIOS|AJUSTE/.test(text);
+    if (isCuentaOpaca) return "A";
+
+    // CAT B: PAM con cajas negras (materiales/medicamentos agrupados)
+    const isPamCajaNegra = /MATERIALES|MEDICAMENTOS|INSUMO|FARMAC/.test(gl) && /DESGLOSE|OPACIDAD|CAJA/.test(text);
+    if (isPamCajaNegra) return "B";
+
+    // Default: Conservative (treat as CAT A if unclear)
+    return "A";
+}
+
 export async function performForensicAudit(
     cuentaJson: any,
     pamJson: any,
@@ -353,83 +385,77 @@ export async function performForensicAudit(
         try {
             const pamTotalCopago = pamJson?.global?.totalCopagoDeclarado || pamJson?.resumenTotal?.totalCopago || 0;
 
-            const parseAmount = (val: any) => {
-                if (typeof val === 'number') return val;
-                if (typeof val === 'string') return parseInt(val.replace(/[^0-9-]/g, ''), 10) || 0;
-                return 0;
-            };
-
-            const numericTotalCopago = parseAmount(pamTotalCopago);
+            const numericTotalCopago = parseAmountCLP(pamTotalCopago);
             const sumFindings = auditResult.hallazgos.reduce((sum: number, h: any) => sum + (h.montoObjetado || 0), 0);
 
             // NEW LOGIC: Use AI's financial summary if available to deduce Legitimate Copay
             const financialSummary = auditResult.resumenFinanciero || {};
-            const legitimadoPorIA = parseAmount(financialSummary.totalCopagoLegitimo || 0);
+            const legitimadoPorIA = parseAmountCLP(financialSummary.totalCopagoLegitimo || 0);
             const estadoCopago = financialSummary.estado_copago || 'VALIDADO';
 
             // True Gap = TotalCopago - (Legitimate + Objected)
             // If AI says $1.4M is legitimate (30% copay) and $395k is objected, and Total is $1.8M
             // Gap = 1.8M - (1.4M + 0.395M) = ~0.
 
-            // NEW LOGIC: If state is INDETERMINADO, we don't fix a legitimate copay.
+            // 🚨 REGLA NUCLEAR: Si el estado es INDETERMINADO, NO generamos GAP/orphans
             if (estadoCopago === 'INDETERMINADO_POR_OPACIDAD') {
-                log(`[AuditEngine] 🔍 Estado detectado: INDETERMINADO_POR_OPACIDAD. Omitiendo cuadratura de copago legítimo.`);
-                // In this state, the gap reconciliation might be confusing if we force math.
-                // We'll trust the AI findings as the primary reinforcement.
-            }
-
-            // Verify consistency:
-            // If AI didn't provide breakdown, we default to the old "Gap = Total - Findings" logic BUT
-            // ONLY if the gap is massive.
-
-            let gap = 0;
-            if (legitimadoPorIA > 0) {
-                gap = numericTotalCopago - (legitimadoPorIA + sumFindings);
+                log(`[AuditEngine] 🔍 Estado INDETERMINADO detectado. NO se ejecuta GAP reconciliation (evita ghost hunters).`);
+                // Early return: skip all gap/orphan logic
             } else {
-                // If AI was lazy and didn't fill legitimado, we can't assume everything is a Gap.
-                // We trust the AI's "hallazgos". If AI says "No findings", then Copay matches Contract.
-                // So Gap should be 0 unless we forced it.
-                // BUT, to catch "Ghost Codes", we can check if there are 00-00 codes that are NOT in findings.
-                // For now, let's be conservative: If no explicit legitimization, assume AI did its job.
-                // Only creating Gap finding if explicit "resumenFinanciero" indicates a mismatch.
-                gap = 0;
-                if (financialSummary.analisisGap && financialSummary.analisisGap.toLowerCase().includes('diferencia')) {
-                    // Try to parse number from text or default to simple arithmetic
-                    gap = numericTotalCopago - sumFindings; // Fallback to simple math only if AI admits a gap
+
+                // Verify consistency:
+                // If AI didn't provide breakdown, we default to the old "Gap = Total - Findings" logic BUT
+                // ONLY if the gap is massive.
+
+                let gap = 0;
+                if (legitimadoPorIA > 0) {
+                    gap = numericTotalCopago - (legitimadoPorIA + sumFindings);
+                } else {
+                    // If AI was lazy and didn't fill legitimado, we can't assume everything is a Gap.
+                    // We trust the AI's "hallazgos". If AI says "No findings", then Copay matches Contract.
+                    // So Gap should be 0 unless we forced it.
+                    // BUT, to catch "Ghost Codes", we can check if there are 00-00 codes that are NOT in findings.
+                    // For now, let's be conservative: If no explicit legitimization, assume AI did its job.
+                    // Only creating Gap finding if explicit "resumenFinanciero" indicates a mismatch.
+                    gap = 0;
+                    if (financialSummary.analisisGap && financialSummary.analisisGap.toLowerCase().includes('diferencia')) {
+                        // Try to parse number from text or default to simple arithmetic
+                        gap = numericTotalCopago - sumFindings; // Fallback to simple math only if AI admits a gap
+                    }
                 }
-            }
 
-            // Threshold: $5000 CLP
-            if (gap > 5000) {
-                log(`[AuditEngine] 🚨 GAP REAL DETECTADO: $${gap} (Total: $${numericTotalCopago} - Validado: $${legitimadoPorIA} - Hallazgos: $${sumFindings})`);
+                // Threshold: $5000 CLP
+                if (gap > 5000) {
+                    log(`[AuditEngine] 🚨 GAP REAL DETECTADO: $${gap} (Total: $${numericTotalCopago} - Validado: $${legitimadoPorIA} - Hallazgos: $${sumFindings})`);
 
-                // 1. SCAN FOR ORPHANED ITEMS (The "Ghost Code Hunter")
-                const orphanedItems: any[] = [];
-                let remainingGap = gap;
+                    // 1. SCAN FOR ORPHANED ITEMS (The "Ghost Code Hunter")
+                    const orphanedItems: any[] = [];
+                    let remainingGap = gap;
 
-                if (pamJson && pamJson.folios) {
-                    for (const folio of pamJson.folios) {
-                        if (folio.desglosePorPrestador) {
-                            for (const prestador of folio.desglosePorPrestador) {
-                                if (prestador.items) {
-                                    for (const item of prestador.items) {
-                                        const itemCopago = parseAmount(item.copago);
-                                        // Heuristic: If item has copay > 0 AND fits within the gap AND is likely a "Ghost Code" (00-00-000-00 or 99-XX)
-                                        // We prioritize these as the culprits.
-                                        if (itemCopago > 0 && itemCopago <= (remainingGap + 500)) {
-                                            const isCode0 = item.codigo?.includes('00-00-000') || item.codigo?.startsWith('0') || item.codigo?.startsWith('99-');
-                                            const description = (item.descripcion || '').toUpperCase();
-                                            const isGeneric = description.includes('INSUMO') || description.includes('MATERIAL') || description.includes('VARIO');
+                    if (pamJson && pamJson.folios) {
+                        for (const folio of pamJson.folios) {
+                            if (folio.desglosePorPrestador) {
+                                for (const prestador of folio.desglosePorPrestador) {
+                                    if (prestador.items) {
+                                        for (const item of prestador.items) {
+                                            const itemCopago = parseAmountCLP(item.copago);
+                                            // Heuristic: If item has copay > 0 AND fits within the gap AND is likely a "Ghost Code" (00-00-000-00 or 99-XX)
+                                            // We prioritize these as the culprits.
+                                            if (itemCopago > 0 && itemCopago <= (remainingGap + 500)) {
+                                                const isCode0 = item.codigo?.includes('00-00-000') || item.codigo?.startsWith('0') || item.codigo?.startsWith('99-');
+                                                const description = (item.descripcion || '').toUpperCase();
+                                                const isGeneric = description.includes('INSUMO') || description.includes('MATERIAL') || description.includes('VARIO');
 
-                                            // Check if this item was already "caught" (approximate match by amount/code)
-                                            const alreadyCaught = auditResult.hallazgos.some((h: any) =>
-                                                (h.montoObjetado === itemCopago) ||
-                                                (h.codigos && h.codigos.includes(item.codigo))
-                                            );
+                                                // Check if this item was already "caught" (approximate match by amount/code)
+                                                const alreadyCaught = auditResult.hallazgos.some((h: any) =>
+                                                    (h.montoObjetado === itemCopago) ||
+                                                    (h.codigos && h.codigos.includes(item.codigo))
+                                                );
 
-                                            if (!alreadyCaught && (isCode0 || isGeneric)) {
-                                                orphanedItems.push(item);
-                                                remainingGap -= itemCopago;
+                                                if (!alreadyCaught && (isCode0 || isGeneric)) {
+                                                    orphanedItems.push(item);
+                                                    remainingGap -= itemCopago;
+                                                }
                                             }
                                         }
                                     }
@@ -437,18 +463,17 @@ export async function performForensicAudit(
                             }
                         }
                     }
-                }
 
-                // 2. ASSIGN GAP TO ORPHANS (Traceability)
-                if (orphanedItems.length > 0) {
-                    log(`[AuditEngine] 🕵️‍♂️ Ítems Huérfanos encontrados: ${orphanedItems.length}`);
+                    // 2. ASSIGN GAP TO ORPHANS (Traceability)
+                    if (orphanedItems.length > 0) {
+                        log(`[AuditEngine] 🕵️‍♂️ Ítems Huérfanos encontrados: ${orphanedItems.length}`);
 
-                    orphanedItems.forEach(item => {
-                        const monto = parseAmount(item.copago);
-                        auditResult.hallazgos.push({
-                            codigos: item.codigo || "SIN-CODIGO",
-                            glosa: item.descripcion || "ÍTEM SIN DESCRIPCION",
-                            hallazgo: `
+                        orphanedItems.forEach(item => {
+                            const monto = parseAmountCLP(item.copago);
+                            auditResult.hallazgos.push({
+                                codigos: item.codigo || "SIN-CODIGO",
+                                glosa: item.descripcion || "ÍTEM SIN DESCRIPCION",
+                                hallazgo: `
 **I. Identificación del ítem cuestionado**
 Se cuestiona el cobro de **$${monto.toLocaleString('es-CL')}** asociado a la prestación codificada como "${item.codigo}".
 
@@ -470,26 +495,26 @@ Se solicita la re-liquidación total de este ítem bajo el principio de homologa
 **VIII. Trazabilidad y Origen del Cobro**
 Anclaje exacto en PAM: Ítem "${item.descripcion}" (Copago: $${monto}).
                              `,
-                            montoObjetado: monto,
-                            tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Orphan items are exigible
-                            normaFundamento: "Circular IF/176 (Errores de Codificación) y Ley 18.933",
-                            anclajeJson: `PAM_AUTO_DETECT: ${item.codigo}`
+                                montoObjetado: monto,
+                                tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Orphan items are exigible
+                                normaFundamento: "Circular IF/176 (Errores de Codificación) y Ley 18.933",
+                                anclajeJson: `PAM_AUTO_DETECT: ${item.codigo}`
+                            });
+                            // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
                         });
-                        // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
-                    });
 
-                    // If there is still a residual gap, create a smaller generic finding
-                    if (remainingGap > 5000) {
-                        // ... (Add generic finding logic for remainingGap if needed, or ignore if small)
-                        log(`[AuditEngine] ⚠️ Aún queda un gap residual de $${remainingGap} no asignable a ítems específicos.`);
-                    }
+                        // If there is still a residual gap, create a smaller generic finding
+                        if (remainingGap > 5000) {
+                            // ... (Add generic finding logic for remainingGap if needed, or ignore if small)
+                            log(`[AuditEngine] ⚠️ Aún queda un gap residual de $${remainingGap} no asignable a ítems específicos.`);
+                        }
 
-                } else {
-                    // 3. FALLBACK TO GENERIC GAP (If no orphans found)
-                    auditResult.hallazgos.push({
-                        codigos: "GAP_RECONCILIATION",
-                        glosa: "DIFERENCIA NO EXPLICADA (DÉFICIT DE COBERTURA)",
-                        hallazgo: `
+                    } else {
+                        // 3. FALLBACK TO GENERIC GAP (If no orphans found)
+                        auditResult.hallazgos.push({
+                            codigos: "GAP_RECONCILIATION",
+                            glosa: "DIFERENCIA NO EXPLICADA (DÉFICIT DE COBERTURA)",
+                            hallazgo: `
 **I. Identificación del ítem cuestionado**
 Se detecta un monto residual de **$${gap.toLocaleString('es-CL')}** que no fue cubierto por la Isapre y NO corresponde al copago contractual legítimo.
 
@@ -516,15 +541,16 @@ Se objeta este remanente por falta de transparencia.
 | (-) Suma Hallazgos | -$${sumFindings.toLocaleString('es-CL')} |
 | **= GAP (DIFERENCIA)** | **$${gap.toLocaleString('es-CL')}** |
                         `,
-                        montoObjetado: gap,
-                        tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Generic coverage deficit is exigible
-                        normaFundamento: "Principio de Cobertura Integral y Transparencia (Ley 20.584)",
-                        anclajeJson: "CÁLCULO_AUTOMÁTICO_SISTEMA"
-                    });
-                    // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
-                    log('[AuditEngine] ✅ GAP GENÉRICO inyectado (no se encontraron ítems huérfanos específicos).');
+                            montoObjetado: gap,
+                            tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Generic coverage deficit is exigible
+                            normaFundamento: "Principio de Cobertura Integral y Transparencia (Ley 20.584)",
+                            anclajeJson: "CÁLCULO_AUTOMÁTICO_SISTEMA"
+                        });
+                        // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
+                        log('[AuditEngine] ✅ GAP GENÉRICO inyectado (no se encontraron ítems huérfanos específicos).');
+                    }
                 }
-            }
+            } // End of else block for !INDETERMINADO
         } catch (gapError: any) {
             const errMsg = gapError?.message || String(gapError);
             log(`[AuditEngine] ⚠️ Error en cálculo de Gap: ${errMsg}`);
@@ -554,27 +580,28 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
     // 1. Identify "Generic/Adjustments" in Account
     // Strategy: Look for specific codes or keywords in Description (Regex Robustness)
     const adjustments: any[] = [];
-    // Regex patterns provided by Forensic Expert
     const REGEX_GENERIC = /(ajuste|vario|diferencia|suministro|cargo admin|otros|insumos)/i;
     const REGEX_CODES = /^(14|02|99)\d+/;
 
-    if (cuenta.items) {
-        cuenta.sections?.forEach((sec: any) => {
-            sec.items?.forEach((item: any) => {
-                const desc = (item.description || "").toUpperCase();
-                const code = (item.code || "").toString(); // Assuming code field exists
-
-                // Check regex matches
-                const isKeyword = REGEX_GENERIC.test(desc);
-                const isInternalCode = REGEX_CODES.test(code);
-                const isSectionGeneric = /(varios|ajustes|exento|diferencias)/i.test(sec.category || "");
-
-                if ((isKeyword || isInternalCode || isSectionGeneric) && (item.total || 0) > 0) {
-                    adjustments.push(item);
-                }
-            });
-        });
+    const sections = cuenta.sections ?? [];
+    if (sections.length === 0) {
+        return "No se detectaron secciones en cuenta para trazar (Cuenta vacía o no estructurada).";
     }
+
+    sections.forEach((sec: any) => {
+        (sec.items ?? []).forEach((item: any) => {
+            const desc = (item.description || "").toUpperCase();
+            const code = (item.code || "").toString();
+
+            const isKeyword = REGEX_GENERIC.test(desc);
+            const isInternalCode = REGEX_CODES.test(code);
+            const isSectionGeneric = /(varios|ajustes|exento|diferencias)/i.test(sec.category || "");
+
+            if ((isKeyword || isInternalCode || isSectionGeneric) && (item.total || 0) > 0) {
+                adjustments.push(item);
+            }
+        });
+    });
 
     if (adjustments.length === 0) return "No se detectaron cargos genéricos relevantes para trazar (Clean Bill).";
 
@@ -657,11 +684,15 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
                 const hasTableCheck = h.hallazgo?.includes("|") && h.hallazgo?.includes("---");
 
                 // CRITICAL BLOQUEO v9: Si es genérico/opacidad Y no tiene tabla de traza -> BLOQUEAR (ELIMINAR)
-                const isGenericOrOpacidad = h.categoria === "OPACIDAD" || h.glosa?.includes("GNERICO");
+                const isGenericOrOpacidad = h.categoria === "OPACIDAD" || /GENERICO|GEN[EÉ]RICO|AGRUPADOR/i.test(h.glosa || "");
 
                 if (isGenericOrOpacidad && !hasTableCheck) {
-                    console.log(`[Cross-Validation v9] 🛡️ BLOQUEADO hallazgo inválido: ${h.titulo} (Falta Tabla VIII en hallazgo de opacidad)`);
-                    return false; // Remove entirely
+                    console.log(`[Cross-Validation v9] 🛡️ DEGRADANDO hallazgo: ${h.titulo} (Falta Tabla VIII)`);
+                    h.recomendacion_accion = "SOLICITAR_ACLARACION";
+                    h.nivel_confianza = "BAJA";
+                    h.motivo_degradacion = "SIN_TRAZABILIDAD";
+                    h.tipo_monto = "COPAGO_OPACO";
+                    // Keep the finding but mark it as degraded
                 }
 
                 // Check for "Hallucinated" High Value Objections
@@ -693,20 +724,26 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
         validatedResult.hallazgos.forEach((h: any) => {
             const monto = Number(h.montoObjetado || 0);
 
-            // Heuristic if LLM didn't set tipo_monto correctly
-            const isCatB = h.tipo_monto === "COPAGO_OPACO" ||
-                h.categoria === "OPACIDAD" ||
-                (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMACO/i.test(h.glosa));
+            // Use deterministic classifier
+            const category = classifyFinding(h);
 
             // 🚨 NUCLEAR RULE: If OPACIDAD exists, GAP cannot be ahorro (it's indeterminate)
             const isGapInOpacityContext = hasStructuralOpacity &&
                 (h.codigos === "GAP_RECONCILIATION" || h.anclajeJson?.includes("PAM_AUTO_DETECT"));
 
-            if (isCatB || isGapInOpacityContext) {
+            if (category === "B" || isGapInOpacityContext) {
                 h.tipo_monto = "COPAGO_OPACO";
+                // Action Rule for Cat B
+                if (h.recomendacion_accion !== "SOLICITAR_ACLARACION") {
+                    h.recomendacion_accion = "SOLICITAR_ACLARACION";
+                }
                 sumB += monto;
             } else {
                 h.tipo_monto = "COBRO_IMPROCEDENTE";
+                // Action Rule for Cat A
+                if (h.nivel_confianza !== "BAJA") {
+                    h.recomendacion_accion = "IMPUGNAR";
+                }
                 sumA += monto;
             }
         });
@@ -722,6 +759,26 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
     // --- CANONICAL OPACITY OVERRIDE (HARD RULE) ---
     if (hasStructuralOpacity) {
         console.log('[AuditEngine] 🛡️ DETECTADA OPACIDAD ESTRUCTURAL. Aplicando Regla Canónica de Indeterminación.');
+
+        // 🚨 INJECT FIXED HALLAZGO: Canonical "OPACIDAD_ESTRUCTURAL"
+        validatedResult.hallazgos = validatedResult.hallazgos ?? [];
+        const existsOpacidadHallazgo = validatedResult.hallazgos.some((h: any) => h.codigos === "OPACIDAD_ESTRUCTURAL");
+        if (!existsOpacidadHallazgo) {
+            const montoOpaco = validatedResult.resumenFinanciero?.copagos_bajo_controversia || 0;
+            validatedResult.hallazgos.unshift({
+                codigos: "OPACIDAD_ESTRUCTURAL",
+                glosa: "INDETERMINACION DEL COPAGO POR FALTA DE DESGLOSE",
+                categoria: "OPACIDAD",
+                tipo_monto: "COPAGO_OPACO",
+                montoObjetado: montoOpaco,
+                recomendacion_accion: "SOLICITAR_ACLARACION",
+                nivel_confianza: "ALTA",
+                hallazgo: `**Hallazgo estructural: Indeterminación del objeto del cobro (opacidad).**\n\nSe detectan líneas agrupadas en el PAM y/o glosas genéricas que impiden identificar, para cada ítem, código, cantidad, valor unitario y fundamento clínico. En estas condiciones, el copago asociado **no resulta exigible hasta que el prestador/asegurador entregue desglose verificable** que permita auditar exclusiones, topes y pertenencia.`,
+                anclajeJson: "PAM/CUENTA: LINEAS AGRUPADAS",
+                estado_juridico: "EN_CONTROVERSIA"
+            });
+            console.log(`[AuditEngine] 🔧 Hallazgo canónico "OPACIDAD_ESTRUCTURAL" inyectado (${montoOpaco} CLP).`);
+        }
 
         // 1. Force Global Status
         if (!validatedResult.decisionGlobal) validatedResult.decisionGlobal = {};

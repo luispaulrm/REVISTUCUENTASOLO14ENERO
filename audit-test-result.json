@@ -1,39 +1,96 @@
 {
   "data": {
-    "resumenEjecutivo": "Se ha realizado una auditoría médico-forense integral a la cuenta de Clínica Indisa procesada por Isapre Consalud. Se detectaron cobros indebidos por un monto total de $114.338 CLP. Los hallazgos principales se centran en la desagregación indebida de insumos y fármacos anestésicos que, de acuerdo con la normativa vigente (Circular IF/N°319 y Circular 43 de 1998), deben estar incorporados en el valor del Derecho de Pabellón. Adicionalmente, se identificó un incumplimiento de la cobertura contractual mínima del 40% en prestaciones de anatomía patológica, donde la Isapre aplicó una bonificación inferior a la pactada en el plan CORE 206 25.",
-    "hallazgos": [
+    "decisionGlobal": {
+      "estado": "COPAGO_INDETERMINADO_POR_OPACIDAD",
+      "fundamento": "Hallazgo estructural: Indeterminación del objeto del cobro (opacidad). En estas condiciones, el copago asociado no puede ser validado y no resulta exigible mientras no exista desglose verificable."
+    },
+    "resumenEjecutivo": "La auditoría ha detectado una OPACIDAD ESTRUCTURAL en la liquidación del PAM. \n\n### EXPLICACIÓN SIMPLE (ANALOGÍA)\nImagínese que lleva su auto al taller y la factura dice: 'Reparaciones Varias: $110.000', sin detallar si cambiaron aceite, frenos o bujías. Aunque el mecánico le muestre una lista aparte con piezas, el documento oficial de cobro (PAM) es una 'Caja Negra'. La Isapre ha procesado 'Materiales' y 'Medicamentos' como paquetes cerrados con cobertura $0, lo cual impide saber si se aplicaron los topes y coberturas correctas. \n\n**Estado:** El copago asociado a estos ítems ($110.000) queda en estado INDETERMINADO y no es exigible hasta su aclaración.",
+    "resumenFinanciero": {
+      "totalCopagoInformado": 160000,
+      "totalCopagoLegitimo": 0,
+      "totalCopagoObjetado": 110000,
+      "cobros_improcedentes_exigibles": 0,
+      "copagos_bajo_controversia": 110000,
+      "ahorro_confirmado": 0,
+      "estado_copago": "INDETERMINADO_POR_OPACIDAD",
+      "analisisGap": "No aplicable por indeterminación del copago."
+    },
+    "eventos_hospitalarios": [
       {
-        "codigos": "3101304",
-        "glosa": "MATERIALES CLINICOS QUIRURGICOS (Sutura seda 3-0)",
-        "hallazgo": "EL HECHO: Se detectó el cobro de $10.000 por concepto de suturas quirúrgicas bajo el código genérico 3101304, ítem que fue bonificado con $0 por la Isapre. EL CONTRATO: Esto vulnera la cobertura preferente del 40% pactada para insumos hospitalarios (ver CONTRATO: coberturas[4]). LA LEY: Este cobro constituye una 'Desagregación Indebida de Pabellón'. Según la Circular IF/N°319 y el Apéndice del Anexo N°4 de la Circular 43 (1998), los insumos básicos como materiales de sutura están incluidos en el Derecho de Pabellón y no pueden facturarse de forma independiente al paciente.",
-        "montoObjetado": 10000,
-        "normaFundamento": "Circular IF/N°319 y Circular 43 (1998) SIS",
-        "anclajeJson": "CUENTA: secciones[0].items[0] & PAM: items[0] & CONTRATO: coberturas[4]"
-      },
-      {
-        "codigos": "3101302",
-        "glosa": "MEDICAMENTOS HOSPITALIZADOS (Sevoflurano 250ml)",
-        "hallazgo": "EL HECHO: Se facturó el fármaco Sevoflurano por $100.000 con bonificación $0, trasladando el 100% del costo al paciente. EL CONTRATO: El plan CORE 206 25 obliga a una cobertura del 40% en medicamentos hospitalarios (ver CONTRATO: coberturas[5]). LA LEY: Vulneración del Principio de Integralidad del Derecho de Pabellón. El Sevoflurano es un anestésico inhalatorio que, por norma técnica (Circular 43 de 1998, Apéndice Anexo 4, letra f), se entiende incluido en el valor del pabellón ('anestésicos de cualquier tipo'). Su cobro por separado bajo el código 3101302 es improcedente.",
-        "montoObjetado": 100000,
-        "normaFundamento": "Circular 43 (1998) Apéndice Anexo 4 letra f",
-        "anclajeJson": "CUENTA: secciones[0].items[1] & PAM: items[1] & CONTRATO: coberturas[5]"
-      },
-      {
-        "codigos": "0801004",
-        "glosa": "ESTUDIO HISTOPATOLÓGICO",
-        "hallazgo": "EL HECHO: La Isapre aplicó una bonificación del 34.3% sobre la prestación de biopsia, generando un copago de $50.000. EL CONTRATO: El contrato CORE 206 25 establece explícitamente una cobertura mínima del 40% para prestaciones hospitalarias y de libre elección (ver CONTRATO: reglas[9] y coberturas[3]). LA LEY: Incumplimiento contractual de beneficios mínimos. La Isapre pagó menos de lo que obliga la modalidad detectada en el plan, perjudicando el patrimonio del afiliado.",
-        "montoObjetado": 4338,
-        "normaFundamento": "Plan de Salud CORE 206 25 y Art. 189 DFL 1/2005",
-        "anclajeJson": "PAM: items[2] & CONTRATO: coberturas[3]"
+        "id_evento": "EVT-001",
+        "tipo_evento": "QUIRURGICO",
+        "nivel_confianza": "BAJA",
+        "recomendacion_accion": "SOLICITAR_ACLARACION",
+        "origen_probable": "PAM_ESTRUCTURA",
+        "anclaje": {
+          "tipo": "ITEM_PAM",
+          "valor": "3101304"
+        },
+        "fecha_fin": "2025-12-05",
+        "fecha_inicio": "2025-12-05",
+        "honorarios_consolidados": [],
+        "posible_continuidad": false,
+        "prestador": "Clínica Indisa",
+        "total_bonificacion": 34.3,
+        "total_copago": 160000
       }
     ],
-    "totalAhorroDetectado": 114338,
-    "requiereRevisionHumana": false,
-    "auditoriaFinalMarkdown": "## I. RESUMEN EJECUTIVO DE AUDITORÍA\nTras el análisis forense de la cuenta médica de **Clínica Indisa** para el afiliado de **Isapre Consalud**, se han identificado irregularidades normativas y contractuales que impactan el copago del paciente. Se objeta el 100% de los insumos y fármacos asociados a pabellón cobrados de forma desagregada, y se recalcula la bonificación por exámenes diagnósticos.\n\n**Total Ahorro Detectado: $114.338 CLP**\n\n---\n\n## II. TABLA DE HALLAZGOS Y OBJECIONES FINALES\n\n| Código(s) | Glosa | Hallazgo | Monto Objetado | Norma / Fundamento | Anclaje (JSON ref) |\n|---|---|---|---|---|---|\n| 3101304 | MATERIALES CLINICOS | Desagregación indebida de insumos básicos (suturas). El ítem debe estar incluido en el cargo de pabellón. | $10.000 | Circular IF/N°319 | CUENTA: items[0] |\n| 3101302 | MEDICAMENTOS HOSP. | Cobro de Sevoflurano (anestésico) por separado. La Circular 43 obliga su inclusión en el Derecho de Pabellón. | $100.000 | Circular 43 (1998) | CUENTA: items[1] |\n| 0801004 | ESTUDIO HISTOPATOLÓGICO | Diferencia por aplicación errónea de tasa de bonificación (34.3% real vs 40% contractual). | $4.338 | Plan CORE 206 25 | PAM: items[2] |\n\n---\n\n## III. PRORRATEO COPAGO (SI APLICA)\n*No se detectaron cobros agregados sin desglose en la sección de farmacia del PAM que requieran prorrateo matemático, dado que las líneas coinciden con el detalle de la cuenta.*\n\n---\n\n## IV. CONCLUSIÓN MÉDICO-LEGAL\nEl prestador ha incurrido en prácticas de **Unbundling** (desagregación) al facturar insumos y gases anestésicos fuera del paquete integral de cirugía. Asimismo, la aseguradora ha incumplido los porcentajes de cobertura del plan **CORE 206 25**. Se recomienda la impugnación inmediata de estos cargos ante la Isapre y, en subsidio, ante la Superintendencia de Salud."
+    "bitacoraAnalisis": [
+      {
+        "paso": "Identificación de Opacidad en PAM",
+        "input_datos": "PAM Items: 3101304 ($10.000), 3101302 ($100.000). Bonificación: 0%.",
+        "decision_logica": {
+          "tope_aplica": false,
+          "tope_cumplido": false,
+          "objetable": true,
+          "motivo_cierre": "OPACIDAD_DETECTADA"
+        },
+        "razonamiento": "Se detectan códigos genéricos (Materiales Clínicos Quirúrgicos y Medicamentos Hospitalizados) que agrupan costos sin desglose en el PAM. Aunque la Cuenta Clínica detalla 'Sutura' y 'Sevoflurano', la liquidación oficial (PAM) no refleja estos ítems individualmente, aplicando una bonificación del 0% que contradice la Nota 2 del contrato (cobertura de materiales hospitalarios)."
+      },
+      {
+        "paso": "Cruce Cuenta vs PAM",
+        "input_datos": "Cuenta: Sutura ($10k) + Sevoflurano ($100k) = $110k. PAM: Materiales ($10k) + Meds ($100k) = $110k.",
+        "decision_logica": {
+          "tope_aplica": false,
+          "tope_cumplido": false,
+          "objetable": true,
+          "motivo_cierre": "COINCIDENCIA_MONTOS_PERO_FALTA_COBERTURA"
+        },
+        "razonamiento": "Los montos cuadran matemáticamente, pero la Isapre no ha bonificado estos ítems (Bonif: 0) a pesar de existir cobertura contractual. Al estar agrupados, no se puede auditar si el Sevoflurano o la Sutura tienen exclusiones específicas. Se clasifica como Categoría B (Controversia)."
+      }
+    ],
+    "hallazgos": [
+      {
+        "codigos": "3101304 / 3101302",
+        "glosa": "MATERIALES CLINICOS QUIRURGICOS / MEDICAMENTOS HOSPITALIZADOS",
+        "hallazgo": "### I. Identificación del ítem cuestionado\nSe cuestiona el cobro correspondiente a **Materiales Clínicos y Medicamentos**, facturado bajo los códigos agrupadores **3101304 y 3101302**, por un monto total de **$110.000**, el cual fue derivado totalmente a copago del afiliado (Bonificación 0%).\n\n### II. Contexto clínico y administrativo\nDicho cobro se origina en el marco de un evento hospitalario en Clínica Indisa, donde se utilizaron insumos (Suturas) y anestesia (Sevoflurano), según consta en la cuenta clínica auxiliar.\n\n### III. Norma contractual aplicable\nEl plan de salud **CORE 206 25**, en su **NOTA (2)**, establece explícitamente que: \"Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya considerado en su factura\". Asimismo, la Ley 20.584 exige el desglose detallado de las prestaciones.\n\n### IV. Forma en que se materializa la controversia\nEl cobro se sustenta en códigos genéricos que carecen del desglose detallado en el documento de liquidación (PAM). Esta **OPACIDAD ESTRUCTURAL** impide verificar por qué la Isapre aplicó una cobertura del 0% a insumos que contractualmente deberían estar cubiertos.\n\n### V. Análisis técnico-contractual\nDesde un punto de vista técnico, dicha imputación resulta improcedente como cobro directo al paciente, toda vez que:\n- Los insumos (Sevoflurano y Sutura) son prestaciones clínicas válidas.\n- El contrato promete cobertura para estos ítems.\n- La falta de bonificación (0%) no está justificada por ninguna exclusión visible.\n\n### VI. Efecto económico concreto\nComo consecuencia directa de esta falta de cobertura y desglose, el afiliado asumió un copago indebido ascendente a **$110.000**.\n\n### VII. Conclusión de la impugnación\nEn virtud de lo expuesto, el cobro se considera **INDETERMINADO** y no exigible hasta que la Isapre reliquide los ítems con la cobertura contractual correspondiente o justifique la exclusión ítem por ítem.\n\n### VIII. Trazabilidad y Origen del Cobro\n\n| Sección Origen (Cuenta) | Ítem Individual (Detalle) | Cant | P. Unit | Total |\n| :--- | :--- | :---: | :---: | :---: |\n| Farmacia | Sutura seda 3-0 | 1 | $10.000 | $10.000 |\n| Farmacia | Sevoflurano 250ml | 1 | $100.000 | $100.000 |\n| **TOTAL** | **COINCIDE CON PAM 3101304/3101302** | | | **$110.000** |\n\n**Anclaje JSON:** PAM: items[0,1] & CUENTA: sections[0].items",
+        "montoObjetado": 110000,
+        "normaFundamento": "Según Ley 20.584: \"Derecho a una cuenta detallada y desglosada\".",
+        "anclajeJson": "PAM: items[0] & items[1]",
+        "tipo_monto": "COPAGO_OPACO",
+        "origen_probable": "ISAPRE_LIQUIDACION",
+        "nivel_confianza": "ALTA",
+        "recomendacion_accion": "SOLICITAR_ACLARACION",
+        "estado_juridico": "EN_CONTROVERSIA"
+      }
+    ],
+    "totalAhorroDetectado": 0,
+    "valorUnidadReferencia": "No calculado (N/A)",
+    "antecedentes": {
+      "paciente": "[Nombre del Paciente]",
+      "clinica": "Clínica Indisa",
+      "isapre": "Consalud",
+      "plan": "CORE 206 25",
+      "fechaIngreso": "2025-12-05",
+      "fechaAlta": "2025-12-05",
+      "objetoAuditoria": "Evento Quirúrgico / Hospitalización con cobros de Farmacia y Pabellón"
+    },
+    "requiereRevisionHumana": true,
+    "auditoriaFinalMarkdown": "# INFORME DE AUDITORÍA FORENSE\n\n**Paciente:** [Nombre del Paciente]\n**Prestador:** Clínica Indisa\n**Isapre:** Consalud\n**Fecha:** 2025-12-05\n\n## 1. Resumen Ejecutivo\nLa auditoría forense NO permite validar completamente el copago informado en el PAM, debido a una **OPACIDAD ESTRUCTURAL**. Se han detectado líneas agrupadas bajo códigos genéricos (\"Materiales Clínicos\", \"Medicamentos\") que suman $110.000 y presentan una bonificación del 0%, contradiciendo la cobertura contractual del plan CORE 206 25. Este informe prioriza trazabilidad: aun si el porcentaje de cobertura aplicado fuera correcto, la falta de desglose en la liquidación impide validar el copago.\n\n## 2. Hallazgo Principal (Estructural): Indeterminación del objeto del cobro (opacidad)\n**Líneas afectadas:**\n- 3101304: MATERIALES CLINICOS QUIRURGICOS ($10.000)\n- 3101302: MEDICAMENTOS HOSPITALIZADOS ($100.000)\n\n**Norma vulnerada:**\n- Ley 20.584 (Derecho a cuenta detallada).\n- Contrato de Salud (Nota 2: Cobertura de Materiales).\n\n**Conclusión:**\nEl copago asociado a estas líneas ($110.000) es **INDETERMINADO** y se encuentra **BAJO CONTROVERSIA**. No resulta exigible hasta que el asegurador entregue una reliquidación con el desglose verificable y la aplicación de la cobertura correspondiente.\n\n## 3. Hallazgos Específicos\nNo se detectaron cobros improcedentes directos (Categoría A) fuera de la estructura del PAM. La totalidad de las objeciones recae en la falta de transparencia de la bonificación de insumos.\n\n## 4. Recomendación Final\nSe recomienda **SOLICITAR ACLARACIÓN** formal a la Isapre Consalud, exigiendo la apertura de los códigos 3101304 y 3101302 y la justificación de la bonificación 0% aplicada a insumos que, según la Nota 2 del contrato, deberían tener cobertura."
   },
   "usage": {
-    "promptTokens": 914036,
-    "candidatesTokens": 1711,
-    "totalTokens": 917261
+    "promptTokens": 62582,
+    "candidatesTokens": 2782,
+    "totalTokens": 68388
   }
 }

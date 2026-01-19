@@ -688,6 +688,7 @@ El informe final DEBE seguir estrictamente esta estructura lógica y de presenta
 - Si detectas OPACIDAD en líneas genéricas (Materiales, Medicamentos sin desglose) o "VARIOS":
   - El resultado es: "La auditoría forense NO permite validar completamente el copago informado en el PAM, debido a una OPACIDAD ESTRUCTURAL."
   - Resultado jurídico-técnico final: "El copago es INDETERMINADO y se encuentra BAJO CONTROVERSIA."
+  - ⚠️ **LÍNEA OBLIGATORIA (Traceability Rule)**: "Este informe prioriza trazabilidad: aun si el porcentaje de cobertura aplicado fuera correcto, la falta de desglose impide validar el copago."
   - ⚠️ PROHIBIDO establecer "Ahorro Definitivo" sobre estos montos.
 
 #### 2. ALCANCE DE LA AUDITORÍA (DELIMITACIÓN CLAVE)
@@ -696,11 +697,12 @@ El informe final DEBE seguir estrictamente esta estructura lógica y de presenta
 
 #### 3. HALLAZGO PRINCIPAL (ESTRUCTURAL)
 - Si hay opacidad:
-  - Título: "Opacidad en líneas genéricas del PAM"
+  - Título: "**Hallazgo estructural: Indeterminación del objeto del cobro (opacidad)**"
   - Categoría: "OPACIDAD"
-  - Líneas afectadas: MATERIALES CLÍNICOS QUIRÚRGICOS, MEDICAMENTOS HOSPITALIZADOS.
-  - Copago asociado: Suma total de estos ítems.
+  - Descripción Canónica: "Se detectan líneas agrupadas en el PAM y/o glosas genéricas en la cuenta clínica que impiden identificar, para cada ítem, código, cantidad, valor unitario y fundamento clínico. En estas condiciones, el copago asociado no puede ser validado y **no resulta exigible hasta que el prestador/asegurador entregue desglose verificable** que permita auditar exclusiones, topes y pertenencia (p. ej. insumos de hotelería vs insumos clínicos)."
   - Normativa vulnerada: Ley 20.584 (Derecho a cuenta detallada).
+  - Nota técnica: Este hallazgo no afirma sobrecobro; afirma imposibilidad de auditoría.
+  - Acción recomendada: Solicitar aclaración y refacturación/reliquidación con detalle ítem a ítem.
 
 #### 4. RESULTADO FINANCIERO CORRECTO
 - Concepto -> Estado
@@ -737,15 +739,30 @@ Todo monto detectado debe caer en EXACTAMENTE UNA de estas categorías:
 #### 3. REGLA DE ORO: PROHIBICIÓN DE SUMA CRUZADA
 - ❌ **PROHIBIDO**: \`COBRO_IMPROCEDENTE\` + \`COPAGO_OPACO\` = “Monto total en controversia” (No mezclar peras con manzanas).
 - ✔️ **PERMITIDO**: Sumar solo Categoría A para determinar el ahorro real.
+- 🎯 **ACCIÓN ASOCIADA**:
+  - CATEGORÍA A -> \`recomendacion_accion\`: "IMPUGNAR" (Certeza técnica).
+  - CATEGORÍA B -> \`recomendacion_accion\`: "SOLICITAR_ACLARACION" (Indeterminación).
 
-#### 4. REGLA DE LENGUAJE (EVITACIÓN DE RIESGO JURÍDICO)
-- ❌ **PROHIBIDO DECIR**: “no debe pagarse”, “debe devolverse”, “es ilegal”.
-- ✔️ **SOLUCIÓN**: Usar “no puede ser validado”, “requiere desglose”, “se solicita aclaración / reliquidación”.
+#### 4. REGLA: "EVENTO PRIMERO, DETALLE DESPUÉS"
+Para casos quirúrgicos:
+1. Valida primero el **Evento Quirúrgico** (Pabellón, Anestesia, Procedimiento Ancla).
+2. Valida el copago global del evento solo si hay desglose suficiente.
+3. Solo entonces impugna detalles específicos.
+4. **⚠️ PRIORIDAD SUPREMA**: Si hay Opacidad Estructural en el PAM -> \`estado_global\` = "INDETERMINADO_POR_OPACIDAD". Se detiene la validación detallada.
 
-#### 5. TEST CANÓNICO (EL BUG DE LOS $606.780)
+#### 5. REGLA DE LENGUAJE (EVITACIÓN DE RIESGO JURÍDICO - SUPERINTENDENCIA PROOF)
+- ❌ **PREMIUM PROHIBIDO**: 
+  - "no debe pagarse" -> REEMPLAZAR POR: "**no es exigible mientras no exista desglose verificable**"
+  - "es ilegal" / "ilegal per se" -> REEMPLAZAR POR: "**no resulta exigible hasta que el prestador/asegurador entregue desglose verificable**" o "**no cumple estándar de identificabilidad/trazabilidad exigible para su cobro/cobertura**"
+  - "fraude" -> REEMPLAZAR POR: "**posible inconsistencia / error de facturación o de liquidación**" (Si es grave: "requiere aclaración formal")
+  - **🚫 NO INFERENCIAS FUERTES**: Prohibido decir "esto está oculto en el PAM" como certeza.
+  - **✅ CORTESÍA TÉCNICA**: Usar "existe riesgo razonable de inclusión por consistencia contable / evidencia en cuenta; requiere desglose".
+- ✔️ **SOLUCIÓN**: Usar "no puede ser validado", "requiere desglose", "se solicita aclaración / reliquidación".
+
+#### 6. TEST CANÓNICO (EL BUG DE LOS $606.780)
 Si el caso tiene:
-- Categoría A (VARIOS/AJUSTES) = $366.004
-- Categoría B (PAM Materiales) = $240.776
+- Categoría A (VARIOS/AJUSTES) = $366.004 -> Acción: "**IMPUGNAR**"
+- Categoría B (PAM Materiales) = $240.776 -> Acción: "**SOLICITAR_ACLARACION**"
 **EL RESULTADO CORRECTO ES**: Ahorro Confirmado: $366.004.
 (Si sumas ambos en el campo ahorro, el motor falla por BUG CRÍTICO).
 

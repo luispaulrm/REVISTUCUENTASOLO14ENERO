@@ -1,5 +1,5 @@
-import { performForensicAudit } from './server/services/auditEngine.service.js';
-import { CONSALUD_EJEMPLO } from './mocks.js';
+import { performForensicAudit } from './server/services/auditEngine.service.ts';
+import { CONSALUD_EJEMPLO } from './mocks.ts';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -48,6 +48,11 @@ async function testAudit() {
         );
 
         console.log('\n✅ Audit Result Received:');
+        if (result.data && result.data.observaciones_generales) {
+            console.log('\n📝 RAW OBSERVATIONS (From AI):');
+            console.log(result.data.observaciones_generales);
+        }
+
         const fs = await import('fs/promises');
         await fs.writeFile('audit-test-result.json', JSON.stringify(result, null, 2));
         console.log('Result saved to audit-test-result.json');
