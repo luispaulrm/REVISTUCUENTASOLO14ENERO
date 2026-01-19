@@ -446,6 +446,34 @@ export async function analyzeSingleContract(
             cleaned.nota_restriccion = "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.";
         }
 
+        // --- PHASE 3: LOGICAL VALIDATION (v12.0 - Anti-Vertical-Inheritance) ---
+        const itemName = String(cleaned.item || '').toLowerCase();
+        const modalidad = String(cleaned.modalidad || '').toLowerCase();
+        const tope = String(cleaned.tope || cleaned.tope_1 || '');
+
+        // Rule 1: Medicamentos/Insumos in "Oferta Preferente" should NOT have "Sin Tope"
+        if (modalidad.includes('preferente') || modalidad.includes('oferta')) {
+            const isMedicamentosInsumos =
+                itemName.includes('medicamento') ||
+                itemName.includes('insumo') ||
+                itemName.includes('material') ||
+                itemName.includes('fármaco');
+
+            const hasSinTope =
+                tope.toLowerCase().includes('sin tope') ||
+                tope.toLowerCase().includes('ilimitado') ||
+                (tope === '100%' && !tope.includes('UF'));
+
+            if (isMedicamentosInsumos && hasSinTope) {
+                log(`[VALIDATION] 🚨 Logical Error Detected: "${cleaned.item}" (Preferente) has "Sin Tope" - Auto-correcting to "-"`);
+                cleaned.tope = '-';
+                cleaned.nota_restriccion = (cleaned.nota_restriccion || '') +
+                    '\n⚠️ ADVERTENCIA: El sistema detectó un posible error de extracción. ' +
+                    'Medicamentos/Insumos en Oferta Preferente típicamente tienen tope en UF, no "Sin Tope". ' +
+                    'Se corrigió automáticamente a "-" (sin cobertura). Verificar con contrato original.';
+            }
+        }
+
         // Sanity Check: Truncate repeating hallucinations (>2000 chars)
         const SANITY_LIMIT = 2000;
         ['item', 'tope', 'nota_restriccion', 'LOGICA_DE_CALCULO'].forEach(key => {

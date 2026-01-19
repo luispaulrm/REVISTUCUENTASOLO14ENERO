@@ -207,28 +207,47 @@ const CHECKLIST_AMB = `
 // --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
 
 const SHARED_MANDATE = `
-  ** MANDATO FORENSE v11.0: DESCUBRIMIENTO DINÁMICO DE ESTRUCTURA **
-  OBJETIVO: Identificar y mapear la lógica de columnas ANTES de extraer datos.
+  ** MANDATO FORENSE v12.0: LECTURA GEOMÉTRICA DE TABLAS (ANTI-HERENCIA VERTICAL) **
+  OBJETIVO: Extraer datos de tablas respetando la posición exacta de cada celda.
   
-  ⚠️ FASE 1: DESCUBRIMIENTO DE ENCABEZADOS (CRÍTICO)
-  Antes de procesar, analiza los encabezados de la tabla.
-  1. **Columna Primaria (NACIONAL)**: Encabezado tipo "Tope de Bonificación UF", "% Bonificación", o la PRIMERA columna de montos. Rige para Chile.
-  2. **Columna Secundaria (AÑO CONTRATO)**: Tope "Año Contrato" o acumulado anual.
-  3. **Columna Terciaria (INTERNACIONAL/EXTRANJERO)**: Encabezados "Internacional", "Extranjero", "Exterior", "Libre Elección Internacional".
+  ⚠️ FASE 1: IDENTIFICACIÓN DE COLUMNAS
+  Antes de extraer datos, identifica la estructura de columnas:
+  1. **Columna 1:** Nombre de la prestación (izquierda extrema).
+  2. **Columna 2 (OFERTA PREFERENTE):** 
+     - Sub-columna 2A: "% Bonificación"
+     - Sub-columna 2B: "Tope máx. año contrato por beneficiario"
+  3. **Columna 3 (LIBRE ELECCIÓN):**
+     - Sub-columna 3A: "% Bonificación"
+     - Sub-columna 3B: "Tope máx. año contrato por beneficiario"
   
-  ⚠️ REGLA DE ORO DE EXTRACCIÓN (LEYES DE LA FÍSICA VISUAL):
-  - **SI ESTÁS EXTRAYENDO PARA UNA CLÍNICA CHILENA (Alemana, Indisa, UC, Santa María, etc.): USAR EXCLUSIVAMENTE LA COLUMNA PRIMARIA (NACIONAL).**
-  - **PROHIBICIÓN TOTAL:** NUNCA, bajo NINGUNA CIRCUNSTANCIA, tomes el valor de la columna "Internacional" (ej: 300 UF Meds, 100 UF Insumos) para un prestador nacional.
-  - **SI LA COLUMNA NACIONAL ESTÁ UNIDA/COMBINADA** con el texto "100% SIN TOPE", ese es el valor real. IGNORA las columnas vecinas que tengan números.
-  - **SI LA CELDA ESTÁ VACÍA O TIENE GUIONES (---):** Reporta "-" literalmente. NO ALUCINES "Sin tope" ni "Cobertura Completa" si ves un guión o espacio vacío.
-  - **EXCEPCIÓN:** Solo reporta "Sin tope" si está ESCRITO explícitamente ("SIN TOPE", "100%", "ILIMITADO").
-
+  ⚠️ FASE 2: EXTRACCIÓN FILA POR FILA (REGLA ANTI-HERENCIA)
+  Para CADA fila de prestación:
+  1. Lee el NOMBRE de la prestación (columna 1).
+  2. Lee la BONIFICACIÓN PREFERENTE (columna 2A, directamente bajo ese encabezado).
+  3. Lee el TOPE PREFERENTE (columna 2B, directamente bajo ese encabezado).
+     - **CRÍTICO:** Si la celda está VACÍA, tiene "—" o "---", reporta "-" literalmente.
+     - **PROHIBIDO:** NO copies el valor de la fila superior (ej: si "Día Cama" tiene "Sin Tope", NO lo uses para "Medicamentos").
+  4. Lee la BONIFICACIÓN LIBRE ELECCIÓN (columna 3A).
+  5. Lee el TOPE LIBRE ELECCIÓN (columna 3B).
+  
+  ⚠️ REGLA DE ORO DE EXTRACCIÓN (ANTI-HERENCIA VERTICAL):
+  - **CADA CELDA ES INDEPENDIENTE:** No heredes valores de celdas superiores ni inferiores.
+  - **LEE SOLO LO QUE ESTÁ EN LA CELDA:** Si una celda de "Medicamentos" está vacía, reporta "-", incluso si la celda de "Día Cama" (arriba) tiene "Sin Tope".
+  - **VALIDACIÓN VISUAL:** Imagina que estás apuntando con un puntero láser a la celda específica. ¿Qué texto ves en ESA celda exacta? Ese es el valor.
+  
+  ⚠️ CASOS ESPECIALES:
+  - Si ves "100% Sin Tope" en una celda combinada (merged cell), ese valor aplica SOLO a las prestaciones listadas en esa celda.
+  - Si "Medicamentos" o "Insumos" tienen celda vacía en Preferente, significa que NO tienen cobertura preferente (reporta "-").
+  - "Sin Tope" solo debe reportarse si está ESCRITO EXPLÍCITAMENTE en la celda de esa prestación.
+  
   ⚠️ PROTOCOLO DE CONFLICTO: 
   Si ves "100% SIN TOPE" en la primera columna y "300 UF" en la tercera:
   -> COBERTURA REAL = "100% SIN TOPE".
   -> NOTA RESTRICCIÓN = "Tope Internacional: 300 UF".
   Si ves "---" o vacío en la primera columna:
   -> COBERTURA REAL = "-".
+  Si ves "Sin Tope" en la fila de arriba pero la celda actual está vacía:
+  -> COBERTURA REAL = "-" (NO HEREDAR).
 `;
 
 export const PROMPT_HOSP_P1 = `
