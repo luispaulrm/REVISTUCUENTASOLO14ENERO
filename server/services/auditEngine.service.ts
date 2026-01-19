@@ -72,7 +72,7 @@ export async function performForensicAudit(
     log(`[AuditEngine] 🔑 Muestra: ${caseKeywords.slice(0, 8).join(', ')}...`);
 
     // Paso 2: Filtrar y cargar solo conocimiento relevante (máx 30K tokens)
-    const MAX_KNOWLEDGE_TOKENS = 50000;  // Aumentado para garantizar carga de jurisprudencia
+    const MAX_KNOWLEDGE_TOKENS = 40000;  // Reduced to 40k for better prompt stability
     const { text: knowledgeBaseText, sources, tokenEstimate, keywordsMatched } =
         await getRelevantKnowledge(caseKeywords, MAX_KNOWLEDGE_TOKENS, log);
 
@@ -598,8 +598,11 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
             const isInternalCode = REGEX_CODES.test(code);
             const isSectionGeneric = /(varios|ajustes|exento|diferencias)/i.test(sec.category || "");
 
-            if ((isKeyword || isInternalCode || isSectionGeneric) && (item.total || 0) > 0) {
-                adjustments.push(item);
+            const itemTotal = parseAmountCLP(item.total);
+            const MIN_TRACE_AMOUNT = 1000;
+
+            if ((isKeyword || isInternalCode || isSectionGeneric) && itemTotal >= MIN_TRACE_AMOUNT) {
+                adjustments.push({ ...item, total: itemTotal });
             }
         });
     });

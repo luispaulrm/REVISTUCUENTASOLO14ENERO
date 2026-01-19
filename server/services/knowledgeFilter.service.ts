@@ -36,22 +36,22 @@ const KNOWLEDGE_DOCS = {
     },
     arancel: {
         file: 'Libro Arancel MLE 2025 FONASA.txt',
-        priority: 3,
+        priority: 4,
         description: 'Arancel MLE FONASA 2025'
     },
     circular43: {
         file: 'CIRCULAR 43 1998.txt',
-        priority: 4,
+        priority: 5,
         description: 'Circular 43/1998 - Normativa de coberturas'
     },
     circularIF19: {
         file: 'CIRCULAR IF19 2018.txt',
-        priority: 5,
+        priority: 6,
         description: 'Circular IF-19/2018 - Hotelería e insumos'
     },
     irregularidades: {
         file: 'Informe sobre Prácticas Irregulares en Cuentas Hospitalarias y Clínicas.txt',
-        priority: 6,
+        priority: 3,
         description: 'Prácticas Irregulares en Cuentas Hospitalarias'
     },
     boletin: {
