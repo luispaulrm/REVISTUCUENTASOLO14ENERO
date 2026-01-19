@@ -402,8 +402,8 @@ function FolioCard({ folio, index }: FolioCardProps) {
                             </h4>
                         </div>
 
-                        <div className="overflow-x-auto rounded-2xl border border-slate-100">
-                            <table className="w-full text-left border-collapse min-w-[800px]">
+                        <div className="overflow-x-auto rounded-2xl border border-slate-100 print:overflow-visible">
+                            <table className="w-full text-left border-collapse min-w-[800px] print:min-w-0">
                                 <thead>
                                     <tr className="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
                                         <th className="px-4 py-3 w-10">#</th>

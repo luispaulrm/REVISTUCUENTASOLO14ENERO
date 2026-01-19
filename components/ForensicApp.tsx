@@ -924,156 +924,60 @@ function InterrogationZone({ auditResult, compactMode = false, responsiveHeight 
     );
 }
 
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 function MarkdownRenderer({ content }: { content: string }) {
     if (!content) return null;
 
-    // --- ULTRA-ROBUST PRE-PROCESSING ---
+    // --- PRE-PROCESSING TO CLEAN AI ARTIFACTS ---
     let processedContent = content;
-
-    // 0. SAD FIX: Remove AI pagination artifacts (e.g. "...851", "...852", "...")
-    // This effectively hides the "split" markers the AI hallucinates
+    // Remove AI pagination artifacts (e.g. "...851", "...852", "...")
     processedContent = processedContent.replace(/^\s*\.{3,}\d*\s*$/gm, '');
 
-    // 1. Unstick tables from headings (e.g., "VIII. Trazabilidad: | Col 1 |")
-    // Safe version: Only if colon is not part of a separator like ":---|":
-    processedContent = processedContent.replace(/(:[ \t]*)(\|)/g, '$1\n$2');
-
-    // 2. Fix squashed rows (|| as row separator)
-    processedContent = processedContent.replace(/\|\|/g, '|\n|');
-
-    // 3. Fix missing newlines after standard markdown table separator
-    // Looks for: |---|---|Text -> |---|---|\nText
-    processedContent = processedContent.replace(/(\|[:\s-]+\|)(\s*[^\n\s|])/g, '$1\n$2');
-
-    // 4. (REMOVED) Force newline regex - WAS BUGGY (Splitting cells)
-
-    // 5. Detect and Fix "Vertical Key-Value Tables" AND remove gaps between table rows
-    // We aggressively remove newlines between pipe-lines to merge them into a single table block
-    // This fixes the "Elongated Table" issue where empty lines or artifacts broke the table into many small tables
-    processedContent = processedContent.replace(/(\|.*)\n+?(\|.*)/g, '$1\n$2');
-    processedContent = processedContent.replace(/(\|.*)\n+?(\|.*)/g, '$1\n$2'); // Run twice for triple gaps
-
-    const rawLines = processedContent.split('\n');
-    const elements: React.ReactNode[] = [];
-    let tableBuffer: string[] = [];
-    let processingTable = false;
-
-    const renderTable = (rows: string[], key: number) => {
-        // Filter out empty rows or purely separator rows that don't have enough pipes
-        const validRows = rows.map(r => r.trim()).filter(r => r.includes('|'));
-        if (validRows.length < 2) return null;
-
-        const dataRows = validRows.map(row =>
-            row.replace(/^\||\|$/g, '').split('|').map(c => c.trim())
-        );
-
-        const header = dataRows[0];
-
-        // FILTERING LOGIC: Remove internal headers/separators if we merged multiple tables
-        const filteredBodyRows = dataRows.slice(1).filter(row => {
-            // 1. Filter out separators (only dashes/colons/spaces)
-            const isSeparator = row.every(cell => /^[-: ]+$/.test(cell) || cell === '');
-            if (isSeparator) return false;
-
-            // 2. Filter out repeated headers (identical logic to header row)
-            const isRepeatedHeader = JSON.stringify(row) === JSON.stringify(header);
-            if (isRepeatedHeader) return false;
-
-            return true;
-        });
-
-        // Skip rendering if body is empty (unless it's just a 1-row table, but that's rare/headers only)
-
-        return (
-            <div key={key} className="my-4 overflow-x-auto rounded-xl border border-slate-200 shadow-sm transition-all duration-300">
-                <table className="min-w-[500px] w-full text-sm text-left border-collapse border-hidden">
-                    <thead className="bg-slate-50 text-slate-900 border-b border-slate-200">
-                        <tr>
-                            {header.map((h, i) => (
-                                <th key={i} className="px-4 py-3 font-black text-[10px] uppercase tracking-wider bg-slate-100/50 whitespace-normal">
-                                    {h || '---'}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                        {filteredBodyRows.map((row, i) => (
-                            <tr key={i} className="hover:bg-indigo-50/30 transition-colors">
-                                {header.map((_, j) => (
-                                    <td key={j} className="px-4 py-2.5 border-r border-slate-50 last:border-r-0 font-mono text-[11px] text-slate-700 whitespace-pre-wrap align-top">
-                                        {row[j] || ''}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        );
-    };
-
-    rawLines.forEach((line, index) => {
-        const trimmed = line.trim();
-        // A table line MUST have at least 2 pipes OR be a separator line
-        // Also allow single pipe lines IF they start and end with pipe (Vertical List Item)
-        // Heuristic: If it starts AND ends with pipe, treat as table row even if split logic yields 1 (should be 2 empty strings around)
-        const isPipeline = trimmed.startsWith('|') && trimmed.endsWith('|');
-        const isTableLine = (trimmed.split('|').length > 1) || (trimmed.includes('|') && trimmed.includes('---')) || isPipeline;
-
-        if (isTableLine) {
-            if (!processingTable) processingTable = true;
-            tableBuffer.push(trimmed);
-        } else {
-            if (processingTable) {
-                elements.push(renderTable(tableBuffer, index));
-                tableBuffer = [];
-                processingTable = false;
-            }
-
-            if (trimmed !== '') {
-                // List Items
-                if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
-                    elements.push(
-                        <div key={index} className="flex gap-2 ml-4 mb-2 text-sm text-slate-600 animate-in fade-in slide-in-from-left-2 duration-300">
+    return (
+        <div className="prose prose-slate max-w-none prose-sm sm:prose-base forensic-markdown">
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    h1: ({ node, ...props }) => <h1 className="text-2xl font-black text-slate-900 mt-8 mb-4 tracking-tighter" {...props} />,
+                    h2: ({ node, ...props }) => <h2 className="text-xl font-black text-slate-900 mt-7 mb-3 tracking-tighter" {...props} />,
+                    h3: ({ node, ...props }) => <h3 className="text-lg font-black text-slate-900 mt-6 mb-2 tracking-tighter" {...props} />,
+                    h4: ({ node, ...props }) => <h4 className="text-base font-black text-slate-900 mt-5 mb-2 uppercase tracking-tight" {...props} />,
+                    h5: ({ node, ...props }) => (
+                        <h5 className="font-black text-slate-900 mt-6 mb-3 text-[11px] uppercase tracking-widest border-l-4 border-slate-900 pl-3" {...props} />
+                    ),
+                    p: ({ node, ...props }) => <p className="text-sm text-slate-600 mb-3 leading-relaxed px-1" {...props} />,
+                    ul: ({ node, ...props }) => <ul className="list-none space-y-2 mb-4 ml-2" {...props} />,
+                    li: ({ node, ...props }) => (
+                        <li className="flex gap-2 text-sm text-slate-600">
                             <span className="text-emerald-500 font-bold shrink-0">•</span>
-                            <span className="leading-relaxed">{trimmed.substring(2)}</span>
+                            <span className="leading-relaxed" {...props} />
+                        </li>
+                    ),
+                    strong: ({ node, ...props }) => <strong className="font-black text-slate-900" {...props} />,
+                    table: ({ node, ...props }) => (
+                        <div className="my-4 overflow-x-auto rounded-xl border border-slate-200 shadow-sm transition-all duration-300">
+                            <table className="min-w-[500px] w-full text-sm text-left border-collapse border-hidden" {...props} />
                         </div>
-                    );
-                }
-                // Bold Headers (Internal Sections)
-                else if (trimmed.startsWith('**') && trimmed.endsWith('**')) {
-                    elements.push(
-                        <h5 key={index} className="font-black text-slate-900 mt-6 mb-3 text-[11px] uppercase tracking-widest border-l-4 border-slate-900 pl-3">
-                            {trimmed.replace(/\*\*/g, '')}
-                        </h5>
-                    );
-                }
-                // Sub-headers
-                else if (trimmed.startsWith('#')) {
-                    const level = (trimmed.match(/^#+/) || ['#'])[0].length;
-                    const content = trimmed.replace(/^#+\s*/, '');
-                    const sizeClass = level === 1 ? 'text-2xl' : level === 2 ? 'text-xl' : 'text-lg';
-                    elements.push(
-                        <h4 key={index} className={`${sizeClass} font-black text-slate-900 mt-8 mb-4 tracking-tighter`}>
-                            {content}
-                        </h4>
-                    );
-                }
-                // Regular Paragraphs
-                else {
-                    elements.push(
-                        <p key={index} className="text-sm text-slate-600 mb-3 leading-relaxed whitespace-pre-line px-1">
-                            {line}
-                        </p>
-                    );
-                }
-            }
-        }
-    });
-
-    if (processingTable && tableBuffer.length > 0) {
-        elements.push(renderTable(tableBuffer, rawLines.length));
-    }
-
-    return <div className="space-y-1">{elements}</div>;
+                    ),
+                    thead: ({ node, ...props }) => <thead className="bg-slate-50 text-slate-900 border-b border-slate-200" {...props} />,
+                    th: ({ node, ...props }) => (
+                        <th className="px-4 py-3 font-black text-[10px] uppercase tracking-wider bg-slate-100/50 whitespace-normal text-slate-700" {...props} />
+                    ),
+                    tbody: ({ node, ...props }) => <tbody className="divide-y divide-slate-100 bg-white" {...props} />,
+                    tr: ({ node, ...props }) => <tr className="hover:bg-indigo-50/30 transition-colors" {...props} />,
+                    td: ({ node, ...props }) => (
+                        <td className="px-4 py-2.5 border-r border-slate-50 last:border-r-0 font-mono text-[11px] text-slate-700 whitespace-pre-wrap align-top" {...props} />
+                    ),
+                    blockquote: ({ node, ...props }) => (
+                        <blockquote className="border-l-4 border-slate-200 pl-4 py-1 italic text-slate-500 mb-4" {...props} />
+                    ),
+                    hr: ({ node, ...props }) => <hr className="my-8 border-slate-100" {...props} />
+                }}
+            >
+                {processedContent}
+            </ReactMarkdown>
+        </div>
+    );
 }

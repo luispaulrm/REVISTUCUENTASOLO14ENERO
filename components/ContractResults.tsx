@@ -312,8 +312,8 @@ export function ContractResults({ data }: Props) {
                         <h3 className="text-xl font-black uppercase tracking-tighter">I. Malla de Cobertura Forense</h3>
                         <p className="text-[10px] text-slate-400 font-bold uppercase">Extracto detallado de bonificaciones y topes según contrato vigente</p>
                     </div>
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse min-w-[1400px]">
+                    <div className="overflow-x-auto print:overflow-visible">
+                        <table className="w-full text-left border-collapse min-w-[1400px] print:min-w-0">
                             <thead>
                                 <tr className="bg-slate-950 text-xs text-white font-black uppercase tracking-tighter border-b border-black">
                                     <th className="px-4 py-5 border-r border-slate-800 w-[280px]">Prestación Clave</th>
