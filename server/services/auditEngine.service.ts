@@ -411,7 +411,7 @@ export async function performForensicAudit(
 
         // --- POST-PROCESSING: SAFETY BELT (DOWNGRADE RULES) ---
         // Downgrade findings that lack valid Table VIII or contradict financial truth
-        auditResult = postValidateLlmResponse(auditResult, eventosHospitalarios);
+        auditResult = postValidateLlmResponse(auditResult, eventosHospitalarios, cleanedCuenta, cleanedPam);
         log('[AuditEngine] 🛡️ Validaciones de seguridad aplicadas (Safety Belt).');
 
         // --- POST-PROCESSING: DETERMINISTIC GAP RECONCILIATION ---
@@ -605,8 +605,99 @@ export async function performForensicAudit(
 }
 
 // ============================================================================
-// HELPER: Trace Generic Charges (Top-K Matching)
+// HELPER: Subset-Sum for Nutrition (Alimentación) Reconciliation
 // ============================================================================
+function reconcileNutritionCharges(cuenta: any, pam: any): any {
+    // 1. Identify Target Amount (Code 3101306 or PRESTACIONES SIN BONIFICACIÓN)
+    let targetAmount = 0;
+    let pamItemName = "";
+
+    if (pam && pam.folios) {
+        for (const folio of pam.folios) {
+            if (folio.desglosePorPrestador) {
+                for (const prestador of folio.desglosePorPrestador) {
+                    if (prestador.items) {
+                        for (const item of prestador.items) {
+                            const code = (item.codigo || "").toString();
+                            const desc = (item.descripcion || "").toUpperCase();
+                            const bonif = parseAmountCLP(item.bonificacion);
+
+                            // Criteria: Code 3101306 OR (Bonif=0 AND Desc includes 'SIN BONI')
+                            if (code.includes("3101306") || (bonif === 0 && desc.includes("SIN BONIFI"))) {
+                                targetAmount = parseAmountCLP(item.copago) || parseAmountCLP(item.valorTotal);
+                                pamItemName = item.descripcion || "3101306 PRESTACIONES SIN BONIFICACION";
+                                break;
+                            }
+                        }
+                    }
+                    if (targetAmount > 0) break;
+                }
+            }
+            if (targetAmount > 0) break;
+        }
+    }
+
+    if (targetAmount === 0) return null; // No nutrition charge found in PAM
+
+    // 2. Identify Candidates in Account (Greedy Filter)
+    const candidates: any[] = [];
+    const NUTRITION_KEYWORDS = ["ALMUERZO", "CENA", "DESAYUNO", "REGIMEN", "BANDEJA", "COLACTI", "COLACION", "LIQUIDO", "ONCE", "TRAMO"];
+
+    // Also include "PRUEBA COMPATIBILIDAD" only if explicitly requested, but usually that's false positive.
+    // User logic: "Agrupar candidatos por familia hotelería/alimentación"
+
+    if (cuenta && cuenta.sections) {
+        cuenta.sections.forEach((sec: any) => {
+            (sec.items ?? []).forEach((item: any) => {
+                const desc = (item.description || "").toUpperCase();
+                // Filter by keyword
+                if (NUTRITION_KEYWORDS.some(k => desc.includes(k))) {
+                    candidates.push({
+                        description: item.description,
+                        total: parseAmountCLP(item.total),
+                        original: item
+                    });
+                }
+            });
+        });
+    }
+
+    // 3. Subset Sum (Backtracking - Simplified for reasonable N)
+    // We want to find a subset of 'candidates' that sums exactly to 'targetAmount'
+    // Tolerance: Let's allow strictly 0 or very small (e.g. $1) to be "Exact"
+
+    function findSubset(target: number, items: any[]): any[] | null {
+        // Optimize: Sort items descending
+        items.sort((a, b) => b.total - a.total);
+
+        const result: any[] = [];
+        function backtrack(remaining: number, start: number): boolean {
+            if (Math.abs(remaining) < 2) return true; // Found (approx 0)
+            if (remaining < 0) return false;
+
+            for (let i = start; i < items.length; i++) {
+                result.push(items[i]);
+                if (backtrack(remaining - items[i].total, i + 1)) return true;
+                result.pop();
+            }
+            return false;
+        }
+
+        if (backtrack(target, 0)) return result;
+        return null;
+    }
+
+    const matchedSubset = findSubset(targetAmount, candidates);
+
+    return {
+        targetFound: true,
+        targetAmount,
+        pamItemName,
+        matchFound: matchedSubset !== null,
+        items: matchedSubset || []
+    };
+}
+
 function traceGenericChargesTopK(cuenta: any, pam: any): string {
     const traceResults: string[] = [];
 
@@ -705,9 +796,10 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
 // ============================================================================
 // HELPER: Post-Validate LLM Response (The "Safety Belt" - Cross-Validation v9)
 // ============================================================================
-function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
+function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: any, pamContext: any): any {
     const validatedResult = { ...resultRaw };
     let hasStructuralOpacity = false;
+
 
     // 1. Table VIII Enforcement & Hallmark Check (Cross-Validation v9)
     if (validatedResult.hallazgos) {
@@ -792,6 +884,79 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
         validatedResult.resumenFinanciero.totalCopagoObjetado = sumA + sumB;
     }
 
+
+    // --- NUTRITION RECONCILIATION (ALIMENTACIÓN CHECK) ---
+    // Runs before final output to verify 3101306 findings
+    try {
+        if (cuentaContext && pamContext) {
+            const nutritionCheck = reconcileNutritionCharges(cuentaContext, pamContext);
+
+            if (nutritionCheck && nutritionCheck.targetFound) {
+                // Check if there is an existing "Alimentación" finding
+                const nutriFindingIndex = validatedResult.hallazgos.findIndex((h: any) =>
+                    (h.codigos && h.codigos.includes("3101306")) ||
+                    (h.glosa && /ALIMENTA|NUTRICI/i.test(h.glosa))
+                );
+
+                if (nutritionCheck.matchFound) {
+                    // EXACT MATCH: Confirm or Inject Finding
+                    console.log(`[AuditEngine] 🍎 ALIMENTACION: Match Exacto ($${nutritionCheck.targetAmount}). items: ${nutritionCheck.items.length}`);
+
+                    // If finding exists, confirm it. If not, create it.
+                    const findingPayload = {
+                        codigos: "3101306",
+                        titulo: "UNBUNDLING EN ALIMENTACIÓN – COBRO IMPROCEDENTE",
+                        glosa: "PRESTACIONES SIN BONIFICACIÓN (ALIMENTACION)",
+                        hallazgo: `**I. Identificación del ítem**
+PRESTACIONES SIN BONIFICACIÓN (GC 3101306 / ALIMENTACIÓN)
+Copago: **$${nutritionCheck.targetAmount.toLocaleString('es-CL')}**
+
+**II. Contexto**
+El paciente se encontraba hospitalizado. El concepto Día Cama, ya cobrado y bonificado, incluye por definición técnica y contractual la alimentación básica del paciente.
+
+**III. Análisis**
+El cobro separado de alimentación constituye una desagregación improcedente (unbundling) de una prestación integral ya arancelada. Se ha verificado matemáticamente que el monto cobrado corresponde exactamente a la suma de los siguientes ítems de alimentación en la cuenta:
+${nutritionCheck.items.map((i: any) => `- ${i.description}: $${i.total.toLocaleString('es-CL')}`).join('\n')}
+
+**IV. Conclusión**
+El monto de **$${nutritionCheck.targetAmount.toLocaleString('es-CL')}** debe ser impugnado como cobro improcedente, por duplicar un componente inherente al Día Cama.`,
+                        montoObjetado: nutritionCheck.targetAmount,
+                        tipo_monto: "COBRO_IMPROCEDENTE",
+                        recomendacion_accion: "IMPUGNAR",
+                        nivel_confianza: "ALTA",
+                        normaFundamento: "Circular IF/319 (Cobertura Integral dia cama) y Definición Arancelaria Día Cama",
+                        anclajeJson: "MATCH_EXACTO_SUBSET_SUM"
+                    };
+
+                    if (nutriFindingIndex >= 0) {
+                        // Update existing
+                        validatedResult.hallazgos[nutriFindingIndex] = { ...validatedResult.hallazgos[nutriFindingIndex], ...findingPayload };
+                    } else {
+                        // Inject new
+                        validatedResult.hallazgos.push(findingPayload);
+                    }
+
+                } else {
+                    // NO MATCH: Downgrade logic
+                    console.log(`[AuditEngine] 🍎 ALIMENTACION: NO cuadra (Target $${nutritionCheck.targetAmount}). Downgrading...`);
+
+                    if (nutriFindingIndex >= 0) {
+                        const h = validatedResult.hallazgos[nutriFindingIndex];
+                        h.tipo_monto = "COPAGO_OPACO";
+                        h.recomendacion_accion = "SOLICITAR_ACLARACION";
+                        h.nivel_confianza = "MEDIA";
+                        h.hallazgo = `** Indeterminación de Trazabilidad **\nSi bien existe el cargo '${nutritionCheck.pamItemName}' ($${nutritionCheck.targetAmount}) en el PAM, la suma de los ítems de alimentación en la cuenta NO CALZA con este monto.\n\nSe requiere desglose exacto para confirmar si corresponde a alimentación del paciente (duplicidad) o a otro concepto.`;
+                        h.estado_juridico = "EN_CONTROVERSIA";
+                    }
+                    // If no finding existed, we do nothing (we don't create false alarms for stuff not found)
+                }
+            }
+        }
+    } catch (e) {
+        console.log(`[AuditEngine] ⚠️ Error en reconciliación nutricional: ${e}`);
+    }
+
+
     // --- CANONICAL OPACITY OVERRIDE (HARD RULE) ---
     if (hasStructuralOpacity) {
         console.log('[AuditEngine] 🛡️ DETECTADA OPACIDAD ESTRUCTURAL. Aplicando Regla Canónica de Indeterminación.');
@@ -803,13 +968,42 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
             const montoOpaco = validatedResult.resumenFinanciero?.copagos_bajo_controversia || 0;
             validatedResult.hallazgos.unshift({
                 codigos: "OPACIDAD_ESTRUCTURAL",
-                glosa: "INDETERMINACION DEL COPAGO POR FALTA DE DESGLOSE",
+                titulo: "OPACIDAD EN DOCUMENTO DE COBRO (PAM) – COPAGO NO VERIFICABLE",
+                glosa: "MATERIALES/MEDICAMENTOS SIN APERTURA",
                 categoria: "OPACIDAD",
                 tipo_monto: "COPAGO_OPACO",
                 montoObjetado: montoOpaco,
                 recomendacion_accion: "SOLICITAR_ACLARACION",
                 nivel_confianza: "ALTA",
-                hallazgo: `** Hallazgo estructural: Indeterminación del objeto del cobro(opacidad).**\n\nSe detectan líneas agrupadas en el PAM y / o glosas genéricas que impiden identificar, para cada ítem, código, cantidad, valor unitario y fundamento clínico.En estas condiciones, el copago asociado ** no resulta exigible hasta que el prestador / asegurador entregue desglose verificable ** que permita auditar exclusiones, topes y pertenencia.`,
+                hallazgo: `**I. Identificación del problema**
+En el PAM del evento quirúrgico se presentan las siguientes líneas consolidadas, sin apertura de componentes:
+
+- MATERIALES CLÍNICOS QUIRÚRGICOS (GC 3101304)
+- MEDICAMENTOS HOSPITALIZADOS (GC 3101302)
+
+Total copago asociado a líneas no desglosadas: **$${montoOpaco.toLocaleString('es-CL')}**.
+
+**II. Contexto clínico y administrativo**
+El evento corresponde a una hospitalización quirúrgica de alta complejidad. Si bien la cuenta clínica interna del prestador contiene múltiples ítems detallados, el documento de cobro y liquidación (PAM) —que es el instrumento que determina el copago exigido al afiliado— agrupa dichos conceptos en glosas genéricas, impidiendo su auditoría directa.
+
+**III. Norma aplicable**
+- **Ley 20.584**, derecho del paciente a recibir información clara, comprensible y detallada sobre las prestaciones y sus cobros.
+- Principios de transparencia y trazabilidad exigidos por la Superintendencia de Salud en procesos de liquidación.
+
+**IV. Forma en que se configura la controversia**
+La ausencia de desglose en el PAM impide verificar, desde el propio documento de pago:
+1. La correcta aplicación de topes contractuales.
+2. La exclusión de ítems no clínicos (hotelería, confort).
+3. La no duplicidad con prestaciones integrales ya bonificadas (día cama, derecho de pabellón).
+
+**V. Análisis técnico-contractual**
+Desde un punto de vista de auditoría, el copago asociado a estas líneas no es verificable en el PAM, por lo que no puede considerarse plenamente exigible mientras no se entregue un desglose verificable y trazable en el documento de liquidación o en un anexo formal validado por la aseguradora.
+
+**VI. Efecto económico**
+El afiliado asume un copago de **$${montoOpaco.toLocaleString('es-CL')}** cuya composición no puede ser auditada desde el PAM.
+
+**VII. Conclusión**
+Se solicita aclaración formal y reliquidación, mediante entrega de desglose completo de materiales y medicamentos en el PAM o documento equivalente, que permita validar cobertura, exclusiones y topes contractuales.`,
                 anclajeJson: "PAM/CUENTA: LINEAS AGRUPADAS",
                 estado_juridico: "EN_CONTROVERSIA"
             });

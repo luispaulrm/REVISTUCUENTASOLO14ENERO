@@ -120,10 +120,10 @@ Usar cuando:
 - Falta información para decidir
 
 Redacción obligatoria:
-"Cobro no verificable por opacidad. Se solicita desglose obligatorio para determinar si existe unbundling o duplicidad."
+"Cobro no verificable desde el PAM por falta de apertura, por lo que corresponde exigir desglose/documentos de respaldo para descartar (a) cargos de hotelería/confort incrustados y (b) dobles cobros por paquetes integrales."
 
 **NO digas:** "copago indebido" en SOLICITAR_ACLARACION
-**SÍ di:** "copago no verificable hasta obtener desglose"
+**SÍ di:** "copago no verificable por falta de apertura en PAM"
 
 **CASO 3: ACEPTAR (nivel_confianza: ALTA)**
 Usar cuando:
