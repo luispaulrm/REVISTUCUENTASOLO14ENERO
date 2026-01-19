@@ -681,90 +681,9 @@ export const REFLECTION_SCHEMA = {
 };
 
 export const AUDIT_PROMPT = `
-### 0. ESTRUCTURA CANÓNICA DE REPORTE (HARD RULE - NO MODIFICAR)
-El informe final DEBE seguir estrictamente esta estructura lógica y de presentación. Cualquier desviación será considerada una alucinación técnica.
 
-#### 1. CONCLUSIÓN EJECUTIVA (CLARA Y SIN CONTRADICCIONES)
-- Si detectas OPACIDAD en líneas genéricas (Materiales, Medicamentos sin desglose) o "VARIOS":
-  - El resultado es: "La auditoría forense NO permite validar completamente el copago informado en el PAM, debido a una OPACIDAD ESTRUCTURAL."
-  - Resultado jurídico-técnico final: "El copago es INDETERMINADO y se encuentra BAJO CONTROVERSIA."
-  - ⚠️ **LÍNEA OBLIGATORIA (Traceability Rule)**: "Este informe prioriza trazabilidad: aun si el porcentaje de cobertura aplicado fuera correcto, la falta de desglose impide validar el copago."
-  - ⚠️ PROHIBIDO establecer "Ahorro Definitivo" sobre estos montos.
 
-#### 2. ALCANCE DE LA AUDITORÍA (DELIMITACIÓN CLAVE)
-- ✔️ Sí se valida: Honorarios médicos, Día cama, Cobertura % (si aplica).
-- ❌ No se valida: Materiales clínicos, Medicamentos hospitalizados (si no hay desglose).
 
-#### 3. HALLAZGO PRINCIPAL (ESTRUCTURAL)
-- Si hay opacidad:
-  - Título: "**Hallazgo estructural: Indeterminación del objeto del cobro (opacidad)**"
-  - Categoría: "OPACIDAD"
-  - Descripción Canónica: "Se detectan líneas agrupadas en el PAM y/o glosas genéricas en la cuenta clínica que impiden identificar, para cada ítem, código, cantidad, valor unitario y fundamento clínico. En estas condiciones, el copago asociado no puede ser validado y **no resulta exigible hasta que el prestador/asegurador entregue desglose verificable** que permita auditar exclusiones, topes y pertenencia (p. ej. insumos de hotelería vs insumos clínicos)."
-  - Normativa vulnerada: Ley 20.584 (Derecho a cuenta detallada).
-  - Nota técnica: Este hallazgo no afirma sobrecobro; afirma imposibilidad de auditoría.
-  - Acción recomendada: Solicitar aclaración y refacturación/reliquidación con detalle ítem a ítem.
-
-#### 4. RESULTADO FINANCIERO CORRECTO
-- Concepto -> Estado
-- Copago total informado en PAM: [Monto]
-- Copago validado sin objeción: [Monto]
-- Copago bajo controversia: [Monto Opaco]
-- Ahorro definitivo: ❌ No determinable
-- Estado jurídico del monto objetado: INDETERMINADO
-
-### 0.2 ARQUITECTURA DE DECISIÓN (S.O.P. - OBLIGATORIO)
-Este es un protocolo de clasificación jurídica, no de redacción.
-
-#### 1. PRINCIPIO DE NATURALEZA DEL MONTO (Regla Cero)
-NO TODO MONTO OBJETADO ES UN AHORRO. El motor debe clasificar primero la naturaleza jurídica del monto antes de sumarlo.
-
-#### 2. CLASIFICACIÓN OBLIGATORIA (CORE LOGIC)
-Todo monto detectado debe caer en EXACTAMENTE UNA de estas categorías:
-
-🔴 **CATEGORÍA A — COBRO IMPROCEDENTE DIRECTO (Anulable / Exigible)**
-- **Definición**: Monto facturado en CUENTA CLÍNICA que NO aparece en PAM o tiene glosa genérica sin prestación identificable.
-- **Ejemplos**: VARIOS, AJUSTES, DIFERENCIAS, CARGOS ADMINISTRATIVOS.
-- **Efecto JSON**: 
-  - \`tipo_monto\`: "COBRO_IMPROCEDENTE"
-  - Se suma a \`cobros_improcedentes_exigibles\` y \`ahorro_confirmado\`.
-
-🟠 **CATEGORÍA B — COPAGO BAJO CONTROVERSIA (No validable / No anulable aún)**
-- **Definición**: Monto que SI aparece en PAM pero corresponde a líneas agrupadoras (Materiales / Medicamentos) SIN desglose ítem por ítem.
-- **Ejemplos**: MATERIALES CLÍNICOS QUIRÚRGICOS, MEDICAMENTOS HOSPITALIZADOS.
-- **Efecto JSON**:
-  - \`tipo_monto\`: "COPAGO_OPACO"
-  - Se suma a \`copagos_bajo_controversia\`. 
-  - 🚫 **PROHIBIDO**: Sumar a \`ahorro_confirmado\`.
-
-#### 3. REGLA DE ORO: PROHIBICIÓN DE SUMA CRUZADA
-- ❌ **PROHIBIDO**: \`COBRO_IMPROCEDENTE\` + \`COPAGO_OPACO\` = “Monto total en controversia” (No mezclar peras con manzanas).
-- ✔️ **PERMITIDO**: Sumar solo Categoría A para determinar el ahorro real.
-- 🎯 **ACCIÓN ASOCIADA**:
-  - CATEGORÍA A -> \`recomendacion_accion\`: "IMPUGNAR" (Certeza técnica).
-  - CATEGORÍA B -> \`recomendacion_accion\`: "SOLICITAR_ACLARACION" (Indeterminación).
-
-#### 4. REGLA: "EVENTO PRIMERO, DETALLE DESPUÉS"
-Para casos quirúrgicos:
-1. Valida primero el **Evento Quirúrgico** (Pabellón, Anestesia, Procedimiento Ancla).
-2. Valida el copago global del evento solo si hay desglose suficiente.
-3. Solo entonces impugna detalles específicos.
-4. **⚠️ PRIORIDAD SUPREMA**: Si hay Opacidad Estructural en el PAM -> \`estado_global\` = "INDETERMINADO_POR_OPACIDAD". Se detiene la validación detallada.
-
-#### 5. REGLA DE LENGUAJE (EVITACIÓN DE RIESGO JURÍDICO - SUPERINTENDENCIA PROOF)
-- ❌ **PREMIUM PROHIBIDO**: 
-  - "no debe pagarse" -> REEMPLAZAR POR: "**no es exigible mientras no exista desglose verificable**"
-  - "es ilegal" / "ilegal per se" -> REEMPLAZAR POR: "**no resulta exigible hasta que el prestador/asegurador entregue desglose verificable**" o "**no cumple estándar de identificabilidad/trazabilidad exigible para su cobro/cobertura**"
-  - "fraude" -> REEMPLAZAR POR: "**posible inconsistencia / error de facturación o de liquidación**" (Si es grave: "requiere aclaración formal")
-  - **🚫 NO INFERENCIAS FUERTES**: Prohibido decir "esto está oculto en el PAM" como certeza.
-  - **✅ CORTESÍA TÉCNICA**: Usar "existe riesgo razonable de inclusión por consistencia contable / evidencia en cuenta; requiere desglose".
-- ✔️ **SOLUCIÓN**: Usar "no puede ser validado", "requiere desglose", "se solicita aclaración / reliquidación".
-
-#### 6. TEST CANÓNICO (EL BUG DE LOS $606.780)
-Si el caso tiene:
-- Categoría A (VARIOS/AJUSTES) = $366.004 -> Acción: "**IMPUGNAR**"
-- Categoría B (PAM Materiales) = $240.776 -> Acción: "**SOLICITAR_ACLARACION**"
-**EL RESULTADO CORRECTO ES**: Ahorro Confirmado: $366.004.
-(Si sumas ambos en el campo ahorro, el motor falla por BUG CRÍTICO).
 
 ### 1. REGLA DE ORO DE VISIBILIDAD FINANCIERA (NUEVO)
 EL PRIMER CAMPO DEL JSON debe ser \`valorUnidadReferencia\`.
@@ -1110,6 +1029,93 @@ Se recomienda IMPUGNAR el PAM y exigir:
 - Desglose ítem por ítem
 - Exclusión de cargos no clínicos
 - Regularización de cobros fuera del sistema de bonificación
+
+=== REGLAS CANÓNICAS (CUMPLIMIENTO OBLIGATORIO – PRIORIDAD MÁXIMA) ===
+
+### 0. ESTRUCTURA CANÓNICA DE REPORTE (HARD RULE - NO MODIFICAR)
+El informe final DEBE seguir estrictamente esta estructura lógica y de presentación. Cualquier desviación será considerada una alucinación técnica.
+
+#### 1. CONCLUSIÓN EJECUTIVA (CLARA Y SIN CONTRADICCIONES)
+- Si detectas OPACIDAD en líneas genéricas (Materiales, Medicamentos sin desglose) o "VARIOS":
+  - El resultado es: "La auditoría forense NO permite validar completamente el copago informado en el PAM, debido a una OPACIDAD ESTRUCTURAL."
+  - Resultado jurídico-técnico final: "El copago es INDETERMINADO y se encuentra BAJO CONTROVERSIA."
+  - ⚠️ **LÍNEA OBLIGATORIA (Traceability Rule)**: "Este informe prioriza trazabilidad: aun si el porcentaje de cobertura aplicado fuera correcto, la falta de desglose impide validar el copago."
+  - ⚠️ PROHIBIDO establecer "Ahorro Definitivo" sobre estos montos.
+
+#### 2. ALCANCE DE LA AUDITORÍA (DELIMITACIÓN CLAVE)
+- ✔️ Sí se valida: Honorarios médicos, Día cama, Cobertura % (si aplica).
+- ❌ No se valida: Materiales clínicos, Medicamentos hospitalizados (si no hay desglose).
+
+#### 3. HALLAZGO PRINCIPAL (ESTRUCTURAL)
+- Si hay opacidad:
+  - Título: "**Hallazgo estructural: Indeterminación del objeto del cobro (opacidad)**"
+  - Categoría: "OPACIDAD"
+  - Descripción Canónica: "Se detectan líneas agrupadas en el PAM y/o glosas genéricas en la cuenta clínica que impiden identificar, para cada ítem, código, cantidad, valor unitario y fundamento clínico. En estas condiciones, el copago asociado no puede ser validado y **no resulta exigible hasta que el prestador/asegurador entregue desglose verificable** que permita auditar exclusiones, topes y pertenencia (p. ej. insumos de hotelería vs insumos clínicos)."
+  - Normativa vulnerada: Ley 20.584 (Derecho a cuenta detallada).
+  - Nota técnica: Este hallazgo no afirma sobrecobro; afirma imposibilidad de auditoría.
+  - Acción recomendada: Solicitar aclaración y refacturación/reliquidación con detalle ítem a ítem.
+
+#### 4. RESULTADO FINANCIERO CORRECTO
+- Concepto -> Estado
+- Copago total informado en PAM: [Monto]
+- Copago validado sin objeción: [Monto]
+- Copago bajo controversia: [Monto Opaco]
+- Ahorro definitivo: ❌ No determinable
+- Estado jurídico del monto objetado: INDETERMINADO
+
+### 0.2 ARQUITECTURA DE DECISIÓN (S.O.P. - OBLIGATORIO)
+Este es un protocolo de clasificación jurídica, no de redacción.
+
+#### 1. PRINCIPIO DE NATURALEZA DEL MONTO (Regla Cero)
+NO TODO MONTO OBJETADO ES UN AHORRO. El motor debe clasificar primero la naturaleza jurídica del monto antes de sumarlo.
+
+#### 2. CLASIFICACIÓN OBLIGATORIA (CORE LOGIC)
+Todo monto detectado debe caer en EXACTAMENTE UNA de estas categorías:
+
+🔴 **CATEGORÍA A — COBRO IMPROCEDENTE DIRECTO (Anulable / Exigible)**
+- **Definición**: Monto facturado en CUENTA CLÍNICA que NO aparece en PAM o tiene glosa genérica sin prestación identificable.
+- **Ejemplos**: VARIOS, AJUSTES, DIFERENCIAS, CARGOS ADMINISTRATIVOS.
+- **Efecto JSON**: 
+  - \`tipo_monto\`: "COBRO_IMPROCEDENTE"
+  - Se suma a \`cobros_improcedentes_exigibles\` y \`ahorro_confirmado\`.
+
+🟠 **CATEGORÍA B — COPAGO BAJO CONTROVERSIA (No validable / No anulable aún)**
+- **Definición**: Monto que SI aparece en PAM pero corresponde a líneas agrupadoras (Materiales / Medicamentos) SIN desglose ítem por ítem.
+- **Ejemplos**: MATERIALES CLÍNICOS QUIRÚRGICOS, MEDICAMENTOS HOSPITALIZADOS.
+- **Efecto JSON**:
+  - \`tipo_monto\`: "COPAGO_OPACO"
+  - Se suma a \`copagos_bajo_controversia\`. 
+  - 🚫 **PROHIBIDO**: Sumar a \`ahorro_confirmado\`.
+
+#### 3. REGLA DE ORO: PROHIBICIÓN DE SUMA CRUZADA
+- ❌ **PROHIBIDO**: \`COBRO_IMPROCEDENTE\` + \`COPAGO_OPACO\` = “Monto total en controversia” (No mezclar peras con manzanas).
+- ✔️ **PERMITIDO**: Sumar solo Categoría A para determinar el ahorro real.
+- 🎯 **ACCIÓN ASOCIADA**:
+  - CATEGORÍA A -> \`recomendacion_accion\`: "IMPUGNAR" (Certeza técnica).
+  - CATEGORÍA B -> \`recomendacion_accion\`: "SOLICITAR_ACLARACION" (Indeterminación).
+
+#### 4. REGLA: "EVENTO PRIMERO, DETALLE DESPUÉS"
+Para casos quirúrgicos:
+1. Valida primero el **Evento Quirúrgico** (Pabellón, Anestesia, Procedimiento Ancla).
+2. Valida el copago global del evento solo si hay desglose suficiente.
+3. Solo entonces impugna detalles específicos.
+4. **⚠️ PRIORIDAD SUPREMA**: Si hay Opacidad Estructural en el PAM -> \`estado_global\` = "INDETERMINADO_POR_OPACIDAD". Se detiene la validación detallada.
+
+#### 5. REGLA DE LENGUAJE (EVITACIÓN DE RIESGO JURÍDICO - SUPERINTENDENCIA PROOF)
+- ❌ **PREMIUM PROHIBIDO**: 
+  - "no debe pagarse" -> REEMPLAZAR POR: "**no es exigible mientras no exista desglose verificable**"
+  - "es ilegal" / "ilegal per se" -> REEMPLAZAR POR: "**no resulta exigible hasta que el prestador/asegurador entregue desglose verificable**" o "**no cumple estándar de identificabilidad/trazabilidad exigible para su cobro/cobertura**"
+  - "fraude" -> REEMPLAZAR POR: "**posible inconsistencia / error de facturación o de liquidación**" (Si es grave: "requiere aclaración formal")
+  - **🚫 NO INFERENCIAS FUERTES**: Prohibido decir "esto está oculto en el PAM" como certeza.
+  - **✅ CORTESÍA TÉCNICA**: Usar "existe riesgo razonable de inclusión por consistencia contable / evidencia en cuenta; requiere desglose".
+- ✔️ **SOLUCIÓN**: Usar "no puede ser validado", "requiere desglose", "se solicita aclaración / reliquidación".
+
+#### 6. TEST CANÓNICO (EL BUG DE LOS $606.780)
+Si el caso tiene:
+- Categoría A (VARIOS/AJUSTES) = $366.004 -> Acción: "**IMPUGNAR**"
+- Categoría B (PAM Materiales) = $240.776 -> Acción: "**SOLICITAR_ACLARACION**"
+**EL RESULTADO CORRECTO ES**: Ahorro Confirmado: $366.004.
+(Si sumas ambos en el campo ahorro, el motor falla por BUG CRÍTICO).
 
 REGLA DE SALIDA: Responde SOLAMENTE con el JSON de auditoría definido en el esquema.
 `;

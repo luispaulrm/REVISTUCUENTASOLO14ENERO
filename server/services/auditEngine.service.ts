@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GeminiService } from './gemini.service.js';
 import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.js';
-import { AI_CONFIG, AI_MODELS, GENERATION_CONFIG } from '../config/ai.config.js';
+import { AI_MODELS, GENERATION_CONFIG } from '../config/ai.config.js';
 import {
     extractCaseKeywords,
     getRelevantKnowledge,
@@ -51,8 +52,8 @@ export async function performForensicAudit(
     onUsageUpdate?: (usage: any) => void,
     onProgressUpdate?: (progress: number) => void
 ) {
-    // AUDIT-SPECIFIC: Reasoner First (Pro), then Fallback (2.5) if needed
-    const modelsToTry = [AI_MODELS.reasoner, AI_MODELS.fallback];
+    // AUDIT-SPECIFIC: Reasoner First (Pro), then Flash 3, then Fallback (2.5)
+    const modelsToTry = [AI_MODELS.reasoner, AI_MODELS.primary, AI_MODELS.fallback];
     let result;
     let lastError;
     let accumulatedTokens = 0;
@@ -64,7 +65,7 @@ export async function performForensicAudit(
     // =========================================================================
     log('[AuditEngine] 📚 Activando Bibliotecario Inteligente (Mini-RAG)...');
     onProgressUpdate?.(10);
-    log(`[AuditEngine] ℹ️ ${getKnowledgeFilterInfo()}`);
+    log(`[AuditEngine] ℹ️ ${getKnowledgeFilterInfo()} `);
 
     // Paso 1: Extraer keywords del caso (cuenta, PAM, contrato)
     const caseKeywords = extractCaseKeywords(cuentaJson, pamJson, contratoJson, htmlContext);
@@ -76,8 +77,8 @@ export async function performForensicAudit(
     const { text: knowledgeBaseText, sources, tokenEstimate, keywordsMatched } =
         await getRelevantKnowledge(caseKeywords, MAX_KNOWLEDGE_TOKENS, log);
 
-    log(`[AuditEngine] 📊 Conocimiento inyectado: ${sources.length} fuentes (~${tokenEstimate} tokens)`);
-    log(`[AuditEngine] 📚 Fuentes: ${sources.join(' | ')}`);
+    log(`[AuditEngine] 📊 Conocimiento inyectado: ${sources.length} fuentes(~${tokenEstimate} tokens)`);
+    log(`[AuditEngine] 📚 Fuentes: ${sources.join(' | ')} `);
     onProgressUpdate?.(20);
 
     // Paso 3: Cargar reglas de hotelería (siempre, es pequeño)
@@ -165,11 +166,11 @@ export async function performForensicAudit(
     if (eventosHospitalarios.length > 0 && eventosHospitalarios[0].analisis_financiero) {
         const fin = eventosHospitalarios[0].analisis_financiero;
         if (fin.valor_unidad_inferido) {
-            vaDeductionSummary = `💎 DEDUCCIÓN V.A/VAM: $${fin.valor_unidad_inferido?.toLocaleString('es-CL')} | EVIDENCIA: ${fin.glosa_tope}`;
-            log(`[AuditEngine] ${vaDeductionSummary}`);
+            vaDeductionSummary = `💎 DEDUCCIÓN V.A / VAM: $${fin.valor_unidad_inferido?.toLocaleString('es-CL')} | EVIDENCIA: ${fin.glosa_tope} `;
+            log(`[AuditEngine] ${vaDeductionSummary} `);
         }
     }
-    log(`[AuditEngine] 📋 Eventos detectados: ${eventosHospitalarios.length}`);
+    log(`[AuditEngine] 📋 Eventos detectados: ${eventosHospitalarios.length} `);
 
     // --- INTEGRITY CHECK (FAIL FAST - NO MONEY NO HONEY) ---
     // If PAM has money but Events show $0, abort to prevent hallucinations.
@@ -182,12 +183,12 @@ export async function performForensicAudit(
     // Allow small tolerance? Or strict? User said "FAIL FAST".
     // If PAM > 0 and Events == 0 -> CRITICAL ERROR.
     if (numericPamCopago > 0 && eventsTotalCopago === 0) {
-        throw new Error(`[DATA_INTEGRITY_FAIL] El PAM declara copago ($${numericPamCopago}) pero los eventos sumaron $0. ` +
-            `Revisar parsing de montos en eventProcessor. Abortando para evitar alucinaciones.`);
+        throw new Error(`[DATA_INTEGRITY_FAIL] El PAM declara copago($${numericPamCopago}) pero los eventos sumaron $0. ` +
+            `Revisar parsing de montos en eventProcessor.Abortando para evitar alucinaciones.`);
     }
 
     eventosHospitalarios.forEach((evento, idx) => {
-        log(`[AuditEngine]   ${idx + 1}. Tipo: ${evento.tipo_evento}, Prestador: ${evento.prestador}, Copago: $${evento.total_copago?.toLocaleString('es-CL') || 0}`);
+        log(`[AuditEngine]   ${idx + 1}.Tipo: ${evento.tipo_evento}, Prestador: ${evento.prestador}, Copago: $${evento.total_copago?.toLocaleString('es-CL') || 0} `);
         if (evento.honorarios_consolidados && evento.honorarios_consolidados.length > 0) {
             const validFractions = evento.honorarios_consolidados.filter(h => h.es_fraccionamiento_valido);
             if (validFractions.length > 0) {
@@ -197,11 +198,16 @@ export async function performForensicAudit(
     });
 
     const eventosContext = JSON.stringify(eventosHospitalarios);
-    log(`[AuditEngine] ✅ Eventos serializados (~${(eventosContext.length / 1024).toFixed(2)} KB)`);
+    log(`[AuditEngine] ✅ Eventos serializados(~${(eventosContext.length / 1024).toFixed(2)} KB)`);
 
-    // SMARTEST: If we have raw OCR texts, use them if JSON is empty
-    if (htmlContext && htmlContext.includes('--- ORIGEN:')) {
-        log('[AuditEngine] 💎 Detectado Contexto Triple Crudo (Módulo 8). Optimizando prompt para Contexto Largo.');
+    // CONDITIONAL HTML: Only use HTML if structured JSON is incomplete
+    const hasStructuredPam = cleanedPam && Object.keys(cleanedPam).length > 2;
+    const useHtmlContext = !hasStructuredCuenta || !hasStructuredPam || (htmlContext && htmlContext.includes('--- ORIGEN:'));
+
+    if (useHtmlContext && htmlContext) {
+        log('[AuditEngine] 💎 Usando HTML Context (JSON incompleto o Módulo 8 detectado).');
+    } else if (!useHtmlContext) {
+        log('[AuditEngine] ⚡ HTML Context omitido (JSON estructurado completo, ahorro ~40k tokens).');
     }
 
     // ============================================================================
@@ -209,7 +215,7 @@ export async function performForensicAudit(
     // ============================================================================
     const traceAnalysis = traceGenericChargesTopK(cleanedCuenta, cleanedPam);
     log('[AuditEngine] 🔍 Trazabilidad de Ajustes:');
-    traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line}`));
+    traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line} `));
 
     const prompt = AUDIT_PROMPT
         .replace('{jurisprudencia_text}', '')
@@ -223,20 +229,42 @@ export async function performForensicAudit(
         .replace('{eventos_hospitalarios}', eventosContext)
         .replace('{contexto_trazabilidad}', traceAnalysis)
         .replace('{va_deduction_context}', vaDeductionSummary)
-        .replace('{html_context}', htmlContext || 'No HTML context provided.');
+        .replace('{html_context}', useHtmlContext ? (htmlContext || '') : '(Omitido: JSON completo)');
 
     // Log prompt size for debugging
     const promptSize = prompt.length;
     const promptSizeKB = (promptSize / 1024).toFixed(2);
-    log(`[AuditEngine] 📏 Tamaño del prompt: ${promptSizeKB} KB (${promptSize} caracteres)`);
+    log(`[AuditEngine] 📏 Tamaño del prompt: ${promptSizeKB} KB(${promptSize} caracteres)`);
     // -----------------------------------------------------
+
+    // Initialize GeminiService with multiple API keys for rotation
+    const apiKeys = [
+        apiKey,
+        process.env.GEMINI_API_KEY_SECONDARY,
+        process.env.GEMINI_API_KEY_TERTIARY
+    ].filter(k => k && k.length > 5);
+
+    const geminiService = new GeminiService(apiKeys);
+    log(`[AuditEngine] 🔑 GeminiService initialized with ${apiKeys.length} API key(s)`);
 
     for (const modelName of modelsToTry) {
         if (!modelName) continue;
 
         try {
             log(`[AuditEngine] 🛡️ Strategy: Intentando con modelo ${modelName}...`);
-            const genAI = new GoogleGenerativeAI(apiKey);
+            log('[AuditEngine] 📡 Enviando consulta a Gemini (Streaming)...');
+            onProgressUpdate?.(40);
+
+            // Use GeminiService's extractText with streaming simulation
+            const timeoutMs = 120000;
+            const startTime = Date.now();
+
+            let fullText = '';
+            let usage: any = null;
+
+            // Use non-streaming call for JSON schema response
+            // GeminiService doesn't expose streaming with schema yet, so we use direct call
+            const genAI = new GoogleGenerativeAI(apiKeys[0]);
             const model = genAI.getGenerativeModel({
                 model: modelName,
                 generationConfig: {
@@ -249,11 +277,6 @@ export async function performForensicAudit(
                 }
             });
 
-            log('[AuditEngine] 📡 Enviando consulta a Gemini (Streaming)...');
-            onProgressUpdate?.(40);
-
-            // Use streaming for real-time feedback
-            const timeoutMs = 120000; // 120 seconds for audit (larger prompt)
             const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => reject(new Error(`Timeout: La API no respondió en ${timeoutMs / 1000} segundos`)), timeoutMs);
             });
@@ -262,10 +285,6 @@ export async function performForensicAudit(
                 model.generateContentStream(prompt),
                 timeoutPromise
             ]) as any;
-
-            // Accumulate the full response from stream
-            let fullText = '';
-            let usage: any = null;
 
             log('[AuditEngine] 📥 Recibiendo respuesta en tiempo real...');
             for await (const chunk of streamResult.stream) {
@@ -308,13 +327,13 @@ export async function performForensicAudit(
 
             if (isTimeout) {
                 log(`[AuditEngine] ⏱️ Timeout en ${modelName}. El modelo no respondió a tiempo.`);
-                log(`[AuditEngine] 💡 Sugerencia: El prompt puede ser demasiado grande (${promptSizeKB} KB).`);
+                log(`[AuditEngine] 💡 Sugerencia: El prompt puede ser demasiado grande(${promptSizeKB} KB).`);
                 throw error; // Don't retry on timeout, it's likely a prompt size issue
             } else if (isQuota) {
-                log(`[AuditEngine] ⚠️ Fallo en ${modelName} por Quota/Server (${error.message}). Probando siguiente...`);
+                log(`[AuditEngine] ⚠️ Fallo en ${modelName} por Quota / Server(${error.message}).Probando siguiente...`);
                 continue;
             } else {
-                log(`[AuditEngine] ❌ Error no recuperable en ${modelName}: ${error.message}`);
+                log(`[AuditEngine] ❌ Error no recuperable en ${modelName}: ${error.message} `);
                 throw error; // Si no es quota, fallamos inmediatamente
             }
         }
@@ -330,7 +349,7 @@ export async function performForensicAudit(
         let responseText = result.response.text();
 
         // 1. Remove Markdown fences
-        responseText = responseText.replace(/```json\n?|```/g, '').trim();
+        responseText = responseText.replace(/```json\n ?| ```/g, '').trim();
 
         // 2. Escape bad control characters (newlines/tabs inside strings)
         // This regex looks for control chars that are NOT properly escaped
@@ -357,7 +376,7 @@ export async function performForensicAudit(
                 auditResult = JSON.parse(cleanedText);
                 log('[AuditEngine] ✅ Reparación de JSON exitosa.');
             } catch (repairError) {
-                log(`[AuditEngine] ❌ Reparación falló. Devolviendo raw text para depuración.`);
+                log(`[AuditEngine] ❌ Reparación falló.Devolviendo raw text para depuración.`);
                 // Fallback: return structure with raw content
                 auditResult = {
                     metadata: { type: 'ERROR_FALLBACK' },
@@ -400,7 +419,7 @@ export async function performForensicAudit(
 
             // 🚨 REGLA NUCLEAR: Si el estado es INDETERMINADO, NO generamos GAP/orphans
             if (estadoCopago === 'INDETERMINADO_POR_OPACIDAD') {
-                log(`[AuditEngine] 🔍 Estado INDETERMINADO detectado. NO se ejecuta GAP reconciliation (evita ghost hunters).`);
+                log(`[AuditEngine] 🔍 Estado INDETERMINADO detectado.NO se ejecuta GAP reconciliation(evita ghost hunters).`);
                 // Early return: skip all gap/orphan logic
             } else {
 
@@ -467,7 +486,7 @@ export async function performForensicAudit(
 
                     // 2. ASSIGN GAP TO ORPHANS (Traceability)
                     if (orphanedItems.length > 0) {
-                        log(`[AuditEngine] 🕵️‍♂️ Ítems Huérfanos encontrados: ${orphanedItems.length}`);
+                        log(`[AuditEngine] 🕵️‍♂️ Ítems Huérfanos encontrados: ${orphanedItems.length} `);
 
                         orphanedItems.forEach(item => {
                             const monto = parseAmountCLP(item.copago);
@@ -475,31 +494,31 @@ export async function performForensicAudit(
                                 codigos: item.codigo || "SIN-CODIGO",
                                 glosa: item.descripcion || "ÍTEM SIN DESCRIPCION",
                                 hallazgo: `
-**I. Identificación del ítem cuestionado**
-Se cuestiona el cobro de **$${monto.toLocaleString('es-CL')}** asociado a la prestación codificada como "${item.codigo}".
+    ** I.Identificación del ítem cuestionado **
+        Se cuestiona el cobro de ** $${monto.toLocaleString('es-CL')}** asociado a la prestación codificada como "${item.codigo}".
 
-**II. Contexto clínico y administrativo**
-Este ítem aparece con copago positivo en el PAM pero no cuenta con bonificación adecuada ni código arancelario estándar (Código Fantasma/0), generando una "fuga de cobertura" silenciosa.
+** II.Contexto clínico y administrativo **
+    Este ítem aparece con copago positivo en el PAM pero no cuenta con bonificación adecuada ni código arancelario estándar(Código Fantasma / 0), generando una "fuga de cobertura" silenciosa.
 
-**III. Norma contractual aplicable**
-Según Circular IF/N°176 y Art. 33 Ley 18.933, los errores de codificación o el uso de códigos internos (no homologados) por parte del prestador NO pueden traducirse en copagos para el afiliado. La Isapre debe cubrir la prestación al 100% (Plan Pleno) asimilándola al código Fonasa más cercano (ej: Vía Venosa, Insumos de Pabellón).
+** III.Norma contractual aplicable **
+    Según Circular IF / N°176 y Art. 33 Ley 18.933, los errores de codificación o el uso de códigos internos(no homologados) por parte del prestador NO pueden traducirse en copagos para el afiliado.La Isapre debe cubrir la prestación al 100 % (Plan Pleno) asimilándola al código Fonasa más cercano(ej: Vía Venosa, Insumos de Pabellón).
 
-**IV. Forma en que se materializa la controversia**
-Se configura un **Error de Codificación Imputable al Prestador**. La clínica utilizó un código interno (99-XX o 00-00) que la Isapre rechazó o bonificó parcialmente como "No Arancelado", cuando en realidad corresponde a insumos/procedimientos cubiertos.
+** IV.Forma en que se materializa la controversia **
+    Se configura un ** Error de Codificación Imputable al Prestador **.La clínica utilizó un código interno(99 - XX o 00-00) que la Isapre rechazó o bonificó parcialmente como "No Arancelado", cuando en realidad corresponde a insumos / procedimientos cubiertos.
 
-**VI. Efecto económico concreto**
-El afiliado paga $${monto.toLocaleString('es-CL')} indebidamente por un error administrativo de catalogación.
+** VI.Efecto económico concreto **
+    El afiliado paga $${monto.toLocaleString('es-CL')} indebidamente por un error administrativo de catalogación.
 
-**VII. Conclusión de la impugnación**
-Se solicita la re-liquidación total de este ítem bajo el principio de homologación y cobertura integral.
+** VII.Conclusión de la impugnación **
+    Se solicita la re - liquidación total de este ítem bajo el principio de homologación y cobertura integral.
 
-**VIII. Trazabilidad y Origen del Cobro**
-Anclaje exacto en PAM: Ítem "${item.descripcion}" (Copago: $${monto}).
+** VIII.Trazabilidad y Origen del Cobro **
+    Anclaje exacto en PAM: Ítem "${item.descripcion}"(Copago: $${monto}).
                              `,
                                 montoObjetado: monto,
                                 tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Orphan items are exigible
                                 normaFundamento: "Circular IF/176 (Errores de Codificación) y Ley 18.933",
-                                anclajeJson: `PAM_AUTO_DETECT: ${item.codigo}`
+                                anclajeJson: `PAM_AUTO_DETECT: ${item.codigo} `
                             });
                             // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
                         });
@@ -516,32 +535,32 @@ Anclaje exacto en PAM: Ítem "${item.descripcion}" (Copago: $${monto}).
                             codigos: "GAP_RECONCILIATION",
                             glosa: "DIFERENCIA NO EXPLICADA (DÉFICIT DE COBERTURA)",
                             hallazgo: `
-**I. Identificación del ítem cuestionado**
-Se detecta un monto residual de **$${gap.toLocaleString('es-CL')}** que no fue cubierto por la Isapre y NO corresponde al copago contractual legítimo.
+    ** I.Identificación del ítem cuestionado **
+        Se detecta un monto residual de ** $${gap.toLocaleString('es-CL')}** que no fue cubierto por la Isapre y NO corresponde al copago contractual legítimo.
 
-**II. Contexto clínico y administrativo**
-Diferencia aritmética entre Copago Total y la suma de (Copago Legítimo + Hallazgos).
+** II.Contexto clínico y administrativo **
+    Diferencia aritmética entre Copago Total y la suma de(Copago Legítimo + Hallazgos).
 
-**III. Norma contractual aplicable**
-El plan (cobertura preferente) no debería generar copagos residuales salvo Topes Contractuales alcanzados o Exclusiones legítimas.
+** III.Norma contractual aplicable **
+    El plan(cobertura preferente) no debería generar copagos residuales salvo Topes Contractuales alcanzados o Exclusiones legítimas.
 
-**IV. Forma en que se materializa la controversia**
-Existe un **Déficit de Cobertura Global**. Si este monto de $${gap.toLocaleString('es-CL')} corresponde a prestaciones no aranceladas, debe ser acreditado. De lo contrario, se presume cobro en exceso por falta de bonificación integral.
+** IV.Forma en que se materializa la controversia **
+    Existe un ** Déficit de Cobertura Global **.Si este monto de $${gap.toLocaleString('es-CL')} corresponde a prestaciones no aranceladas, debe ser acreditado.De lo contrario, se presume cobro en exceso por falta de bonificación integral.
 
-**VI. Efecto económico concreto**
-Costo adicional de $${gap.toLocaleString('es-CL')} sin justificación contractual.
+** VI.Efecto económico concreto **
+    Costo adicional de $${gap.toLocaleString('es-CL')} sin justificación contractual.
 
-**VII. Conclusión de la impugnación**
-Se objeta este remanente por falta de transparencia.
+** VII.Conclusión de la impugnación **
+    Se objeta este remanente por falta de transparencia.
 
-**VIII. Trazabilidad y Origen del Cobro**
+** VIII.Trazabilidad y Origen del Cobro **
 | Concepto | Monto |
-| :--- | :--- |
+| : --- | : --- |
 | Copago Total PAM | $${numericTotalCopago.toLocaleString('es-CL')} |
-| (-) Copago Legítimo (Contrato) | -$${legitimadoPorIA.toLocaleString('es-CL')} |
+| (-) Copago Legítimo(Contrato) | -$${legitimadoPorIA.toLocaleString('es-CL')} |
 | (-) Suma Hallazgos | -$${sumFindings.toLocaleString('es-CL')} |
-| **= GAP (DIFERENCIA)** | **$${gap.toLocaleString('es-CL')}** |
-                        `,
+| **= GAP(DIFERENCIA) ** | ** $${gap.toLocaleString('es-CL')}** |
+    `,
                             montoObjetado: gap,
                             tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Generic coverage deficit is exigible
                             normaFundamento: "Principio de Cobertura Integral y Transparencia (Ley 20.584)",
@@ -554,7 +573,7 @@ Se objeta este remanente por falta de transparencia.
             } // End of else block for !INDETERMINADO
         } catch (gapError: any) {
             const errMsg = gapError?.message || String(gapError);
-            log(`[AuditEngine] ⚠️ Error en cálculo de Gap: ${errMsg}`);
+            log(`[AuditEngine] ⚠️ Error en cálculo de Gap: ${errMsg} `);
         }
         log('[AuditEngine] ✅ Auditoría forense completada.');
 
@@ -567,7 +586,7 @@ Se objeta este remanente por falta de transparencia.
             } : null
         };
     } catch (error: any) {
-        log(`[AuditEngine] ❌ Error en el proceso de auditoría: ${error.message}`);
+        log(`[AuditEngine] ❌ Error en el proceso de auditoría: ${error.message} `);
         throw error;
     }
 }
@@ -631,7 +650,7 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
         // A. Direct Match (Target == PAM_Item ± Tolerance)
         const directMatch = pamItems.find(p => Math.abs(p.amount - target) <= 1000);
         if (directMatch) {
-            traceResults.push(`- AJUSTE '${adj.description}' ($${target}) COINCIDE con ítem PAM '${directMatch.descripcion}' ($${directMatch.amount}). ESTATUS: TRACEADO (No oculto).`);
+            traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con ítem PAM '${directMatch.descripcion}'($${directMatch.amount}).ESTATUS: TRACEADO(No oculto).`);
             matchFound = true;
         }
 
@@ -654,13 +673,13 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
             });
 
             if (folioMatch) {
-                traceResults.push(`- AJUSTE '${adj.description}' ($${target}) COINCIDE con Bonificación Total del Folio ${folioMatch.folioPAM}. ESTATUS: TRACEADO (Agrupado).`);
+                traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con Bonificación Total del Folio ${folioMatch.folioPAM}.ESTATUS: TRACEADO(Agrupado).`);
                 matchFound = true;
             }
         }
 
         if (!matchFound) {
-            traceResults.push(`- AJUSTE '${adj.description}' ($${target}) NO TIENE CORRELACIÓN aritmética evidente en PAM. ESTATUS: NO_TRAZABLE (requiere aclaración: ¿fuera del PAM o absorbido en agrupadores?).`);
+            traceResults.push(`- AJUSTE '${adj.description}'($${target}) NO TIENE CORRELACIÓN aritmética evidente en PAM.ESTATUS: NO_TRAZABLE(requiere aclaración: ¿fuera del PAM o absorbido en agrupadores ?).`);
         }
     });
 
@@ -691,7 +710,7 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
                 const isGenericOrOpacidad = h.categoria === "OPACIDAD" || /GENERICO|GEN[EÉ]RICO|AGRUPADOR/i.test(h.glosa || "");
 
                 if (isGenericOrOpacidad && !hasTableCheck) {
-                    console.log(`[Cross-Validation v9] 🛡️ DEGRADANDO hallazgo: ${h.titulo} (Falta Tabla VIII)`);
+                    console.log(`[Cross - Validation v9] 🛡️ DEGRADANDO hallazgo: ${h.titulo} (Falta Tabla VIII)`);
                     h.recomendacion_accion = "SOLICITAR_ACLARACION";
                     h.nivel_confianza = "BAJA";
                     h.motivo_degradacion = "SIN_TRAZABILIDAD";
@@ -702,7 +721,7 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
                 // Check for "Hallucinated" High Value Objections
                 // If finding > $1M and no specific code provided -> BLOCK
                 if ((h.montoObjetado || 0) > 1000000 && (!h.codigos || h.codigos === "SIN-CODIGO")) {
-                    console.log(`[Cross-Validation v9] 🛡️ BLOQUEADO hallazgo de alto valor sin código: ${h.titulo}`);
+                    console.log(`[Cross - Validation v9] 🛡️ BLOQUEADO hallazgo de alto valor sin código: ${h.titulo} `);
                     return false;
                 }
             }
@@ -777,11 +796,11 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[]): any {
                 montoObjetado: montoOpaco,
                 recomendacion_accion: "SOLICITAR_ACLARACION",
                 nivel_confianza: "ALTA",
-                hallazgo: `**Hallazgo estructural: Indeterminación del objeto del cobro (opacidad).**\n\nSe detectan líneas agrupadas en el PAM y/o glosas genéricas que impiden identificar, para cada ítem, código, cantidad, valor unitario y fundamento clínico. En estas condiciones, el copago asociado **no resulta exigible hasta que el prestador/asegurador entregue desglose verificable** que permita auditar exclusiones, topes y pertenencia.`,
+                hallazgo: `** Hallazgo estructural: Indeterminación del objeto del cobro(opacidad).**\n\nSe detectan líneas agrupadas en el PAM y / o glosas genéricas que impiden identificar, para cada ítem, código, cantidad, valor unitario y fundamento clínico.En estas condiciones, el copago asociado ** no resulta exigible hasta que el prestador / asegurador entregue desglose verificable ** que permita auditar exclusiones, topes y pertenencia.`,
                 anclajeJson: "PAM/CUENTA: LINEAS AGRUPADAS",
                 estado_juridico: "EN_CONTROVERSIA"
             });
-            console.log(`[AuditEngine] 🔧 Hallazgo canónico "OPACIDAD_ESTRUCTURAL" inyectado (${montoOpaco} CLP).`);
+            console.log(`[AuditEngine] 🔧 Hallazgo canónico "OPACIDAD_ESTRUCTURAL" inyectado(${montoOpaco} CLP).`);
         }
 
         // 1. Force Global Status
