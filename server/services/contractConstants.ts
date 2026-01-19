@@ -207,47 +207,61 @@ const CHECKLIST_AMB = `
 // --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
 
 const SHARED_MANDATE = `
-  ** MANDATO FORENSE v12.0: LECTURA GEOMÉTRICA DE TABLAS (ANTI-HERENCIA VERTICAL) **
-  OBJETIVO: Extraer datos de tablas respetando la posición exacta de cada celda.
+  ** MANDATO FORENSE v13.0: LECTURA CON MARCADORES DE COLUMNAS (CALCO CARBÓN) **
+  OBJETIVO: Extraer datos usando marcadores [COL0], [COL1], etc. para eliminar ambigüedad.
   
-  ⚠️ FASE 1: IDENTIFICACIÓN DE COLUMNAS
-  Antes de extraer datos, identifica la estructura de columnas:
-  1. **Columna 1:** Nombre de la prestación (izquierda extrema).
-  2. **Columna 2 (OFERTA PREFERENTE):** 
-     - Sub-columna 2A: "% Bonificación"
-     - Sub-columna 2B: "Tope máx. año contrato por beneficiario"
-  3. **Columna 3 (LIBRE ELECCIÓN):**
-     - Sub-columna 3A: "% Bonificación"
-     - Sub-columna 3B: "Tope máx. año contrato por beneficiario"
+  ⚠️ NUEVO SISTEMA DE EXTRACCIÓN:
+  El PDF ha sido pre-procesado y cada texto incluye su marcador de columna.
   
-  ⚠️ FASE 2: EXTRACCIÓN FILA POR FILA (REGLA ANTI-HERENCIA)
-  Para CADA fila de prestación:
-  1. Lee el NOMBRE de la prestación (columna 1).
-  2. Lee la BONIFICACIÓN PREFERENTE (columna 2A, directamente bajo ese encabezado).
-  3. Lee el TOPE PREFERENTE (columna 2B, directamente bajo ese encabezado).
-     - **CRÍTICO:** Si la celda está VACÍA, tiene "—" o "---", reporta "-" literalmente.
-     - **PROHIBIDO:** NO copies el valor de la fila superior (ej: si "Día Cama" tiene "Sin Tope", NO lo uses para "Medicamentos").
-  4. Lee la BONIFICACIÓN LIBRE ELECCIÓN (columna 3A).
-  5. Lee el TOPE LIBRE ELECCIÓN (columna 3B).
+  **FORMATO DE ENTRADA:**
+  Cada fila del PDF se presenta así:
+  [COL0]Medicamentos (1.4) (1.10) | [COL1]— | [COL2]Sin Tope | [COL3]90% | [COL4]40 UF
   
-  ⚠️ REGLA DE ORO DE EXTRACCIÓN (ANTI-HERENCIA VERTICAL):
-  - **CADA CELDA ES INDEPENDIENTE:** No heredes valores de celdas superiores ni inferiores.
-  - **LEE SOLO LO QUE ESTÁ EN LA CELDA:** Si una celda de "Medicamentos" está vacía, reporta "-", incluso si la celda de "Día Cama" (arriba) tiene "Sin Tope".
-  - **VALIDACIÓN VISUAL:** Imagina que estás apuntando con un puntero láser a la celda específica. ¿Qué texto ves en ESA celda exacta? Ese es el valor.
+  **INTERPRETACIÓN DE COLUMNAS (TÍPICA ESTRUCTURA):**
+  - [COL0]: Nombre de la prestación
+  - [COL1]: Bonificación OFERTA PREFERENTE (%)
+  - [COL2]: Tope OFERTA PREFERENTE (UF/Año)
+  - [COL3]: Bonificación LIBRE ELECCIÓN (%)
+  - [COL4]: Tope LIBRE ELECCIÓN (UF/Año)
   
-  ⚠️ CASOS ESPECIALES:
-  - Si ves "100% Sin Tope" en una celda combinada (merged cell), ese valor aplica SOLO a las prestaciones listadas en esa celda.
-  - Si "Medicamentos" o "Insumos" tienen celda vacía en Preferente, significa que NO tienen cobertura preferente (reporta "-").
-  - "Sin Tope" solo debe reportarse si está ESCRITO EXPLÍCITAMENTE en la celda de esa prestación.
+  ⚠️ REGLAS DE EXTRACCIÓN (CALCO CARBÓN):
+  1. **IDENTIFICA LOS ENCABEZADOS PRIMERO:**
+     - Busca la fila que contiene "OFERTA PREFERENTE" y "LIBRE ELECCIÓN".
+     - Mapea qué [COLx] corresponde a qué tipo de información.
   
-  ⚠️ PROTOCOLO DE CONFLICTO: 
-  Si ves "100% SIN TOPE" en la primera columna y "300 UF" en la tercera:
-  -> COBERTURA REAL = "100% SIN TOPE".
-  -> NOTA RESTRICCIÓN = "Tope Internacional: 300 UF".
-  Si ves "---" o vacío en la primera columna:
-  -> COBERTURA REAL = "-".
-  Si ves "Sin Tope" en la fila de arriba pero la celda actual está vacía:
-  -> COBERTURA REAL = "-" (NO HEREDAR).
+  2. **EXTRAE FILA POR FILA:**
+     - Para "Medicamentos", busca la fila que comienza con [COL0]Medicamentos.
+     - Lee los valores de [COL1], [COL2], [COL3], [COL4] DE ESA FILA EXACTA.
+     - NO busques valores en otras filas.
+  
+  3. **REGLAS DE VALORES VACÍOS:**
+     - Si ves [COL2]— o [COL2] (vacío), significa que no hay valor → reporta "-".
+     - Si ves [COL2]Sin Tope, reporta "Sin Tope" literalmente.
+     - NUNCA copies valores de [COL4] a [COL2] ni viceversa.
+  
+  4. **EJEMPLO DE EXTRACCIÓN CORRECTA:**
+     Entrada:
+     [COL0]Medicamentos (1.4) (1.10) | [COL1]— | [COL2]— | [COL3]90% | [COL4]40 UF
+     
+     Salida:
+     {
+       "item": "Medicamentos (1.4) (1.10)",
+       "modalidad": "Oferta Preferente",
+       "cobertura": "-",
+       "tope": "-"
+     },
+     {
+       "item": "Medicamentos (1.4) (1.10)",
+       "modalidad": "Libre Elección",
+       "cobertura": "90%",
+       "tope": "40 UF"
+     }
+  
+  ⚠️ PROHIBICIONES ABSOLUTAS:
+  - NO inventes valores.
+  - NO heredes valores de otras filas.
+  - NO confundas [COL2] con [COL4].
+  - Si un [COLx] está vacío, reporta "-".
 `;
 
 export const PROMPT_HOSP_P1 = `

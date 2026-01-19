@@ -79,9 +79,73 @@ function safeJsonParse<T>(text: string): T {
     }
 }
 
-async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<{ text: string, totalPages: number }> {
+/**
+ * Detects column boundaries in a table by analyzing X-coordinates of text items.
+ * Returns an array of column boundary objects with start/end X positions.
+ */
+function detectColumnBoundaries(items: any[]): Array<{ start: number, end: number, index: number }> {
+    if (!items || items.length === 0) return [];
+
+    // Collect all X positions
+    const xPositions = items
+        .filter(item => item.transform && item.transform.length >= 6)
+        .map(item => item.transform[4]) // X position
+        .sort((a, b) => a - b);
+
+    if (xPositions.length === 0) return [];
+
+    // Detect clusters of X positions (column starts)
+    const CLUSTER_TOLERANCE = 30; // pixels
+    const clusters: number[] = [];
+    let currentCluster = xPositions[0];
+
+    for (let i = 1; i < xPositions.length; i++) {
+        if (xPositions[i] - currentCluster > CLUSTER_TOLERANCE) {
+            clusters.push(currentCluster);
+            currentCluster = xPositions[i];
+        }
+    }
+    clusters.push(currentCluster);
+
+    // Create column boundaries
+    const columns = clusters.map((start, index) => ({
+        start,
+        end: index < clusters.length - 1 ? clusters[index + 1] : start + 200,
+        index
+    }));
+
+    return columns;
+}
+
+/**
+ * Assigns a text item to its corresponding column based on X-coordinate.
+ */
+function assignToColumn(item: any, columns: Array<{ start: number, end: number, index: number }>): number {
+    if (!item.transform || item.transform.length < 6) return -1;
+    const x = item.transform[4];
+
+    for (const col of columns) {
+        if (x >= col.start && x < col.end) {
+            return col.index;
+        }
+    }
+
+    // If not in any column, assign to nearest
+    let nearest = 0;
+    let minDist = Math.abs(x - columns[0].start);
+    for (let i = 1; i < columns.length; i++) {
+        const dist = Math.abs(x - columns[i].start);
+        if (dist < minDist) {
+            minDist = dist;
+            nearest = i;
+        }
+    }
+    return nearest;
+}
+
+async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<{ text: string, totalPages: number, structuredData?: any }> {
     try {
-        log(`[ContractEngine] 🔍 Escaneando PDF con Reconstructor Geométrico (v10.5)...`);
+        log(`[ContractEngine] 🔍 Escaneando PDF con Detector de Columnas Geométricas (v12.0)...`);
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
         const fontPathRaw = path.resolve(__dirname, '../../node_modules/pdfjs-dist/standard_fonts');
@@ -97,27 +161,28 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
         const pdf = await loadingTask.promise;
 
         const pagesToScan = Math.min(pdf.numPages, Number.isFinite(maxPages) ? maxPages : pdf.numPages);
-        log(`[ContractEngine] 📗 PDF cargado (${pdf.numPages} págs). Procesando ${pagesToScan} manteniendo layout.`);
+        log(`[ContractEngine] 📗 PDF cargado (${pdf.numPages} págs). Procesando ${pagesToScan} con detección de columnas.`);
 
         let formattedText = '';
+        const structuredTables: any[] = [];
 
         for (let pageNumber = 1; pageNumber <= pagesToScan; pageNumber++) {
-            // log(`[ContractEngine] 📄 OCR Pág ${pageNumber}...`);
-
             const pagePromise = pdf.getPage(pageNumber).then(async (page) => {
                 const textContent = await page.getTextContent();
                 const items: any[] = textContent.items || [];
 
-                // --- GEOMETRIC LAYOUT RECONSTRUCTION ---
-                // 1. Group items by Y-coordinate (Row detection) with tolerance
+                // --- STEP 1: DETECT COLUMN BOUNDARIES ---
+                const columns = detectColumnBoundaries(items);
+                log(`[ContractEngine] 📊 Pág ${pageNumber}: Detectadas ${columns.length} columnas en coordenadas: ${columns.map(c => `${c.start.toFixed(0)}px`).join(', ')}`);
+
+                // --- STEP 2: GROUP ITEMS BY ROW (Y-coordinate) ---
                 const Y_TOLERANCE = 4.0;
                 const lines: { y: number, items: any[] }[] = [];
 
                 for (const item of items) {
                     if (!item.transform || item.transform.length < 6) continue;
-                    const y = item.transform[5]; // PDF Y-coordinate (0 at bottom)
+                    const y = item.transform[5];
 
-                    // Find existing line bucket
                     const line = lines.find(l => Math.abs(l.y - y) < Y_TOLERANCE);
                     if (line) {
                         line.items.push(item);
@@ -126,16 +191,36 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
                     }
                 }
 
-                // 2. Sort Lines Top-to-Bottom (Descending Y)
-                lines.sort((a, b) => b.y - a.y);
+                lines.sort((a, b) => b.y - a.y); // Top to bottom
 
-                // 3. Sort Items Left-to-Right (Ascending X) and Join
-                const pageLines = lines.map(line => {
-                    line.items.sort((a, b) => (a.transform[4] - b.transform[4])); // Sort by X
+                // --- STEP 3: ASSIGN ITEMS TO COLUMNS AND BUILD STRUCTURED TABLE ---
+                const tableRows: any[] = [];
 
-                    // Intelligent spacing based on X-gap (Optional enhancement for columns)
-                    // For now, simple space joining is vastly better than linear soup
-                    return line.items.map(i => i.str).join(' ');
+                for (const line of lines) {
+                    const row: string[] = new Array(columns.length).fill('');
+
+                    for (const item of line.items) {
+                        const colIndex = assignToColumn(item, columns);
+                        if (colIndex >= 0 && colIndex < columns.length) {
+                            row[colIndex] += (row[colIndex] ? ' ' : '') + item.str;
+                        }
+                    }
+
+                    // Only add non-empty rows
+                    if (row.some(cell => cell.trim().length > 0)) {
+                        tableRows.push(row);
+                    }
+                }
+
+                structuredTables.push({
+                    page: pageNumber,
+                    columns: columns.length,
+                    rows: tableRows
+                });
+
+                // --- STEP 4: FORMAT AS TEXT FOR AI (WITH COLUMN MARKERS) ---
+                const pageLines = tableRows.map(row => {
+                    return row.map((cell, idx) => `[COL${idx}]${cell.trim()}`).join(' | ');
                 });
 
                 return pageLines.join('\n');
@@ -154,7 +239,7 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
             }
         }
 
-        return { text: formattedText.trim(), totalPages: pdf.numPages };
+        return { text: formattedText.trim(), totalPages: pdf.numPages, structuredData: structuredTables };
     } catch (error) {
         log(`[ContractEngine] ❌ Error en OCR: ${error instanceof Error ? error.message : 'Error fatal'}`);
         return { text: '', totalPages: 0 };
