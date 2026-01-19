@@ -523,6 +523,20 @@ export default function ForensicApp() {
                                                 </div>
                                                 <p className="text-[8px] text-slate-500 mt-1 uppercase font-bold tracking-tighter">Indeterminado por Opacidad</p>
                                             </div>
+
+                                            {/* CATEGORÍA Z: INDETERMINADO TÉCNICO */}
+                                            <div className="bg-slate-100 p-5 sm:p-6 rounded-2xl text-slate-700 min-w-[220px] border border-slate-200 shadow-sm relative overflow-hidden group">
+                                                <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                    <FileJson size={40} className="text-slate-400" />
+                                                </div>
+                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                    <FileType size={12} /> Indeterminado (Cat Z)
+                                                </p>
+                                                <div className="text-2xl sm:text-3xl font-black text-slate-600">
+                                                    ${(auditResult.resumenFinanciero?.monto_indeterminado || 0).toLocaleString('es-CL')}
+                                                </div>
+                                                <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Gap Técnico / No Verificable</p>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -576,8 +590,18 @@ export default function ForensicApp() {
                                                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
                                                         <div className="flex items-center gap-3">
                                                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-                                                                <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-tighter ${hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                                                    {hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'Exigible (Cat A)' : 'Controversia (Cat B)'}
+                                                                {/* BADGE LOGIC UPDATED FOR 3-STATE SYSTEM */}
+                                                                <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-tighter ${hallazgo.categoria_final === 'A' ? 'bg-emerald-100 text-emerald-700' :
+                                                                        hallazgo.categoria_final === 'B' ? 'bg-amber-100 text-amber-700' :
+                                                                            hallazgo.categoria_final === 'Z' ? 'bg-slate-100 text-slate-600' :
+                                                                                // Fallback for legacy
+                                                                                hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                                                                    }`}>
+                                                                    {hallazgo.categoria_final === 'A' ? 'Exigible (Cat A)' :
+                                                                        hallazgo.categoria_final === 'B' ? 'Controversia (Cat B)' :
+                                                                            hallazgo.categoria_final === 'Z' ? 'Indeterminado (Cat Z)' :
+                                                                                // Fallback
+                                                                                hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'Exigible (Cat A)' : 'Controversia (Cat B)'}
                                                                 </span>
                                                                 <span className="px-2 py-1 bg-slate-900 text-white rounded text-[10px] font-mono">{hallazgo.codigos}</span>
                                                             </div>

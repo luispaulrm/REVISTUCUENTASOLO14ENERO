@@ -643,7 +643,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
     },
     auditoriaFinalMarkdown: {
       type: Type.STRING,
-      description: "El informe de auditoría final formateado para visualización (Markdown). DEBE SEGUIR ESTRICTAMENTE EL ESQUELETO DE 2 NIVELES: NIVEL 1 (Hallazgo Estructural Principal) y NIVEL 2 (Hallazgos Específicos Subsidiarios)."
+      description: "Informe de auditoría final (Estilo Jurídico-Forense Hybrid). ESTRUCTURA OBLIGATORIA:\n1. Resumen Ejecutivo (Narrativa dura sobre Opacidad y Ley 20.584, sin prometer montos inciertos).\n2. Hallazgo Principal Estructural (Foco en imposibilidad de validación PAM).\n3. Hallazgos Específicos (Solo si Cat A o B sólido).\n4. Tablas de Trazabilidad (Markdown Table para Materiales/Meds mostrando la discrepancia de detalle).\n5. Conclusión (Impugnación parcial o solicitud de desglose)."
     }
   },
   required: ['decisionGlobal', 'resumenEjecutivo', 'resumenFinanciero', 'eventos_hospitalarios', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'valorUnidadReferencia', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],
@@ -785,7 +785,19 @@ Si encuentras líneas con glosas como "VARIOS", "OTROS", "INSUMOS GENERALES", "A
 3. **ACCIÓN:** Debes objetar el 100% del copago asociado a estas líneas y clasificarlas como "FALTA DE DESGLOSE / OPACIDAD".
 4. **NO ES GAP, ES HALLAZGO:** No sumes esto al "Gap". Es un Hallazgo específico y debe ir en la lista de hallazgos.
    - "Podría haber activado CAEC" NO es un hallazgo, es una RECOMENDACIÓN ESTRATÉGICA.
-   - NUNCA pongas en la tabla de ahorros "Ahorro por CAEC" si el CAEC no está activo procesalmente.
+    - NUNCA pongas en la tabla de ahorros "Ahorro por CAEC" si el CAEC no está activo procesalmente.
+
+**PROTOCOLO 'HYBRID' DE REPORTE (NUEVO ESTÁNDAR 2025):**
+Tu output debe ser JURÍDICAMENTE IMPECABLE.
+- **TONO:** No eres un consultor de ahorros, eres un PERITO FORENSE.
+- **PROHIBIDO:** Decir "Ahorro Confirmado" para montos estimados o inferidos.
+- **OBLIGATORIO:** Si hay opacidad (Materiales/Medicamentos agrupados), el dictamen es: "Monto bajo controversia por falta de trazabilidad (Ley 20.584)". NO prometas que la Isapre devolverá el dinero, solo que el cobro es improcedente en su forma actual.
+- **ESTRUCTURA DE TABLAS:** Para Materiales y Medicamentos, GENERA UNA TABLA MARKDOWN en el reporte que muestre:
+  | Sección Origen | Ítem Ejemplo | Cant | Total |
+  |---|---|---|---|
+  | Cuenta | TORNILLO TITANIO | 1 | $XXX |
+  | PAM | (SIN DESGLOSE) | 1 | $TOTAL_AGRUPADO |
+  -> DEMOSTRA EL DESCUADRE DE INFORMACIÓN, NO SOLO EL MONTO.
 
 **PROTOCOLO ANTI-DUPLICIDAD (DETECTOR DE SUBTOTALES):**
 ⚠️ En muchos PAM, el OCR captura la fila de "TOTAL" o "SUBTOTAL" como si fuera un ítem más.

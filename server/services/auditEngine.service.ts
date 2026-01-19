@@ -11,6 +11,32 @@ import {
 import { preProcessEventos } from './eventProcessor.service.js';
 
 // ============================================================================
+// TYPES: Deterministic Classification Model
+// ============================================================================
+export type HallazgoCategoria = "A" | "B" | "Z"; // A=confirmado, B=controversia, Z=indeterminado
+export type MatchQuality = "EXACT" | "PARTIAL" | "NONE";
+export type Basis = "UNBUNDLING" | "OPACIDAD" | "SUB_BONIF" | "OTRO";
+
+export interface HallazgoInternal {
+    id?: string;
+    titulo: string;
+    glosa?: string;
+    hallazgo: string;
+    montoObjetado: number;
+    categoria?: string; // Legacy field
+    categoria_final?: HallazgoCategoria; // New frozen status
+    match_quality?: MatchQuality;
+    basis?: Basis;
+    recomendacion_accion?: string;
+    nivel_confianza?: string;
+    tipo_monto?: "COBRO_IMPROCEDENTE" | "COPAGO_OPACO";
+    anclajeJson?: string;
+    normaFundamento?: string;
+    estado_juridico?: string;
+    [key: string]: any;
+}
+
+// ============================================================================
 // UTILITY: Canonical Amount Parser (CLP - Chilean Peso)
 // ============================================================================
 function parseAmountCLP(val: any): number {
@@ -590,8 +616,12 @@ export async function performForensicAudit(
         }
         log('[AuditEngine] ✅ Auditoría forense completada.');
 
+        // --- FINALIZATION (DETERMINISTIC CATEGORIZATION) ---
+        const finalResult = finalizeAudit(auditResult);
+        log(`[AuditEngine] 🏁 Auditoría finalizada. Ahorro: $${finalResult.resumenFinanciero.ahorro_confirmado} | Controversia: $${finalResult.resumenFinanciero.copagos_bajo_controversia}`);
+
         return {
-            data: auditResult,
+            data: finalResult,
             usage: usage ? {
                 promptTokens: usage.promptTokenCount,
                 candidatesTokens: usage.candidatesTokenCount,
@@ -602,6 +632,89 @@ export async function performForensicAudit(
         log(`[AuditEngine] ❌ Error en el proceso de auditoría: ${error.message} `);
         throw error;
     }
+}
+
+// ============================================================================
+// FINALIZER: Freeze & Calculate KPIs (Deterministic)
+// ============================================================================
+function finalizeAudit(result: any): any {
+    const hallazgos = result.hallazgos || [];
+
+    // 1. Freeze Categories
+    const hallazgosFrozen = hallazgos.map((h: HallazgoInternal) => {
+        let cat: HallazgoCategoria = "Z"; // Default indeterminate
+
+        // Analyze Basis & Opacity
+        const isOpacity = h.categoria === "OPACIDAD" ||
+            h.codigos === "OPACIDAD_ESTRUCTURAL" ||
+            (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO/i.test(h.glosa) && /DESGLOSE|OPACIDAD/i.test(h.hallazgo));
+
+        const isNutrition = h.codigos?.includes("3101306") || /ALIMENTA|NUTRICI/i.test(h.glosa || "");
+        const isGap = h.codigos === "GAP_RECONCILIATION";
+
+        if (isOpacity) {
+            cat = "B"; // Always Controversy
+        } else if (isNutrition) {
+            // Nutrition is A only if marked as MATCH_EXACTO
+            if (h.anclajeJson?.includes("MATCH_EXACTO")) {
+                cat = "A";
+            } else {
+                cat = "Z"; // Partial/No match -> Indeterminate
+            }
+        } else if (isGap) {
+            // Gap is A (Confirmed Savings / Unjustified) unless context dictates otherwise
+            cat = "Z"; // Usually we want Gap to be "Indeterminate" or "Controversy" unless proven unbundling. 
+            // Plan said: "Indeterminate: $15.396 (si el PAM insiste...)" -> So Z.
+            // But if it's "Cobro Improcedente", maybe A? 
+            // Let's stick to safe: Gap is Z (Indeterminate) until proven.
+        } else {
+            // Default "Cobro Improcedente" (e.g. Pabellon, Dias Cama) -> A
+            // Check if explicitly "COBRO_IMPROCEDENTE" and high confidence
+            if (h.tipo_monto === "COBRO_IMPROCEDENTE" && h.nivel_confianza !== "BAJA") {
+                cat = "A";
+            } else {
+                cat = "B";
+            }
+        }
+
+        // Apply to object
+        h.categoria_final = cat;
+
+        // Update Legacy Labels for UI compatibility (until UI full rewrite)
+        if (cat === "A") {
+            h.tipo_monto = "COBRO_IMPROCEDENTE";
+            h.estado_juridico = "CONFIRMADO_EXIGIBLE";
+        } else if (cat === "B") {
+            h.tipo_monto = "COPAGO_OPACO";
+            h.estado_juridico = "EN_CONTROVERSIA";
+        } else {
+            h.tipo_monto = "COPAGO_OPACO"; // Grey area
+            h.estado_juridico = "INDETERMINADO";
+        }
+
+        return h;
+    });
+
+    // 2. Compute KPI Totals
+    const sumA = hallazgosFrozen.filter((h: any) => h.categoria_final === "A").reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
+    const sumB = hallazgosFrozen.filter((h: any) => h.categoria_final === "B").reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
+    const sumZ = hallazgosFrozen.filter((h: any) => h.categoria_final === "Z").reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
+
+    // 3. Update Result
+    result.hallazgos = hallazgosFrozen;
+
+    if (!result.resumenFinanciero) result.resumenFinanciero = {};
+
+    // OVERWRITE KPIs
+    result.resumenFinanciero.ahorro_confirmado = sumA; // Green Card
+    result.resumenFinanciero.copagos_bajo_controversia = sumB; // Amber Card
+    result.resumenFinanciero.monto_indeterminado = sumZ; // Grey Card
+    result.resumenFinanciero.totalCopagoObjetado = sumA + sumB + sumZ;
+
+    // Legacy support
+    result.totalAhorroDetectado = sumA; // Only confirmed counts as "Ahorro Detectado" for old logic
+
+    return result;
 }
 
 // ============================================================================
@@ -624,16 +737,16 @@ function reconcileNutritionCharges(cuenta: any, pam: any): any {
 
                             // Criteria: Code 3101306 OR (Bonif=0 AND Desc includes 'SIN BONI')
                             if (code.includes("3101306") || (bonif === 0 && desc.includes("SIN BONIFI"))) {
-                                targetAmount = parseAmountCLP(item.copago) || parseAmountCLP(item.valorTotal);
-                                pamItemName = item.descripcion || "3101306 PRESTACIONES SIN BONIFICACION";
-                                break;
+                                const val = parseAmountCLP(item.copago) || parseAmountCLP(item.valorTotal);
+                                if (val > targetAmount) { // Take the largest/last just in case
+                                    targetAmount = val;
+                                    pamItemName = item.descripcion || "3101306 PRESTACIONES SIN BONIFICACION";
+                                }
                             }
                         }
                     }
-                    if (targetAmount > 0) break;
                 }
             }
-            if (targetAmount > 0) break;
         }
     }
 
@@ -642,9 +755,6 @@ function reconcileNutritionCharges(cuenta: any, pam: any): any {
     // 2. Identify Candidates in Account (Greedy Filter)
     const candidates: any[] = [];
     const NUTRITION_KEYWORDS = ["ALMUERZO", "CENA", "DESAYUNO", "REGIMEN", "BANDEJA", "COLACTI", "COLACION", "LIQUIDO", "ONCE", "TRAMO"];
-
-    // Also include "PRUEBA COMPATIBILIDAD" only if explicitly requested, but usually that's false positive.
-    // User logic: "Agrupar candidatos por familia hotelería/alimentación"
 
     if (cuenta && cuenta.sections) {
         cuenta.sections.forEach((sec: any) => {
@@ -662,32 +772,8 @@ function reconcileNutritionCharges(cuenta: any, pam: any): any {
         });
     }
 
-    // 3. Subset Sum (Backtracking - Simplified for reasonable N)
-    // We want to find a subset of 'candidates' that sums exactly to 'targetAmount'
-    // Tolerance: Let's allow strictly 0 or very small (e.g. $1) to be "Exact"
-
-    function findSubset(target: number, items: any[]): any[] | null {
-        // Optimize: Sort items descending
-        items.sort((a, b) => b.total - a.total);
-
-        const result: any[] = [];
-        function backtrack(remaining: number, start: number): boolean {
-            if (Math.abs(remaining) < 2) return true; // Found (approx 0)
-            if (remaining < 0) return false;
-
-            for (let i = start; i < items.length; i++) {
-                result.push(items[i]);
-                if (backtrack(remaining - items[i].total, i + 1)) return true;
-                result.pop();
-            }
-            return false;
-        }
-
-        if (backtrack(target, 0)) return result;
-        return null;
-    }
-
-    const matchedSubset = findSubset(targetAmount, candidates);
+    // 3. Subset Sum Exact (Deterministic)
+    const matchedSubset = subsetSumExact(targetAmount, candidates);
 
     return {
         targetFound: true,
@@ -696,6 +782,39 @@ function reconcileNutritionCharges(cuenta: any, pam: any): any {
         matchFound: matchedSubset !== null,
         items: matchedSubset || []
     };
+}
+
+function subsetSumExact(target: number, items: any[], maxNodes = 50000): any[] | null {
+    const values = items.map(i => i.total);
+    const sortedIndices = items.map((_, i) => i).sort((a, b) => items[b].total - items[a].total); // Sort indices by value desc
+
+    let nodes = 0;
+
+    function dfs(idx: number, currentSum: number, chosenIndices: number[]): number[] | null {
+        nodes++;
+        if (nodes > maxNodes) return null; // Time/Depth limit
+
+        if (currentSum === target) return chosenIndices;
+        if (currentSum > target) return null;
+        if (idx >= sortedIndices.length) return null;
+
+        const originalIdx = sortedIndices[idx];
+        const val = items[originalIdx].total;
+
+        // Option 1: Include item
+        const withItem = dfs(idx + 1, currentSum + val, [...chosenIndices, originalIdx]);
+        if (withItem) return withItem;
+
+        // Option 2: Exclude item
+        return dfs(idx + 1, currentSum, chosenIndices);
+    }
+
+    const resultIndices = dfs(0, 0, []);
+
+    if (resultIndices) {
+        return resultIndices.map(i => items[i]);
+    }
+    return null;
 }
 
 function traceGenericChargesTopK(cuenta: any, pam: any): string {
