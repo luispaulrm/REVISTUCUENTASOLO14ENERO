@@ -115,12 +115,6 @@ export function classifyBillingModel(item: RawItemContext): BillingModelClassifi
         // Double check: Is it perhaps a proration case that looks like a shift?
         // E.g. Qty 0.03, Price 15M, Total 468k. Implied=15.6M. Matches Price. Not suspicious.
         // The check inside isSuspiciousUnitPrice handles this by comparing implied vs actual.
-        // In the Item 41 case: Qty=0.12, Price=1.13M. Total=135k. Implied=1.13M.
-        // Wait, if 0.12 * 1.13M = 135k, then it IS multiplicative!
-        // Item 41 actual data: Total=135603 but ValorISA=226005.
-        // If we use ValorISA as authTotal (226005), then 226005 / 0.12 = 1.88M.
-        // Stated Price is 1.13M. Diff is huge -> Suspicious!
-
         model = 'UNIT_PRICE_UNTRUSTED';
         unitPriceTrust = 0.0; // Do not trust this unit price
         suspectedColumnShift = true;
@@ -132,7 +126,6 @@ export function classifyBillingModel(item: RawItemContext): BillingModelClassifi
     // RULE 3: Strong Multiplicative Evidence
     // If the math works out perfectly (or very close), we prefer the EXACT model.
     // This overrides generic proration assumptions if the numbers actually match.
-    // Example: Sevoflurano 1.8 * 118047 = 212484.6. AuthTotal = 212486. Match!
     if (hasStrongMultiplicativeEvidence(item.quantity, item.unitPrice, authTotal)) {
         model = 'MULTIPLICATIVE_EXACT';
         rationale = 'Validación matemática exitosa (Cantidad x Precio = Total).';
@@ -142,14 +135,15 @@ export function classifyBillingModel(item: RawItemContext): BillingModelClassifi
         return { model, authoritativeTotal: authTotal, unitPriceTrust, qtyIsProration, suspectedColumnShift, rationale, toleranceApplied: tolerance };
     }
 
-    // RULE 2: Prorated Reference Price (Accounting Coefficient)
+    // RULE 2: Prorated Reference Price (Administrative Quantity)
     // If it didn't match perfectly, AND it looks like a proration quantity, assume it is Proration.
     // We do NOT flag this as a calculation error.
     if (isTypicalProration(item.quantity)) {
         model = 'PRORATED_REFERENCE_PRICE';
         qtyIsProration = true;
         unitPriceTrust = 0.5; // It's a reference price (box cost), not specific unit cost
-        rationale = `Coeficiente contable (${item.quantity}): Imputación de costo de pack/set, no unidad física.`;
+        // USER DEFINITION: "Administrative Quantity"
+        rationale = `El prestador utiliza cantidades administrativas que no representan unidades clínicas reales. Para efectos del análisis, se considera exclusivamente el valor total cobrado.`;
 
         return { model, authoritativeTotal: authTotal, unitPriceTrust, qtyIsProration, suspectedColumnShift, rationale };
     }
