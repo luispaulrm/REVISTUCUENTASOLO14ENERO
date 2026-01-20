@@ -163,6 +163,12 @@ export default function PdfProjector() {
                                 chunkCount++;
                                 fullHtml += data.text;
                                 setHtmlProjection(prev => prev + data.text);
+
+                                // DEBUG: Inspect first few chunks
+                                if (chunkCount <= 10) {
+                                    console.log(`[PdfProjector DEBUG] Chunk ${chunkCount}:`, JSON.stringify(data.text));
+                                }
+
                                 if (chunkCount % 20 === 0) {
                                     console.log(`[PdfProjector] 📦 Bloques recibidos: ${chunkCount}`);
                                 }
