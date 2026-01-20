@@ -168,23 +168,44 @@ export default function ForensicApp() {
 
                 // Explicitly copy all CSS properties to inline styles
                 // This converts modern color formats (oklch) to standard RGB/RGBA
+                // and disconnects the element from the Tailwind stylesheet
                 const properties = [
-                    'color', 'background-color', 'border-color', 'font-size', 'font-weight',
-                    'font-family', 'display', 'flex-direction', 'align-items', 'justify-content',
-                    'margin', 'padding', 'width', 'height', 'text-align'
+                    'color', 'background-color', 'border-color',
+                    'font-size', 'font-weight', 'font-family', 'font-style', 'letter-spacing', 'line-height',
+                    'display', 'flex-direction', 'align-items', 'justify-content', 'flex-wrap', 'gap',
+                    'margin', 'padding', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height',
+                    'text-align', 'text-transform', 'position', 'left', 'top', 'right', 'bottom', 'z-index',
+                    'overflow', 'white-space', 'vertical-align',
+                    'box-shadow', 'opacity', 'visibility',
+                    'list-style-type', 'list-style-position', 'list-style-image'
                 ];
 
-                // Also copy specific border sides
+                // Also copy specific border sides and corners
                 ['top', 'right', 'bottom', 'left'].forEach(side => {
                     properties.push(`border-${side}-width`);
                     properties.push(`border-${side}-style`);
                     properties.push(`border-${side}-color`);
                 });
+                ['top-left', 'top-right', 'bottom-right', 'bottom-left'].forEach(corner => {
+                    properties.push(`border-${corner}-radius`);
+                });
 
                 if (target instanceof HTMLElement) {
                     for (const prop of properties) {
-                        target.style.setProperty(prop, computed.getPropertyValue(prop));
+                        let val = computed.getPropertyValue(prop);
+
+                        // Sanity check for oklch - log warning but rely on class stripping
+                        if (val && val.includes('oklch')) {
+                            console.warn(`[PDF] Found oklch in computed style for ${prop}: ${val}. Class stripping should prevent parse error.`);
+                        }
+
+                        target.style.setProperty(prop, val);
                     }
+
+                    // CRITICAL: Remove class and id to stop html2canvas from trying to match 
+                    // and parse the Tailwind stylesheet (which contains the raw oklch rules).
+                    target.removeAttribute('class');
+                    target.removeAttribute('id');
                 }
 
                 // Recurse for children
