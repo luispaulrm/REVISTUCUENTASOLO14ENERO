@@ -142,14 +142,14 @@ export function classifyBillingModel(item: RawItemContext): BillingModelClassifi
         return { model, authoritativeTotal: authTotal, unitPriceTrust, qtyIsProration, suspectedColumnShift, rationale, toleranceApplied: tolerance };
     }
 
-    // RULE 2: Prorated Reference Price
+    // RULE 2: Prorated Reference Price (Accounting Coefficient)
     // If it didn't match perfectly, AND it looks like a proration quantity, assume it is Proration.
     // We do NOT flag this as a calculation error.
     if (isTypicalProration(item.quantity)) {
         model = 'PRORATED_REFERENCE_PRICE';
         qtyIsProration = true;
-        unitPriceTrust = 0.5; // It's a reference price, not a transactional unit price
-        rationale = `Cantidad fraccional (${item.quantity}) indica modelo de Prorrateo/Pack.`;
+        unitPriceTrust = 0.5; // It's a reference price (box cost), not specific unit cost
+        rationale = `Coeficiente contable (${item.quantity}): Imputación de costo de pack/set, no unidad física.`;
 
         return { model, authoritativeTotal: authTotal, unitPriceTrust, qtyIsProration, suspectedColumnShift, rationale };
     }

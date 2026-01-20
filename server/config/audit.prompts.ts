@@ -712,9 +712,10 @@ El formato numérico de los documentos clínicos es CAÓTICO y varía por fila.
     El sistema ya ha pre-procesado matemáticamente cada ítem y te entrega un campo "model" y "calcError":
     
     1. **MULTIPLICATIVE_EXACT**: La matemática (Cant x Precio = Total) es exacta. Si "calcError" es true, es un error real.
-    2. **PRORATED_REFERENCE_PRICE**: Ítems con cantidades fraccionarias (ej: 0.03, 0.4) donde el Precio Unitario es REFERENCIAL (precio caja) y el Total ya está prorrateado.
-       - **REGLA**: NO reportes error de cálculo matemático para estos ítems.
-       - Confía en el "total" autoritativo ("authTotal").
+    2. **PRORATED_REFERENCE_PRICE** (IMPUTACIÓN CONTABLE): 
+       - Ítems con cantidades decimales (ej: 0.03, 0.4) que **NO SON UNIDADES FÍSICAS REALES** (no existe 0.03 jeringa).
+       - La "Cantidad" es un **COEFICIENTE DE COSTO** imputado desde un pack o set.
+       - **REGLA**: Confía ABSOLUTAMENTE en el "authTotal" o "total". NO intentes "arreglar" la cantidad ni el precio. Es contabilidad, no inventario.
     3. **UNIT_PRICE_UNTRUSTED**: Se detectó inconsistencia severa (Desplazamiento de columna o error OCR).
        - **ACCIÓN**: Reportar como "Error de Extracción/Formato" si el monto es significativo, o ignora si es despreciable. NO intentes recalcular el copago basándote en un precio unitario corrupto.
     

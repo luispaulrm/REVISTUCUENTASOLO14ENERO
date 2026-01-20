@@ -186,8 +186,8 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                                 {/* Billing Model Badges */}
                                 <div className="flex flex-col items-end gap-1 mt-1">
                                   {item.billingModel === 'PRORATED_REFERENCE_PRICE' && (
-                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-800" title="Precio referencial por caja/pack. Total prorrateado.">
-                                      📦 Prorrateo
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-800" title="Imputación contable interna (Coeficiente de costo). No representa unidad física.">
+                                      📦 Coef. Cotable
                                     </span>
                                   )}
                                   {item.billingModel === 'UNIT_PRICE_UNTRUSTED' && (
