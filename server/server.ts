@@ -16,6 +16,7 @@ import { handleAuditAnalysis } from './endpoints/audit.endpoint.js';
 import { handleProjection } from './endpoints/projection.endpoint.js';
 import { handleAskAuditor } from './endpoints/ask.endpoint.js';
 import { handlePreCheck } from './endpoints/precheck.endpoint.ts';
+import { handleGeneratePdf } from './endpoints/generate-pdf.endpoint.js';
 import { BILL_PROMPT } from './prompts/bill.prompt.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -153,6 +154,7 @@ const getApiKeys = () => {
 
 app.post('/api/audit/ask', handleAskAuditor);
 app.post('/api/audit/pre-check', handlePreCheck);
+app.post('/api/generate-pdf', handleGeneratePdf);
 
 app.post('/api/extract', async (req, res) => {
     console.log(`[REQUEST] New extraction request (Streaming)`);

@@ -148,106 +148,54 @@ export default function ForensicApp() {
         if (originalButton) originalButton.innerText = 'GENERANDO PDF...';
 
         try {
-            // 1. CLONE & FLATTEN STYLES
-            // We need to clone the node and explicitly set all computed styles as inline styles
-            // This forces the browser to resolve variables (like oklch) to RGB before html2canvas sees them.
-            const clone = element.cloneNode(true) as HTMLElement;
-            clone.style.width = `${element.offsetWidth}px`;
+            // Extract HTML content
+            const html = element.innerHTML;
 
-            // Container for the clone (hidden)
-            const container = document.createElement('div');
-            container.style.position = 'absolute';
-            container.style.left = '-9999px';
-            container.style.top = '0';
-            document.body.appendChild(container);
-            container.appendChild(clone);
+            // Extract Tailwind styles from document
+            const styleSheets = Array.from(document.styleSheets);
+            let styles = '';
 
-            // Recursive function to flatten computed styles
-            const ctx = document.createElement('canvas').getContext('2d');
-            const safeColor = (value: string) => {
-                if (!value || !value.includes('oklch')) return value;
-                if (!ctx) return value;
-
-                const old = ctx.fillStyle;
+            for (const sheet of styleSheets) {
                 try {
-                    ctx.fillStyle = value;
-                    return ctx.fillStyle; // Browser converts to hex/rgb
+                    // Only include internal styles or same-origin sheets
+                    if (sheet.href === null || sheet.href.startsWith(window.location.origin)) {
+                        const rules = Array.from(sheet.cssRules || []);
+                        styles += rules.map(rule => rule.cssText).join('\n');
+                    }
                 } catch (e) {
-                    return value;
+                    // Skip cross-origin stylesheets
+                    console.warn('Skipping cross-origin stylesheet:', sheet.href);
                 }
-            };
+            }
 
-            const flattenStyles = (source: Element, target: Element) => {
-                const computed = window.getComputedStyle(source);
+            const filename = `Auditoria_Forense_${new Date().toISOString().slice(0, 10)}.pdf`;
 
-                // Explicitly copy all CSS properties to inline styles
-                // This converts modern color formats (oklch) to standard RGB/RGBA
-                // and disconnects the element from the Tailwind stylesheet
-                const properties = [
-                    'color', 'background-color', 'border-color',
-                    'font-size', 'font-weight', 'font-family', 'font-style', 'letter-spacing', 'line-height',
-                    'display', 'flex-direction', 'align-items', 'justify-content', 'flex-wrap', 'gap',
-                    'margin', 'padding', 'width', 'height', 'min-width', 'max-width', 'min-height', 'max-height',
-                    'text-align', 'text-transform', 'position', 'left', 'top', 'right', 'bottom', 'z-index',
-                    'overflow', 'white-space', 'vertical-align',
-                    'box-shadow', 'opacity', 'visibility',
-                    'list-style-type', 'list-style-position', 'list-style-image'
-                ];
+            console.log('[PDF] Sending request to server...');
+            const response = await fetch('/api/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ html, styles, filename })
+            });
 
-                // Also copy specific border sides and corners
-                ['top', 'right', 'bottom', 'left'].forEach(side => {
-                    properties.push(`border-${side}-width`);
-                    properties.push(`border-${side}-style`);
-                    properties.push(`border-${side}-color`);
-                });
-                ['top-left', 'top-right', 'bottom-right', 'bottom-left'].forEach(corner => {
-                    properties.push(`border-${corner}-radius`);
-                });
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'PDF generation failed');
+            }
 
-                if (target instanceof HTMLElement) {
-                    for (const prop of properties) {
-                        let val = computed.getPropertyValue(prop);
+            // Download the PDF
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
 
-                        // Sanitize colors using Canvas API to get Hex/RGB
-                        if (val && val.includes('oklch')) {
-                            val = safeColor(val);
-                        }
-
-                        target.style.setProperty(prop, val);
-                    }
-
-                    // CRITICAL: Remove class and id to stop html2canvas from trying to match 
-                    // and parse the Tailwind stylesheet (which contains the raw oklch rules).
-                    target.removeAttribute('class');
-                    target.removeAttribute('id');
-                }
-
-                // Recurse for children
-                for (let i = 0; i < source.children.length; i++) {
-                    if (target.children[i]) {
-                        flattenStyles(source.children[i], target.children[i]);
-                    }
-                }
-            };
-
-            // Run flattening
-            flattenStyles(element, clone);
-
-            // @ts-ignore
-            const html2pdf = (await import('html2pdf.js')).default;
-            const opt = {
-                margin: 10,
-                filename: `Auditoria_Forense_${new Date().toISOString().slice(0, 10)}.pdf`,
-                image: { type: 'jpeg' as const, quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
-                jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
-            };
-
-            // Generate from the CLONE, not the original
-            await html2pdf().set(opt).from(clone).save();
-
-            // Cleanup
-            document.body.removeChild(container);
+            console.log('[PDF] Download complete');
 
         } catch (error: any) {
             console.error('PDF Generation Error:', error);
