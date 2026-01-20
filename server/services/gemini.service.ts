@@ -77,10 +77,15 @@ export class GeminiService {
             if (!modelName) continue;
             console.log(`[GeminiService] 🛡️ Strategy: Attempting non-streaming extraction with model ${modelName}`);
 
-            // Start with primary key, then rotate if needed
-            this.activeKeyIndex = 0;
+            // Persist valid key index, but allow wrap-around search
+            // Start search from the last known good key
+            let startingKeyIdx = this.activeKeyIndex;
 
-            for (let keyIdx = 0; keyIdx < this.keys.length; keyIdx++) {
+            for (let i = 0; i < this.keys.length; i++) {
+                // Calculate actual key index based on offset from starting index
+                const keyIdx = (startingKeyIdx + i) % this.keys.length;
+                this.activeKeyIndex = keyIdx; // Update active index as we try
+
                 const currentKey = this.keys[keyIdx];
                 const mask = currentKey ? (currentKey.substring(0, 4) + '...') : '???';
 
@@ -98,15 +103,12 @@ export class GeminiService {
                         }
                     });
 
-                    const result = await model.generateContent([
-                        { text: prompt },
-                        ...(image && mimeType ? [{
-                            inlineData: {
-                                data: image,
-                                mimeType: mimeType
-                            }
-                        }] : [])
-                    ]);
+                    const result = await model.generateContent([{ text: prompt }, ...(image && mimeType ? [{
+                        inlineData: {
+                            data: image,
+                            mimeType: mimeType
+                        }
+                    }] : [])]);
 
                     const text = result.response.text();
                     console.log(`[GeminiService] ✅ Success (Non-Stream) with Key ${mask} on ${modelName}`);
@@ -121,6 +123,7 @@ export class GeminiService {
                         console.warn(`[GeminiService] ⚠️ Quota error on Key ${mask}. Trying next key...`);
                         continue;
                     } else {
+                        // Non-quota error (param error, bad image, etc). Do not retry blindly?
                         console.error(`[GeminiService] ❌ Non-retriable error on Key ${mask}:`, err.message);
                         // Try next key just in case, or break?
                         // For robustness, try next.
@@ -140,30 +143,7 @@ export class GeminiService {
             temperature?: number;
         } = {}
     ): Promise<string> {
-        let lastError: any;
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
-        for (const modelName of modelsToTry) {
-            if (!modelName) continue;
-            for (const key of this.keys) {
-                try {
-                    const genAI = new GoogleGenerativeAI(key);
-                    const model = genAI.getGenerativeModel({
-                        model: modelName,
-                        generationConfig: {
-                            maxOutputTokens: config.maxTokens,
-                            responseMimeType: config.responseMimeType,
-                            responseSchema: config.responseSchema,
-                            temperature: config.temperature ?? 0.1
-                        }
-                    });
-                    const result = await model.generateContent(prompt);
-                    return result.response.text();
-                } catch (err: any) {
-                    lastError = err;
-                }
-            }
-        }
-        throw lastError || new Error("All keys failed for text extraction.");
+        return this.extract('', '', prompt, config);
     }
 
     async extractWithStream(
@@ -181,19 +161,8 @@ export class GeminiService {
     ): Promise<AsyncIterable<StreamChunk>> {
         let lastError: any;
 
-        // Reset key index for new request? No, keep using the working one or start fresh?
-        // Ideally we start fresh or stick to what works. Let's try current active, then rotate.
-        // Actually for a new major request, maybe we should try all from start if we want to Load Balance?
-        // For simplicity: Try current active. If fail, rotate forward. 
-        // If we hit end, wrap around? No, end means failure.
-        // If we assumed keys are Primary, Secondary... we should try Primary first?
-        // Let's implement a loop: Try up to keys.length times.
-
-        const startIdx = 0; // Always start from primary? Or stay on backup?
-        // Staying on backup is safer if primary is permanently suspended.
-        // Starting on primary is better if it's intermittent quota.
-        // Let's start from 0 to preserve backup quota.
-        this.activeKeyIndex = 0;
+        // Persist valid key index, but allow wrap-around search
+        let startingKeyIdx = this.activeKeyIndex;
 
         const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
 
@@ -203,7 +172,10 @@ export class GeminiService {
             console.log(`[GeminiService] 🛡️ Strategy: Attempting with model ${modelName}`);
 
             // Loop through Keys (Primary -> Secondary -> etc)
-            for (let keyIdx = 0; keyIdx < this.keys.length; keyIdx++) {
+            for (let i = 0; i < this.keys.length; i++) {
+                const keyIdx = (startingKeyIdx + i) % this.keys.length;
+                this.activeKeyIndex = keyIdx;
+
                 const currentKey = this.keys[keyIdx];
                 const mask = currentKey ? (currentKey.substring(0, 4) + '...') : '???';
 
@@ -261,7 +233,7 @@ export class GeminiService {
         throw lastError || new Error("All API keys failed for stream extraction.");
     }
 
-    private async *processStream(resultStream: any): AsyncIterable<StreamChunk> {
+    private async * processStream(resultStream: any): AsyncIterable<StreamChunk> {
         for await (const chunk of resultStream.stream) {
             const chunkText = chunk.text();
             const usage = chunk.usageMetadata;

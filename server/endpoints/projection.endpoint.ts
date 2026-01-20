@@ -13,6 +13,8 @@ const getApiKeys = () => {
     if (envGet("GEMINI_API_KEY")) keys.push(envGet("GEMINI_API_KEY"));
     if (envGet("API_KEY")) keys.push(envGet("API_KEY"));
     if (envGet("GEMINI_API_KEY_SECONDARY")) keys.push(envGet("GEMINI_API_KEY_SECONDARY"));
+    if (envGet("GEMINI_API_KEY_TERTIARY")) keys.push(envGet("GEMINI_API_KEY_TERTIARY"));
+    if (envGet("GEMINI_API_KEY_QUATERNARY")) keys.push(envGet("GEMINI_API_KEY_QUATERNARY"));
     // Deduplicate
     return [...new Set(keys)].filter(k => !!k);
 };
@@ -121,7 +123,7 @@ export async function handleProjection(req: Request, res: Response) {
         // --- VALIDATION LAYER END ---
 
 
-        const projectionService = new ProjectionService(apiKeys[0]);
+        const projectionService = new ProjectionService(apiKeys);
 
         console.log('[PROJECTION] Starting projection stream...', { mode, pageCount });
         sendUpdate({ type: 'log', text: `Iniciando proyector maestro (${mode || 'FULL'}) | ${pageCount || '?'} págs...` });

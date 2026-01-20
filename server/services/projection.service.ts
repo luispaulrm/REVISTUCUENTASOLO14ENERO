@@ -189,179 +189,184 @@ export class ProjectionService {
             // Deduplicate models just in case
             const uniqueModels = [...new Set(modelsToTry)];
 
-            for (const currentModel of uniqueModels) {
+            // NEW ROTATION LOGIC: Model -> Key Loop
+            modelLoop: for (const currentModel of uniqueModels) {
                 if (streamSuccess) break;
 
-                // Retry loop for the current model
-                for (let attempt = 1; attempt <= maxRetries; attempt++) {
-                    try {
-                        const model = this.client.getGenerativeModel({
-                            model: currentModel,
-                            generationConfig: {
-                                maxOutputTokens: 80000,
-                                temperature: 0.0,  // ZERO creativity - pure deterministic copying
-                                topP: 0.8,         // Reduce randomness in token selection
-                                topK: 20,          // Restrict vocabulary to most likely tokens
+                // For each model, try ALL available keys
+                for (let keyIdx = 0; keyIdx < this.keys.length; keyIdx++) {
+                    const currentKey = this.keys[keyIdx];
+                    const keyMask = currentKey ? `${currentKey.substring(0, 4)}...` : '???';
+
+                    if (!currentKey) continue;
+
+                    // Retry loop for the current model via current Key
+                    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                        try {
+                            const client = new GoogleGenerativeAI(currentKey); // Use specific key
+                            const model = client.getGenerativeModel({
+                                model: currentModel,
+                                generationConfig: {
+                                    maxOutputTokens: 80000,
+                                    temperature: 0.0,  // ZERO creativity - pure deterministic copying
+                                    topP: 0.8,         // Reduce randomness in token selection
+                                    topK: 20,          // Restrict vocabulary to most likely tokens
+                                }
+                            });
+
+                            // Log strategy change
+                            if (attempt > 1 || keyIdx > 0 || currentModel !== modelName) {
+                                yield { type: 'log', text: `[IA] 🛡️ Estrategia: Modelo ${currentModel} | Key ${keyIdx + 1}/${this.keys.length} (${keyMask}) | Intento ${attempt}/${maxRetries}` };
                             }
-                        });
 
-                        if (attempt > 1 || currentModel !== modelName) {
-                            yield { type: 'log', text: `[IA] ⚠️ Reintento/Fallback: Usando ${currentModel} (Intento ${attempt})...` };
-                        }
+                            const resultStream = await model.generateContentStream([
+                                { text: prompt },
+                                {
+                                    inlineData: {
+                                        data: image,
+                                        mimeType: mimeType
+                                    }
+                                }
+                            ]);
 
-                        const resultStream = await model.generateContentStream([
-                            { text: prompt },
-                            {
-                                inlineData: {
-                                    data: image,
-                                    mimeType: mimeType
+                            let currentPassOutput = "";
+                            for await (const chunk of resultStream.stream) {
+                                const chunkText = chunk.text();
+                                currentPassOutput += chunkText;
+                                fullHtml += chunkText;
+
+                                const cleanChunk = chunkText.replace("<!-- END_OF_DOCUMENT -->", "");
+                                if (cleanChunk) {
+                                    yield { type: 'chunk', text: cleanChunk };
+                                }
+
+                                const usage = chunk.usageMetadata;
+                                if (usage) {
+                                    const { calculatePrice } = await import('../config/ai.config.js');
+                                    const { costUSD, costCLP } = calculatePrice(usage.promptTokenCount, usage.candidatesTokenCount);
+
+                                    yield {
+                                        type: 'usage',
+                                        usage: {
+                                            promptTokens: usage.promptTokenCount,
+                                            candidatesTokens: usage.candidatesTokenCount,
+                                            totalTokens: usage.totalTokenCount,
+                                            estimatedCost: costUSD,
+                                            estimatedCostCLP: costCLP
+                                        }
+                                    };
                                 }
                             }
-                        ]);
 
-                        let currentPassOutput = "";
-                        for await (const chunk of resultStream.stream) {
-                            const chunkText = chunk.text();
-                            currentPassOutput += chunkText;
-                            fullHtml += chunkText;
+                            // LAZY DETECTION: Catch various common ways LLMs try to skip content
+                            const lazyPhrases = [
+                                // Original patterns
+                                "[Documento continúa",
+                                "[Continúa",
+                                "[Document continues",
+                                "Continúa con Notas",
+                                "Continúa con Tablas",
+                                "--- FIN PARCIAL ---",
+                                "(Resto del documento omitido)",
+                                "(Se omite el resto",
+                                "The rest of the document is a table",
+                                "Following the same format",
+                                "The rest of the document",
+                                "[Continúa en la siguiente",
+                                "(Resto de la tabla",
 
-                            const cleanChunk = chunkText.replace("<!-- END_OF_DOCUMENT -->", "");
-                            if (cleanChunk) {
-                                yield { type: 'chunk', text: cleanChunk };
+                                // CRITICAL NEW PATTERNS (2025/2026) - Spanish
+                                "... y así sucesivamente",
+                                "y así sucesivamente",
+                                "resto de",
+                                "demás filas",
+                                "las demás",
+                                "los demás",
+                                "siguiendo el mismo patrón",
+                                "mismo formato",
+                                "formato similar",
+                                "patrón similar",
+                                "ver documento original",
+                                "consultar el PDF",
+                                "detalles completos en",
+                                "tabla completa disponible",
+                                "lista completa en",
+                                "(omitido por brevedad)",
+                                "(se omiten",
+                                "etcétera",
+                                "(ver anexo",
+                                "continúa con formato",
+                                "filas adicionales",
+                                "prestaciones adicionales",
+                                "cláusulas adicionales",
+
+                                // CRITICAL NEW PATTERNS - English
+                                "similar pattern",
+                                "same format for remaining",
+                                "continues on next page",
+                                "continued from previous",
+                                "... (total",
+                                "and so on",
+                                "and so forth",
+                                "see original document",
+                                "refer to PDF",
+                                "additional rows",
+                                "remaining rows",
+                                "other clauses",
+                                "omitted for brevity",
+
+                                // Meta-commentary (model explaining instead of copying)
+                                "tabla continúa",
+                                "la tabla sigue",
+                                "se repite el patrón",
+                                "pattern repeats",
+                                "format continues",
+                            ];
+
+                            // Check for laziness
+                            const isLazy = lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
+
+                            if (currentPassOutput.includes("<!-- END_OF_DOCUMENT -->") && !isLazy) {
+                                isFinalized = true;
+                                yield { type: 'log', text: `[IA] ✅ Marcador de finalización detectado en el pase ${pass}.` };
+                            } else {
+                                const logMsg = isLazy ?
+                                    `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. PATRÓN PROHIBIDO ENCONTRADO. FORZANDO RE-GENERACIÓN...` :
+                                    `[IA] 🔄 Truncamiento o fin de pase en ${pass}. Solicitando continuación...`;
+                                console.log(`[ProjectionService] ${logMsg}`);
+                                yield { type: 'log', text: logMsg };
+
+                                // NUEVO: Permanent error log for quality monitoring
+                                if (isLazy) {
+                                    console.error(`[PROJECTION-QUALITY-ALERT] Lazy behavior detected in pass ${pass}. Model attempted to summarize. Forcing continuation.`);
+                                }
                             }
 
-                            const usage = chunk.usageMetadata;
-                            if (usage) {
-                                const { calculatePrice } = await import('../config/ai.config.js');
-                                const { costUSD, costCLP } = calculatePrice(usage.promptTokenCount, usage.candidatesTokenCount);
+                            streamSuccess = true;
+                            break modelLoop; // Success! Break out of Model/Key loops
 
-                                yield {
-                                    type: 'usage',
-                                    usage: {
-                                        promptTokens: usage.promptTokenCount,
-                                        candidatesTokens: usage.candidatesTokenCount,
-                                        totalTokens: usage.totalTokenCount,
-                                        estimatedCost: costUSD,
-                                        estimatedCostCLP: costCLP
-                                    }
-                                };
+                        } catch (err: any) {
+                            console.error(`[ProjectionService] Error on ${currentModel} with Key ${keyMask} (Attempt ${attempt}):`, err);
+
+                            const isQuota = err.message?.includes('429') || err.message?.includes('Quota') || err.status === 429 || err.status === 503;
+
+                            if (isQuota) {
+                                yield { type: 'log', text: `[IA] ⚠️ Cuota excedida en Key ${keyMask}. Rotando a siguiente llave...` };
+                                break; // Break attempt loop to convert to next KEY immediately
                             }
-                        }
 
-                        // LAZY DETECTION: Catch various common ways LLMs try to skip content
-                        const lazyPhrases = [
-                            // Original patterns
-                            "[Documento continúa",
-                            "[Continúa",
-                            "[Document continues",
-                            "Continúa con Notas",
-                            "Continúa con Tablas",
-                            "... [",
-                            "--- FIN PARCIAL ---",
-                            "(Resto del documento omitido)",
-                            "(Se omite el resto",
-                            "The rest of the document is a table",
-                            "Following the same format",
-                            "The rest of the document",
-                            "[Continúa en la siguiente",
-                            "(Resto de la tabla",
+                            // If it's the last attempt of the last key of the last model, throw or yield error
+                            const isLastModel = currentModel === uniqueModels[uniqueModels.length - 1];
+                            const isLastKey = keyIdx === this.keys.length - 1;
+                            const isLastAttempt = attempt === maxRetries;
 
-                            // CRITICAL NEW PATTERNS (2025/2026) - Spanish
-                            "... y así sucesivamente",
-                            "y así sucesivamente",
-                            "resto de",
-                            "demás filas",
-                            "las demás",
-                            "los demás",
-                            "siguiendo el mismo patrón",
-                            "mismo formato",
-                            "formato similar",
-                            "patrón similar",
-                            "ver documento original",
-                            "consultar el PDF",
-                            "detalles completos en",
-                            "tabla completa disponible",
-                            "lista completa en",
-                            "(omitido por brevedad)",
-                            "(se omiten",
-                            "etc.",
-                            "etcétera",
-                            "y otros",
-                            "entre otros",
-                            "(ver anexo",
-                            "continúa con formato",
-                            "filas adicionales",
-                            "prestaciones adicionales",
-                            "cláusulas adicionales",
-
-                            // CRITICAL NEW PATTERNS - English
-                            "similar pattern",
-                            "same format for remaining",
-                            "continues on next page",
-                            "continued from previous",
-                            "... (total",
-                            "... more",
-                            "and so on",
-                            "and so forth",
-                            "see original document",
-                            "refer to PDF",
-                            "additional rows",
-                            "remaining rows",
-                            "other clauses",
-                            "omitted for brevity",
-
-                            // Subtle patterns (ellipsis variants)
-                            "...)",
-                            "...",
-                            "… (", // UTF-8 ellipsis
-                            "…)",
-
-                            // Meta-commentary (model explaining instead of copying)
-                            "tabla continúa",
-                            "la tabla sigue",
-                            "se repite el patrón",
-                            "pattern repeats",
-                            "format continues",
-                        ];
-                        // TEMPORARY: Lazy detection disabled to prevent false positives
-                        const isLazy = false; // lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
-
-                        if (currentPassOutput.includes("<!-- END_OF_DOCUMENT -->") && !isLazy) {
-                            isFinalized = true;
-                            yield { type: 'log', text: `[IA] ✅ Marcador de finalización detectado en el pase ${pass}.` };
-                        } else {
-                            const logMsg = isLazy ?
-                                `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. PATRÓN PROHIBIDO ENCONTRADO. FORZANDO RE-GENERACIÓN...` :
-                                `[IA] 🔄 Truncamiento o fin de pase en ${pass}. Solicitando continuación...`;
-                            console.log(`[ProjectionService] ${logMsg}`);
-                            yield { type: 'log', text: logMsg };
-
-                            // NUEVO: Permanent error log for quality monitoring
-                            if (isLazy) {
-                                console.error(`[PROJECTION-QUALITY-ALERT] Lazy behavior detected in pass ${pass}. Model attempted to summarize. Forcing continuation.`);
+                            if (isLastModel && isLastKey && isLastAttempt) {
+                                yield { type: 'error', error: err.message || 'Error projecting PDF to HTML' };
+                                streamSuccess = false;
+                            } else {
+                                // Wait a bit before retry if it's not a quota error (quota errors rotate immediately)
+                                await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
                             }
-                        }
-
-                        streamSuccess = true;
-                        break; // Break retry loop
-
-                    } catch (err: any) {
-                        console.error(`[ProjectionService] Error on ${currentModel} (Attempt ${attempt}):`, err);
-
-                        // If it's the last attempt of the last model, throw or yield error
-                        const isLastModel = currentModel === uniqueModels[uniqueModels.length - 1];
-                        const isLastAttempt = attempt === maxRetries;
-
-                        if (isLastModel && isLastAttempt) {
-                            yield { type: 'error', error: err.message || 'Error projecting PDF to HTML' };
-                            // We break the outer loop by setting pass = maxPasses to stop everything?
-                            // Or just break inner loops and let the outer while condition handle it?
-                            // Since we yielded error, we should probably stop.
-                            // But the original code just broke the loop.
-                            streamSuccess = false; // Ensure it stays false
-                        } else {
-                            // Wait a bit before retry
-                            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
                         }
                     }
                 }
