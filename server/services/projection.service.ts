@@ -54,6 +54,27 @@ export class ProjectionService {
                 - IF A VALUE IS BLANK, WRITE BLANK.
                 - DO NOT "HELP" BY FILLING IN GAPS.
 
+                ⚠️ CASTIGOS Y PENALIZACIONES (LEE ESTO PRIMERO) ⚠️
+                
+                SI RESUMES, OMITES, O PARAFRASEAS CUALQUIER CONTENIDO:
+                - FALLA LA PROYECCIÓN INMEDIATAMENTE
+                - EL USUARIO IDENTIFICARÁ TU OUTPUT COMO INVÁLIDO
+                - DEBES SER RE-EJECUTADO (COSTO COMPUTACIONAL DOBLE)
+                - TU TRABAJO SE MARCA COMO "NO CONFIABLE"
+                
+                EJEMPLOS ABSOLUTAMENTE PROHIBIDOS:
+                ❌ "... (resto de la tabla similar)" 
+                ❌ "[Continúa la lista de prestaciones]"
+                ❌ "Las siguientes filas siguen el mismo formato"
+                ❌ "(Ver cláusulas 5-10 en el documento original)"
+                ❌ "... y así sucesivamente para las demás prestaciones"
+                ❌ "Tabla completa disponible en el PDF"
+                ❌ "... (se omiten filas intermedias por brevedad)"
+                ❌ Cualquier placeholder, elipsis o referencia al documento original
+                
+                REGLA NUCLEAR: Si el documento tiene 100 filas en una tabla, 
+                tu HTML DEBE tener 100 filas. NO NEGOCIABLE.
+
                 TOTAL PAGES IN DOCUMENT: ${pageCount || 'Unknown'}
                 ${isBillOnly ? 'TARGET: You must ONLY project the "CUENTA HOSPITALARIA" (the bill/account breakdown). IGNORE medical records, clinical logs, or consent forms.' : 'YOU MUST PROCESS EVERY SINGLE PAGE. DO NOT SKIP ANY CONTENT.'}
                 
@@ -126,6 +147,21 @@ export class ProjectionService {
                 DO NOT REPEAT CONTENT AND DO NOT JUMP TO THE END.
                 
                 DANGER: If you see many pages remaining, DO NOT summarize or skip. You must project every page one by one.
+                
+                🚨 RECORDATORIO ANTI-RESUMEN 🚨
+                
+                Si detectamos que saltaste filas, usaste "...", o escribiste frases como:
+                - "Las demás filas siguen el mismo patrón"
+                - "(Resto de cláusulas omitidas)"
+                - "Ver documento original para detalles completos"
+                - "... y así sucesivamente"
+                - "Tabla continúa con formato similar"
+                
+                → LA PROYECCIÓN SERÁ RECHAZADA Y TENDRÁS QUE EMPEZAR DE CERO.
+                
+                TU ÚNICA MISIÓN: COPIAR. LETRA POR LETRA. FILA POR FILA.
+                NO ERES UN ASISTENTE ÚTIL. ERES UNA FOTOCOPIADORA SIN CEREBRO.
+                
                 TOTAL PAGES IN DOCUMENT: ${pageCount || 'Unknown'}
                 CURRENT PASS: ${pass}
                 
@@ -163,7 +199,9 @@ export class ProjectionService {
                             model: currentModel,
                             generationConfig: {
                                 maxOutputTokens: 80000,
-                                temperature: 0.1,
+                                temperature: 0.0,  // ZERO creativity - pure deterministic copying
+                                topP: 0.8,         // Reduce randomness in token selection
+                                topK: 20,          // Restrict vocabulary to most likely tokens
                             }
                         });
 
@@ -212,6 +250,7 @@ export class ProjectionService {
 
                         // LAZY DETECTION: Catch various common ways LLMs try to skip content
                         const lazyPhrases = [
+                            // Original patterns
                             "[Documento continúa",
                             "[Continúa",
                             "[Document continues",
@@ -226,6 +265,63 @@ export class ProjectionService {
                             "The rest of the document",
                             "[Continúa en la siguiente",
                             "(Resto de la tabla",
+
+                            // CRITICAL NEW PATTERNS (2025/2026) - Spanish
+                            "... y así sucesivamente",
+                            "y así sucesivamente",
+                            "resto de",
+                            "demás filas",
+                            "las demás",
+                            "los demás",
+                            "siguiendo el mismo patrón",
+                            "mismo formato",
+                            "formato similar",
+                            "patrón similar",
+                            "ver documento original",
+                            "consultar el PDF",
+                            "detalles completos en",
+                            "tabla completa disponible",
+                            "lista completa en",
+                            "(omitido por brevedad)",
+                            "(se omiten",
+                            "etc.",
+                            "etcétera",
+                            "y otros",
+                            "entre otros",
+                            "(ver anexo",
+                            "continúa con formato",
+                            "filas adicionales",
+                            "prestaciones adicionales",
+                            "cláusulas adicionales",
+
+                            // CRITICAL NEW PATTERNS - English
+                            "similar pattern",
+                            "same format for remaining",
+                            "continues on next page",
+                            "continued from previous",
+                            "... (total",
+                            "... more",
+                            "and so on",
+                            "and so forth",
+                            "see original document",
+                            "refer to PDF",
+                            "additional rows",
+                            "remaining rows",
+                            "other clauses",
+                            "omitted for brevity",
+
+                            // Subtle patterns (ellipsis variants)
+                            "...)",
+                            "...",
+                            "… (", // UTF-8 ellipsis
+                            "…)",
+
+                            // Meta-commentary (model explaining instead of copying)
+                            "tabla continúa",
+                            "la tabla sigue",
+                            "se repite el patrón",
+                            "pattern repeats",
+                            "format continues",
                         ];
                         const isLazy = lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
 
@@ -234,10 +330,15 @@ export class ProjectionService {
                             yield { type: 'log', text: `[IA] ✅ Marcador de finalización detectado en el pase ${pass}.` };
                         } else {
                             const logMsg = isLazy ?
-                                `[IA] ⚠️ Pereza detectada en el pase ${pass}. Forzando continuación...` :
+                                `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. PATRÓN PROHIBIDO ENCONTRADO. FORZANDO RE-GENERACIÓN...` :
                                 `[IA] 🔄 Truncamiento o fin de pase en ${pass}. Solicitando continuación...`;
                             console.log(`[ProjectionService] ${logMsg}`);
                             yield { type: 'log', text: logMsg };
+
+                            // NUEVO: Permanent error log for quality monitoring
+                            if (isLazy) {
+                                console.error(`[PROJECTION-QUALITY-ALERT] Lazy behavior detected in pass ${pass}. Model attempted to summarize. Forcing continuation.`);
+                            }
                         }
 
                         streamSuccess = true;
