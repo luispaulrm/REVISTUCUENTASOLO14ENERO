@@ -140,6 +140,33 @@ export default function ForensicApp() {
         URL.revokeObjectURL(url);
     };
 
+    const handleDownloadPDF = async () => {
+        const element = document.getElementById('audit-report-content');
+        if (!element) return;
+
+        const originalButton = document.getElementById('btn-download-pdf');
+        if (originalButton) originalButton.innerText = 'GENERANDO PDF...';
+
+        try {
+            // @ts-ignore
+            const html2pdf = (await import('html2pdf.js')).default;
+            const opt = {
+                margin: 10,
+                filename: `Auditoria_Forense_${new Date().toISOString().slice(0, 10)}.pdf`,
+                image: { type: 'jpeg' as const, quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
+            };
+
+            await html2pdf().set(opt).from(element).save();
+        } catch (error) {
+            console.error('PDF Generation Error:', error);
+            alert('Error al generar PDF. Ver consola.');
+        } finally {
+            if (originalButton) originalButton.innerText = 'DESCARGAR PDF';
+        }
+    };
+
     const isRunningRef = useRef(false);
 
     const handleExecuteAudit = async () => {
@@ -493,11 +520,19 @@ export default function ForensicApp() {
                                                 <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">{auditResult.resumenEjecutivo}</p>
                                             </div>
                                             <button
+                                                id="btn-download-pdf"
+                                                onClick={handleDownloadPDF}
+                                                className="shrink-0 p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors shadow-lg flex items-center gap-2 text-xs font-bold uppercase tracking-wider print:hidden"
+                                                title="Descargar Reporte Completo en PDF"
+                                            >
+                                                <Download size={16} /> <span className="hidden sm:inline">DESCARGAR PDF</span>
+                                            </button>
+                                            <button
                                                 onClick={() => window.print()}
                                                 className="shrink-0 p-3 bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-colors shadow-lg flex items-center gap-2 text-xs font-bold uppercase tracking-wider print:hidden"
-                                                title="Imprimir o Guardar como PDF"
+                                                title="Imprimir (Nativo del Navegador)"
                                             >
-                                                <Printer size={16} /> <span className="hidden sm:inline">IMPRIMIR / PDF</span>
+                                                <Printer size={16} /> <span className="hidden sm:inline">IMPRIMIR</span>
                                             </button>
                                         </div>
                                         <div className="flex flex-wrap gap-4 print:flex-nowrap">
