@@ -140,7 +140,11 @@ export async function performForensicAudit(
                 description: item.description,
                 quantity: item.quantity,
                 unitPrice: item.unitPrice,
-                total: item.total
+                total: item.total,
+                // NEW: Expose Billing Model to LLM
+                model: item.billingModel,
+                authTotal: item.authoritativeTotal,
+                calcError: item.hasCalculationError
             }))
         }))
     } : { ...cuentaJson, info: "No structured bill provided. Use HTML context if available." };
@@ -637,7 +641,7 @@ export async function performForensicAudit(
 // ============================================================================
 // FINALIZER: Freeze & Calculate KPIs (Deterministic)
 // ============================================================================
-function finalizeAudit(result: any): any {
+export function finalizeAudit(result: any): any {
     const hallazgos = result.hallazgos || [];
 
     // 0. Detect Structural Opacity Parent to avoid double counting
@@ -748,7 +752,7 @@ function finalizeAudit(result: any): any {
 // ============================================================================
 // HELPER: Subset-Sum for Nutrition (Alimentación) Reconciliation
 // ============================================================================
-function reconcileNutritionCharges(cuenta: any, pam: any): any {
+export function reconcileNutritionCharges(cuenta: any, pam: any): any {
     // 1. Identify Target Amount (Code 3101306 or PRESTACIONES SIN BONIFICACIÓN)
     let targetAmount = 0;
     let pamItemName = "";

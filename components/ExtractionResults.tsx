@@ -159,9 +159,49 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                               </div>
                             </td>
                             <td className="py-3 text-center text-slate-600 font-bold font-mono">{item.quantity}</td>
-                            <td className="py-3 text-right text-slate-600 font-mono">{formatCurrency(item.unitPrice)}</td>
-                            <td className="px-2 py-3 text-right text-slate-900 font-mono font-bold text-xs">
-                              {item.valorIsa ? formatCurrency(item.valorIsa) : formatCurrency(item.total)}
+                            {/* COL 4: Unit Price */}
+                            <td className="px-3 py-2 text-right">
+                              <div className="font-mono text-gray-900">
+                                {formatCurrency(item.unitPrice)}
+                              </div>
+                              {item.unitPriceTrust !== undefined && item.unitPriceTrust < 0.5 && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800" title="Precio Unitario no confiable (posible desplazamiento)">
+                                  ⚠️ Dudoso
+                                </span>
+                              )}
+                            </td>
+
+                            {/* COL 5: Total (replaces Valor ISA and adds new badges) */}
+                            <td className="px-3 py-2 text-right">
+                              <div>
+                                <div className={`font-mono font-medium ${item.hasCalculationError ? 'text-red-600' : 'text-gray-900'}`}>
+                                  {formatCurrency(item.total)}
+                                </div>
+                                {item.hasCalculationError && (
+                                  <div className="text-xs text-red-500 mt-1">
+                                    Calc: {formatCurrency(item.calculatedTotal)}
+                                  </div>
+                                )}
+
+                                {/* Billing Model Badges */}
+                                <div className="flex flex-col items-end gap-1 mt-1">
+                                  {item.billingModel === 'PRORATED_REFERENCE_PRICE' && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-800" title="Precio referencial por caja/pack. Total prorrateado.">
+                                      📦 Prorrateo
+                                    </span>
+                                  )}
+                                  {item.billingModel === 'UNIT_PRICE_UNTRUSTED' && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-orange-100 text-orange-800" title="Posible error de lectura o desplazamiento de columnas">
+                                      ⚠️ Extracción
+                                    </span>
+                                  )}
+                                  {item.valorIsa > 0 && item.valorIsa !== item.total && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-100 text-green-800" title={`Valor Autorizado (ISA): ${formatCurrency(item.valorIsa)}`}>
+                                      ✅ ISA: {formatCurrency(item.valorIsa)}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </td>
                             <td className="px-2 py-3 text-right text-emerald-600 font-mono font-bold text-xs">
                               {item.bonificacion ? formatCurrency(item.bonificacion) : '-'}

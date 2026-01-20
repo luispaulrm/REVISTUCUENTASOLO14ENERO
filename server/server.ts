@@ -6,6 +6,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GeminiService } from './services/gemini.service.js';
+import { performForensicAudit, finalizeAudit, reconcileNutritionCharges } from './services/auditEngine.service.js';
+import { classifyBillingModel } from './services/billingModelClassifier.service.js';
 import { ParserService } from "./services/parser.service.js";
 import { AI_CONFIG, GENERATION_CONFIG } from "./config/ai.config.js";
 import { handlePamExtraction } from './endpoints/pam.endpoint.js';
@@ -734,6 +736,44 @@ app.post('/api/extract', async (req, res) => {
                     fullDescription.includes("---");
 
                 if (!isHeaderArtifact && finalTotal > 0) {
+
+                    // NEW: 3-Model Classification System (Applied after Coherence/Auto-Fix)
+                    const classification = classifyBillingModel({
+                        quantity: finalQuantity,
+                        unitPrice: finalUnitPrice,
+                        total: finalTotal, // stated total (after parsing fix)
+                        valorIsa: valorIsa, // authoritative
+                        description: fullDescription
+                    });
+
+                    // Update Truths
+                    const finalAuthoritativeTotal = classification.authoritativeTotal;
+
+                    // IF we trust the authoritative total more than the text total, update it.
+                    // Usually authoritativeTotal IS `valorIsa` or `total` depending on rule.
+                    // If Rule 1 applied (ValorISA exists), we override.
+                    if (valorIsa > 0) {
+                        finalTotal = finalAuthoritativeTotal;
+                    }
+
+                    // Recalculate Error Flags based on Model
+                    if (classification.model === 'MULTIPLICATIVE_EXACT') {
+                        finalCalcTotal = Math.round(finalQuantity * finalUnitPrice);
+                        const tolerance = classification.toleranceApplied || 10;
+                        hasError = Math.abs(finalTotal - finalCalcTotal) > tolerance;
+                    } else {
+                        // PRORATED or UNTRUSTED
+                        // No calculation error by definition (we don't calculate)
+                        finalCalcTotal = finalAuthoritativeTotal;
+                        hasError = false;
+                    }
+
+                    // For UNTRUSTED (Rule 4), we might want to flag it differently?
+                    // The plan said: "Flag as UNIT_PRICE_UNTRUSTED... Validation: Flag as EXTRACTION ERROR"
+                    // But `hasCalculationError` is specific to arithmetic.
+                    // We interpret "hasCalculationError" as "Invalid Arithmetic".
+                    // If it's B or C, the arithmetic is irrelevant.
+
                     sectionObj.items.push({
                         index: globalIndex++,
                         description: fullDescription,
@@ -745,7 +785,15 @@ app.post('/api/extract', async (req, res) => {
                         isIVAApplied: isIVAApplied,
                         valorIsa: valorIsa,
                         bonificacion: bonificacion,
-                        copago: copago
+                        copago: copago,
+
+                        // New Metadata
+                        billingModel: classification.model,
+                        authoritativeTotal: finalAuthoritativeTotal,
+                        unitPriceTrust: classification.unitPriceTrust,
+                        qtyIsProration: classification.qtyIsProration,
+                        suspectedColumnShift: classification.suspectedColumnShift,
+                        toleranceApplied: classification.toleranceApplied
                     });
                 }
             }

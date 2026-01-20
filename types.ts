@@ -1,15 +1,28 @@
 
+export type BillingModel =
+  | 'MULTIPLICATIVE_EXACT'      // A: Recalculable (Standard)
+  | 'PRORATED_REFERENCE_PRICE'  // B: Not recalculable (Reference Price)
+  | 'UNIT_PRICE_UNTRUSTED';     // C: Not recalculable (Parsing/Logic Error)
+
 export interface BillingItem {
   index?: number;
   description: string;
   quantity: number;
   unitPrice: number;
   total: number; // Stated by clinic
-  calculatedTotal: number; // calculated by JS: qty * unitPrice
+  calculatedTotal: number; // calculated by JS: qty * unitPrice OR authoritative total
   hasCalculationError: boolean;
   valorIsa?: number;
   bonificacion?: number;
   copago?: number;
+
+  // New Validation Metadata
+  billingModel?: BillingModel;
+  authoritativeTotal?: number; // The "truth" value (valorIsa or Total)
+  unitPriceTrust?: number; // 0.0 to 1.0
+  qtyIsProration?: boolean;
+  suspectedColumnShift?: boolean;
+  toleranceApplied?: number;
 }
 
 export interface BillingSection {

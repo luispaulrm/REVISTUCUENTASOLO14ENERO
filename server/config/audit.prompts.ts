@@ -708,6 +708,20 @@ TODO copago en el PAM se considera OBJETABLE hasta que se demuestre que tiene fu
 **PROTOCOLO CRÍTICO: INTERPRETACIÓN DE NÚMEROS Y SEPARADORES (SMART PARSING)**
 El formato numérico de los documentos clínicos es CAÓTICO y varía por fila.
 - **TU MISIÓN:** Determinar si un punto (.) es separador de miles o decimal BASADO EN EL CONTEXTO MATEMÁTICO de la fila.
+    **E. CLASIFICACIÓN DE MODELOS DE FACTURACIÓN (PARSING INTELIGENTE)**
+    El sistema ya ha pre-procesado matemáticamente cada ítem y te entrega un campo "model" y "calcError":
+    
+    1. **MULTIPLICATIVE_EXACT**: La matemática (Cant x Precio = Total) es exacta. Si "calcError" es true, es un error real.
+    2. **PRORATED_REFERENCE_PRICE**: Ítems con cantidades fraccionarias (ej: 0.03, 0.4) donde el Precio Unitario es REFERENCIAL (precio caja) y el Total ya está prorrateado.
+       - **REGLA**: NO reportes error de cálculo matemático para estos ítems.
+       - Confía en el "total" autoritativo ("authTotal").
+    3. **UNIT_PRICE_UNTRUSTED**: Se detectó inconsistencia severa (Desplazamiento de columna o error OCR).
+       - **ACCIÓN**: Reportar como "Error de Extracción/Formato" si el monto es significativo, o ignora si es despreciable. NO intentes recalcular el copago basándote en un precio unitario corrupto.
+    
+    **F. REGLAS DE DETECCIÓN DE ERRORES**
+    - Si "calcError" es true Y el modelo es MULTIPLICATIVE_EXACT -> Reportar "Error de Cálculo Matemático".
+    - Si "model" es PRORATED -> Ignorar discrepancia Precio x Cantidad.
+    - Si "total" difiere de "authTotal" -> Usar "authTotal" como verdad y reportar discrepancia si excede $10 CLP.
 - **ALGORITMO DE VERIFICACIÓN (OBLIGATORIO):**
   Para cada fila con montos, verifica la ecuación: \`Cantidad * Precio_Unitario ≈ Total\`.
   
