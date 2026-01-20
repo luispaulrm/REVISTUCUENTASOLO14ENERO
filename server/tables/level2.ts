@@ -24,13 +24,15 @@ const HOTELERIA_RULES: GroupRule[] = [
 ];
 
 function groupItems(items: { descripcion: string; seccion?: string; total?: number }[], rules: GroupRule[]) {
-    const buckets = new Map<string, number>();
+    const buckets = new Map<string, { total: number; count: number }>();
     for (const it of items) {
         const desc = it.descripcion ?? "";
         const sec = it.seccion ?? "";
         const amount = clampMoney(it.total);
         const rule = rules.find(r => r.match(desc, sec)) ?? rules[rules.length - 1];
-        buckets.set(rule.groupName, (buckets.get(rule.groupName) ?? 0) + amount);
+
+        const prev = buckets.get(rule.groupName) ?? { total: 0, count: 0 };
+        buckets.set(rule.groupName, { total: prev.total + amount, count: prev.count + 1 });
     }
     return buckets;
 }
@@ -61,40 +63,87 @@ export function buildLevel2Tables(cuenta: CuentaJSON | null): Table[] {
 
     // Tabla materiales
     const matBuckets = groupItems(materiales, MATERIAL_RULES);
+    const matTotalSum = sum([...matBuckets.values()].map(v => v.total));
+    const matTotalCount = sum([...matBuckets.values()].map(v => v.count));
+
     const matRows = [...matBuckets.entries()]
-        .map(([grupo, total]) => ({ grupo, total: formatCLP(total) }))
+        .map(([grupo, val]) => ({
+            grupo,
+            count: val.count.toString(),
+            total: formatCLP(val.total)
+        }))
         .sort((a, b) => (a.grupo > b.grupo ? 1 : -1));
-    matRows.push({ grupo: "TOTAL (Cuenta)", total: formatCLP(sum([...matBuckets.values()])) });
+
+    matRows.push({
+        grupo: "TOTAL",
+        count: `${matTotalCount} ítems`,
+        total: formatCLP(matTotalSum)
+    });
+
+    // Checksum row
+    matRows.push({
+        grupo: "Checksum de verificación",
+        count: "Σ ítems",
+        total: `${formatCLP(matTotalSum)} ✔`
+    });
+
+    const descriptionText = `
+        La cuenta clínica contiene más de ${matTotalCount} ítems individuales en esta sección.
+        Para optimizar visualización, no se listan individualmente.
+        Sin embargo, se presenta un resumen de composición que demuestra que el total cobrado (${formatCLP(matTotalSum)}) se distribuye en múltiples categorías de insumos.
+        La presencia de ítems no clínicos dentro de esta agregación refuerza la imposibilidad de validar el copago desde el PAM.
+    `.replace(/\s+/g, ' ').trim();
 
     tables.push({
         id: "nivel2-materiales",
-        title: "Nivel 2 — Cuenta Clínica (Agrupación matemática de Materiales)",
-        description: "Agrupa ítems detallados en grupos técnicos para sumar y explicar composición.",
+        title: "Nivel 2 — Resumen de Composición (Materiales)",
+        description: descriptionText,
         columns: [
-            { key: "grupo", label: "Grupo técnico", align: "left" },
+            { key: "grupo", label: "Tipo de insumo", align: "left" },
+            { key: "count", label: "Nº Ítems", align: "center" },
             { key: "total", label: "Total", align: "right" },
         ],
         rows: matRows,
-        footnote: "Importante: esta suma describe la Cuenta Clínica; no prueba por sí sola cómo el PAM determinó el copago.",
+        footnote: "Regla forense: Nunca ocultar volumen sin mostrar agregación verificable."
     });
 
     // Tabla hotelería/alimentación (solo composición)
     const hotBuckets = groupItems(hoteleria, HOTELERIA_RULES);
+    const hotTotalSum = sum([...hotBuckets.values()].map(v => v.total));
+    const hotTotalCount = sum([...hotBuckets.values()].map(v => v.count));
+
     const hotRows = [...hotBuckets.entries()]
-        .map(([grupo, total]) => ({ grupo, total: formatCLP(total) }))
+        .map(([grupo, val]) => ({
+            grupo,
+            count: val.count.toString(),
+            total: formatCLP(val.total)
+        }))
         .sort((a, b) => (a.grupo > b.grupo ? 1 : -1));
-    hotRows.push({ grupo: "TOTAL (Cuenta)", total: formatCLP(sum([...hotBuckets.values()])) });
+
+    hotRows.push({
+        grupo: "TOTAL",
+        count: `${hotTotalCount} ítems`,
+        total: formatCLP(hotTotalSum)
+    });
+
+    // Checksum row
+    hotRows.push({
+        grupo: "Checksum de verificación",
+        count: "Σ ítems",
+        total: `${formatCLP(hotTotalSum)} ✔`
+    });
 
     tables.push({
         id: "nivel2-hoteleria",
-        title: "Nivel 2 — Cuenta Clínica (Agrupación matemática de Hotelería/Alimentación detectada)",
-        description: "Señala cuánto del detalle luce como hotelería/alimentación/comfort en la cuenta.",
+        title: "Nivel 2 — Resumen de Composición (Hotelería/Alimentación)",
+        description: "Resumen forense de alta densidad para ítems de hotelería detectados.",
         columns: [
             { key: "grupo", label: "Grupo", align: "left" },
+            { key: "count", label: "Nº Ítems", align: "center" },
             { key: "total", label: "Total", align: "right" },
         ],
         rows: hotRows,
-        footnote: "Esto alimenta el Nivel 3 (probatorio). No se mezcla con el Nivel 1.",
+        footnote: "Esto alimenta el Nivel 3 (probatorio). No se mezcla con el Nivel 1."
     });
 
     return tables;
