@@ -56,12 +56,23 @@ export async function handleGeneratePdf(req: Request, res: Response) {
         res.send(pdfBuffer);
 
     } catch (error) {
-        console.error('[PDF Endpoint] Error generating PDF:', error);
+        console.error('[PDF Endpoint] CRITICAL ERROR:', error);
+        console.error('[PDF Endpoint] Error type:', error?.constructor?.name);
+        console.error('[PDF Endpoint] Error stack:', error instanceof Error ? error.stack : 'No stack');
 
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const errorStack = error instanceof Error ? error.stack : undefined;
+
+        // Return detailed error to client (helps with debugging)
         res.status(500).json({
             error: 'PDF generation failed',
-            details: errorMessage
+            details: errorMessage,
+            stack: process.env.NODE_ENV === 'development' ? errorStack : undefined,
+            hint: errorMessage.includes('Failed to launch')
+                ? 'Chrome/Chromium may not be installed on the server. This is required for PDF generation.'
+                : errorMessage.includes('ENOENT')
+                    ? 'Required binary not found. Puppeteer needs Chrome/Chromium to generate PDFs.'
+                    : 'Check server logs for more details.'
         });
     }
 }

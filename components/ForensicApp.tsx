@@ -181,7 +181,8 @@ export default function ForensicApp() {
 
             if (!response.ok) {
                 const error = await response.json();
-                throw new Error(error.error || 'PDF generation failed');
+                console.error('[PDF] Server error details:', error);
+                throw new Error(error.details || error.error || 'PDF generation failed');
             }
 
             // Download the PDF

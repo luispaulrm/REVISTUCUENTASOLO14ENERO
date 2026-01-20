@@ -30,8 +30,13 @@ export class PdfGeneratorService {
                     '--no-sandbox',
                     '--disable-setuid-sandbox',
                     '--disable-dev-shm-usage',
-                    '--disable-gpu'
-                ]
+                    '--disable-gpu',
+                    '--no-zygote',
+                    '--single-process',
+                    '--disable-accelerated-2d-canvas',
+                    '--disable-features=IsolateOrigins,site-per-process'
+                ],
+                executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined
             });
 
             const page = await browser.newPage();
@@ -54,8 +59,20 @@ export class PdfGeneratorService {
             return pdfBuffer;
 
         } catch (error) {
-            console.error('[PDF Generator] Error:', error);
-            throw new Error(`PDF generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            console.error('[PDF Generator] CRITICAL ERROR:', error);
+            console.error('[PDF Generator] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+
+            // Provide detailed error information
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            const errorDetails = {
+                message: errorMsg,
+                stack: error instanceof Error ? error.stack : undefined,
+                chromePath: process.env.PUPPETEER_EXECUTABLE_PATH || 'default',
+                nodeVersion: process.version
+            };
+
+            console.error('[PDF Generator] Error details:', JSON.stringify(errorDetails, null, 2));
+            throw new Error(`PDF generation failed: ${errorMsg}`);
         } finally {
             if (browser) {
                 await browser.close();
