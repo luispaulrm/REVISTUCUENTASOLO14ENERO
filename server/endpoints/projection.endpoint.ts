@@ -83,6 +83,7 @@ export async function handleProjection(req: Request, res: Response) {
             expectedType = 'CONTRATO';
         }
 
+
         const { ValidationService } = await import('../services/validation.service.js');
         const validationService = new ValidationService(apiKeys[0]); // Use first key
 
@@ -90,17 +91,35 @@ export async function handleProjection(req: Request, res: Response) {
 
         const validation = await validationService.validateDocumentType(image, mimeType, expectedType);
 
+        // GRACEFUL FALLBACK: If validation fails due to SERVICE ERROR (503/429), allow projection with warning
+        // But if it fails due to WRONG DOCUMENT TYPE, still block
         if (!validation.isValid) {
-            console.warn(`[VALIDATION] REJECTED. Detected: ${validation.detectedType}. Expected: ${expectedType}. Reason: ${validation.reason}`);
-            sendUpdate({
-                type: 'error',
-                error: `VALIDACIÓN FALLIDA: Se esperaba un documento tipo ${expectedType}, pero se detectó "${validation.detectedType}". (${validation.reason})`
-            });
-            return res.end();
-        }
+            const isServiceError = validation.detectedType === "ERROR" ||
+                validation.reason.includes('503') ||
+                validation.reason.includes('429') ||
+                validation.reason.includes('overloaded');
 
-        sendUpdate({ type: 'log', text: `✅ Documento validado correctamente (${validation.detectedType}).` });
+            if (isServiceError) {
+                // SERVICE ERROR: Allow projection but warn user
+                console.warn(`[VALIDATION] Service error, bypassing validation. Reason: ${validation.reason}`);
+                sendUpdate({
+                    type: 'log',
+                    text: `⚠️ Validación omitida por error del servicio. Proyectando de todos modos...`
+                });
+            } else {
+                // LEGITIMATE REJECTION: Block projection
+                console.warn(`[VALIDATION] REJECTED. Detected: ${validation.detectedType}. Expected: ${expectedType}. Reason: ${validation.reason}`);
+                sendUpdate({
+                    type: 'error',
+                    error: `VALIDACIÓN FALLIDA: Se esperaba un documento tipo ${expectedType}, pero se detectó "${validation.detectedType}". (${validation.reason})`
+                });
+                return res.end();
+            }
+        } else {
+            sendUpdate({ type: 'log', text: `✅ Documento validado correctamente (${validation.detectedType}).` });
+        }
         // --- VALIDATION LAYER END ---
+
 
         const projectionService = new ProjectionService(apiKeys[0]);
 
