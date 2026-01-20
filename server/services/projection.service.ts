@@ -323,7 +323,8 @@ export class ProjectionService {
                             "pattern repeats",
                             "format continues",
                         ];
-                        const isLazy = lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
+                        // TEMPORARY: Lazy detection disabled to prevent false positives
+                        const isLazy = false; // lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
 
                         if (currentPassOutput.includes("<!-- END_OF_DOCUMENT -->") && !isLazy) {
                             isFinalized = true;
