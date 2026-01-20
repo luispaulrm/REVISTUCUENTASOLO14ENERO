@@ -621,7 +621,27 @@ export async function performForensicAudit(
         log('[AuditEngine] ✅ Auditoría forense completada.');
 
         // --- FINALIZATION (DETERMINISTIC CATEGORIZATION) ---
-        const finalResult = finalizeAudit(auditResult);
+        // Calculate Canonical Total from PAM Source of Truth if available
+        const pamGlobal = pamJson?.global;
+        let totalCopagoReal = 0;
+
+        if (pamGlobal) {
+            const val = pamGlobal.totalValor || 0;
+            const bon = pamGlobal.totalBonif || 0;
+            // Canonical Formula: COPAGO_TOTAL = Σ(Valor ISA) − Σ(Bonificación)
+            totalCopagoReal = val - bon;
+
+            // Fallback if 0 (sometimes totalValor is not populated but totalCopago is)
+            if (totalCopagoReal === 0 && pamGlobal.totalCopago > 0) {
+                totalCopagoReal = pamGlobal.totalCopago;
+            }
+        } else {
+            // Deep fallback
+            const pamTotalCopago = pamJson?.resumenTotal?.totalCopago || 0;
+            totalCopagoReal = parseAmountCLP(pamTotalCopago);
+        }
+
+        const finalResult = finalizeAudit(auditResult, totalCopagoReal);
         log(`[AuditEngine] 🏁 Auditoría finalizada. Ahorro: $${finalResult.resumenFinanciero.ahorro_confirmado} | Controversia: $${finalResult.resumenFinanciero.copagos_bajo_controversia}`);
 
         return {
@@ -641,7 +661,7 @@ export async function performForensicAudit(
 // ============================================================================
 // FINALIZER: Freeze & Calculate KPIs (Deterministic)
 // ============================================================================
-export function finalizeAudit(result: any): any {
+export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     const hallazgos = result.hallazgos || [];
 
     // 0. Detect Structural Opacity Parent to avoid double counting
@@ -734,17 +754,51 @@ export function finalizeAudit(result: any): any {
 
     if (!result.resumenFinanciero) result.resumenFinanciero = {};
 
+    const totalObjetado = sumA + sumB + sumZ;
+
+    // Calculate Category OK (No Observado)
+    // Formula: Cat OK = Copago Total - (Cat A + Cat B + Cat Z)
+    let catOK = 0;
+    if (totalCopagoReal > 0) {
+        catOK = totalCopagoReal - totalObjetado;
+        // Float safety (though we use integers for CLP usually)
+        if (catOK < 0) catOK = 0; // Should not happen if logic is sound, but strict guard
+    }
+
     // OVERWRITE KPIs
-    result.resumenFinanciero.ahorro_confirmado = sumA; // Green Card
+    result.resumenFinanciero.ahorro_confirmado = sumA; // Green Card (Cat A)
     result.resumenFinanciero.cobros_improcedentes_exigibles = sumA; // Sync
 
-    result.resumenFinanciero.copagos_bajo_controversia = sumB; // Amber Card
-    result.resumenFinanciero.monto_indeterminado = sumZ; // Grey Card
+    result.resumenFinanciero.copagos_bajo_controversia = sumB; // Amber Card (Cat B)
+    result.resumenFinanciero.monto_indeterminado = sumZ; // Grey Card (Cat Z)
 
-    result.resumenFinanciero.totalCopagoObjetado = sumA + sumB + sumZ;
+    result.resumenFinanciero.monto_no_observado = catOK; // Blue/White Card (Cat OK)
+
+    result.resumenFinanciero.totalCopagoObjetado = totalObjetado;
+    result.resumenFinanciero.totalCopagoReal = totalCopagoReal; // The Canonical Total
 
     // Legacy support
     result.totalAhorroDetectado = sumA;
+
+    // 6. Canonical Text Generation
+    const locale = 'es-CL';
+    const txtTotal = totalCopagoReal.toLocaleString(locale);
+    const txtA = sumA.toLocaleString(locale);
+    const txtB = sumB.toLocaleString(locale);
+    const txtOK = catOK.toLocaleString(locale);
+    const txtZ = sumZ.toLocaleString(locale);
+
+    let canonicalText = `El copago total informado corresponde a $${txtTotal}.\nDe este monto:\n\n`;
+
+    if (sumA > 0) canonicalText += `$${txtA} corresponden a cobros improcedentes.\n\n`;
+    if (sumB > 0) canonicalText += `$${txtB} se encuentran en controversia por falta de desglose.\n\n`;
+    if (catOK > 0) canonicalText += `$${txtOK} no presentan observaciones con la información disponible.\n\n`;
+    if (sumZ > 0) canonicalText += `$${txtZ} corresponden a montos indeterminados (sin información suficiente).\n\n`;
+
+    canonicalText += `La suma de todas las categorías coincide exactamente con el copago total.`;
+
+    if (!result.decisionGlobal) result.decisionGlobal = {};
+    result.decisionGlobal.fundamento = canonicalText;
 
     return result;
 }

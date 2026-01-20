@@ -39,6 +39,8 @@ export type AuditJSON = {
         copagos_bajo_controversia?: MoneyCLP;
         ahorro_confirmado?: MoneyCLP;
         monto_indeterminado?: MoneyCLP;
+        monto_no_observado?: MoneyCLP; // New field for Cat OK
+        totalCopagoReal?: MoneyCLP;
         estado_copago?: string;
     };
     hallazgos?: AuditHallazgo[];

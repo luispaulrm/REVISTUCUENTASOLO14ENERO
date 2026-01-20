@@ -124,3 +124,63 @@ export function buildLevel1Table(pam: PamJSON | null, audit: AuditJSON): Table {
             "Regla: esta tabla es la fuente de verdad del 'balance' (no se contamina con detalle de cuenta clínica).",
     };
 }
+
+export function buildReconciliationTable(audit: AuditJSON): Table {
+    // Retrieve values from updated audit structure
+    const rf = audit.resumenFinanciero || {};
+    const catA = clampMoney(rf.cobros_improcedentes_exigibles); // Cat A
+    const catB = clampMoney(rf.copagos_bajo_controversia);      // Cat B
+    const catZ = clampMoney(rf.monto_indeterminado);            // Cat Z
+    const catOK = clampMoney(rf.monto_no_observado);            // Cat OK (Calculated in auditEngine)
+    const totalReal = clampMoney(rf.totalCopagoReal);
+
+    // If totalReal is not populated (old audit), use sum of parts + fallback
+    const totalDisplayed = totalReal > 0 ? totalReal : (catA + catB + catOK + catZ);
+
+    const rows = [
+        {
+            categoria: "Cat A (Improcedente)",
+            monto: formatCLP(catA),
+            estado: "Exigible / Improcedente",
+            significado: "Cobro objetado con evidencia"
+        },
+        {
+            categoria: "Cat B (En controversia)",
+            monto: formatCLP(catB),
+            estado: "En controversia",
+            significado: "Copago no auditable por opacidad"
+        },
+        {
+            categoria: "Cat OK (No observado)",
+            monto: formatCLP(catOK),
+            estado: "No observado",
+            significado: "Copago no impugnado"
+        },
+        {
+            categoria: "Cat Z (Indeterminado)",
+            monto: formatCLP(catZ),
+            estado: "Indeterminado",
+            significado: "Sin información"
+        },
+        {
+            categoria: "TOTAL",
+            monto: formatCLP(totalDisplayed),
+            estado: "—",
+            significado: "Cierre contable"
+        }
+    ];
+
+    return {
+        id: "nivel1-reconciliacion",
+        title: "Tabla de Reconciliación Total del Copago",
+        description: "Diagnóstico exacto de cierre contable.",
+        columns: [
+            { key: "categoria", label: "Categoría", align: "left" },
+            { key: "monto", label: "Monto", align: "right" },
+            { key: "estado", label: "Estado", align: "left" },
+            { key: "significado", label: "Significado", align: "left" },
+        ],
+        rows,
+        footnote: "Con esta tabla, el copago CIERRA."
+    };
+}
