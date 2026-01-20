@@ -149,56 +149,76 @@ export default function PdfProjector() {
 
                 if (!reader) throw new Error('No se pudo iniciar el stream de datos');
 
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
+                // BUFFERING STRATEGY:
+                // Instead of updating state on every chunk (which crashes React with partial HTML tags/attributes),
+                // we accumulate in a processing buffer and flush to state periodically.
+                let streamBuffer = isResume ? htmlProjection : "";
+                const FLUSH_INTERVAL = 150; // ms
+                let lastFlushTime = Date.now();
 
-                    const chunk = decoder.decode(value, { stream: true });
-                    const lines = chunk.split('\n').filter(l => l.trim());
+                // Start a background interval to flush updates
+                const bufferInterval = setInterval(() => {
+                    const now = Date.now();
+                    if (now - lastFlushTime >= FLUSH_INTERVAL) {
+                        setHtmlProjection(streamBuffer); // Update UI
+                        lastFlushTime = now;
+                    }
+                }, FLUSH_INTERVAL);
 
-                    for (const line of lines) {
-                        try {
-                            const data = JSON.parse(line);
-                            if (data.type === 'chunk') {
-                                chunkCount++;
-                                fullHtml += data.text;
-                                setHtmlProjection(prev => prev + data.text);
+                try {
+                    while (true) {
+                        const { done, value } = await reader.read();
+                        if (done) break;
 
-                                // DEBUG: Inspect first few chunks
-                                if (chunkCount <= 10) {
-                                    console.log(`[PdfProjector DEBUG] Chunk ${chunkCount}:`, JSON.stringify(data.text));
-                                }
+                        const chunk = decoder.decode(value, { stream: true });
+                        const lines = chunk.split('\n').filter(l => l.trim());
 
-                                if (chunkCount % 20 === 0) {
-                                    console.log(`[PdfProjector] 📦 Bloques recibidos: ${chunkCount}`);
-                                }
-                            } else if (data.type === 'usage') {
-                                setUsage(data.usage);
-                                // Progress: each pass is 10%. Within a pass, we move from baseline to baseline + 9%
-                                const baseline = (currentPass - 1) * 10;
-                                setProgress(prev => {
-                                    const currentInPass = prev - baseline;
-                                    const increment = 1;
-                                    return Math.min(baseline + currentInPass + increment, baseline + 9);
-                                });
-                                addLog(`[IA] Métricas: ${data.usage.totalTokens} tokens | $${data.usage.estimatedCostCLP} CLP`);
-                            } else if (data.type === 'log') {
-                                addLog(data.text);
-                                if (data.text.includes('Iniciando Pase')) {
-                                    const match = data.text.match(/Pase (\d+)/);
-                                    if (match) {
-                                        const p = parseInt(match[1]);
-                                        setCurrentPass(p);
-                                        setProgress((p - 1) * 10);
+                        for (const line of lines) {
+                            try {
+                                const data = JSON.parse(line);
+                                if (data.type === 'chunk') {
+                                    chunkCount++;
+                                    streamBuffer += data.text; // Append to local buffer
+
+                                    // DEBUG: Inspect first few chunks (Optimized log)
+                                    if (chunkCount <= 5) {
+                                        console.log(`[PdfProjector DEBUG] Chunk ${chunkCount}:`, data.text.substring(0, 50) + "...");
                                     }
+
+                                    if (chunkCount % 20 === 0) {
+                                        console.log(`[PdfProjector] 📦 Bloques recibidos: ${chunkCount}`);
+                                    }
+                                } else if (data.type === 'usage') {
+                                    setUsage(data.usage);
+                                    // Progress calculations...
+                                    const baseline = (currentPass - 1) * 10;
+                                    setProgress(prev => {
+                                        const currentInPass = prev - baseline;
+                                        const increment = 1;
+                                        return Math.min(baseline + currentInPass + increment, baseline + 9);
+                                    });
+                                    addLog(`[IA] Métricas: ${data.usage.totalTokens} tokens | $${data.usage.estimatedCostCLP} CLP`);
+                                } else if (data.type === 'log') {
+                                    addLog(data.text);
+                                    if (data.text.includes('Iniciando Pase')) {
+                                        const match = data.text.match(/Pase (\d+)/);
+                                        if (match) {
+                                            const p = parseInt(match[1]);
+                                            setCurrentPass(p);
+                                            setProgress((p - 1) * 10);
+                                        }
+                                    }
+                                } else if (data.type === 'error') {
+                                    addLog(`[ERROR] ${data.error}`);
                                 }
-                            } else if (data.type === 'error') {
-                                addLog(`[ERROR] ${data.error}`);
+                            } catch (e) {
+                                // Partial JSON chunk, ignore
                             }
-                        } catch (e) {
-                            // Partial JSON chunk, ignore
                         }
                     }
+                } finally {
+                    clearInterval(bufferInterval);
+                    setHtmlProjection(streamBuffer); // Final flush
                 }
                 addLog(`[SISTEMA] ✅ Proyección binaria completada (${chunkCount} mini-bloques).`);
                 addLog('[SISTEMA] Finalización exitosa.');
