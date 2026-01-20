@@ -394,7 +394,45 @@ export default function PdfProjector() {
                                 </div>
 
                                 <div className="p-8 md:p-12 overflow-auto custom-scrollbar bg-slate-50" style={{ height: 'calc(100vh - 200px)' }}>
+                                    {/* STYLES FOR PROJECTED CONTENT */}
+                                    <style>{`
+                                        #projection-content {
+                                            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+                                        }
+                                        #projection-content table {
+                                            width: 100% !important;
+                                            border-collapse: collapse !important;
+                                            margin-bottom: 1.5rem !important;
+                                            font-size: 11px !important;
+                                            border: 1px solid #e2e8f0 !important;
+                                        }
+                                        #projection-content th {
+                                            background-color: #f8fafc !important;
+                                            color: #475569 !important;
+                                            font-weight: 700 !important;
+                                            text-transform: uppercase !important;
+                                            letter-spacing: 0.05em !important;
+                                            padding: 8px 12px !important;
+                                            border: 1px solid #cbd5e1 !important;
+                                        }
+                                        #projection-content td {
+                                            padding: 6px 12px !important;
+                                            border: 1px solid #e2e8f0 !important;
+                                            color: #334155 !important;
+                                            vertical-align: top !important;
+                                        }
+                                        #projection-content tr:nth-child(even) {
+                                            background-color: #fcfcfc !important; /* Subtle zebra striping */
+                                        }
+                                        #projection-content h1, #projection-content h2, #projection-content h3 {
+                                            color: #1e293b !important;
+                                            margin-top: 1.5em !important;
+                                            margin-bottom: 0.5em !important;
+                                        }
+                                    `}</style>
+
                                     <div
+                                        id="projection-content"
                                         className="bg-white shadow-2xl mx-auto origin-top transition-transform p-12 min-h-full"
                                         style={{
                                             width: '210mm',
