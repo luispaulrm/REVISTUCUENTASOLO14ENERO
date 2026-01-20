@@ -163,6 +163,20 @@ export default function ForensicApp() {
             container.appendChild(clone);
 
             // Recursive function to flatten computed styles
+            const ctx = document.createElement('canvas').getContext('2d');
+            const safeColor = (value: string) => {
+                if (!value || !value.includes('oklch')) return value;
+                if (!ctx) return value;
+
+                const old = ctx.fillStyle;
+                try {
+                    ctx.fillStyle = value;
+                    return ctx.fillStyle; // Browser converts to hex/rgb
+                } catch (e) {
+                    return value;
+                }
+            };
+
             const flattenStyles = (source: Element, target: Element) => {
                 const computed = window.getComputedStyle(source);
 
@@ -194,9 +208,9 @@ export default function ForensicApp() {
                     for (const prop of properties) {
                         let val = computed.getPropertyValue(prop);
 
-                        // Sanity check for oklch - log warning but rely on class stripping
+                        // Sanitize colors using Canvas API to get Hex/RGB
                         if (val && val.includes('oklch')) {
-                            console.warn(`[PDF] Found oklch in computed style for ${prop}: ${val}. Class stripping should prevent parse error.`);
+                            val = safeColor(val);
                         }
 
                         target.style.setProperty(prop, val);

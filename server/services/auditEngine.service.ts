@@ -56,8 +56,8 @@ function classifyFinding(h: any): "A" | "B" {
     const gl = (h.glosa || "").toUpperCase();
     const text = (h.hallazgo || "").toUpperCase();
 
-    // CAT A: Cobros improcedentes de cuenta (glosas genéricas sin PAM)
-    const isCuentaOpaca = /VARIOS|AJUSTE|DIFERENCIA/.test(gl) || /VARIOS|AJUSTE/.test(text);
+    // CAT A: Cobros improcedentes de cuenta (glosas genéricas sin PAM) or Explicit "Sin Bonificacion"
+    const isCuentaOpaca = /VARIOS|AJUSTE|DIFERENCIA/.test(gl) || /VARIOS|AJUSTE/.test(text) || /SIN BONIFI/.test(text) || /SIN BONIFI/.test(gl);
     if (isCuentaOpaca) return "A";
 
     // CAT B: PAM con cajas negras (materiales/medicamentos agrupados)
@@ -677,7 +677,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
 
         // Logic: If we have the Canonical Parent, then any other generic material/med finding is a "Child" 
         // that is technically subsumed by the structural opacity. We mark it so we don't double sum.
-        if (hasCanonicalOpacity && isGenericMaterialOrMed && !isOpacityParent) {
+        // BUT: If the finding is explicitly CAT A (e.g. "Sin Bonificación" or "Varios"), we DO NOT subsume it.
+        const isExplicitA = h.categoria_final === "A" || h.tipo_monto === "COBRO_IMPROCEDENTE";
+
+        if (hasCanonicalOpacity && isGenericMaterialOrMed && !isOpacityParent && !isExplicitA) {
             h.isSubsumed = true;
             cat = "B"; // It is still controversy, but won't be summed
         } else if (isOpacityParent) {
@@ -1212,6 +1215,10 @@ Se solicita aclaración formal y reliquidación, mediante entrega de desglose co
             console.log(`[AuditEngine] 🔧 Hallazgo canónico "OPACIDAD_ESTRUCTURAL" inyectado(${montoOpaco} CLP).`);
         }
 
+        // 🚨 CRITICAL FIX: DO NOT BLINDLY SUBSUME EVERYTHING
+        // Some items are NOT subsumed by Opacity (e.g. explicitly unjustified charges, double billing).
+        // We must ensure they remain visible in their own category if they are strong.
+
         // 1. Force Global Status
         if (!validatedResult.decisionGlobal) validatedResult.decisionGlobal = {};
         validatedResult.decisionGlobal.estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
@@ -1223,10 +1230,20 @@ Se solicita aclaración formal y reliquidación, mediante entrega de desglose co
         validatedResult.resumenFinanciero.totalCopagoLegitimo = 0; // Cannot act as legitimizer
         validatedResult.resumenFinanciero.analisisGap = "No aplicable por indeterminación del copago.";
 
-        // 3. Mark findings as controversial
+        // 3. Mark findings as controversial BUT RESPECT CAT A
         if (validatedResult.hallazgos) {
             validatedResult.hallazgos.forEach((h: any) => {
-                if (h.tipo_monto === 'COPAGO_OPACO') {
+                // If the finding was marked as "COBRO_IMPROCEDENTE" (Cat A) by the classifier or LLM, 
+                // and it is NOT the structural opacity itself, we KEEP IT as Confirmed if it has High Confidence.
+                const isCatA = h.tipo_monto === "COBRO_IMPROCEDENTE" || h.categoria === "A";
+                const isHighConfidence = h.nivel_confianza === "ALTA";
+                const isTheOpacityFinding = h.codigos === "OPACIDAD_ESTRUCTURAL";
+
+                if (isCatA && isHighConfidence && !isTheOpacityFinding) {
+                    // KEEP AS CAT A (Do not downgrade to Controversy)
+                    h.estado_juridico = "CONFIRMADO_EXIGIBLE";
+                    console.log(`[AuditEngine] 🛡️ Hallazgo Cat A PRESERVADO pese a Opacidad: ${h.titulo}`);
+                } else if (h.tipo_monto === 'COPAGO_OPACO') {
                     h.estado_juridico = "EN_CONTROVERSIA";
                 }
             });

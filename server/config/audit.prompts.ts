@@ -119,7 +119,12 @@ Usar cuando:
 - Medicamentos de pabellón en factura separada PERO podrían ser de hospitalización
 - Falta información para decidir
 
-Redacción obligatoria:
+**REGLA DE SOLVENCIA INDIVIDUAL (NO MERGE):**
+Si detectas un cobro improcedente CLARO (ej: "Varios", "Prestaciones sin bonificación", "Cobro doble directo"), **DEBES REPORTARLO COMO HALLAZGO INDEPENDIENTE (Cat. A)**, incluso si existe Opacidad Estructural en el resto de la cuenta. 
+❌ PROHIBIDO mezclar "Cobros Improcedentes" dentro del texto del hallazgo de Opacidad.
+✅ Separa: Hallazgo 1 (Opacidad Genérica) y Hallazgo 2 (Cobro Improcedente Específico).
+
+Redacción obligatoria para Opacidad:
 "Cobro no verificable desde el PAM por falta de apertura, por lo que corresponde exigir desglose/documentos de respaldo para descartar (a) cargos de hotelería/confort incrustados y (b) dobles cobros por paquetes integrales."
 
 **NO digas:** "copago indebido" en SOLICITAR_ACLARACION
