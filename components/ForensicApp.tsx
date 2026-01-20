@@ -148,6 +148,56 @@ export default function ForensicApp() {
         if (originalButton) originalButton.innerText = 'GENERANDO PDF...';
 
         try {
+            // 1. CLONE & FLATTEN STYLES
+            // We need to clone the node and explicitly set all computed styles as inline styles
+            // This forces the browser to resolve variables (like oklch) to RGB before html2canvas sees them.
+            const clone = element.cloneNode(true) as HTMLElement;
+            clone.style.width = `${element.offsetWidth}px`;
+
+            // Container for the clone (hidden)
+            const container = document.createElement('div');
+            container.style.position = 'absolute';
+            container.style.left = '-9999px';
+            container.style.top = '0';
+            document.body.appendChild(container);
+            container.appendChild(clone);
+
+            // Recursive function to flatten computed styles
+            const flattenStyles = (source: Element, target: Element) => {
+                const computed = window.getComputedStyle(source);
+
+                // Explicitly copy all CSS properties to inline styles
+                // This converts modern color formats (oklch) to standard RGB/RGBA
+                const properties = [
+                    'color', 'background-color', 'border-color', 'font-size', 'font-weight',
+                    'font-family', 'display', 'flex-direction', 'align-items', 'justify-content',
+                    'margin', 'padding', 'width', 'height', 'text-align'
+                ];
+
+                // Also copy specific border sides
+                ['top', 'right', 'bottom', 'left'].forEach(side => {
+                    properties.push(`border-${side}-width`);
+                    properties.push(`border-${side}-style`);
+                    properties.push(`border-${side}-color`);
+                });
+
+                if (target instanceof HTMLElement) {
+                    for (const prop of properties) {
+                        target.style.setProperty(prop, computed.getPropertyValue(prop));
+                    }
+                }
+
+                // Recurse for children
+                for (let i = 0; i < source.children.length; i++) {
+                    if (target.children[i]) {
+                        flattenStyles(source.children[i], target.children[i]);
+                    }
+                }
+            };
+
+            // Run flattening
+            flattenStyles(element, clone);
+
             // @ts-ignore
             const html2pdf = (await import('html2pdf.js')).default;
             const opt = {
@@ -158,10 +208,15 @@ export default function ForensicApp() {
                 jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const }
             };
 
-            await html2pdf().set(opt).from(element).save();
-        } catch (error) {
+            // Generate from the CLONE, not the original
+            await html2pdf().set(opt).from(clone).save();
+
+            // Cleanup
+            document.body.removeChild(container);
+
+        } catch (error: any) {
             console.error('PDF Generation Error:', error);
-            alert('Error al generar PDF. Ver consola.');
+            alert(`Error al generar PDF: ${error.message}`);
         } finally {
             if (originalButton) originalButton.innerText = 'DESCARGAR PDF';
         }
