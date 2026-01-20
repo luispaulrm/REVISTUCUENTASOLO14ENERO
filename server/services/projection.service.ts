@@ -219,7 +219,8 @@ export class ProjectionService {
                                 yield { type: 'log', text: `[IA] 🛡️ Estrategia: Modelo ${currentModel} | Key ${keyIdx + 1}/${this.keys.length} (${keyMask}) | Intento ${attempt}/${maxRetries}` };
                             }
 
-                            const resultStream = await model.generateContentStream([
+                            // WRAPPER WITH TIMEOUT: Prevent hanging indefinitely
+                            const streamPromise = model.generateContentStream([
                                 { text: prompt },
                                 {
                                     inlineData: {
@@ -228,6 +229,13 @@ export class ProjectionService {
                                     }
                                 }
                             ]);
+
+                            const timeoutPromise = new Promise((_, reject) =>
+                                setTimeout(() => reject(new Error("TimeLimitExceeded: API request timed out after 45s")), 45000)
+                            );
+
+                            // Race between stream and timeout
+                            const resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
 
                             let currentPassOutput = "";
                             for await (const chunk of resultStream.stream) {
@@ -348,10 +356,15 @@ export class ProjectionService {
                         } catch (err: any) {
                             console.error(`[ProjectionService] Error on ${currentModel} with Key ${keyMask} (Attempt ${attempt}):`, err);
 
-                            const isQuota = err.message?.includes('429') || err.message?.includes('Quota') || err.status === 429 || err.status === 503;
+                            const errorMsg = err.message || err.toString();
+                            const isQuota = errorMsg.includes('429') ||
+                                errorMsg.includes('Quota') ||
+                                errorMsg.includes('TimeLimitExceeded') ||
+                                err.status === 429 ||
+                                err.status === 503;
 
                             if (isQuota) {
-                                yield { type: 'log', text: `[IA] ⚠️ Cuota excedida en Key ${keyMask}. Rotando a siguiente llave...` };
+                                yield { type: 'log', text: `[IA] ⚠️ Problema de Cuota o Timeout en Key ${keyMask}. Rotando a siguiente llave...` };
                                 break; // Break attempt loop to convert to next KEY immediately
                             }
 
