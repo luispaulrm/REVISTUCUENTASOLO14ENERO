@@ -31,6 +31,7 @@ import {
     Maximize2,
     Minimize2
 } from 'lucide-react';
+import { AuditTablesSection } from './tables/AuditTablesSection';
 import { runForensicAudit } from '../auditService';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
 
@@ -172,6 +173,10 @@ export default function ForensicApp() {
 
             setAuditResult(result);
             setStatus('SUCCESS');
+
+            // Store raw data for table builders
+            (result as any)._rawCuenta = cuenta;
+            (result as any)._rawPam = pam;
         } catch (err: any) {
             setError(err.message || 'Error durante la auditoría forense.');
             setStatus('ERROR');
@@ -592,10 +597,10 @@ export default function ForensicApp() {
                                                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
                                                                 {/* BADGE LOGIC UPDATED FOR 3-STATE SYSTEM */}
                                                                 <span className={`px-2 py-1 rounded text-[8px] font-black uppercase tracking-tighter ${hallazgo.categoria_final === 'A' ? 'bg-emerald-100 text-emerald-700' :
-                                                                        hallazgo.categoria_final === 'B' ? 'bg-amber-100 text-amber-700' :
-                                                                            hallazgo.categoria_final === 'Z' ? 'bg-slate-100 text-slate-600' :
-                                                                                // Fallback for legacy
-                                                                                hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                                                                    hallazgo.categoria_final === 'B' ? 'bg-amber-100 text-amber-700' :
+                                                                        hallazgo.categoria_final === 'Z' ? 'bg-slate-100 text-slate-600' :
+                                                                            // Fallback for legacy
+                                                                            hallazgo.tipo_monto === 'COBRO_IMPROCEDENTE' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
                                                                     }`}>
                                                                     {hallazgo.categoria_final === 'A' ? 'Exigible (Cat A)' :
                                                                         hallazgo.categoria_final === 'B' ? 'Controversia (Cat B)' :
@@ -625,6 +630,19 @@ export default function ForensicApp() {
                                                 </div>
                                             )}
                                         </div>
+                                    </div>
+
+                                    {/* 4. TABLAS DETERMINISTAS (3 NIVELES) */}
+                                    <div className="border-t border-slate-100 pt-10">
+                                        <h3 className="text-xs sm:text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-6">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-900"><rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" /></svg>
+                                            Tablas de Auditoría (3 Niveles Deterministas)
+                                        </h3>
+                                        <AuditTablesSection
+                                            audit={auditResult}
+                                            pam={(auditResult as any)._rawPam || null}
+                                            cuenta={(auditResult as any)._rawCuenta || null}
+                                        />
                                     </div>
 
                                     <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 pt-4 print:hidden">
