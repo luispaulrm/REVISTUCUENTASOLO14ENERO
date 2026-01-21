@@ -802,28 +802,16 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
         const finalResult = auditResult;
 
-        // --- CANONICAL OVERRIDE (V4) ---
+        // --- LEGACY OVERRIDE DISABLED (V5 - Hypothesis Engine handles this now) ---
+        // The balance is now computed scope-by-scope by computeBalanceWithHypotheses()
+        // which already respects H1 (Opacity) at the PAM_LINE level.
+        // This global override is no longer needed and causes contradictions.
+        /*
         if (ruleEngineResult.decision === "COPAGO_INDETERMINADO_POR_OPACIDAD") {
             log(`[AuditEngine] 🔒 SUPER-OVERRIDE: Forzando estado INDETERMINADO por reglas canónicas.`);
-
-            // Wipe findings and replace with the single opacity reason
-            finalResult.hallazgos = [{
-                titulo: "INDETERMINACIÓN CONTRACTUAL (REGLA C-04)",
-                hallazgo: canonicalOutput.legalText || "El copago es indeterminable por falta de antecedentes críticos.",
-                montoObjetado: finalResult.resumenFinanciero.totalCopagoReal, // The whole amount is in question
-                categoria_final: "Z",
-                tipo_monto: "COPAGO_OPACO",
-                estado_juridico: "INDETERMINADO",
-                normaFundamento: canonicalOutput.principioAplicado
-            }];
-
-            // Recalculate Financials
-            finalResult.resumenFinanciero.ahorro_confirmado = 0;
-            finalResult.resumenFinanciero.copagos_bajo_controversia = 0;
-            finalResult.resumenFinanciero.monto_indeterminado = finalResult.resumenFinanciero.totalCopagoReal;
-            finalResult.resumenFinanciero.monto_no_observado = 0;
-            finalResult.resumenFinanciero.totalCopagoObjetado = finalResult.resumenFinanciero.totalCopagoReal;
+            // ... old logic that wiped findings and reset balance to global Cat Z ...
         }
+        */
 
         log(`[AuditEngine] 🏁 Auditoría finalizada. Ahorro: $${finalResult.resumenFinanciero.ahorro_confirmado} | Controversia: $${finalResult.resumenFinanciero.copagos_bajo_controversia}`);
 
