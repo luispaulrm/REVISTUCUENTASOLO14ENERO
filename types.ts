@@ -219,6 +219,7 @@ export interface ScopeBalance {
   B: number;  // Controversia auditable (data exists but disputed)
   OK: number; // No observado (no findings)
   Z: number;  // Indeterminado (lack of data/opacity)
+  motivo?: string; // Phase 10: Human-readable explanation for table
 }
 
 export interface Balance {
@@ -237,6 +238,13 @@ export interface Balance {
   };
   scopeBreakdown?: ScopeBalance[];
 }
+
+export interface LegalContext {
+  axioma: string; // "Global Z != Local A invalidation"
+  alcance: string[]; // "What we are NOT doing"
+  fraudeCheck: string; // "Fraud hypothesis status"
+  disclaimer: string; // "Non-imputation of intent"
+} // Phase 10: Legal Context
 
 // ============================================================================
 // AlphaFold-Juridic Data Models (Phase 1)
@@ -274,6 +282,13 @@ export interface HypothesisScore {
   requiresAssumptions: string[];       // qué supuestos extra hago
 }
 
+
+export interface FindingScope {
+  type: 'PAM_LINE' | 'SECTION' | 'GLOBAL';
+  pamLineKey?: string;
+  sectionId?: string;
+}
+
 export interface Finding {
   id: string;
   category: "A" | "B" | "Z" | "OK";
@@ -283,6 +298,7 @@ export interface Finding {
   evidenceRefs: string[];
   rationale: string;
   hypothesisParent: HypothesisId;
+  scope?: FindingScope; // Hardening V6: Explicit scope for precise accounting
 }
 
 export interface BalanceAlpha {
@@ -305,6 +321,7 @@ export interface AuditResult {
     confianza: number;
     fundamento: string;
   };
+  legalContext?: LegalContext; // Phase 10: Explicit Legal Boundaries
   // Legacy / Hybrid fields for compatibility
   metadata?: any;
 }

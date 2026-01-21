@@ -103,16 +103,23 @@ export function computeBalanceWithHypotheses(
             balance.rationaleByCategory.Z.push(
                 `PAM '${line.desc}' ($${line.copago.toLocaleString()}): Indeterminable debido a opacidad estructural (H1 activa)`
             );
+            scopeBalance.motivo = "OPACIDAD ESTRUCTURAL (H1): Ítem agrupado sin desglose verificable";
 
             console.log(`[Balance] PAM '${line.key}': BLOCKED → Cat Z ($${line.copago.toLocaleString()})`);
         } else {
             // ANALYSIS ALLOWED → Apply findings
             console.log(`[Balance] PAM '${line.key}': ALLOWED → Applying findings`);
 
-            // Find hallazgos that apply to this scope
-            const hallazgosInScope = hallazgos.filter(h =>
-                isPAMLineRelated(h, line.key)
-            );
+            // Find hallazgos that apply to this scope (Hardening V6)
+            // Priority 1: Explicit FindingScope (New AlphaFold Standard)
+            // Priority 2: Legacy Heuristic (Fallback)
+            const hallazgosInScope = hallazgos.filter(h => {
+                if (h.scope?.type === 'PAM_LINE') {
+                    return h.scope.pamLineKey === line.key;
+                }
+                // Fallback to legacy heuristic if no scope defined
+                return isPAMLineRelated(h, line.key);
+            });
 
             let scopeObjetado = 0;
 
@@ -138,10 +145,25 @@ export function computeBalanceWithHypotheses(
             }
 
             // The rest is Cat OK (no findings)
-            const scopeOK = Math.max(0, line.copago - scopeObjetado);
-            if (scopeOK > 0) {
+            let scopeOK = Math.max(0, line.copago - scopeObjetado);
+
+            // 🚨 HARDENING RULE (Z-INFECTION): 
+            // If there is ANY Opacity (Cat Z) or partial blocking in this scope, 
+            // the remainder CANNOT be "OK". It must be "Z" (Residual Indeterminacy).
+            // A line cannot be "Partially Opaque and Partially Clean". Opacity poisons the well.
+            if (scopeBalance.Z > 0 && scopeOK > 0) {
+                console.log(`[Balance] ☣️ Z-Infection applied to PAM '${line.key}': ${scopeOK} moved from OK to Z.`);
+                balance.categories.Z += scopeOK;
+                scopeBalance.Z += scopeOK;
+                balance.rationaleByCategory.Z.push(
+                    `RESIDUAL PAM '${line.desc}': $${scopeOK.toLocaleString()} (Indeterminado por contaminación de Opacidad)`
+                );
+                scopeBalance.motivo = "CONTAMINACIÓN ESTRUCTURAL: Opacidad parcial invalida el resto del ítem";
+                scopeOK = 0; // Wiped
+            } else if (scopeOK > 0) {
                 balance.categories.OK += scopeOK;
                 scopeBalance.OK = scopeOK;
+                scopeBalance.motivo = "TRAZABLE: Ítem validado sin hallazgos";
                 balance.rationaleByCategory.OK.push(
                     `PAM '${line.desc}': $${scopeOK.toLocaleString()} sin observaciones`
                 );

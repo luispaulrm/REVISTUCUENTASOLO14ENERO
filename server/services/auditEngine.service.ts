@@ -664,6 +664,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                             auditResult.hallazgos.push({
                                 codigos: item.codigo || "SIN-CODIGO",
                                 glosa: item.descripcion || "ÃTEM SIN DESCRIPCION",
+                                scope: { type: 'PAM_LINE', pamLineKey: item.codigo || 'UNKNOWN' }, // Explicit Scope
                                 hallazgo: `
     ** I.IdentificaciÃ³n del Ã­tem cuestionado **
         Se cuestiona el cobro de ** $${monto.toLocaleString('es-CL')}** asociado a la prestaciÃ³n codificada como "${item.codigo}".
@@ -736,7 +737,8 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                             tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Generic coverage deficit is exigible
                             anclajeJson: "CÃLCULO_AUTOMÃTICO_SISTEMA",
                             categoria: "Z", // Fix 4: Force Z
-                            categoria_final: "Z"
+                            categoria_final: "Z",
+                            scope: { type: 'GLOBAL' } // GAP is Global
                         });
                         // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
                         log('[AuditEngine] âœ… GAP GENÃ‰RICO inyectado (Cat Z).');
@@ -978,6 +980,19 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     confianza: decision.confianza,
                     fundamento: decision.fundamento
                 },
+                // Phase 10: Juridic & Epistemological Precision
+                legalContext: {
+                    axioma: "Un Estado Global de Opacidad NO invalida la existencia de hallazgos locales; solo limita su exigibilidad inmediata. Cat Z global  'todo está mal'.",
+                    alcance: [
+                        "El sistema NO imputa intencionalidad penal.",
+                        "El sistema NO calcula topes UF/VAM cuando la información lo impide.",
+                        "El sistema NO afirma que los montos sean improcedentes, sino que no son verificables.",
+                        "El sistema SÍ concluye que el cobro no es jurídicamente exigible en su estado actual."
+                    ],
+                    fraudeCheck: "No se configura, a esta etapa, un patrón suficiente para calificar como fraude; la hipótesis dominante es opacidad estructural.",
+                    disclaimer: "Este reporte constituye una pre-liquidación forense basada en la estabilidad de la información proporcionada. No reemplaza el juicio de un tribunal."
+                },
+                scopeBreakdown: finalStrictBalance.scopeBreakdown, // Explicit Scope Breakdown for Table
                 canonical_rules_output: canonicalOutput
             },
             usage: usage ? {
@@ -1596,7 +1611,8 @@ El afiliado asume un copago de **$${montoOpacoReal.toLocaleString('es-CL')}** cu
 **VII. ConclusiÃ³n**
 Se solicita aclaraciÃ³n formal y reliquidaciÃ³n, mediante entrega de desglose completo de materiales y medicamentos en el PAM o documento equivalente, que permita validar cobertura, exclusiones y topes contractuales.`,
                 anclajeJson: "PAM/CUENTA: LINEAS AGRUPADAS",
-                estado_juridico: "EN_CONTROVERSIA"
+                estado_juridico: "EN_CONTROVERSIA",
+                scope: { type: 'GLOBAL' } // Opacity infects everything unless we identify specific lines (TODO: pass specific lines)
             });
             console.log(`[AuditEngine] ðŸ”§ Hallazgo canÃ³nico "OPACIDAD_ESTRUCTURAL" inyectado (${montoOpacoReal} CLP).`);
         }
