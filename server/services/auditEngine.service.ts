@@ -14,7 +14,8 @@ import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEn
 import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRouter.service.js';
 // NEW: Import Balance Calculator (V5 Hypothesis-Aware)
 import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.service.js';
-import { Balance } from '../../types.js';
+import { AlphaFoldService } from './alphaFold.service.js';
+import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation } from '../../types.js';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -858,9 +859,75 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
         log(`[AuditEngine] 🏁 Auditoría finalizada. Ahorro: $${finalResult.resumenFinanciero.ahorro_confirmado} | Controversia: $${finalResult.resumenFinanciero.copagos_bajo_controversia}`);
 
+        // --- AlphaFold-Juridic Phase 2 & 3 Implementation ---
+        const alphaSignals = AlphaFoldService.extractSignals({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: contratoJson });
+        const pamState = AlphaFoldService.detectPamState(alphaSignals);
+        const ranking = AlphaFoldService.scoreHypotheses(alphaSignals, pamState);
+        const activeContexts = AlphaFoldService.activateContexts(ranking, pamState);
+
+        // Generate Findings via AlphaFold (Logic Phase 3)
+        // Combine with Legacy Findings? For now, we prefer AlphaFold's structural findings for Opacity/Unbundling
+        // But we might want to keep specific medical text findings from the LLM if they are detailed.
+        // Hybrid Approach: Use AlphaFold generated findings for Structural issues (Cat Z/A),
+        // and append LLM findings if they don't contradict.
+
+        const alphaFindings = AlphaFoldService.buildFindings({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: contratoJson }, pamState, activeContexts);
+
+        // For this phase, let's Append AlphaFindings to list.
+        // NOTE: We should probably dedup if LLM also found them. 
+        // But AlphaFold's are more deterministic.
+
+        // Let's MERGE for a complete picture, assuming LLM findings are specific medical objections.
+        // We filter out LLM findings that overlap with Structural Opacity to avoid double counting.
+        const mergedFindings = [...alphaFindings, ...(finalResult.hallazgos || []).filter((h: any) =>
+            // Exclude LLM findings that are just "Structural Opacity" since AlphaFold handles that better
+            h.codigos !== "OPACIDAD_ESTRUCTURAL" && h.categoria !== "OPACIDAD"
+        ).map((h: any) => ({
+            id: h.id || `F_LEGACY_${Math.random().toString(36).substr(2, 5)}`,
+            category: (h.categoria_final || "Z") as any,
+            label: h.titulo || h.glosa || "Hallazgo LLM",
+            amount: h.montoObjetado || 0,
+            action: (h.recomendacion_accion || "SOLICITAR_ACLARACION") as any,
+            evidenceRefs: h.evidenceRefs || [],
+            rationale: h.hallazgo || "Hallazgo detectado por LLM",
+            hypothesisParent: "H_OK_CUMPLIMIENTO" // Default for legacy
+        }))];
+
+        const alphaBalance = AlphaFoldService.buildBalance(totalCopagoReal, mergedFindings);
+        const decision = AlphaFoldService.globalDecision(activeContexts, ranking, alphaBalance);
+
         return {
             data: {
                 ...finalResult,
+                // --- AlphaFold-Juridic: Final Integrated Output ---
+                pamState: pamState,
+                signals: alphaSignals,
+                hypothesisRanking: ranking,
+                activeHypotheses: activeContexts,
+
+                findings: mergedFindings,
+                balance: {
+                    A: alphaBalance.A,
+                    B: alphaBalance.B,
+                    Z: alphaBalance.Z,
+                    OK: alphaBalance.OK,
+                    TOTAL: alphaBalance.TOTAL
+                } as BalanceAlpha,
+
+                // Legacy Overrides (to update UI)
+                resumenFinanciero: {
+                    ...finalResult.resumenFinanciero,
+                    ahorro_confirmado: alphaBalance.A,
+                    copagos_bajo_controversia: alphaBalance.B,
+                    monto_indeterminado: alphaBalance.Z,
+                    monto_no_observado: alphaBalance.OK,
+                    totalCopagoObjetado: alphaBalance.A + alphaBalance.B + alphaBalance.Z
+                },
+                decisionGlobal: {
+                    estado: decision.estado,
+                    confianza: decision.confianza,
+                    fundamento: decision.fundamento
+                },
                 canonical_rules_output: canonicalOutput
             },
             usage: usage ? {
@@ -1262,6 +1329,32 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: 
                 (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMACO|VARIOS/i.test(h.glosa) && /DESGLOSE|OPACIDAD/i.test(h.hallazgo || ""));
 
             if (isOpacidad) {
+                h.categoria_final = "Z"; // Opacidad always Z
+                h.estado_juridico = "INDETERMINADO";
+                hasStructuralOpacity = true;
+            } else {
+                // 1) Patch: "SIN BONIFICACION" context-aware
+                const textToCheck = (h.glosa || "") + " " + (h.hallazgo || "");
+                const isSinBonif = /SIN BONIFI/.test(textToCheck);
+                const isHoteleria = /ALMUERZO|CENA|DESAYUNO|PAÑO|TOALLA|KIT|ASEO|HOTELERIA|ALIMENTA/i.test(textToCheck);
+
+                if (isSinBonif) {
+                    if (isHoteleria) h.categoria_final = "A"; // IF-319 Proven
+                    else h.categoria_final = "B"; // Ambiguous -> Aclarar
+                } else {
+                    // 2) Patch: Default "B" (Conservative = Controversy)
+                    // If it was previously A or B (or undefined), default to B unless explicit A reasons exist
+                    // Only stay A if strictly proven (Hotel, Unbundling, Duplicity)
+                    // For now, if not Z and not explicitly ruled A, degrade to B.
+                    if (!h.categoria_final || h.categoria_final === "A") {
+                        // Simple heuristic: Unbundling Hotel is A. Overprice is A.
+                        const isStrongA = /UNBUNDLING|DOBLE COBRO|SOBREPRECIO|ARANCEL/i.test(h.codigos || h.categoria || "");
+                        h.categoria_final = isStrongA ? "A" : "B";
+                    }
+                }
+            }
+
+            if (isOpacidad) {
                 hasStructuralOpacity = true;
             }
 
@@ -1333,6 +1426,14 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: 
                     // Case B: Partial ($66.752 vs $51.356) -> Cat Z (Conservative).
 
                     // Logic: Search for the finding that matches the PAM Line
+                    // 2) Patch: "SIN BONIFICACION" context-aware
+                    const textToCheck = (nutritionCheck.pamItemName || "") + " " + (nutritionCheck.pamGlosa || "");
+                    const isSinBonif = /SIN BONIFI/.test(textToCheck);
+
+                    const isHoteleria = /ALMUERZO|CENA|DESAYUNO|PAÑO|TOALLA|KIT|ASEO|HOTELERIA|ALIMENTA/i.test(textToCheck);
+
+                    // Defaults for classification if matched
+
                     const targetFindingIndex = validatedResult.hallazgos.findIndex((h: any) =>
                         (h.montoObjetado === nutritionCheck.targetAmount) ||
                         (h.glosa && h.glosa.includes("SIN BONIF") && Math.abs(h.montoObjetado - nutritionCheck.targetAmount) < 20000)

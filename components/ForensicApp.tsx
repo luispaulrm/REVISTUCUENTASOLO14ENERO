@@ -32,6 +32,7 @@ import {
     Minimize2
 } from 'lucide-react';
 import { AuditTablesSection } from './tables/AuditTablesSection';
+import { AlphaFoldVisualizer } from './AlphaFoldVisualizer';
 import { runForensicAudit } from '../auditService';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
 
@@ -553,6 +554,11 @@ export default function ForensicApp() {
                                     {auditResult.canonical_rules_output && (
                                         <CanonicalDecisionCard output={auditResult.canonical_rules_output} />
                                     )}
+
+                                    {/* ALPHAFOLD VISUALIZATION (PHASE 4) */}
+                                    <div className="mb-6">
+                                        <AlphaFoldVisualizer auditResult={auditResult} />
+                                    </div>
 
                                     <div className="flex flex-col gap-6 border-b border-slate-100 pb-6 sm:pb-10">
                                         <div className="flex justify-between items-start">

@@ -237,3 +237,74 @@ export interface Balance {
   };
   scopeBreakdown?: ScopeBalance[];
 }
+
+// ============================================================================
+// AlphaFold-Juridic Data Models (Phase 1)
+// ============================================================================
+
+export type PamState = "ABSENT" | "OPACO" | "DETALLADO";
+
+export type HypothesisId =
+  | "H_OK_CUMPLIMIENTO"
+  | "H_OPACIDAD_ESTRUCTURAL"
+  | "H_UNBUNDLING_IF319"
+  | "H_INCUMPLIMIENTO_CONTRACTUAL"
+  | "H_PRACTICA_IRREGULAR"
+  | "H_FRAUDE_PROBABLE";
+
+export type Confidence = number; // 0..1
+
+export interface Signal {
+  id: string;              // e.g. "S_PAM_AGRUPADOR_MATERIALES"
+  value: number;           // 0..1 (intensidad)
+  evidenceRefs: string[];  // ids de ítems/folios/páginas
+}
+
+export interface ConstraintsViolation {
+  ruleId: string;          // e.g. "LEY_20584_DETALLE", "IF319_DIA_CAMA_INTEGRAL"
+  severity: number;        // 0..1
+  evidenceRefs: string[];
+}
+
+export interface HypothesisScore {
+  hypothesis: HypothesisId;
+  confidence: Confidence;               // "pLDDT jurídico"
+  violations: ConstraintsViolation[];   // qué reglas se violan si asumo H
+  explains: string[];                  // qué señales explica bien
+  requiresAssumptions: string[];       // qué supuestos extra hago
+}
+
+export interface Finding {
+  id: string;
+  category: "A" | "B" | "Z" | "OK";
+  label: string;
+  amount: number;
+  action: "IMPUGNAR" | "SOLICITAR_ACLARACION" | "ACEPTAR";
+  evidenceRefs: string[];
+  rationale: string;
+  hypothesisParent: HypothesisId;
+}
+
+export interface BalanceAlpha {
+  A: number;
+  B: number;
+  Z: number;
+  OK: number;
+  TOTAL: number
+};
+
+export interface AuditResult {
+  pamState: PamState;
+  signals: Signal[];
+  hypothesisRanking: HypothesisScore[];
+  activeHypotheses: HypothesisId[];
+  findings: Finding[];
+  balance: BalanceAlpha;
+  decisionGlobal: {
+    estado: string;       // e.g. "COPAGO_INDETERMINADO_PARCIAL_POR_OPACIDAD"
+    confianza: number;
+    fundamento: string;
+  };
+  // Legacy / Hybrid fields for compatibility
+  metadata?: any;
+}
