@@ -31,7 +31,8 @@ export class GeminiService {
         if (getEnv("GEMINI_API_KEY_QUATERNARY")) envKeys.push(getEnv("GEMINI_API_KEY_QUATERNARY")!);
 
         // Combine and unique
-        this.keys = [...new Set([...initialKeys, ...envKeys])].filter(k => !!k && k.length > 5);
+        const combined = Array.from(new Set([...initialKeys, ...envKeys]));
+        this.keys = combined.filter(k => !!k && k.length > 5);
 
         if (this.keys.length === 0) {
             console.error("❌ GeminiService started with NO VALID KEYS");

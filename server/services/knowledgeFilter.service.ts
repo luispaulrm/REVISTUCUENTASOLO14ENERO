@@ -366,9 +366,9 @@ export async function getRelevantKnowledge(
 
     return {
         text: result,
-        sources: [...new Set(sources)],
+        sources: Array.from(new Set(sources)),
         tokenEstimate: Math.floor(totalChars / CHARS_PER_TOKEN),
-        keywordsMatched: [...new Set(keywordsMatched)]
+        keywordsMatched: Array.from(new Set(keywordsMatched))
     };
 }
 

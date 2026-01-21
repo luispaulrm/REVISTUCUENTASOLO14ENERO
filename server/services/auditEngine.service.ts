@@ -757,14 +757,46 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         }));
 
         log(`[AuditEngine] DEBUG: routerInput.pam.lines.length = ${routerInput.pam.lines.length}`);
+
+        // --- ROBUST FALLBACK FOR PAM EXTRACTION ---
         if (pamLines.length === 0 && cleanedPam) {
-            log('[AuditEngine] ⚠️ Attempting direct PAM extraction...');
-            const directItems = cleanedPam.items || cleanedPam.lineas || [];
-            pamLines = directItems.map((item: any) => ({ key: item.codigo || 'UNKNOWN', desc: item.descripcion || '', copago: item.copago || 0 }));
-            log(`[AuditEngine] Direct extraction: ${pamLines.length} lines`);
+            log('[AuditEngine] ⚠️ Attempting deep PAM extraction (Fallback Mode)...');
+
+            let rawItems: any[] = [];
+
+            // Case 1: Direct items or lineas (Legacy/Flat)
+            if (cleanedPam.items && Array.isArray(cleanedPam.items)) rawItems = cleanedPam.items;
+            else if (cleanedPam.lineas && Array.isArray(cleanedPam.lineas)) rawItems = cleanedPam.lineas;
+
+            // Case 2: Folios structure (Standard V2)
+            else if (cleanedPam.folios && Array.isArray(cleanedPam.folios)) {
+                rawItems = cleanedPam.folios.flatMap((folio: any) => {
+                    const desglose = folio.desglosePorPrestador || [];
+                    if (Array.isArray(desglose)) {
+                        return desglose.flatMap((p: any) => p.items || []);
+                    }
+                    return folio.items || [];
+                });
+            }
+
+            log(`[AuditEngine] Fallback found ${rawItems.length} raw items.`);
+
+            if (rawItems.length > 0) {
+                pamLines = rawItems.map((item: any) => ({
+                    key: item.codigo || item.codigoGC || 'UNKNOWN',
+                    desc: item.descripcion || item.bi_glosa || '',
+                    copago: (typeof item.copago === 'number' ? item.copago :
+                        (typeof item.monto_copago === 'number' ? item.monto_copago : 0))
+                }));
+                log(`[AuditEngine] ✅ Fallback successfully extracted ${pamLines.length} PAM lines.`);
+            } else {
+                log(`[AuditEngine] ⚠️⚠️ PAM still empty after deep search! Keys: ${Object.keys(cleanedPam || {}).join(", ")}`);
+                try {
+                    const structure = Object.entries(cleanedPam || {}).map(([k, v]) => `${k}: ${Array.isArray(v) ? `Array(${v.length})` : typeof v}`);
+                    log(`[AuditEngine] Structure Dump: ${structure.join(", ")}`);
+                } catch (e) { /* ignore */ }
+            }
         }
-        if (pamLines.length === 0) { log('[AuditEngine] ⚠️⚠️ PAM still empty! Keys: ${Object.keys(cleanedPam || {}).join(", ")}'); }
-        else { log(`[AuditEngine] ✅ ${pamLines.length} PAM lines extracted`); }
 
 
         const balance: Balance = computeBalanceWithHypotheses(
