@@ -1477,8 +1477,21 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: 
                 }
             }
 
-            // DETECTOR DE OPACIDAD ESTRUCTURAL
-            // Si el hallazgo es de Opacidad o Materiales/Medicamentos con menciÃ³n de falta de desglose
+            // DETECTOR DE OPACIDAD ESTRUCTURAL (Detect Global Z, but respect Local A)
+            // Use the authoritative classifier first
+            const determinedCat = classifyFinding(h);
+
+            // If the classifier says "A", we respect it absolutely (Non-Collapse Rule)
+            if (determinedCat === "A") {
+                h.categoria_final = "A";
+                h.tipo_monto = "COBRO_IMPROCEDENTE";
+                h.estado_juridico = "CONFIRMADO_EXIGIBLE";
+                if (!h.recomendacion_accion) h.recomendacion_accion = "IMPUGNAR";
+                console.log(`[Safety Belt] Finding '${h.titulo}' classified as A (Improcedente).`);
+                return true; // Keep it
+            }
+
+            // If not A, checked for B/Z
             const isOpacidad = h.categoria === "OPACIDAD" ||
                 (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMACO|VARIOS/i.test(h.glosa) && /DESGLOSE|OPACIDAD/i.test(h.hallazgo || ""));
 
@@ -1515,21 +1528,7 @@ Se exige la cobertura inmediata del 100% pactado o la exhibición de la cláusul
                     hasStructuralOpacity = true; // Escalates to Global Z
                 }
             } else {
-                // 1) Patch: "SIN BONIFICACION" context-aware
-                const textToCheck = (h.glosa || "") + " " + (h.hallazgo || "");
-                const isSinBonif = /SIN BONIFI/.test(textToCheck);
-                const isHoteleria = /ALMUERZO|CENA|DESAYUNO|PAÃ‘O|TOALLA|KIT|ASEO|HOTELERIA|ALIMENTA/i.test(textToCheck);
-
-                if (isSinBonif) {
-                    if (isHoteleria) h.categoria_final = "A"; // IF-319 Proven
-                    else h.categoria_final = "B"; // Ambiguous -> Aclarar
-                } else {
-                    // 2) Patch: Default "B" (Conservative = Controversy)
-                    if (!h.categoria_final || h.categoria_final === "A") {
-                        const isStrongA = /UNBUNDLING|DOBLE COBRO|SOBREPRECIO|ARANCEL/i.test(h.codigos || h.categoria || "");
-                        h.categoria_final = isStrongA ? "A" : "B";
-                    }
-                }
+                h.categoria_final = "B"; // Default
             }
 
             if (isOpacidad && !reconstructibility?.isReconstructible) {
