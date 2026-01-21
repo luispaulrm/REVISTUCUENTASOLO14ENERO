@@ -49,6 +49,34 @@ export function computeBalanceWithHypotheses(
     console.log(`[Balance] PAM Lines: ${pamLines.length}`);
     console.log(`[Balance] Hallazgos: ${hallazgos.length}`);
 
+    // Log PAM lines for debugging
+    if (pamLines.length > 0) {
+        console.log('[Balance] PAM Lines Detail:');
+        pamLines.forEach((line, idx) => {
+            console.log(`  [${idx}] key='${line.key}', desc='${line.desc}', copago=$${line.copago.toLocaleString()}`);
+        });
+    } else {
+        console.warn('[Balance] ⚠️ PAM Lines array is EMPTY - Will use global fallback');
+    }
+
+    // Log hallazgos for debugging
+    if (hallazgos.length > 0) {
+        console.log('[Balance] Hallazgos Detail:');
+        hallazgos.slice(0, 3).forEach((h, idx) => {
+            console.log(`  [${idx}] titulo='${h.titulo}', monto=$${(h.montoObjetado || 0).toLocaleString()}, cat=${h.categoria_final || 'N/A'}`);
+        });
+    }
+
+    // FALLBACK: If PAM is empty/unusable, treat entire copago as indeterminate
+    if (pamLines.length === 0) {
+        console.log('[Balance] ⚠️ FALLBACK MODE: PAM absent - entire copago → Cat Z');
+        balance.categories.Z = totalCopagoReal;
+        balance.rationaleByCategory.Z.push(
+            `Copago total ($${totalCopagoReal.toLocaleString()}): Indeterminable por ausencia de PAM`
+        );
+        return balance;
+    }
+
     // Step 1: For each PAM line, check if analysis is allowed
     for (const line of pamLines) {
         const scope: HypothesisScope = { type: 'PAM_LINE', pamLineKey: line.key };
