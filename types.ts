@@ -322,6 +322,13 @@ export interface AuditResult {
     fundamento: string;
   };
   legalContext?: LegalContext; // Phase 10: Explicit Legal Boundaries
+
+  // Phase 11: Tailored Explanations (Clínica vs Isapre)
+  explicaciones?: {
+    clinica: string;
+    isapre: string;
+  };
+
   // Legacy / Hybrid fields for compatibility
   metadata?: any;
 }
