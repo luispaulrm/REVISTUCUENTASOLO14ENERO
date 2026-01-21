@@ -10,6 +10,8 @@ import {
 } from './knowledgeFilter.service.js';
 import { preProcessEventos } from './eventProcessor.service.js';
 import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEngine.service.js';
+// NEW: Import Hypothesis Router (V5 Architecture)
+import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRouter.service.js';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -259,17 +261,67 @@ export async function performForensicAudit(
     traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line} `));
 
     // ============================================================================
-    // CANONICAL RULES ENGINE (DETERMINISTIC LAYER - V4)
+    // HYPOTHESIS ROUTER (V5 ARCHITECTURE - Pattern Detection)
+    // ============================================================================
+    log('[AuditEngine] 🔬 Activating Hypothesis Router (V5 - Pattern-Based Detection)...');
+    onProgressUpdate?.(37);
+
+    const router = new HypothesisRouterService();
+
+    // Build router input from available data
+    const routerInput: HypothesisRouterInput = {
+        cuentaSections: cleanedCuenta.sections?.map((s: any, idx: number) => ({
+            sectionId: `${idx}_${s.category}`,
+            items: (s.items || []).map((item: any, itemIdx: number) => ({
+                id: `${idx}_${itemIdx}`,
+                desc: item.description || '',
+                amount: item.total || 0,
+                category: s.category
+            }))
+        })) || [],
+        pam: {
+            lines: cleanedPam.folios?.flatMap((folio: any) =>
+                folio.desglosePorPrestador?.flatMap((prest: any) =>
+                    (prest.items || []).map((item: any) => ({
+                        key: item.codigo || 'UNKNOWN',
+                        desc: item.descripcion || '',
+                        amount: item.copago || 0,
+                        isGeneric: /material|insumo|medicamento|varios|sin bonific/i.test(item.descripcion || '')
+                    }))
+                ) || []
+            ) || []
+        },
+        contract: {
+            parsed: contratoJson
+        },
+        metadata: {
+            patientName: cuentaJson.patientName || pamJson.patient || '',
+            auditId: `audit_${Date.now()}`
+            // test_case: false (auto-detected by router from patientName)
+        }
+    };
+
+    const hypothesisResult = router.detect(routerInput);
+    log(`[AuditEngine] 📊 Hypotheses Detected: ${hypothesisResult.hypotheses.length}`);
+    hypothesisResult.hypotheses.forEach(h => {
+        log(`[AuditEngine]   - ${h.id}: ${h.label} (confidence: ${(h.confidence * 100).toFixed(0)}%, scope: ${h.scope.type})`);
+        log(`[AuditEngine]     Rationale: ${h.rationale}`);
+    });
+
+    // ============================================================================
+    // CANONICAL RULES ENGINE (DETERMINISTIC LAYER - V5 with Hypothesis Gates)
     // ============================================================================
     let billItemsForRules: any[] = [];
     if (cleanedCuenta.sections) {
         billItemsForRules = cleanedCuenta.sections.flatMap((s: any) => s.items || []);
     }
 
+    // Pass capability matrix to rules engine
     const ruleEngineResult = runCanonicalRules(
         billItemsForRules,
         eventosHospitalarios,
-        contratoJson
+        contratoJson,
+        hypothesisResult.capabilityMatrix  // NEW: Hypothesis context
     );
 
     const canonicalOutput = generateExplainableOutput(

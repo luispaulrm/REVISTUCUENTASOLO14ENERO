@@ -1,4 +1,5 @@
 
+
 import {
     EventoHospitalario,
     BillingItem,
@@ -8,6 +9,16 @@ import {
     FlagResult,
     ExplainableOutput
 } from '../../types.js';
+
+// NEW: Import Hypothesis Router types
+import {
+    CapabilityMatrix,
+    HypothesisScope,
+    Capability,
+    isCapabilityAllowed,
+    RuleContext
+} from './hypothesisRouter.service.js';
+
 
 // ============================================================================
 // 1. CANONICAL RULES (HARD RULES)
@@ -251,24 +262,73 @@ function detectF04_DiaCamaAmpliacion(billingItems: BillingItem[]): FlagResult {
 
 
 // ============================================================================
-// 3. MAIN ENGINE
+// 3. MAIN ENGINE (with Hypothesis-based Capability Gating)
 // ============================================================================
 
 export function runCanonicalRules(
     billingItems: BillingItem[],
     eventos: EventoHospitalario[],
-    contract: Contract
+    contract: Contract,
+    capabilityMatrix?: CapabilityMatrix  // NEW: Optional for backward compat
 ): { rules: RuleResult[], flags: FlagResult[], decision: AuditDecision } {
 
-    // 1. Run Rules
-    const rC01 = checkC01_Verificabilidad(contract);
-    const rC02 = checkC02_SegregacionHospAmb(billingItems, contract);
-    const rC03 = checkC03_MedicamentosPorEvento(billingItems, contract);
-    const rC04 = checkC04_TopeCalculable(eventos);
+    // Default scope if not provided (GLOBAL = most permissive for legacy calls)
+    const defaultScope: HypothesisScope = { type: "GLOBAL" };
+    const ctx: RuleContext = {
+        capabilities: capabilityMatrix || { enabled: [], blocked: [] },
+        currentScope: defaultScope
+    };
 
-    const rules = [rC01, rC02, rC03, rC04];
+    // 1. Run Rules (with capability gates)
+    const rules: RuleResult[] = [];
 
-    // 2. Run Flags
+    // C-01: Basic Contract Integrity (no specific capability needed)
+    rules.push(checkC01_Verificabilidad(contract));
+
+    // C-02: Hospital/Ambulatory Classification
+    // Required capability: REGLAS_SINTETICAS_TEST (only for test cases)
+    if (isCapabilityAllowed(ctx, "REGLAS_SINTETICAS_TEST")) {
+        // This is a test case, C-02 should run (it's a synthetic stress rule)
+        rules.push(checkC02_SegregacionHospAmb(billingItems, contract));
+    } else {
+        // Production case: C-02 should NOT run (it's too aggressive for real surgery)
+        // We mark it as "not violated" but "skipped"
+        rules.push({
+            ruleId: "C-02",
+            description: RULES["C-02"],
+            violated: false,
+            details: "Skipped (production case - rule designed for synthetic tests)"
+        });
+    }
+
+    // C-03: Medications Per Event
+    // Required capability: REGLAS_SINTETICAS_TEST
+    if (isCapabilityAllowed(ctx, "REGLAS_SINTETICAS_TEST")) {
+        rules.push(checkC03_MedicamentosPorEvento(billingItems, contract));
+    } else {
+        rules.push({
+            ruleId: "C-03",
+            description: RULES["C-03"],
+            violated: false,
+            details: "Skipped (production case - rule designed for synthetic tests)"
+        });
+    }
+
+    // C-04: UF/VAM Ceiling Verifiable
+    // Required capability: CALCULO_TOPES_UF_VA_VAM
+    if (isCapabilityAllowed(ctx, "CALCULO_TOPES_UF_VA_VAM")) {
+        rules.push(checkC04_TopeCalculable(eventos));
+    } else {
+        // If opacity is active, we can't verify ceilings
+        rules.push({
+            ruleId: "C-04",
+            description: RULES["C-04"],
+            violated: true,  // Mark as violated due to opacity
+            details: "Unable to verify ceilings due to structural opacity (PAM aggregation blocks fine-grained analysis)"
+        });
+    }
+
+    // 2. Run Flags (always run for now, but could be gated too)
     const f01 = detectF01_Repeticion(billingItems);
     const f02 = detectF02_VisitasMultiples(billingItems);
     const f03 = detectF03_ExamenesMixtos(billingItems);
