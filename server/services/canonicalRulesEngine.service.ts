@@ -30,7 +30,7 @@ const RULES = {
 function checkC01_Verificabilidad(contract: Contract): RuleResult {
     const ruleId = "C-01";
     // Violation if contract has no coverage definitions at all
-    if (!contract.coberturas || contract.coberturas.length === 0) {
+    if (!contract?.coberturas || contract.coberturas.length === 0) {
         return {
             ruleId,
             description: RULES[ruleId],
@@ -54,20 +54,19 @@ function checkC02_SegregacionHospAmb(billingItems: BillingItem[], contract: Cont
 
     // 1. Detect Hospital Reality in Bill
     const hospitalKeywords = ["DIA CAMA", "NOCHE CAMA", "DÍA CAMA", "HABITACION", "SALA DE"];
-    const hasHospitalItems = billingItems.some(i =>
-        hospitalKeywords.some(kw => i.description.toUpperCase().includes(kw))
+    const hasHospitalItems = (billingItems || []).some(i =>
+        hospitalKeywords.some(kw => i.description?.toUpperCase().includes(kw))
     );
 
     // 2. Detect Surgical Facility usage (Derecho de Pabellón)
     const pabellonKeywords = ["DER.PABELLON", "DERECHO PABELLON", "DER. PABELLON", "RECUPERACION"];
-    const hasPabellon = billingItems.some(i =>
-        pabellonKeywords.some(kw => i.description.toUpperCase().includes(kw))
+    const hasPabellon = (billingItems || []).some(i =>
+        pabellonKeywords.some(kw => i.description?.toUpperCase().includes(kw))
     );
 
     // 3. Detect Surgical Honors (HM)
-    // We check for "HM-" or "CIRUJANO" or "AYUDANTE" but EXCLUDING "PABELLON" or "DER." markers
-    const hasHonorariosQuirurgicos = billingItems.some(i => {
-        const desc = i.description.toUpperCase();
+    const hasHonorariosQuirurgicos = (billingItems || []).some(i => {
+        const desc = i.description?.toUpperCase() || "";
         const isProfessionalFee = (desc.includes("HM-") || desc.includes("CIRU") || desc.includes("AYUD") || desc.includes("ANEST")) &&
             !desc.includes("DER.PAB") &&
             !desc.includes("DER. PAB") &&
@@ -88,8 +87,8 @@ function checkC02_SegregacionHospAmb(billingItems: BillingItem[], contract: Cont
     if (!hasHospitalItems) return { ruleId, description: RULES[ruleId], violated: false };
 
     // 4. Check Contract Capability
-    const hasHospitalCoverage = contract.coberturas.some(c => {
-        const name = (c['PRESTACIÓN CLAVE'] || "").toUpperCase();
+    const hasHospitalCoverage = (contract?.coberturas || []).some(c => {
+        const name = (c['PRESTACIÓN CLAVE'] || c['item'] || "").toUpperCase();
         return name.includes("HOSP") || name.includes("QUIR") || name.includes("CIRUG");
     });
 
@@ -111,7 +110,7 @@ function checkC03_MedicamentosPorEvento(billingItems: BillingItem[], contract: C
     const ruleId = "C-03";
 
     // Check if contract has the "Por Evento" clause for Medications/Supplies
-    const hasPorEventoClause = contract.coberturas.some(c => {
+    const hasPorEventoClause = (contract?.coberturas || []).some(c => {
         const name = (c['PRESTACIÓN CLAVE'] || c['item'] || "").toUpperCase();
         return (name.includes("MEDICAMENTOS") || name.includes("MATERIALES")) &&
             name.includes("POR EVENTO");
