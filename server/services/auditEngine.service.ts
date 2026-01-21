@@ -16,6 +16,8 @@ import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRout
 // NEW: Import Balance Calculator (V5 Hypothesis-Aware)
 import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.service.js';
 import { AlphaFoldService } from './alphaFold.service.js';
+// NEW: Contract Reconstructibility Service (CRC)
+import { ContractReconstructibilityService } from './contractReconstructibility.service.js';
 import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation } from '../../types.js';
 
 // ============================================================================
@@ -138,6 +140,13 @@ export async function performForensicAudit(
     if (hoteleriaRules) {
         log('[AuditEngine] ðŸ¨ Cargadas reglas de hotelerÃ­a (IF-319)');
     }
+
+    // ============================================================================
+    // CRC: CONTRACT RECONSTRUCTIBILITY CLASSIFIER (NEW)
+    // ============================================================================
+    const reconstructibility = ContractReconstructibilityService.assess(contratoJson, cuentaJson);
+    log(`[AuditEngine] ðŸ§© CRC Analysis: Reconstructible=${reconstructibility.isReconstructible} (Conf: ${(reconstructibility.confidence * 100).toFixed(0)}%)`);
+    reconstructibility.reasoning.forEach(r => log(`[AuditEngine]    - ${r}`));
 
     log('[AuditEngine] ðŸ§  Sincronizando datos y analizando hallazgos con Super-Contexto...');
     onProgressUpdate?.(30);
@@ -279,7 +288,7 @@ export async function performForensicAudit(
     // TRACEABILITY CHECK (DETERMINISTIC LAYER - V3)
     // ============================================================================
     const traceAnalysis = traceGenericChargesTopK(cleanedCuenta, cleanedPam);
-    log('[AuditEngine] ðŸ” Trazabilidad de Ajustes:');
+    log('[AuditEngine] ðŸ” Trazabilidad de Ajustes:');
     traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line} `));
 
     // ============================================================================
@@ -573,8 +582,15 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
         // --- POST-PROCESSING: SAFETY BELT (DOWNGRADE RULES) ---
         // Downgrade findings that lack valid Table VIII or contradict financial truth
-        auditResult = postValidateLlmResponse(auditResult, eventosHospitalarios, cleanedCuenta, cleanedPam);
-        log('[AuditEngine] ðŸ›¡ï¸ Validaciones de seguridad aplicadas (Safety Belt).');
+        // NOW INCLUDES CRC LOGIC (reconstructibility)
+        auditResult = postValidateLlmResponse(
+            auditResult,
+            eventosHospitalarios,
+            cleanedCuenta,
+            cleanedPam,
+            reconstructibility // Pass CRC result
+        );
+        log('[AuditEngine] ðŸ›¡ï¸ Validaciones de seguridad aplicadas (Safety Belt & CRC).');
 
         // --- POST-PROCESSING: DETERMINISTIC GAP RECONCILIATION ---
         try {
@@ -1373,7 +1389,7 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
 // ============================================================================
 // HELPER: Post-Validate LLM Response (The "Safety Belt" - Cross-Validation v9)
 // ============================================================================
-function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: any, pamContext: any): any {
+function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: any, pamContext: any, reconstructibility?: any): any {
     const validatedResult = { ...resultRaw };
     let hasStructuralOpacity = false;
 
@@ -1414,9 +1430,18 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: 
                 (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMACO|VARIOS/i.test(h.glosa) && /DESGLOSE|OPACIDAD/i.test(h.hallazgo || ""));
 
             if (isOpacidad) {
-                h.categoria_final = "Z"; // Opacidad always Z
-                h.estado_juridico = "INDETERMINADO";
-                hasStructuralOpacity = true;
+                // CRC LOGIC: Check Reconstructibility
+                if (reconstructibility?.isReconstructible) {
+                    h.categoria_final = "B"; // Downgrade to B (Controversy)
+                    h.estado_juridico = "EN_CONTROVERSIA";
+                    h.recomendacion_accion = "SOLICITAR_ACLARACION";
+                    // Do NOT set hasStructuralOpacity=true, to prevent Global Z Escalation
+                    console.log(`[CRC] Finding '${h.titulo}' downgraded Z -> B (Reconstructible Contract).`);
+                } else {
+                    h.categoria_final = "Z"; // Opacidad always Z if not reconstructible
+                    h.estado_juridico = "INDETERMINADO";
+                    hasStructuralOpacity = true; // Escalates to Global Z
+                }
             } else {
                 // 1) Patch: "SIN BONIFICACION" context-aware
                 const textToCheck = (h.glosa || "") + " " + (h.hallazgo || "");
@@ -1428,18 +1453,14 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: 
                     else h.categoria_final = "B"; // Ambiguous -> Aclarar
                 } else {
                     // 2) Patch: Default "B" (Conservative = Controversy)
-                    // If it was previously A or B (or undefined), default to B unless explicit A reasons exist
-                    // Only stay A if strictly proven (Hotel, Unbundling, Duplicity)
-                    // For now, if not Z and not explicitly ruled A, degrade to B.
                     if (!h.categoria_final || h.categoria_final === "A") {
-                        // Simple heuristic: Unbundling Hotel is A. Overprice is A.
                         const isStrongA = /UNBUNDLING|DOBLE COBRO|SOBREPRECIO|ARANCEL/i.test(h.codigos || h.categoria || "");
                         h.categoria_final = isStrongA ? "A" : "B";
                     }
                 }
             }
 
-            if (isOpacidad) {
+            if (isOpacidad && !reconstructibility?.isReconstructible) {
                 hasStructuralOpacity = true;
             }
 
