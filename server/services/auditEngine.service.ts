@@ -1435,8 +1435,27 @@ function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: 
                     h.categoria_final = "B"; // Downgrade to B (Controversy)
                     h.estado_juridico = "EN_CONTROVERSIA";
                     h.recomendacion_accion = "SOLICITAR_ACLARACION";
+
+                    // ARGUMENTATIVE REWRITE (CONTRACT BREACH)
+                    h.titulo = "INCUMPLIMIENTO CONTRACTUAL (COBERTURA 100% DESCONOCIDA)";
+                    h.glosa = "RECHAZO DE COBERTURA SIN CAUSA LEGAL";
+
+                    const reason = reconstructibility.reasoning?.[0] || "Contrato con cobertura integral.";
+
+                    h.hallazgo = `**I. Incumplimiento Contractual Detectado**
+El contrato de salud vigente establece una cobertura del 100% (o PAD/Integral) para los ítems de hospitalización, medicamentos y materiales.
+
+**II. Hecho Constitutivo de Infracción**
+La Isapre ha aplicado una bonificación de $0 (o parcial) a ítems de 'Materiales/Medicamentos' ($${h.montoObjetado?.toLocaleString('es-CL')}) sin acreditar el agotamiento del tope ni la exclusión contractual específica.
+
+**III. Vicio de Legalidad**
+Esta conducta no es una mera 'falta de información' (Opacidad), sino una ejecución contractual incorrecta. Al existir un mandato de cobertura integral, la carga de la prueba para no cubrir recae en la aseguradora. Cobrar este monto al afiliado vulnera el principio de literalidad del contrato.
+
+**IV. Solicitud Específica**
+Se exige la cobertura inmediata del 100% pactado o la exhibición de la cláusula de exclusión específica para estos insumos exactos.`;
+
                     // Do NOT set hasStructuralOpacity=true, to prevent Global Z Escalation
-                    console.log(`[CRC] Finding '${h.titulo}' downgraded Z -> B (Reconstructible Contract).`);
+                    console.log(`[CRC] Finding '${h.titulo}' rewritten to Breach of Contract.`);
                 } else {
                     h.categoria_final = "Z"; // Opacidad always Z if not reconstructible
                     h.estado_juridico = "INDETERMINADO";
