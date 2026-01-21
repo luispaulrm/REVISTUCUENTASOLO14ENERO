@@ -21,6 +21,8 @@ import { ContractReconstructibilityService } from './contractReconstructibility.
 import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation } from '../../types.js';
 // NEW: Import Jurisprudence Layer (Precedent-First Decision System)
 import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAudit } from './jurisprudence/index.js';
+// NEW: Import C-NC Rules (Opacity Non-Collapse)
+import { generateNonCollapseText, RULE_C_NC_01, RULE_C_NC_02, RULE_C_NC_03, CANONICAL_NON_COLLAPSE_TEXT } from './jurisprudence/jurisprudence.doctrine.js';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -392,32 +394,162 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
     const jurisprudenceStats = jurisprudenceEngine.getStats();
     log(`[AuditEngine] 📚 Jurisprudence loaded: ${jurisprudenceStats.precedentCount} precedents, ${jurisprudenceStats.doctrineRuleCount} doctrine rules`);
 
-    // Pre-compute decisions for all PAM lines using Jurisprudence Engine
-    const jurisprudenceDecisions: Map<string, { decision: any; features: Set<string> }> = new Map();
+    // ============================================================================
+    // STEP 1: Extract ALL PAM lines with proper identification
+    // ============================================================================
+    interface PAMLineExtracted {
+        uniqueId: string;        // Unique identifier for this line
+        codigo: string;          // GC code or similar
+        descripcion: string;     // Description/glosa
+        bonificacion: number;    // Bonificación amount
+        copago: number;          // Copago amount
+        folioIdx: number;        // Position in folios
+        prestadorIdx: number;    // Position in prestador
+        itemIdx: number;         // Position in items
+        isGeneric: boolean;      // Is this a generic/opaque line?
+    }
 
-    for (const line of routerInput.pam.lines) {
-        const pamLine = {
-            codigo: line.key,
-            descripcion: line.desc,
-            bonificacion: 0, // Will be extracted if available
-            copago: line.amount
-        };
+    const extractedPamLines: PAMLineExtracted[] = [];
 
-        const features = extractFeatureSet(pamLine, contratoJson, hypothesisResult);
-        const decision = jurisprudenceEngine.decide({ contratoJson, pamLine, features });
+    // Deep extraction from cleanedPam with full context
+    if (cleanedPam?.folios && Array.isArray(cleanedPam.folios)) {
+        cleanedPam.folios.forEach((folio: any, folioIdx: number) => {
+            const desglose = folio.desglosePorPrestador || [];
+            if (Array.isArray(desglose)) {
+                desglose.forEach((prest: any, prestadorIdx: number) => {
+                    const items = prest.items || [];
+                    items.forEach((item: any, itemIdx: number) => {
+                        const codigo = item.codigo || item.codigoGC || item.gc || '';
+                        const descripcion = item.descripcion || item.glosa || item.bi_glosa || '';
+                        const bonificacion = parseAmountCLP(item.bonificacion ?? item.bonif ?? 0);
+                        const copago = parseAmountCLP(item.copago ?? item.monto_copago ?? 0);
 
-        jurisprudenceDecisions.set(line.key, { decision, features });
+                        // Build unique ID: folio_prestador_item_code_firstwords
+                        const descWords = descripcion.split(/\s+/).slice(0, 3).join('_').substring(0, 20);
+                        const uniqueId = `PAM_${folioIdx}_${prestadorIdx}_${itemIdx}_${codigo || 'NC'}_${descWords}`;
 
+                        extractedPamLines.push({
+                            uniqueId,
+                            codigo: codigo || 'SIN_CODIGO',
+                            descripcion,
+                            bonificacion,
+                            copago,
+                            folioIdx,
+                            prestadorIdx,
+                            itemIdx,
+                            isGeneric: /material|insumo|medicamento|varios|sin bonific|farmac/i.test(descripcion)
+                        });
+                    });
+                });
+            }
+        });
+    }
+
+    log(`[AuditEngine] 📋 Extracted ${extractedPamLines.length} PAM lines for jurisprudence processing.`);
+
+    // ============================================================================
+    // STEP 2: Run jurisprudence engine on EACH PAM line (one decision per line)
+    // ============================================================================
+    const jurisprudenceDecisions: Map<string, {
+        decision: any;
+        features: Set<string>;
+        pamLine: PAMLineExtracted;
+    }> = new Map();
+
+    let catACount = 0, catBCount = 0, catZCount = 0;
+    const newPrecedentsToRecord: { pamLine: PAMLineExtracted; decision: any; features: Set<string> }[] = [];
+
+    for (const pamLine of extractedPamLines) {
+        const features = extractFeatureSet(
+            { codigo: pamLine.codigo, descripcion: pamLine.descripcion, bonificacion: pamLine.bonificacion, copago: pamLine.copago },
+            contratoJson,
+            hypothesisResult
+        );
+
+        const decision = jurisprudenceEngine.decide({
+            contratoJson,
+            pamLine: {
+                codigo: pamLine.codigo,
+                descripcion: pamLine.descripcion,
+                bonificacion: pamLine.bonificacion,
+                copago: pamLine.copago
+            },
+            features
+        });
+
+        jurisprudenceDecisions.set(pamLine.uniqueId, { decision, features, pamLine });
+
+        // Structured logging for precedent/doctrine decisions
         if (decision.source === 'PRECEDENTE' || decision.source === 'DOCTRINA') {
-            log(`[AuditEngine]   🔒 ${line.key}: Cat ${decision.categoria_final} (${decision.source}, conf: ${(decision.confidence * 100).toFixed(0)}%)`);
+            const shortDesc = pamLine.descripcion.substring(0, 40);
+            log(`[AuditEngine]   🔒 PAM_LINE[${pamLine.codigo}|${shortDesc}]:`);
+            log(`[AuditEngine]      Decision=Cat ${decision.categoria_final} | Source=${decision.source} | Conf=${(decision.confidence * 100).toFixed(0)}%`);
+
+            // IMMEDIATE PRECEDENT RECORDING for Cat A with high confidence
+            if (decision.categoria_final === 'A' && decision.confidence >= 0.85 && decision.source === 'DOCTRINA') {
+                newPrecedentsToRecord.push({ pamLine, decision, features });
+            }
+        }
+
+        // Count categories
+        if (decision.categoria_final === 'A') catACount++;
+        else if (decision.categoria_final === 'B') catBCount++;
+        else catZCount++;
+    }
+
+    log(`[AuditEngine] ✅ Jurisprudence decisions: ${catACount} Cat A, ${catBCount} Cat B, ${catZCount} Cat Z (total: ${jurisprudenceDecisions.size} lines)`);
+
+    // ============================================================================
+    // STEP 3: Persist Cat A precedents IMMEDIATELY (before LLM)
+    // ============================================================================
+    if (newPrecedentsToRecord.length > 0) {
+        log(`[AuditEngine] 💾 Recording ${newPrecedentsToRecord.length} new precedent(s)...`);
+        for (const { pamLine, decision, features } of newPrecedentsToRecord) {
+            try {
+                const { recordPrecedent } = await import('./jurisprudence/jurisprudence.recorder.js');
+                const precedentId = recordPrecedent(
+                    jurisprudenceStore,
+                    contratoJson,
+                    { codigo: pamLine.codigo, descripcion: pamLine.descripcion, bonificacion: pamLine.bonificacion, copago: pamLine.copago },
+                    {
+                        categoria_final: decision.categoria_final,
+                        tipo_monto: decision.tipo_monto,
+                        recomendacion: decision.recomendacion,
+                        confidence: decision.confidence
+                    },
+                    `Precedente automático: ${pamLine.descripcion.substring(0, 50)}`,
+                    Array.from(features).slice(0, 5),
+                    { requires: Array.from(features).filter(f => f.startsWith('COV_') || f.startsWith('BONIF_') || f.startsWith('MED_')) }
+                );
+                log(`[AuditEngine]   📝 Recorded: ${precedentId}`);
+            } catch (e) {
+                log(`[AuditEngine]   ⚠️ Failed to record precedent: ${e}`);
+            }
         }
     }
 
-    log(`[AuditEngine] ✅ Jurisprudence pre-computed for ${jurisprudenceDecisions.size} PAM lines.`);
+    // ============================================================================
+    // STEP 4: Build FROZEN categories map (prevents LLM/canonical override)
+    // ============================================================================
+    const frozenCategories: Map<string, { categoria_final: 'A' | 'B' | 'Z'; source: string; confidence: number }> = new Map();
+
+    for (const [uniqueId, { decision }] of jurisprudenceDecisions) {
+        // Only freeze decisions from PRECEDENTE or DOCTRINA (not heuristic)
+        if (decision.source === 'PRECEDENTE' || decision.source === 'DOCTRINA') {
+            frozenCategories.set(uniqueId, {
+                categoria_final: decision.categoria_final,
+                source: decision.source,
+                confidence: decision.confidence
+            });
+        }
+    }
+
+    log(`[AuditEngine] 🔐 ${frozenCategories.size} categories frozen (immune to LLM/canonical override).`);
 
     // ============================================================================
-    // CANONICAL RULES ENGINE (DETERMINISTIC LAYER - V5 with Hypothesis Gates)
+    // CANONICAL RULES ENGINE (SUBORDINATE to Jurisprudence)
     // ============================================================================
+    // NOTE: Canonical Rules can only affect lines NOT frozen by Jurisprudence
     let billItemsForRules: any[] = [];
     if (cleanedCuenta.sections) {
         billItemsForRules = cleanedCuenta.sections.flatMap((s: any) => s.items || []);
@@ -437,29 +569,43 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
         ruleEngineResult.flags
     );
 
-    log(`[AuditEngine] âš–ï¸ Canonical Rules Decision: ${canonicalOutput.decisionGlobal}`);
-    ruleEngineResult.flags.filter(f => f.detected).forEach(f => log(`[AuditEngine]    ðŸš© Flag: ${f.flagId} - ${f.description}`));
-    ruleEngineResult.rules.filter(r => r.violated).forEach(r => log(`[AuditEngine]    ðŸš« Violation: ${r.ruleId} - ${r.description}`));
+    log(`[AuditEngine] ⚖️ Canonical Rules Decision: ${canonicalOutput.decisionGlobal}`);
+    ruleEngineResult.flags.filter(f => f.detected).forEach(f => log(`[AuditEngine]    🚩 Flag: ${f.flagId} - ${f.description}`));
+    ruleEngineResult.rules.filter(r => r.violated).forEach(r => log(`[AuditEngine]    🚫 Violation: ${r.ruleId} - ${r.description}`));
+
+    // ============================================================================
+    // JURISPRUDENCE PROTECTION: Canonical cannot collapse Cat A to INDETERMINADO
+    // ============================================================================
+    let effectiveCanonicalDecision: string = canonicalOutput.decisionGlobal;
+    const hasFrozenCatA = Array.from(frozenCategories.values()).some(f => f.categoria_final === 'A');
+
+    if (canonicalOutput.decisionGlobal === 'COPAGO_INDETERMINADO_POR_OPACIDAD' && hasFrozenCatA) {
+        effectiveCanonicalDecision = 'COPAGO_MIXTO_CONFIRMADO_Y_OPACO';
+        log(`[AuditEngine] 🛡️ PROTECTION ACTIVATED: Canonical tried to override ${catACount} frozen Cat A decisions.`);
+        log(`[AuditEngine]    Original: ${canonicalOutput.decisionGlobal} → Effective: ${effectiveCanonicalDecision}`);
+        log(`[AuditEngine]    Reason: Jurisprudencia local tiene prioridad sobre estado global.`);
+    }
 
     const rulesContext = `
 ==========================================================================
-âš–ï¸ RESULTADO MOTOR DE REGLAS CANÃ“NICAS (VINCULANTE / BINDING)
+⚖️ RESULTADO MOTOR DE REGLAS CANÓNICAS (SUBORDINADO A JURISPRUDENCIA)
 ==========================================================================
-ESTADO DETERMINÃSTICO: ${canonicalOutput.decisionGlobal}
+ESTADO DETERMINÍSTICO: ${effectiveCanonicalDecision}
+DECISIONES JURISPRUDENCIALES CONGELADAS: ${frozenCategories.size} (${catACount} Cat A, ${catBCount} Cat B)
 PRINCIPIO LEGAL: ${canonicalOutput.principioAplicado}
 
-FUNDAMENTOS TÃ‰CNICOS DETECTADOS:
+REGLA NUCLEAR:
+- La jurisprudencia local tiene PRIORIDAD sobre el estado global.
+- Cat A decididos por DOCTRINA/PRECEDENTE son INMUTABLES.
+- Opacidad global NO invalida hallazgos locales confirmados.
+
+FUNDAMENTOS TÉCNICOS DETECTADOS:
 ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
-âš ï¸ INSTRUCCIONES OBLIGATORIAS DE RAZONAMIENTO:
-1. SI el ESTADO es "COPAGO_INDETERMINADO_POR_OPACIDAD": 
-   - La base contractual es INCIERTA. 
-   - PROHIBIDO validar montos o calcular 'ahorros' definitivos sobre Ã­tems opacos.
-   - Debes alinear tu narrativa con el PRINCIPIO LEGAL indicado.
-2. SI el ESTADO es "ERROR_CONTRATO_PROBADO":
-   - Existe una violaciÃ³n fÃ¡ctica detectada por el motor.
-   - Debes tratar este hallazgo con prioridad ALTA y ClasificaciÃ³n A.
-3. Este veredicto del motor de reglas TIENE PREVALENCIA sobre tu anÃ¡lisis heurÃ­stico.
+⚠️ INSTRUCCIONES OBLIGATORIAS DE RAZONAMIENTO:
+1. Hallazgos Cat A (DOCTRINA/PRECEDENTE) son COBRO IMPROCEDENTE final.
+2. NO reinterpretar ni diluir decisiones congeladas.
+3. Opacidad aplica SOLO a líneas NO decididas por jurisprudencia.
 ==========================================================================
 `;
 
