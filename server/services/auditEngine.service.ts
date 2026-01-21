@@ -19,6 +19,8 @@ import { AlphaFoldService } from './alphaFold.service.js';
 // NEW: Contract Reconstructibility Service (CRC)
 import { ContractReconstructibilityService } from './contractReconstructibility.service.js';
 import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation } from '../../types.js';
+// NEW: Import Jurisprudence Layer (Precedent-First Decision System)
+import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAudit } from './jurisprudence/index.js';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -72,8 +74,21 @@ function classifyFinding(h: any): "A" | "B" {
     const isUnbundling = /UNBUNDLING|EVENTO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(textUpper) || /UNBUNDLING|EVENTO/.test(glUpper);
     const isHoteleria = /ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION/.test(glUpper) || /IF-319/.test(textUpper);
 
+    // FIX 4: DIRECT CONTRACT BREACH (MEDICAMENTOS $0)
+    // If it is Medicamento/Insumo and says "Sin Bonificacion" or "Cobertura 0" -> Cat A (Breach of 100% Coverage)
+    const isMedInsumo = /MEDICAMENTO|INSUMO|MATERIAL|FARMACO/.test(glUpper);
+    const isZeroCoverage = /SIN BONIFI|COBERTURA 0|BONIFICACION \$0|NO CUBIERTO/.test(textUpper) || /SIN BONIFI/.test(glUpper);
+
     if (isUnbundling) return "A"; // Priority 1: Unbundling is always Improcedente
     if (isHoteleria && /DUPLICI|DOBLE|INCLU/.test(textUpper)) return "A"; // Hoteleria duplicated is A
+    if (isMedInsumo && isZeroCoverage) return "A"; // Priority 1.5: Breach of Contract (100% Clause)
+
+    // FIX 5: NURSING & SURGICAL DRUGS (IRREGULAR PRACTICES REPORT)
+    const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(textUpper) || /ENFERMERIA/.test(glUpper);
+    const isSurgicalDrug = /PROPOFOL|FENTANILO|SEVOFLURANO|MIDAZOLAM|ANESTESIA/.test(textUpper);
+
+    if (isNursing) return "A"; // Practice #5: Should be included in Bed Day
+    if (isSurgicalDrug && /PABELLON|QUIROFANO/.test(textUpper)) return "A"; // Practice #3: Surgical drugs in Pharmacy
 
     // 2. Layer: CUENTA OPACA (Improcedente por falta de soporte minimo)
     const isCuentaOpaca = /VARIOS|AJUSTE|DIFERENCIA/.test(glUpper) || /VARIOS|AJUSTE/.test(textUpper) || /SIN BONIFI/.test(textUpper) || /SIN BONIFI/.test(glUpper);
@@ -138,7 +153,25 @@ export async function performForensicAudit(
     if (CANONICAL_MANDATE_TEXT) {
         knowledgeBaseText += `\n\n[CONTRATO MARCO / MANDATO CLÍNICO ESTÁNDAR (PAGARÉ / MANDATO)]:\n${CANONICAL_MANDATE_TEXT}\n`;
     }
-    const sources: string[] = ["Mini-RAG Desactivado"];
+
+    // INJECT IRREGULAR PRACTICES REPORT KNOWLEDGE
+    const IRREGULAR_PRACTICES_KNOWLEDGE = `
+[INFORME OFICIAL: PRÁCTICAS IRREGULARES PROHIBIDAS]
+Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, CLASIFICA COMO 'A' (IMPROCEDENTE).
+1. Inflamiento de Medicamentos: Cobro por caja completa en vez de dosis unitaria (Upcoding).
+2. Desagregación de Pabellón (Unbundling): Cobro separado de insumos básicos (gasas, suturas, jeringas) que deben estar en 'Derecho de Pabellón'.
+3. Fármacos de Pabellón en Farmacia: Anestesia/Analgesia intraoperatoria (Propofol, Fentanilo) cobrada aparte en 'Farmacia' en vez de Pabellón.
+4. Hotelería No Clínica: Cobro de 'Confort', 'Kit de Aseo', 'Pantuflas', 'Ropa' sin consentimiento explícito. No es prestación médica.
+5. Enfermería Básica en Día Cama: Cobro separado de 'Control Signos Vitales', 'Curación Simple', 'Instalación Vía', 'Fleboclisis'. ESTO ESTÁ INCLUIDO EN EL DÍA CAMA. Es Doble Cobro.
+6. Glosas Genéricas (3201001/2): Montos abultados en 'Gastos No Cubiertos' o 'Insumos Varios' sin desglose. Es Opacidad, pero si oculta insumos básicos, es Indebido.
+7. Incumplimiento Cobertura 100%: Cobro de copago en prestaciones que el plan cubre al 100% (ej. Medicamentos Hospitalarios) sin justificar tope.
+8. Upcoding/Reconversión: Cobrar un insumo estándar como 'Especial/Importado' o un procedimiento menor como cirugía compleja.
+9. Separación Urgencia/Hospitalización: Cobrar Urgencia como evento aparte con su propio tope, cuando derivó en hospitalización (debe ser Evento Único).
+10. Falta de Respaldo: Cobros que no coinciden con ficha clínica o hoja de consumo.
+`;
+    knowledgeBaseText += IRREGULAR_PRACTICES_KNOWLEDGE;
+
+    const sources: string[] = ["Informe Prácticas Irregulares", "Mini-RAG Desactivado"];
     const tokenEstimate = 0;
 
     log(`[AuditEngine] ðŸ“Š Conocimiento inyectado: 0 fuentes (Mini-RAG OFF)`);
@@ -348,6 +381,39 @@ export async function performForensicAudit(
         log(`[AuditEngine]   - ${h.id}: ${h.label} (confidence: ${(h.confidence * 100).toFixed(0)}%, scope: ${h.scope.type})`);
         log(`[AuditEngine]     Rationale: ${h.rationale}`);
     });
+
+    // ============================================================================
+    // JURISPRUDENCE ENGINE (Precedent-First Decision System)
+    // ============================================================================
+    log('[AuditEngine] ⚖️ Activating Jurisprudence Engine (Precedent → Doctrine → Heuristic)...');
+    const jurisprudenceStore = new JurisprudenceStore();
+    const jurisprudenceEngine = new JurisprudenceEngine(jurisprudenceStore);
+
+    const jurisprudenceStats = jurisprudenceEngine.getStats();
+    log(`[AuditEngine] 📚 Jurisprudence loaded: ${jurisprudenceStats.precedentCount} precedents, ${jurisprudenceStats.doctrineRuleCount} doctrine rules`);
+
+    // Pre-compute decisions for all PAM lines using Jurisprudence Engine
+    const jurisprudenceDecisions: Map<string, { decision: any; features: Set<string> }> = new Map();
+
+    for (const line of routerInput.pam.lines) {
+        const pamLine = {
+            codigo: line.key,
+            descripcion: line.desc,
+            bonificacion: 0, // Will be extracted if available
+            copago: line.amount
+        };
+
+        const features = extractFeatureSet(pamLine, contratoJson, hypothesisResult);
+        const decision = jurisprudenceEngine.decide({ contratoJson, pamLine, features });
+
+        jurisprudenceDecisions.set(line.key, { decision, features });
+
+        if (decision.source === 'PRECEDENTE' || decision.source === 'DOCTRINA') {
+            log(`[AuditEngine]   🔒 ${line.key}: Cat ${decision.categoria_final} (${decision.source}, conf: ${(decision.confidence * 100).toFixed(0)}%)`);
+        }
+    }
+
+    log(`[AuditEngine] ✅ Jurisprudence pre-computed for ${jurisprudenceDecisions.size} PAM lines.`);
 
     // ============================================================================
     // CANONICAL RULES ENGINE (DETERMINISTIC LAYER - V5 with Hypothesis Gates)
@@ -1039,12 +1105,51 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     // ...
                     return undefined;
                 })(),
+                // NEW: Jurisprudence decisions for transparency
+                jurisprudenceContext: {
+                    precedentsUsed: Array.from(jurisprudenceDecisions.entries())
+                        .filter(([_, v]) => v.decision.source === 'PRECEDENTE')
+                        .map(([key, v]) => ({ pamLineKey: key, precedentId: v.decision.precedentId })),
+                    doctrineRulesApplied: Array.from(jurisprudenceDecisions.entries())
+                        .filter(([_, v]) => v.decision.source === 'DOCTRINA')
+                        .map(([key, v]) => ({ pamLineKey: key, categoria: v.decision.categoria_final })),
+                    totalDecisions: jurisprudenceDecisions.size
+                }
             },
             usage: usage ? {
                 promptTokens: usage.promptTokenCount,
                 candidatesTokens: usage.candidatesTokenCount,
                 totalTokens: usage.totalTokenCount
-            } : null
+            } : null,
+            // NEW: Trigger learning for future audits (async, non-blocking)
+            learnedPrecedents: (() => {
+                try {
+                    const learnableFindings = mergedFindings
+                        .filter(f => f.category === 'A' && (f.confidence || 0.85) >= 0.85)
+                        .map(f => ({
+                            codigo: f.evidenceRefs?.[0]?.path?.split('/')?.pop() || 'UNKNOWN',
+                            descripcion: f.label,
+                            bonificacion: 0,
+                            copago: f.amount,
+                            categoria_final: f.category,
+                            tipo_monto: f.action === 'IMPUGNAR' ? 'COBRO_IMPROCEDENTE' as const : 'COPAGO_OPACO' as const,
+                            recomendacion: f.action,
+                            confidence: f.confidence || 0.85,
+                            rationale: f.rationale,
+                            tags: [f.hypothesisParent || 'LEARNED']
+                        }));
+
+                    if (learnableFindings.length > 0) {
+                        const recordedIds = learnFromAudit(jurisprudenceStore, contratoJson, learnableFindings, 0.85);
+                        log(`[AuditEngine] 🧠 Jurisprudence learned ${recordedIds.length} new precedent(s).`);
+                        return recordedIds;
+                    }
+                    return [];
+                } catch (e) {
+                    log(`[AuditEngine] ⚠️ Jurisprudence learning failed: ${e}`);
+                    return [];
+                }
+            })()
         };
     } catch (error: any) {
         log(`[AuditEngine] âŒ Error en el proceso de auditorÃ­a: ${error.message} `);
