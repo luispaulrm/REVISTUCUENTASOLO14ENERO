@@ -202,3 +202,38 @@ export interface ExplainableOutput {
   principioAplicado: string;
   legalText?: string;
 }
+
+// ============================================================================
+// Balance Type - Single Source of Truth for Copago Categorization (v5)
+// ============================================================================
+
+export type CopagoCategory = 'A' | 'B' | 'OK' | 'Z';
+
+export interface ScopeBalance {
+  scope: {
+    type: 'PAM_LINE' | 'SECTION' | 'GLOBAL';
+    pamLineKey?: string;
+    sectionId?: string;
+  };
+  A: number;  // Improcedente (provable)
+  B: number;  // Controversia auditable (data exists but disputed)
+  OK: number; // No observado (no findings)
+  Z: number;  // Indeterminado (lack of data/opacity)
+}
+
+export interface Balance {
+  totalCopago: number;
+  categories: {
+    A: number;  // Improcedente
+    B: number;  // Controversia auditable
+    OK: number; // No observado
+    Z: number;  // Indeterminado
+  };
+  rationaleByCategory: {
+    A: string[];
+    B: string[];
+    OK: string[];
+    Z: string[];
+  };
+  scopeBreakdown?: ScopeBalance[];
+}

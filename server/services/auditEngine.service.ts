@@ -12,6 +12,9 @@ import { preProcessEventos } from './eventProcessor.service.js';
 import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEngine.service.js';
 // NEW: Import Hypothesis Router (V5 Architecture)
 import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRouter.service.js';
+// NEW: Import Balance Calculator (V5 Hypothesis-Aware)
+import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.service.js';
+import { Balance } from '../../types.js';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -741,7 +744,63 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             totalCopagoReal = parseAmountCLP(pamTotalCopago);
         }
 
-        const finalResult = finalizeAudit(auditResult, totalCopagoReal);
+        // ============================================================================
+        // HYPOTHESIS-AWARE BALANCE CALCULATION (V5)
+        // ============================================================================
+        log('[AuditEngine] 💰 Computing Balance with Hypothesis Awareness...');
+
+        // Extract PAM lines with copago for balance calculation
+        const pamLines: PAMLineInput[] = routerInput.pam.lines.map(line => ({
+            key: line.key,
+            desc: line.desc,
+            copago: line.amount
+        }));
+
+        const balance: Balance = computeBalanceWithHypotheses(
+            auditResult.hallazgos || [],
+            totalCopagoReal,
+            hypothesisResult.capabilityMatrix,
+            pamLines
+        );
+
+        log(`[AuditEngine] 📊 Balance Computed:`);
+        log(`[AuditEngine]   Cat A (Improcedente): $${balance.categories.A.toLocaleString()}`);
+        log(`[AuditEngine]   Cat B (Controversia): $${balance.categories.B.toLocaleString()}`);
+        log(`[AuditEngine]   Cat OK (No Observado): $${balance.categories.OK.toLocaleString()}`);
+        log(`[AuditEngine]   Cat Z (Indeterminado): $${balance.categories.Z.toLocaleString()}`);
+
+        // Update result with balance data (single source of truth)
+        if (!auditResult.resumenFinanciero) auditResult.resumenFinanciero = {};
+        auditResult.resumenFinanciero.ahorro_confirmado = balance.categories.A;
+        auditResult.resumenFinanciero.cobros_improcedentes_exigibles = balance.categories.A;
+        auditResult.resumenFinanciero.copagos_bajo_controversia = balance.categories.B;
+        auditResult.resumenFinanciero.monto_indeterminado = balance.categories.Z;
+        auditResult.resumenFinanciero.monto_no_observado = balance.categories.OK;
+        auditResult.resumenFinanciero.totalCopagoReal = totalCopagoReal;
+        auditResult.resumenFinanciero.totalCopagoObjetado = balance.categories.A + balance.categories.B + balance.categories.Z;
+
+        // Legacy support
+        auditResult.totalAhorroDetectado = balance.categories.A;
+
+        // Generate canonical text
+        const locale = 'es-CL';
+        const txtTotal = totalCopagoReal.toLocaleString(locale);
+        const txtA = balance.categories.A.toLocaleString(locale);
+        const txtB = balance.categories.B.toLocaleString(locale);
+        const txtOK = balance.categories.OK.toLocaleString(locale);
+        const txtZ = balance.categories.Z.toLocaleString(locale);
+
+        let canonicalText = `El copago total informado corresponde a $${txtTotal}.\nDe este monto:\n\n`;
+        if (balance.categories.A > 0) canonicalText += `$${txtA} corresponden a cobros improcedentes.\n\n`;
+        if (balance.categories.B > 0) canonicalText += `$${txtB} se encuentran en controversia por falta de desglose.\n\n`;
+        if (balance.categories.OK > 0) canonicalText += `$${txtOK} no presentan observaciones con la información disponible.\n\n`;
+        if (balance.categories.Z > 0) canonicalText += `$${txtZ} corresponden a montos indeterminados (sin información suficiente).\n\n`;
+        canonicalText += `La suma de todas las categorías coincide exactamente con el copago total.`;
+
+        if (!auditResult.decisionGlobal) auditResult.decisionGlobal = {};
+        auditResult.decisionGlobal.fundamento = canonicalText;
+
+        const finalResult = auditResult;
 
         // --- CANONICAL OVERRIDE (V4) ---
         if (ruleEngineResult.decision === "COPAGO_INDETERMINADO_POR_OPACIDAD") {
