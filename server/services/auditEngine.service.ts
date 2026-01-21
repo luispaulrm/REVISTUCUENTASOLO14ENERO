@@ -750,11 +750,22 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         log('[AuditEngine] 💰 Computing Balance with Hypothesis Awareness...');
 
         // Extract PAM lines with copago for balance calculation
-        const pamLines: PAMLineInput[] = routerInput.pam.lines.map(line => ({
+        let pamLines: PAMLineInput[] = routerInput.pam.lines.map(line => ({
             key: line.key,
             desc: line.desc,
             copago: line.amount
         }));
+
+        log(`[AuditEngine] DEBUG: routerInput.pam.lines.length = ${routerInput.pam.lines.length}`);
+        if (pamLines.length === 0 && cleanedPam) {
+            log('[AuditEngine] ⚠️ Attempting direct PAM extraction...');
+            const directItems = cleanedPam.items || cleanedPam.lineas || [];
+            pamLines = directItems.map((item: any) => ({ key: item.codigo || 'UNKNOWN', desc: item.descripcion || '', copago: item.copago || 0 }));
+            log(`[AuditEngine] Direct extraction: ${pamLines.length} lines`);
+        }
+        if (pamLines.length === 0) { log('[AuditEngine] ⚠️⚠️ PAM still empty! Keys: ${Object.keys(cleanedPam || {}).join(", ")}'); }
+        else { log(`[AuditEngine] ✅ ${pamLines.length} PAM lines extracted`); }
+
 
         const balance: Balance = computeBalanceWithHypotheses(
             auditResult.hallazgos || [],
