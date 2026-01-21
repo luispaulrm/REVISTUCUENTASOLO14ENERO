@@ -549,6 +549,11 @@ export default function ForensicApp() {
                             {/* LEFT COLUMN: AUDIT RESULTS (Responsive) */}
                             <div className="w-full xl:w-[70%] space-y-6 sm:space-y-10 order-2 xl:order-1 print:w-full">
                                 <div id="audit-report-content" className="bg-white p-5 sm:p-10 rounded-2xl sm:rounded-3xl border border-slate-200 shadow-sm space-y-6 sm:space-y-10 print:shadow-none print:border-none print:p-0">
+                                    {/* 0. CANONICAL DECISION CARD (HIGH IMPACT) */}
+                                    {auditResult.canonical_rules_output && (
+                                        <CanonicalDecisionCard output={auditResult.canonical_rules_output} />
+                                    )}
+
                                     <div className="flex flex-col gap-6 border-b border-slate-100 pb-6 sm:pb-10">
                                         <div className="flex justify-between items-start">
                                             <div className="space-y-3 sm:space-y-4 max-w-2xl">
@@ -750,6 +755,104 @@ export default function ForensicApp() {
                     </div>
                 )}
             </main>
+        </div>
+    );
+}
+
+function CanonicalDecisionCard({ output }: { output: any }) {
+    if (!output) return null;
+
+    const { decisionGlobal, fundamento, principioAplicado, legalText } = output;
+
+    const getStatusConfig = (decision: string) => {
+        switch (decision) {
+            case 'OK_VERIFICABLE':
+                return {
+                    color: 'text-emerald-700',
+                    bg: 'bg-emerald-50/50',
+                    border: 'border-emerald-200',
+                    icon: <ShieldCheck className="text-emerald-500" size={28} />,
+                    label: 'AUDITORÍA VALIDADA (OK)',
+                    sub: 'CONTRATO CUMPLIDO'
+                };
+            case 'COPAGO_INDETERMINADO_POR_OPACIDAD':
+                return {
+                    color: 'text-amber-700',
+                    bg: 'bg-amber-50/50',
+                    border: 'border-amber-200',
+                    icon: <AlertCircle className="text-amber-500" size={28} />,
+                    label: 'COPAGO INDETERMINADO',
+                    sub: 'OPACIDAD ESTRUCTURAL'
+                };
+            case 'ERROR_CONTRATO_PROBADO':
+                return {
+                    color: 'text-rose-700',
+                    bg: 'bg-rose-50/50',
+                    border: 'border-rose-200',
+                    icon: <Gavel className="text-rose-500" size={28} />,
+                    label: 'DESVÍO CONTRACTUAL',
+                    sub: 'HALLAZGO PROBADO'
+                };
+            case 'ZONA_GRIS_REQUIERE_ANTECEDENTES':
+                return {
+                    color: 'text-indigo-700',
+                    bg: 'bg-indigo-50/50',
+                    border: 'border-indigo-200',
+                    icon: <Search className="text-indigo-500" size={28} />,
+                    label: 'REVISIÓN REQUERIDA',
+                    sub: 'ANOMALÍA DETECTADA'
+                };
+            default:
+                return {
+                    color: 'text-slate-700',
+                    bg: 'bg-slate-50/50',
+                    border: 'border-slate-200',
+                    icon: <FileText className="text-slate-500" size={28} />,
+                    label: 'ESTADO TÉCNICO',
+                    sub: 'PENDIENTE DE DEFINICIÓN'
+                };
+        }
+    };
+
+    const config = getStatusConfig(decisionGlobal);
+
+    return (
+        <div className={`rounded-3xl border ${config.border} ${config.bg} p-6 sm:p-8 mb-4 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 print:border-slate-200 print:bg-white`}>
+            <div className="flex flex-col md:flex-row gap-6 items-start">
+                <div className={`p-4 rounded-2xl bg-white shadow-sm border ${config.border} shrink-0`}>
+                    {config.icon}
+                </div>
+
+                <div className="flex-1 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <span className={`text-[10px] font-black uppercase tracking-[0.2em] opacity-70 ${config.color}`}>{config.sub}</span>
+                            <h2 className={`text-2xl font-black tracking-tighter ${config.color}`}>{config.label}</h2>
+                        </div>
+                        <div className="px-4 py-2 bg-white/70 backdrop-blur-sm rounded-xl border border-white/50 text-[10px] font-black text-slate-500 uppercase tracking-widest print:border-slate-100">
+                            {principioAplicado}
+                        </div>
+                    </div>
+
+                    <p className="text-slate-800 font-bold text-sm sm:text-base leading-relaxed italic border-l-4 border-slate-900/10 pl-4 py-1">
+                        "{legalText || 'Análisis canónico completado bajo estándares de auditoría forense.'}"
+                    </p>
+
+                    <div className="pt-2">
+                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                            <Terminal size={12} /> Fundamentos de la Decisión
+                        </h3>
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                            {fundamento.map((f: string, i: number) => (
+                                <li key={i} className="flex gap-2 text-[11px] text-slate-600 items-start">
+                                    <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${f.includes('Violación') || f.includes('Error') ? 'bg-rose-500' : f.includes('Alerta') ? 'bg-amber-500' : 'bg-slate-400'}`} />
+                                    <span className="leading-tight font-medium">{f}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

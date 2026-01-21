@@ -170,3 +170,35 @@ export interface EventoHospitalario {
   origen_probable: OrigenProbable;
   analisis_financiero?: AnalisisFinanciero;
 }
+
+// ============================================================================
+// Canonical Rules Engine Types (v4)
+// ============================================================================
+
+export type AuditDecision =
+  | "OK_VERIFICABLE"
+  | "ERROR_CONTRATO_PROBADO"
+  | "COPAGO_INDETERMINADO_POR_OPACIDAD"
+  | "ZONA_GRIS_REQUIERE_ANTECEDENTES";
+
+export interface RuleResult {
+  ruleId: string; // e.g., "C-01"
+  description: string;
+  violated: boolean;
+  details?: string;
+}
+
+export interface FlagResult {
+  flagId: string; // e.g., "F-01"
+  description: string;
+  detected: boolean;
+  riskLevel: "HIGH" | "MEDIUM" | "LOW";
+  metadata?: any;
+}
+
+export interface ExplainableOutput {
+  decisionGlobal: AuditDecision;
+  fundamento: string[];
+  principioAplicado: string;
+  legalText?: string;
+}

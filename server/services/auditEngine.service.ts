@@ -9,6 +9,7 @@ import {
     getKnowledgeFilterInfo
 } from './knowledgeFilter.service.js';
 import { preProcessEventos } from './eventProcessor.service.js';
+import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEngine.service.js';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -257,6 +258,52 @@ export async function performForensicAudit(
     log('[AuditEngine] 🔍 Trazabilidad de Ajustes:');
     traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line} `));
 
+    // ============================================================================
+    // CANONICAL RULES ENGINE (DETERMINISTIC LAYER - V4)
+    // ============================================================================
+    let billItemsForRules: any[] = [];
+    if (cleanedCuenta.sections) {
+        billItemsForRules = cleanedCuenta.sections.flatMap((s: any) => s.items || []);
+    }
+
+    const ruleEngineResult = runCanonicalRules(
+        billItemsForRules,
+        eventosHospitalarios,
+        contratoJson
+    );
+
+    const canonicalOutput = generateExplainableOutput(
+        ruleEngineResult.decision,
+        ruleEngineResult.rules,
+        ruleEngineResult.flags
+    );
+
+    log(`[AuditEngine] ⚖️ Canonical Rules Decision: ${canonicalOutput.decisionGlobal}`);
+    ruleEngineResult.flags.filter(f => f.detected).forEach(f => log(`[AuditEngine]    🚩 Flag: ${f.flagId} - ${f.description}`));
+    ruleEngineResult.rules.filter(r => r.violated).forEach(r => log(`[AuditEngine]    🚫 Violation: ${r.ruleId} - ${r.description}`));
+
+    const rulesContext = `
+==========================================================================
+⚖️ RESULTADO MOTOR DE REGLAS CANÓNICAS (VINCULANTE / BINDING)
+==========================================================================
+ESTADO DETERMINÍSTICO: ${canonicalOutput.decisionGlobal}
+PRINCIPIO LEGAL: ${canonicalOutput.principioAplicado}
+
+FUNDAMENTOS TÉCNICOS DETECTADOS:
+${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
+
+⚠️ INSTRUCCIONES OBLIGATORIAS DE RAZONAMIENTO:
+1. SI el ESTADO es "COPAGO_INDETERMINADO_POR_OPACIDAD": 
+   - La base contractual es INCIERTA. 
+   - PROHIBIDO validar montos o calcular 'ahorros' definitivos sobre ítems opacos.
+   - Debes alinear tu narrativa con el PRINCIPIO LEGAL indicado.
+2. SI el ESTADO es "ERROR_CONTRATO_PROBADO":
+   - Existe una violación fáctica detectada por el motor.
+   - Debes tratar este hallazgo con prioridad ALTA y Clasificación A.
+3. Este veredicto del motor de reglas TIENE PREVALENCIA sobre tu análisis heurístico.
+==========================================================================
+`;
+
     const prompt = AUDIT_PROMPT
         .replace('{jurisprudencia_text}', '')
         .replace('{normas_administrativas_text}', '')
@@ -268,7 +315,8 @@ export async function performForensicAudit(
         .replace('{contrato_json}', finalContratoContext)
         .replace('{eventos_hospitalarios}', eventosContext)
         .replace('{contexto_trazabilidad}', traceAnalysis)
-        .replace('{va_deduction_context}', vaDeductionSummary)
+        .replace('{contexto_trazabilidad}', traceAnalysis)
+        .replace('{va_deduction_context}', vaDeductionSummary + '\n' + rulesContext)
         .replace('{html_context}', useHtmlContext ? (htmlContext || '') : '(Omitido: JSON completo)');
 
     // Log prompt size for debugging
@@ -642,10 +690,37 @@ export async function performForensicAudit(
         }
 
         const finalResult = finalizeAudit(auditResult, totalCopagoReal);
+
+        // --- CANONICAL OVERRIDE (V4) ---
+        if (ruleEngineResult.decision === "COPAGO_INDETERMINADO_POR_OPACIDAD") {
+            log(`[AuditEngine] 🔒 SUPER-OVERRIDE: Forzando estado INDETERMINADO por reglas canónicas.`);
+
+            // Wipe findings and replace with the single opacity reason
+            finalResult.hallazgos = [{
+                titulo: "INDETERMINACIÓN CONTRACTUAL (REGLA C-04)",
+                hallazgo: canonicalOutput.legalText || "El copago es indeterminable por falta de antecedentes críticos.",
+                montoObjetado: finalResult.resumenFinanciero.totalCopagoReal, // The whole amount is in question
+                categoria_final: "Z",
+                tipo_monto: "COPAGO_OPACO",
+                estado_juridico: "INDETERMINADO",
+                normaFundamento: canonicalOutput.principioAplicado
+            }];
+
+            // Recalculate Financials
+            finalResult.resumenFinanciero.ahorro_confirmado = 0;
+            finalResult.resumenFinanciero.copagos_bajo_controversia = 0;
+            finalResult.resumenFinanciero.monto_indeterminado = finalResult.resumenFinanciero.totalCopagoReal;
+            finalResult.resumenFinanciero.monto_no_observado = 0;
+            finalResult.resumenFinanciero.totalCopagoObjetado = finalResult.resumenFinanciero.totalCopagoReal;
+        }
+
         log(`[AuditEngine] 🏁 Auditoría finalizada. Ahorro: $${finalResult.resumenFinanciero.ahorro_confirmado} | Controversia: $${finalResult.resumenFinanciero.copagos_bajo_controversia}`);
 
         return {
-            data: finalResult,
+            data: {
+                ...finalResult,
+                canonical_rules_output: canonicalOutput
+            },
             usage: usage ? {
                 promptTokens: usage.promptTokenCount,
                 candidatesTokens: usage.candidatesTokenCount,

@@ -153,13 +153,7 @@ function collapseHonorarios(episode: EpisodeCandidate): HonorarioConsolidado[] {
     const map = new Map<string, HonorarioConsolidado>();
 
     episode.items.forEach(item => {
-        const code = item.codigoGC;
-        // Check if honorary (starts with 1 or 2, heuristic)
-        // Or better: Is it a "Professional Fee"? usually group 1 or 2 in PAM?
-        // Let's assume all items in a Surgical episode *might* be honoraries if they match patterns.
-        // Or explicit check: isSurgicalCode or similar.
-        // For collapsing, we specifically target 180x codes usually.
-
+        const code = item.codigoGC || "";
         const isSurgical = code.startsWith("180") || code.startsWith("1101");
         if (!isSurgical) return;
 
@@ -221,6 +215,7 @@ export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoH
                 desglose.items?.forEach((item: any) => {
                     rawItems.push({
                         ...item,
+                        codigoGC: item.codigoGC || item.codigo || "", // Robust Alias
                         prestador: folio.prestadorPrincipal || desglose.nombrePrestador, // Ensure provider linkage
                         folio: folio.folioPAM, // Link folio
                         fecha: item.fecha || folio.fechaEmision // Fallback date, 
