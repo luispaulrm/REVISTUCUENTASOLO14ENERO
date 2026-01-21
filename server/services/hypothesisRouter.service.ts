@@ -129,7 +129,12 @@ export class HypothesisRouterService {
         const h1List = this.detectH1_OpacidadPorPamLine(input);
         hyps.push(...h1List);
 
-        // TODO: H2 Unbundling, H3 Hoteleria (next phase)
+        const h2List = this.detectH2_Unbundling(input);
+        hyps.push(...h2List);
+
+        // H3: Hoteleria (per SECTION scope)
+        const h3List = this.detectH3_Hoteleria(input);
+        hyps.push(...h3List);
 
         // Resolve conflicts and build matrix
         return this.buildResultWithConflictResolution(hyps);
@@ -228,6 +233,111 @@ export class HypothesisRouterService {
             });
         }
 
+        return out;
+    }
+
+    // ==========================================================================
+    // H2: Undue Unbundling (per SECTION scope)
+    // ==========================================================================
+    private detectH2_Unbundling(input: HypothesisRouterInput): ActiveHypothesis[] {
+        const out: ActiveHypothesis[] = [];
+        const surgicalKeywords = /pabellon|quirurg|intervencion|cirugia|honorario/i;
+
+        for (const section of input.cuentaSections) {
+            // Only analyze surgical/pabellon sections
+            if (!surgicalKeywords.test(section.sectionId)) continue;
+
+            // Heuristic 1: High density of low-cost items (e.g. > 10 items under 10000 CLP)
+            const lowCostItems = section.items.filter(i => i.amount < 15000);
+            const highDensity = lowCostItems.length > 8; // Threshold for unbundling suspicion
+
+            // Heuristic 2: Specific unbundling keywords in item descriptions
+            const unbundlingKeywords = /aposito|sutura|hoja|bisturi|guante|jeringa|aguj|cateter|sonda|compres|gasas/i;
+            const suspiciousItems = section.items.filter(i => unbundlingKeywords.test(i.desc));
+            const keywordTrigger = suspiciousItems.length > 3;
+
+            if (highDensity || keywordTrigger) {
+                out.push({
+                    id: "H2_UNBUNDLING",
+                    label: "Fraccionamiento Indebido (Unbundling)",
+                    confidence: 0.8, // Start high
+                    scope: {
+                        type: "SECTION",
+                        sectionId: section.sectionId,
+                        categories: ["MATERIALES", "INSUMOS"]
+                    },
+                    signals: [
+                        {
+                            id: "S_DENSIDAD_BAJO_COSTO",
+                            description: "High density of low-cost items in surgical section",
+                            evidence: {
+                                source: "CUENTA",
+                                pointers: [`cuentaSections[${section.sectionId}]`],
+                                sample: { count: lowCostItems.length, threshold: 8 }
+                            },
+                            score: 0.85
+                        },
+                        {
+                            id: "S_KEYWORDS_INSUMOS_BASICOS",
+                            description: "Explicit mention of basic supplies usually bundled",
+                            evidence: {
+                                source: "CUENTA",
+                                pointers: [`cuentaSections[${section.sectionId}]`],
+                                sample: { items: suspiciousItems.slice(0, 3).map(i => i.desc) }
+                            },
+                            score: 0.9
+                        }
+                    ],
+                    enables: ["UNBUNDLING_IF319"],
+                    blocks: [], // Doesn't block anything, just enables strict checks
+                    rationale: "Presence of distinct low-cost clinical supplies triggers IF-319 integrity check."
+                });
+            }
+        }
+        return out;
+    }
+
+    // ==========================================================================
+    // H3: Concealed Hotel Expenses (Hotelería)
+    // ==========================================================================
+    private detectH3_Hoteleria(input: HypothesisRouterInput): ActiveHypothesis[] {
+        const out: ActiveHypothesis[] = [];
+        const hotelKeywords = /hoteleria|habitacion|cama|hospitalizacion/i;
+        const comfortKeywords = /calcetin|media|toalla|agua|botella|termometro|vaso|jabon|shampoo|kit|confort/i;
+
+        for (const section of input.cuentaSections) {
+            // Check if section contains comfort items
+            const comfortItems = section.items.filter(i => comfortKeywords.test(i.desc));
+
+            // Heuristic: If we see comfort items charged separately (especially if section is 'clinical' or even 'hotel' but should be included)
+            if (comfortItems.length > 0) {
+                out.push({
+                    id: "H3_HOTELERIA",
+                    label: "Hotelería Oculta / Cobro Separado Confort",
+                    confidence: 0.9,
+                    scope: {
+                        type: "SECTION",
+                        sectionId: section.sectionId,
+                        categories: ["HOTELERIA", "INSUMOS"] // Target these for remediation
+                    },
+                    signals: [
+                        {
+                            id: "S_ITEMS_CONFORT",
+                            description: "Items of personal comfort charged separately",
+                            evidence: {
+                                source: "CUENTA",
+                                pointers: [`cuentaSections[${section.sectionId}]`],
+                                sample: { items: comfortItems.slice(0, 3).map(i => i.desc) }
+                            },
+                            score: 0.95
+                        }
+                    ],
+                    enables: ["DETECCION_HOTELERIA"],
+                    blocks: [],
+                    rationale: "Comfort items must be included in Bed Day fee (Dia Cama) per regulations."
+                });
+            }
+        }
         return out;
     }
 

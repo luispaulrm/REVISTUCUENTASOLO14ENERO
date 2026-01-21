@@ -66,7 +66,62 @@ class HypothesisRouterService {
         if (h5) hyps.push(h5);
         const h1List = this.detectH1_OpacidadPorPamLine(input);
         hyps.push(...h1List);
+        const h2List = this.detectH2_Unbundling(input);
+        hyps.push(...h2List);
+        const h3List = this.detectH3_Hoteleria(input);
+        hyps.push(...h3List);
         return this.buildResultWithConflictResolution(hyps);
+    }
+
+    private detectH3_Hoteleria(input: HypothesisRouterInput): ActiveHypothesis[] {
+        const out: ActiveHypothesis[] = [];
+        const comfortKeywords = /calcetin|media|toalla|agua|botella|termometro|vaso|jabon|shampoo|kit|confort/i;
+
+        for (const section of input.cuentaSections) {
+            const comfortItems = section.items.filter(i => comfortKeywords.test(i.desc));
+            if (comfortItems.length > 0) {
+                out.push({
+                    id: "H3_HOTELERIA",
+                    label: "Hotelería Oculta",
+                    confidence: 0.9,
+                    scope: { type: "SECTION", sectionId: section.sectionId },
+                    signals: [],
+                    enables: ["DETECCION_HOTELERIA"],
+                    blocks: [],
+                    rationale: "Comfort items must be included in Bed Day fee."
+                });
+            }
+        }
+        return out;
+    }
+
+    private detectH2_Unbundling(input: HypothesisRouterInput): ActiveHypothesis[] {
+        const out: ActiveHypothesis[] = [];
+        const surgicalKeywords = /pabellon|quirurg|intervencion|cirugia|honorario/i;
+
+        for (const section of input.cuentaSections) {
+            if (!surgicalKeywords.test(section.sectionId)) continue;
+
+            const lowCostItems = section.items.filter(i => i.amount < 15000);
+            const highDensity = lowCostItems.length > 8;
+            const unbundlingKeywords = /aposito|sutura|hoja|bisturi|guante|jeringa|aguj|cateter|sonda|compres|gasas/i;
+            const suspiciousItems = section.items.filter(i => unbundlingKeywords.test(i.desc));
+            const keywordTrigger = suspiciousItems.length > 3;
+
+            if (highDensity || keywordTrigger) {
+                out.push({
+                    id: "H2_UNBUNDLING",
+                    label: "Fraccionamiento Indebido (Unbundling)",
+                    confidence: 0.8,
+                    scope: { type: "SECTION", sectionId: section.sectionId },
+                    signals: [],
+                    enables: ["UNBUNDLING_IF319"],
+                    blocks: [],
+                    rationale: "Presence of distinct low-cost clinical supplies triggers IF-319 integrity check."
+                });
+            }
+        }
+        return out;
     }
 
     private detectH5_TestCase(input: HypothesisRouterInput): ActiveHypothesis | null {
@@ -126,7 +181,8 @@ class HypothesisRouterService {
 function scopesIntersect(a: HypothesisScope, b: HypothesisScope): boolean {
     if (a.type === "GLOBAL" || b.type === "GLOBAL") return true;
     if (a.type === "PAM_LINE" && b.type === "PAM_LINE") return a.pamLineKey === b.pamLineKey;
-    // Simplified intersection logic for verification
+    if (a.type === "SECTION" && b.type === "SECTION") return a.sectionId === b.sectionId;
+    // Cross-type: SECTION intersect ITEM_SET if we assume item belongs to section (mock assumption)
     return false;
 }
 
@@ -152,7 +208,15 @@ const cases = [
     {
         name: 'Sepulveda',
         input: {
-            cuentaSections: [{ sectionId: 'HOTEL', items: Array(60).fill({}) }],
+            cuentaSections: [{
+                sectionId: 'HOTEL',
+                items: [
+                    ...Array(50).fill({}),
+                    { id: 'c1', desc: 'TERMOMETRO DIGITAL', amount: 5000 },
+                    { id: 'c2', desc: 'MEDIAS ANTIEMBOLICAS', amount: 15000 },
+                    { id: 'c3', desc: 'TOALLA DE BAÑO', amount: 8000 }
+                ]
+            }],
             pam: { lines: [{ key: 'DIAS_CAMA', desc: 'DIAS CAMA', amount: 500000, isGeneric: true }] },
             contract: {}, metadata: { patientName: 'IVONNE SEPULVEDA' }
         }
@@ -160,8 +224,15 @@ const cases = [
     {
         name: 'Bravo',
         input: {
-            cuentaSections: [{ sectionId: 'PAB', items: Array(10).fill({}) }],
-            pam: { lines: [{ key: 'PABELLON', desc: 'DERECHO PABELLON', amount: 500000 }] }, // Not generic
+            cuentaSections: [{
+                sectionId: 'PABELLON_QUIRURGICO',
+                items: [
+                    ...Array(15).fill({ id: 'low1', desc: 'APOSITO GRANDE', amount: 5000 }),
+                    ...Array(5).fill({ id: 'low2', desc: 'SUTURA VICRYL', amount: 8000 }),
+                    { id: 'big1', desc: 'DERECHO PABELLON', amount: 400000 }
+                ]
+            }],
+            pam: { lines: [{ key: 'PABELLON', desc: 'DERECHO PABELLON', amount: 500000 }] },
             contract: {}, metadata: { patientName: 'NICOLAS BRAVO' }
         }
     },
@@ -187,13 +258,16 @@ cases.forEach(c => {
     else res.hypotheses.forEach(h => console.log(`  🟢 ${h.id} [${h.scope.type}]`));
 
     // Check Capabilities
-    // Scope: Materials/PAM Line for Riquelme/Sepulveda
-    const scopeMat: HypothesisScope = { type: 'PAM_LINE', pamLineKey: c.name === 'Sepulveda' ? 'DIAS_CAMA' : 'MATERIALES' };
-    const ctxMat = { capabilities: res.capabilityMatrix, currentScope: scopeMat };
+    // Scope: Materials/PAM Line for Riquelme/Sepulveda. For Bravo (H2), check SECTION.
+    const currentScope: HypothesisScope = c.name === 'Bravo'
+        ? { type: 'SECTION', sectionId: 'PABELLON_QUIRURGICO' }
+        : { type: 'PAM_LINE', pamLineKey: c.name === 'Sepulveda' ? 'DIAS_CAMA' : 'MATERIALES' };
+
+    const ctx = { capabilities: res.capabilityMatrix, currentScope };
     const ctxGlobal = { capabilities: res.capabilityMatrix, currentScope: { type: 'GLOBAL' as const } };
 
-    const canOpacidad = isCapabilityAllowed(ctxMat, "TRANSPARENCIA_OPACIDAD");
-    const canUnbundling = isCapabilityAllowed(ctxMat, "UNBUNDLING_IF319");
+    const canOpacidad = isCapabilityAllowed(ctx, "TRANSPARENCIA_OPACIDAD");
+    const canUnbundling = isCapabilityAllowed(ctx, "UNBUNDLING_IF319");
     const canTest = isCapabilityAllowed(ctxGlobal, "REGLAS_SINTETICAS_TEST");
 
     console.log(`  🔓 Unbundling Allowed? ${canUnbundling ? 'YES' : 'NO'}`);
