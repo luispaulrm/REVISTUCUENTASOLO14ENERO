@@ -207,61 +207,42 @@ const CHECKLIST_AMB = `
 // --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
 
 const SHARED_MANDATE = `
-  ** MANDATO FORENSE v13.0: LECTURA CON MARCADORES DE COLUMNAS (CALCO CARBÓN) **
-  OBJETIVO: Extraer datos usando marcadores [COL0], [COL1], etc. para eliminar ambigüedad.
-  
-  ⚠️ NUEVO SISTEMA DE EXTRACCIÓN:
-  El PDF ha sido pre-procesado y cada texto incluye su marcador de columna.
-  
+  ** MANDATO FORENSE v14.0: LECTURA DE COLUMNAS CON EXCLUSIÓN INTERNACIONAL (CALCO CARBÓN) **
+  OBJETIVO: Extraer datos Nacionales (Preferente/Libre Elección) IGNORANDO ABSOLUTAMENTE las columnas Internacionales.
+
+  ⚠️ REGLA DE ORO: EXCLUSIÓN DE "COBERTURA INTERNACIONAL/EXTRANJERO":
+  Muchos planes tienen 3 grupos de columnas:
+  1. [Preferente] (CLÍNICAS DEL PLAN) -> EXTRAER
+  2. [Libre Elección] (OTRAS CLÍNICAS) -> EXTRAER
+  3. [Internacional/Extranjero/USA] -> ¡IGNORAR TOTALMENTE!
+
   **FORMATO DE ENTRADA:**
-  Cada fila del PDF se presenta así:
-  [COL0]Medicamentos (1.4) (1.10) | [COL1]— | [COL2]Sin Tope | [COL3]90% | [COL4]40 UF
+  Cada fila del PDF se presenta pre-procesada con marcadores:
+  [COL0]Prestacion | [COL1]XXX | [COL2]YYY | [COL3]ZZZ | [COL4]AAA | [COL5]BBB
+
+  **ESTRATEGIA DE MAPEO (AUTO-DETECTAR):**
+  1. Escanea los encabezados: ¿Qué columna dice "Internacional", "Extranjero", "Mundo" o "USA"?
+  2. MARCA ESA COLUMNA COMO "ZONA PROHIBIDA".
+  3. Extrae SOLO de las columnas "Oferta Preferente" y "Libre Elección".
+
+  ⚠️ TRAMPA COMÚN (ERROR DE TOPES):
+  - A veces la Libre Elección dice "Sin Tope", pero la Internacional dice "5000 UF".
+  - ERROR GRAVE: Asignar "5000 UF" a Libre Elección.
+  - CORRECTO: Si Libre Elección dice "Sin tope", reporta "Sin Tope". Ignora lo que diga la columna Internacional a la derecha.
+
+  **EJEMPLO DE EXTRACCIÓN CORRECTA:**
+  Entrada:
+  [COL0]Día Cama | [COL1]100% | [COL2]Sin Tope | [COL3]80% | [COL4]Sin Tope | [COL5]70% | [COL6]100 UF (Intl)
   
-  **INTERPRETACIÓN DE COLUMNAS (TÍPICA ESTRUCTURA):**
-  - [COL0]: Nombre de la prestación
-  - [COL1]: Bonificación OFERTA PREFERENTE (%)
-  - [COL2]: Tope OFERTA PREFERENTE (UF/Año)
-  - [COL3]: Bonificación LIBRE ELECCIÓN (%)
-  - [COL4]: Tope LIBRE ELECCIÓN (UF/Año)
-  
-  ⚠️ REGLAS DE EXTRACCIÓN (CALCO CARBÓN):
-  1. **IDENTIFICA LOS ENCABEZADOS PRIMERO:**
-     - Busca la fila que contiene "OFERTA PREFERENTE" y "LIBRE ELECCIÓN".
-     - Mapea qué [COLx] corresponde a qué tipo de información.
-  
-  2. **EXTRAE FILA POR FILA:**
-     - Para "Medicamentos", busca la fila que comienza con [COL0]Medicamentos.
-     - Lee los valores de [COL1], [COL2], [COL3], [COL4] DE ESA FILA EXACTA.
-     - NO busques valores en otras filas.
-  
-  3. **REGLAS DE VALORES VACÍOS:**
-     - Si ves [COL2]— o [COL2] (vacío), significa que no hay valor → reporta "-".
-     - Si ves [COL2]Sin Tope, reporta "Sin Tope" literalmente.
-     - NUNCA copies valores de [COL4] a [COL2] ni viceversa.
-  
-  4. **EJEMPLO DE EXTRACCIÓN CORRECTA:**
-     Entrada:
-     [COL0]Medicamentos (1.4) (1.10) | [COL1]— | [COL2]— | [COL3]90% | [COL4]40 UF
-     
-     Salida:
-     {
-       "item": "Medicamentos (1.4) (1.10)",
-       "modalidad": "Oferta Preferente",
-       "cobertura": "-",
-       "tope": "-"
-     },
-     {
-       "item": "Medicamentos (1.4) (1.10)",
-       "modalidad": "Libre Elección",
-       "cobertura": "90%",
-       "tope": "40 UF"
-     }
-  
-  ⚠️ PROHIBICIONES ABSOLUTAS:
-  - NO inventes valores.
-  - NO heredes valores de otras filas.
-  - NO confundas [COL2] con [COL4].
-  - Si un [COLx] está vacío, reporta "-".
+  Salida (IGNORANDO COL5 y COL6):
+  { "modalidad": "Oferta Preferente", "cobertura": "100%", "tope": "Sin Tope" },
+  { "modalidad": "Libre Elección", "cobertura": "80%", "tope": "Sin Tope" }
+
+  ⚠️ INSTRUCCIONES DE FIDELIDAD:
+  - Si la celda Nacional está vacía (—) o dice (—), reporta "-".
+  - Si dice "Sin Tope", reporta "Sin Tope".
+  - NUNCA inventes valores.
+  - NUNCA copies valores de la columna Internacional.
 `;
 
 export const PROMPT_HOSP_P1 = `

@@ -83,7 +83,14 @@ function classifyFinding(h: any): "A" | "B" {
 
     if (isUnbundling) return "A"; // Priority 1: Unbundling is always Improcedente
     if (isHoteleria && /DUPLICI|DOBLE|INCLU/.test(textUpper)) return "A"; // Hoteleria duplicated is A
-    if (isMedInsumo && isZeroCoverage) return "A"; // Priority 1.5: Breach of Contract (100% Clause)
+
+    // CANONICAL RULE C-NC-03(B): Medicamentos/Insumos with Zero Coverage 
+    // are NOT automatically Cat A. They require CRC verification:
+    // - CRC=true + Cobertura 100% verifiable → Cat A (Contract Breach)
+    // - CRC=false → Cat B/Z (Opacity/Indeterminate)
+    // This logic happens in postValidateLlmResponse where CRC context is available.
+    // Here, we conservatively return Cat B and let CRC analysis promote to Cat A.
+    if (isMedInsumo && isZeroCoverage) return "B"; // Priority 1.5: Requires CRC verification
 
     // FIX 5: NURSING & SURGICAL DRUGS (IRREGULAR PRACTICES REPORT)
     const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(textUpper) || /ENFERMERIA/.test(glUpper);
@@ -1312,7 +1319,35 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     // 0. Detect Structural Opacity Parent to avoid double counting
     const hasCanonicalOpacity = hallazgos.some((h: any) => h.codigos === "OPACIDAD_ESTRUCTURAL");
 
-    // 1. Freeze Categories
+    // ========================================================================
+    // CANONICAL RULE C-NC-03: PROTECTED CATEGORIES (NEVER SUBSUME)
+    // These represent clinical/normative Cat A findings that are INDEPENDENT
+    // of structural opacity and cannot be collapsed.
+    // ========================================================================
+
+    // Protected code patterns (IF-319 unbundling, nursing procedures)
+    const PROTECTED_CODE_PATTERNS = [
+        /^99-00-028/,  // Instalación de vía venosa
+        /^99-00-045/,  // Fleboclisis
+        /^99-00-/,     // Generic nursing procedures
+        /^01-01-010/,  // Día cama components
+        /^01-04-/,     // Pabellón inherent procedures
+    ];
+
+    // Protected keywords in titulo/glosa indicating clinical/normative Cat A
+    const PROTECTED_KEYWORDS = [
+        /UNBUNDLING/i,
+        /VIA VENOSA/i,
+        /FLEBOCLISIS/i,
+        /ENFERMERIA BASICA/i,
+        /INHERENTE/i,
+        /DOBLE COBRO/i,
+        /EVENTO UNICO/i,
+        /IF-?319/i,
+        /CIRCULAR.*319/i,
+    ];
+
+    // 1. Freeze Categories with C-NC-03 Protection
     const hallazgosFrozen = hallazgos.map((h: HallazgoInternal) => {
         let cat: HallazgoCategoria = "Z"; // Default indeterminate
 
@@ -1320,14 +1355,46 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
         const isOpacityParent = h.codigos === "OPACIDAD_ESTRUCTURAL";
         const isGenericMaterialOrMed = (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMAC/i.test(h.glosa));
 
-        // Logic: If we have the Canonical Parent, then any other generic material/med finding is a "Child" 
-        // that is technically subsumed by the structural opacity. We mark it so we don't double sum.
-        // BUT: If the finding is explicitly CAT A (e.g. "Sin BonificaciÃ³n" or "Varios"), we DO NOT subsume it.
+        // ========================================================================
+        // C-NC-03: Determine if finding is PROTECTED from subsumption
+        // Protection is based on NATURE, not current state (categoria_final)
+        // ========================================================================
+
+        // Check 1: Protected by code pattern (IF-319, nursing procedures)
+        const isProtectedByCode = h.codigos && PROTECTED_CODE_PATTERNS.some(
+            pattern => pattern.test(h.codigos || '')
+        );
+
+        // Check 2: Protected by clinical/normative keywords
+        const searchText = `${h.titulo || ''} ${h.glosa || ''} ${h.hallazgo || ''}`;
+        const isProtectedByKeyword = PROTECTED_KEYWORDS.some(
+            pattern => pattern.test(searchText)
+        );
+
+        // Check 3: Protected by doctrine/jurisprudence source (Cat A fuerte)
+        const isDoctrineCatA = (h as any).source === 'DOCTRINA' && h.categoria_final === 'A';
+        const isPrecedentCatA = (h as any).source === 'PRECEDENTE' && h.categoria_final === 'A';
+        const isJurisprudenceProtected = isDoctrineCatA || isPrecedentCatA;
+
+        // Check 4: Explicit Cat A markers (legacy compatibility)
         const isExplicitA = h.categoria_final === "A" || h.tipo_monto === "COBRO_IMPROCEDENTE";
 
-        if (hasCanonicalOpacity && isGenericMaterialOrMed && !isOpacityParent && !isExplicitA) {
+        // FINAL PROTECTION STATUS: Protected if ANY of the above is true
+        const isProtectedFromSubsumption = isProtectedByCode || isProtectedByKeyword || isJurisprudenceProtected || isExplicitA;
+
+        // Log protection status for debugging
+        if (isProtectedFromSubsumption && hasCanonicalOpacity) {
+            console.log(`[C-NC-03] 🛡️ PROTECTED: '${h.titulo}' (code=${isProtectedByCode}, keyword=${isProtectedByKeyword}, jurisp=${isJurisprudenceProtected}, explicit=${isExplicitA})`);
+        }
+
+        // ========================================================================
+        // C-SUB-01: SUBSUMPTION LOGIC (with Non-Collapse Protection)
+        // Generic material/med findings are subsumed ONLY if NOT protected
+        // ========================================================================
+        if (hasCanonicalOpacity && isGenericMaterialOrMed && !isOpacityParent && !isProtectedFromSubsumption) {
             h.isSubsumed = true;
             cat = "B"; // It is still controversy, but won't be summed
+            console.log(`[C-SUB-01] Subsumed: '${h.titulo}' (generic material/med under opacity)`);
         } else if (isOpacityParent) {
             cat = "B";
         } else if (h.categoria === "OPACIDAD") {
@@ -1347,6 +1414,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
                 }
             } else if (isGap) {
                 cat = "Z"; // Gap is always Indeterminate until proven
+            } else if (isProtectedFromSubsumption) {
+                // PROTECTED Cat A: Clinical/normative findings (unbundling, IF-319, etc.)
+                cat = "A";
+                console.log(`[C-NC-03] ✅ Cat A confirmed for protected finding: '${h.titulo}'`);
             } else {
                 // Default "Cobro Improcedente" (e.g. Pabellon, Dias Cama) -> A
                 // Check if explicitly "COBRO_IMPROCEDENTE" and high confidence
@@ -1359,9 +1430,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
         }
 
         // --- STRICT OVERRIDE FOR SUSPECTED PARTIAL MATCHES ---
-        // If we have a finding that mentions "AlimentaciÃ³n" or "Sin BonificaciÃ³n" but was NOT marked as "A" above (Exact Match),
+        // If we have a finding that mentions "Alimentación" or "Sin Bonificación" but was NOT marked as "A" above (Exact Match),
         // we force it to Z (Indeterminate) to avoid "Green" oscillation.
-        if ((h.titulo?.includes("ALIMENTACION") || h.glosa?.includes("SIN BONIF")) && cat !== "A") {
+        // EXCEPTION: Protected findings are NEVER downgraded
+        if ((h.titulo?.includes("ALIMENTACION") || h.glosa?.includes("SIN BONIF")) && cat !== "A" && !isProtectedFromSubsumption) {
             cat = "Z";
         }
 
@@ -1396,6 +1468,28 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     const sumZ = hallazgosFrozen
         .filter((h: any) => h.categoria_final === "Z" && !h.isSubsumed)
         .reduce((acc: number, h: any) => acc + (h.montoObjetado || 0), 0);
+
+    // ========================================================================
+    // C-CLOSE-01: ACCOUNTING CLOSURE ASSERTION
+    // Prevents Cat A = 0 when traceable Cat A findings exist
+    // ========================================================================
+    const catAFindingsExist = hallazgosFrozen.some(
+        (h: any) => h.categoria_final === "A" && !h.isSubsumed
+    );
+
+    if (catAFindingsExist && sumA === 0) {
+        console.error('[C-CLOSE-01] ⚠️ CANONICAL VIOLATION: Cat A findings exist but sumA = 0!');
+        console.error('[C-CLOSE-01] This indicates subsumption logic collapsed Cat A incorrectly.');
+
+        // Debug: List all Cat A findings that should have been counted
+        hallazgosFrozen
+            .filter((h: any) => h.categoria_final === "A")
+            .forEach((h: any) => {
+                console.error(`  [C-CLOSE-01] Orphaned Cat A: '${h.titulo}' = $${(h.montoObjetado || 0).toLocaleString()}, isSubsumed=${h.isSubsumed}`);
+            });
+    } else if (sumA > 0) {
+        console.log(`[C-CLOSE-01] ✅ Accounting closure OK: Cat A = $${sumA.toLocaleString()} (${hallazgosFrozen.filter((h: any) => h.categoria_final === 'A' && !h.isSubsumed).length} finding(s))`);
+    }
 
     // 3. Update Result
     result.hallazgos = hallazgosFrozen;
@@ -1457,11 +1551,15 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     const hasOpacity = hasCanonicalOpacity || hasCatZ || hasCatB;
 
     if (hasCatA && hasOpacity) {
-        // MIXED STATE (The crucial missing state)
+        // ========================================================================
+        // C-STATE-02: MIXED GLOBAL STATE (Cat A confirmed + Opacity coexist)
+        // ========================================================================
         if (hasCanonicalOpacity) {
-            finalDecision = "DISCREPANCIA CON COBROS IMPROCEDENTES + OPACIDAD PARCIAL";
+            // Canonical mixed state per C-STATE-02
+            finalDecision = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+            console.log('[C-STATE-02] 🎭 Mixed State: Cat A confirmed ($' + sumA.toLocaleString() + ') + Structural Opacity');
         } else {
-            finalDecision = "DISCREPANCIA MIXTA (IMPROCEDENCIA + CONTROVERSIA)";
+            finalDecision = "DISCREPANCIA_MIXTA_IMPROCEDENCIA_Y_CONTROVERSIA";
         }
     } else if (hasCatA) {
         finalDecision = "DISCREPANCIA POR COBROS IMPROCEDENTES";
