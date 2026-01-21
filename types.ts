@@ -323,10 +323,12 @@ export interface AuditResult {
   };
   legalContext?: LegalContext; // Phase 10: Explicit Legal Boundaries
 
-  // Phase 11: Tailored Explanations (Clínica vs Isapre)
+  // Phase 11 & 12: Tailored Explanations (Clínica vs Isapre vs Paciente)
   explicaciones?: {
     clinica: string;
     isapre: string;
+    paciente: string;
+    defensa_mandato: string; // Phase 14: Administrative vs Epistemological Defense
   };
 
   // Legacy / Hybrid fields for compatibility
