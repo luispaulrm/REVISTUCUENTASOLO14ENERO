@@ -65,13 +65,23 @@ function parseAmountCLP(val: any): number {
 function classifyFinding(h: any): "A" | "B" {
     const gl = (h.glosa || "").toUpperCase();
     const text = (h.hallazgo || "").toUpperCase();
+    const glUpper = gl; // Already upper
+    const textUpper = text; // Already upper
 
-    // CAT A: Cobros improcedentes de cuenta (glosas genÃ©ricas sin PAM) or Explicit "Sin Bonificacion"
-    const isCuentaOpaca = /VARIOS|AJUSTE|DIFERENCIA/.test(gl) || /VARIOS|AJUSTE/.test(text) || /SIN BONIFI/.test(text) || /SIN BONIFI/.test(gl);
-    if (isCuentaOpaca) return "A";
+    // 1. Layer: NATURALEZA CLINICA / NORMATIVA (Eventos Unicos, Unbundling, Doble Cobro) -> Cat A (= RULE_OPACIDAD_NO_COLAPSA)
+    const isUnbundling = /UNBUNDLING|EVENTO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(textUpper) || /UNBUNDLING|EVENTO/.test(glUpper);
+    const isHoteleria = /ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION/.test(glUpper) || /IF-319/.test(textUpper);
 
-    // CAT B: PAM con cajas negras (materiales/medicamentos agrupados)
-    const isPamCajaNegra = /MATERIALES|MEDICAMENTOS|INSUMO|FARMAC/.test(gl) && /DESGLOSE|OPACIDAD|CAJA/.test(text);
+    if (isUnbundling) return "A"; // Priority 1: Unbundling is always Improcedente
+    if (isHoteleria && /DUPLICI|DOBLE|INCLU/.test(textUpper)) return "A"; // Hoteleria duplicated is A
+
+    // 2. Layer: CUENTA OPACA (Improcedente por falta de soporte minimo)
+    const isCuentaOpaca = /VARIOS|AJUSTE|DIFERENCIA/.test(glUpper) || /VARIOS|AJUSTE/.test(textUpper) || /SIN BONIFI/.test(textUpper) || /SIN BONIFI/.test(glUpper);
+    if (isCuentaOpaca) return "A"; // Also A
+
+    // 3. Layer: PAM OPACO (Conditioned Findings) -> Cat B/Z
+    // If it requires breakdown to be validated, it is B.
+    const isPamCajaNegra = /MATERIALES|MEDICAMENTOS|INSUMO|FARMAC/.test(glUpper) && /DESGLOSE|OPACIDAD|CAJA/.test(textUpper);
     if (isPamCajaNegra) return "B";
 
     // Default: Conservative (treat as CAT B if unclear - Safety First)
@@ -1019,9 +1029,9 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     // Scenario A: Structural Opacity / Indeterminacy (The "Limit" Case)
                     if (decision.estado && (decision.estado.includes('OPACIDAD') || decision.estado.includes('INDETERMINADO') || decision.estado.includes('CONTROVERSIA'))) {
                         return {
-                            clinica: "Motivo de la observación: imposibilidad de trazabilidad contablecontractual.\n\nLa cuenta clínica presenta un nivel de agregación en el PAM que impide la verificación técnica de la correcta aplicación de coberturas, exclusiones y topes contractuales.\n\nSi bien la cuenta interna del prestador contiene detalle ítem a ítem, el documento de liquidación (PAM) que es el instrumento que determina el copago exigible al paciente consolida materiales, medicamentos y otras prestaciones en glosas genéricas, sin apertura equivalente (trazabilidad 1:1).\n\nEn este contexto, no es posible verificar:\n- Qué ítems específicos fueron efectivamente bonificados.\n- Qué ítems quedaron fuera de cobertura y por qué causa.\n- Si los topes UF/VAM se aplicaron sobre bases clínicas puras o sobre ítems mixtos (clínicos + hotelería).\n\nPor tanto, no se cuestiona la prestación clínica, sino la forma de liquidación, que no permite auditoría externa ni validación contractual.\n\nAcción requerida: entrega de una reliquidación o anexo formal de liquidación con desglose espejo (Cuenta  PAM), indicando para cada ítem: código, cantidad, valor unitario, bonificación aplicada y copago resultante.\n\nClave: El problema no es lo que se hizo, sino cómo se está cobrando.",
-                            isapre: "Diagnóstico: copago jurídicamente indeterminable por opacidad estructural.\n\nEl copago exigido al afiliado no puede considerarse plenamente exigible mientras el propio instrumento de liquidación (PAM) no permita reconstruir la aplicación efectiva del contrato de salud.\n\nSe constata:\n- Imposibilidad de verificar topes UF/VAM por agregación de ítems.\n- Falta de correspondencia directa entre cuenta detallada del prestador y liquidación de la aseguradora.\n- Existencia de glosas genéricas (Materiales, Medicamentos, s/b) que no permiten identificar el objeto del cobro.\n\nConforme a los principios de transparencia, trazabilidad y derecho a información clara, la carga de claridad recae en el prestador y la aseguradora, no en el afiliado.\n\nEn ausencia de desglose verificable:\n- El afiliado no puede auditar.\n- La aseguradora no puede demostrar correcta aplicación contractual.\n- El copago queda en estado INDETERMINADO.\n\nConclusión técnica-jurídica: el cobro no puede ser exigido mientras no exista reliquidación detallada que permita validación objetiva.\n\nClave: No se puede cobrar lo que no se puede explicar ni demostrar.",
-                            paciente: "No es que te estén cobrando algo seguro mal.\nEl problema es que no te explicaron qué te están cobrando.\n\nEs como si te dijeran:\nDebe $20 millones por ‘cosas médicas’, sin decir cuáles.\n\nMientras eso no se explique claro y detallado, nadie puede saber si el cobro es correcto, y por ley no deberías pagarlo a ciegas.\n\nEsta cuenta alcanzó el límite máximo de auditoría posible. No es que falte inteligencia, cálculo o análisis. Falta información mínima exigible por ley.",
+                            clinica: "Motivo de la observación: imposibilidad de trazabilidad contable-contractual + Cobros Improcedentes detectados.\n\nLa cuenta clínica presenta un nivel de agregación en el PAM que impide la verificación técnica de todos los ítems; sin embargo, se han detectado cobros unitarios que resultan improcedentes por su propia naturaleza (Eventos Únicos, Unbundling).\n\nRespecto a la Opacidad: Si bien la cuenta interna del prestador contiene detalle, el PAM consolida materiales y medicamentos sin apertura espejo, impidiendo validar topes UF.\n\nRespecto a la Improcedencia: Existen prestaciones cobradas por separado que deben entenderse incluidas en el día cama o pabellón (doble cobro).\n\nConclusión: Se requieren dos acciones: 1) Eiminar los cobros improcedentes detectados (Cat A) y 2) Reliquidar el resto con desglose detallado para auditar topes (Cat B/Z).",
+                            isapre: "La falta de desglose en el PAM impide auditar parte del copago; sin embargo, no obsta a declarar improcedentes aquellos cobros que, por su naturaleza clínica o normativa, resultan indebidos con independencia de dicha opacidad, tales como el cobro fragmentado de prestaciones inherentes a la hospitalización y la aplicación del Principio de Evento Único.\n\nEn derecho chileno: La falta de desglose no anula derechos que surgen por unidad clínica, naturaleza de la prestación o cobertura explícita.",
+                            paciente: "Hay dos tipos de problemas en tu cuenta:\n\n1. Cobros que definitivamente NO corresponden (Cat A): Cosas que ya están pagadas dentro del 'Día Cama' o 'Pabellón' y te las están cobrando de nuevo. Esto se debe borrar.\n\n2. Cobros 'borrosos' (Opacidad): Gastos grandes de materiales/medicamentos que no explican bien. No sabemos si están bien o mal calculados porque faltan datos. Aquí aplica la protección de tu contrato: si no se explica, no se paga a ciegas.\n\nNo estás pidiendo un favor, estás exigiendo que te cobren lo justo y transparente.",
                             defensa_mandato: "El mandato es solo una autorización de tramitación; no puede interpretarse como renuncia al derecho a información ni como aceptación de cobros no trazables.\n\nSi el PAM no desglosa materiales/medicamentos, el copago es indeterminable y la carga de aclarar recae en prestador e Isapre.\n\nCláusula 2 (Mandato): Autoriza gestiones de cobro, NO autoriza opacidad.\nCláusula 3 (Consentimiento): Autoriza revelar datos médicos para obtener pago. Si la clínica oculta el detalle (opacidad), está incumpliendo su propio mandato de usar la información para justificar el cobro."
                         };
                     }
@@ -1184,8 +1194,51 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
 
     canonicalText += `La suma de todas las categorÃ­as coincide exactamente con el copago total.`;
 
+    // --- UPDATED ARGUMENTATIVE LOGIC (FIX 7: Hybrid State & Non-Collapse Principle) ---
+    // RULE_OPACIDAD_NO_COLAPSA: Opacity does not invalidate verified findings.
+
+    let finalDecision = "AUDITABLE"; // Default
+
+    // Logic for State Determination (Layered)
+    const hasCatA = sumA > 0;
+    const hasCatB = sumB > 0; // Controversy
+    const hasCatZ = sumZ > 0; // Indeterminate
+    const hasOpacity = hasCanonicalOpacity || hasCatZ || hasCatB;
+
+    if (hasCatA && hasOpacity) {
+        // MIXED STATE (The crucial missing state)
+        if (hasCanonicalOpacity) {
+            finalDecision = "DISCREPANCIA CON COBROS IMPROCEDENTES + OPACIDAD PARCIAL";
+        } else {
+            finalDecision = "DISCREPANCIA MIXTA (IMPROCEDENCIA + CONTROVERSIA)";
+        }
+    } else if (hasCatA) {
+        finalDecision = "DISCREPANCIA POR COBROS IMPROCEDENTES";
+    } else if (hasCanonicalOpacity || sumZ > (totalCopagoReal * 0.5)) {
+        // Only Pure Opacity if NO Cat A
+        finalDecision = "OPACIDAD ESTRUCTURAL (COPAGO INDETERMINADO)";
+    } else if (sumB > 0) {
+        finalDecision = "CONTROVERSIA POR FALTA DE DESGLOSE";
+    } else if (catOK === totalCopagoReal && totalCopagoReal > 0) {
+        finalDecision = "CORRECTO (VALIDADO)";
+    } else if (totalCopagoReal === 0) {
+        finalDecision = "SIN COPAGO INFORMADO";
+    }
+
     if (!result.decisionGlobal) result.decisionGlobal = {};
+    result.decisionGlobal.estado = finalDecision; // FORCE OVERRIDE
     result.decisionGlobal.fundamento = canonicalText;
+
+    // --- MANDATORY LEGAL TEXT INJECTION (Point 8) ---
+    // This overrides the 'legalContext' or 'explicaciones' to ensure the phrase is present.
+    const MANDATORY_PHRASE = "La auditoría identifica partidas cuya procedencia o improcedencia puede determinarse con independencia de la opacidad documental existente, así como otras que requieren aclaración adicional. En consecuencia, la opacidad detectada es parcial y no invalida los hallazgos clínicos y normativos acreditados.";
+
+    if (result.explicaciones) {
+        // We append it to the 'conclusión' section of 'isapre' or 'clinica'
+        if (result.explicaciones.isapre) {
+            result.explicaciones.isapre += "\n\n" + MANDATORY_PHRASE;
+        }
+    }
 
     return result;
 }

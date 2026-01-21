@@ -550,8 +550,12 @@ export async function analyzeSingleContract(
     const MAX_AMB_ITEMS = 70;
 
     // Independent slicing
-    const hospSliced = coberturasHospRaw.slice(0, MAX_HOSP_ITEMS);
-    const ambSliced = coberturasAmbRaw.slice(0, MAX_AMB_ITEMS);
+    // Independent slicing - REMOVED per User Request (Fix 1)
+    // const hospSliced = coberturasHospRaw.slice(0, MAX_HOSP_ITEMS);
+    // const ambSliced = coberturasAmbRaw.slice(0, MAX_AMB_ITEMS);
+    // Instead of slicing, we just filter empty/garbage if needed, but for now we pass ALL.
+    const hospSliced = coberturasHospRaw;
+    const ambSliced = coberturasAmbRaw;
 
     const cleanAndCheck = (list: any[]) => list.map((cob: any) => {
         let cleaned = { ...cob };
@@ -572,25 +576,42 @@ export async function analyzeSingleContract(
         const tope = String(cleaned.tope || cleaned.tope_1 || '');
 
         // Rule 1: Medicamentos/Insumos in "Oferta Preferente" should NOT have "Sin Tope"
-        if (modalidad.includes('preferente') || modalidad.includes('oferta')) {
+        // FIX 2: Do NOT apply this rule to Hospital items (Medicamentos, Insumos, etc.)
+        // We only apply it if it is NOT a hospital-exclusive concept, or we rely on the classifier.
+        const isHospitalSpecific =
+            itemName.includes('hospital') ||
+            itemName.includes('día cama') ||
+            itemName.includes('pabellón') ||
+            itemName.includes('honorario'); // Honorarios usually have specific rules
+
+        // Special check: Medicamentos can be amb or hosp. 
+        // If contract says "Hospitalario" we skip this.
+        const tipoContrato = fingerprintPhase.result?.tipo_contrato || "UNKNOWN";
+        const isHospContract = tipoContrato.includes('HOSPITAL') || tipoContrato.includes('MIXTO');
+
+        if ((modalidad.includes('preferente') || modalidad.includes('oferta')) && !isHospContract) {
             const isMedicamentosInsumos =
                 itemName.includes('medicamento') ||
                 itemName.includes('insumo') ||
                 itemName.includes('material') ||
                 itemName.includes('fármaco');
 
-            const hasSinTope =
-                tope.toLowerCase().includes('sin tope') ||
-                tope.toLowerCase().includes('ilimitado') ||
-                (tope === '100%' && !tope.includes('UF'));
+            // Only apply if we are sure it's not the hospital part
+            if (isMedicamentosInsumos && !isHospitalSpecific) {
+                const hasSinTope =
+                    tope.toLowerCase().includes('sin tope') ||
+                    tope.toLowerCase().includes('ilimitado') ||
+                    (tope === '100%' && !tope.includes('UF'));
 
-            if (isMedicamentosInsumos && hasSinTope) {
-                log(`[VALIDATION] 🚨 Logical Error Detected: "${cleaned.item}" (Preferente) has "Sin Tope" - Auto-correcting to "-"`);
-                cleaned.tope = '-';
-                cleaned.nota_restriccion = (cleaned.nota_restriccion || '') +
-                    '\n⚠️ ADVERTENCIA: El sistema detectó un posible error de extracción. ' +
-                    'Medicamentos/Insumos en Oferta Preferente típicamente tienen tope en UF, no "Sin Tope". ' +
-                    'Se corrigió automáticamente a "-" (sin cobertura). Verificar con contrato original.';
+                if (hasSinTope) {
+                    // FIX 2.1: DOUBLE CHECK - If specifically "Insumos Hospitalarios", do not touch.
+                    if (!itemName.includes('intrahospitalario')) {
+                        log(`[VALIDATION] 🚨 Logical Error Detected: "${cleaned.item}" (Preferente) has "Sin Tope" - Auto-correcting to "-"`);
+                        cleaned.tope = '-';
+                        cleaned.nota_restriccion = (cleaned.nota_restriccion || '') +
+                            '\n⚠️ ADVERTENCIA: Se corrigió tope "Sin Tope" en modalidad Preferente Ambulatoria detectada.';
+                    }
+                }
             }
         }
 

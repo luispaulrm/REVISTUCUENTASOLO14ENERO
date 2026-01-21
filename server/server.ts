@@ -15,7 +15,7 @@ import { handleContractExtraction } from './endpoints/contract.endpoint.js';
 import { handleAuditAnalysis } from './endpoints/audit.endpoint.js';
 import { handleProjection } from './endpoints/projection.endpoint.js';
 import { handleAskAuditor } from './endpoints/ask.endpoint.js';
-import { handlePreCheck } from './endpoints/precheck.endpoint.ts';
+import { handlePreCheck } from './endpoints/precheck.endpoint.js';
 import { handleGeneratePdf } from './endpoints/generate-pdf.endpoint.js';
 import { BILL_PROMPT } from './prompts/bill.prompt.js';
 
