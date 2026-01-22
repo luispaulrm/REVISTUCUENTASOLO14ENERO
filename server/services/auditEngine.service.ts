@@ -1,4 +1,4 @@
-﻿import { CANONICAL_MANDATE_TEXT } from '../data/canonical_contract_mandate';
+﻿import { CANONICAL_MANDATE_TEXT } from '../data/canonical_contract_mandate.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GeminiService } from './gemini.service.js';
 import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.js';
