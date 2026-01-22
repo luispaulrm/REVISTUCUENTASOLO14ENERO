@@ -294,7 +294,7 @@ export default function ContractApp() {
                         </div>
 
                         {/* SPACEX FOOTER (CONTRACT EDITION) */}
-                        <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb">
+                        <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[500] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb">
                             <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
 
                                 {/* 1. MISSION TIME */}

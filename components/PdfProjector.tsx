@@ -23,6 +23,7 @@ export default function PdfProjector() {
     const [hasCache, setHasCache] = useState(false);
     const logEndRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<number | null>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
 
     useEffect(() => {
         const checkCache = () => {
@@ -107,6 +108,12 @@ export default function PdfProjector() {
     };
 
     const startProjection = async (selectedFile: File, isResume: boolean = false) => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        const controller = new AbortController();
+        abortControllerRef.current = controller;
+
         setIsProcessing(true);
         if (!isResume) {
             // Clear only the old HTML projection to start fresh if it's a NEW file (and not cached)
@@ -136,7 +143,8 @@ export default function PdfProjector() {
                         image: base64,
                         mimeType: selectedFile.type,
                         // If we had more state to pass back, we could, but the service handles it by analyzing the sequence
-                    })
+                    }),
+                    signal: controller.signal
                 });
 
                 if (!response.ok) throw new Error('Error en la comunicación con el servidor');
@@ -235,15 +243,26 @@ export default function PdfProjector() {
                     console.error('Error saving to localStorage:', e);
                 }
             } catch (err: any) {
-                addLog(`[ERROR] ${err.message}`);
+                if (err.name === 'AbortError') {
+                    addLog('[SISTEMA] 🛑 Proyección cancelada.');
+                } else {
+                    addLog(`[ERROR] ${err.message}`);
+                }
             } finally {
                 setIsProcessing(false);
+                if (abortControllerRef.current === controller) {
+                    abortControllerRef.current = null;
+                }
             }
         };
         reader.readAsDataURL(selectedFile);
     };
 
     const clearSession = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+        }
         setFile(null);
         setHtmlProjection("");
         setUsage(null);
@@ -479,7 +498,7 @@ export default function PdfProjector() {
             {/* SPACEX FOOTER (ACTION BAR & TELEMETRY) */}
             {
                 file && (
-                    <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb animate-in slide-in-from-bottom duration-500">
+                    <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[500] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb animate-in slide-in-from-bottom duration-500">
                         <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
 
                             {/* 1. MISSION TIME */}
@@ -581,6 +600,15 @@ export default function PdfProjector() {
                                 >
                                     <X size={18} />
                                 </button>
+                                {isProcessing && (
+                                    <button
+                                        onClick={() => abortControllerRef.current?.abort()}
+                                        className="flex items-center justify-center w-10 h-10 rounded-full bg-rose-600 hover:bg-rose-700 text-white transition-all shadow-lg animate-pulse"
+                                        title="DETENER ANÁLISIS"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                )}
                             </div>
 
                         </div>

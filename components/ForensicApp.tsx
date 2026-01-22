@@ -814,7 +814,7 @@ export default function ForensicApp() {
 
 
                 {previewData && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
                         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[80vh] flex flex-col overflow-hidden">
                             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
                                 <h3 className="font-bold text-slate-800 flex items-center gap-2 text-sm sm:text-base"><Search size={18} /> {previewData.title}</h3>
@@ -826,7 +826,7 @@ export default function ForensicApp() {
                 )}
 
                 {showHistory && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
                         <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden border border-slate-200">
                             <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-white">
                                 <div>
