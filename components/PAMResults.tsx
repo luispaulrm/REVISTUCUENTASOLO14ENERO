@@ -94,9 +94,9 @@ export function PAMResults({ data }: PAMResultsProps) {
         );
 
         // Análisis de brechas por categoría
-        const categoryGaps = billData.sections.map(sec => {
-            const pamSectionItems = data.folios.flatMap(f => f.desglosePorPrestador.flatMap(p => p.items));
-            const billItemsInSec = sec.items;
+        const categoryGaps = (billData.sections || []).map(sec => {
+            const pamSectionItems = (data.folios || []).flatMap(f => (f.desglosePorPrestador || []).flatMap(p => (p.items || [])));
+            const billItemsInSec = sec.items || [];
 
             const pamValForSec = billItemsInSec.reduce((sum, bi) => {
                 const codeMatch = bi.description.match(/\d{2}-\d{2}-\d{3}/);
@@ -115,8 +115,8 @@ export function PAMResults({ data }: PAMResultsProps) {
         }).filter(g => g.gap > 100).sort((a, b) => b.gap - a.gap);
 
         // Buscar ítems críticos faltantes o con valor cero
-        const billItems = billData.sections.flatMap(s => s.items);
-        const pamItems = data.folios.flatMap(f => f.desglosePorPrestador.flatMap(p => p.items));
+        const billItems = (billData.sections || []).flatMap(s => s.items || []);
+        const pamItems = (data.folios || []).flatMap(f => (f.desglosePorPrestador || []).flatMap(p => (p.items || [])));
 
         const detectionResults = billItems.map(bi => {
             const description = bi.description.toUpperCase();
