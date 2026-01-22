@@ -49,8 +49,8 @@ export const AlphaFoldVisualizer: React.FC<AlphaFoldVisualizerProps> = ({ auditR
                     </div>
                     <div className="text-right">
                         <span className={`px-3 py-1 rounded-full text-sm font-bold ${decisionGlobal?.estado?.includes("FRAUDE") ? "bg-red-100 text-red-800" :
-                                decisionGlobal?.estado?.includes("INDETERMINADO") ? "bg-amber-100 text-amber-800" :
-                                    "bg-green-100 text-green-800"
+                            decisionGlobal?.estado?.includes("INDETERMINADO") ? "bg-amber-100 text-amber-800" :
+                                "bg-green-100 text-green-800"
                             }`}>
                             {decisionGlobal?.estado?.replace(/_/g, " ")}
                         </span>
@@ -107,7 +107,7 @@ export const AlphaFoldVisualizer: React.FC<AlphaFoldVisualizerProps> = ({ auditR
 
                     {activeTab === 'map' && (
                         <div className="space-y-4">
-                            {hypothesisRanking?.map((h: any) => {
+                            {(hypothesisRanking || []).map((h: any) => {
                                 const isActive = activeHypotheses?.includes(h.hypothesis);
                                 const isFraud = h.hypothesis === "H_FRAUDE_PROBABLE";
                                 // If it's fraud and inactive, we show it dimmed/ghosted to show "it was checked but failed gating"
@@ -155,7 +155,7 @@ export const AlphaFoldVisualizer: React.FC<AlphaFoldVisualizerProps> = ({ auditR
 
                     {activeTab === 'signals' && (
                         <div className="space-y-3">
-                            {signals?.map((s: any) => (
+                            {(signals || []).map((s: any) => (
                                 <div key={s.id} className="flex items-center text-sm">
                                     <div className="w-1/2 font-medium text-gray-700 truncate" title={s.id}>{s.id.replace('S_', '').replace(/_/g, ' ')}</div>
                                     <div className="w-1/2 pl-4 flex items-center gap-2">
@@ -181,12 +181,12 @@ export const AlphaFoldVisualizer: React.FC<AlphaFoldVisualizerProps> = ({ auditR
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {findings?.map((f: any) => (
+                                    {(findings || []).map((f: any) => (
                                         <tr key={f.id} className="bg-white border-b hover:bg-gray-50">
                                             <td className="px-4 py-3 font-bold">
                                                 <span className={`px-2 py-0.5 rounded text-xs text-white ${f.category === 'A' ? 'bg-red-600' :
-                                                        f.category === 'B' ? 'bg-amber-500' :
-                                                            f.category === 'Z' ? 'bg-slate-500' : 'bg-green-500'
+                                                    f.category === 'B' ? 'bg-amber-500' :
+                                                        f.category === 'Z' ? 'bg-slate-500' : 'bg-green-500'
                                                     }`}>{f.category}</span>
                                             </td>
                                             <td className="px-4 py-3 font-medium text-gray-900">{f.label}</td>
