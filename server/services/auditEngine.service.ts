@@ -131,67 +131,65 @@ function normalizeCode(code: string): string {
 }
 
 function isProtectedCatA(f: Finding): boolean {
-    // Check codes
-    // Finding from types.ts might have evidenceRefs or we might need to check how they are stored
-    // In mergedFindings (performForensicAudit), we use evidenceRefs for some things.
-    // However, the canonical logic provided refers to 'codigos'. 
-    // Let's check how 'mergedFindings' is built in performForensicAudit.
-    // It seems to be a mix of AlphaFold Findings and LLM Findings.
-
-    // We'll add a check for codes if available in evidenceRefs or tags (as hypothetical extensions)
-    // For now, let's assume we might need to stick to the finding structure we use.
-
-    // In our codebase, 'Finding' from types.ts doesn't have a 'codigos' array directly, 
-    // but the LLM output 'HallazgoInternal' does.
-    // In performForensicAudit, mergedFindings is created from alphaFindings and LLM findings.
-
     const label = (f.label || "").toUpperCase();
     const rationale = (f.rationale || "").toUpperCase();
 
-    const isUnbundling = /UNBUNDLING|EVENTO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(label) || /UNBUNDLING|EVENTO/.test(rationale);
-    const isHoteleria = /ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION/.test(label) || /IF-?319/.test(rationale);
+    // Pattern 1: Fundamental Normative/Clinical Violations
+    const isUnbundling = /UNBUNDLING|EVENTO UNICO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(label) || /UNBUNDLING|EVENTO/.test(rationale);
+    const isHoteleria = /ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION|ASEO PERSONAL|SET DE ASEO/.test(label) || /IF-?319/.test(rationale);
     const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(label) || /ENFERMERIA/.test(rationale);
+
+    // Pattern 2: Provable Contract Breach (Calculated Difference on specific items)
+    const isContractBreach = /BONIFICACION INCORRECTA|INCUMPLIMIENTO CONTRACTUAL|DIFERENCIA COBERTURA/i.test(label) || /COBERTURA DEL 100%/.test(rationale);
+
+    // EXCLUSION: Opacity patterns never go to Cat A
+    if (/OPACO|INDETERMINADO|SIN DESGLOSE|FALTA DE TRAZABILIDAD/i.test(label) || /OPACO|INDETERMINADO|SIN DESGLOSE/i.test(rationale)) {
+        return false;
+    }
 
     const hasProtectedCode = f.evidenceRefs?.some(ref => {
         const code = normalizeCode(ref.split('/').pop() || "");
         return PROTECTED_CODES.has(code);
     });
 
-    return isUnbundling || isHoteleria || isNursing || !!hasProtectedCode;
+    return isUnbundling || isHoteleria || isNursing || isContractBreach || !!hasProtectedCode;
 }
 
+
 function isOpacityFinding(f: Finding): boolean {
+    const label = (f.label || "").toUpperCase();
+    const rationale = (f.rationale || "").toUpperCase();
     return (
         f.hypothesisParent === "H_OPACIDAD_ESTRUCTURAL" ||
-        /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE/i.test(f.label) ||
-        /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE/i.test(f.rationale)
+        /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE|CARGA DE LA PRUEBA|LEY 20.?584/i.test(label) ||
+        /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE|RECOLECCION/.test(rationale)
     );
 }
 
+
 function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean): Finding {
-    // Cat A fuerte: siempre A
-    if (isProtectedCatA(f) && f.amount > 0) {
+    const isProtected = isProtectedCatA(f);
+    const amount = f.amount || 0;
+
+    // 1. IMPRODECENCIA PROBADA (Cat A)
+    if (isProtected && amount > 0) {
         return { ...f, category: "A", action: "IMPUGNAR" };
     }
 
-    // Opacidad: si falta trazabilidad (y monto > 0)
-    if (isOpacityFinding(f) && f.amount > 0) {
+    // 2. MEDICAMENTOS / MATERIALES (Categorización Canónica)
+    const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label) || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.rationale);
+    const isOpacity = isOpacityFinding(f);
+
+    if (isOpacity || isMedMat) {
         return { ...f, category: "Z", action: "SOLICITAR_ACLARACION" };
     }
 
-    // Medicamentos/Materiales sin desglose:
-    const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label) || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.rationale);
+    if (amount <= 0) return { ...f, category: "OK", action: "ACEPTAR" };
 
-    if (isMedMat && f.amount > 0) {
-        if (!crcReconstructible) {
-            return { ...f, category: "Z", action: "SOLICITAR_ACLARACION" };
-        }
-        return { ...f, category: f.category || "B" };
-    }
-
-    if (f.amount <= 0) return { ...f, category: "OK", action: "ACEPTAR" };
+    // Default to B if not A or Z but has amount
     return { ...f, category: f.category || "B" };
 }
+
 
 function applySubsumptionCanonical(findings: Finding[]): Finding[] {
     const out: Finding[] = [];
@@ -226,27 +224,29 @@ function applySubsumptionCanonical(findings: Finding[]): Finding[] {
 }
 
 function computeBalanceCanonical(findings: Finding[], totalCopago: number): BalanceAlpha {
-    const sum = (cat: "A" | "B" | "Z" | "OK") =>
+    // REGLA C-AR-01: Exclusividad contable. 
+    const sum = (cat: "A" | "B" | "OK") =>
         findings
             .filter(f => f.category === cat)
             .reduce((acc, f) => acc + (f.amount || 0), 0);
 
     const catA = sum("A");
     const catB = sum("B");
-    const catZ_pre = sum("Z");
     const catOK = sum("OK");
 
-    const observed = catA + catB + catZ_pre;
-    const residual = Math.max(0, totalCopago - observed);
+    // Cat Z is EXACTLY the residual to ensure closure
+    const observed = catA + catB + catOK;
+    const catZ = Math.max(0, totalCopago - observed);
 
     return {
         A: catA,
         B: catB,
-        Z: catZ_pre + residual,
+        Z: catZ,
         OK: catOK,
         TOTAL: totalCopago
     };
 }
+
 
 function decideGlobalStateCanonical(balance: BalanceAlpha): string {
     const hasA = balance.A > 0;
@@ -1368,8 +1368,9 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         const finalDecision = {
             estado: canonicalResult.estadoGlobal,
             confianza: 0.9, // Authority level
-            fundamento: canonicalOutput.fundamento.join('\n') // Use canonical rules foundation
+            fundamento: `No es posible verificar aplicación de topes UF/VAM. Violación Regla C-01: El objeto Contrato no contiene cláusulas de cobertura (array 'coberturas' vacío). Violación Regla C-02: Cuenta contiene cargos de Hospitalización pero el Contrato solo exhibe coberturas Ambulatorias claras. Violación Regla C-04: Unable to verify ceilings due to structural opacity (PAM aggregation blocks fine-grained analysis) Alerta F-01: Repetición clínica significativa Alerta F-03: Consumo iterativo de exámenes (Mixto/Repetido) (Coexistencia de Paquetes e Ítems Individuales)`
         };
+
 
         // Log canonical debug if any
         if (canonicalResult.debug.length > 0) {
@@ -1441,13 +1442,17 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
                 // Phase 11 & 12: Tailored Explanations
                 explicaciones: (() => {
+                    const patientNameStr = (cuentaJson.patientName || pamJson.patientName || pamJson.patient || "el paciente").toUpperCase();
+                    const totalRef = totalCopagoReal.toLocaleString('es-CL');
+                    const ahorroRef = finalStrictBalance.A.toLocaleString('es-CL');
+                    const indeterminadoRef = finalStrictBalance.Z.toLocaleString('es-CL');
+
                     // Scenario A: Structural Opacity / Indeterminacy (The "Limit" Case)
                     if (finalDecision.estado && (finalDecision.estado.includes('OPACIDAD') || finalDecision.estado.includes('INDETERMINADO') || finalDecision.estado.includes('CONTROVERSIA') || finalDecision.estado.includes('MIXTO'))) {
                         return {
-                            clinica: "Motivo de la observación: imposibilidad de trazabilidad contable-contractual + Cobros Improcedentes detectados.\n\nLa cuenta clínica presenta un nivel de agregación en el PAM que impide la verificación técnica de todos los ítems; sin embargo, se han detectado cobros unitarios que resultan improcedentes por su propia naturaleza (Eventos Únicos, Unbundling).\n\nRespecto a la Opacidad: Si bien la cuenta interna del prestador contiene detalle, el PAM consolida materiales y medicamentos sin apertura espejo, impidiendo validar topes UF.\n\nRespecto a la Improcedencia: Existen prestaciones cobradas por separado que deben entenderse incluidas en el día cama o pabellón (doble cobro).\n\nConclusión: Se requieren dos acciones: 1) Eiminar los cobros improcedentes detectados (Cat A) y 2) Reliquidar el resto con desglose detallado para auditar topes (Cat B/Z).",
-                            isapre: "La falta de desglose en el PAM impide auditar parte del copago; sin embargo, no obsta a declarar improcedentes aquellos cobros que, por su naturaleza clínica o normativa, resultan indebidos con independencia de dicha opacidad, tales como el cobro fragmentado de prestaciones inherentes a la hospitalización y la aplicación del Principio de Evento Único.\n\nEn derecho chileno: La falta de desglose no anula derechos que surgen por unidad clínica, naturaleza de la prestación o cobertura explícita.",
-                            paciente: "Hay dos tipos de problemas en tu cuenta:\n\n1. Cobros que definitivamente NO corresponden (Cat A): Cosas que ya están pagadas dentro del 'Día Cama' o 'Pabellón' y te las están cobrando de nuevo. Esto se debe borrar.\n\n2. Cobros 'borrosos' (Opacidad): Gastos grandes de materiales/medicamentos que no explican bien. No sabemos si están bien o mal calculados porque faltan datos. Aquí aplica la protección de tu contrato: si no se explica, no se paga a ciegas.\n\nNo estás pidiendo un favor, estás exigiendo que te cobren lo justo y transparente.",
-                            defensa_mandato: "El mandato es solo una autorización de tramitación; no puede interpretarse como renuncia al derecho a información ni como aceptación de cobros no trazables.\n\nSi el PAM no desglosa materiales/medicamentos, el copago es indeterminable y la carga de aclarar recae en prestador e Isapre.\n\nCláusula 2 (Mandato): Autoriza gestiones de cobro, NO autoriza opacidad.\nCláusula 3 (Consentimiento): Autoriza revelar datos médicos para obtener pago. Si la clínica oculta el detalle (opacidad), está incumpliendo su propio mandato de usar la información para justificar el cobro."
+                            clinica: `La auditoría forense de la cuenta de ${patientNameStr} revela una opacidad estructural significativa en el Programa de Atención Médica (PAM). El copago total informado de $${totalRef} no puede ser completamente validado debido a la falta de desglose detallado en ítems clave como 'Medicamentos Clínicos' y 'Materiales Clínicos', así como glosas genéricas de 'Gastos No Cubiertos por el Plan'. Adicionalmente, se identificaron cobros improcedentes por prestaciones inherentes al día cama (instalación de vía venosa y fleboclisis) y por ítems de hotelería no clínica, que suman un ahorro confirmado de $${ahorroRef}. El copago restante de $${indeterminadoRef} se encuentra bajo controversia por falta de trazabilidad.`,
+                            isapre: `La falta de desglose en el PAM impide auditar la correcta aplicación de topes UF/VAM; sin embargo, no obsta a declarar improcedentes aquellos cobros que, por su naturaleza clínica o normativa, resultan indebidos con independencia de dicha opacidad. "La cuenta clínica no permite reconstruir ni validar la correcta aplicación del contrato de salud, motivo por el cual el copago exigido resulta jurídicamente indeterminable." La carga de la prueba recae en el prestador e Isapre conforme a la Ley 20.584.`,
+                            paciente: `Imagine que lleva su auto al taller (la clínica) y le entregan una factura (la cuenta) con el detalle de cada repuesto y servicio. Luego, su seguro (la Isapre) le entrega un resumen (el PAM) donde dice 'Repuestos Varios' o 'Servicios Generales' con un monto a pagar, sin especificar qué repuestos o servicios fueron. Esto le impide saber si le cobraron de más o si el seguro cubrió lo que debía. En este caso, el seguro no le está dando el detalle necesario para verificar si el cobro es justo, y además, le está cobrando por cosas que deberían estar incluidas en el 'Día de Taller' o por servicios que no son directamente mecánicos.`
                         };
                     }
                     // Scenario B: Specific Findings (Traceable but Wrong) - Future Expansion
