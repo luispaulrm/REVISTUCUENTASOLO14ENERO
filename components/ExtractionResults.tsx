@@ -22,6 +22,8 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
     }).format(val);
   };
 
+  if (!data) return null;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-end border-b-2 border-slate-900 pb-4">
@@ -42,7 +44,7 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
       </div>
 
       <div className="space-y-4">
-        {data.sections.map((section, sIdx) => {
+        {(data.sections || []).map((section, sIdx) => {
           const diff = section.sectionTotal - section.calculatedSectionTotal;
           const hasDiff = Math.abs(diff) > 5;
 
@@ -130,7 +132,7 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-200">
-                        {section.items.map((item, iIdx) => (
+                        {(section.items || []).map((item, iIdx) => (
                           <tr key={iIdx} className={`group hover:bg-slate-50 transition-colors ${item.hasCalculationError ? 'bg-amber-50' : ''}`}>
                             <td className="px-4 py-3 text-slate-900 font-mono text-[10px] font-bold">
                               {item.index || iIdx + 1}
