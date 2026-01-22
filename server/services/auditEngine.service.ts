@@ -276,37 +276,117 @@ function assertCanonicalClosure(findings: Finding[], balance: BalanceAlpha, debu
     }
 }
 
-export function finalizeAuditCanonical(findings: Finding[], totalCopago: number, crcReconstructible: boolean): {
+
+export function finalizeAuditCanonical(input: {
+    findings: Finding[];
+    totalCopago: number;
+    reconstructible: boolean;
+    pamState?: string;
+    signals?: any;
+    contract?: any;
+    ceilings?: { canVerify: boolean; reason?: string };
+}): {
     estadoGlobal: string;
     findings: Finding[];
-    balance: BalanceAlpha;
-    debug: string[]
+    balance: { A: number; B: number; Z: number; OK: number; TOTAL: number };
+    debug: string[];
+    resumenFinanciero: any;
+    fundamentoText: string;
 } {
     const debug: string[] = [];
+    const findings = input.findings || [];
+    const total = input.totalCopago || 0;
 
-    // Step 1: Categorize
-    let processedFindings = findings.map(f => canonicalCategorizeFinding(f, crcReconstructible));
+    // Step 1: Deterministic Categorization (A, B, Z, OK)
+    let processedFindings = findings.map(f => {
+        const catFinding = canonicalCategorizeFinding(f, input.reconstructible);
+
+        // Fix: Hypothesis Parent Correction
+        let parent = f.hypothesisParent;
+        if (catFinding.category === "A") {
+            if (/UNBUNDLING|EVENTO UNICO|VIA VENOSA|FLEBOCLISIS|NURSING/i.test(f.label || "")) {
+                parent = "H_UNBUNDLING_IF319";
+            } else if (/HOTEL|CAMA/i.test(f.label || "")) {
+                parent = "H_INCUMPLIMIENTO_CONTRACTUAL";
+            } else {
+                parent = (parent === "H_OK_CUMPLIMIENTO") ? "H_PRACTICA_IRREGULAR" : parent;
+            }
+        } else if (catFinding.category === "Z") {
+            parent = "H_OPACIDAD_ESTRUCTURAL";
+        }
+
+        return { ...catFinding, hypothesisParent: parent };
+    });
 
     // Step 2: Subsumption
     processedFindings = applySubsumptionCanonical(processedFindings);
 
     // Step 3: Balance
-    const balance = computeBalanceCanonical(processedFindings, totalCopago);
+    const sum = (cat: "A" | "B" | "OK") =>
+        processedFindings
+            .filter(f => f.category === cat)
+            .reduce((acc, f) => acc + (f.amount || 0), 0);
 
-    // Step 4: Global State
-    let estadoGlobal = decideGlobalStateCanonical(balance);
+    const A = sum("A");
+    const B = sum("B");
+    const OK = sum("OK");
+    const Z = Math.max(0, total - (A + B + OK));
+    const balance = { A, B, Z, OK, TOTAL: total };
+
+    // Step 4: Decision Logic
+    const contratoVacio = (input.contract?.coberturas?.length ?? 0) === 0;
+    const pamOpaco = input.pamState === "OPACO" || !input.reconstructible;
+    const canVerifyCeilings = input.ceilings?.canVerify ?? input.reconstructible;
+
+    const hasConfirmed = (A + B + OK) > 0;
+    const hasOpaque = Z > 0 || pamOpaco || !canVerifyCeilings;
+
+    let estadoGlobal: string;
+    if (hasConfirmed && hasOpaque) {
+        estadoGlobal = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+    } else if (!hasConfirmed && hasOpaque) {
+        estadoGlobal = "COPAGO_INDETERMINADO_PARCIAL_POR_OPACIDAD";
+    } else if (A + B > 0) {
+        estadoGlobal = "COPAGO_CONFIRMADO_CON_OBSERVACIONES";
+    } else {
+        estadoGlobal = "COPAGO_OK_CONFIRMADO";
+    }
 
     // Step 5: Assertions
     assertCanonicalClosure(processedFindings, balance, debug);
 
-    // Step 6: Hardening
-    if (balance.A > 0 && (balance.Z > 0 || balance.B > 0)) {
-        estadoGlobal = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
-        debug.push("C-STATE-02: estado global forzado a MIXTO por coexistencia A + (B/Z)");
-    }
+    // Step 6: Foundation
+    const fundamento: string[] = [];
+    if (!canVerifyCeilings) fundamento.push("No es posible verificar aplicación de topes UF/VAM (ceiling verification unavailable).");
+    if (contratoVacio) fundamento.push("Violación Regla C-01: Contrato sin cláusulas de cobertura (coberturas vacío).");
+    if (pamOpaco) fundamento.push("Violación Regla C-04: Opacidad estructural en PAM (agrupación impide trazabilidad fina).");
+    if (A > 0) fundamento.push(`Hallazgos confirmados: cobros improcedentes exigibles identificados (A) por $${A.toLocaleString("es-CL")}.`);
+    if (Z > 0) fundamento.push(`Monto bajo controversia por opacidad (Z/Indeterminado): $${Z.toLocaleString("es-CL")} (requiere desglose/reliquidación).`);
 
-    return { estadoGlobal, findings: processedFindings, balance, debug };
+
+    // Step 7: Summary
+    const resumenFinanciero = {
+        totalCopagoInformado: total,
+        totalCopagoLegitimo: OK,
+        totalCopagoObjetado: A + B + Z,
+        cobros_improcedentes_exigibles: A,
+        copagos_bajo_controversia: Z,
+        monto_indeterminado: Z,
+        monto_no_observado: OK,
+        totalCopagoReal: total,
+        estado_copago: estadoGlobal.includes('MIXTO') ? "MIXTO" : (estadoGlobal.includes('OPACIDAD') ? "INDETERMINADO_POR_OPACIDAD" : "OK")
+    };
+
+    return {
+        estadoGlobal,
+        findings: processedFindings,
+        balance,
+        debug,
+        resumenFinanciero,
+        fundamentoText: fundamento.join(" ")
+    };
 }
+
 export async function performForensicAudit(
     cuentaJson: any,
     pamJson: any,
@@ -347,22 +427,22 @@ export async function performForensicAudit(
     // DISABLE MINI-RAG PER USER REQUEST
     let knowledgeBaseText = "(Base de conocimiento legal omitida en esta iteración para optimización de rendimiento).";
     if (CANONICAL_MANDATE_TEXT) {
-        knowledgeBaseText += `\n\n[CONTRATO MARCO / MANDATO CLÍNICO ESTÁNDAR (PAGARÉ / MANDATO)]:\n${CANONICAL_MANDATE_TEXT}\n`;
+        knowledgeBaseText += `\n\n[CONTRATO MARCO / MANDATO CLÍNICO ESTÁNDAR(PAGARÉ / MANDATO)]: \n${CANONICAL_MANDATE_TEXT} \n`;
     }
 
     // INJECT IRREGULAR PRACTICES REPORT KNOWLEDGE
     const IRREGULAR_PRACTICES_KNOWLEDGE = `
-[INFORME OFICIAL: PRÁCTICAS IRREGULARES PROHIBIDAS]
-Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, CLASIFICA COMO 'A' (IMPROCEDENTE).
-1. Inflamiento de Medicamentos: Cobro por caja completa en vez de dosis unitaria (Upcoding).
-2. Desagregación de Pabellón (Unbundling): Cobro separado de insumos básicos (gasas, suturas, jeringas) que deben estar en 'Derecho de Pabellón'.
-3. Fármacos de Pabellón en Farmacia: Anestesia/Analgesia intraoperatoria (Propofol, Fentanilo) cobrada aparte en 'Farmacia' en vez de Pabellón.
-4. Hotelería No Clínica: Cobro de 'Confort', 'Kit de Aseo', 'Pantuflas', 'Ropa' sin consentimiento explícito. No es prestación médica.
-5. Enfermería Básica en Día Cama: Cobro separado de 'Control Signos Vitales', 'Curación Simple', 'Instalación Vía', 'Fleboclisis'. ESTO ESTÁ INCLUIDO EN EL DÍA CAMA. Es Doble Cobro.
-6. Glosas Genéricas (3201001/2): Montos abultados en 'Gastos No Cubiertos' o 'Insumos Varios' sin desglose. Es Opacidad, pero si oculta insumos básicos, es Indebido.
-7. Incumplimiento Cobertura 100%: Cobro de copago en prestaciones que el plan cubre al 100% (ej. Medicamentos Hospitalarios) sin justificar tope.
-8. Upcoding/Reconversión: Cobrar un insumo estándar como 'Especial/Importado' o un procedimiento menor como cirugía compleja.
-9. Separación Urgencia/Hospitalización: Cobrar Urgencia como evento aparte con su propio tope, cuando derivó en hospitalización (debe ser Evento Único).
+        [INFORME OFICIAL: PRÁCTICAS IRREGULARES PROHIBIDAS]
+Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, CLASIFICA COMO 'A'(IMPROCEDENTE).
+1. Inflamiento de Medicamentos: Cobro por caja completa en vez de dosis unitaria(Upcoding).
+2. Desagregación de Pabellón(Unbundling): Cobro separado de insumos básicos(gasas, suturas, jeringas) que deben estar en 'Derecho de Pabellón'.
+3. Fármacos de Pabellón en Farmacia: Anestesia / Analgesia intraoperatoria(Propofol, Fentanilo) cobrada aparte en 'Farmacia' en vez de Pabellón.
+4. Hotelería No Clínica: Cobro de 'Confort', 'Kit de Aseo', 'Pantuflas', 'Ropa' sin consentimiento explícito.No es prestación médica.
+5. Enfermería Básica en Día Cama: Cobro separado de 'Control Signos Vitales', 'Curación Simple', 'Instalación Vía', 'Fleboclisis'.ESTO ESTÁ INCLUIDO EN EL DÍA CAMA.Es Doble Cobro.
+6. Glosas Genéricas(3201001 / 2): Montos abultados en 'Gastos No Cubiertos' o 'Insumos Varios' sin desglose.Es Opacidad, pero si oculta insumos básicos, es Indebido.
+7. Incumplimiento Cobertura 100 %: Cobro de copago en prestaciones que el plan cubre al 100 % (ej.Medicamentos Hospitalarios) sin justificar tope.
+8. Upcoding / Reconversión: Cobrar un insumo estándar como 'Especial/Importado' o un procedimiento menor como cirugía compleja.
+9. Separación Urgencia / Hospitalización: Cobrar Urgencia como evento aparte con su propio tope, cuando derivó en hospitalización(debe ser Evento Único).
 10. Falta de Respaldo: Cobros que no coinciden con ficha clínica o hoja de consumo.
 `;
     knowledgeBaseText += IRREGULAR_PRACTICES_KNOWLEDGE;
@@ -370,8 +450,8 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
     const sources: string[] = ["Informe Prácticas Irregulares", "Mini-RAG Desactivado"];
     const tokenEstimate = 0;
 
-    log(`[AuditEngine] ðŸ“Š Conocimiento inyectado: 0 fuentes (Mini-RAG OFF)`);
-    // log(`[AuditEngine] ðŸ“š Fuentes: ${sources.join(' | ')} `);
+    log(`[AuditEngine] ðŸ“Š Conocimiento inyectado: 0 fuentes(Mini - RAG OFF)`);
+    // log(`[AuditEngine] ðŸ“š Fuentes: ${ sources.join(' | ') } `);
     onProgressUpdate?.(20);
 
     // Paso 3: Cargar reglas de hotelerÃ­a (siempre, es pequeÃ±o)
@@ -384,8 +464,9 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
     // CRC: CONTRACT RECONSTRUCTIBILITY CLASSIFIER (NEW)
     // ============================================================================
     const reconstructibility = ContractReconstructibilityService.assess(contratoJson, cuentaJson);
-    log(`[AuditEngine] ðŸ§© CRC Analysis: Reconstructible=${reconstructibility.isReconstructible} (Conf: ${(reconstructibility.confidence * 100).toFixed(0)}%)`);
-    reconstructibility.reasoning.forEach(r => log(`[AuditEngine]    - ${r}`));
+    log(`[AuditEngine] ðŸ§© CRC Analysis: Reconstructible = ${reconstructibility.isReconstructible} (Conf: ${(reconstructibility.confidence * 100).toFixed(0)
+        }%)`);
+    reconstructibility.reasoning.forEach(r => log(`[AuditEngine] - ${r} `));
 
     log('[AuditEngine] ðŸ§  Sincronizando datos y analizando hallazgos con Super-Contexto...');
     onProgressUpdate?.(30);
@@ -496,8 +577,8 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
     ) || (cleanedPam.items || []).some((i: any) => (i.copago || 0) > 0);
 
     if (numericPamCopago > 0 && eventsTotalCopago === 0 && eventosHospitalarios.length > 0 && hasPamItemsWithCopay) {
-        throw new Error(`[DATA_INTEGRITY_FAIL] El PAM declara copago ($${numericPamCopago}) y tiene Ã­tems, pero los eventos sumaron $0. ` +
-            `Revisar parsing de montos en eventProcessor. Abortando audit.`);
+        throw new Error(`[DATA_INTEGRITY_FAIL] El PAM declara copago($${numericPamCopago}) y tiene Ã­tems, pero los eventos sumaron $0. ` +
+            `Revisar parsing de montos en eventProcessor.Abortando audit.`);
     }
 
     eventosHospitalarios.forEach((evento, idx) => {
@@ -541,9 +622,9 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
     // Build router input from available data
     const routerInput: HypothesisRouterInput = {
         cuentaSections: cleanedCuenta.sections?.map((s: any, idx: number) => ({
-            sectionId: `${idx}_${s.category}`,
+            sectionId: `${idx}_${s.category} `,
             items: (s.items || []).map((item: any, itemIdx: number) => ({
-                id: `${idx}_${itemIdx}`,
+                id: `${idx}_${itemIdx} `,
                 desc: item.description || '',
                 amount: item.total || 0,
                 category: s.category
@@ -566,16 +647,16 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
         },
         metadata: {
             patientName: cuentaJson.patientName || pamJson.patient || '',
-            auditId: `audit_${Date.now()}`
+            auditId: `audit_${Date.now()} `
             // test_case: false (auto-detected by router from patientName)
         }
     };
 
     const hypothesisResult = router.detect(routerInput);
-    log(`[AuditEngine] ðŸ“Š Hypotheses Detected: ${hypothesisResult.hypotheses.length}`);
+    log(`[AuditEngine] ðŸ“Š Hypotheses Detected: ${hypothesisResult.hypotheses.length} `);
     hypothesisResult.hypotheses.forEach(h => {
-        log(`[AuditEngine]   - ${h.id}: ${h.label} (confidence: ${(h.confidence * 100).toFixed(0)}%, scope: ${h.scope.type})`);
-        log(`[AuditEngine]     Rationale: ${h.rationale}`);
+        log(`[AuditEngine] - ${h.id}: ${h.label} (confidence: ${(h.confidence * 100).toFixed(0)}%, scope: ${h.scope.type})`);
+        log(`[AuditEngine]     Rationale: ${h.rationale} `);
     });
 
     // ============================================================================
@@ -620,7 +701,7 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
 
                         // Build unique ID: folio_prestador_item_code_firstwords
                         const descWords = descripcion.split(/\s+/).slice(0, 3).join('_').substring(0, 20);
-                        const uniqueId = `PAM_${folioIdx}_${prestadorIdx}_${itemIdx}_${codigo || 'NC'}_${descWords}`;
+                        const uniqueId = `PAM_${folioIdx}_${prestadorIdx}_${itemIdx}_${codigo || 'NC'}_${descWords} `;
 
                         extractedPamLines.push({
                             uniqueId,
@@ -676,8 +757,8 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
         // Structured logging for precedent/doctrine decisions
         if (decision.source === 'PRECEDENTE' || decision.source === 'DOCTRINA') {
             const shortDesc = pamLine.descripcion.substring(0, 40);
-            log(`[AuditEngine]   🔒 PAM_LINE[${pamLine.codigo}|${shortDesc}]:`);
-            log(`[AuditEngine]      Decision=Cat ${decision.categoria_final} | Source=${decision.source} | Conf=${(decision.confidence * 100).toFixed(0)}%`);
+            log(`[AuditEngine]   🔒 PAM_LINE[${pamLine.codigo}| ${shortDesc}]: `);
+            log(`[AuditEngine]      Decision = Cat ${decision.categoria_final} | Source=${decision.source} | Conf=${(decision.confidence * 100).toFixed(0)}% `);
 
             // IMMEDIATE PRECEDENT RECORDING for Cat A with high confidence
             if (decision.categoria_final === 'A' && decision.confidence >= 0.85 && decision.source === 'DOCTRINA') {
@@ -691,7 +772,7 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
         else catZCount++;
     }
 
-    log(`[AuditEngine] ✅ Jurisprudence decisions: ${catACount} Cat A, ${catBCount} Cat B, ${catZCount} Cat Z (total: ${jurisprudenceDecisions.size} lines)`);
+    log(`[AuditEngine] ✅ Jurisprudence decisions: ${catACount} Cat A, ${catBCount} Cat B, ${catZCount} Cat Z(total: ${jurisprudenceDecisions.size} lines)`);
 
     // ============================================================================
     // STEP 3: Persist Cat A precedents IMMEDIATELY (before LLM)
@@ -711,13 +792,13 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
                         recomendacion: decision.recomendacion,
                         confidence: decision.confidence
                     },
-                    `Precedente automático: ${pamLine.descripcion.substring(0, 50)}`,
+                    `Precedente automático: ${pamLine.descripcion.substring(0, 50)} `,
                     Array.from(features).slice(0, 5),
                     { requires: Array.from(features).filter(f => f.startsWith('COV_') || f.startsWith('BONIF_') || f.startsWith('MED_')) }
                 );
-                log(`[AuditEngine]   📝 Recorded: ${precedentId}`);
+                log(`[AuditEngine]   📝 Recorded: ${precedentId} `);
             } catch (e) {
-                log(`[AuditEngine]   ⚠️ Failed to record precedent: ${e}`);
+                log(`[AuditEngine]   ⚠️ Failed to record precedent: ${e} `);
             }
         }
     }
@@ -738,7 +819,7 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
         }
     }
 
-    log(`[AuditEngine] 🔐 ${frozenCategories.size} categories frozen (immune to LLM/canonical override).`);
+    log(`[AuditEngine] 🔐 ${frozenCategories.size} categories frozen(immune to LLM / canonical override).`);
 
     // ============================================================================
     // CANONICAL RULES ENGINE (SUBORDINATE to Jurisprudence)
@@ -763,9 +844,9 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
         ruleEngineResult.flags
     );
 
-    log(`[AuditEngine] ⚖️ Canonical Rules Decision: ${canonicalOutput.decisionGlobal}`);
-    ruleEngineResult.flags.filter(f => f.detected).forEach(f => log(`[AuditEngine]    🚩 Flag: ${f.flagId} - ${f.description}`));
-    ruleEngineResult.rules.filter(r => r.violated).forEach(r => log(`[AuditEngine]    🚫 Violation: ${r.ruleId} - ${r.description}`));
+    log(`[AuditEngine] ⚖️ Canonical Rules Decision: ${canonicalOutput.decisionGlobal} `);
+    ruleEngineResult.flags.filter(f => f.detected).forEach(f => log(`[AuditEngine]    🚩 Flag: ${f.flagId} - ${f.description} `));
+    ruleEngineResult.rules.filter(r => r.violated).forEach(r => log(`[AuditEngine]    🚫 Violation: ${r.ruleId} - ${r.description} `));
 
     // ============================================================================
     // JURISPRUDENCE PROTECTION: Canonical cannot collapse Cat A to INDETERMINADO
@@ -776,7 +857,7 @@ Analiza la cuenta buscando estas 10 prácticas específicas. Si encuentras una, 
     if (canonicalOutput.decisionGlobal === 'COPAGO_INDETERMINADO_POR_OPACIDAD' && hasFrozenCatA) {
         effectiveCanonicalDecision = 'COPAGO_MIXTO_CONFIRMADO_Y_OPACO';
         log(`[AuditEngine] 🛡️ PROTECTION ACTIVATED: Canonical tried to override ${catACount} frozen Cat A decisions.`);
-        log(`[AuditEngine]    Original: ${canonicalOutput.decisionGlobal} → Effective: ${effectiveCanonicalDecision}`);
+        log(`[AuditEngine]    Original: ${canonicalOutput.decisionGlobal} → Effective: ${effectiveCanonicalDecision} `);
         log(`[AuditEngine]    Reason: Jurisprudencia local tiene prioridad sobre estado global.`);
     }
 
@@ -970,10 +1051,10 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             // We'll skip the dangerous regex replace(/[\u0000-\u001F]+/g, ...).
 
             try {
-                // Try to find valid JSON subset? No, too complex. 
+                // Try to find valid JSON subset? No, too complex.
                 // Just log and fallback.
                 throw new Error("JSON repair disabled per V5 guidelines.");
-                // auditResult = JSON.parse(cleanedText); 
+                // auditResult = JSON.parse(cleanedText);
                 // log('[AuditEngine] âœ… ReparaciÃ³n de JSON exitosa.');
             } catch (repairError) {
                 log(`[AuditEngine] âŒ ReparaciÃ³n fallÃ³.Devolviendo raw text para depuraciÃ³n.`);
@@ -1208,184 +1289,57 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             totalCopagoReal = parseAmountCLP(pamTotalCopago);
         }
 
-        // ============================================================================
-        // HYPOTHESIS-AWARE BALANCE CALCULATION (V5)
-        // ============================================================================
-        log('[AuditEngine] ðŸ’° Computing Balance with Hypothesis Awareness...');
-
-        // Extract PAM lines with copago for balance calculation
-        let pamLines: PAMLineInput[] = routerInput.pam.lines.map(line => ({
-            key: line.key,
-            desc: line.desc,
-            copago: line.amount
-        }));
-
-        log(`[AuditEngine] DEBUG: routerInput.pam.lines.length = ${routerInput.pam.lines.length}`);
-
-        // --- ROBUST FALLBACK FOR PAM EXTRACTION ---
-        if (pamLines.length === 0 && cleanedPam) {
-            log('[AuditEngine] âš ï¸ Attempting deep PAM extraction (Fallback Mode)...');
-
-            let rawItems: any[] = [];
-
-            // Case 1: Direct items or lineas (Legacy/Flat)
-            if (cleanedPam.items && Array.isArray(cleanedPam.items)) rawItems = cleanedPam.items;
-            else if (cleanedPam.lineas && Array.isArray(cleanedPam.lineas)) rawItems = cleanedPam.lineas;
-
-            // Case 2: Folios structure (Standard V2)
-            else if (cleanedPam.folios && Array.isArray(cleanedPam.folios)) {
-                rawItems = cleanedPam.folios.flatMap((folio: any) => {
-                    const desglose = folio.desglosePorPrestador || [];
-                    if (Array.isArray(desglose)) {
-                        return desglose.flatMap((p: any) => p.items || []);
-                    }
-                    return folio.items || [];
-                });
-            }
-
-            log(`[AuditEngine] Fallback found ${rawItems.length} raw items.`);
-
-            if (rawItems.length > 0) {
-                pamLines = rawItems.map((item: any) => ({
-                    key: item.codigo || item.codigoGC || 'UNKNOWN',
-                    desc: item.descripcion || item.bi_glosa || '',
-                    copago: (typeof item.copago === 'number' ? item.copago :
-                        (typeof item.monto_copago === 'number' ? item.monto_copago : 0))
-                }));
-                log(`[AuditEngine] âœ… Fallback successfully extracted ${pamLines.length} PAM lines.`);
-            } else {
-                log(`[AuditEngine] âš ï¸âš ï¸ PAM still empty after deep search! Keys: ${Object.keys(cleanedPam || {}).join(", ")}`);
-                try {
-                    const structure = Object.entries(cleanedPam || {}).map(([k, v]) => `${k}: ${Array.isArray(v) ? `Array(${v.length})` : typeof v}`);
-                    log(`[AuditEngine] Structure Dump: ${structure.join(", ")}`);
-                } catch (e) { /* ignore */ }
-            }
-        }
-
-
-        const balance: Balance = computeBalanceWithHypotheses(
-            auditResult.hallazgos || [],
-            totalCopagoReal,
-            hypothesisResult.capabilityMatrix,
-            pamLines
-        );
-
-        log(`[AuditEngine] ðŸ“Š Balance Computed:`);
-        log(`[AuditEngine]   Cat A (Improcedente): $${balance.categories.A.toLocaleString()}`);
-        log(`[AuditEngine]   Cat B (Controversia): $${balance.categories.B.toLocaleString()}`);
-        log(`[AuditEngine]   Cat OK (No Observado): $${balance.categories.OK.toLocaleString()}`);
-        log(`[AuditEngine]   Cat Z (Indeterminado): $${balance.categories.Z.toLocaleString()}`);
-
-        // Update result with balance data (single source of truth)
-        if (!auditResult.resumenFinanciero) auditResult.resumenFinanciero = {};
-        auditResult.resumenFinanciero.ahorro_confirmado = balance.categories.A;
-        auditResult.resumenFinanciero.cobros_improcedentes_exigibles = balance.categories.A;
-        auditResult.resumenFinanciero.copagos_bajo_controversia = balance.categories.B;
-        auditResult.resumenFinanciero.monto_indeterminado = balance.categories.Z;
-        auditResult.resumenFinanciero.monto_no_observado = balance.categories.OK;
-        auditResult.resumenFinanciero.totalCopagoReal = totalCopagoReal;
-        auditResult.resumenFinanciero.totalCopagoObjetado = balance.categories.A + balance.categories.B + balance.categories.Z;
-
-        // Legacy support
-        auditResult.totalAhorroDetectado = balance.categories.A;
-
-        // Generate canonical text
-        const locale = 'es-CL';
-        const txtTotal = totalCopagoReal.toLocaleString(locale);
-        const txtA = balance.categories.A.toLocaleString(locale);
-        const txtB = balance.categories.B.toLocaleString(locale);
-        const txtOK = balance.categories.OK.toLocaleString(locale);
-        const txtZ = balance.categories.Z.toLocaleString(locale);
-
-        let canonicalText = `El copago total informado corresponde a $${txtTotal}.\nDe este monto:\n\n`;
-        if (balance.categories.A > 0) canonicalText += `$${txtA} corresponden a cobros improcedentes.\n\n`;
-        if (balance.categories.B > 0) canonicalText += `$${txtB} se encuentran en controversia por falta de desglose.\n\n`;
-        if (balance.categories.OK > 0) canonicalText += `$${txtOK} no presentan observaciones con la informaciÃ³n disponible.\n\n`;
-        if (balance.categories.Z > 0) canonicalText += `$${txtZ} corresponden a montos indeterminados (sin informaciÃ³n suficiente).\n\n`;
-        canonicalText += `La suma de todas las categorÃ­as coincide exactamente con el copago total.`;
-
-        if (!auditResult.decisionGlobal) auditResult.decisionGlobal = {};
-        auditResult.decisionGlobal.fundamento = canonicalText;
-
-        const finalResult = auditResult;
-
-        // --- LEGACY OVERRIDE DISABLED (V5 - Hypothesis Engine handles this now) ---
-        // The balance is now computed scope-by-scope by computeBalanceWithHypotheses()
-        // which already respects H1 (Opacity) at the PAM_LINE level.
-        // This global override is no longer needed and causes contradictions.
-        /*
-        if (ruleEngineResult.decision === "COPAGO_INDETERMINADO_POR_OPACIDAD") {
-            log(`[AuditEngine] ðŸ”’ SUPER-OVERRIDE: Forzando estado INDETERMINADO por reglas canÃ³nicas.`);
-            // ... old logic that wiped findings and reset balance to global Cat Z ...
-        }
-        */
-
-        log(`[AuditEngine] ðŸ AuditorÃ­a finalizada. Ahorro: $${finalResult.resumenFinanciero.ahorro_confirmado} | Controversia: $${finalResult.resumenFinanciero.copagos_bajo_controversia}`);
-
-        // --- AlphaFold-Juridic Phase 2 & 3 Implementation ---
+        // --- AlphaFold-Juridic Phase 2 & 3: Integrated Signal & Finding Layer ---
         const alphaSignals = AlphaFoldService.extractSignals({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: contratoJson });
         const pamState = AlphaFoldService.detectPamState(alphaSignals);
         const ranking = AlphaFoldService.scoreHypotheses(alphaSignals, pamState);
         const activeContexts = AlphaFoldService.activateContexts(ranking, pamState);
 
-        // Generate Findings via AlphaFold (Logic Phase 3)
-        // Combine with Legacy Findings? For now, we prefer AlphaFold's structural findings for Opacity/Unbundling
-        // But we might want to keep specific medical text findings from the LLM if they are detailed.
-        // Hybrid Approach: Use AlphaFold generated findings for Structural issues (Cat Z/A),
-        // and append LLM findings if they don't contradict.
-
         const alphaFindings = AlphaFoldService.buildFindings({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: contratoJson }, pamState, activeContexts);
 
-        // For this phase, let's Append AlphaFindings to list.
-        // NOTE: We should probably dedup if LLM also found them. 
-        // But AlphaFold's are more deterministic.
-
-        // Let's MERGE for a complete picture, assuming LLM findings are specific medical objections.
-        // We filter out LLM findings that overlap with Structural Opacity to avoid double counting.
-        const mergedFindings = [...alphaFindings, ...(finalResult.hallazgos || []).filter((h: any) =>
+        // Merge findings from all sources (LLM medical + AlphaFold structural)
+        const mergedFindings = [...alphaFindings, ...(auditResult.hallazgos || []).filter((h: any) =>
             // Exclude LLM findings that are just "Structural Opacity" since AlphaFold handles that better
             h.codigos !== "OPACIDAD_ESTRUCTURAL" && h.categoria !== "OPACIDAD"
         ).map((h: any) => ({
-            id: h.id || stableId([h.codigos || "", h.titulo || "", h.glosa || "", String(h.montoObjetado || 0)]), // Fix 8: Deterministic ID
+            id: h.id || stableId([h.codigos || "", h.titulo || "", h.glosa || "", String(h.montoObjetado || 0)]),
             category: (h.categoria_final || "Z") as any,
             label: h.titulo || h.glosa || "Hallazgo LLM",
             amount: h.montoObjetado || 0,
             action: (h.recomendacion_accion || "SOLICITAR_ACLARACION") as any,
             evidenceRefs: h.evidenceRefs || [],
             rationale: h.hallazgo || "Hallazgo detectado por LLM",
-            hypothesisParent: "H_OK_CUMPLIMIENTO" // Default for legacy
+            hypothesisParent: h.hypothesisParent || "H_PRACTICA_IRREGULAR"
         }))];
 
-        // Step 3.5: Canonical Finalization Layer (NON-COLLAPSE PROTECTION)
-        const canonicalResult = finalizeAuditCanonical(
-            mergedFindings,
-            totalCopagoReal,
-            reconstructibility.isReconstructible
-        );
+        // --- Step 3.5: Canonical Finalization Layer (NON-COLLAPSE PROTECTION) ---
+        const canonicalResult = finalizeAuditCanonical({
+            findings: mergedFindings,
+            totalCopago: totalCopagoReal,
+            reconstructible: (reconstructibility as any).isReconstructible,
+            pamState: pamState,
+            signals: alphaSignals,
+            contract: contratoJson
+        });
 
         const finalFindings = canonicalResult.findings;
         const finalStrictBalance = canonicalResult.balance;
         const finalDecision = {
             estado: canonicalResult.estadoGlobal,
-            confianza: 0.9, // Authority level
-            fundamento: `No es posible verificar aplicación de topes UF/VAM. Violación Regla C-01: El objeto Contrato no contiene cláusulas de cobertura (array 'coberturas' vacío). Violación Regla C-02: Cuenta contiene cargos de Hospitalización pero el Contrato solo exhibe coberturas Ambulatorias claras. Violación Regla C-04: Unable to verify ceilings due to structural opacity (PAM aggregation blocks fine-grained analysis) Alerta F-01: Repetición clínica significativa Alerta F-03: Consumo iterativo de exámenes (Mixto/Repetido) (Coexistencia de Paquetes e Ítems Individuales)`
+            confianza: 0.9,
+            fundamento: (canonicalResult as any).fundamentoText
         };
 
+        // Final Result Initialization
+        const finalResult = auditResult;
 
-        // Log canonical debug if any
+        // Update finalResult with TRUTH
+        finalResult.resumenFinanciero = (canonicalResult as any).resumenFinanciero;
+        finalResult.totalAhorroDetectado = finalStrictBalance.A;
+
         if (canonicalResult.debug.length > 0) {
             log(`[AuditEngine] ⚖️ Canonical Debug: ${canonicalResult.debug.join(' | ')}`);
         }
-
-        // Update finalResult with TRUTH
-        if (!finalResult.resumenFinanciero) finalResult.resumenFinanciero = {};
-        finalResult.resumenFinanciero.ahorro_confirmado = finalStrictBalance.A;
-        finalResult.resumenFinanciero.cobros_improcedentes_exigibles = finalStrictBalance.A;
-        finalResult.resumenFinanciero.copagos_bajo_controversia = finalStrictBalance.B;
-        finalResult.resumenFinanciero.monto_indeterminado = finalStrictBalance.Z;
-        finalResult.resumenFinanciero.monto_no_observado = finalStrictBalance.OK;
-        finalResult.resumenFinanciero.totalCopagoObjetado = finalStrictBalance.A + finalStrictBalance.B + finalStrictBalance.Z;
-
 
         return {
             data: {
@@ -1405,30 +1359,14 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     TOTAL: finalStrictBalance.TOTAL
                 } as BalanceAlpha,
 
-                // Legacy Overrides (to update UI)
-                // Fix 9: Single Source of Truth (Recalculate Balance using the Authority function)
-                // We use mergedFindings (LLM + AlphaFold) but process them through the strict BalanceCalculator
-                /*
-                // OLD: AlphaFold Balance overwrite (Removed to prevent contradiction)
-                resumenFinanciero: {
-                    ...finalResult.resumenFinanciero,
-                    ahorro_confirmado: alphaBalance.A,
-                    copagos_bajo_controversia: alphaBalance.B,
-                    monto_indeterminado: alphaBalance.Z,
-                    monto_no_observado: alphaBalance.OK,
-                    totalCopagoObjetado: alphaBalance.A + alphaBalance.B + alphaBalance.Z
-                },
-                */
-                // NEW: Use computeBalanceWithHypotheses as the Single Source of Truth
                 resumenFinanciero: finalResult.resumenFinanciero,
                 decisionGlobal: {
                     estado: finalDecision.estado,
                     confianza: finalDecision.confianza,
                     fundamento: finalDecision.fundamento
                 },
-                // Phase 10: Juridic & Epistemological Precision
                 legalContext: {
-                    axioma: "Un Estado Global de Opacidad NO invalida la existencia de hallazgos locales; solo limita su exigibilidad inmediata. Cat Z global  'todo está mal'.",
+                    axioma: "Un Estado Global de Opacidad NO invalida la existencia de hallazgos locales; solo limita su exigibilidad inmediata. Cat Z global != 'todo está mal'.",
                     alcance: [
                         "El sistema NO imputa intencionalidad penal.",
                         "El sistema NO calcula topes UF/VAM cuando la información lo impide.",
@@ -1438,16 +1376,14 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     fraudeCheck: "No se configura, a esta etapa, un patrón suficiente para calificar como fraude; la hipótesis dominante es opacidad estructural.",
                     disclaimer: "Este reporte constituye una pre-liquidación forense basada en la estabilidad de la información proporcionada. No reemplaza el juicio de un tribunal."
                 },
-                canonical_rules_output: canonicalOutput,
+                canonical_rules_output: (canonicalResult as any).debug,
 
-                // Phase 11 & 12: Tailored Explanations
                 explicaciones: (() => {
                     const patientNameStr = (cuentaJson.patientName || pamJson.patientName || pamJson.patient || "el paciente").toUpperCase();
                     const totalRef = totalCopagoReal.toLocaleString('es-CL');
                     const ahorroRef = finalStrictBalance.A.toLocaleString('es-CL');
                     const indeterminadoRef = finalStrictBalance.Z.toLocaleString('es-CL');
 
-                    // Scenario A: Structural Opacity / Indeterminacy (The "Limit" Case)
                     if (finalDecision.estado && (finalDecision.estado.includes('OPACIDAD') || finalDecision.estado.includes('INDETERMINADO') || finalDecision.estado.includes('CONTROVERSIA') || finalDecision.estado.includes('MIXTO'))) {
                         return {
                             clinica: `La auditoría forense de la cuenta de ${patientNameStr} revela una opacidad estructural significativa en el Programa de Atención Médica (PAM). El copago total informado de $${totalRef} no puede ser completamente validado debido a la falta de desglose detallado en ítems clave como 'Medicamentos Clínicos' y 'Materiales Clínicos', así como glosas genéricas de 'Gastos No Cubiertos por el Plan'. Adicionalmente, se identificaron cobros improcedentes por prestaciones inherentes al día cama (instalación de vía venosa y fleboclisis) y por ítems de hotelería no clínica, que suman un ahorro confirmado de $${ahorroRef}. El copago restante de $${indeterminadoRef} se encuentra bajo controversia por falta de trazabilidad.`,
@@ -1455,11 +1391,8 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                             paciente: `Imagine que lleva su auto al taller (la clínica) y le entregan una factura (la cuenta) con el detalle de cada repuesto y servicio. Luego, su seguro (la Isapre) le entrega un resumen (el PAM) donde dice 'Repuestos Varios' o 'Servicios Generales' con un monto a pagar, sin especificar qué repuestos o servicios fueron. Esto le impide saber si le cobraron de más o si el seguro cubrió lo que debía. En este caso, el seguro no le está dando el detalle necesario para verificar si el cobro es justo, y además, le está cobrando por cosas que deberían estar incluidas en el 'Día de Taller' o por servicios que no son directamente mecánicos.`
                         };
                     }
-                    // Scenario B: Specific Findings (Traceable but Wrong) - Future Expansion
-                    // ...
                     return undefined;
                 })(),
-                // NEW: Jurisprudence decisions for transparency
                 jurisprudenceContext: {
                     precedentsUsed: Array.from(jurisprudenceDecisions.entries())
                         .filter(([_, v]) => v.decision.source === 'PRECEDENTE')
@@ -1467,15 +1400,15 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     doctrineRulesApplied: Array.from(jurisprudenceDecisions.entries())
                         .filter(([_, v]) => v.decision.source === 'DOCTRINA')
                         .map(([key, v]) => ({ pamLineKey: key, categoria: v.decision.categoria_final })),
-                    totalDecisions: jurisprudenceDecisions.size
+                    totalDecisions: jurisprudenceStore ? jurisprudenceStore.stats().total : 0
                 }
+
             },
             usage: usage ? {
                 promptTokens: usage.promptTokenCount,
                 candidatesTokens: usage.candidatesTokenCount,
                 totalTokens: usage.totalTokenCount
             } : null,
-            // NEW: Trigger learning for future audits (async, non-blocking)
             learnedPrecedents: (() => {
                 try {
                     const learnableFindings = mergedFindings
@@ -1493,7 +1426,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                             tags: [f.hypothesisParent || 'LEARNED']
                         }));
 
-                    if (learnableFindings.length > 0) {
+                    if (learnableFindings.length > 0 && typeof learnFromAudit === 'function') {
                         const recordedIds = learnFromAudit(jurisprudenceStore, contratoJson, learnableFindings, 0.85);
                         log(`[AuditEngine] 🧠 Jurisprudence learned ${recordedIds.length} new precedent(s).`);
                         return recordedIds;
@@ -1506,9 +1439,10 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             })()
         };
     } catch (error: any) {
-        log(`[AuditEngine] âŒ Error en el proceso de auditorÃ­a: ${error.message} `);
+        log(`[AuditEngine] ❌ Error en el proceso de auditoría: ${error.message}`);
         throw error;
     }
+
 }
 
 // ============================================================================
@@ -2121,7 +2055,7 @@ Se exige la cobertura inmediata del 100% pactado o la exhibición de la cláusul
             }
         });
 
-        // Fix 2.2: REMOVED Sum Recalculation here. 
+        // Fix 2.2: REMOVED Sum Recalculation here.
         // "Single Source of Truth" principle -> handled by computeBalanceWithHypotheses/AlphaFold only.
         /*
         if (validatedResult.resumenFinanciero) {
@@ -2152,7 +2086,7 @@ Se exige la cobertura inmediata del 100% pactado o la exhibición de la cláusul
 
                     // We need to check if the targetAmount found in PAM is EXACTLY matching the Finding Amount.
                     // Often the LLM creates a finding for the whole "PRESTACIONES SIN BONIFICACION" line ($66.752).
-                    // But nutrition match is only $51.356. 
+                    // But nutrition match is only $51.356.
                     // Case A: Perfect Match ($51.356 vs $51.356) -> Cat A.
                     // Case B: Partial ($66.752 vs $51.356) -> Cat Z (Conservative).
 
@@ -2296,7 +2230,7 @@ Se solicita aclaraciÃ³n formal y reliquidaciÃ³n, mediante entrega de desglos
         // 3. Mark findings as controversial BUT RESPECT CAT A
         if (validatedResult.hallazgos) {
             validatedResult.hallazgos.forEach((h: any) => {
-                // If the finding was marked as "COBRO_IMPROCEDENTE" (Cat A) by the classifier or LLM, 
+                // If the finding was marked as "COBRO_IMPROCEDENTE" (Cat A) by the classifier or LLM,
                 // and it is NOT the structural opacity itself, we KEEP IT as Confirmed if it has High Confidence.
                 const isCatA = h.tipo_monto === "COBRO_IMPROCEDENTE" || h.categoria === "A";
                 const isHighConfidence = h.nivel_confianza === "ALTA";
