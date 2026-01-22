@@ -34,6 +34,7 @@ import { AuditSummary } from './components/AuditSummary';
 import { ExtractionResults } from './components/ExtractionResults';
 import { PAMResults } from './components/PAMResults';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from './version';
+import { cacheManager } from './utils/cacheManager';
 
 type DocumentType = 'bill' | 'pam';
 
@@ -239,6 +240,19 @@ const App: React.FC = () => {
 
         // Save last result for cross-audit AND FINGERPRINT
         try {
+          const activeCaseId = localStorage.getItem('forensic_active_case_id') || crypto.randomUUID();
+          localStorage.setItem('forensic_active_case_id', activeCaseId);
+
+          cacheManager.saveCase({
+            id: activeCaseId,
+            bill: data,
+            patientName: data.patientName,
+            invoiceNumber: data.invoiceNumber,
+            fingerprints: {
+              bill: { name: queueItem.file.name, size: queueItem.file.size }
+            }
+          });
+
           localStorage.setItem('clinic_audit_result', JSON.stringify(data));
           localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify({ name: queueItem.file.name, size: queueItem.file.size }));
         } catch (e) {
@@ -365,6 +379,16 @@ const App: React.FC = () => {
   const saveToCache = () => {
     if (!result) return;
     try {
+      const activeCaseId = localStorage.getItem('forensic_active_case_id') || crypto.randomUUID();
+      localStorage.setItem('forensic_active_case_id', activeCaseId);
+
+      cacheManager.saveCase({
+        id: activeCaseId,
+        bill: result,
+        patientName: result.patientName,
+        invoiceNumber: result.invoiceNumber
+      });
+
       localStorage.setItem('clinic_audit_result', JSON.stringify(result));
       setHasCache(true);
       addLog('[SISTEMA] ✅ CUENTA GUARDADA EN MEMORIA FORENSE.');

@@ -5,6 +5,7 @@ import { Contract, UsageMetrics, AppStatus } from '../types';
 import { ContractResults } from './ContractResults';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
 import { CONSALUD_EJEMPLO } from '../mocks';
+import { cacheManager } from '../utils/cacheManager';
 
 export default function ContractApp() {
     const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
@@ -166,6 +167,17 @@ export default function ContractApp() {
 
                     // Persistir el contrato para auditoría cruzada (con protección de cuota)
                     try {
+                        const activeCaseId = localStorage.getItem('forensic_active_case_id') || crypto.randomUUID();
+                        localStorage.setItem('forensic_active_case_id', activeCaseId);
+
+                        cacheManager.saveCase({
+                            id: activeCaseId,
+                            contract: finalData,
+                            fingerprints: {
+                                contract: { name: file.name, size: file.size }
+                            }
+                        });
+
                         localStorage.setItem('contract_audit_result', JSON.stringify(finalData));
                         // SAVE FINGERPRINT
                         localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify({ name: file.name, size: file.size }));

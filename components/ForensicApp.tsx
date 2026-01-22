@@ -35,6 +35,8 @@ import { AuditTablesSection } from './tables/AuditTablesSection';
 import { AlphaFoldVisualizer } from './AlphaFoldVisualizer';
 import { runForensicAudit } from '../auditService';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
+import { cacheManager, ForensicCase } from '../utils/cacheManager';
+import { History, LayoutGrid, Clock, User } from 'lucide-react';
 
 export default function ForensicApp() {
     const [status, setStatus] = useState<'IDLE' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('IDLE');
@@ -57,21 +59,28 @@ export default function ForensicApp() {
     const [hasPam, setHasPam] = useState(false);
     const [hasContract, setHasContract] = useState(false);
     const [hasHtml, setHasHtml] = useState(false);
+    const [caseHistory, setCaseHistory] = useState<ForensicCase[]>([]);
+    const [showHistory, setShowHistory] = useState(false);
 
     const logEndRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<number | null>(null);
 
     useEffect(() => {
         checkData();
+        setCaseHistory(cacheManager.getAllCases());
         window.addEventListener('storage', checkData);
 
         const handleVisibilityChange = () => {
             if (!document.hidden) {
                 checkData();
+                setCaseHistory(cacheManager.getAllCases());
             }
         };
 
-        const intervalId = setInterval(checkData, 2000);
+        const intervalId = setInterval(() => {
+            checkData();
+            setCaseHistory(cacheManager.getAllCases());
+        }, 2000);
         document.addEventListener('visibilitychange', handleVisibilityChange);
 
         return () => {
@@ -381,6 +390,45 @@ export default function ForensicApp() {
         addLog('[SISTEMA] 🗑️ Proyección HTML eliminada de caché.');
     };
 
+    const restoreCase = (c: ForensicCase) => {
+        const confirmRestore = window.confirm(`¿Deseas restaurar el caso de ${c.patientName || 'Paciente Desconocido'}?`);
+        if (!confirmRestore) return;
+
+        localStorage.setItem('forensic_active_case_id', c.id);
+        if (c.bill) localStorage.setItem('clinic_audit_result', JSON.stringify(c.bill));
+        else localStorage.removeItem('clinic_audit_result');
+
+        if (c.pam) localStorage.setItem('pam_audit_result', JSON.stringify(c.pam));
+        else localStorage.removeItem('pam_audit_result');
+
+        if (c.contract) localStorage.setItem('contract_audit_result', JSON.stringify(c.contract));
+        else localStorage.removeItem('contract_audit_result');
+
+        if (c.htmlContext) localStorage.setItem('html_projection_result', c.htmlContext);
+        else localStorage.removeItem('html_projection_result');
+
+        if (c.fingerprints.bill) localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify(c.fingerprints.bill));
+        if (c.fingerprints.pam) localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify(c.fingerprints.pam));
+        if (c.fingerprints.contract) localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify(c.fingerprints.contract));
+
+        checkData();
+        setShowHistory(false);
+        addLog(`[SISTEMA] 🔄 Caso restaurado: ${c.patientName || 'Sin Nombre'}`);
+    };
+
+    const createNewCase = () => {
+        localStorage.removeItem('forensic_active_case_id');
+        localStorage.removeItem('clinic_audit_result');
+        localStorage.removeItem('pam_audit_result');
+        localStorage.removeItem('contract_audit_result');
+        localStorage.removeItem('html_projection_result');
+        localStorage.removeItem('clinic_audit_file_fingerprint');
+        localStorage.removeItem('pam_audit_file_fingerprint');
+        localStorage.removeItem('contract_audit_file_fingerprint');
+        checkData();
+        addLog('[SISTEMA] 🆕 Iniciando nuevo caso vacío.');
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-slate-50 relative pb-32">
             {/* ... header ... */}
@@ -402,7 +450,21 @@ export default function ForensicApp() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        {status === 'SUCCESS' && (
+                        <button
+                            onClick={() => setShowHistory(true)}
+                            className="flex items-center gap-2 px-3 py-2 bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-200 transition-all shadow-sm"
+                        >
+                            <History size={16} />
+                            HISTORIAL ({caseHistory.length})
+                        </button>
+                        <button
+                            onClick={createNewCase}
+                            className="flex items-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg text-xs font-bold hover:bg-indigo-100 transition-all shadow-sm"
+                        >
+                            <LayoutGrid size={16} /> NUEVO CASO
+                        </button>
+                        <div className="w-px h-6 bg-slate-300 mx-1"></div>
+                        {status === 'SUCCESS' && auditResult && (
                             <>
                                 <button onClick={() => downloadFormat(auditResult, 'json', 'audit_forense')} className="flex items-center gap-2 px-3 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 transition-all shadow-sm">
                                     <FileJson size={16} /> JSON
@@ -443,29 +505,31 @@ export default function ForensicApp() {
             </header>
 
             {/* BIG V.A/VAM BADGE - IN A CORNER */}
-            {preCheckResult && (
-                <div className="fixed top-32 right-10 z-[100] animate-in slide-in-from-right-10 duration-500">
-                    <div className="bg-slate-900 border-2 border-indigo-400 text-white rounded-2xl shadow-2xl p-6 flex flex-col items-end min-w-[180px] hover:scale-105 transition-transform cursor-help group">
-                        <div className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em] mb-1">
-                            UNIDAD DE REFERENCIA (DEDUCIDA)
-                        </div>
-                        <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-black text-white italic">{preCheckResult.v_a_deducido.tipo}</span>
-                            <span className="text-5xl font-black text-indigo-400">
-                                ${(preCheckResult.v_a_deducido.valor || 0).toLocaleString('es-CL')}
-                            </span>
-                        </div>
-                        <div className="mt-3 text-[10px] font-mono text-slate-400 max-w-[250px] text-right line-clamp-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                            {preCheckResult.v_a_deducido.evidencia?.[0] || 'Deducción matemática desde PAM + Contrato'}
-                        </div>
-                        {isPreChecking && (
-                            <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-                                <Loader2 className="animate-spin text-white" />
+            {
+                preCheckResult && (
+                    <div className="fixed top-32 right-10 z-[100] animate-in slide-in-from-right-10 duration-500">
+                        <div className="bg-slate-900 border-2 border-indigo-400 text-white rounded-2xl shadow-2xl p-6 flex flex-col items-end min-w-[180px] hover:scale-105 transition-transform cursor-help group">
+                            <div className="text-[10px] font-black text-indigo-300 uppercase tracking-[0.2em] mb-1">
+                                UNIDAD DE REFERENCIA (DEDUCIDA)
                             </div>
-                        )}
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-3xl font-black text-white italic">{preCheckResult.v_a_deducido.tipo}</span>
+                                <span className="text-5xl font-black text-indigo-400">
+                                    ${(preCheckResult.v_a_deducido.valor || 0).toLocaleString('es-CL')}
+                                </span>
+                            </div>
+                            <div className="mt-3 text-[10px] font-mono text-slate-400 max-w-[250px] text-right line-clamp-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                {preCheckResult.v_a_deducido.evidencia?.[0] || 'Deducción matemática desde PAM + Contrato'}
+                            </div>
+                            {isPreChecking && (
+                                <div className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm rounded-2xl flex items-center justify-center">
+                                    <Loader2 className="animate-spin text-white" />
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <main className="flex-grow max-w-[1800px] mx-auto w-full p-3 sm:p-6 lg:p-10">
                 {status === 'IDLE' && (
@@ -760,8 +824,109 @@ export default function ForensicApp() {
                         </div>
                     </div>
                 )}
+
+                {showHistory && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-300">
+                        <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden border border-slate-200">
+                            <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-white">
+                                <div>
+                                    <h3 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                                        <History className="text-indigo-600" size={28} />
+                                        Memoria Forense (Desarrollo)
+                                    </h3>
+                                    <p className="text-slate-500 text-sm font-medium mt-1">Historial de casos auditados y guardados en este navegador.</p>
+                                </div>
+                                <button onClick={() => setShowHistory(false)} className="p-3 hover:bg-slate-100 rounded-2xl transition-all group">
+                                    <X size={24} className="text-slate-400 group-hover:text-slate-900" />
+                                </button>
+                            </div>
+
+                            <div className="flex-grow overflow-auto p-8 bg-slate-50/50">
+                                {caseHistory.length === 0 ? (
+                                    <div className="h-full flex flex-col items-center justify-center text-center space-y-4">
+                                        <div className="w-20 h-20 bg-slate-100 rounded-3xl flex items-center justify-center text-slate-300 border border-slate-200 shadow-inner">
+                                            <Clock size={40} />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-slate-400">No hay casos en memoria</p>
+                                            <p className="text-xs text-slate-400">Los casos aparecerán aquí a medida que subas documentos.</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        {caseHistory.map((c) => (
+                                            <div
+                                                key={c.id}
+                                                className={`p-6 rounded-3xl border transition-all cursor-pointer group relative ${localStorage.getItem('forensic_active_case_id') === c.id
+                                                    ? 'bg-indigo-600 border-indigo-700 shadow-xl shadow-indigo-200 text-white'
+                                                    : 'bg-white border-slate-200 hover:border-indigo-400 shadow-sm hover:shadow-xl hover:-translate-y-1'
+                                                    }`}
+                                                onClick={() => restoreCase(c)}
+                                            >
+                                                <div className="flex justify-between items-start mb-4">
+                                                    <div className={`p-2 rounded-xl ${localStorage.getItem('forensic_active_case_id') === c.id ? 'bg-indigo-500' : 'bg-slate-100 text-slate-600'}`}>
+                                                        <User size={20} />
+                                                    </div>
+                                                    <span className={`text-[10px] font-mono font-bold ${localStorage.getItem('forensic_active_case_id') === c.id ? 'text-indigo-200' : 'text-slate-400'}`}>
+                                                        {new Date(c.timestamp).toLocaleString()}
+                                                    </span>
+                                                </div>
+
+                                                <h4 className={`text-lg font-black tracking-tight mb-1 truncate ${localStorage.getItem('forensic_active_case_id') === c.id ? 'text-white' : 'text-slate-900'}`}>
+                                                    {c.patientName || 'Paciente por Identificar'}
+                                                </h4>
+                                                <p className={`text-xs font-bold uppercase tracking-widest ${localStorage.getItem('forensic_active_case_id') === c.id ? 'text-indigo-100' : 'text-slate-500'}`}>
+                                                    Inv: {c.invoiceNumber || 'N/A'}
+                                                </p>
+
+                                                <div className="mt-6 flex flex-wrap gap-2">
+                                                    {c.bill && <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${localStorage.getItem('forensic_active_case_id') === c.id ? 'bg-indigo-500 text-white' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>cuenta</span>}
+                                                    {c.pam && <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${localStorage.getItem('forensic_active_case_id') === c.id ? 'bg-indigo-500 text-white' : 'bg-amber-50 text-amber-600 border border-amber-100'}`}>pam</span>}
+                                                    {c.contract && <span className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase ${localStorage.getItem('forensic_active_case_id') === c.id ? 'bg-indigo-500 text-white' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>contrato</span>}
+                                                </div>
+
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        if (window.confirm('¿Eliminar este caso de la memoria?')) {
+                                                            cacheManager.deleteCase(c.id);
+                                                            setCaseHistory(cacheManager.getAllCases());
+                                                        }
+                                                    }}
+                                                    className={`absolute top-4 right-4 p-2 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg ${localStorage.getItem('forensic_active_case_id') === c.id ? 'hover:bg-indigo-500 text-white' : 'hover:bg-rose-50 text-rose-500'}`}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="p-8 border-t border-slate-100 bg-white flex justify-between items-center mt-auto">
+                                <button
+                                    onClick={() => {
+                                        if (window.confirm('¿Vaciar TODO el historial de memoria?')) {
+                                            cacheManager.clearAll();
+                                            setCaseHistory([]);
+                                        }
+                                    }}
+                                    className="px-4 py-2 text-rose-600 hover:bg-rose-50 rounded-xl text-xs font-bold flex items-center gap-2 transition-colors"
+                                >
+                                    <Trash2 size={16} /> VACIAR HISTORIAL
+                                </button>
+                                <button
+                                    onClick={() => setShowHistory(false)}
+                                    className="px-8 py-3 bg-slate-900 text-white rounded-2xl text-sm font-black hover:bg-black transition-all shadow-lg active:scale-95"
+                                >
+                                    CERRAR
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
-        </div>
+        </div >
     );
 }
 

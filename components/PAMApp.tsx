@@ -3,6 +3,7 @@ import { Upload, Loader2, FileText, Trash2, ShieldCheck, Timer, Terminal, Downlo
 import { extractPamData, PamDocument, UsageMetrics } from '../pamService';
 import { PAMResults } from './PAMResults';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
+import { cacheManager } from '../utils/cacheManager';
 
 enum AppStatus {
     IDLE = 'idle',
@@ -292,6 +293,17 @@ export default function PAMApp() {
                 setPamResult(current => {
                     if (current) {
                         try {
+                            const activeCaseId = localStorage.getItem('forensic_active_case_id') || crypto.randomUUID();
+                            localStorage.setItem('forensic_active_case_id', activeCaseId);
+
+                            cacheManager.saveCase({
+                                id: activeCaseId,
+                                pam: current,
+                                fingerprints: {
+                                    pam: { name: queueItem.file.name, size: queueItem.file.size }
+                                }
+                            });
+
                             localStorage.setItem('pam_audit_result', JSON.stringify(current));
                             // SAVE FINGERPRINT
                             localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify({ name: queueItem.file.name, size: queueItem.file.size }));
@@ -363,10 +375,22 @@ export default function PAMApp() {
 
     const saveToCache = () => {
         if (!pamResult) return;
-        localStorage.setItem('pam_audit_result', JSON.stringify(pamResult));
-        setHasCache(true);
-        addLog('[SISTEMA] ✅ PAM GUARDADO EN MEMORIA FORENSE.');
-        alert("✅ PAM guardado exitosamente en memoria forense.");
+        try {
+            const activeCaseId = localStorage.getItem('forensic_active_case_id') || crypto.randomUUID();
+            localStorage.setItem('forensic_active_case_id', activeCaseId);
+
+            cacheManager.saveCase({
+                id: activeCaseId,
+                pam: pamResult
+            });
+
+            localStorage.setItem('pam_audit_result', JSON.stringify(pamResult));
+            setHasCache(true);
+            addLog('[SISTEMA] ✅ PAM GUARDADO EN MEMORIA FORENSE.');
+            alert("✅ PAM guardado exitosamente en memoria forense.");
+        } catch (e) {
+            addLog(`[ERROR] No se pudo guardar en caché: ${String(e)}`);
+        }
     };
 
     const clearCache = () => {

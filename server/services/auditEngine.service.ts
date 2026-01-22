@@ -114,12 +114,199 @@ function classifyFinding(h: any): "A" | "B" {
 
 // Helper for deterministic ID generation
 function stableId(parts: string[]): string {
-    const s = parts.join("|");
-    let h = 0;
-    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-    return "F_" + h.toString(16);
+    return parts.join("|").replace(/\s+/g, "_");
 }
 
+// ============================================================================
+// CANONICAL FINALIZATION LAYER HELPERS
+// ============================================================================
+
+const PROTECTED_CODES = new Set([
+    "99-00-028", // instalación vía venosa
+    "99-00-045", // fleboclisis
+]);
+
+function normalizeCode(code: string): string {
+    return code.trim().replace(/[^0-9-]/g, "");
+}
+
+function isProtectedCatA(f: Finding): boolean {
+    // Check codes
+    // Finding from types.ts might have evidenceRefs or we might need to check how they are stored
+    // In mergedFindings (performForensicAudit), we use evidenceRefs for some things.
+    // However, the canonical logic provided refers to 'codigos'. 
+    // Let's check how 'mergedFindings' is built in performForensicAudit.
+    // It seems to be a mix of AlphaFold Findings and LLM Findings.
+
+    // We'll add a check for codes if available in evidenceRefs or tags (as hypothetical extensions)
+    // For now, let's assume we might need to stick to the finding structure we use.
+
+    // In our codebase, 'Finding' from types.ts doesn't have a 'codigos' array directly, 
+    // but the LLM output 'HallazgoInternal' does.
+    // In performForensicAudit, mergedFindings is created from alphaFindings and LLM findings.
+
+    const label = (f.label || "").toUpperCase();
+    const rationale = (f.rationale || "").toUpperCase();
+
+    const isUnbundling = /UNBUNDLING|EVENTO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(label) || /UNBUNDLING|EVENTO/.test(rationale);
+    const isHoteleria = /ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION/.test(label) || /IF-?319/.test(rationale);
+    const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(label) || /ENFERMERIA/.test(rationale);
+
+    const hasProtectedCode = f.evidenceRefs?.some(ref => {
+        const code = normalizeCode(ref.split('/').pop() || "");
+        return PROTECTED_CODES.has(code);
+    });
+
+    return isUnbundling || isHoteleria || isNursing || !!hasProtectedCode;
+}
+
+function isOpacityFinding(f: Finding): boolean {
+    return (
+        f.hypothesisParent === "H_OPACIDAD_ESTRUCTURAL" ||
+        /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE/i.test(f.label) ||
+        /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE/i.test(f.rationale)
+    );
+}
+
+function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean): Finding {
+    // Cat A fuerte: siempre A
+    if (isProtectedCatA(f) && f.amount > 0) {
+        return { ...f, category: "A", action: "IMPUGNAR" };
+    }
+
+    // Opacidad: si falta trazabilidad (y monto > 0)
+    if (isOpacityFinding(f) && f.amount > 0) {
+        return { ...f, category: "Z", action: "SOLICITAR_ACLARACION" };
+    }
+
+    // Medicamentos/Materiales sin desglose:
+    const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label) || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.rationale);
+
+    if (isMedMat && f.amount > 0) {
+        if (!crcReconstructible) {
+            return { ...f, category: "Z", action: "SOLICITAR_ACLARACION" };
+        }
+        return { ...f, category: f.category || "B" };
+    }
+
+    if (f.amount <= 0) return { ...f, category: "OK", action: "ACEPTAR" };
+    return { ...f, category: f.category || "B" };
+}
+
+function applySubsumptionCanonical(findings: Finding[]): Finding[] {
+    const out: Finding[] = [];
+    const seen = new Set<string>();
+
+    for (const f of findings) {
+        // Simple key: label + amount
+        const key = `${f.label}|${f.amount}`.toLowerCase();
+
+        if (!seen.has(key)) {
+            seen.add(key);
+            out.push(f);
+            continue;
+        }
+
+        const existingIdx = out.findIndex(x => `${x.label}|${x.amount}`.toLowerCase() === key);
+        const existing = out[existingIdx];
+
+        const existingProtected = isProtectedCatA(existing);
+        const incomingProtected = isProtectedCatA(f);
+
+        if (existingProtected && !incomingProtected) continue;
+        if (!existingProtected && incomingProtected) {
+            out[existingIdx] = f;
+            continue;
+        }
+
+        if (f.amount > existing.amount) out[existingIdx] = f;
+    }
+
+    return out;
+}
+
+function computeBalanceCanonical(findings: Finding[], totalCopago: number): BalanceAlpha {
+    const sum = (cat: "A" | "B" | "Z" | "OK") =>
+        findings
+            .filter(f => f.category === cat)
+            .reduce((acc, f) => acc + (f.amount || 0), 0);
+
+    const catA = sum("A");
+    const catB = sum("B");
+    const catZ_pre = sum("Z");
+    const catOK = sum("OK");
+
+    const observed = catA + catB + catZ_pre;
+    const residual = Math.max(0, totalCopago - observed);
+
+    return {
+        A: catA,
+        B: catB,
+        Z: catZ_pre + residual,
+        OK: catOK,
+        TOTAL: totalCopago
+    };
+}
+
+function decideGlobalStateCanonical(balance: BalanceAlpha): string {
+    const hasA = balance.A > 0;
+    const hasOpacity = balance.Z > 0 || balance.B > 0;
+
+    if (hasA && hasOpacity) return "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+    if (!hasA && hasOpacity) return "COPAGO_INDETERMINADO_PARCIAL_POR_OPACIDAD";
+    if (hasA && !hasOpacity) return "COPAGO_OK_CONFIRMADO";
+    return "COPAGO_OK_CONFIRMADO";
+}
+
+function assertCanonicalClosure(findings: Finding[], balance: BalanceAlpha, debug: string[]) {
+    const protectedA = findings.filter(h => isProtectedCatA(h) && h.category === "A" && h.amount > 0);
+
+    if (protectedA.length > 0 && balance.A <= 0) {
+        const msg = `C-CLOSE-01 VIOLATION: existen ${protectedA.length} hallazgos Cat A protegidos pero balance.A=0`;
+        debug.push(msg);
+        console.error(msg);
+        // We won't throw in prod to avoid crashing, but we'll log it heavily.
+    }
+
+    const leaked = findings.filter(h => isProtectedCatA(h) && h.amount > 0 && h.category !== "A");
+    if (leaked.length > 0) {
+        const msg = `C-A-01 VIOLATION: ${leaked.length} hallazgo(s) protegido(s) no quedaron en Cat A`;
+        debug.push(msg);
+        console.error(msg);
+    }
+}
+
+export function finalizeAuditCanonical(findings: Finding[], totalCopago: number, crcReconstructible: boolean): {
+    estadoGlobal: string;
+    findings: Finding[];
+    balance: BalanceAlpha;
+    debug: string[]
+} {
+    const debug: string[] = [];
+
+    // Step 1: Categorize
+    let processedFindings = findings.map(f => canonicalCategorizeFinding(f, crcReconstructible));
+
+    // Step 2: Subsumption
+    processedFindings = applySubsumptionCanonical(processedFindings);
+
+    // Step 3: Balance
+    const balance = computeBalanceCanonical(processedFindings, totalCopago);
+
+    // Step 4: Global State
+    let estadoGlobal = decideGlobalStateCanonical(balance);
+
+    // Step 5: Assertions
+    assertCanonicalClosure(processedFindings, balance, debug);
+
+    // Step 6: Hardening
+    if (balance.A > 0 && (balance.Z > 0 || balance.B > 0)) {
+        estadoGlobal = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+        debug.push("C-STATE-02: estado global forzado a MIXTO por coexistencia A + (B/Z)");
+    }
+
+    return { estadoGlobal, findings: processedFindings, balance, debug };
+}
 export async function performForensicAudit(
     cuentaJson: any,
     pamJson: any,
@@ -1169,26 +1356,35 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             hypothesisParent: "H_OK_CUMPLIMIENTO" // Default for legacy
         }))];
 
-        const alphaBalance = AlphaFoldService.buildBalance(totalCopagoReal, mergedFindings);
-        const decision = AlphaFoldService.globalDecision(activeContexts, ranking, alphaBalance);
-
-        // Fix 9: Single Source of Truth
-        // Re-run strict balance on the FINAL merged findings
-        const finalStrictBalance = computeBalanceWithHypotheses(
+        // Step 3.5: Canonical Finalization Layer (NON-COLLAPSE PROTECTION)
+        const canonicalResult = finalizeAuditCanonical(
             mergedFindings,
             totalCopagoReal,
-            hypothesisResult.capabilityMatrix,
-            pamLines
+            reconstructibility.isReconstructible
         );
+
+        const finalFindings = canonicalResult.findings;
+        const finalStrictBalance = canonicalResult.balance;
+        const finalDecision = {
+            estado: canonicalResult.estadoGlobal,
+            confianza: 0.9, // Authority level
+            fundamento: canonicalOutput.fundamento.join('\n') // Use canonical rules foundation
+        };
+
+        // Log canonical debug if any
+        if (canonicalResult.debug.length > 0) {
+            log(`[AuditEngine] ⚖️ Canonical Debug: ${canonicalResult.debug.join(' | ')}`);
+        }
 
         // Update finalResult with TRUTH
         if (!finalResult.resumenFinanciero) finalResult.resumenFinanciero = {};
-        finalResult.resumenFinanciero.ahorro_confirmado = finalStrictBalance.categories.A;
-        finalResult.resumenFinanciero.cobros_improcedentes_exigibles = finalStrictBalance.categories.A;
-        finalResult.resumenFinanciero.copagos_bajo_controversia = finalStrictBalance.categories.B;
-        finalResult.resumenFinanciero.monto_indeterminado = finalStrictBalance.categories.Z;
-        finalResult.resumenFinanciero.monto_no_observado = finalStrictBalance.categories.OK;
-        finalResult.resumenFinanciero.totalCopagoObjetado = finalStrictBalance.categories.A + finalStrictBalance.categories.B + finalStrictBalance.categories.Z;
+        finalResult.resumenFinanciero.ahorro_confirmado = finalStrictBalance.A;
+        finalResult.resumenFinanciero.cobros_improcedentes_exigibles = finalStrictBalance.A;
+        finalResult.resumenFinanciero.copagos_bajo_controversia = finalStrictBalance.B;
+        finalResult.resumenFinanciero.monto_indeterminado = finalStrictBalance.Z;
+        finalResult.resumenFinanciero.monto_no_observado = finalStrictBalance.OK;
+        finalResult.resumenFinanciero.totalCopagoObjetado = finalStrictBalance.A + finalStrictBalance.B + finalStrictBalance.Z;
+
 
         return {
             data: {
@@ -1199,13 +1395,13 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                 hypothesisRanking: ranking,
                 activeHypotheses: activeContexts,
 
-                findings: mergedFindings,
+                findings: finalFindings,
                 balance: {
-                    A: finalStrictBalance.categories.A,
-                    B: finalStrictBalance.categories.B,
-                    Z: finalStrictBalance.categories.Z,
-                    OK: finalStrictBalance.categories.OK,
-                    TOTAL: finalStrictBalance.totalCopago
+                    A: finalStrictBalance.A,
+                    B: finalStrictBalance.B,
+                    Z: finalStrictBalance.Z,
+                    OK: finalStrictBalance.OK,
+                    TOTAL: finalStrictBalance.TOTAL
                 } as BalanceAlpha,
 
                 // Legacy Overrides (to update UI)
@@ -1225,9 +1421,9 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                 // NEW: Use computeBalanceWithHypotheses as the Single Source of Truth
                 resumenFinanciero: finalResult.resumenFinanciero,
                 decisionGlobal: {
-                    estado: decision.estado,
-                    confianza: decision.confianza,
-                    fundamento: decision.fundamento
+                    estado: finalDecision.estado,
+                    confianza: finalDecision.confianza,
+                    fundamento: finalDecision.fundamento
                 },
                 // Phase 10: Juridic & Epistemological Precision
                 legalContext: {
@@ -1241,12 +1437,12 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     fraudeCheck: "No se configura, a esta etapa, un patrón suficiente para calificar como fraude; la hipótesis dominante es opacidad estructural.",
                     disclaimer: "Este reporte constituye una pre-liquidación forense basada en la estabilidad de la información proporcionada. No reemplaza el juicio de un tribunal."
                 },
-                scopeBreakdown: finalStrictBalance.scopeBreakdown, // Explicit Scope Breakdown for Table
                 canonical_rules_output: canonicalOutput,
+
                 // Phase 11 & 12: Tailored Explanations
                 explicaciones: (() => {
                     // Scenario A: Structural Opacity / Indeterminacy (The "Limit" Case)
-                    if (decision.estado && (decision.estado.includes('OPACIDAD') || decision.estado.includes('INDETERMINADO') || decision.estado.includes('CONTROVERSIA'))) {
+                    if (finalDecision.estado && (finalDecision.estado.includes('OPACIDAD') || finalDecision.estado.includes('INDETERMINADO') || finalDecision.estado.includes('CONTROVERSIA') || finalDecision.estado.includes('MIXTO'))) {
                         return {
                             clinica: "Motivo de la observación: imposibilidad de trazabilidad contable-contractual + Cobros Improcedentes detectados.\n\nLa cuenta clínica presenta un nivel de agregación en el PAM que impide la verificación técnica de todos los ítems; sin embargo, se han detectado cobros unitarios que resultan improcedentes por su propia naturaleza (Eventos Únicos, Unbundling).\n\nRespecto a la Opacidad: Si bien la cuenta interna del prestador contiene detalle, el PAM consolida materiales y medicamentos sin apertura espejo, impidiendo validar topes UF.\n\nRespecto a la Improcedencia: Existen prestaciones cobradas por separado que deben entenderse incluidas en el día cama o pabellón (doble cobro).\n\nConclusión: Se requieren dos acciones: 1) Eiminar los cobros improcedentes detectados (Cat A) y 2) Reliquidar el resto con desglose detallado para auditar topes (Cat B/Z).",
                             isapre: "La falta de desglose en el PAM impide auditar parte del copago; sin embargo, no obsta a declarar improcedentes aquellos cobros que, por su naturaleza clínica o normativa, resultan indebidos con independencia de dicha opacidad, tales como el cobro fragmentado de prestaciones inherentes a la hospitalización y la aplicación del Principio de Evento Único.\n\nEn derecho chileno: La falta de desglose no anula derechos que surgen por unidad clínica, naturaleza de la prestación o cobertura explícita.",
