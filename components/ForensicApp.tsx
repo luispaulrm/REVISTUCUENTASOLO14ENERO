@@ -1014,7 +1014,7 @@ function CanonicalDecisionCard({ output }: { output: any }) {
                             <Terminal size={12} /> Fundamentos de la Decisión
                         </h3>
                         <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                            {fundamento.map((f: string, i: number) => (
+                            {(fundamento || []).map((f: string, i: number) => (
                                 <li key={i} className="flex gap-2 text-[11px] text-slate-600 items-start">
                                     <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${f.includes('Violación') || f.includes('Error') ? 'bg-rose-500' : f.includes('Alerta') ? 'bg-amber-500' : 'bg-slate-400'}`} />
                                     <span className="leading-tight font-medium">{f}</span>

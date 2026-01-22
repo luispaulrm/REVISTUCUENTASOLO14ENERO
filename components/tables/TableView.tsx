@@ -14,7 +14,7 @@ export function TableView({ table }: { table: Table }) {
                 <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                         <tr>
-                            {table.columns.map((c) => (
+                            {(table.columns || []).map((c) => (
                                 <th
                                     key={c.key}
                                     style={{
@@ -32,9 +32,9 @@ export function TableView({ table }: { table: Table }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {table.rows.map((r, i) => (
+                        {(table.rows || []).map((r, i) => (
                             <tr key={i}>
-                                {table.columns.map((c) => (
+                                {(table.columns || []).map((c) => (
                                     <td
                                         key={c.key}
                                         style={{

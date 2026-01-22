@@ -33,7 +33,7 @@ export function AuditTablesSection(props: {
                 </div>
             )}
 
-            {tables.map((t) => (
+            {(tables || []).map((t) => (
                 <TableView key={t.id} table={t} />
             ))}
         </div>

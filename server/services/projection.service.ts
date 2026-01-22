@@ -291,7 +291,6 @@ export class ProjectionService {
                                 "las demás",
                                 "los demás",
                                 "siguiendo el mismo patrón",
-                                "mismo formato",
                                 "formato similar",
                                 "patrón similar",
                                 "ver documento original",
@@ -301,7 +300,6 @@ export class ProjectionService {
                                 "lista completa en",
                                 "(omitido por brevedad)",
                                 "(se omiten",
-                                "etcétera",
                                 "(ver anexo",
                                 "continúa con formato",
                                 "filas adicionales",
@@ -332,21 +330,22 @@ export class ProjectionService {
                             ];
 
                             // Check for laziness
-                            const isLazy = lazyPhrases.some(phrase => currentPassOutput.includes(phrase));
+                            const triggeredPhrase = lazyPhrases.find(phrase => currentPassOutput.includes(phrase));
+                            const isLazy = !!triggeredPhrase;
 
                             if (currentPassOutput.includes("<!-- END_OF_DOCUMENT -->") && !isLazy) {
                                 isFinalized = true;
                                 yield { type: 'log', text: `[IA] ✅ Marcador de finalización detectado en el pase ${pass}.` };
                             } else {
                                 const logMsg = isLazy ?
-                                    `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. PATRÓN PROHIBIDO ENCONTRADO. FORZANDO RE-GENERACIÓN...` :
+                                    `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. GATILLADA POR: "${triggeredPhrase}". FORZANDO RE-GENERACIÓN...` :
                                     `[IA] 🔄 Truncamiento o fin de pase en ${pass}. Solicitando continuación...`;
                                 console.log(`[ProjectionService] ${logMsg}`);
                                 yield { type: 'log', text: logMsg };
 
                                 // NUEVO: Permanent error log for quality monitoring
                                 if (isLazy) {
-                                    console.error(`[PROJECTION-QUALITY-ALERT] Lazy behavior detected in pass ${pass}. Model attempted to summarize. Forcing continuation.`);
+                                    console.error(`[PROJECTION-QUALITY-ALERT] Lazy behavior detected in pass ${pass}. Phrase: "${triggeredPhrase}". Forcing continuation.`);
                                 }
                             }
 
