@@ -612,52 +612,67 @@ Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, C
     traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line} `));
 
     // ============================================================================
-    // HYPOTHESIS ROUTER (V5 ARCHITECTURE - Pattern Detection)
+    // ALPHA FOLD ENGINE (V6 - Deterministic Signal Processing)
     // ============================================================================
-    log('[AuditEngine] ðŸ”¬ Activating Hypothesis Router (V5 - Pattern-Based Detection)...');
+    log('[AuditEngine] 🧬 Activating AlphaFold Engine (V6 - Deterministic Signals)...');
     onProgressUpdate?.(37);
 
-    const router = new HypothesisRouterService();
-
-    // Build router input from available data
-    const routerInput: HypothesisRouterInput = {
-        cuentaSections: cleanedCuenta.sections?.map((s: any, idx: number) => ({
-            sectionId: `${idx}_${s.category} `,
-            items: (s.items || []).map((item: any, itemIdx: number) => ({
-                id: `${idx}_${itemIdx} `,
-                desc: item.description || '',
-                amount: item.total || 0,
-                category: s.category
-            }))
-        })) || [],
-        pam: {
-            lines: cleanedPam.folios?.flatMap((folio: any) =>
-                folio.desglosePorPrestador?.flatMap((prest: any) =>
-                    (prest.items || []).map((item: any) => ({
-                        key: item.codigo || 'UNKNOWN',
-                        desc: item.descripcion || '',
-                        amount: parseAmountCLP(item.copago), // Fix 6: Parse CLP
-                        isGeneric: /material|insumo|medicamento|varios|sin bonific/i.test(item.descripcion || '')
-                    }))
-                ) || []
-            ) || []
-        },
-        contract: {
-            parsed: contratoJson
-        },
-        metadata: {
-            patientName: cuentaJson.patientName || pamJson.patient || '',
-            auditId: `audit_${Date.now()} `
-            // test_case: false (auto-detected by router from patientName)
-        }
-    };
-
-    const hypothesisResult = router.detect(routerInput);
-    log(`[AuditEngine] ðŸ“Š Hypotheses Detected: ${hypothesisResult.hypotheses.length} `);
-    hypothesisResult.hypotheses.forEach(h => {
-        log(`[AuditEngine] - ${h.id}: ${h.label} (confidence: ${(h.confidence * 100).toFixed(0)}%, scope: ${h.scope.type})`);
-        log(`[AuditEngine]     Rationale: ${h.rationale} `);
+    // 1. Extract Signals
+    const alphaSignals = AlphaFoldService.extractSignals({
+        pam: cleanedPam,
+        cuenta: cleanedCuenta,
+        contrato: contratoJson
     });
+
+    log(`[AuditEngine] 📡 Signals Extracted: ${alphaSignals.filter(s => s.value > 0).length} active signals.`);
+
+    // 2. Detect PAM State
+    const pamState = AlphaFoldService.detectPamState(alphaSignals);
+    log(`[AuditEngine] 👁️ PAM State Detected: ${pamState}`);
+
+    // 3. Score Hypotheses
+    const hypothesisScores = AlphaFoldService.scoreHypotheses(alphaSignals, pamState);
+
+    // 4. Activate Contexts
+    const activeHypotheses = AlphaFoldService.activateContexts(hypothesisScores, pamState, {
+        pam: cleanedPam,
+        cuenta: cleanedCuenta,
+        contrato: contratoJson
+    });
+
+    log(`[AuditEngine] 🧪 Active Hypotheses: ${activeHypotheses.join(', ')}`);
+    hypothesisScores.filter(h => activeHypotheses.includes(h.hypothesis)).forEach(h => {
+        log(`[AuditEngine]    - ${h.hypothesis}: ${(h.confidence * 100).toFixed(0)}% (Explains: ${h.explains.join(', ')})`);
+    });
+
+    // Shim for downstream compatibility (Jurisprudence Engine expects hypothesisResult)
+    const capabilityMatrix = {
+        enabled: [],
+        blocked: []
+    } as any;
+
+    if (pamState === 'DETALLADO') {
+        capabilityMatrix.enabled.push(
+            { capability: "CALCULO_TOPES_UF_VA_VAM", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 },
+            { capability: "VALIDACION_PRECIOS_UNITARIOS", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 },
+            { capability: "UNBUNDLING_IF319", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 }
+        );
+    } else {
+        capabilityMatrix.blocked.push(
+            { capability: "CALCULO_TOPES_UF_VA_VAM", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 }
+        );
+    }
+
+    const hypothesisResult = {
+        hypotheses: hypothesisScores.filter(h => activeHypotheses.includes(h.hypothesis)).map(h => ({
+            id: h.hypothesis,
+            label: h.hypothesis,
+            confidence: h.confidence,
+            scope: { type: "GLOBAL" },
+            rationale: `Detected by AlphaFold. Explains: ${h.explains.join(', ')}`
+        })),
+        capabilityMatrix: capabilityMatrix
+    };
 
     // ============================================================================
     // JURISPRUDENCE ENGINE (Precedent-First Decision System)
@@ -1290,10 +1305,11 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         }
 
         // --- AlphaFold-Juridic Phase 2 & 3: Integrated Signal & Finding Layer ---
-        const alphaSignals = AlphaFoldService.extractSignals({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: contratoJson });
-        const pamState = AlphaFoldService.detectPamState(alphaSignals);
-        const ranking = AlphaFoldService.scoreHypotheses(alphaSignals, pamState);
-        const activeContexts = AlphaFoldService.activateContexts(ranking, pamState);
+        // --- AlphaFold-Juridic Phase 2 & 3: Integrated Signal & Finding Layer ---
+        // Reuse variables from start of function (AlphaFold execution at start)
+        const activeContexts = activeHypotheses;
+        const ranking = hypothesisScores;
+        // alphaSignals and pamState are already available
 
         const alphaFindings = AlphaFoldService.buildFindings({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: contratoJson }, pamState, activeContexts);
 

@@ -1,4 +1,12 @@
 {
+  "include": [
+    "**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts"
+  ],
   "compilerOptions": {
     "target": "ES2022",
     "experimentalDecorators": true,
