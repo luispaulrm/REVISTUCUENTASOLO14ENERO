@@ -201,18 +201,39 @@ export function extractFeatureSet(
             explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
         }
 
-        if (lineFeatures.kind === "MED" && catNormal.includes("MEDICAMENTO")) hasExplicitCoverage = true;
-        if (lineFeatures.kind === "INS" && catNormal.includes("INSUMO")) hasExplicitCoverage = true;
-        if (lineFeatures.kind === "MAT" && catNormal.includes("MATERIAL")) hasExplicitCoverage = true;
-        if (features.has("ES_EXAMEN") && catNormal.includes("EXAMEN")) hasExplicitCoverage = true;
+        if (lineFeatures.kind === "MED" && catNormal.includes("MEDICAMENTO")) {
+            hasExplicitCoverage = true;
+            explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
+        }
+        if (lineFeatures.kind === "INS" && catNormal.includes("INSUMO")) {
+            hasExplicitCoverage = true;
+            explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
+        }
+        if (lineFeatures.kind === "MAT" && catNormal.includes("MATERIAL")) {
+            hasExplicitCoverage = true;
+            explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
+        }
+        if (features.has("ES_EXAMEN") && catNormal.includes("EXAMEN")) {
+            hasExplicitCoverage = true;
+            explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
+        }
     }
 
     if (hasExplicitCoverage) features.add("COV_EXPLICIT");
-    if (explicitCoverageVal >= 100 || explicitCoverageVal >= 1) features.add("COV_100");
+    // FIX: Ensure boolean/numeric comparison is robust. 
+    // Usually coverage is 1.0 (100%) or integer 100. Checking both.
+    if (explicitCoverageVal >= 100 || explicitCoverageVal >= 1.0) features.add("COV_100");
     features.add("TOPES_NO_ALCANZADOS"); // Pro-patient assumption
 
     // CAPA 1 Flag: IC_BREACH
-    if (features.has("COV_100") && features.has("TOPES_NO_ALCANZADOS") && lineFeatures.copagoPos) {
+    // CRITICAL: If Meds/Mats have 100% coverage and no limit reached, IT IS A BREACH if copay > 0.
+    // We add a specific check for generic kinds (MED, MAT, INS) to ensure they are caught.
+    const isGenericClinical = ["MED", "MAT", "INS"].includes(lineFeatures.kind);
+
+    // DEBUG LOG
+    // console.log(`[FINGERPRINT DEBUG] Item: ${pamLine.descripcion || pamLine.desc} | Kind: ${lineFeatures.kind} | COV_100: ${features.has("COV_100")} (val=${explicitCoverageVal}) | COV_EXPL: ${features.has("COV_EXPLICIT")} | TOPES: ${features.has("TOPES_NO_ALCANZADOS")} | POS: ${lineFeatures.copagoPos} | Generic: ${isGenericClinical}`);
+
+    if ((features.has("COV_100") || (isGenericClinical && features.has("COV_EXPLICIT"))) && features.has("TOPES_NO_ALCANZADOS") && lineFeatures.copagoPos) {
         features.add("IC_BREACH");
     }
 

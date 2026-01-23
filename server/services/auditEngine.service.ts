@@ -1532,6 +1532,11 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
 
     // 1. Freeze Categories with C-NC-03 Protection
     const hallazgosFrozen = hallazgos.map((h: HallazgoInternal) => {
+        // ROBUSTNESS: Ensure montoObjetado exists for summation
+        if (!h.montoObjetado) {
+            h.montoObjetado = Number(h.monto || h.copago || 0);
+        }
+
         let cat: HallazgoCategoria = "Z"; // Default indeterminate
 
         // Analyze Basis & Opacity
@@ -1611,6 +1616,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
                     cat = "B"; // Controversia fallback
                 }
             }
+
+
+            // DEBUG LOG
+            // console.log(`[FINALIZE DEBUG] Item: ${h.titulo} | CatFinal: ${h.categoria_final} | TipoMonto: ${h.tipo_monto} | Protected: ${isProtectedFromSubsumption} -> Assigned Cat: ${cat}`);
         }
 
         // --- STRICT OVERRIDE FOR SUSPECTED PARTIAL MATCHES ---
@@ -1734,14 +1743,19 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     const hasCatZ = sumZ > 0; // Indeterminate
     const hasOpacity = hasCanonicalOpacity || hasCatZ || hasCatB;
 
-    // 7. Diagnóstico Global del Caso (Specification v1.0)
-    // GLOBAL_DECISION_OVERRIDE: If A > 0 and Z > 0 -> CUENTA_IMPUGNABLE_COMPLETA
-    if (hasCatA && hasCatZ) {
-        finalDecision = "CUENTA_IMPUGNABLE_COMPLETA";
-        console.log('[GLOBAL_DECISION] 🛡️ Override: Cat A + Cat Z detected -> CUENTA_IMPUGNABLE_COMPLETA');
-    } else if (hasCatA) {
-        finalDecision = "CUENTA_IMPUGNABLE";
+    // 7. Diagnóstico Global del Caso (Specification v1.0 - CANONICAL CORRECTION)
+    // REGLA MADRE: Si existe incumplimiento contractual determinado (Cat A > 0), 
+    // el estado global NO puede ser MIXTO ni OPACO. 
+    // La opacidad (Z) pasa a ser secundaria explicativa, no determinante del estado.
+
+    if (hasCatA) {
+        // PRIORITY 1: CONTRACTUAL BREACH / UNBUNDLING CONFIRMED
+        // Overrides any opacity. "Mixed" state is forbidden when a breach is proven.
+        finalDecision = "CUENTA_IMPUGNABLE_POR_INCUMPLIMIENTO_CONTRACTUAL";
+        console.log('[GLOBAL_DECISION] 🛡️ Override: Cat A confirmed -> CUENTA_IMPUGNABLE (Opacity neutralized)');
     } else if (hasCatZ) {
+        // PRIORITY 2: RESIDUAL OPACITY
+        // Only if NO Cat A exists.
         finalDecision = "OPACIDAD ESTRUCTURAL (COPAGO INDETERMINADO)";
     } else if (hasCatB) {
         finalDecision = "CONTROVERSIA POR FALTA DE DESGLOSE";
