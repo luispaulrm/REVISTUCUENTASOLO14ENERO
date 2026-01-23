@@ -64,8 +64,120 @@ function parseAmountCLP(val: any): number {
 }
 
 // ============================================================================
-// UTILITY: Deterministic Finding Classifier (CAT A vs CAT B)
+// TYPES: Resolution Engine (V5)
 // ============================================================================
+type Cat = "A" | "OK" | "Z" | "B";
+
+export interface DecisionResult {
+    estado: string;
+    confianza: number;
+    fundamento: string;
+    balance: { A: number; OK: number; B: number; Z: number; TOTAL: number };
+    invariantsOk: boolean;
+    errors: string[];
+    score?: number;
+}
+
+// ============================================================================
+// LOGIC: Resolve Decision (Golden Rule Implementation)
+// ============================================================================
+
+function sum(xs: number[]) { return xs.reduce((a, b) => a + b, 0); }
+
+function resolveDecision(params: {
+    totalCopagoInformado: number;
+    findings: Finding[];
+    violations: { code?: string; severity: number }[]; // severity 0..1
+    signals: Signal[];
+}): DecisionResult {
+
+    const { totalCopagoInformado: T, findings, violations, signals } = params;
+    const errors: string[] = [];
+
+    // 1) Normaliza montos (nunca negativos, NaN -> 0)
+    // Map Finding to internal structure if needed, but existing Finding match closely
+    const norm = findings.map(f => ({
+        ...f,
+        amount: Number.isFinite(f.amount) ? Math.max(0, Math.round(f.amount)) : 0
+    }));
+
+    // 2) NO permitir que Z incluya ítems con anclaje “cerrado” A (regla de hierro)
+    const A_items = norm.filter(f => f.category === "A");
+    const OK_items = norm.filter(f => f.category === "OK");
+    const B_items = norm.filter(f => f.category === "B");
+    const Z_items = norm.filter(f => f.category === "Z");
+
+    const A = sum(A_items.map(x => x.amount));
+    const OK = sum(OK_items.map(x => x.amount));
+    const B = sum(B_items.map(x => x.amount));
+    let Z = sum(Z_items.map(x => x.amount));
+
+    // 3) Opacidad RESIDUAL: Z no puede exceder el remanente contable
+    const remainder = Math.max(0, T - (A + OK + B));
+    if (Z > remainder) {
+        // recorta Z al remanente (y reporta)
+        errors.push(`Z_excede_remanente: Z=${Z} > remanente=${remainder}. Recortado.`);
+        Z = remainder;
+    }
+
+    // 4) Invariante contable
+    const TOTAL = A + OK + B + Z;
+    // Allow small FP tolerance (1 unit)
+    const invariantsOk = Math.abs(TOTAL - T) <= 1;
+    if (!invariantsOk) {
+        errors.push(`Invariante_falla: A+OK+B+Z=${TOTAL} != T=${T}.`);
+        // Si falla, fuerza Z como "lo que falta" y deja evidencia del ajuste
+        // Prioridad: A, OK, B se mantienen. Z absorbe el ajuste.
+        Z = Math.max(0, T - (A + OK + B));
+    }
+
+    // 5) Señales / violaciones -> estado final (sin colapso)
+    const V = Math.min(1, sum(violations.map(v => v.severity)) / Math.max(1, violations.length));
+
+    // R = Risk (Derived from signals)
+    // We filter positive signals related to risk
+    const riskSignals = signals.filter(s => s.value > 0 && !s.id.includes("OK") && !s.id.includes("CUMPLIMIENTO"));
+    const R = Math.min(1, riskSignals.length > 0 ? (sum(riskSignals.map(s => s.value)) / riskSignals.length) : 0);
+
+    const opacidad = Z / Math.max(1, T);
+
+    // Estado: MIXTO si hay A y también hay Z; OPACO puro solo si A=0 y Z alto
+    let estado = "COPAGO_OK";
+    if (A > 0 && Z > 0) estado = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+    else if (A > 0 && Z === 0) estado = "COPAGO_OBJETABLE_CONFIRMADO"; // Was COPAGO_OBJETABLE
+    else if (A === 0 && Z > 0) estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
+    else if (B > 0) estado = "COPAGO_CONFIRMADO_CON_OBSERVACIONES"; // Fallback for B
+
+    // Confianza: sube con A anclado, baja con opacidad y fallas contables
+    let confianza = 0.55 + 0.35 * Math.min(1, A / Math.max(1, T)) - 0.45 * opacidad;
+    if (errors.length) confianza -= 0.15;
+    confianza = Math.max(0.05, Math.min(0.95, confianza));
+
+    // Auditor Score Calculation
+    // C = 100 * (0.55 * A/T + 0.25 * V + 0.20 * R) - 100 * (0.60 * Z/T)
+    const scoreA = 0.55 * (A / Math.max(1, T));
+    const scoreV = 0.25 * V;
+    const scoreR = 0.20 * R;
+    const scoreZ = 100 * (0.60 * (Z / Math.max(1, T)));
+    let score = 100 * (scoreA + scoreV + scoreR) - scoreZ;
+    // Normalize score to 0-100 logic? The formula gives -60 to 100.
+    // User formula allows negative score (high opacity).
+
+    const fundamento =
+        `Balance: A=${A}, OK=${OK}, B=${B}, Z=${Z}, T=${T}. ` +
+        `Violaciones promedio=${V.toFixed(2)}. Opacidad=${(100 * opacidad).toFixed(1)}%. ` +
+        (errors.length ? `Ajustes: ${errors.join(" | ")}.` : "");
+
+    return {
+        estado,
+        confianza: Number(confianza.toFixed(2)),
+        fundamento,
+        balance: { A, OK, B, Z, TOTAL: T },
+        invariantsOk: errors.length === 0,
+        errors,
+        score: Math.round(score)
+    };
+}
 function classifyFinding(h: any): "A" | "B" {
     const gl = (h.glosa || "").toUpperCase();
     const text = (h.hallazgo || "").toUpperCase();
@@ -225,25 +337,20 @@ function applySubsumptionCanonical(findings: Finding[]): Finding[] {
 
 function computeBalanceCanonical(findings: Finding[], totalCopago: number): BalanceAlpha {
     // REGLA C-AR-01: Exclusividad contable. 
-    const sum = (cat: "A" | "B" | "OK") =>
-        findings
-            .filter(f => f.category === cat)
-            .reduce((acc, f) => acc + (f.amount || 0), 0);
+    const resolved = resolveDecision({
+        totalCopagoInformado: totalCopago,
+        findings: findings,
+        violations: [], // Passed later in final call, but for mid-stream calc assume 0
+        signals: [] // Same
+    });
 
-    const catA = sum("A");
-    const catB = sum("B");
-    const catOK = sum("OK");
-
-    // Cat Z is EXACTLY the residual to ensure closure
-    const observed = catA + catB + catOK;
-    const catZ = Math.max(0, totalCopago - observed);
-
+    // Helper adapter to match BalanceAlpha type
     return {
-        A: catA,
-        B: catB,
-        Z: catZ,
-        OK: catOK,
-        TOTAL: totalCopago
+        A: resolved.balance.A,
+        B: resolved.balance.B,
+        Z: resolved.balance.Z,
+        OK: resolved.balance.OK,
+        TOTAL: resolved.balance.TOTAL
     };
 }
 
@@ -285,6 +392,7 @@ export function finalizeAuditCanonical(input: {
     signals?: any;
     contract?: any;
     ceilings?: { canVerify: boolean; reason?: string };
+    violations?: { code: string; severity: number }[];
 }): {
     estadoGlobal: string;
     findings: Finding[];
@@ -322,60 +430,64 @@ export function finalizeAuditCanonical(input: {
     processedFindings = applySubsumptionCanonical(processedFindings);
 
     // Step 3: Balance
-    const sum = (cat: "A" | "B" | "OK") =>
-        processedFindings
-            .filter(f => f.category === cat)
-            .reduce((acc, f) => acc + (f.amount || 0), 0);
+    // Step 2: Subsumption
+    processedFindings = applySubsumptionCanonical(processedFindings);
 
-    const A = sum("A");
-    const B = sum("B");
-    const OK = sum("OK");
-    const Z = Math.max(0, total - (A + B + OK));
-    const balance = { A, B, Z, OK, TOTAL: total };
+    // Step 3: RESOLVE DECISION (Golden Source of Truth)
+    // Convert generic signals object to Signal[] if needed, or assume input.signals is Signal[]
+    const signalArray: Signal[] = Array.isArray(input.signals) ? input.signals : [];
+    // Extract violations likely from rule engine output or flags? 
+    // In this context, we might not have full violation objects yet if called early.
+    // But we should try to pass them.
+    // For now, let's assume empty violations if not provided in input (which needs updating)
+    // or utilize input.signals if they contain violation info.
+    // Actually, finalizeAuditCanonical is called with full contexts in performForensicAudit.
+    // We will enable passing violations in input.
 
-    // Step 4: Decision Logic
+    // Note: We need to cast input to accept violations
+    const violations = (input as any).violations || [];
+
+    const resolved = resolveDecision({
+        totalCopagoInformado: total,
+        findings: processedFindings,
+        violations: violations,
+        signals: signalArray
+    });
+
+    const balance = resolved.balance;
+    const estadoGlobal = resolved.estado;
+    resolved.errors.forEach(e => debug.push(e));
+
+
+    // Restore context variables for foundation
     const contratoVacio = (input.contract?.coberturas?.length ?? 0) === 0;
     const pamOpaco = input.pamState === "OPACO" || !input.reconstructible;
     const canVerifyCeilings = input.ceilings?.canVerify ?? input.reconstructible;
-
-    const hasConfirmed = (A + B + OK) > 0;
-    const hasOpaque = Z > 0 || pamOpaco || !canVerifyCeilings;
-
-    let estadoGlobal: string;
-    if (hasConfirmed && hasOpaque) {
-        estadoGlobal = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
-    } else if (!hasConfirmed && hasOpaque) {
-        estadoGlobal = "COPAGO_INDETERMINADO_PARCIAL_POR_OPACIDAD";
-    } else if (A + B > 0) {
-        estadoGlobal = "COPAGO_CONFIRMADO_CON_OBSERVACIONES";
-    } else {
-        estadoGlobal = "COPAGO_OK_CONFIRMADO";
-    }
-
-    // Step 5: Assertions
-    assertCanonicalClosure(processedFindings, balance, debug);
 
     // Step 6: Foundation
     const fundamento: string[] = [];
     if (!canVerifyCeilings) fundamento.push("No es posible verificar aplicación de topes UF/VAM (ceiling verification unavailable).");
     if (contratoVacio) fundamento.push("Violación Regla C-01: Contrato sin cláusulas de cobertura (coberturas vacío).");
     if (pamOpaco) fundamento.push("Violación Regla C-04: Opacidad estructural en PAM (agrupación impide trazabilidad fina).");
-    if (A > 0) fundamento.push(`Hallazgos confirmados: cobros improcedentes exigibles identificados (A) por $${A.toLocaleString("es-CL")}.`);
-    if (Z > 0) fundamento.push(`Monto bajo controversia por opacidad (Z/Indeterminado): $${Z.toLocaleString("es-CL")} (requiere desglose/reliquidación).`);
+    if (balance.A > 0) fundamento.push(`Hallazgos confirmados: cobros improcedentes exigibles identificados (A) por $${balance.A.toLocaleString("es-CL")}.`);
+    if (balance.Z > 0) fundamento.push(`Monto bajo controversia por opacidad (Z/Indeterminado): $${balance.Z.toLocaleString("es-CL")} (requiere desglose/reliquidación).`);
+
+    fundamento.push(resolved.fundamento);
 
 
     // Step 7: Summary
     const resumenFinanciero = {
         totalCopagoInformado: total,
-        totalCopagoLegitimo: OK,
-        totalCopagoObjetado: A + B + Z,
-        ahorro_confirmado: A,
-        cobros_improcedentes_exigibles: A,
-        copagos_bajo_controversia: B,
-        monto_indeterminado: Z,
-        monto_no_observado: OK,
+        totalCopagoLegitimo: balance.OK,
+        totalCopagoObjetado: balance.A + balance.B + balance.Z,
+        ahorro_confirmado: balance.A,
+        cobros_improcedentes_exigibles: balance.A,
+        copagos_bajo_controversia: balance.B,
+        monto_indeterminado: balance.Z,
+        monto_no_observado: balance.OK,
         totalCopagoReal: total,
-        estado_copago: estadoGlobal.includes('MIXTO') ? "MIXTO" : (estadoGlobal.includes('OPACIDAD') ? "INDETERMINADO_POR_OPACIDAD" : "OK")
+        estado_copago: estadoGlobal.includes('MIXTO') ? "MIXTO" : (estadoGlobal.includes('OPACIDAD') ? "INDETERMINADO_POR_OPACIDAD" : "OK"),
+        auditor_score: resolved.score // New Field
     };
 
     return {
@@ -1367,6 +1479,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             reconstructible: (reconstructibility as any).isReconstructible,
             pamState: pamState,
             signals: alphaSignals,
+            violations: ruleEngineResult.rules.filter(r => r.violated).map(r => ({ code: r.ruleId, severity: 1 })), // Map violations
             contract: contratoJson
         });
 
