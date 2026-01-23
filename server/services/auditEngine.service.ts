@@ -22,7 +22,7 @@ import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, Hypothes
 // NEW: Import Jurisprudence Layer (Precedent-First Decision System)
 import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAudit } from './jurisprudence/index.js';
 // NEW: Import C-NC Rules (Opacity Non-Collapse)
-import { generateNonCollapseText, RULE_C_NC_01, RULE_C_NC_02, RULE_C_NC_03, CANONICAL_NON_COLLAPSE_TEXT } from './jurisprudence/jurisprudence.doctrine.js';
+import { generateNonCollapseText, RULE_C_NC_01, RULE_C_NC_02, RULE_C_NC_03, CANONICAL_NON_COLLAPSE_TEXT, findMatchingDoctrine } from './jurisprudence/jurisprudence.doctrine.js';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -1314,10 +1314,37 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
         const alphaFindings = AlphaFoldService.buildFindings({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: contratoJson }, pamState, activeContexts);
 
-        // Merge findings from all sources (LLM medical + AlphaFold structural)
-        const mergedFindings = [...alphaFindings, ...(auditResult.hallazgos || []).filter((h: any) =>
-            // Exclude LLM findings that are just "Structural Opacity" since AlphaFold handles that better
-            h.codigos !== "OPACIDAD_ESTRUCTURAL" && h.categoria !== "OPACIDAD"
+        // 1. Jurisprudence Findings (Nivel 1-4)
+        const jurisprudenceFindings = Array.from(jurisprudenceDecisions.values())
+            .filter(v => (v.decision.categoria_final === 'A' || v.decision.categoria_final === 'Z') && v.pamLine.copago > 0)
+            .map(v => {
+                const doctrineRule = findMatchingDoctrine(v.features);
+                return {
+                    id: v.pamLine.uniqueId,
+                    category: v.decision.categoria_final as any,
+                    label: v.pamLine.descripcion,
+                    amount: v.pamLine.copago,
+                    action: v.decision.recomendacion as any,
+                    evidenceRefs: [`PAM:${v.pamLine.codigo}`],
+                    rationale: doctrineRule?.rationale || "Hallazgo detectado por motor de jurisprudencia (Árbol de Decisión del Auditor).",
+                    hypothesisParent: v.decision.categoria_final === 'A' ?
+                        (v.features.has('INHERENTLY_INCLUDED') ? "H_UNBUNDLING_IF319" : "H_INCUMPLIMIENTO_CONTRACTUAL") :
+                        "H_OPACIDAD_ESTRUCTURAL"
+                };
+            });
+
+        // 2. AlphaFold findings (Structural)
+        // We filter AlphaFold findings if they overlap with specific Jurisprudence findings to avoid double counting
+        const filteredAlphaFindings = alphaFindings.filter(af =>
+            !jurisprudenceFindings.some(jf => jf.label === af.label && Math.abs(jf.amount - af.amount) < 100)
+        );
+
+        // 3. LLM Findings (Medical/Refined)
+        const filteredLlmFindings = (auditResult.hallazgos || []).filter((h: any) =>
+            // Exclude LLM findings that are just "Structural Opacity" since AlphaFold/Jurisprudence handles that better
+            h.codigos !== "OPACIDAD_ESTRUCTURAL" && h.categoria !== "OPACIDAD" &&
+            // Prevent double counting of items already caught by Jurisprudence (by amount and simple desc match)
+            !jurisprudenceFindings.some(jf => Math.abs(jf.amount - (h.montoObjetado || 0)) < 100 && (h.glosa || h.titulo || "").includes(jf.label))
         ).map((h: any) => ({
             id: h.id || stableId([h.codigos || "", h.titulo || "", h.glosa || "", String(h.montoObjetado || 0)]),
             category: (h.categoria_final || "Z") as any,
@@ -1327,7 +1354,11 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             evidenceRefs: h.evidenceRefs || [],
             rationale: h.hallazgo || "Hallazgo detectado por LLM",
             hypothesisParent: h.hypothesisParent || "H_PRACTICA_IRREGULAR"
-        }))];
+        }));
+
+        // Merge findings from all sources
+        const mergedFindings = [...jurisprudenceFindings, ...filteredAlphaFindings, ...filteredLlmFindings];
+
 
         // --- Step 3.5: Canonical Finalization Layer (NON-COLLAPSE PROTECTION) ---
         const canonicalResult = finalizeAuditCanonical({
@@ -1383,15 +1414,15 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     fundamento: finalDecision.fundamento
                 },
                 legalContext: {
-                    axioma: "Un Estado Global de Opacidad NO invalida la existencia de hallazgos locales; solo limita su exigibilidad inmediata. Cat Z global != 'todo está mal'.",
-                    alcance: [
-                        "El sistema NO imputa intencionalidad penal.",
-                        "El sistema NO calcula topes UF/VAM cuando la información lo impide.",
-                        "El sistema NO afirma que los montos sean improcedentes, sino que no son verificables.",
-                        "El sistema SÍ concluye que el cobro no es jurídicamente exigible en su estado actual."
+                    axioma_fundamental: "La inteligencia del auditor consiste en suplir las deficiencias estructurales del PAM mediante la aplicación activa de literatura, normativa y contrato, y no en declarar indeterminación ante la primera falta de desglose.",
+                    analisis_capas: [
+                        "1. CAPA CONTRACTUAL: Prioridad absoluta a incumplimientos de cobertura explícita y topes (Breach = Cat A).",
+                        "2. CAPA CLÍNICO-TÉCNICA: Aplicación activa de bibliografía para definir qué ítems son hotelería o insumos incluidos por norma.",
+                        "3. CAPA DE RECONSTRUCCIÓN: Inferencia de naturaleza y detección de unbundling cuando el PAM agrupa glosas.",
+                        "4. CAPA DE OPACIDAD RESIDUAL: La Ley 20.584 aplica solo cuando contrato y literatura no permiten la clasificación."
                     ],
-                    fraudeCheck: "No se configura, a esta etapa, un patrón suficiente para calificar como fraude; la hipótesis dominante es opacidad estructural.",
-                    disclaimer: "Este reporte constituye una pre-liquidación forense basada en la estabilidad de la información proporcionada. No reemplaza el juicio de un tribunal."
+                    fraudeCheck: "La hipótesis dominante es el incumplimiento directo o la falta de transparencia estructural acumulada.",
+                    disclaimer: "Este reporte constituye una pre-liquidación forense reconstructiva. No reemplaza el juicio de un tribunal."
                 },
                 canonical_rules_output: (canonicalResult as any).debug,
 

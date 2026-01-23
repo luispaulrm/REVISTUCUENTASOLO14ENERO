@@ -7,108 +7,126 @@
 import type { DoctrineRule, Cat, TipoMonto, Recomendacion } from "./jurisprudence.types.js";
 
 /**
- * Canonical doctrine rules for RevisaTuCuenta
- * Order matters: first matching rule wins
+ * Canonical doctrine rules for RevisaTuCuenta (AUDITOR DECISION TREE v2.0)
+ * Logic is prioritized by levels:
+ * 1. CONTRATO (Contractual Breach)
+ * 2. NATURALEZA (Unbundling)
+ * 3. HOTELERÍA (Detection)
+ * 4. OPACIDAD (Residual)
  */
 export const DOCTRINE_RULES: DoctrineRule[] = [
     // ========================================================================
-    // RULE D01: Medicamentos/Insumos con cobertura 100% y bonificación $0
+    // NIVEL 1: CONTRATO (Breach of Explicit Coverage)
     // ========================================================================
-    {
-        id: "D01_MED_100_BONIF_0",
-        label: "Medicamentos/Insumos 100% sin bonificación",
-        requiredFeatures: ["MED_OR_INS", "BONIF_0", "COV_100"],
-        decision: {
-            categoria_final: "A",
-            tipo_monto: "COBRO_IMPROCEDENTE",
-            recomendacion: "IMPUGNAR",
-            confidence: 0.92
-        },
-        rationale: "Medicamentos/insumos con cobertura 100% no pueden quedar con bonificación $0 sin causal (tope/exclusión) acreditada. Constituye cobro improcedente bajo Art. 33 Ley 18.933."
-    },
 
-    // ========================================================================
-    // RULE D02: Unbundling - Items separados que van incluidos
-    // ========================================================================
+    // Rule L1-A: Explicit Coverage Breach (General)
     {
-        id: "D02_UNBUNDLING",
-        label: "Unbundling detectado",
-        requiredFeatures: ["UNBUNDLING_DETECTED"],
-        decision: {
-            categoria_final: "A",
-            tipo_monto: "COBRO_IMPROCEDENTE",
-            recomendacion: "IMPUGNAR",
-            confidence: 0.88
-        },
-        rationale: "Cobro fragmentado de prestaciones que deben entenderse incluidas en el día cama o pabellón. Constituye doble cobro según jurisprudencia SII y Circular IF/176."
-    },
-
-    // ========================================================================
-    // RULE D03: Instalación Vía Venosa / Fleboclisis (Siempre A)
-    // ========================================================================
-    {
-        id: "D03_VIA_VENOSA",
-        label: "Vía venosa/Fleboclisis separada",
-        requiredFeatures: ["VIA_VENOSA_SEPARADA"],
+        id: "L1_CONTRACT_BREACH",
+        label: "Incumplimiento Contractual (Cobertura Explícita)",
+        requiredFeatures: ["COV_EXPLICIT", "TOPES_NO_ALCANZADOS", "COPAGO_POS"],
         decision: {
             categoria_final: "A",
             tipo_monto: "COBRO_IMPROCEDENTE",
             recomendacion: "IMPUGNAR",
             confidence: 0.95
         },
-        rationale: "Instalación de vía venosa y fleboclisis están incluidas en el arancel de hospitalización según Tabla VIII Fonasa. Cobro separado es improcedente."
+        rationale: "El contrato otorga cobertura explícita a esta prestación y no se han alcanzado los topes. El cobro de copago constituye un incumplimiento contractual directo (Cat A)."
+    },
+
+    // Rule L1-B: Hospital Medications (100% Coverage)
+    {
+        id: "L1_MED_HOSP_100",
+        label: "Medicamento Hospitalario 100% (Incumplimiento)",
+        requiredFeatures: ["ES_MED_HOSP", "COV_100", "TOPES_NO_ALCANZADOS", "COPAGO_POS"],
+        decision: {
+            categoria_final: "A",
+            tipo_monto: "COBRO_IMPROCEDENTE",
+            recomendacion: "IMPUGNAR",
+            confidence: 0.98
+        },
+        rationale: "Medicamento hospitalario con cobertura contractual del 100% y topes no alcanzados. Cualquier copago es un incumplimiento directo, independiente de la opacidad del PAM (Cat A)."
+    },
+
+    // Rule L1-C: Exams (Automatic Relabeling)
+    {
+        id: "L1_EXAM_COV_BREACH",
+        label: "Examen con Cobertura (Incumplimiento)",
+        requiredFeatures: ["ES_EXAMEN", "COV_EXPLICIT", "TOPES_NO_ALCANZADOS", "COPAGO_POS"],
+        decision: {
+            categoria_final: "A",
+            tipo_monto: "COBRO_IMPROCEDENTE",
+            recomendacion: "IMPUGNAR",
+            confidence: 0.96
+        },
+        rationale: "Examen individualizado con código y arancel; el contrato otorga cobertura y el tope no se ha alcanzado. Cobro de copago es improcedente (Cat A)."
     },
 
     // ========================================================================
-    // RULE D04: Opacidad en líneas genéricas con copago
+    // NIVEL 2: NATURALEZA DE LA PRESTACIÓN (Unbundling / Double Billing)
     // ========================================================================
     {
-        id: "D04_GENERIC_OPACITY",
-        label: "Opacidad en materiales/medicamentos",
-        requiredFeatures: ["GENERIC_PAM_LINE", "COPAGO_POS"],
-        forbiddenFeatures: ["BONIF_0", "COV_100"], // Don't apply if D01 would match
+        id: "L2_UNBUNDLING",
+        label: "Doble Cobro / Unbundling (Inherente)",
+        requiredFeatures: ["INHERENTLY_INCLUDED", "COPAGO_POS"],
         decision: {
-            categoria_final: "B",
+            categoria_final: "A",
+            tipo_monto: "COBRO_IMPROCEDENTE",
+            recomendacion: "IMPUGNAR",
+            confidence: 0.94
+        },
+        rationale: "La prestación (vía venosa, enfermería, insumos básicos) es inherentemente incluida en el día cama o pabellón. Su cobro separado constituye un doble cobro normativo (Cat A)."
+    },
+
+    // ========================================================================
+    // NIVEL 3: HOTELERÍA (Detection)
+    // ========================================================================
+
+    // Mixed or non-signaled hoteling -> Cat A (Not demanding)
+    {
+        id: "L3_HOTEL_NON_EXIGIBLE",
+        label: "Hotelería No Exigible (Mezclada/No señalizada)",
+        requiredFeatures: ["ES_HOTELERIA", "HOTELERIA_MEZCLADA", "COPAGO_POS"],
+        decision: {
+            categoria_final: "A",
+            tipo_monto: "COBRO_IMPROCEDENTE",
+            recomendacion: "IMPUGNAR",
+            confidence: 0.90
+        },
+        rationale: "El ítem corresponde a hotelería pero aparece mezclado o no señalado claramente según taxonomía normativa. No es exigible como copago (Cat A)."
+    },
+
+    // Individualized hoteling -> Cat OK (Potentially valid copay)
+    {
+        id: "L3_HOTEL_VALID_COPAY",
+        label: "Hotelería Individualizada (Copago Válido)",
+        requiredFeatures: ["ES_HOTELERIA", "HOTELERIA_INDIVIDUALIZADA", "COPAGO_POS"],
+        decision: {
+            categoria_final: "B", // Keeping as B for review if preferred, but user said "potencialmente válido"
             tipo_monto: "COPAGO_OPACO",
             recomendacion: "SOLICITAR_ACLARACION",
-            confidence: 0.80
+            confidence: 0.70
         },
-        rationale: "Línea PAM genérica (material/medicamento/varios) sin desglose detallado impide verificar cobertura. Copago indeterminable: Circular IF/176 exige desglose."
+        rationale: "Gasto de hotelería claramente individualizado. Podría ser un copago válido si fue consentido, pero requiere verificación de respaldo."
     },
 
     // ========================================================================
-    // RULE D05: Opacidad estructural global
+    // NIVEL 4: OPACIDAD (Residual Only)
     // ========================================================================
     {
-        id: "D05_STRUCTURAL_OPACITY",
-        label: "Opacidad estructural del PAM",
-        requiredFeatures: ["OPACIDAD_ESTRUCTURAL"],
-        forbiddenFeatures: ["UNBUNDLING_DETECTED"], // Unbundling is still Cat A
+        id: "L4_GENERIC_OPACITY",
+        label: "Opacidad Residual (Indeterminado)",
+        requiredFeatures: ["OPACIDAD_LINEA", "COPAGO_POS"],
+        forbiddenFeatures: ["COV_EXPLICIT", "INHERENTLY_INCLUDED", "ES_HOTELERIA"],
         decision: {
-            categoria_final: "B",
+            categoria_final: "Z",
             tipo_monto: "COPAGO_OPACO",
             recomendacion: "SOLICITAR_ACLARACION",
             confidence: 0.85
         },
-        rationale: "El PAM consolida materiales/medicamentos sin apertura espejo, impidiendo validar topes UF. Estado global de controversia, no invalida hallazgos locales."
-    },
-
-    // ========================================================================
-    // RULE D06: Hotelería oculta (alimentación, lavandería, etc.)
-    // ========================================================================
-    {
-        id: "D06_HOTELERIA",
-        label: "Hotelería oculta en prestaciones",
-        requiredFeatures: ["HOTELERIA_DETECTED"],
-        decision: {
-            categoria_final: "B",
-            tipo_monto: "COPAGO_OPACO",
-            recomendacion: "SOLICITAR_ACLARACION",
-            confidence: 0.75
-        },
-        rationale: "Gastos de hotelería (alimentación, lavandería) deben estar explícitos. Si aparecen consolidados, genera controversia sobre cobertura aplicable."
+        rationale: "Línea PAM opaca que impide identificar naturaleza o cobertura, y no ha sido clasificada por reglas anteriores de nivel superior. (Cat Z)."
     }
 ];
+
 
 /**
  * Find the first doctrine rule that matches the given features

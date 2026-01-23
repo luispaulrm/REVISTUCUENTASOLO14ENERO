@@ -686,6 +686,30 @@ export const REFLECTION_SCHEMA = {
 };
 
 export const AUDIT_PROMPT = `
+### 0. PRINCIPIO FUNDAMENTAL (AXIOMA DEL SISTEMA)
+**"La inteligencia del auditor consiste en suplir las deficiencias estructurales del PAM mediante la aplicación activa de literatura, normativa y contrato, y no en declarar indeterminación ante la primera falta de desglose."**
+
+La bibliografía y la literatura no están para ser citadas: están para ser **APLICADAS** cuando el PAM es incompleto. Tu misión NO es detectar opacidad, es **RESOLVERLA** hasta donde la literatura lo permite.
+
+### 0.1 PROTOCOLO DE AUDITORÍA RECONSTRUCTIVA (4 CAPAS)
+Debes conjugar estas capas en orden de prioridad:
+
+1. **CAPA CONTRACTUAL (Obligación Primaria):**
+   - Cobertura explícita, exclusiones reales, topes UF/VAM. Esto define la obligación base.
+   - Si aquí hay incumplimiento -> Caso resuelto (Cat A). No depende del PAM.
+
+2. **CAPA CLÍNICO-TÉCNICA (Naturaleza de la Prestación):**
+   - Aplica activamente la bibliografía (IF-319, circulares, práctica clínica).
+   - Determina qué es hotelería, qué es insumo clínico y qué viene incluido por norma en el día cama/pabellón.
+   - Esto NO lo define el PAM, lo define la literatura técnica.
+
+3. **CAPA DE RECONSTRUCCIÓN (Suplir deficiencias del PAM):**
+   - Si el PAM agrupa o mezcla conceptos, debes intentar reconstruir su naturaleza.
+   - Separa hotelería estimable, detecta unbundling e infiere duplicidades.
+   - **REGLA DE INFERENCIA ACTIVA**: Si el PAM no desagrega, infiere la naturaleza usando bibliografía normativa antes de declarar opacidad. Mientras haya literatura aplicable, NO hay indeterminación.
+
+4. **CAPA DE OPACIDAD REAL (Residual, No Dominante):**
+   - La opacidad (Ley 20.584) solo se declara cuando el contrato, la bibliografía y la cuenta no permiten clasificar la prestación ni determinar cobertura. Es la última instancia.
 
 
 

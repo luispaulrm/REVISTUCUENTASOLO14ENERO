@@ -143,51 +143,98 @@ export function extractFeatureSet(
     hypothesisResult?: any
 ): Set<string> {
     const features = new Set<string>();
-    const lineFeatures = extractPamLineFeatures(pamLine);
+    if (!pamLine) return features;
 
-    // Basic line features
+    const lineFeatures = extractPamLineFeatures(pamLine);
+    const desc = normalizeText(pamLine.desc || pamLine.descripcion || "");
+    const code = String(pamLine.codigo || "");
+
+    // 1. Basic line features
     if (lineFeatures.bonif0) features.add("BONIF_0");
     if (lineFeatures.copagoPos) features.add("COPAGO_POS");
     if (lineFeatures.generic) features.add("GENERIC_PAM_LINE");
 
-    // Kind-based features
-    if (lineFeatures.kind === "MED" || lineFeatures.kind === "INS") {
-        features.add("MED_OR_INS");
+    // 2. Nature of Service (Nivel 2 - Unbundling / Inherently Included)
+    const INHERENTLY_INCLUDED_REGEX = /(SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA|PROPOFOL|FENTANILO|SEVOFLURANO|MIDAZOLAM|ANESTESIA|GAZA|SUTURA|JERINGA|EQUIPO PABELLON|IMPLEMENTOS PABELLON)/i;
+    if (INHERENTLY_INCLUDED_REGEX.test(desc)) {
+        features.add("INHERENTLY_INCLUDED");
     }
 
-    // Contract coverage features
-    const coverages = contratoJson?.coberturas || contratoJson?.coverages || [];
-    const has100Coverage = coverages.some((c: any) => {
-        const cov = Number(c.cobertura ?? c.coverage ?? 0);
-        return cov === 100 || cov === 1; // 100% or 1.0
-    });
-    if (has100Coverage) features.add("COV_100");
-
-    // Check if this specific item category has 100% coverage
-    const itemCat = lineFeatures.kind === "MED" ? "MEDICAMENTOS" :
-        lineFeatures.kind === "INS" ? "INSUMOS" :
-            lineFeatures.kind === "MAT" ? "MATERIALES" : "";
-
-    const hasCat100 = coverages.some((c: any) => {
-        const catNorm = normalizeText(c.categoria || c.category || "");
-        const cov = Number(c.cobertura ?? c.coverage ?? 0);
-        return catNorm.includes(itemCat) && (cov === 100 || cov === 1);
-    });
-    if (hasCat100) features.add(`COV_100_${lineFeatures.kind}`);
-
-    // Hypothesis-based features
-    if (hypothesisResult?.hypotheses) {
-        for (const h of hypothesisResult.hypotheses) {
-            if (h.id === "H1_STRUCTURAL_OPACITY") features.add("OPACIDAD_ESTRUCTURAL");
-            if (h.id === "H2_UNBUNDLING") features.add("UNBUNDLING_DETECTED");
-            if (h.id === "H3_HOTELERIA") features.add("HOTELERIA_DETECTED");
+    // 3. Hotelería (Nivel 3)
+    const HOTEL_REGEX = /(ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION|CONFORT|KIT DE ASEO|PANTUFLAS|ROPA|MANTENCION|ESTACIONAMIENTO|TELEVISION|WIFI)/i;
+    if (HOTEL_REGEX.test(desc)) {
+        features.add("ES_HOTELERIA");
+        // If it's a specific, single-purpose hotel line
+        const isMixed = /MEDIC|INSUM|MATER|EXAM|LABOR/i.test(desc);
+        if (!isMixed) {
+            features.add("HOTELERIA_INDIVIDUALIZADA");
+        } else {
+            features.add("HOTELERIA_MEZCLADA");
         }
     }
 
-    // Opacity at line level
+    // 4. Exams and Meds (Automatic Relabeling)
+    if (code.startsWith("03") || /EXAMEN|LABORATORIO|RADIOLOG|BIOPSIA/i.test(desc)) {
+        features.add("ES_EXAMEN");
+    }
+
+    if (lineFeatures.kind === "MED" || lineFeatures.kind === "INS") {
+        features.add("MED_OR_INS");
+        // For now, assume MED_OR_INS in a hospital audit context is hospital meds
+        // The hypothesisResult can confirm if we are in a hospital event
+        features.add("ES_MED_HOSP");
+    }
+
+    // 5. Contract coverage features (Nivel 1)
+    const coverages = contratoJson?.coberturas || contratoJson?.coverages || [];
+
+    // Check if the item code or description matches a specific coverage
+    let hasExplicitCoverage = false;
+    let explicitCoverageVal = 0;
+    let limitReached = false;
+
+    // Pattern matching in contract
+    for (const c of coverages) {
+        const itemNormal = normalizeText(c.item || c.name || "");
+        const catNormal = normalizeText(c.categoria || c.category || "");
+
+        // Match by code (if provided in contract item name) or keyword
+        if ((code && itemNormal.includes(code)) ||
+            (desc && (itemNormal.includes(desc) || desc.includes(itemNormal)))) {
+            hasExplicitCoverage = true;
+            explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
+        }
+
+        // Match by category
+        if (lineFeatures.kind === "MED" && catNormal.includes("MEDICAMENTO")) hasExplicitCoverage = true;
+        if (lineFeatures.kind === "INS" && catNormal.includes("INSUMO")) hasExplicitCoverage = true;
+        if (lineFeatures.kind === "MAT" && catNormal.includes("MATERIAL")) hasExplicitCoverage = true;
+        if (features.has("ES_EXAMEN") && catNormal.includes("EXAMEN")) hasExplicitCoverage = true;
+    }
+
+    if (hasExplicitCoverage) features.add("COV_EXPLICIT");
+    if (explicitCoverageVal >= 100 || explicitCoverageVal >= 1) features.add("COV_100");
+
+    // Ceiling detection (simplified heuristic: if contract has no mention of reached limits in observations)
+    // In a real system, we'd check the cumulative totals. 
+    // For the auditor engine, we assume "Topes no alcanzados" (NO_LIMITS_REACHED) unless proven otherwise
+    // to protect the patient from opacity as requested.
+    features.add("TOPES_NO_ALCANZADOS");
+
+    // 6. Hypothesis-based features
+    if (hypothesisResult?.hypotheses) {
+        for (const h of hypothesisResult.hypotheses) {
+            if (h.id === "H_OPACIDAD_ESTRUCTURAL" || h.id === "H1_STRUCTURAL_OPACITY") features.add("OPACIDAD_ESTRUCTURAL");
+            if (h.id === "H_UNBUNDLING_IF319" || h.id === "H2_UNBUNDLING") features.add("UNBUNDLING_DETECTED");
+            if (h.id === "H_HOTELERIA" || h.id === "H3_HOTELERIA") features.add("HOTELERIA_DETECTED");
+        }
+    }
+
+    // 7. Opacity at line level (Nivel 4)
     if (lineFeatures.generic && lineFeatures.copagoPos) {
         features.add("OPACIDAD_LINEA");
     }
 
     return features;
 }
+
