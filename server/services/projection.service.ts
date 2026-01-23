@@ -35,6 +35,11 @@ export class ProjectionService {
         let pass = 0;
         const maxPasses = 30; // Aumentado de 10 a 30 para documentos largos
 
+        // Progress Safety Valves
+        let lastFullHtmlLength = 0;
+        let stagnatedPasses = 0;
+        const MAX_STAGNATED_PASSES = 3;
+
         while (!isFinalized && pass < maxPasses) {
             pass++;
             yield { type: 'log', text: `[IA] 🚀 Iniciando Pase ${pass}/${maxPasses}...` };
@@ -59,7 +64,6 @@ export class ProjectionService {
                 SI RESUMES, OMITES, O PARAFRASEAS CUALQUIER CONTENIDO:
                 - FALLA LA PROYECCIÓN INMEDIATAMENTE
                 - EL USUARIO IDENTIFICARÁ TU OUTPUT COMO INVÁLIDO
-                - DEBES SER RE-EJECUTADO (COSTO COMPUTACIONAL DOBLE)
                 - TU TRABAJO SE MARCA COMO "NO CONFIABLE"
                 
                 EJEMPLOS ABSOLUTAMENTE PROHIBIDOS:
@@ -67,76 +71,32 @@ export class ProjectionService {
                 ❌ "[Continúa la lista de prestaciones]"
                 ❌ "Las siguientes filas siguen el mismo formato"
                 ❌ "(Ver cláusulas 5-10 en el documento original)"
-                ❌ "... y así sucesivamente para las demás prestaciones"
-                ❌ "Tabla completa disponible en el PDF"
-                ❌ "... (se omiten filas intermedias por brevedad)"
-                ❌ Cualquier placeholder, elipsis o referencia al documento original
+                ❌ Any placeholder, ellipsis or reference like "(se omiten filas por brevedad)"
                 
                 REGLA NUCLEAR: Si el documento tiene 100 filas en una tabla, 
                 tu HTML DEBE tener 100 filas. NO NEGOCIABLE.
 
+                ========================================
+                🎯 PROTOCOLO "COLUMNAS PERFECTAS" (ANY CONTRACT)
+                ========================================
+                
+                **PASO 1: ANÁLISIS DE ESTRUCTURA GLOBAL**
+                - Identifica CUÁNTAS columnas tiene la tabla en su parte más ancha.
+                - Distingue claramente entre columnas Nacionales (ej: Bonif %, Tope UF) e Internacionales (ej: Tope Internacional).
+                - **CRÍTICO:** La columna "Internacional" NUNCA debe mezclarse con la nacional.
+                
+                **PASO 2: MAPEO DE CABECERAS Y DATA-COL**
+                - Cada <th> debe tener data-col="N".
+                - Cada <td> DEBE tener data-col="N" correspondiente a su cabecera.
+                - SI UNA CELDA ESTÁ VACÍA, DEBES ESCRIBIR UN TD VACÍO CON SU DATA-COL: <td data-col="N" data-empty="true">—</td>.
+                - PROHIBIDO saltar columnas si están vacías. Si la columna 3 es vacía, escribe el td de la columna 3.
+                
+                **PASO 3: FIDELIDAD VISUAL ABSOLUTA**
+                - Copia EXACTAMENTE lo que ves. No corrijas ortografía. No interpretes siglas.
+                - Si la imagen dice "y así sucesivamente", COPIA "y así sucesivamente". NO LO USES COMO UN COMANDO PARA TI MISMO.
+
                 TOTAL PAGES IN DOCUMENT: ${pageCount || 'Unknown'}
                 ${isBillOnly ? 'TARGET: You must ONLY project the "CUENTA HOSPITALARIA" (the bill/account breakdown). IGNORE medical records, clinical logs, or consent forms.' : 'YOU MUST PROCESS EVERY SINGLE PAGE. DO NOT SKIP ANY CONTENT.'}
-                
-                ========================================
-                🎯 PROTOCOLO "CALCO PERFECTO" (ZERO CREATIVITY)
-                ========================================
-                
-                **PASO 1: FIDELIDAD VISUAL ABSOLUTA**
-                - Copia EXACTAMENTE lo que ves. No corrijas ortografía. No interpretes siglas.
-                - Si la tabla tiene 4 columnas, tu HTML tiene 4 columnas.
-                - Si una celda dice "-", escribe "-". No escribas "N/A" ni "No aplica".
-                
-                **PASO 2: ANÁLISIS DE FRONTERA (ENCABEZADO vs CUERPO)**
-                - Identifica visualmente dónde termina el encabezado y comienzan los datos.
-                - NUNCA mezcles texto del encabezado dentro de las filas de datos.
-                - Si el encabezado tiene varias filas de alto, agrúpalas todas en el elemento thead.
-                
-                **PASO 2: CONTEO RIGUROSO DE COLUMNAS**
-                - Cuenta cuántas columnas tiene la tabla en su parte más ancha.
-                - Cada fila tr DEBE tener exactamente ese número de celdas td.
-                
-                **PASO 3: MAPEO DE ATRIBUTOS DATA Y COLUMNAS CRÍTICAS**
-                - Para cada encabezado th, usa data-col="N" (siendo N el número de columna).
-                - Identifica el tipo de columna: data-type="nacional", "anual", "internacional", etc.
-                - **CRÍTICO:** BUSCA ACTIVAMENTE columnas con encabezados: "Bonif", "Copago", "Reembolso", "Valor Isa", "Aporte".
-                - ESTAS COLUMNAS SON OBLIGATORIAS. SI ESTÁN VISIBLES, DEBEN APARECER EN EL HTML FINAL EN SU FILA CORRESPONDIENTE.
-                
-                **PASO 4: DISTINCIÓN ABSOLUTA (EL FILTRO)**
-                - Antes de escribir una fila de datos, confirma que NO estás repitiendo palabras del encabezado.
-                - Si una celda está vacía, usa <td data-col="N" data-empty="true">—</td>.
-                - NUNCA omitas columnas. Si hay un espacio en blanco entre dos valores, es una columna vacía.
-                
-                **PASO 5: REGLA ANTI-HALLUCINACIÓN Y FORMATO NUMÉRICO (ANTI-MENTIRAS)**
-                - Si un valor es ilegible, usa <td data-uncertain="true">???</td>.
-                - Prohibido inventar datos o mover valores entre columnas (ej: no mover Internacional a Nacional).
-                - **FORMATO NUMÉRICO (VERBATIM ESTRICTO):**
-                  - COPIA EXACTAMENTE lo que ves en la imagen.
-                  - Si la imagen dice "0,330", ESCRIBE "0,330".
-                  - Si la imagen dice "3.000", ESCRIBE "3.000".
-                  - **PROHIBIDO INTERPRETAR O CONVERTIR:** No decidas si el punto es mil o decimal. Tu trabajo es SOLO COPIAR SÍMBOLOS. Deja que el motor de auditoría decida el valor matemático después.
-
-                **PASO 6: COBERTURA Y FIDELIDAD 100% (PROHIBIDO RESUMIR)**
-                ${isBillOnly ? '- Locate the billing section and project it page by page.' : '- Este es un proceso serial. Debes proyectar página por página.'}
-                - **STRICT VERBATIM:** Proyecta CADA PALABRA tal como aparece. No omitas artículos (el, la, de, del, los, las).
-                - **PROHIBIDO RESUMIR:** No intentes "ahorrar" espacio o palabras. Si el texto es largo, proyéctalo completo.
-                - Si el documento es largo, proyecta lo que alcances y continúa en el siguiente pase.
-                
-                ${isBillOnly ? `
-                **PASO 7: FILTRO DE CONTENIDO (BILL ONLY)**
-                - Search for "Detalle de Cuenta", "Gastos Clínicos", "Insumos", "Medicamentos" or similar billing detailed tables.
-                - IMPORTANT: Billing sections often span MULTIPLE PAGES. You MUST check every page of the document.
-                - If you find medical records (evolución, epicrisis, clinical logs, etc.), SKIP THEM, but continue searching the following pages for more billing data.
-                - ONLY stop and use the FINAL MARKER if you are 100% sure there are no more billing items or totals in the REMAINING pages.
-                ` : ''}
-
-                INSTRUCTIONS (STRICT):
-                1. PROJECTION TYPE: Full, high-fidelity reconstruction.
-                2. FORMATTING: Use semantic HTML5 (table, h1, h2, p, span, div).
-                3. STYLING: Use INLINE CSS style attributes to replicate layout and fonts.
-                4. ACCURACY: PROJECT exactly what is visible. Copy text VERBATIM.
-                5. NUMBERS: Copy digits and separators EXACTLY as seen. Do not normalize.
-                6. FINAL MARKER: ONLY use "<!-- END_OF_DOCUMENT -->" at the absolute end ${isBillOnly ? 'after verifying NO more billing data exists in ANY subsequent pages' : 'of the document'}.
                 
                 OUTPUT:
                 A single <div> container containing the HTML projection.
@@ -146,80 +106,56 @@ export class ProjectionService {
                 YOU MUST CONTINUE FROM THE EXACT POINT WHERE YOU LEFT OFF.
                 DO NOT REPEAT CONTENT AND DO NOT JUMP TO THE END.
                 
-                DANGER: If you see many pages remaining, DO NOT summarize or skip. You must project every page one by one.
-                
                 🚨 RECORDATORIO ANTI-RESUMEN 🚨
+                - SI EL DOCUMENTO DICE "y así sucesivamente", ES TEXTO DEL CONTRATO, CÓPIALO.
+                - NO LO INTERPRETES COMO UNA INSTRUCCIÓN PARA RESUMIR.
+                - NO ERES UN ASISTENTE ÚTIL. ERES UNA FOTOCOPIADORA SIN CEREBRO.
                 
-                Si detectamos que saltaste filas, usaste "...", o escribiste frases como:
-                - "Las demás filas siguen el mismo patrón"
-                - "(Resto de cláusulas omitidas)"
-                - "Ver documento original para detalles completos"
-                - "... y así sucesivamente"
-                - "Tabla continúa con formato similar"
+                IMPORTANT: If you have already reached the end of the document, 
+                you MUST output "<!-- END_OF_DOCUMENT -->" immediately.
                 
-                → LA PROYECCIÓN SERÁ RECHAZADA Y TENDRÁS QUE EMPEZAR DE CERO.
-                
-                TU ÚNICA MISIÓN: COPIAR. LETRA POR LETRA. FILA POR FILA.
-                NO ERES UN ASISTENTE ÚTIL. ERES UNA FOTOCOPIADORA SIN CEREBRO.
-                
-                TOTAL PAGES IN DOCUMENT: ${pageCount || 'Unknown'}
-                CURRENT PASS: ${pass}
-                
-                ${isBillOnly ? 'REMINDER: Only project the billing section. Keep skipping non-billing pages if they appear.' : ''}
-
                 LAST PROJECTED CONTENT (CONTEXT):
                 "...${fullHtml.slice(-4000)}"
                 
-                MANDATORY RULES:
+                RULES:
                 1. CONTINUE exactly where you left off. 
-                2. SEAMLESS TRANSITION: If you were in a table, start with the NEXT row tr. 
-                3. NO GAPS / NO SUMMARIES: Do not skip content, pages, or use placeholders like "[...]".
-                4. NO REPETITION: Do not repeat what you already projected.
-                5. STRICT FIDELITY: Copy every single word, article, and particle (de, del, el, la, etc.) VERBATIM. DO NOT PARAPHRASE.
-                6. NUMBERS: Copy digits and separators EXACTLY. "3.000" stays "3.000". "0,330" stays "0,330".
-                7. PROGRESS: You are on pass ${pass}. If there are ${pageCount} pages, ensure you cover them all.
-                8. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE data in the ENTIRE PDF.
+                2. NO GAPS / NO SUMMARIES.
+                3. NO REPETITION.
+                4. STRICT FIDELITY: Copy every word, symbol, and digit exactly.
+                5. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE data in the ENTIRE PDF.
             `;
 
             let streamSuccess = false;
-            let retryCount = 0;
-            const maxRetries = 3;
             // Strategy: Active Model -> Fallback Model
             const modelsToTry = [modelName, AI_CONFIG.FALLBACK_MODEL].filter(m => !!m);
-            // Deduplicate models just in case
             const uniqueModels = [...new Set(modelsToTry)];
 
-            // NEW ROTATION LOGIC: Model -> Key Loop
             modelLoop: for (const currentModel of uniqueModels) {
                 if (streamSuccess) break;
 
-                // For each model, try ALL available keys
                 for (let keyIdx = 0; keyIdx < this.keys.length; keyIdx++) {
                     const currentKey = this.keys[keyIdx];
                     const keyMask = currentKey ? `${currentKey.substring(0, 4)}...` : '???';
 
                     if (!currentKey) continue;
 
-                    // Retry loop for the current model via current Key
-                    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+                    for (let attempt = 1; attempt <= 3; attempt++) {
                         try {
-                            const client = new GoogleGenerativeAI(currentKey); // Use specific key
+                            const client = new GoogleGenerativeAI(currentKey);
                             const model = client.getGenerativeModel({
                                 model: currentModel,
                                 generationConfig: {
                                     maxOutputTokens: 80000,
-                                    temperature: 0.0,  // ZERO creativity - pure deterministic copying
-                                    topP: 0.8,         // Reduce randomness in token selection
-                                    topK: 20,          // Restrict vocabulary to most likely tokens
+                                    temperature: 0.0,
+                                    topP: 0.8,
+                                    topK: 20,
                                 }
                             });
 
-                            // Log strategy change
                             if (attempt > 1 || keyIdx > 0 || currentModel !== modelName) {
-                                yield { type: 'log', text: `[IA] 🛡️ Estrategia: Modelo ${currentModel} | Key ${keyIdx + 1}/${this.keys.length} (${keyMask}) | Intento ${attempt}/${maxRetries}` };
+                                yield { type: 'log', text: `[IA] 🛡️ Estrategia: Modelo ${currentModel} | Key ${keyIdx + 1}/${this.keys.length} (${keyMask}) | Intento ${attempt}/3` };
                             }
 
-                            // WRAPPER WITH TIMEOUT: Prevent hanging indefinitely
                             const streamPromise = model.generateContentStream([
                                 { text: prompt },
                                 {
@@ -234,7 +170,6 @@ export class ProjectionService {
                                 setTimeout(() => reject(new Error("TimeLimitExceeded: API request timed out after 45s")), 45000)
                             );
 
-                            // Race between stream and timeout
                             const resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
 
                             let currentPassOutput = "";
@@ -266,117 +201,71 @@ export class ProjectionService {
                                 }
                             }
 
-                            // LAZY DETECTION: Catch various common ways LLMs try to skip content
-                            const lazyPhrases = [
-                                // Original patterns
+                            // --- QUALITY & TERMINATION DETECTION ---
+
+                            // 1. LAZY METADATA (Common meta-descriptions models use when summarizing)
+                            const metaLazyPhrases = [
                                 "[Documento continúa",
                                 "[Continúa",
                                 "[Document continues",
-                                "Continúa con Notas",
-                                "Continúa con Tablas",
                                 "--- FIN PARCIAL ---",
                                 "(Resto del documento omitido)",
-                                "(Se omite el resto",
-                                "The rest of the document is a table",
-                                "Following the same format",
                                 "The rest of the document",
-                                "[Continúa en la siguiente",
-                                "(Resto de la tabla",
-
-                                // CRITICAL NEW PATTERNS (2025/2026) - Spanish
-                                "... y así sucesivamente",
-                                "y así sucesivamente",
-                                "resto de",
-                                "demás filas",
-                                "las demás",
-                                "los demás",
-                                "siguiendo el mismo patrón",
-                                "formato similar",
-                                "patrón similar",
-                                "ver documento original",
-                                "consultar el PDF",
-                                "detalles completos en",
-                                "tabla completa disponible",
-                                "lista completa en",
                                 "(omitido por brevedad)",
                                 "(se omiten",
-                                "(ver anexo",
-                                "continúa con formato",
-                                "filas adicionales",
-                                "prestaciones adicionales",
-                                "cláusulas adicionales",
-
-                                // CRITICAL NEW PATTERNS - English
-                                "similar pattern",
-                                "same format for remaining",
-                                "continues on next page",
-                                "continued from previous",
-                                "... (total",
-                                "and so on",
-                                "and so forth",
-                                "see original document",
-                                "refer to PDF",
-                                "additional rows",
-                                "remaining rows",
-                                "other clauses",
-                                "omitted for brevity",
-
-                                // Meta-commentary (model explaining instead of copying)
                                 "tabla continúa",
                                 "la tabla sigue",
-                                "se repite el patrón",
                                 "pattern repeats",
                                 "format continues",
                             ];
 
-                            // Check for laziness
-                            const triggeredPhrase = lazyPhrases.find(phrase => currentPassOutput.includes(phrase));
-                            const isLazy = !!triggeredPhrase;
+                            // Check for laziness ONLY if the output is suspiciously short given how documents are usually structured
+                            // If the output is > 2000 chars, it's probably legitimate text even if it contains "resto de" etc.
+                            const isSuspiciouslyShort = currentPassOutput.length < 500;
+                            const triggeredMeta = metaLazyPhrases.find(phrase => currentPassOutput.includes(phrase));
+
+                            const isLazy = isSuspiciouslyShort && triggeredMeta;
+
+                            // 2. STAGNATION DETECTION (Safety Valve)
+                            const addedLength = fullHtml.length - lastFullHtmlLength;
+                            if (addedLength < 20) {
+                                stagnatedPasses++;
+                                console.warn(`[PROJECTION] Stagnation detected. Added length: ${addedLength}. Stagnated passes: ${stagnatedPasses}`);
+                            } else {
+                                stagnatedPasses = 0;
+                            }
+                            lastFullHtmlLength = fullHtml.length;
 
                             if (currentPassOutput.includes("<!-- END_OF_DOCUMENT -->") && !isLazy) {
                                 isFinalized = true;
                                 yield { type: 'log', text: `[IA] ✅ Marcador de finalización detectado en el pase ${pass}.` };
+                            } else if (stagnatedPasses >= MAX_STAGNATED_PASSES) {
+                                isFinalized = true;
+                                yield { type: 'log', text: `[IA] 🏁 Finalización forzada por estancamiento (no se añade contenido nuevo).` };
                             } else {
                                 const logMsg = isLazy ?
-                                    `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. GATILLADA POR: "${triggeredPhrase}". FORZANDO RE-GENERACIÓN...` :
+                                    `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. GATILLADA POR: "${triggeredMeta}". FORZANDO RE-GENERACIÓN...` :
                                     `[IA] 🔄 Truncamiento o fin de pase en ${pass}. Solicitando continuación...`;
-                                console.log(`[ProjectionService] ${logMsg}`);
                                 yield { type: 'log', text: logMsg };
-
-                                // NUEVO: Permanent error log for quality monitoring
-                                if (isLazy) {
-                                    console.error(`[PROJECTION-QUALITY-ALERT] Lazy behavior detected in pass ${pass}. Phrase: "${triggeredPhrase}". Forcing continuation.`);
-                                }
                             }
 
                             streamSuccess = true;
-                            break modelLoop; // Success! Break out of Model/Key loops
+                            break modelLoop;
 
                         } catch (err: any) {
-                            console.error(`[ProjectionService] Error on ${currentModel} with Key ${keyMask} (Attempt ${attempt}):`, err);
-
+                            console.error(`[ProjectionService] Error:`, err);
                             const errorMsg = err.message || err.toString();
-                            const isQuota = errorMsg.includes('429') ||
-                                errorMsg.includes('Quota') ||
-                                errorMsg.includes('TimeLimitExceeded') ||
-                                err.status === 429 ||
-                                err.status === 503;
+                            const isQuota = errorMsg.includes('429') || errorMsg.includes('Quota') || errorMsg.includes('TimeLimitExceeded');
 
                             if (isQuota) {
-                                yield { type: 'log', text: `[IA] ⚠️ Problema de Cuota o Timeout en Key ${keyMask}. Rotando a siguiente llave...` };
-                                break; // Break attempt loop to convert to next KEY immediately
+                                yield { type: 'log', text: `[IA] ⚠️ Problema de Cuota/Timeout. Rotando Key...` };
+                                break;
                             }
 
-                            // If it's the last attempt of the last key of the last model, throw or yield error
-                            const isLastModel = currentModel === uniqueModels[uniqueModels.length - 1];
-                            const isLastKey = keyIdx === this.keys.length - 1;
-                            const isLastAttempt = attempt === maxRetries;
-
-                            if (isLastModel && isLastKey && isLastAttempt) {
+                            if (currentModel === uniqueModels[uniqueModels.length - 1] && keyIdx === this.keys.length - 1 && attempt === 3) {
                                 yield { type: 'error', error: err.message || 'Error projecting PDF to HTML' };
                                 streamSuccess = false;
                             } else {
-                                // Wait a bit before retry if it's not a quota error (quota errors rotate immediately)
                                 await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
                             }
                         }
@@ -384,9 +273,7 @@ export class ProjectionService {
                 }
             }
 
-            if (!streamSuccess) {
-                break; // Stop passes if we couldn't generate content
-            }
+            if (!streamSuccess) break;
         }
     }
 }

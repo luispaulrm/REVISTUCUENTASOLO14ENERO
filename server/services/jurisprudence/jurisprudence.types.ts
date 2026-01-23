@@ -106,7 +106,9 @@ export interface DoctrineRule {
         tipo_monto: TipoMonto;
         recomendacion: Recomendacion;
         confidence: number;
+        score?: number; // Weight score (0.5 for IC, 0.3 for UB, etc)
     };
+    weight?: number; // Rule weight for sovereign scoring
     rationale: string;
 }
 

@@ -185,27 +185,22 @@ export function extractFeatureSet(
         features.add("ES_MED_HOSP");
     }
 
-    // 5. Contract coverage features (Nivel 1)
+    // 5. Contract coverage features (Nivel 1: Capa Contractual)
     const coverages = contratoJson?.coberturas || contratoJson?.coverages || [];
 
-    // Check if the item code or description matches a specific coverage
     let hasExplicitCoverage = false;
     let explicitCoverageVal = 0;
-    let limitReached = false;
 
-    // Pattern matching in contract
     for (const c of coverages) {
         const itemNormal = normalizeText(c.item || c.name || "");
         const catNormal = normalizeText(c.categoria || c.category || "");
 
-        // Match by code (if provided in contract item name) or keyword
         if ((code && itemNormal.includes(code)) ||
             (desc && (itemNormal.includes(desc) || desc.includes(itemNormal)))) {
             hasExplicitCoverage = true;
             explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
         }
 
-        // Match by category
         if (lineFeatures.kind === "MED" && catNormal.includes("MEDICAMENTO")) hasExplicitCoverage = true;
         if (lineFeatures.kind === "INS" && catNormal.includes("INSUMO")) hasExplicitCoverage = true;
         if (lineFeatures.kind === "MAT" && catNormal.includes("MATERIAL")) hasExplicitCoverage = true;
@@ -214,14 +209,14 @@ export function extractFeatureSet(
 
     if (hasExplicitCoverage) features.add("COV_EXPLICIT");
     if (explicitCoverageVal >= 100 || explicitCoverageVal >= 1) features.add("COV_100");
+    features.add("TOPES_NO_ALCANZADOS"); // Pro-patient assumption
 
-    // Ceiling detection (simplified heuristic: if contract has no mention of reached limits in observations)
-    // In a real system, we'd check the cumulative totals. 
-    // For the auditor engine, we assume "Topes no alcanzados" (NO_LIMITS_REACHED) unless proven otherwise
-    // to protect the patient from opacity as requested.
-    features.add("TOPES_NO_ALCANZADOS");
+    // CAPA 1 Flag: IC_BREACH
+    if (features.has("COV_100") && features.has("TOPES_NO_ALCANZADOS") && lineFeatures.copagoPos) {
+        features.add("IC_BREACH");
+    }
 
-    // 6. Hypothesis-based features
+    // 6. Hypothesis-based features (Layers 3, 4, 6)
     if (hypothesisResult?.hypotheses) {
         for (const h of hypothesisResult.hypotheses) {
             if (h.id === "H_OPACIDAD_ESTRUCTURAL" || h.id === "H1_STRUCTURAL_OPACITY") features.add("OPACIDAD_ESTRUCTURAL");
@@ -230,9 +225,24 @@ export function extractFeatureSet(
         }
     }
 
-    // 7. Opacity at line level (Nivel 4)
+    // CAPA 3 Flag: UB_DETECTED
+    if (features.has("INHERENTLY_INCLUDED") || features.has("UNBUNDLING_DETECTED")) {
+        features.add("UB_DETECTED");
+    }
+
+    // CAPA 4 Flag: HT_DETECTED
+    if (features.has("ES_HOTELERIA") || features.has("HOTELERIA_DETECTED")) {
+        features.add("HT_DETECTED");
+    }
+
+    // 7. Opacity at line level (Capa 6: Opacidad Residual)
     if (lineFeatures.generic && lineFeatures.copagoPos) {
         features.add("OPACIDAD_LINEA");
+    }
+
+    // CAPA 6 Flag: OP_DETECTED
+    if (features.has("OPACIDAD_ESTRUCTURAL") || features.has("OPACIDAD_LINEA")) {
+        features.add("OP_DETECTED");
     }
 
     return features;

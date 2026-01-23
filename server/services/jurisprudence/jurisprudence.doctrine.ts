@@ -7,131 +7,100 @@
 import type { DoctrineRule, Cat, TipoMonto, Recomendacion } from "./jurisprudence.types.js";
 
 /**
- * Canonical doctrine rules for RevisaTuCuenta (AUDITOR DECISION TREE v2.0)
- * Logic is prioritized by levels:
- * 1. CONTRATO (Contractual Breach)
- * 2. NATURALEZA (Unbundling)
- * 3. HOTELERÍA (Detection)
- * 4. OPACIDAD (Residual)
+ * Canonical doctrine rules (SOVEREIGNTY ENGINE v3.0)
+ * Logic is prioritized by 6 layers:
+ * 1. CAPA 1: CONTRATO (IC) - Weight 0.5
+ * 2. CAPA 2/3: ARQUETIPOS / UNBUNDLING (UB) - Weight 0.3
+ * 3. CAPA 4: HOTELERÍA (HT) - Weight 0.1
+ * 4. CAPA 6: OPACIDAD (OP) - Weight 0.1
  */
 export const DOCTRINE_RULES: DoctrineRule[] = [
     // ========================================================================
-    // NIVEL 1: CONTRATO (Breach of Explicit Coverage)
+    // CAPA 1: CONTRATO (Incumplimiento Contractual - IC) - w=0.5
     // ========================================================================
-
-    // Rule L1-A: Explicit Coverage Breach (General)
     {
         id: "L1_CONTRACT_BREACH",
-        label: "Incumplimiento Contractual (Cobertura Explícita)",
-        requiredFeatures: ["COV_EXPLICIT", "TOPES_NO_ALCANZADOS", "COPAGO_POS"],
+        label: "Incumplimiento Contractual Determinado (Soberanía)",
+        requiredFeatures: ["IC_BREACH"],
+        weight: 0.5,
         decision: {
             categoria_final: "A",
             tipo_monto: "COBRO_IMPROCEDENTE",
             recomendacion: "IMPUGNAR",
-            confidence: 0.95
+            confidence: 1.0,
+            score: 0.5
         },
-        rationale: "El contrato otorga cobertura explícita a esta prestación y no se han alcanzado los topes. El cobro de copago constituye un incumplimiento contractual directo (Cat A)."
+        rationale: "Existe un incumplimiento contractual probado (Cobertura 100% o explícita). La obligación económica base es nula. Por regla de prevalencia, la opacidad del PAM es irrelevante (Cat A)."
     },
 
-    // Rule L1-B: Hospital Medications (100% Coverage)
+    // ========================================================================
+    // CAPA 3: PRÁCTICAS IRREGULARES (Unbundling - UB) - w=0.3
+    // ========================================================================
     {
-        id: "L1_MED_HOSP_100",
-        label: "Medicamento Hospitalario 100% (Incumplimiento)",
-        requiredFeatures: ["ES_MED_HOSP", "COV_100", "TOPES_NO_ALCANZADOS", "COPAGO_POS"],
+        id: "L3_UNBUNDLING_DETERMINED",
+        label: "Práctica Irregular / Unbundling Determinado",
+        requiredFeatures: ["UB_DETECTED"],
+        weight: 0.3,
         decision: {
             categoria_final: "A",
             tipo_monto: "COBRO_IMPROCEDENTE",
             recomendacion: "IMPUGNAR",
-            confidence: 0.98
+            confidence: 0.95,
+            score: 0.3
         },
-        rationale: "Medicamento hospitalario con cobertura contractual del 100% y topes no alcanzados. Cualquier copago es un incumplimiento directo, independiente de la opacidad del PAM (Cat A)."
+        rationale: "Se detecta desglosamiento indebido (unbundling) o doble cobro por literatura técnica. El ítem es inherentemente incluido en cargos base (Cat A)."
     },
 
-    // Rule L1-C: Exams (Automatic Relabeling)
+    // ========================================================================
+    // CAPA 4: HOTELERÍA (HT) - w=0.1
+    // ========================================================================
     {
-        id: "L1_EXAM_COV_BREACH",
-        label: "Examen con Cobertura (Incumplimiento)",
-        requiredFeatures: ["ES_EXAMEN", "COV_EXPLICIT", "TOPES_NO_ALCANZADOS", "COPAGO_POS"],
+        id: "L4_HOTEL_RECONSTRUCTED",
+        label: "Hotelería Identificada por Literatura",
+        requiredFeatures: ["HT_DETECTED"],
+        weight: 0.1,
         decision: {
             categoria_final: "A",
             tipo_monto: "COBRO_IMPROCEDENTE",
             recomendacion: "IMPUGNAR",
-            confidence: 0.96
+            confidence: 0.90,
+            score: 0.1
         },
-        rationale: "Examen individualizado con código y arancel; el contrato otorga cobertura y el tope no se ha alcanzado. Cobro de copago es improcedente (Cat A)."
+        rationale: "El ítem es clasificado como hotelería mediante reconstrucción por literatura. No es exigible como copago clínico (Cat A)."
     },
 
     // ========================================================================
-    // NIVEL 2: NATURALEZA DE LA PRESTACIÓN (Unbundling / Double Billing)
+    // CAPA 6: OPACIDAD RESIDUAL (OP) - w=0.1
     // ========================================================================
     {
-        id: "L2_UNBUNDLING",
-        label: "Doble Cobro / Unbundling (Inherente)",
-        requiredFeatures: ["INHERENTLY_INCLUDED", "COPAGO_POS"],
-        decision: {
-            categoria_final: "A",
-            tipo_monto: "COBRO_IMPROCEDENTE",
-            recomendacion: "IMPUGNAR",
-            confidence: 0.94
-        },
-        rationale: "La prestación (vía venosa, enfermería, insumos básicos) es inherentemente incluida en el día cama o pabellón. Su cobro separado constituye un doble cobro normativo (Cat A)."
-    },
-
-    // ========================================================================
-    // NIVEL 3: HOTELERÍA (Detection)
-    // ========================================================================
-
-    // Mixed or non-signaled hoteling -> Cat A (Not demanding)
-    {
-        id: "L3_HOTEL_NON_EXIGIBLE",
-        label: "Hotelería No Exigible (Mezclada/No señalizada)",
-        requiredFeatures: ["ES_HOTELERIA", "HOTELERIA_MEZCLADA", "COPAGO_POS"],
-        decision: {
-            categoria_final: "A",
-            tipo_monto: "COBRO_IMPROCEDENTE",
-            recomendacion: "IMPUGNAR",
-            confidence: 0.90
-        },
-        rationale: "El ítem corresponde a hotelería pero aparece mezclado o no señalado claramente según taxonomía normativa. No es exigible como copago (Cat A)."
-    },
-
-    // Individualized hoteling -> Cat OK (Potentially valid copay)
-    {
-        id: "L3_HOTEL_VALID_COPAY",
-        label: "Hotelería Individualizada (Copago Válido)",
-        requiredFeatures: ["ES_HOTELERIA", "HOTELERIA_INDIVIDUALIZADA", "COPAGO_POS"],
-        decision: {
-            categoria_final: "B", // Keeping as B for review if preferred, but user said "potencialmente válido"
-            tipo_monto: "COPAGO_OPACO",
-            recomendacion: "SOLICITAR_ACLARACION",
-            confidence: 0.70
-        },
-        rationale: "Gasto de hotelería claramente individualizado. Podría ser un copago válido si fue consentido, pero requiere verificación de respaldo."
-    },
-
-    // ========================================================================
-    // NIVEL 4: OPACIDAD (Residual Only)
-    // ========================================================================
-    {
-        id: "L4_GENERIC_OPACITY",
-        label: "Opacidad Residual (Indeterminado)",
-        requiredFeatures: ["OPACIDAD_LINEA", "COPAGO_POS"],
-        forbiddenFeatures: ["COV_EXPLICIT", "INHERENTLY_INCLUDED", "ES_HOTELERIA"],
+        id: "L6_RESIDUAL_OPACITY",
+        label: "Opacidad Residual (Ley 20.584)",
+        requiredFeatures: ["OP_DETECTED"],
+        forbiddenFeatures: ["IC_BREACH", "UB_DETECTED"],
+        weight: 0.1,
         decision: {
             categoria_final: "Z",
             tipo_monto: "COPAGO_OPACO",
             recomendacion: "SOLICITAR_ACLARACION",
-            confidence: 0.85
+            confidence: 0.85,
+            score: 0.1
         },
-        rationale: "Línea PAM opaca que impide identificar naturaleza o cobertura, y no ha sido clasificada por reglas anteriores de nivel superior. (Cat Z)."
+        rationale: "Indeterminación residual. No se detectó incumplimiento contractual ni técnico previo; la falla es estrictamente de trazabilidad en el PAM (Cat Z)."
     }
 ];
 
-
 /**
- * Find the first doctrine rule that matches the given features
+ * Find the matching doctrine and calculate sovereignty score
  */
 export function findMatchingDoctrine(features: Set<string>): DoctrineRule | null {
+    // PREVALENCE RULE: If IC or UB is true, we force top priority rules
+    if (features.has("IC_BREACH") || features.has("UB_DETECTED")) {
+        return DOCTRINE_RULES.find(r =>
+            r.requiredFeatures.every(f => features.has(f)) &&
+            (r.id.startsWith("L1") || r.id.startsWith("L3"))
+        ) || null;
+    }
+
     for (const rule of DOCTRINE_RULES) {
         // Check all required features are present
         const hasAllRequired = rule.requiredFeatures.every(f => features.has(f));
