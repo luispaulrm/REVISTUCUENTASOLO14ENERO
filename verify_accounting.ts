@@ -19,14 +19,20 @@ const mockFindings: Finding[] = [
     {
         id: "Z1", category: "Z", label: "GENERICO OPACIDAD", amount: 351469,
         action: "SOLICITAR_ACLARACION", evidenceRefs: [], rationale: "Opacidad estructural", hypothesisParent: "H_OPACIDAD_ESTRUCTURAL"
+    },
+    {
+        id: "A_BREACH", category: "Z", label: "MEDICAMENTOS 100% COBERTURA", amount: 50000,
+        action: "SOLICITAR_ACLARACION", evidenceRefs: [], rationale: "Sin desglose pero Cobertura 100% contrato. Opacidad presente.", hypothesisParent: "H_OPACIDAD_ESTRUCTURAL"
     }
 ];
 
-const TOTAL_COPAGO_INFORMADO = 452175;
+const TOTAL_COPAGO_INFORMADO = 502175; // Increased by 50k
 
 console.log("=== RUNNING ACCOUNTING VERIFICATION ===");
 console.log(`Total Copago: ${TOTAL_COPAGO_INFORMADO}`);
-console.log(`Cat A Explicit Sum: ${23985 + 42957 + 13044}`); // Should be 79986
+console.log(`Cat A Explicit Sum: ${23985 + 42957 + 13044}`); // Base A
+console.log(`Cat A Breach Sum: 50000`); // New A
+console.log(`Expected Total A: ${79986 + 50000}`); // 129986
 
 try {
     const result = finalizeAuditCanonical({
@@ -49,12 +55,12 @@ try {
     // Assertions
     const sumA = result.balance.A;
     const sumZ = result.balance.Z;
-    const expectedA = 79986;
+    const expectedA = 129986; // 79986 + 50000
 
     if (sumA !== expectedA) {
         console.error(`[FAIL] A Mismatch! Expected ${expectedA}, got ${sumA}`);
     } else {
-        console.log(`[PASS] A Matches matches explicit items.`);
+        console.log(`[PASS] A Matches matches explicit items + Breach item.`);
     }
 
     const residual = TOTAL_COPAGO_INFORMADO - expectedA;

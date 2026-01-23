@@ -252,10 +252,15 @@ function isProtectedCatA(f: Finding): boolean {
     const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(label) || /ENFERMERIA/.test(rationale);
 
     // Pattern 2: Provable Contract Breach (Calculated Difference on specific items)
-    const isContractBreach = /BONIFICACION INCORRECTA|INCUMPLIMIENTO CONTRACTUAL|DIFERENCIA COBERTURA/i.test(label) || /COBERTURA DEL 100%/.test(rationale);
+    // Expanded regex for robustness
+    const isContractBreach = /BONIFICACION INCORRECTA|INCUMPLIMIENTO CONTRACTUAL|DIFERENCIA COBERTURA/i.test(label) ||
+        /(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale);
 
-    // EXCLUSION: Opacity patterns never go to Cat A
-    if (/OPACO|INDETERMINADO|SIN DESGLOSE|FALTA DE TRAZABILIDAD/i.test(label) || /OPACO|INDETERMINADO|SIN DESGLOSE/i.test(rationale)) {
+    // EXCLUSION: Opacity patterns never go to Cat A UNLESS it is a direct contract breach (100% coverage ignored)
+    const isOpacity = /OPACO|INDETERMINADO|SIN DESGLOSE|FALTA DE TRAZABILIDAD/i.test(label) || /OPACO|INDETERMINADO|SIN DESGLOSE/i.test(rationale);
+
+    // User Rule: "La falta de desglose NO genera indeterminación si hay cobertura explícita (100%)"
+    if (isOpacity && !isContractBreach) {
         return false;
     }
 
