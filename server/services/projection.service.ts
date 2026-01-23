@@ -79,19 +79,23 @@ export class ProjectionService {
                 tu HTML DEBE tener 100 filas. NO NEGOCIABLE.
 
                 ========================================
-                🎯 PROTOCOLO "COLUMNAS PERFECTAS" (ANY CONTRACT)
+                🎯 PROTOCOLO "COLUMNAS PERFECTAS" (ISAPRE CHILE)
                 ========================================
                 
                 **PASO 1: ANÁLISIS DE ESTRUCTURA GLOBAL**
-                - Identifica CUÁNTAS columnas tiene la tabla en su parte más ancha.
-                - Distingue claramente entre columnas Nacionales (ej: Bonif %, Tope UF) e Internacionales (ej: Tope Internacional).
-                - **CRÍTICO:** La columna "Internacional" NUNCA debe mezclarse con la nacional.
+                - Mayoría de planes Isapre tienen 6-7 columnas:
+                  1. [Prestación] 2. [% Bonif] 3. [Tope 1 UF/VA] 4. [Tope 2 UF/VA/VAM] 5. [Tope Internacional] 6. [Ampliación]
+                - Identifica la columna "Internacional" (usualmente la penúltima o antepenúltima).
+                - **CRÍTICO:** Los topes nacionales (ej: 300 UF, 100 UF) NUNCA deben saltar a la columna Internacional.
                 
                 **PASO 2: MAPEO DE CABECERAS Y DATA-COL**
                 - Cada <th> debe tener data-col="N".
                 - Cada <td> DEBE tener data-col="N" correspondiente a su cabecera.
+                - SI UNA CELDA ESTÁ VACÍA O LA LÍNEA ES TENUE, MANTÉN EL ORDEN:
+                  [Item] | [100%] | [---] | [300 UF] | [---] | [---]
+                - SI VES UN VALOR DE TOPE (UF) Y LUEGO NADA, ESE VALOR ES "TOPE NACIONAL" (Col 3 o 4), NO INTERNACIONAL.
                 - SI UNA CELDA ESTÁ VACÍA, DEBES ESCRIBIR UN TD VACÍO CON SU DATA-COL: <td data-col="N" data-empty="true">—</td>.
-                - PROHIBIDO saltar columnas si están vacías. Si la columna 3 es vacía, escribe el td de la columna 3.
+                - PROHIBIDO saltar columnas. Si la columna 3 es vacía, escribe el td de la columna 3.
                 
                 **PASO 3: FIDELIDAD VISUAL ABSOLUTA**
                 - Copia EXACTAMENTE lo que ves. No corrijas ortografía. No interpretes siglas.

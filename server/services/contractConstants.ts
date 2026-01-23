@@ -224,25 +224,28 @@ const SHARED_MANDATE = `
   1. Escanea los encabezados: ¿Qué columna dice "Internacional", "Extranjero", "Mundo" o "USA"?
   2. MARCA ESA COLUMNA COMO "ZONA PROHIBIDA".
   3. Extrae SOLO de las columnas "Oferta Preferente" y "Libre Elección".
+  4. **REGLA DE REUBICACIÓN (CRÍTICO):** 
+     - Si ves un valor como "300 UF" o "100 UF" en la columna [COL5] o [COL6] (ZONA PROHIBIDA), pero la columna [COL3] o [COL4] está VACÍA, es altamente probable que sea un error de alineación del OCR.
+     - ASIGNA el valor a la columna de Libre Elección (Nacional) y NUNCA a la Internacional.
 
   ⚠️ TRAMPA COMÚN (ERROR DE TOPES):
-  - A veces la Libre Elección dice "Sin Tope", pero la Internacional dice "5000 UF".
-  - ERROR GRAVE: Asignar "5000 UF" a Libre Elección.
-  - CORRECTO: Si Libre Elección dice "Sin tope", reporta "Sin Tope". Ignora lo que diga la columna Internacional a la derecha.
+  - A veces el OCR mezcla columnas por rayas tenues.
+  - ERROR GRAVE: Reportar "5000 UF" (Tope Internacional) como si fuera nacional.
+  - REGLA DE SEGURIDAD: Los topes nacionales suelen ser pequeños (0.5 a 500 UF). Valores de 5000 UF o 10000 UF suelen ser de la columna Internacional. Si detectas un salto sospechoso, quédate con el valor más coherente para el mercado nacional.
 
-  **EJEMPLO DE EXTRACCIÓN CORRECTA:**
+  **EJEMPLO DE EXTRACCIÓN CORRECTA (CON REUBICACIÓN):**
   Entrada:
-  [COL0]Día Cama | [COL1]100% | [COL2]Sin Tope | [COL3]80% | [COL4]Sin Tope | [COL5]70% | [COL6]100 UF (Intl)
+  [COL0]Medicamentos | [COL1]100% | [COL2]--- | [COL3]--- | [COL4]--- | [COL5]300,00 UF | [COL6]Sin Tope
   
-  Salida (IGNORANDO COL5 y COL6):
-  { "modalidad": "Oferta Preferente", "cobertura": "100%", "tope": "Sin Tope" },
-  { "modalidad": "Libre Elección", "cobertura": "80%", "tope": "Sin Tope" }
+  Salida (REUBICANDO EL TOPE):
+  { "modalidad": "Libre Elección", "cobertura": "100%", "tope": "300,00 UF" }
+  (Nota: Se movió el valor de COL5 a COL3/4 porque COL3/4 estaban vacías y COL5 contenía un tope nacional típico).
 
   ⚠️ INSTRUCCIONES DE FIDELIDAD:
   - Si la celda Nacional está vacía (—) o dice (—), reporta "-".
   - Si dice "Sin Tope", reporta "Sin Tope".
   - NUNCA inventes valores.
-  - NUNCA copies valores de la columna Internacional.
+  - NUNCA copies valores de la columna Internacional a menos que ocurra el patrón de reubicación descrito arriba para valores coherentes para el mercado chileno.
 `;
 
 export const PROMPT_HOSP_P1 = `
