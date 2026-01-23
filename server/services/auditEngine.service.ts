@@ -141,12 +141,24 @@ function resolveDecision(params: {
 
     const opacidad = Z / Math.max(1, T);
 
-    // Estado: MIXTO si hay A y también hay Z; OPACO puro solo si A=0 y Z alto
-    let estado = "COPAGO_OK";
-    if (A > 0 && Z > 0) estado = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
-    else if (A > 0 && Z === 0) estado = "COPAGO_OBJETABLE_CONFIRMADO"; // Was COPAGO_OBJETABLE
-    else if (A === 0 && Z > 0) estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
-    else if (B > 0) estado = "COPAGO_CONFIRMADO_CON_OBSERVACIONES"; // Fallback for B
+    // ========================================================================
+    // HIJERARCHICAL SEMAFORO (V6)
+    // The state is determined purely by the final balance categories.
+    // ========================================================================
+    let estado = "COPAGO_VERIFICADO_OK"; // Green default
+
+    if (A > 0) {
+        // Red Level: Confirmed Breach or Unbundling
+        estado = "COPAGO_OBJETABLE_CONFIRMADO";
+    } else if (Z > 0 || B > 0) {
+        // Yellow Level: Indeterminate/Opacity
+        estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
+    }
+
+    // Legacy mapping support
+    if (A > 0 && (Z > 0 || B > 0)) {
+        estado = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+    }
 
     // Confianza: sube con A anclado, baja con opacidad y fallas contables
     let confianza = 0.55 + 0.35 * Math.min(1, A / Math.max(1, T)) - 0.45 * opacidad;
@@ -246,21 +258,28 @@ function isProtectedCatA(f: Finding): boolean {
     const label = (f.label || "").toUpperCase();
     const rationale = (f.rationale || "").toUpperCase();
 
-    // Pattern 1: Fundamental Normative/Clinical Violations
+    // Level 2: Technical/Normative (Unbundling / Double Billing)
     const isUnbundling = /UNBUNDLING|EVENTO UNICO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(label) || /UNBUNDLING|EVENTO/.test(rationale);
     const isHoteleria = /ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION|ASEO PERSONAL|SET DE ASEO/.test(label) || /IF-?319/.test(rationale);
     const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(label) || /ENFERMERIA/.test(rationale);
 
-    // Pattern 2: Provable Contract Breach (Calculated Difference on specific items)
-    // Expanded regex for robustness
+    // Level 1: Primary Contract Breach (100% Coverage Entitlement)
+    // Rule: "El contrato manda sobre la opacidad". If 100% coverage should exist, absence of breakdown is a breach.
     const isContractBreach = /BONIFICACION INCORRECTA|INCUMPLIMIENTO CONTRACTUAL|DIFERENCIA COBERTURA/i.test(label) ||
         /(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale);
 
-    // EXCLUSION: Opacity patterns never go to Cat A UNLESS it is a direct contract breach (100% coverage ignored)
+    // Level 3 (Subsidiary): Opacity patterns
     const isOpacity = /OPACO|INDETERMINADO|SIN DESGLOSE|FALTA DE TRAZABILIDAD/i.test(label) || /OPACO|INDETERMINADO|SIN DESGLOSE/i.test(rationale);
 
-    // User Rule: "La falta de desglose NO genera indeterminación si hay cobertura explícita (100%)"
-    if (isOpacity && !isContractBreach) {
+    // Hierarchy Re-Mapping:
+    // 1. If Level 1 or Level 2 is present -> It is PROTECTED (Cat A).
+    // 2. Opacity is only subsidiary. If Opacity + Contractual Entitlement -> Promote to A.
+    if (isContractBreach || isUnbundling || isHoteleria || isNursing) {
+        return true;
+    }
+
+    // Otherwise, if purely opaque, it is NOT Cat A (it's Cat Z)
+    if (isOpacity) {
         return false;
     }
 
@@ -276,6 +295,13 @@ function isProtectedCatA(f: Finding): boolean {
 function isOpacityFinding(f: Finding): boolean {
     const label = (f.label || "").toUpperCase();
     const rationale = (f.rationale || "").toUpperCase();
+
+    // SUBSIDIARY CHECK: If it has 100% coverage indicators, it is NOT opaque (it is a breach)
+    const isContractBreach = /(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale) ||
+        /INCUMPLIMIENTO CONTRACTUAL/i.test(label);
+
+    if (isContractBreach) return false;
+
     return (
         f.hypothesisParent === "H_OPACIDAD_ESTRUCTURAL" ||
         /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE|CARGA DE LA PRUEBA|LEY 20.?584/i.test(label) ||
@@ -1488,7 +1514,17 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             contract: contratoJson
         });
 
-        const finalFindings = canonicalResult.findings;
+        const finalFindings = canonicalResult.findings.map(f => {
+            // FIX: Ensure UI Map aligns with Balance truth
+            // If a finding relates to Meds/Mats and we are in a 100% coverage context (Level 1)
+            // or if it expresses a technical violation (Level 2), promote category to match balance.
+            const isA = isProtectedCatA(f);
+            return {
+                ...f,
+                category: isA ? "A" : f.category,
+                action: isA ? "IMPUGNAR" : f.action
+            };
+        });
         const finalStrictBalance = canonicalResult.balance;
         const finalDecision = {
             estado: canonicalResult.estadoGlobal,
