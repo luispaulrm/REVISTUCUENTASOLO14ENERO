@@ -51,7 +51,9 @@ export class ProjectionService {
                 GOAL:
                 Create an EXACT VISUAL REPLICA (CARBON COPY) of the provided contract/document in HTML.
                 
-                CRITICAL INSTRUCTION:
+                CRITICAL INSTRUCTIONS:
+                - START FROM THE VERY FIRST PAGE (PAGE 1). 
+                - CAPTURE ALL TITLES, LOGOS, AND COVER TEXT. DO NOT SKIP ANY INTRODUCTORY CONTENT.
                 - YOU ARE A "DUMB" OCR CLONER. YOU DO NOT THINK. YOU DO NOT DECIDE. YOU DO NOT SUMMARIZE.
                 - YOUR ONLY JOB IS TO COPY PIXEL-PERFECT CONTENT INTO HTML.
                 - IF CAEC/GES IS NOT MENTIONED, DO NOT INVENT IT.
@@ -96,7 +98,7 @@ export class ProjectionService {
                 - Si la imagen dice "y así sucesivamente", COPIA "y así sucesivamente". NO LO USES COMO UN COMANDO PARA TI MISMO.
 
                 TOTAL PAGES IN DOCUMENT: ${pageCount || 'Unknown'}
-                ${isBillOnly ? 'TARGET: You must ONLY project the "CUENTA HOSPITALARIA" (the bill/account breakdown). IGNORE medical records, clinical logs, or consent forms.' : 'YOU MUST PROCESS EVERY SINGLE PAGE. DO NOT SKIP ANY CONTENT.'}
+                ${isBillOnly ? 'TARGET: You must ONLY project the "CUENTA HOSPITALARIA" (the bill/account breakdown). IGNORE medical records, clinical logs, or consent forms.' : 'YOU MUST PROCESS EVERY SINGLE PAGE STARTING FROM PAGE 1. DO NOT SKIP ANY CONTENT.'}
                 
                 OUTPUT:
                 A single <div> container containing the HTML projection.

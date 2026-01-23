@@ -8,19 +8,15 @@ import type { DoctrineRule, Cat, TipoMonto, Recomendacion } from "./jurisprudenc
 
 /**
  * Canonical doctrine rules (SOVEREIGNTY ENGINE v3.0)
- * Logic is prioritized by 6 layers:
- * 1. CAPA 1: CONTRATO (IC) - Weight 0.5
- * 2. CAPA 2/3: ARQUETIPOS / UNBUNDLING (UB) - Weight 0.3
- * 3. CAPA 4: HOTELERÍA (HT) - Weight 0.1
- * 4. CAPA 6: OPACIDAD (OP) - Weight 0.1
+ * Strictly implements the Canonical Specification v1.0
  */
 export const DOCTRINE_RULES: DoctrineRule[] = [
     // ========================================================================
-    // CAPA 1: CONTRATO (Incumplimiento Contractual - IC) - w=0.5
+    // 4.1 Incumplimiento Contractual - C01 (PRIORIDAD 1)
     // ========================================================================
     {
-        id: "L1_CONTRACT_BREACH",
-        label: "Incumplimiento Contractual Determinado (Soberanía)",
+        id: "C01_INCUMPLIMIENTO_CONTRATO",
+        label: "Incumplimiento Contractual (Cobertura Explícita)",
         requiredFeatures: ["IC_BREACH"],
         weight: 0.5,
         decision: {
@@ -30,15 +26,15 @@ export const DOCTRINE_RULES: DoctrineRule[] = [
             confidence: 1.0,
             score: 0.5
         },
-        rationale: "Existe un incumplimiento contractual probado (Cobertura 100% o explícita). La obligación económica base es nula. Por regla de prevalencia, la opacidad del PAM es irrelevante (Cat A)."
+        rationale: "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A)."
     },
 
     // ========================================================================
-    // CAPA 3: PRÁCTICAS IRREGULARES (Unbundling - UB) - w=0.3
+    // 4.2 Doble Cobro / Unbundling - C02 (PRIORIDAD 1)
     // ========================================================================
     {
-        id: "L3_UNBUNDLING_DETERMINED",
-        label: "Práctica Irregular / Unbundling Determinado",
+        id: "C02_UNBUNDLING",
+        label: "Doble Cobro / Unbundling (Prestación Inherente)",
         requiredFeatures: ["UB_DETECTED"],
         weight: 0.3,
         decision: {
@@ -48,16 +44,17 @@ export const DOCTRINE_RULES: DoctrineRule[] = [
             confidence: 0.95,
             score: 0.3
         },
-        rationale: "Se detecta desglosamiento indebido (unbundling) o doble cobro por literatura técnica. El ítem es inherentemente incluido en cargos base (Cat A)."
+        rationale: "[C02] Prestación inherente a un cargo principal ya bonificado (día cama/pabellón). Su cobro por separado constituye unbundling según circular IF/319 y literatura clínica (Cat A)."
     },
 
     // ========================================================================
-    // CAPA 4: HOTELERÍA (HT) - w=0.1
+    // 4.3 Inferencia Técnica por Literatura - C03 (PRIORIDAD 2)
     // ========================================================================
+    // Note: C03 is often dynamic, but we can capture the "Hotelería Reconstruida" here if flagged
     {
-        id: "L4_HOTEL_RECONSTRUCTED",
-        label: "Hotelería Identificada por Literatura",
-        requiredFeatures: ["HT_DETECTED"],
+        id: "C03_INFERENCIA_TECNICA",
+        label: "Inferencia Técnica Válida",
+        requiredFeatures: ["HT_DETECTED"], // Using HT detection as part of technical inference for now
         weight: 0.1,
         decision: {
             categoria_final: "A",
@@ -66,17 +63,17 @@ export const DOCTRINE_RULES: DoctrineRule[] = [
             confidence: 0.90,
             score: 0.1
         },
-        rationale: "El ítem es clasificado como hotelería mediante reconstrucción por literatura. No es exigible como copago clínico (Cat A)."
+        rationale: "[C03] La literatura técnica permite clasificar este ítem (ej. hotelería clínica) como no exigible, a pesar de la falta de desglose en el PAM (Cat A)."
     },
 
     // ========================================================================
-    // CAPA 6: OPACIDAD RESIDUAL (OP) - w=0.1
+    // 4.5 Opacidad Real - C05 (ÚLTIMO RECURSO)
     // ========================================================================
     {
-        id: "L6_RESIDUAL_OPACITY",
-        label: "Opacidad Residual (Ley 20.584)",
+        id: "C05_OPACIDAD_REAL",
+        label: "Opacidad Estructural Real (Ley 20.584)",
         requiredFeatures: ["OP_DETECTED"],
-        forbiddenFeatures: ["IC_BREACH", "UB_DETECTED"],
+        forbiddenFeatures: ["IC_BREACH", "UB_DETECTED", "HT_DETECTED"], // Explicitly forbidden to run if C01-C03 apply
         weight: 0.1,
         decision: {
             categoria_final: "Z",
@@ -85,34 +82,38 @@ export const DOCTRINE_RULES: DoctrineRule[] = [
             confidence: 0.85,
             score: 0.1
         },
-        rationale: "Indeterminación residual. No se detectó incumplimiento contractual ni técnico previo; la falla es estrictamente de trazabilidad en el PAM (Cat Z)."
+        rationale: "[C05] Indeterminación real. Contrato, literatura y cuenta no permiten clasificar la prestación. Se aplica Ley 20.584 como norma de cierre (Cat Z)."
     }
 ];
 
 /**
  * Find the matching doctrine and calculate sovereignty score
+ * STRICT ORDER: C01/C02 -> C03 -> C05
  */
 export function findMatchingDoctrine(features: Set<string>): DoctrineRule | null {
-    // PREVALENCE RULE: If IC or UB is true, we force top priority rules
-    if (features.has("IC_BREACH") || features.has("UB_DETECTED")) {
-        return DOCTRINE_RULES.find(r =>
-            r.requiredFeatures.every(f => features.has(f)) &&
-            (r.id.startsWith("L1") || r.id.startsWith("L3"))
-        ) || null;
-    }
+    // 1. REGLA MADRE: Prioridad 1 (Contrato / Unbundling)
+    const priority1 = DOCTRINE_RULES.find(r =>
+        (r.id === "C01_INCUMPLIMIENTO_CONTRATO" || r.id === "C02_UNBUNDLING") &&
+        r.requiredFeatures.every(f => features.has(f))
+    );
+    if (priority1) return priority1;
 
-    for (const rule of DOCTRINE_RULES) {
-        // Check all required features are present
-        const hasAllRequired = rule.requiredFeatures.every(f => features.has(f));
-        if (!hasAllRequired) continue;
+    // 2. Prioridad 2: Inferencia Técnica (C03) - e.g. Hotelería reconstruida
+    const priority2 = DOCTRINE_RULES.find(r =>
+        r.id === "C03_INFERENCIA_TECNICA" &&
+        r.requiredFeatures.every(f => features.has(f))
+    );
+    if (priority2) return priority2;
 
-        // Check no forbidden features are present
-        const hasForbidden = (rule.forbiddenFeatures || []).some(f => features.has(f));
-        if (hasForbidden) continue;
+    // 3. Prioridad Final: Opacidad Real (C05)
+    // Only if no previous rule matched (implicit in flow, but enforced by loop order or forbiddenFeatures)
+    const priorityFinal = DOCTRINE_RULES.find(r =>
+        r.id === "C05_OPACIDAD_REAL" &&
+        r.requiredFeatures.every(f => features.has(f)) &&
+        !features.has("IC_BREACH") && !features.has("UB_DETECTED") && !features.has("HT_DETECTED")
+    );
 
-        return rule;
-    }
-    return null;
+    return priorityFinal || null;
 }
 
 /**

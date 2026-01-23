@@ -1579,10 +1579,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
             cat = "B"; // It is still controversy, but won't be summed
             console.log(`[C-SUB-01] Subsumed: '${h.titulo}' (generic material/med under opacity)`);
         } else if (isOpacityParent) {
-            cat = "B";
+            cat = "Z"; // Opacity is INDETERMINATE (Cat Z), not just controversy
         } else if (h.categoria === "OPACIDAD") {
             // Fallback for legacy items if no canonical parent exists
-            cat = "B";
+            cat = "Z";
         } else {
             // NUTRITION & OTHERS
             const isNutrition = h.codigos?.includes("3101306") || /ALIMENTA|NUTRICI/i.test(h.glosa || "");
@@ -1602,12 +1602,13 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
                 cat = "A";
                 console.log(`[C-NC-03] ✅ Cat A confirmed for protected finding: '${h.titulo}'`);
             } else {
-                // Default "Cobro Improcedente" (e.g. Pabellon, Dias Cama) -> A
-                // Check if explicitly "COBRO_IMPROCEDENTE" and high confidence
-                if (h.tipo_monto === "COBRO_IMPROCEDENTE" && h.nivel_confianza !== "BAJA") {
+                // Default handling
+                if (h.categoria_final === 'Z' || h.categoria === 'Z') {
+                    cat = "Z"; // Respect explicit Z input (e.g. from C05 rule)
+                } else if (h.tipo_monto === "COBRO_IMPROCEDENTE" && h.nivel_confianza !== "BAJA") {
                     cat = "A";
                 } else {
-                    cat = "B";
+                    cat = "B"; // Controversia fallback
                 }
             }
         }
@@ -1733,28 +1734,23 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     const hasCatZ = sumZ > 0; // Indeterminate
     const hasOpacity = hasCanonicalOpacity || hasCatZ || hasCatB;
 
-    if (hasCatA && hasOpacity) {
-        // ========================================================================
-        // C-STATE-02: MIXED GLOBAL STATE (Cat A confirmed + Opacity coexist)
-        // ========================================================================
-        if (hasCanonicalOpacity) {
-            // Canonical mixed state per C-STATE-02
-            finalDecision = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
-            console.log('[C-STATE-02] 🎭 Mixed State: Cat A confirmed ($' + sumA.toLocaleString() + ') + Structural Opacity');
-        } else {
-            finalDecision = "DISCREPANCIA_MIXTA_IMPROCEDENCIA_Y_CONTROVERSIA";
-        }
+    // 7. Diagnóstico Global del Caso (Specification v1.0)
+    // GLOBAL_DECISION_OVERRIDE: If A > 0 and Z > 0 -> CUENTA_IMPUGNABLE_COMPLETA
+    if (hasCatA && hasCatZ) {
+        finalDecision = "CUENTA_IMPUGNABLE_COMPLETA";
+        console.log('[GLOBAL_DECISION] 🛡️ Override: Cat A + Cat Z detected -> CUENTA_IMPUGNABLE_COMPLETA');
     } else if (hasCatA) {
-        finalDecision = "DISCREPANCIA POR COBROS IMPROCEDENTES";
-    } else if (hasCanonicalOpacity || sumZ > (totalCopagoReal * 0.5)) {
-        // Only Pure Opacity if NO Cat A
+        finalDecision = "CUENTA_IMPUGNABLE";
+    } else if (hasCatZ) {
         finalDecision = "OPACIDAD ESTRUCTURAL (COPAGO INDETERMINADO)";
-    } else if (sumB > 0) {
+    } else if (hasCatB) {
         finalDecision = "CONTROVERSIA POR FALTA DE DESGLOSE";
     } else if (catOK === totalCopagoReal && totalCopagoReal > 0) {
         finalDecision = "CORRECTO (VALIDADO)";
     } else if (totalCopagoReal === 0) {
         finalDecision = "SIN COPAGO INFORMADO";
+    } else {
+        finalDecision = "AUDITABLE";
     }
 
     if (!result.decisionGlobal) result.decisionGlobal = {};
