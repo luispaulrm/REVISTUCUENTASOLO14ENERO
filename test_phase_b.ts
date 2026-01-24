@@ -29,7 +29,7 @@ async function runTests() {
 
     // 1. Test Unit Value Inference
     console.log("\n[TEST 1] Testing inferUnidadReferencia...");
-    const unitRef = inferUnidadReferencia({}, mockPAM);
+    const unitRef = await inferUnidadReferencia({}, mockPAM);
     console.log("Unit Reference Result:", JSON.stringify(unitRef, null, 2));
 
     if (unitRef.confianza === "ALTA" && unitRef.tipo === "VA" && unitRef.valor_pesos_estimado > 10000) {
@@ -40,7 +40,7 @@ async function runTests() {
 
     // 2. Test Event Processor (Episode Logic + Collapse)
     console.log("\n[TEST 2] Testing preProcessEventos (Episode Logic)...");
-    const eventos = preProcessEventos(mockPAM);
+    const eventos = await preProcessEventos(mockPAM);
     console.log("Eventos Generated:", JSON.stringify(eventos, null, 2));
 
     if (eventos.length === 1 && eventos[0].tipo_evento === "QUIRURGICO") {

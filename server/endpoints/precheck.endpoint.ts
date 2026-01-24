@@ -20,7 +20,7 @@ export async function handlePreCheck(req: Request, res: Response) {
         }
 
         // Run the deterministic layer
-        const eventosHospitalarios = preProcessEventos(pamJson, contratoJson);
+        const eventosHospitalarios = await preProcessEventos(pamJson, contratoJson);
 
         // Extract the V.A deduction from the first event (it's global per preProcessEventos)
         let vd = {
