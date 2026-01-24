@@ -336,32 +336,55 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean): Fi
 
 
 function applySubsumptionCanonical(findings: Finding[]): Finding[] {
+    if (findings.length === 0) return [];
+
+    // Sort findings: Specific/Micro first, Macro/Summary last
+    const sorted = [...findings].sort((a, b) => {
+        const aIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN/i.test(a.label || "");
+        const bIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN/i.test(b.label || "");
+        if (aIsMacro && !bIsMacro) return 1;
+        if (!aIsMacro && bIsMacro) return -1;
+        return a.amount - b.amount;
+    });
+
     const out: Finding[] = [];
-    const seen = new Set<string>();
 
-    for (const f of findings) {
-        // Simple key: label + amount
-        const key = `${f.label}|${f.amount}`.toLowerCase();
+    for (const f of sorted) {
+        const labelNorm = (f.label || "").replace(/\s?\(RECONSTRUIDO\)/g, "").toUpperCase();
 
-        if (!seen.has(key)) {
-            seen.add(key);
-            out.push(f);
+        // 1. Exact amount and similar label deduplication (1:1)
+        const duplicate = out.find(o =>
+            Math.abs(o.amount - f.amount) < 5 &&
+            (o.label.toUpperCase().includes(labelNorm) || labelNorm.includes(o.label.toUpperCase().replace(/\s?\(RECONSTRUIDO\)/g, "")))
+        );
+
+        if (duplicate) {
+            if (f.category === 'A' && duplicate.category !== 'A') {
+                const idx = out.indexOf(duplicate);
+                out[idx] = f;
+            }
             continue;
         }
 
-        const existingIdx = out.findIndex(x => `${x.label}|${x.amount}`.toLowerCase() === key);
-        const existing = out[existingIdx];
+        // 2. Multi-item subsumption (Container detection) 
+        // If this finding is a "Macro" and its amount is covered by a combination of items in 'out'
+        const isMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN/i.test(f.label || "");
+        if (isMacro) {
+            const totalSumIn = out.reduce((a, b) => a + b.amount, 0);
 
-        const existingProtected = isProtectedCatA(existing);
-        const incomingProtected = isProtectedCatA(f);
+            // Heuristic A: Exact total match
+            if (Math.abs(f.amount - totalSumIn) < 500) {
+                continue; // Skip macro, already fully covered by parts
+            }
 
-        if (existingProtected && !incomingProtected) continue;
-        if (!existingProtected && incomingProtected) {
-            out[existingIdx] = f;
-            continue;
+            // Heuristic B: Scope match (Macro contains items with no detailed refs)
+            const hasRefs = f.evidenceRefs && f.evidenceRefs.length > 0;
+            if (!hasRefs && f.amount <= totalSumIn + 100) {
+                continue; // Skip generic container if we already have more specialized findings
+            }
         }
 
-        if (f.amount > existing.amount) out[existingIdx] = f;
+        out.push(f);
     }
 
     return out;
@@ -466,6 +489,8 @@ export function finalizeAuditCanonical(input: {
     // Step 2.1: Arithmetic Reconstruction (NEW)
     if (accountContext && processedFindings.some(f => f.category === 'Z')) {
         processedFindings = reconstructAllOpaque(accountContext, processedFindings);
+        // RE-APPLY Subsumption after promotion to A to catch overlaps with pre-existing A findings
+        processedFindings = applySubsumptionCanonical(processedFindings);
     }
 
     // Step 3: Balance
