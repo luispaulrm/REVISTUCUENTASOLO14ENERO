@@ -18,11 +18,12 @@ import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.
 import { AlphaFoldService } from './alphaFold.service.js';
 // NEW: Contract Reconstructibility Service (CRC)
 import { ContractReconstructibilityService } from './contractReconstructibility.service.js';
-import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation } from '../../types.js';
+import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation, ExtractedAccount } from '../../types.js';
 // NEW: Import Jurisprudence Layer (Precedent-First Decision System)
 import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAudit } from './jurisprudence/index.js';
 // NEW: Import C-NC Rules (Opacity Non-Collapse)
 import { generateNonCollapseText, RULE_C_NC_01, RULE_C_NC_02, RULE_C_NC_03, CANONICAL_NON_COLLAPSE_TEXT, findMatchingDoctrine } from './jurisprudence/jurisprudence.doctrine.js';
+import { reconstructAllOpaque } from './reconstruction.service.js';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -424,6 +425,7 @@ export function finalizeAuditCanonical(input: {
     contract?: any;
     ceilings?: { canVerify: boolean; reason?: string };
     violations?: { code: string; severity: number }[];
+    accountContext?: ExtractedAccount;
 }): {
     estadoGlobal: string;
     findings: Finding[];
@@ -435,6 +437,7 @@ export function finalizeAuditCanonical(input: {
     const debug: string[] = [];
     const findings = input.findings || [];
     const total = input.totalCopago || 0;
+    const accountContext = input.accountContext;
 
     // Step 1: Deterministic Categorization (A, B, Z, OK)
     let processedFindings = findings.map(f => {
@@ -460,9 +463,12 @@ export function finalizeAuditCanonical(input: {
     // Step 2: Subsumption
     processedFindings = applySubsumptionCanonical(processedFindings);
 
+    // Step 2.1: Arithmetic Reconstruction (NEW)
+    if (accountContext && processedFindings.some(f => f.category === 'Z')) {
+        processedFindings = reconstructAllOpaque(accountContext, processedFindings);
+    }
+
     // Step 3: Balance
-    // Step 2: Subsumption
-    processedFindings = applySubsumptionCanonical(processedFindings);
 
     // Step 3: RESOLVE DECISION (Golden Source of Truth)
     // Convert generic signals object to Signal[] if needed, or assume input.signals is Signal[]
@@ -1511,7 +1517,8 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             pamState: pamState,
             signals: alphaSignals,
             violations: ruleEngineResult.rules.filter(r => r.violated).map(r => ({ code: r.ruleId, severity: 1 })), // Map violations
-            contract: contratoJson
+            contract: contratoJson,
+            accountContext: cleanedCuenta // NEW: Pass account context for reconstruction
         });
 
         const finalFindings = canonicalResult.findings.map(f => {
