@@ -39,8 +39,8 @@ export function computeBalanceWithHypotheses(
 
     const balance: Balance = {
         totalCopago: totalCopagoReal,
-        categories: { A: 0, B: 0, OK: 0, Z: 0 },
-        rationaleByCategory: { A: [], B: [], OK: [], Z: [] },
+        categories: { A: 0, B: 0, K: 0, OK: 0, Z: 0 },
+        rationaleByCategory: { A: [], B: [], K: [], OK: [], Z: [] },
         scopeBreakdown: []
     };
 
@@ -91,6 +91,7 @@ export function computeBalanceWithHypotheses(
             scope: { type: 'PAM_LINE', pamLineKey: line.key },
             A: 0,
             B: 0,
+            K: 0,
             OK: 0,
             Z: 0
         };
@@ -135,6 +136,10 @@ export function computeBalanceWithHypotheses(
                     balance.categories.B += monto;
                     scopeBalance.B += monto;
                     balance.rationaleByCategory.B.push(`${h.titulo || 'Hallazgo'}: $${monto.toLocaleString()}`);
+                } else if (cat === 'K') {
+                    balance.categories.K += monto;
+                    scopeBalance.K += monto;
+                    balance.rationaleByCategory.K.push(`${h.titulo || 'Hallazgo'}: $${monto.toLocaleString()}`);
                 } else if (cat === 'Z') {
                     balance.categories.Z += monto;
                     scopeBalance.Z += monto;
@@ -176,7 +181,7 @@ export function computeBalanceWithHypotheses(
     }
 
     // Step 2: Validate closure
-    const sum = balance.categories.A + balance.categories.B + balance.categories.OK + balance.categories.Z;
+    const sum = balance.categories.A + balance.categories.B + balance.categories.K + balance.categories.OK + balance.categories.Z;
     const diff = Math.abs(sum - totalCopagoReal);
 
     if (diff > 1) {
@@ -189,6 +194,7 @@ export function computeBalanceWithHypotheses(
     console.log('[Balance] Final Categories:');
     console.log(`  Cat A (Improcedente): $${balance.categories.A.toLocaleString()}`);
     console.log(`  Cat B (Controversia): $${balance.categories.B.toLocaleString()}`);
+    console.log(`  Cat K (Indet. Impugnable): $${balance.categories.K.toLocaleString()}`);
     console.log(`  Cat OK (No Observado): $${balance.categories.OK.toLocaleString()}`);
     console.log(`  Cat Z (Indeterminado): $${balance.categories.Z.toLocaleString()}`);
 

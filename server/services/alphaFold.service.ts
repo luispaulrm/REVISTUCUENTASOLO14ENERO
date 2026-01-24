@@ -298,8 +298,8 @@ export class AlphaFoldService {
     }
 
     private static scoreGenericLabels(pam: any): number {
-        // Count generic terms
-        const GENERIC_REGEX = /(ajuste|vario|consumo|insumo|general|otros|admin)/i;
+        // Count generic terms as per Forensic V6 doctrine
+        const GENERIC_REGEX = /(GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|NO CUBIERTO|RECHAZO|AJUSTE|VARIO|INSUMO VARIO)/i;
         let totalItems = 0;
         let genericItems = 0;
 
@@ -314,12 +314,17 @@ export class AlphaFoldService {
                     p.items?.forEach((i: any) => countItem(i.descripcion || ""));
                 });
             });
+        } else if (pam.desglosePorPrestador) {
+            pam.desglosePorPrestador.forEach((p: any) => {
+                p.items?.forEach((i: any) => countItem(i.descripcion || ""));
+            });
         } else if (pam.items) {
             pam.items.forEach((i: any) => countItem(i.descripcion || ""));
         }
 
         if (totalItems === 0) return 0;
-        return genericItems / totalItems; // Ratio 0..1
+        // Return 1.0 if at least one hard generic glosa found (Forensic Trigger)
+        return genericItems > 0 ? 1.0 : 0;
     }
 
     private static hasDayBed(cuenta: any): boolean {

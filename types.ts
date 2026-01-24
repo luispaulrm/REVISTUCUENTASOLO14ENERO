@@ -179,6 +179,7 @@ export type AuditDecision =
   | "OK_VERIFICABLE"
   | "ERROR_CONTRATO_PROBADO"
   | "COPAGO_INDETERMINADO_POR_OPACIDAD"
+  | "COPAGO_MIXTO_CONFIRMADO_Y_OPACO"
   | "ZONA_GRIS_REQUIERE_ANTECEDENTES";
 
 export interface RuleResult {
@@ -207,7 +208,7 @@ export interface ExplainableOutput {
 // Balance Type - Single Source of Truth for Copago Categorization (v5)
 // ============================================================================
 
-export type CopagoCategory = 'A' | 'B' | 'OK' | 'Z';
+export type CopagoCategory = 'A' | 'B' | 'K' | 'OK' | 'Z';
 
 export interface ScopeBalance {
   scope: {
@@ -217,8 +218,9 @@ export interface ScopeBalance {
   };
   A: number;  // Improcedente (provable)
   B: number;  // Controversia auditable (data exists but disputed)
+  K: number;  // Impugnable por Opacidad (Monto bajo controversia por falta de desglose)
   OK: number; // No observado (no findings)
-  Z: number;  // Indeterminado (lack of data/opacity)
+  Z: number;  // Indeterminado (lack of data/transient)
   motivo?: string; // Phase 10: Human-readable explanation for table
 }
 
@@ -226,13 +228,15 @@ export interface Balance {
   totalCopago: number;
   categories: {
     A: number;  // Improcedente
-    B: number;  // Controversia auditable
+    B: number;  // Controversia
+    K: number;  // Impugnable por Opacidad
     OK: number; // No observado
     Z: number;  // Indeterminado
   };
   rationaleByCategory: {
     A: string[];
     B: string[];
+    K: string[];
     OK: string[];
     Z: string[];
   };
@@ -291,7 +295,7 @@ export interface FindingScope {
 
 export interface Finding {
   id: string;
-  category: "A" | "B" | "Z" | "OK";
+  category: "A" | "B" | "K" | "Z" | "OK";
   label: string;
   amount: number;
   action: "IMPUGNAR" | "SOLICITAR_ACLARACION" | "ACEPTAR";
@@ -304,6 +308,7 @@ export interface Finding {
 export interface BalanceAlpha {
   A: number;
   B: number;
+  K: number;
   Z: number;
   OK: number;
   TOTAL: number

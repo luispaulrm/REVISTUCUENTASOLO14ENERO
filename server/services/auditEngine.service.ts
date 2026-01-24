@@ -73,7 +73,7 @@ export interface DecisionResult {
     estado: string;
     confianza: number;
     fundamento: string;
-    balance: { A: number; OK: number; B: number; Z: number; TOTAL: number };
+    balance: { A: number; OK: number; B: number; K: number; Z: number; TOTAL: number };
     invariantsOk: boolean;
     errors: string[];
     score?: number;
@@ -95,131 +95,100 @@ function resolveDecision(params: {
     const { totalCopagoInformado: T, findings, violations, signals } = params;
     const errors: string[] = [];
 
-    // 1) Normaliza montos (nunca negativos, NaN -> 0)
-    // Map Finding to internal structure if needed, but existing Finding match closely
+    // 1) Normaliza montos y evita solapes por línea
+    // En V6, si un hallazgo es K (impugnable por opacidad), no debe ser A (confirmado)
     const norm = findings.map(f => ({
         ...f,
         amount: Number.isFinite(f.amount) ? Math.max(0, Math.round(f.amount)) : 0
     }));
 
-    // 2) NO permitir que Z incluya ítems con anclaje “cerrado” A (regla de hierro)
+    // Separamos en los 3 "bolsillos" deterministas + Z (señalética/informativo)
     const A_items = norm.filter(f => f.category === "A");
+    const K_items = norm.filter(f => f.category === "K");
     const OK_items = norm.filter(f => f.category === "OK");
-    const B_items = norm.filter(f => f.category === "B");
+    const B_items = norm.filter(f => f.category === "B"); // Controversia auditable
     const Z_items = norm.filter(f => f.category === "Z");
 
-    const A = sum(A_items.map(x => x.amount));
-    const OK = sum(OK_items.map(x => x.amount));
-    const B = sum(B_items.map(x => x.amount));
-    let Z = sum(Z_items.map(x => x.amount));
+    // Cálculo de montos crudos
+    const rawA = sum(A_items.map(x => x.amount));
+    const rawK = sum(K_items.map(x => x.amount));
+    const rawOK = sum(OK_items.map(x => x.amount));
+    const rawB = sum(B_items.map(x => x.amount));
+    const rawZ = sum(Z_items.map(x => x.amount));
 
-    // 3) Opacidad RESIDUAL: Z no puede exceder el remanente contable
-    const remainder = Math.max(0, T - (A + OK + B));
-    if (Z > remainder) {
-        // recorta Z al remanente (y reporta)
-        errors.push(`Z_excede_remanente: Z=${Z} > remanente=${remainder}. Recortado.`);
-        Z = remainder;
-    }
+    // 2) ENSURE PARTITION (A + K + OK = T)
+    // Priority: A (Confirmed) > K (Opacity) > OK (Legit)
+    // We don't use Z for monetary balance in V6 if K exists.
+    let budget = T;
 
-    // 4) Invariante contable - HARD CLIPPING (V6)
-    // If the sum still exceeds T, we must clip categories starting from the least "forced" (OK, then B, then A)
-    // But actually, in our system, A is the most important "proven" finding.
-    let currentTotal = A + OK + B + Z;
-    let finalA = A;
-    let finalB = B;
-    let finalOK = OK;
-    let finalZ = Z;
+    const finalA = Math.min(rawA, budget);
+    budget -= finalA;
+    if (rawA > T) errors.push(`Exceso_A: Suma A (${rawA}) excede T. Recortado.`);
 
-    if (currentTotal > T) {
-        errors.push(`Sobrepago_contable: SUM=${currentTotal} > T=${T}. Aplicando recorte de seguridad.`);
-        // Priority: A (most important) > B > Z > OK (least important/residual)
-        // Wait, usually Z is also important (opacity). 
-        // Let's use this priority: A > B > Z > OK
-        let budget = T;
+    const finalK = Math.min(rawK, budget);
+    budget -= finalK;
+    if (rawA + rawK > T) errors.push(`Exceso_K: A+K (${rawA + rawK}) excede T. K recortado.`);
 
-        finalA = Math.min(A, budget);
-        budget -= finalA;
+    // Residual goes to OK (or B if we have it)
+    let finalOK = Math.min(rawOK, budget);
+    budget -= finalOK;
 
-        finalB = Math.min(B, budget);
+    let finalB = 0;
+    if (budget > 0 && rawB > 0) {
+        finalB = Math.min(rawB, budget);
         budget -= finalB;
-
-        finalZ = Math.min(Z, budget);
-        budget -= finalZ;
-
-        finalOK = Math.max(0, budget); // Residual everything else is OK
-    } else if (currentTotal < T) {
-        // If it sums to less, and we have gap, we assume it's OK (leaked)
-        // or Z if we are being conservative. Let's use Z for safety in forensic audit.
-        finalZ += (T - currentTotal);
-        errors.push(`Cierre_por_defecto: Gap de $${T - currentTotal} asignado a Cat Z.`);
     }
 
-    const invariantsOk = (finalA + finalB + finalOK + finalZ) === T;
+    // Si aún queda presupuesto, es OK no observado
+    if (budget > 0) {
+        finalOK += budget;
+        errors.push(`Cierre_por_defecto: Residuo de $${budget} asignado a OK.`);
+    }
+
+    // 3) Invariants
+    const invariantsOk = (finalA + finalK + finalOK + finalB) === T;
     if (!invariantsOk) {
-        errors.push(`FALLO_CRITICO_INVARIANTE: A+OK+B+Z=${finalA + finalB + finalOK + finalZ} != T=${T}.`);
+        errors.push(`FALLO_CRITICO_INVARIANTE: A+K+OK+B=${finalA + finalK + finalOK + finalB} != T=${T}.`);
     }
 
-    // Re-assign to local variables for state calculation
-    const A_final = finalA;
-    const B_final = finalB;
-    const OK_final = finalOK;
-    const Z_final = finalZ;
-
-    // 5) Señales / violaciones -> estado final (sin colapso)
+    // 4) Señales y Estado Global (Determinista)
     const V = Math.min(1, sum(violations.map(v => v.severity)) / Math.max(1, violations.length));
-
-    // R = Risk (Derived from signals)
-    // We filter positive signals related to risk
     const riskSignals = signals.filter(s => s.value > 0 && !s.id.includes("OK") && !s.id.includes("CUMPLIMIENTO"));
     const R = Math.min(1, riskSignals.length > 0 ? (sum(riskSignals.map(s => s.value)) / riskSignals.length) : 0);
 
-    const opacidad = Z_final / Math.max(1, T);
+    const opacidad = (finalK + (rawZ > 0 ? 0 : 0)) / Math.max(1, T); // Opacidad real es K/T
 
-    // ========================================================================
-    // HIJERARCHICAL SEMAFORO (V6)
-    // The state is determined purely by the final balance categories.
-    // ========================================================================
-    let estado = "COPAGO_VERIFICADO_OK"; // Green default
-
-    if (A_final > 0) {
-        // Red Level: Confirmed Breach or Unbundling
-        estado = "COPAGO_OBJETABLE_CONFIRMADO";
-    } else if (Z_final > 0 || B_final > 0) {
-        // Yellow Level: Indeterminate/Opacity
-        estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
-    }
-
-    // Legacy mapping support
-    if (A_final > 0 && (Z_final > 0 || B_final > 0)) {
+    let estado = "COPAGO_VERIFICADO_OK";
+    if (finalK > 0 && finalA > 0) {
         estado = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+    } else if (finalK > 0) {
+        estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
+    } else if (finalA > 0) {
+        estado = "COPAGO_OBJETABLE_CONFIRMADO";
     }
 
-    // Confianza: sube con A anclado, baja con opacidad y fallas contables
-    let confianza = 0.55 + 0.35 * Math.min(1, A_final / Math.max(1, T)) - 0.45 * opacidad;
+    // 5) Resumen y Confianza
+    let confianza = 0.55 + 0.35 * Math.min(1, finalA / Math.max(1, T)) - 0.45 * opacidad;
     if (errors.length) confianza -= 0.15;
     confianza = Math.max(0.05, Math.min(0.95, confianza));
 
-    // Auditor Score Calculation
-    // C = 100 * (0.55 * A/T + 0.25 * V + 0.20 * R) - 100 * (0.60 * Z/T)
-    const scoreA = 0.55 * (A_final / Math.max(1, T));
+    const scoreA = 0.55 * (finalA / Math.max(1, T));
     const scoreV = 0.25 * V;
     const scoreR = 0.20 * R;
-    const scoreZ = 100 * (0.60 * (Z_final / Math.max(1, T)));
-    let score = 100 * (scoreA + scoreV + scoreR) - scoreZ;
-    // Normalize score to 0-100 logic? The formula gives -60 to 100.
-    // User formula allows negative score (high opacity).
+    const scoreK = 100 * (0.60 * (finalK / Math.max(1, T)));
+    let score = 100 * (scoreA + scoreV + scoreR) - scoreK;
 
     const fundamento =
-        `Balance: A=${A_final}, OK=${OK_final}, B=${B_final}, Z=${Z_final}, T=${T}. ` +
-        `Violaciones promedio=${V.toFixed(2)}. Opacidad=${(100 * opacidad).toFixed(1)}%. ` +
+        `Balance: A=${finalA}, K=${finalK}, OK=${finalOK}, B=${finalB}, T=${T}. ` +
+        `Opacidad=${(100 * opacidad).toFixed(1)}%. ` +
         (errors.length ? `Ajustes: ${errors.join(" | ")}.` : "");
 
     return {
         estado,
         confianza: Number(confianza.toFixed(2)),
         fundamento,
-        balance: { A: A_final, OK: OK_final, B: B_final, Z: Z_final, TOTAL: T },
-        invariantsOk: errors.filter(e => e.includes("FALLO_CRITICO")).length === 0,
+        balance: { A: finalA, OK: finalOK, B: finalB, K: finalK, Z: rawZ, TOTAL: T },
+        invariantsOk,
         errors,
         score: Math.round(score)
     };
@@ -487,6 +456,7 @@ function computeBalanceCanonical(findings: Finding[], totalCopago: number): Bala
     return {
         A: resolved.balance.A,
         B: resolved.balance.B,
+        K: resolved.balance.K,
         Z: resolved.balance.Z,
         OK: resolved.balance.OK,
         TOTAL: resolved.balance.TOTAL
@@ -496,11 +466,11 @@ function computeBalanceCanonical(findings: Finding[], totalCopago: number): Bala
 
 function decideGlobalStateCanonical(balance: BalanceAlpha): string {
     const hasA = balance.A > 0;
-    const hasOpacity = balance.Z > 0 || balance.B > 0;
+    const hasOpacity = balance.K > 0;
 
     if (hasA && hasOpacity) return "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
-    if (!hasA && hasOpacity) return "COPAGO_INDETERMINADO_PARCIAL_POR_OPACIDAD";
-    if (hasA && !hasOpacity) return "COPAGO_OK_CONFIRMADO";
+    if (!hasA && hasOpacity) return "COPAGO_INDETERMINADO_POR_OPACIDAD";
+    if (hasA && !hasOpacity) return "COPAGO_OBJETABLE_CONFIRMADO";
     return "COPAGO_OK_CONFIRMADO";
 }
 
@@ -645,15 +615,15 @@ export function finalizeAuditCanonical(input: {
     const resumenFinanciero = {
         totalCopagoInformado: total,
         totalCopagoLegitimo: balance.OK,
-        totalCopagoObjetado: balance.A + balance.B + balance.Z,
+        totalCopagoObjetado: balance.A + balance.B + balance.K,
         ahorro_confirmado: balance.A,
         cobros_improcedentes_exigibles: balance.A,
-        copagos_bajo_controversia: balance.B,
-        monto_indeterminado: balance.Z,
+        monto_bajo_controversia_opacidad: balance.K,
+        monto_indeterminado_residual: balance.Z,
         monto_no_observado: balance.OK,
         totalCopagoReal: total,
-        estado_copago: estadoGlobal.includes('MIXTO') ? "MIXTO" : (estadoGlobal.includes('OPACIDAD') ? "INDETERMINADO_POR_OPACIDAD" : "OK"),
-        auditor_score: resolved.score // New Field
+        estado_copago: estadoGlobal.includes('MIXTO') ? "MIXTO" : (estadoGlobal.includes('OPACIDAD') ? "INDETERMINADO" : (estadoGlobal.includes('OBJETABLE') ? "OBJETABLE" : "OK")),
+        auditor_score: resolved.score
     };
 
     return {
@@ -1402,7 +1372,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
             // ðŸš¨ REGLA NUCLEAR: Si el estado es INDETERMINADO, NO generamos GAP/orphans
             if (estadoCopago === 'INDETERMINADO_POR_OPACIDAD') {
-                log(`[AuditEngine] ðŸ” Estado INDETERMINADO detectado.NO se ejecuta GAP reconciliation(evita ghost hunters).`);
+                log(`[AuditEngine] ðŸ” Estado INDETERMINADO detectado.NO se ejecuta GAP reconciliation(evita ghost hunters).`);
                 // Early return: skip all gap/orphan logic
             } else {
 
@@ -1591,7 +1561,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         const ranking = hypothesisScores;
         // alphaSignals and pamState are already available
 
-        const alphaFindings = AlphaFoldService.buildFindings({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: contratoJson }, pamState, activeContexts);
+        const alphaFindings = AlphaFoldService.buildFindings({ pam: cleanedPam, cuenta: cleanedCuenta, contrato: cleanedContrato }, pamState, activeContexts);
 
         // 1. Jurisprudence Findings (Nivel 1-4)
         const jurisprudenceFindings = Array.from(jurisprudenceDecisions.values())
@@ -1630,7 +1600,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             label: h.titulo || h.glosa || "Hallazgo LLM",
             amount: h.montoObjetado || 0,
             action: (h.recomendacion_accion || "SOLICITAR_ACLARACION") as any,
-            evidenceRefs: h.evidenceRefs || [],
+            evidenceRefs: h.evidenceRefs,
             rationale: h.hallazgo || "Hallazgo detectado por LLM",
             hypothesisParent: h.hypothesisParent || "H_PRACTICA_IRREGULAR"
         }));
@@ -1852,7 +1822,7 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     const hallazgos = result.hallazgos || [];
 
     // 0. Detect Structural Opacity Parent to avoid double counting
-    const hasCanonicalOpacity = hallazgos.some((h: any) => h.codigos === "OPACIDAD_ESTRUCTURAL");
+    const hasStructuralOpacity = hallazgos.some((h: any) => h.codigos === "OPACIDAD_ESTRUCTURAL");
 
     // ========================================================================
     // CANONICAL RULE C-NC-03: PROTECTED CATEGORIES (NEVER SUBSUME)
@@ -1923,7 +1893,7 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
         const isProtectedFromSubsumption = isProtectedByCode || isProtectedByKeyword || isJurisprudenceProtected || isExplicitA;
 
         // Log protection status for debugging
-        if (isProtectedFromSubsumption && hasCanonicalOpacity) {
+        if (isProtectedFromSubsumption && hasStructuralOpacity) {
             console.log(`[C-NC-03] 🛡️ PROTECTED: '${h.titulo}' (code=${isProtectedByCode}, keyword=${isProtectedByKeyword}, jurisp=${isJurisprudenceProtected}, explicit=${isExplicitA})`);
         }
 
@@ -1931,7 +1901,7 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
         // C-SUB-01: SUBSUMPTION LOGIC (with Non-Collapse Protection)
         // Generic material/med findings are subsumed ONLY if NOT protected
         // ========================================================================
-        if (hasCanonicalOpacity && isGenericMaterialOrMed && !isOpacityParent && !isProtectedFromSubsumption) {
+        if (hasStructuralOpacity && isGenericMaterialOrMed && !isOpacityParent && !isProtectedFromSubsumption) {
             h.isSubsumed = true;
             cat = "B"; // It is still controversy, but won't be summed
             console.log(`[C-SUB-01] Subsumed: '${h.titulo}' (generic material/med under opacity)`);
@@ -2093,7 +2063,7 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     const hasCatA = sumA > 0;
     const hasCatB = sumB > 0; // Controversy
     const hasCatZ = sumZ > 0; // Indeterminate
-    const hasOpacity = hasCanonicalOpacity || hasCatZ || hasCatB;
+    const hasOpacity = hasStructuralOpacity || hasCatZ || hasCatB;
 
     // 7. Diagnóstico Global del Caso (Specification v1.0 - CANONICAL CORRECTION)
     // REGLA MADRE: Si existe incumplimiento contractual determinado (Cat A > 0), 
@@ -2138,10 +2108,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
 }
 
 // ============================================================================
-// HELPER: Subset-Sum for Nutrition (AlimentaciÃ³n) Reconciliation
+// HELPER: Subset-Sum for Nutrition (Alimentación) Reconciliation
 // ============================================================================
 export function reconcileNutritionCharges(cuenta: any, pam: any): any {
-    // 1. Identify Target Amount (Code 3101306 or PRESTACIONES SIN BONIFICACIÃ“N)
+    // 1. Identify Target Amount (Code 3101306 or PRESTACIONES SIN BONIFICACIÓN)
     let targetAmount = 0;
     let pamItemName = "";
 
@@ -2199,22 +2169,19 @@ export function reconcileNutritionCharges(cuenta: any, pam: any): any {
         targetFound: true,
         targetAmount,
         pamItemName,
-        pamGlosa: pamItemName, // Fix 1.2: Alias for compatibility
+        pamGlosa: pamItemName,
         matchFound: matchedSubset !== null,
         items: matchedSubset || []
     };
 }
 
 function subsetSumExact(target: number, items: any[], maxNodes = 50000): any[] | null {
-    const values = items.map(i => i.total);
-    const sortedIndices = items.map((_, i) => i).sort((a, b) => items[b].total - items[a].total); // Sort indices by value desc
-
+    const sortedIndices = items.map((_, i) => i).sort((a, b) => items[b].total - items[a].total);
     let nodes = 0;
 
     function dfs(idx: number, currentSum: number, chosenIndices: number[]): number[] | null {
         nodes++;
-        if (nodes > maxNodes) return null; // Time/Depth limit
-
+        if (nodes > maxNodes) return null;
         if (currentSum === target) return chosenIndices;
         if (currentSum > target) return null;
         if (idx >= sortedIndices.length) return null;
@@ -2231,84 +2198,50 @@ function subsetSumExact(target: number, items: any[], maxNodes = 50000): any[] |
     }
 
     const resultIndices = dfs(0, 0, []);
-
-    if (resultIndices) {
-        return resultIndices.map(i => items[i]);
-    }
-    return null;
+    return resultIndices ? resultIndices.map(i => items[i]) : null;
 }
 
 function traceGenericChargesTopK(cuenta: any, pam: any): string {
     const traceResults: string[] = [];
-
-    // 1. Identify "Generic/Adjustments" in Account
-    // Strategy: Look for specific codes or keywords in Description (Regex Robustness)
     const adjustments: any[] = [];
     const REGEX_GENERIC = /(ajuste|vario|diferencia|suministro|cargo admin|otros|insumos)/i;
     const REGEX_CODES = /^(14|02|99)\d+/;
 
     const sections = cuenta.sections ?? [];
-    if (sections.length === 0) {
-        return "No se detectaron secciones en cuenta para trazar (Cuenta vacÃ­a o no estructurada).";
-    }
-
     sections.forEach((sec: any) => {
         (sec.items ?? []).forEach((item: any) => {
             const desc = (item.description || "").toUpperCase();
             const code = (item.code || "").toString();
-
-            const isKeyword = REGEX_GENERIC.test(desc);
-            const isInternalCode = REGEX_CODES.test(code);
-            const isSectionGeneric = /(varios|ajustes|exento|diferencias)/i.test(sec.category || "");
-
             const itemTotal = parseAmountCLP(item.total);
-            const MIN_TRACE_AMOUNT = 1000;
-
-            if ((isKeyword || isInternalCode || isSectionGeneric) && itemTotal >= MIN_TRACE_AMOUNT) {
+            if ((REGEX_GENERIC.test(desc) || REGEX_CODES.test(code)) && itemTotal >= 1000) {
                 adjustments.push({ ...item, total: itemTotal });
             }
         });
     });
 
-    if (adjustments.length === 0) return "No se detectaron cargos genÃ©ricos relevantes para trazar (Clean Bill).";
+    if (adjustments.length === 0) return "No se detectaron cargos genéricos relevantes para trazar.";
 
-    // 2. Identify Candidates in PAM (Bonified Items)
-    // We look for any PAM item that might explain the adjustment.
     const pamItems: any[] = [];
     pam.folios?.forEach((f: any) => {
         f.desglosePorPrestador?.forEach((d: any) => {
             d.items?.forEach((i: any) => {
-                pamItems.push({
-                    ...i,
-                    amount: parseAmountCLP(i.bonificacion)
-                });
+                pamItems.push({ ...i, amount: parseAmountCLP(i.bonificacion) });
             });
         });
     });
 
-    // 3. Top-K Matching Logic
     adjustments.forEach(adj => {
         const target = adj.total;
         let matchFound = false;
 
-        // A. Direct Match (Target == PAM_Item Â± Tolerance)
         const directMatch = pamItems.find(p => Math.abs(p.amount - target) <= 1000);
         if (directMatch) {
-            traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con Ã­tem PAM '${directMatch.descripcion}'($${directMatch.amount}).ESTATUS: TRACEADO(No oculto).`);
+            traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con ítem PAM '${directMatch.descripcion}'($${directMatch.amount}).`);
             matchFound = true;
         }
 
-        // B. Component Sum (Target == Sum(Subset of PAM) Â± Tolerance)
-        // Heuristic: Try to sum top 5 largest PAM items that are smaller than target
         if (!matchFound) {
-            // Simple greedy approach for demo (User asked for Top-K or pragmatism)
-            // Real subset sum is hard, let's check if it matches the sum of a specific group?
-            // Or check if the adjustment equals TotalBonification of a Folio?
-            // That's a common pattern: Adjustment = Total Bonified of Folio X.
-
-            // Check against Folio Totals
             const folioMatch = pam.folios?.find((f: any) => {
-                // Calculate folio total bonification
                 let totalB = 0;
                 f.desglosePorPrestador?.forEach((d: any) => d.items?.forEach((i: any) => {
                     totalB += parseAmountCLP(i.bonificacion) || 0;
@@ -2317,352 +2250,84 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
             });
 
             if (folioMatch) {
-                traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con BonificaciÃ³n Total del Folio ${folioMatch.folioPAM}.ESTATUS: TRACEADO(Agrupado).`);
+                traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con Bonificación Total del Folio ${folioMatch.folioPAM}.`);
                 matchFound = true;
             }
         }
 
         if (!matchFound) {
-            traceResults.push(`- AJUSTE '${adj.description}'($${target}) NO TIENE CORRELACIÃ“N aritmÃ©tica evidente en PAM.ESTATUS: NO_TRAZABLE(requiere aclaraciÃ³n: Â¿fuera del PAM o absorbido en agrupadores ?).`);
+            traceResults.push(`- AJUSTE '${adj.description}'($${target}) NO TIENE CORRELACIÓN aritmética evidente en PAM.`);
         }
     });
 
     return traceResults.join('\n');
 }
 
-// ============================================================================
-// HELPER: Post-Validate LLM Response (The "Safety Belt")
-// ============================================================================
-// ============================================================================
-// HELPER: Post-Validate LLM Response (The "Safety Belt" - Cross-Validation v9)
-// ============================================================================
 function postValidateLlmResponse(resultRaw: any, eventos: any[], cuentaContext: any, pamContext: any, reconstructibility?: any): any {
     const validatedResult = { ...resultRaw };
     let hasStructuralOpacity = false;
 
-
-    // 1. Table VIII Enforcement & Hallmark Check (Cross-Validation v9)
     if (validatedResult.hallazgos) {
         validatedResult.hallazgos = validatedResult.hallazgos.filter((h: any) => {
-            // Skip logic for "ACEPTAR" findings
             const isImpugnar = h.hallazgo?.toUpperCase().includes("IMPUGNAR") || (h.montoObjetado || 0) > 0;
-
             if (isImpugnar) {
-                // Check for Table VIII presence (Strict)
                 const hasTableCheck = h.hallazgo?.includes("|") && h.hallazgo?.includes("---");
-
-                // CRITICAL BLOQUEO v9: Si es genÃ©rico/opacidad Y no tiene tabla de traza -> BLOQUEAR (ELIMINAR)
-                const isGenericOrOpacidad = h.categoria === "OPACIDAD" || /GENERICO|GEN[EÃ‰]RICO|AGRUPADOR/i.test(h.glosa || "");
+                const isGenericOrOpacidad = h.categoria === "OPACIDAD" || /GENERICO|AGRUPADOR/i.test(h.glosa || "");
 
                 if (isGenericOrOpacidad && !hasTableCheck) {
-                    console.log(`[Cross - Validation v9] ðŸ›¡ï¸ DEGRADANDO hallazgo: ${h.titulo} (Falta Tabla VIII)`);
                     h.recomendacion_accion = "SOLICITAR_ACLARACION";
                     h.nivel_confianza = "BAJA";
-                    h.motivo_degradacion = "SIN_TRAZABILIDAD";
                     h.tipo_monto = "COPAGO_OPACO";
-                    // Keep the finding but mark it as degraded
                 }
 
-                // Check for "Hallucinated" High Value Objections
-                // If finding > $1M and no specific code provided -> BLOCK
                 if ((h.montoObjetado || 0) > 1000000 && (!h.codigos || h.codigos === "SIN-CODIGO")) {
-                    console.log(`[Cross - Validation v9] ðŸ›¡ï¸ BLOQUEADO hallazgo de alto valor sin cÃ³digo: ${h.titulo} `);
                     return false;
                 }
             }
 
-            // DETECTOR DE OPACIDAD ESTRUCTURAL (Detect Global Z, but respect Local A)
-            // Use the authoritative classifier first
             const determinedCat = classifyFinding(h);
-
-            // If the classifier says "A", we respect it absolutely (Non-Collapse Rule)
             if (determinedCat === "A") {
                 h.categoria_final = "A";
-                h.tipo_monto = "COBRO_IMPROCEDENTE";
                 h.estado_juridico = "CONFIRMADO_EXIGIBLE";
-                if (!h.recomendacion_accion) h.recomendacion_accion = "IMPUGNAR";
-                console.log(`[Safety Belt] Finding '${h.titulo}' classified as A (Improcedente).`);
-                return true; // Keep it
+                return true;
             }
 
-            // If not A, checked for B/Z
-            const isOpacidad = h.categoria === "OPACIDAD" ||
-                (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO|FARMACO|VARIOS/i.test(h.glosa) && /DESGLOSE|OPACIDAD/i.test(h.hallazgo || ""));
-
+            const isOpacidad = h.categoria === "OPACIDAD" || (h.glosa && /MATERIAL|INSUMO|MEDICAMENTO/i.test(h.glosa) && /DESGLOSE|OPACIDAD/i.test(h.hallazgo || ""));
             if (isOpacidad) {
-                // CRC LOGIC: Check Reconstructibility
                 if (reconstructibility?.isReconstructible) {
-                    h.categoria_final = "B"; // Downgrade to B (Controversy)
+                    h.categoria_final = "K";
                     h.estado_juridico = "EN_CONTROVERSIA";
-                    h.recomendacion_accion = "SOLICITAR_ACLARACION";
-
-                    // ARGUMENTATIVE REWRITE (CONTRACT BREACH)
-                    h.titulo = "INCUMPLIMIENTO CONTRACTUAL (COBERTURA 100% DESCONOCIDA)";
-                    h.glosa = "RECHAZO DE COBERTURA SIN CAUSA LEGAL";
-
-                    const reason = reconstructibility.reasoning?.[0] || "Contrato con cobertura integral.";
-
-                    h.hallazgo = `**I. Incumplimiento Contractual Detectado**
-El contrato de salud vigente establece una cobertura del 100% (o PAD/Integral) para los ítems de hospitalización, medicamentos y materiales.
-
-**II. Hecho Constitutivo de Infracción**
-La Isapre ha aplicado una bonificación de $0 (o parcial) a ítems de 'Materiales/Medicamentos' ($${h.montoObjetado?.toLocaleString('es-CL')}) sin acreditar el agotamiento del tope ni la exclusión contractual específica.
-
-**III. Vicio de Legalidad**
-Esta conducta no es una mera 'falta de información' (Opacidad), sino una ejecución contractual incorrecta. Al existir un mandato de cobertura integral, la carga de la prueba para no cubrir recae en la aseguradora. Cobrar este monto al afiliado vulnera el principio de literalidad del contrato.
-
-**IV. Solicitud Específica**
-Se exige la cobertura inmediata del 100% pactado o la exhibición de la cláusula de exclusión específica para estos insumos exactos.`;
-
-                    // Do NOT set hasStructuralOpacity=true, to prevent Global Z Escalation
-                    console.log(`[CRC] Finding '${h.titulo}' rewritten to Breach of Contract.`);
                 } else {
-                    h.categoria_final = "Z"; // Opacidad always Z if not reconstructible
-                    h.estado_juridico = "INDETERMINADO";
-                    hasStructuralOpacity = true; // Escalates to Global Z
+                    h.categoria_final = "Z";
+                    hasStructuralOpacity = true;
                 }
             } else {
-                h.categoria_final = "B"; // Default
+                h.categoria_final = "B";
             }
-
-            if (isOpacidad && !reconstructibility?.isReconstructible) {
-                hasStructuralOpacity = true;
-            }
-
             return true;
         });
     }
 
-    // --- ARQUITECTURA DE DECISIÃ“N: RECALCULO DE TOTALES (Anti-Sumas Fantasmas) ---
-    if (validatedResult.hallazgos) {
-        let sumA = 0; // COBRO_IMPROCEDENTE
-        let sumB = 0; // COPAGO_OPACO
-
-        validatedResult.hallazgos.forEach((h: any) => {
-            const monto = Number(h.montoObjetado || 0);
-
-            // Use deterministic classifier
-            const category = classifyFinding(h);
-
-            // ðŸš¨ NUCLEAR RULE: If OPACIDAD exists, GAP cannot be ahorro (it's indeterminate)
-            const isGapInOpacityContext = hasStructuralOpacity &&
-                (h.codigos === "GAP_RECONCILIATION" || h.anclajeJson?.includes("PAM_AUTO_DETECT"));
-
-            if (category === "B" || isGapInOpacityContext) {
-                h.tipo_monto = "COPAGO_OPACO";
-                // Action Rule for Cat B
-                if (h.recomendacion_accion !== "SOLICITAR_ACLARACION") {
-                    h.recomendacion_accion = "SOLICITAR_ACLARACION";
-                }
-                sumB += monto;
-            } else {
-                h.tipo_monto = "COBRO_IMPROCEDENTE";
-                // Action Rule for Cat A
-                if (h.nivel_confianza !== "BAJA") {
-                    h.recomendacion_accion = "IMPUGNAR";
-                }
-                sumA += monto;
-            }
-        });
-
-        // Fix 2.2: REMOVED Sum Recalculation here.
-        // "Single Source of Truth" principle -> handled by computeBalanceWithHypotheses/AlphaFold only.
-        /*
-        if (validatedResult.resumenFinanciero) {
-            validatedResult.resumenFinanciero.cobros_improcedentes_exigibles = sumA;
-            validatedResult.resumenFinanciero.copagos_bajo_controversia = sumB;
-            validatedResult.resumenFinanciero.ahorro_confirmado = sumA;
-            validatedResult.resumenFinanciero.totalCopagoObjetado = sumA + sumB;
-        }
-        */
-    }
-
-
-    // --- NUTRITION RECONCILIATION (ALIMENTACIÃ“N CHECK) ---
-    // Runs before final output to verify 3101306 findings
-    try {
-        if (cuentaContext && pamContext) {
+    if (cuentaContext && pamContext) {
+        try {
             const nutritionCheck = reconcileNutritionCharges(cuentaContext, pamContext);
-
-            if (nutritionCheck && nutritionCheck.targetFound) {
-                // Check if there is an existing "AlimentaciÃ³n" finding
-                const nutriFindingIndex = validatedResult.hallazgos.findIndex((h: any) =>
-                    (h.codigos && h.codigos.includes("3101306")) ||
-                    (h.glosa && /ALIMENTA|NUTRICI/i.test(h.glosa))
-                );
-
-                if (nutritionCheck.matchFound) {
-                    // EXACT MATCH LOGIC
-
-                    // We need to check if the targetAmount found in PAM is EXACTLY matching the Finding Amount.
-                    // Often the LLM creates a finding for the whole "PRESTACIONES SIN BONIFICACION" line ($66.752).
-                    // But nutrition match is only $51.356.
-                    // Case A: Perfect Match ($51.356 vs $51.356) -> Cat A.
-                    // Case B: Partial ($66.752 vs $51.356) -> Cat Z (Conservative).
-
-                    // Logic: Search for the finding that matches the PAM Line
-                    // 2) Patch: "SIN BONIFICACION" context-aware
-                    const textToCheck = (nutritionCheck.pamItemName || "") + " " + (nutritionCheck.pamGlosa || "");
-                    const isSinBonif = /SIN BONIFI/.test(textToCheck);
-
-                    const isHoteleria = /ALMUERZO|CENA|DESAYUNO|PAÃ‘O|TOALLA|KIT|ASEO|HOTELERIA|ALIMENTA/i.test(textToCheck);
-
-                    // Defaults for classification if matched
-
-                    const targetFindingIndex = validatedResult.hallazgos.findIndex((h: any) =>
-                        (h.montoObjetado === nutritionCheck.targetAmount) ||
-                        (h.glosa && h.glosa.includes("SIN BONIF") && Math.abs(h.montoObjetado - nutritionCheck.targetAmount) < 20000)
-                    );
-
-                    if (targetFindingIndex >= 0) {
-                        const existingFinding = validatedResult.hallazgos[targetFindingIndex];
-                        const diff = Math.abs(existingFinding.montoObjetado - nutritionCheck.targetAmount);
-
-                        if (diff < 20) {
-                            // EXACT MATCH CONFIRMED
-                            console.log(`[AuditEngine] ðŸŽ ALIMENTACION: Match Exacto Confirmado. Elevando a Cat A.`);
-                            existingFinding.categoria_final = "A"; // Pre-seed for finalizeAudit
-                            existingFinding.anclajeJson = "MATCH_EXACTO_SUBSET_SUM";
-                            existingFinding.nivel_confianza = "ALTA";
-                            existingFinding.hallazgo = `**I. Trazabilidad Exacta (Confirmada)**\nSe ha verificado matemÃ¡ticamente que el cobro de $${existingFinding.montoObjetado.toLocaleString('es-CL')} corresponde exactamente a la suma de Ã­tems de alimentaciÃ³n (Almuerzos, Colaciones, etc.) presentes en la cuenta clÃ­nica.\n\nEste cobro duplica la cobertura de hotelerÃ­a incluida en el DÃ­a Cama.`;
-                        } else {
-                            // PARTIAL / MISMATCH -> CONSERVATIVE Z
-                            console.log(`[AuditEngine] ðŸŽ ALIMENTACION: Match Parcial (${nutritionCheck.targetAmount} vs ${existingFinding.montoObjetado}). Dejando en Cat Z.`);
-                            existingFinding.categoria_final = "Z";
-                            existingFinding.anclajeJson = "MATCH_PARCIAL_SOLO_ALIMENTACION";
-                            existingFinding.nivel_confianza = "MEDIA";
-                            existingFinding.hallazgo = `**I. IndeterminaciÃ³n de Trazabilidad**\nEl monto cobrado ($${existingFinding.montoObjetado.toLocaleString('es-CL')}) NO CALZA exactamente con la suma de alimentaciÃ³n ($${nutritionCheck.targetAmount.toLocaleString('es-CL')}).\n\nExiste un diferencial no explicado que impide confirmar la naturaleza total del cobro. Se requiere desglose.`;
-                        }
-                    }
-                } else {
-                    // NO MATCH: Downgrade logic
-                    console.log(`[AuditEngine] ðŸŽ ALIMENTACION: NO cuadra (Target $${nutritionCheck.targetAmount}). Downgrading...`);
-
-                    if (nutriFindingIndex >= 0) {
-                        const h = validatedResult.hallazgos[nutriFindingIndex];
-                        h.tipo_monto = "COPAGO_OPACO";
-                        h.recomendacion_accion = "SOLICITAR_ACLARACION";
-                        h.nivel_confianza = "MEDIA";
-                        h.hallazgo = `** IndeterminaciÃ³n de Trazabilidad **\nSi bien existe el cargo '${nutritionCheck.pamItemName}' ($${nutritionCheck.targetAmount}) en el PAM, la suma de los Ã­tems de alimentaciÃ³n en la cuenta NO CALZA con este monto.\n\nSe requiere desglose exacto para confirmar si corresponde a alimentaciÃ³n del paciente (duplicidad) o a otro concepto.`;
-                        h.estado_juridico = "EN_CONTROVERSIA";
-                    }
-                    // If no finding existed, we do nothing (we don't create false alarms for stuff not found)
+            if (nutritionCheck?.matchFound) {
+                const nutriFinding = validatedResult.hallazgos.find((h: any) => (h.codigos && h.codigos.includes("3101306")) || (h.glosa && /ALIMENTA/i.test(h.glosa)));
+                if (nutriFinding) {
+                    nutriFinding.categoria_final = "A";
+                    nutriFinding.nivel_confianza = "ALTA";
                 }
             }
-        }
-    } catch (e) {
-        console.log(`[AuditEngine] âš ï¸ Error en reconciliaciÃ³n nutricional: ${e}`);
+        } catch (e) { console.log(e); }
     }
 
-
-    // --- CANONICAL OPACITY OVERRIDE (HARD RULE) ---
     if (hasStructuralOpacity) {
-        console.log('[AuditEngine] ðŸ›¡ï¸ DETECTADA OPACIDAD ESTRUCTURAL. Aplicando Regla CanÃ³nica de IndeterminaciÃ³n.');
-
-        // ðŸš¨ INJECT FIXED HALLAZGO: Canonical "OPACIDAD_ESTRUCTURAL"
-        validatedResult.hallazgos = validatedResult.hallazgos ?? [];
-        const existsOpacidadHallazgo = validatedResult.hallazgos.some((h: any) => h.codigos === "OPACIDAD_ESTRUCTURAL");
-        if (!existsOpacidadHallazgo) {
-            // Fix 5: Calculate Opacity Amount from Source (PAM Items), not unreliable KPI
-            let montoOpacoReal = 0;
-            if (pamContext && pamContext.folios) {
-                pamContext.folios.forEach((f: any) => f.desglosePorPrestador?.forEach((p: any) => p.items?.forEach((i: any) => {
-                    const desc = (i.descripcion || "").toUpperCase();
-                    const code = (i.codigo || "").toString();
-                    if (/310130.?(1|2|3|4)|3101104|3101002/.test(code) || (/MATERIAL|MEDICAMENTO|INSUMO/.test(desc) && !/DETALLE/.test(desc))) {
-                        montoOpacoReal += parseAmountCLP(i.copago);
-                    }
-                })));
-            }
-            // Fallback if extraction fails
-            if (montoOpacoReal === 0) montoOpacoReal = validatedResult.resumenFinanciero?.copagos_bajo_controversia || 0;
-
-            validatedResult.hallazgos.unshift({
-                codigos: "OPACIDAD_ESTRUCTURAL",
-                titulo: "OPACIDAD EN DOCUMENTO DE COBRO (PAM) â€“ COPAGO NO VERIFICABLE",
-                glosa: "MATERIALES/MEDICAMENTOS SIN APERTURA",
-                categoria: "OPACIDAD",
-                tipo_monto: "COPAGO_OPACO",
-                montoObjetado: montoOpacoReal,
-                recomendacion_accion: "SOLICITAR_ACLARACION",
-                nivel_confianza: "ALTA",
-                hallazgo: `**I. IdentificaciÃ³n del problema**
-En el PAM del evento quirÃºrgico se presentan las siguientes lÃ­neas consolidadas, sin apertura de componentes:
-
-- MATERIALES CLÃNICOS QUIRÃšRGICOS (GC 3101304)
-- MEDICAMENTOS HOSPITALIZADOS (GC 3101302)
-
-    Total copago asociado a lÃ­neas no desglosadas: **$${montoOpacoReal.toLocaleString('es-CL')}**.
-
-**II. Contexto clÃ­nico y administrativo**
-El evento corresponde a una hospitalizaciÃ³n quirÃºrgica de alta complejidad. Si bien la cuenta clÃ­nica interna del prestador contiene mÃºltiples Ã­tems detallados, el documento de cobro y liquidaciÃ³n (PAM) â€”que es el instrumento que determina el copago exigido al afiliadoâ€” agrupa dichos conceptos en glosas genÃ©ricas, impidiendo su auditorÃ­a directa.
-
-**III. Norma aplicable**
-- **Ley 20.584**, derecho del paciente a recibir informaciÃ³n clara, comprensible y detallada sobre las prestaciones y sus cobros.
-- Principios de transparencia y trazabilidad exigidos por la Superintendencia de Salud en procesos de liquidaciÃ³n.
-
-**IV. Forma en que se configura la controversia**
-La ausencia de desglose en el PAM impide verificar, desde el propio documento de pago:
-1. La correcta aplicaciÃ³n de topes contractuales.
-2. La exclusiÃ³n de Ã­tems no clÃ­nicos (hotelerÃ­a, confort).
-3. La no duplicidad con prestaciones integrales ya bonificadas (dÃ­a cama, derecho de pabellÃ³n).
-
-**V. AnÃ¡lisis tÃ©cnico-contractual**
-Desde un punto de vista de auditorÃ­a, el copago asociado a estas lÃ­neas no es verificable en el PAM, por lo que no puede considerarse plenamente exigible mientras no se entregue un desglose verificable y trazable en el documento de liquidaciÃ³n o en un anexo formal validado por la aseguradora.
-
-**VI. Efecto econÃ³mico**
-El afiliado asume un copago de **$${montoOpacoReal.toLocaleString('es-CL')}** cuya composición no puede ser auditada desde el PAM.
-
-**VII. ConclusiÃ³n**
-Se solicita aclaraciÃ³n formal y reliquidaciÃ³n, mediante entrega de desglose completo de materiales y medicamentos en el PAM o documento equivalente, que permita validar cobertura, exclusiones y topes contractuales.`,
-                anclajeJson: "PAM/CUENTA: LINEAS AGRUPADAS",
-                estado_juridico: "EN_CONTROVERSIA",
-                scope: { type: 'GLOBAL' } // Opacity infects everything unless we identify specific lines (TODO: pass specific lines)
-            });
-            console.log(`[AuditEngine] ðŸ”§ Hallazgo canÃ³nico "OPACIDAD_ESTRUCTURAL" inyectado (${montoOpacoReal} CLP).`);
-        }
-
-        // ðŸš¨ CRITICAL FIX: DO NOT BLINDLY SUBSUME EVERYTHING
-        // Some items are NOT subsumed by Opacity (e.g. explicitly unjustified charges, double billing).
-        // We must ensure they remain visible in their own category if they are strong.
-
-        // 1. Force Global Status
-        if (!validatedResult.decisionGlobal) validatedResult.decisionGlobal = {};
+        validatedResult.decisionGlobal = validatedResult.decisionGlobal || {};
         validatedResult.decisionGlobal.estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
-        validatedResult.decisionGlobal.fundamento = "La auditorÃ­a no puede validar el copago debido a una opacidad estructural en Ã­tems genÃ©ricos (Materiales/Medicamentos) sin desglose que vulnera la Ley 20.584.";
-
-        // 2. Force Financial Summary
-        if (!validatedResult.resumenFinanciero) validatedResult.resumenFinanciero = {};
-        validatedResult.resumenFinanciero.estado_copago = "INDETERMINADO_POR_OPACIDAD";
-        validatedResult.resumenFinanciero.totalCopagoLegitimo = 0; // Cannot act as legitimizer
-        validatedResult.resumenFinanciero.analisisGap = "No aplicable por indeterminaciÃ³n del copago.";
-
-        // 3. Mark findings as controversial BUT RESPECT CAT A
-        if (validatedResult.hallazgos) {
-            validatedResult.hallazgos.forEach((h: any) => {
-                // If the finding was marked as "COBRO_IMPROCEDENTE" (Cat A) by the classifier or LLM,
-                // and it is NOT the structural opacity itself, we KEEP IT as Confirmed if it has High Confidence.
-                const isCatA = h.tipo_monto === "COBRO_IMPROCEDENTE" || h.categoria === "A";
-                const isHighConfidence = h.nivel_confianza === "ALTA";
-                const isTheOpacityFinding = h.codigos === "OPACIDAD_ESTRUCTURAL";
-
-                // Fix 2.3: Traceability Check for Cat A in Opacity
-                // Must have strong anchor or evidence refs
-                const hasTraceability = (h.anclajeJson && h.anclajeJson.length > 5) || (h.evidenceRefs && h.evidenceRefs.length > 0);
-
-                if (isCatA && isHighConfidence && !isTheOpacityFinding && hasTraceability) {
-                    // KEEP AS CAT A (Do not downgrade to Controversy)
-                    h.estado_juridico = "CONFIRMADO_EXIGIBLE";
-                    console.log(`[AuditEngine] ðŸ›¡ï¸ Hallazgo Cat A PRESERVADO pese a Opacidad (Trazable): ${h.titulo}`);
-                } else if (h.tipo_monto === 'COPAGO_OPACO') {
-                    h.estado_juridico = "EN_CONTROVERSIA";
-                }
-            });
-        }
+        validatedResult.resumenFinanciero = validatedResult.resumenFinanciero || {};
+        validatedResult.resumenFinanciero.estado_copago = "INDETERMINADO";
     }
 
-    // Ensure totalAhorroDetectado for UI compatibility matches ahorro_confirmado
     validatedResult.totalAhorroDetectado = validatedResult.resumenFinanciero?.ahorro_confirmado || 0;
-
     return validatedResult;
 }

@@ -154,7 +154,7 @@ export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]
 
             // Try 5% (Cat A - High Probability)
             let result = reconstructor.findMatches(amount, desc, 0.05);
-            let category: "A" | "B" | "Z" = result.success ? "A" : "Z";
+            let category: "A" | "B" | "K" | "Z" | "OK" = result.success ? "A" : "Z";
             let action: "IMPUGNAR" | "SOLICITAR_ACLARACION" = result.success ? "IMPUGNAR" : "SOLICITAR_ACLARACION";
             let forensicStatus = result.success ? "COBRO_ENCUBIERTO" : "OPACIDAD_ESTRUCTURAL_SEVERA";
 
@@ -169,22 +169,32 @@ export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]
             }
 
             if (result.success && result.matchedItems.length > 0) {
+                // Determine if any matched item confirms improcedencia (for Cat A promotion)
+                const hasHardImprocedencia = result.matchedItems.some(i => classifyItemNorm(i).isCatA && !classifyItemNorm(i).norma.includes("Ley 20.584"));
+
+                // If it was originally A or if we found hard improcedencia, keep/promote to A
+                // Otherwise, use K (Impugnable por Opacidad)
+                if (category === "A" && !hasHardImprocedencia) {
+                    category = "K";
+                    forensicStatus = "COBRO_IMPUNABLE_POR_OPACIDAD";
+                }
+
                 let itemsTable = "| Item Detalle | Monto | Norma Aplicable |\n| :--- | :--- | :--- |\n";
                 result.matchedItems.forEach(i => {
                     const normInfo = classifyItemNorm(i);
                     itemsTable += `| ${i.description} | $${(i.total || 0).toLocaleString('es-CL')} | ${normInfo.norma} |\n`;
                 });
 
-                const techMessage = `El monto clasificado como '${f.label}' puede explicarse matemáticamente mediante la agregación de ítems de la cuenta clínica que carecen de desglose suficiente y presentan alta probabilidad de corresponder a insumos incluidos en la hospitalización o el acto quirúrgico. Status: ${forensicStatus}.`;
-                const userMessage = `Este cobro no explica qué se está pagando. Al analizar su cuenta, detectamos que el monto coincide con materiales e insumos ya utilizados durante su hospitalización, los que normalmente están cubiertos o incluidos. Esto sugiere un posible cobro improcedente.`;
+                const techMessage = `El monto clasificado como '${f.label}' se explica matemáticamente por la agregación de ítems de la cuenta clínica. Status: ${forensicStatus}.`;
+                const userMessage = `Detectamos que este cargo coincide con materiales e insumos de su hospitalización que carecen de detalle. Esto sugiere cobros redundantes o falta de transparencia.`;
 
                 output.push({
                     ...f,
                     category,
                     action,
                     label: `${f.label} (Reconstruido)`,
-                    rationale: `${f.rationale}\n\n### DESGLOSE ESPECULATIVO CONTROLADO (AUDITORÍA FORENSE)\n${techMessage}\n\n**Explicación para el paciente:** ${userMessage}\n\n${itemsTable}\n\n**Conclusión:** ${category === 'A' ? 'Se impugna el monto por cierre contable exacto.' : 'Se solicita aclaración por coincidencia matemática parcial.'}`,
-                    hypothesisParent: 'H_INCUMPLIMIENTO_CONTRACTUAL',
+                    rationale: `${f.rationale}\n\n### DESGLOSE ESPECULATIVO CONTROLADO (AUDITORÍA FORENSE)\n${techMessage}\n\n**Explicación para el paciente:** ${userMessage}\n\n${itemsTable}\n\n**Conclusión:** ${category === 'A' ? 'Se impugna por improcedencia confirmada.' : 'Se impugna por falta de transparencia y coincidencia aritmética.'}`,
+                    hypothesisParent: category === 'A' ? 'H_UNBUNDLING_IF319' : 'H_OPACIDAD_ESTRUCTURAL',
                     evidenceRefs: [
                         ...(f.evidenceRefs || []),
                         ...result.matchedItems.map(i => `ITEM INDEX: ${i.index}`)
