@@ -8,9 +8,10 @@ export interface ReconstructionResult {
 }
 
 export class ArithmeticReconstructor {
-    private usedItemIds: Set<number | string> = new Set();
-
-    constructor(private bill: ExtractedAccount) { }
+    private usedItemIds: Set<number | string>;
+    constructor(private bill: ExtractedAccount, initialUsedIds: Set<number | string> = new Set()) {
+        this.usedItemIds = new Set(initialUsedIds);
+    }
 
     /**
      * Attempts to find a subset of unused bill items that sum up to the target amount.
@@ -107,12 +108,13 @@ export class ArithmeticReconstructor {
 /**
  * Main entry point for reconstruction during audit.
  */
-export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]): Finding[] {
+export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[], initialUsedIds?: Set<number | string>): Finding[] {
     if (!bill || !bill.sections) {
         return findings;
     }
 
-    const reconstructor = new ArithmeticReconstructor(bill);
+    const usedIds = initialUsedIds || new Set<number | string>();
+    const reconstructor = new ArithmeticReconstructor(bill, usedIds);
     const output: Finding[] = [];
 
     for (const f of findings) {
