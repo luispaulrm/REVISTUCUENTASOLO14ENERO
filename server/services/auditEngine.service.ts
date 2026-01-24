@@ -1038,14 +1038,24 @@ Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, C
                 desglose.forEach((prest: any, prestadorIdx: number) => {
                     const items = prest.items || [];
                     items.forEach((item: any, itemIdx: number) => {
-                        const codigo = item.codigo || item.codigoGC || item.gc || '';
                         const descripcion = item.descripcion || item.glosa || item.bi_glosa || '';
                         const bonificacion = parseAmountCLP(item.bonificacion ?? item.bonif ?? 0);
                         const copago = parseAmountCLP(item.copago ?? item.monto_copago ?? 0);
 
+                        // FIX: Prioritize codigoGC and ensure strict string trimming
+                        let codigo = (item.codigoGC || item.codigo || item.gc || '').toString().trim();
+
+                        // Fallback: Try to extract 7-digit code from description if code is empty/generic
+                        if ((!codigo || codigo === '0' || codigo === 'SIN_CODIGO') && /\b(110\d{4})\b/.test(descripcion)) {
+                            const match = descripcion.match(/\b(110\d{4})\b/);
+                            if (match) codigo = match[1];
+                        }
+
                         // Build unique ID: folio_prestador_item_code_firstwords
-                        const descWords = descripcion.split(/\s+/).slice(0, 3).join('_').substring(0, 20);
-                        const uniqueId = `PAM_${folioIdx}_${prestadorIdx}_${itemIdx}_${codigo || 'NC'}_${descWords} `;
+                        const descWords = descripcion.split(/\s+/).slice(0, 3).join('_').substring(0, 20).replace(/[^a-zA-Z0-9_]/g, '');
+                        // Sanitize code for ID
+                        const safeCode = codigo.replace(/[^a-zA-Z0-9]/g, '') || 'NC';
+                        const uniqueId = `PAM_${folioIdx}_${prestadorIdx}_${itemIdx}_${safeCode}_${descWords}`;
 
                         extractedPamLines.push({
                             uniqueId,
