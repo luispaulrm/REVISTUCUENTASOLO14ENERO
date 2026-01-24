@@ -23,6 +23,18 @@ export interface BillingItem {
   qtyIsProration?: boolean;
   suspectedColumnShift?: boolean;
   toleranceApplied?: number;
+
+  // Taxonomy Metadata (Clinical Audit v6)
+  taxonomy?: {
+    zona_A: string;
+    familia_B: string;
+    subfamilia_C: string;
+    normalizedDesc: string;
+    confidence: number;
+    source?: string;
+    clinica?: string;
+    evidencia?: string;
+  };
 }
 
 export interface BillingSection {

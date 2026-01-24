@@ -1,5 +1,6 @@
 
 import { BillingItem, Finding, ExtractedAccount } from '../../types.js';
+import { TaxonomyService, FamilyB, ZoneA } from './taxonomy.service.js';
 
 export interface ReconstructionResult {
     matchedItems: BillingItem[];
@@ -40,7 +41,24 @@ export class ArithmeticReconstructor {
         const result = this.subsetSum(target, itemsOnly, toleranceAbs);
 
         if (result) {
-            result.forEach(item => this.usedItemIds.add(this.getItemUniqueId(item)));
+            result.forEach(item => {
+                const id = this.getItemUniqueId(item);
+                this.usedItemIds.add(id);
+
+                // Find original section for taxonomy preservation
+                const entry = allItemsWithSection.find(e => this.getItemUniqueId(e.item) === id);
+                if (entry) {
+                    const tax = TaxonomyService.classify(item, entry.section);
+                    item.taxonomy = {
+                        zona_A: tax.zona,
+                        familia_B: tax.familia,
+                        subfamilia_C: tax.subfamilia,
+                        normalizedDesc: tax.normalizedDesc,
+                        confidence: tax.confidence,
+                        evidencia: `Item Index ${item.index} in ${entry.section}`
+                    };
+                }
+            });
             return {
                 matchedItems: result,
                 unmatchedAmount: 0,
@@ -61,72 +79,50 @@ export class ArithmeticReconstructor {
     }
 
     private isCompatible(item: BillingItem, section: string, glosa: string, context?: string): boolean {
-        const desc = this.normalizeString(item.description);
-        const sec = this.normalizeString(section);
+        const tax = TaxonomyService.classify(item, section);
         const glo = this.normalizeString(glosa);
-        const ctx = this.normalizeString(context || "");
 
-        // HELPERS: Precise Nature Detection (Clinical Purity)
-        const isMaterialDesc = /GASA|JERINGA|GUANTE|DRENAJE|SUTURA|SONDA|CATETER|EQUIPO.FLEBO|LLAVE.3.PASOS|BRANULA|DELANTAL|PAQUETE|SABANA|MANGA|FUNDA|ELECTRODO|PARCHE|BISTURI|TUBO.ENDOTRAQUEAL|ESTILETE|CANULA.MAYO|CIRCUITO.ANESTESIA|MASCARA.LARINGEA|FILTRO|ALUSA|BANDEJA|SET.ASEO|TERMOMETRO|CALZON|CONFORT|CEPILLO|AGUJA|CURACION|PROTECTOR/i.test(desc);
-        const isMedicationDesc = /(^|\s)(INY|AMP|SOL|GRAG|TAB|CAPS|SUSP|MG|ML|UI|UG|MCG|MEQ|G|UNID|DOSIS|SACHET)(\s|$)/i.test(desc) || /PARACETAMOL|CEFTRIAXONA|ATROPINA|HEPARINA|KETOPROFENO|PROPOFOL|FENTANIL|LIDOCAINA|OMEPRAZOL|SUERO|NATRECUR|PROPO|FENT|SEVO/i.test(desc);
+        // 1. HARD RULE: VALIDATE CLASSIFICATION PURITY (V-01)
+        if (!TaxonomyService.validateIntegrity(tax)) return false;
 
-        // 1. Bed/Room Charges & Unbundling (Día Cama)
-        if (glo.includes("DIA CAMA") || glo.includes("HABITACION") || glo.includes("ESTANCIA")) {
-            const isBedSection = /HABITACION|DIA CAMA|ESTANCIA|HOSPITALIZACION/i.test(sec);
-            // Nursing/Basic Unbundling (Standard IF-319 / Practice #5)
-            const isNursingProc = /NURSING|ENFERMERIA|SIGNOS VITALES|CURACION|INSTALACION.*VIA|FLEBOCLISIS|PUNCION|TOMA.DE.MUESTRA|ADMINISTRACION.*MEDICAMENTOS|HIGIENIZACION/i.test(desc);
-            // Day-bed must NOT pull medical drugs (Expensive Pharmacy) or Surgical Material
-            if (isMedicationDesc || isMaterialDesc) {
-                // Exception: very basic nursing supplies (guantes, gasa simple) can stay if nursing glosa
-                const isVeryBasicSupply = /GUANTE|GASA|APOSITO|JERINGA.SIMPLE/i.test(desc);
-                if (isNursingProc || isVeryBasicSupply) return true;
-                return false;
-            }
-            return isBedSection;
-        }
+        // 2. MAPPING PAM GLOSA TO TAXONOMY FAMILY
+        const isMedGlosa = /MEDICAMENTO|FARMA|DROGA/i.test(glo);
+        const isMatGlosa = /MATERIAL|INSUMO/i.test(glo);
+        const isBedGlosa = /DIA CAMA|HABITACION|ESTANCIA/i.test(glo);
+        const isSurgContext = /QUIRURGICO|PABELLON|CIRUGIA/i.test(glo) || context === "QUIRURGICO";
 
-        // 2. Surgical Context (Surgical Unbundling / Intraoperative Meds / Practice #2 & #3)
-        if (glo.includes("QUIRURGICO") || glo.includes("PABELLON") || ctx === "QUIRURGICO" || glo.includes("CIRUGIA")) {
-            // AXIOM: When reconstructing PABELLON, we allow both BUT strictly surgical meds and surgical items
-            const isSurgicalSec = /PABELLON|QUIRURGICO|ANESTESIA|RECUPERACION/i.test(sec);
-            const isSurgicalMed = /PROPOFOL|FENTANIL|SEVOFLURANO|LIDOCAINA|BUPIVACAINA|ROCURONIO|VECURONIO|MIDAZOLAM|ETOMIDATO|REMIFENTANIL|NEOSTIGMINA|SUGAMMADEX|ATROPINA|EFEDRINA|FENILEFRINA|NALOXONA|FLUMAZENIL/i.test(desc);
-            const isSurgicalItem = /SUTURA|GASA|DRENAJE|BISTURI|TUBO.ENDOTRAQUEAL|ESTILETE|CANULA.MAYO|CIRCUITO.ANESTESIA|MASCARA.LARINGEA|MANGA.LAPAROSCOPICA|FUNDA.CAMARA|ELECTRODO|PARCHE/i.test(desc);
-            const isSurgicalConsumable = /DELANTAL.ESTERIL|PAQUETE.CIRUGIA|SABANA.QUIRURGICA|EQUIPO.QUIRURGICO|ROPA.ESTERIL/i.test(desc);
-
-            return isSurgicalSec || isSurgicalMed || isSurgicalItem || isSurgicalConsumable;
-        }
-
-        // 3. Meds/Materials (STRICT CLINICAL PARTITIONING)
-        if (/MEDICAMENTO|FARMA|DROGA/i.test(glo)) {
+        // 3. ENFORCE REGLA R-01 & R-02 (Categorical Exclusion)
+        if (isMedGlosa) {
             // Must BE a medication AND NOT a material
-            if (isMaterialDesc) return false;
-            const isMedSec = /MEDICAMENTO|FARMA|DROGA|FARMACIA/i.test(sec);
-            return isMedSec || isMedicationDesc;
+            return tax.familia === FamilyB.MEDICAMENTOS;
         }
 
-        if (/MATERIAL|INSUMO/i.test(glo)) {
+        if (isMatGlosa) {
             // Must BE a material AND NOT a medication
-            if (isMedicationDesc) return false;
-            const isMatSec = /MATERIAL|INSUMO|EQUIPO|ESTERIL/i.test(sec);
-            const isComfort = /SET.*ASEO|PANTUFLA|CEPILLO|JABON|CALZON|CONFORT|TELEVISOR|ESTACIONAMIENTO|TOALLA.HUMEDA|KITS?.HIGIENE|PASTA.DENTAL|PEINETA/i.test(desc);
-            if (isComfort) return false;
-            return isMatSec || isMaterialDesc;
+            return tax.familia === FamilyB.INSUMOS_MATERIALES;
         }
 
-        // 4. "Gastos No Cubiertos" / "Preg. No Contemplada" (Hospitality & Comfort / Practice #4 & #6)
-        if (/GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|VARIOS|AJUSTE|DIFERENCIA/i.test(glo)) {
-            // Hospitality/Comfort (Criterio SIS)
-            const isHospitality = /SET.*ASEO|PANTUFLA|CEPILLO|JABON|CALZON|TERMOMETRO|CONFORT|TELEVISOR|ESTACIONAMIENTO|ALIMENTAC|KITS?.HIGIENE|PASTA.DENTAL|PEINETA|BATA|CAMISOLA|FRAZADA|ALMOHADA/i.test(desc);
-            // Operational/Administrative costs (Hypothesis C)
-            const isAdmin = /ADMINISTRATIVO|CARGOS.GENERALES|OTROS|EPP|SEGURIDAD|INFRAESTRUCTURA|COSTO.OPERACIONAL|INSUMO.INSTITUCIONAL/i.test(desc) || /ADMINISTRATIVO|VARIOS/i.test(sec);
-            // Residual unbundling that ended up here (Practice #5)
-            const isResidualUnbundling = /INSTALACION.*VIA|FLEBOCLISIS|PUNCION|SIGNOS VITALES|CURACION/i.test(desc);
+        if (isBedGlosa) {
+            // Room charges or basic nursing unbundling
+            const isNursingProc = /NURSING|ENFERMERIA|SIGNOS VITALES|CURACION|INSTALACION.*VIA|FLEBOCLISIS|PUNCION|TOMA.DE.MUESTRA|ADMINISTRACION.*MEDICAMENTOS|HIGIENIZACION/i.test(tax.normalizedDesc);
+            return tax.familia === FamilyB.ESTADA_CAMA || isNursingProc;
+        }
 
+        if (isSurgContext) {
+            // Pabellón allows both but must be surgical nature
+            return tax.zona === ZoneA.PABELLON || tax.subfamilia.includes("PABELLON") || tax.subfamilia.includes("QUIRURGICO");
+        }
+
+        // 4. "Gastos No Cubiertos" / "Preg. No Contemplada" (Residual bucket)
+        if (/GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|VARIOS|AJUSTE|DIFERENCIA/i.test(glo)) {
+            const isHospitality = /SET.*ASEO|PANTUFLA|CEPILLO|JABON|CALZON|TERMOMETRO|CONFORT|TELEVISOR|ESTACIONAMIENTO|ALIMENTAC|KITS?.HIGIENE|PASTA.DENTAL|PEINETA|BATA|CAMISOLA|FRAZADA|ALMOHADA/i.test(tax.normalizedDesc);
+            const isAdmin = /ADMINISTRATIVO|CARGOS.GENERALES|OTROS|EPP|SEGURIDAD|INFRAESTRUCTURA|COSTO.OPERACIONAL|INSUMO.INSTITUCIONAL/i.test(tax.normalizedDesc) || tax.zona === ZoneA.OTROS;
+            const isResidualUnbundling = /INSTALACION.*VIA|FLEBOCLISIS|PUNCION|SIGNOS VITALES|CURACION/i.test(tax.normalizedDesc);
             return isHospitality || isAdmin || isResidualUnbundling;
         }
 
-        // Exact linguistic match as fallback
-        return sec.includes(glo) || glo.includes(sec);
+        // Exact linguistic match as fallback (Only for non-clinical)
+        return this.normalizeString(section).includes(glo) || glo.includes(this.normalizeString(section));
     }
 
     private subsetSum(target: number, items: BillingItem[], tolerance: number): BillingItem[] | null {
@@ -245,6 +241,15 @@ export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]
 
     for (const f of findings) {
         const desc = norm(f.label);
+
+        // AXIOM: Multi-domain (Aggregate) findings MUST NOT be reconstructed.
+        // Forensic reconstruction is atomic (per PAM line).
+        const isAggregate = /MEDICAMENTO.*MATERIAL|MATERIAL.*MEDICAMENTO|INSUMO.*FARMA|FARMA.*INSUMO|TOTAL/i.test(desc);
+        if (isAggregate) {
+            output.push(f);
+            continue;
+        }
+
         // TRIGGER: Identify opaque OR clinical aggregate glosas (Forensic Breakdown)
         const isOpaqueTrigger = /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA|MEDICAMENTO|MATERIAL|INSUMO|PABELLON|DIA CAMA|HABITACION/i.test(desc) ||
             /3201001|3201002/.test(desc);
@@ -270,10 +275,11 @@ export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]
                     forensicStatus = "OPACIDAD_IDENTIFICADA_MATEMATICAMENTE";
                 }
 
-                let itemsTable = "| Item Detalle | Monto | Norma Aplicable |\n| :--- | :--- | :--- |\n";
+                let itemsTable = "| Zona | Familia | Item Detalle | Monto | Norma Aplicable |\n| :--- | :--- | :--- | :--- | :--- |\n";
                 result.matchedItems.forEach(i => {
                     const normInfo = classifyItemNorm(i);
-                    itemsTable += `| ${i.description} | $${(i.total || 0).toLocaleString('es-CL')} | ${normInfo.norma} |\n`;
+                    const tx = i.taxonomy;
+                    itemsTable += `| ${tx?.zona_A || 'OTROS'} | ${tx?.familia_B || 'GENERICO'} | ${i.description} | $${(i.total || 0).toLocaleString('es-CL')} | ${normInfo.norma} |\n`;
                 });
 
                 const techMessage = `El monto clasificado como '${f.label}' se explica matemáticamente por la agregación de ítems de la cuenta clínica. ${result.compatibilityRationale || ''} Status: ${forensicStatus}.`;
