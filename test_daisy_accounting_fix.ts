@@ -111,11 +111,26 @@ if (satisfiesInvariant) {
 }
 
 // Check if f2 was subsumed/blacklisted
-const f2Reconstructed = result.findings.find(f => f.label.includes("PRESTACION NO CONTEMPLADA") && f.label.includes("RECONSTRUIDO"));
-const f2StillZ = result.findings.find(f => f.label.includes("PRESTACION NO CONTEMPLADA") && f.category === 'Z');
+const f2Reconstructed = result.findings.find(f => f.label.includes("FLEBOCLISIS") && f.label.includes("Reconstruido"));
+const f3Reconstructed = result.findings.find(f => f.label.includes("SURGITIE") && f.label.includes("Reconstruido"));
 
-if (f2Reconstructed || f2StillZ) {
-    console.log("⚠️ Insight: Finding f2 (42957) was still present in output.");
+if (f2Reconstructed || result.findings.some(f => f.label.includes("PRESTACION NO CONTEMPLADA") && f.category === 'Z')) {
+    console.log("⚠️ Insight: Finding f2 (42957) was still present or explicitly reconstructed (should have been blacklisted by f1).");
 } else {
-    console.log("✅ Insight: Finding f2 (42957) was correctly subsumed!");
+    console.log("✅ SUCCESS: Finding f2 (42957) was properly blacklisted by explicit clinical finding f1!");
+}
+
+if (f3Reconstructed) {
+    console.log("\n✅ SUCCESS: Finding f3 (Meds Opaque) was reconstructed!");
+    console.log("New Label:", f3Reconstructed.label);
+    if (f3Reconstructed.rationale.includes("| Item Detalle |")) {
+        console.log("✅ SUCCESS: Finding rationale includes markdown table breakdown!");
+        console.log("\n--- Table Output ---");
+        const tableStart = f3Reconstructed.rationale.indexOf("| Item Detalle |");
+        console.log(f3Reconstructed.rationale.substring(tableStart));
+    } else {
+        console.log("❌ FAILURE: Rationale missing markdown table!");
+    }
+} else {
+    console.log("❌ FAILURE: Finding f3 was not reconstructed!");
 }
