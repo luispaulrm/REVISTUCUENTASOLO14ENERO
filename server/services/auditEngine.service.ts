@@ -1765,6 +1765,28 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             };
         });
 
+        // --- FIX: SYNC JURISPRUDENCE CONTEXT WITH RESOLVED FINDINGS ---
+        // Ensure doctrine rules reflect the final Category OK (resolved) instead of initial Z
+        if (finalResult.jurisprudenceContext && finalResult.jurisprudenceContext.doctrineRulesApplied) {
+            finalResult.jurisprudenceContext.doctrineRulesApplied = finalResult.jurisprudenceContext.doctrineRulesApplied.map((rule: any) => {
+                const matchingFinal = finalFindings.find(f =>
+                    // Try match by ID first, then by approximate description/code to be safe
+                    f.id === rule.pamLineKey ||
+                    (f.evidenceRefs && f.evidenceRefs.includes(rule.pamLineKey))
+                );
+
+                if (matchingFinal) {
+                    // If original was Z but final is OK, update it
+                    if (rule.categoria === 'Z' && matchingFinal.category === 'OK') {
+                        return { ...rule, categoria: 'OK', resolution: 'FORENSIC_MATCH' };
+                    }
+                    // Or sync whatever the final category is
+                    return { ...rule, categoria: matchingFinal.category };
+                }
+                return rule;
+            });
+        }
+
         // --- STEP: GLOBAL REPORT SCRUBBING (V6.5) ---
         // If there's no residual Category Z balance, scrub all references to "Indeterminación" or "Ley 20.584"
         const finalZBalance = finalStrictBalance.Z || 0;
