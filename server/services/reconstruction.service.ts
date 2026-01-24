@@ -15,10 +15,6 @@ export class ArithmeticReconstructor {
         this.usedItemIds = new Set(initialUsedIds);
     }
 
-    /**
-     * Attempts to find a subset of unused bill items that sum up to the target amount.
-     * Strictly filters items by compatibility with the glosa and clinical context.
-     */
     public findMatches(target: number, glosa: string, context?: string): ReconstructionResult {
         if (target <= 0) return { matchedItems: [], unmatchedAmount: 0, success: true };
 
@@ -34,11 +30,21 @@ export class ArithmeticReconstructor {
             return this.isCompatible(entry.item, entry.section, glosa, context);
         });
 
-        // AXIOM: ZERO TOLERANCE for forensic reconstruction
-        const toleranceAbs = 0;
         const itemsOnly = compatibleItems.map(e => e.item);
 
-        const result = this.subsetSum(target, itemsOnly, toleranceAbs);
+        // Strategy 1: Match against item.copago (Forensic Priority)
+        let result = this.subsetSum(target, itemsOnly, 0, (i) => i.copago || 0);
+        let rationale = "";
+
+        if (result) {
+            rationale = `CIERRE MATEMÁTICO EXACTO (COPAGO): Se identificaron ${result.length} ítems cuyo copago suma exactamente $${target.toLocaleString('es-CL')}.`;
+        } else {
+            // Strategy 2: Match against item.total (Authoritative Total)
+            result = this.subsetSum(target, itemsOnly, 0, (i) => i.total || 0);
+            if (result) {
+                rationale = `CIERRE MATEMÁTICO EXACTO (MONTO BRUTO): Se identificaron ${result.length} ítems cuyo valor total suma exactamente $${target.toLocaleString('es-CL')}.`;
+            }
+        }
 
         if (result) {
             result.forEach(item => {
@@ -63,7 +69,7 @@ export class ArithmeticReconstructor {
                 matchedItems: result,
                 unmatchedAmount: 0,
                 success: true,
-                compatibilityRationale: `CIERRE MATEMÁTICO EXACTO: Se identificaron ${result.length} ítems que suman exactamente $${target.toLocaleString('es-CL')} y son semánticamente compatibles con '${glosa}'.`
+                compatibilityRationale: rationale
             };
         }
 
@@ -125,18 +131,18 @@ export class ArithmeticReconstructor {
         return this.normalizeString(section).includes(glo) || glo.includes(this.normalizeString(section));
     }
 
-    private subsetSum(target: number, items: BillingItem[], tolerance: number): BillingItem[] | null {
+    private subsetSum(target: number, items: BillingItem[], tolerance: number, amountSelector: (i: BillingItem) => number = (i) => i.total || 0): BillingItem[] | null {
         const n = items.length;
         let result: BillingItem[] | null = null;
         let nodes = 0;
         const MAX_NODES = 500000; // Efficient limit for search
 
         // Sort descending to prune faster
-        const sorted = [...items].sort((a, b) => (b.total || 0) - (a.total || 0));
+        const sorted = [...items].sort((a, b) => amountSelector(b) - amountSelector(a));
 
         const suffixSums = new Array(n + 1).fill(0);
         for (let i = n - 1; i >= 0; i--) {
-            suffixSums[i] = suffixSums[i + 1] + (sorted[i].total || 0);
+            suffixSums[i] = suffixSums[i + 1] + amountSelector(sorted[i]);
         }
 
         function dfs(idx: number, currentSum: number, chosen: BillingItem[]) {
@@ -153,7 +159,7 @@ export class ArithmeticReconstructor {
             if (currentSum > target + tolerance) return;
             if (currentSum + suffixSums[idx] < target - tolerance) return;
 
-            dfs(idx + 1, currentSum + (sorted[idx].total || 0), [...chosen, sorted[idx]]);
+            dfs(idx + 1, currentSum + amountSelector(sorted[idx]), [...chosen, sorted[idx]]);
             dfs(idx + 1, currentSum, chosen);
         }
 
@@ -285,13 +291,18 @@ export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]
                 const techMessage = `El monto clasificado como '${f.label}' se explica matemáticamente por la agregación de ítems de la cuenta clínica. ${result.compatibilityRationale || ''} Status: ${forensicStatus}.`;
                 const userMessage = `Detectamos que este cargo coincide con materiales e insumos de su hospitalización que carecen de detalle. Esto sugiere cobros redundantes o falta de transparencia.`;
 
+                // CRITICAL: If rationale includes "Indeterminación" or "Ley 20.584", FORCE Z category
+                const isForceIndete = /INDETERMINACION|NO PERMITE CLASIFICAR|LEY 20.?584/i.test(f.rationale || "");
+                const finalCategory = isForceIndete ? "Z" : category;
+                const finalAction = finalCategory === "Z" ? "SOLICITAR_ACLARACION" : action;
+
                 output.push({
                     ...f,
-                    category,
-                    action,
+                    category: finalCategory,
+                    action: finalAction,
                     label: `${f.label} (Identificado Forense)`,
                     rationale: `${f.rationale}\n\n### RECONSTRUCCIÓN FORENSE (CIERRE MATEMÁTICO EXACTO)\n${techMessage}\n\n**Explicación para el paciente:** ${userMessage}\n\n${itemsTable}\n\n**Conclusión:** Se impugna por haber identificado los ítems exactos que componen el cobro opaco, confirmando que se trata de cobros redundantes o no detallados ante la Isapre.`,
-                    hypothesisParent: category === 'A' ? 'H_UNBUNDLING_IF319' : 'H_OPACIDAD_ESTRUCTURAL',
+                    hypothesisParent: finalCategory === 'A' ? 'H_UNBUNDLING_IF319' : 'H_OPACIDAD_ESTRUCTURAL',
                     evidenceRefs: [
                         ...(f.evidenceRefs || []),
                         ...result.matchedItems.map(i => `ITEM INDEX: ${i.index}`)

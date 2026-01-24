@@ -112,13 +112,13 @@ export function resolveDecision(params: {
     const finalZ = sum(Z_items.map(x => x.amount));
 
     // 2) ENSURE PARTITION (A + B + Z + OK = T)
-    // Rule R-BAL-01: Z <= T. Cap Z to avoid negative OK.
-    const effectiveZ = Math.min(finalZ, T - (finalA + finalB));
-    if (finalZ > (T - (finalA + finalB)) + 10) {
-        errors.push(`ALERTA_BALANCE: El monto de opacidad Z ($${finalZ}) excede el remanente disponible del copago ($${T - (finalA + finalB)}). Capado para balance.`);
+    // Rule R-BAL-01: Honest accounting. If A+B+Z > T, it's a conflict, not a cap.
+    if (finalA + finalB + finalZ > T + 10) {
+        errors.push(`CONFLICTO_DATOS: La suma de hallazgos ($${(finalA + finalB + finalZ).toLocaleString()}) excede el total del copago ($${T.toLocaleString()}). Posible duplicidad o error de extracción.`);
     }
 
-    const finalOK = Math.max(0, T - (finalA + finalB + effectiveZ));
+    const finalOK = Math.max(0, T - (finalA + finalB + finalZ));
+    const effectiveZ = finalZ;
 
     // 3) Invariants
     const invariantsOk = Math.abs((finalA + finalB + effectiveZ + finalOK) - T) < 10;
@@ -336,7 +336,13 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
     // Rule R-MAP-01: Mapping failures are B, not Z
     const isMappingFailure = /NO MAPEA|FALTA DICCIONARIO|FALTA TABLA|NEEDS_MAPPING|LEY 20.584/i.test(rationale) && !/MATERIAL|MEDICAMENTO|VARIOS/i.test(f.label);
 
-    // 0. MANUAL OVERRIDE: If already A, keep it.
+    // 0. MANDATORY INTEGRITY RULE (V-01): If rationale implies indeterminacy, force Z immediately.
+    const isIndeterminateText = /INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584/i.test(rationale);
+    if (isIndeterminateText) {
+        return { ...f, category: "Z", action: "SOLICITAR_ACLARACION" };
+    }
+
+    // 0. Manual Priority: If already A and NO indeterminate flags, keep it.
     if (f.category === "A" && amount > 0) {
         return { ...f, action: "IMPUGNAR" };
     }
@@ -413,29 +419,30 @@ function applySubsumptionCanonical(findings: Finding[]): Finding[] {
             continue;
         }
 
-        // 3. ARITHMETIC NETTING (NEW: Phase 2)
-        // If this is a Macro finding (like Structural Opacity), subtract any specific findings already in 'out'
-        // that belong to the same context (shared PAM codes).
+        // 3. ARITHMETIC NETTING (Improved for Phase 3)
         if (isMacro) {
+            const isGlobalMacro = /GLOBAL|ESTRUCTURAL|RESUMEN|PAM TOTAL/i.test(fLabel);
             const pamCodes = (f.evidenceRefs || []).filter(ref => ref.startsWith("PAM:"));
-            if (pamCodes.length > 0) {
-                let overlap = 0;
-                for (const o of out) {
-                    const shared = (o.evidenceRefs || []).filter(ref => pamCodes.includes(ref));
-                    if (shared.length > 0) {
-                        overlap += (o.amount || 0);
-                    }
-                }
 
-                if (overlap > 0) {
-                    const remaining = amount - overlap;
-                    if (remaining > 100) { // Keep only if there's a significant residual
-                        f = { ...f, amount: remaining, label: `${f.label} (Neto / Remanente)` };
-                        amount = remaining;
-                    } else {
-                        // Fully explained by micros, skip macro
-                        continue;
-                    }
+            let overlap = 0;
+            for (const o of out) {
+                const shared = (o.evidenceRefs || []).filter(ref => pamCodes.includes(ref));
+
+                // Rule: If it's a GLOBAL macro, it nets against EVERYTHING clinical already in 'out'
+                // If it's a CONTEXT macro, it only nets against shared PAM codes.
+                if (isGlobalMacro || shared.length > 0) {
+                    overlap += (o.amount || 0);
+                }
+            }
+
+            if (overlap > 0) {
+                const remaining = amount - overlap;
+                if (remaining > 100) {
+                    f = { ...f, amount: remaining, label: `${f.label} (Neto / Remanente)` };
+                    amount = remaining;
+                } else {
+                    // Fully explained by micros, skip macro
+                    continue;
                 }
             }
         }
