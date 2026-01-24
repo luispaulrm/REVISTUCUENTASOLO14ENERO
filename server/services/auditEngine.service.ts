@@ -358,6 +358,11 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
     const amount = f.amount || 0;
     let rationale = f.rationale || "";
 
+    // 0. PRIORITY: If already resolved/promoted via Forensic/Last Resort, don't rollback
+    if (f.category === 'OK' && (rationale.includes('[MEJORA]') || rationale.includes('[PRAGMATISMO]'))) {
+        return f;
+    }
+
     // 1. Inject Forensic Estimation (AC2/VAM) into rationale for transparency
     const eventWithFinance = eventos.find(e => e.analisis_financiero && e.analisis_financiero.valor_unidad_inferido);
     if (eventWithFinance && eventWithFinance.analisis_financiero) {
@@ -586,7 +591,7 @@ export function finalizeAuditCanonical(input: {
             } else {
                 parent = (parent === "H_OK_CUMPLIMIENTO") ? "H_PRACTICA_IRREGULAR" : parent;
             }
-        } else if (catFinding.category === "Z" || /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(f.label || "")) {
+        } else if (catFinding.category !== 'OK' && (catFinding.category === "Z" || /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(f.label || ""))) {
             parent = "H_OPACIDAD_ESTRUCTURAL";
             catFinding.category = "Z"; // Hard enforcement of Z for reconstruction trigger
             catFinding.action = "SOLICITAR_ACLARACION";
@@ -1683,7 +1688,6 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         const mergedFindings = [...jurisprudenceFindings, ...filteredAlphaFindings, ...filteredLlmFindings];
 
 
-        // --- Step 3.5: Canonical Finalization Layer (NON-COLLAPSE PROTECTION) ---
         // V6.2: LAST RESORT RESOLUTION FOR OPAQUE ITEMS
         log('[AuditEngine] 🔄 Intentando resolución de "último recurso" para ítems opacos...');
         for (const finding of mergedFindings || []) {
@@ -1691,10 +1695,17 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                 const resolved = await resolveByDescription(finding.label || "");
                 if (resolved) {
                     log(`[AuditEngine] ✨ Re-clasificado ítem opaco: "${finding.label}" -> ${resolved.code} (${resolved.description})`);
+
+                    // CLEAN RATIONALE: Remove "Indeterminacion/Ley 20.584" markers that confuse the user
+                    let cleanRationale = (finding.rationale || "");
+                    cleanRationale = cleanRationale.replace(/\[C05\].*norma de cierre \(Cat Z\)\.?/gi, '').trim();
+                    cleanRationale = cleanRationale.replace(/INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584/gi, '').trim();
+
                     finding.category = 'OK';
                     finding.action = 'ACEPTAR';
-                    finding.rationale = (finding.rationale || "") + `\n[MEJORA] Código Fonasa auto-detectado: ${resolved.code}. Procedimiento validado como ${resolved.description}.`;
+                    finding.rationale = `[MEJORA] Código Fonasa detectado: ${resolved.code}. Procedimiento validado como ${resolved.description}.` + (cleanRationale ? `\nContexto: ${cleanRationale}` : "");
                     finding.description = resolved.description;
+                    finding.codigos = resolved.code;
                 }
             }
         }

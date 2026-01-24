@@ -59,12 +59,13 @@ export async function resolveFonasaCode(code: string): Promise<ArancelEntry | nu
 }
 
 /**
- * Normalize string: Uppercase and remove accents
+ * Normalize string: Uppercase, remove accents, and clean multiple spaces
  */
 function normalize(str: string): string {
     return str.toUpperCase()
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, ' ')
         .trim();
 }
 
@@ -73,33 +74,57 @@ function normalize(str: string): string {
  */
 export async function resolveByDescription(text: string): Promise<ArancelEntry | null> {
     await ensureIndexed();
-    const query = normalize(text);
+
+    if (!text) return null;
+
+    // 0. PRIORITY: If the text contains a 7-digit code, try resolving it directly
+    const codeInText = text.match(/(\d{2}\s?\d{2}\s?\d{3})|(\d{7})/);
+    if (codeInText) {
+        const found = await resolveFonasaCode(codeInText[0]);
+        if (found) return found;
+    }
+
+    // Clean query: Remove common prefixes and suffixes
+    let query = text.toUpperCase();
+
+    // Remove "GLOSA:", "COD.", "TITULO:", "DESC:", etc.
+    query = query.replace(/GLOSA:|COD\.|TITULO:|DESC:|DETALLE:/gi, '');
+
+    // Split by common delimiters and take the core clinical part
+    query = query.split('...')[0].split('(')[0].split('-')[0].trim();
+
+    // Remove multiple spaces and normalize
+    query = normalize(query);
+
+    // Strip leading/trailing numeric codes (e.g., "1103057 RIZOTOMIA" -> "RIZOTOMIA")
+    query = query.replace(/^\d{6,8}\b|\b\d{6,8}$/g, '').trim();
+
+    // Final check for minimum length after all cleaning
     if (!query || query.length < 3) return null;
 
     // 1. Exact match (normalized)
     let bestMatch = indexedArancel.find(e => normalize(e.description) === query);
     if (bestMatch) return bestMatch;
 
-    // 2. Substring match (query in description)
-    bestMatch = indexedArancel.find(e => normalize(e.description).includes(query));
-    if (bestMatch) return bestMatch;
-
-    // 3. Reverse substring (description in query)
+    // 2. Substring match (query in description OR description in query)
     bestMatch = indexedArancel.find(e => {
         const normDesc = normalize(e.description);
-        return normDesc.length > 5 && query.includes(normDesc);
+        return normDesc.includes(query) || (normDesc.length > 5 && query.includes(normDesc));
     });
     if (bestMatch) return bestMatch;
 
-    // 4. Token match (if 70% of query tokens exist in description)
+    // 3. Token match (Smarter: prioritized by core terms)
     const queryTokens = query.split(/\s+/).filter(t => t.length > 3);
     if (queryTokens.length > 0) {
-        bestMatch = indexedArancel.find(e => {
+        // Find entries sharing most tokens
+        const scored = indexedArancel.map(e => {
             const normDesc = normalize(e.description);
             const matches = queryTokens.filter(t => normDesc.includes(t)).length;
-            return matches / queryTokens.length >= 0.7;
-        });
-        if (bestMatch) return bestMatch;
+            return { entry: e, score: matches / queryTokens.length };
+        }).filter(s => s.score >= 0.6) // Lower threshold to 60%
+            .sort((a, b) => b.score - a.score);
+
+        if (scored.length > 0) return scored[0].entry;
     }
 
     return null;
