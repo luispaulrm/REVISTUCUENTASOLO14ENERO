@@ -85,7 +85,7 @@ export interface DecisionResult {
 
 function sum(xs: number[]) { return xs.reduce((a, b) => a + b, 0); }
 
-function resolveDecision(params: {
+export function resolveDecision(params: {
     totalCopagoInformado: number;
     findings: Finding[];
     violations: { code?: string; severity: number }[]; // severity 0..1
@@ -95,66 +95,51 @@ function resolveDecision(params: {
     const { totalCopagoInformado: T, findings, violations, signals } = params;
     const errors: string[] = [];
 
-    // 1) Normaliza montos y evita solapes por línea
-    // En V6, si un hallazgo es K (impugnable por opacidad), no debe ser A (confirmado)
+    // 1) Normaliza montos y unifica categorías
+    // En V6, unificamos K y Z en Z (Opacity). 
+    // A = Confirmed, B = Controversy/Mapping, Z = Indeterminate/Opacity
     const norm = findings.map(f => ({
         ...f,
         amount: Number.isFinite(f.amount) ? Math.max(0, Math.round(f.amount)) : 0
     }));
 
-    // Separamos en los 3 "bolsillos" deterministas + Z (señalética/informativo)
     const A_items = norm.filter(f => f.category === "A");
-    const K_items = norm.filter(f => f.category === "K");
-    const OK_items = norm.filter(f => f.category === "OK");
-    const B_items = norm.filter(f => f.category === "B"); // Controversia auditable
-    const Z_items = norm.filter(f => f.category === "Z");
+    const B_items = norm.filter(f => f.category === "B");
+    const Z_items = norm.filter(f => f.category === "Z" || f.category === "K");
 
-    // Cálculo de montos crudos
-    const rawA = sum(A_items.map(x => x.amount));
-    const rawK = sum(K_items.map(x => x.amount));
-    const rawOK = sum(OK_items.map(x => x.amount));
-    const rawB = sum(B_items.map(x => x.amount));
-    const rawZ = sum(Z_items.map(x => x.amount));
+    const finalA = sum(A_items.map(x => x.amount));
+    const finalB = sum(B_items.map(x => x.amount));
+    const finalZ = sum(Z_items.map(x => x.amount));
 
-    // 2) ENSURE PARTITION (A + K + OK = T)
-    // RFC-09/11: NO speculative cropping. If A+K > T, it's a CONFLICT, not a "fix".
-
-    const finalA = rawA;
-    const finalK = rawK;
-    const finalB = rawB;
-    const finalOK_crudo = rawOK;
-
-    // We still calculate a "Budget Overflow" for reporting but we don't CROP the findings.
-    // The findings are the "Peritaje". The fact they don't sum T is a signal of incoherence.
-    const sumDeterminista = finalA + finalK + finalOK_crudo + finalB;
-
-    if (sumDeterminista > T + 50) {
-        errors.push(`CONFLICTO_REGLA_RFC_07: La suma de hallazgos periciados ($${sumDeterminista}) excede el copago informado ($${T}). Incoherencia en liquidación detectada.`);
+    // 2) ENSURE PARTITION (A + B + Z + OK = T)
+    // Rule R-BAL-01: Z <= T. Cap Z to avoid negative OK.
+    const effectiveZ = Math.min(finalZ, T - (finalA + finalB));
+    if (finalZ > (T - (finalA + finalB)) + 10) {
+        errors.push(`ALERTA_BALANCE: El monto de opacidad Z ($${finalZ}) excede el remanente disponible del copago ($${T - (finalA + finalB)}). Capado para balance.`);
     }
 
-    const finalOK = T - (finalA + finalK + finalB);
-    // If finalOK < 0, it means the clinic/Isapre is "missing" money or our audit found more improcedencia than stated.
+    const finalOK = Math.max(0, T - (finalA + finalB + effectiveZ));
 
     // 3) Invariants
-    const invariantsOk = Math.abs((finalA + finalK + finalB + (finalOK > 0 ? finalOK : 0)) - T) < 1000;
+    const invariantsOk = Math.abs((finalA + finalB + effectiveZ + finalOK) - T) < 10;
     if (!invariantsOk) {
-        errors.push(`FALLO_CRITICO_INVARIANTE: A+K+OK+B=${finalA + finalK + (finalOK > 0 ? finalOK : 0) + finalB} != T=${T}.`);
+        errors.push(`FALLO_CRITICO_INVARIANTE: A+B+Z+OK=${finalA + finalB + effectiveZ + finalOK} != T=${T}.`);
     }
 
-    // 4) Señales y Estado Global (Determinista)
+    // 4) Señales y Estado Global
     const V = Math.min(1, sum(violations.map(v => v.severity)) / Math.max(1, violations.length));
     const riskSignals = signals.filter(s => s.value > 0 && !s.id.includes("OK") && !s.id.includes("CUMPLIMIENTO"));
     const R = Math.min(1, riskSignals.length > 0 ? (sum(riskSignals.map(s => s.value)) / riskSignals.length) : 0);
 
-    const opacidad = (finalK + (rawZ > 0 ? 0 : 0)) / Math.max(1, T); // Opacidad real es K/T
+    const opacidad = effectiveZ / Math.max(1, T);
 
     let estado = "VALIDADO";
-    if (finalK > 0 && finalA > 0) {
-        estado = "IMPROCEDENTE_Y_OPACO";
-    } else if (finalK > 0) {
-        estado = "INDETERMINADO_POR_OPACIDAD";
+    if (effectiveZ > 0 && finalA > 0) {
+        estado = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+    } else if (effectiveZ > 0) {
+        estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
     } else if (finalA > 0) {
-        estado = "IMPROCEDENTE_CONFIRMADO";
+        estado = "COPAGO_OBJETABLE_CONFIRMADO";
     }
 
     // 5) Resumen y Confianza
@@ -165,11 +150,11 @@ function resolveDecision(params: {
     const scoreA = 0.55 * (finalA / Math.max(1, T));
     const scoreV = 0.25 * V;
     const scoreR = 0.20 * R;
-    const scoreK = 100 * (0.60 * (finalK / Math.max(1, T)));
-    let score = 100 * (scoreA + scoreV + scoreR) - scoreK;
+    const scoreZ = 0.60 * opacidad;
+    let score = 100 * (scoreA + scoreV + scoreR) - 100 * scoreZ;
 
     const fundamento =
-        `Balance: A=${finalA}, K=${finalK}, OK=${finalOK}, B=${finalB}, T=${T}. ` +
+        `Balance: A=${finalA}, B=${finalB}, Z=${effectiveZ}, OK=${finalOK}, T=${T}. ` +
         `Opacidad=${(100 * opacidad).toFixed(1)}%. ` +
         (errors.length ? `Ajustes: ${errors.join(" | ")}.` : "");
 
@@ -177,7 +162,7 @@ function resolveDecision(params: {
         estado,
         confianza: Number(confianza.toFixed(2)),
         fundamento,
-        balance: { A: finalA, OK: finalOK, B: finalB, K: finalK, Z: rawZ, TOTAL: T },
+        balance: { A: finalA, OK: finalOK, B: finalB, K: 0, Z: effectiveZ, TOTAL: T },
         invariantsOk,
         errors,
         score: Math.round(score)
@@ -293,7 +278,7 @@ function isProtectedCatA(f: Finding, eventos: EventoHospitalario[] = []): boolea
     const isUnbundling = /UNBUNDLING|EVENTO UNICO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(label) || /UNBUNDLING|EVENTO/.test(rationale);
     const isHoteleria = /ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION|ASEO PERSONAL|SET DE ASEO/.test(label) || /IF-?319/.test(rationale);
     const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(label) || /ENFERMERIA/.test(rationale);
-    const isEventoUnico = /EVENTO UNICO|URGENCIA.*HOSPITALIZACION/i.test(label) || /EVENTO UNICO/i.test(rationale);
+    const isEventoUnico = /EVENTO UNICO|URGENCIA.*HOSPITALIZACION/i.test(label) || /EVENTO UNICO/i.test(rationale) || /ALERTA_EU_01/.test(rationale);
 
     // Level 1: Primary Contract Breach (100% Coverage Entitlement)
     const isContractBreach = /BONIFICACION INCORRECTA|INCUMPLIMIENTO CONTRACTUAL|DIFERENCIA COBERTURA|RECLASIFICACION ESTRATEGICA/i.test(label) ||
@@ -323,6 +308,10 @@ function isOpacityFinding(f: Finding): boolean {
     const label = (f.label || "").toUpperCase();
     const rationale = (f.rationale || "").toUpperCase();
 
+    // Rule R-MAP-01: Mapping failure is NOT opacity.
+    const isMappingFailure = /NO MAPEA|FALTA DICCIONARIO|FALTA TABLA|NEEDS_MAPPING/i.test(rationale);
+    if (isMappingFailure) return false;
+
     // SUBSIDIARY CHECK: If it has 100% coverage indicators or irregular practice flags, it is NOT opaque (it is a breach)
     const isContractBreach = /(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale) ||
         /INCUMPLIMIENTO CONTRACTUAL|UNBUNDLING|EVENTO UNICO|RECLASIFICACION/i.test(label);
@@ -330,6 +319,7 @@ function isOpacityFinding(f: Finding): boolean {
     if (isContractBreach) return false;
 
     return (
+        f.category === "Z" ||
         f.hypothesisParent === "H_OPACIDAD_ESTRUCTURAL" ||
         /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE|CARGA DE LA PRUEBA|LEY 20.?584/i.test(label) ||
         /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(label) ||
@@ -341,6 +331,10 @@ function isOpacityFinding(f: Finding): boolean {
 function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eventos: EventoHospitalario[] = []): Finding {
     const isProtected = isProtectedCatA(f, eventos);
     const amount = f.amount || 0;
+    const rationale = (f.rationale || "").toUpperCase();
+
+    // Rule R-MAP-01: Mapping failures are B, not Z
+    const isMappingFailure = /NO MAPEA|FALTA DICCIONARIO|FALTA TABLA|NEEDS_MAPPING|LEY 20.584/i.test(rationale) && !/MATERIAL|MEDICAMENTO|VARIOS/i.test(f.label);
 
     // 0. MANUAL OVERRIDE: If already A, keep it.
     if (f.category === "A" && amount > 0) {
@@ -356,8 +350,12 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
     const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label || "") || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.rationale || "");
     const isOpacity = isOpacityFinding(f);
 
-    if (isOpacity || isMedMat) {
+    if (isOpacity || (isMedMat && !isProtected)) {
         return { ...f, category: "Z", action: "SOLICITAR_ACLARACION" };
+    }
+
+    if (isMappingFailure) {
+        return { ...f, category: "B", action: "SOLICITAR_ACLARACION" };
     }
 
     if (amount <= 0) return { ...f, category: "OK", action: "ACEPTAR" };
@@ -508,7 +506,12 @@ export function finalizeAuditCanonical(input: {
             catFinding.action = "SOLICITAR_ACLARACION";
         }
 
-        return { ...catFinding, hypothesisParent: parent };
+        return {
+            ...catFinding,
+            hypothesisParent: parent,
+            montoCuentaRelacionado: (f as any).authoritativeTotal || f.amount,
+            montoCopagoImpacto: catFinding.category === 'OK' ? 0 : catFinding.amount
+        } as Finding;
     });
 
     // Step 2: Subsumption

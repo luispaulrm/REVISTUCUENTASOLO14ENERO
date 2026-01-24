@@ -315,6 +315,8 @@ export interface Finding {
   rationale: string;
   hypothesisParent: HypothesisId;
   scope?: FindingScope; // Hardening V6: Explicit scope for precise accounting
+  montoCuentaRelacionado?: number; // Total amount in the bill/account
+  montoCopagoImpacto?: number;      // Actual impact on patient's copago
 }
 
 export interface BalanceAlpha {

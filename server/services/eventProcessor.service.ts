@@ -312,6 +312,22 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
         );
 
         if (hasUrgencySignal) {
+            // Rule R-EU-01: Detect duplication of rights/base charges in urgency
+            const baseChargeCodes = ['2001', '2002', '3101', '3301'];
+            const rightsInEvent = ep?.items.filter(it =>
+                baseChargeCodes.some(c => it.codigoGC.includes(c)) ||
+                /DERECHO.*URGENCIA|DERECHO.*SALA/i.test(it.descripcion)
+            ) || [];
+
+            if (rightsInEvent.length > 1) {
+                (current as any).metadata = {
+                    ...(current as any).metadata,
+                    alerta_eu_01: "EVENTO_UNICO_URGENCIA_SOSPECHA",
+                    razon_eu_01: "Múltiples cargos de base/derechos detectados en evento de urgencia."
+                };
+                current.recomendacion_accion = "IMPUGNAR" as any;
+            }
+
             // Find subsequent hospitalization (QUIRURGICO/MEDICO) within 24h
             const hospitalization = sortedEvents.slice(i + 1).find(next => {
                 const diff = new Date(next.fecha_inicio).getTime() - new Date(current.fecha_fin).getTime();
