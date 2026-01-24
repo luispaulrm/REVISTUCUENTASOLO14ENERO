@@ -332,9 +332,12 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
     const label = (f.label || "").toUpperCase();
     const rationale = (f.rationale || "").toUpperCase();
 
-    // If it's a "Macro" or "Global" item, we usually want Z to trigger reconstruction.
-    // But if it's a specific Honorary/Liquidacion item and the math matches, it's OK.
-    const isSpecificFinance = /HONORARIO|LIQUIDACION|BONIFICACION|DERECHO DE PABELLON|ANESTESIA/i.test(label);
+    // BROADENED DETECTION: Include specific codes (1103 is surgical/honorary) 
+    // and procedure-specific labels that are functionally honoraries.
+    const hasSurgicalCode = /1103\d{2}/.test(label) || /1103\d{2}/.test(rationale);
+    const isSpecificFinance = hasSurgicalCode ||
+        /HONORARIO|LIQUIDACION|BONIFICACION|DERECHO DE PABELLON|ANESTESIA|RIZOTOMIA|INFILTRACION/i.test(label);
+
     const event = eventos.find(e => e.analisis_financiero && e.analisis_financiero.tope_cumplido && e.nivel_confianza === "ALTA");
 
     // UNIVERSAL RULE: If we have a High-Precision triangulation (AC2, VAM, VA, BAM) and the finding 
