@@ -160,6 +160,7 @@ export interface Anclaje {
 
 export interface AnalisisFinanciero {
   tope_cumplido: boolean;
+  equipo_quirurgico_completo?: boolean;
   valor_unidad_inferido?: number;
   unit_type?: string;
   metodo_validacion: 'FACTOR_ESTANDAR' | 'INFERENCIA_BAM' | 'MANUAL';

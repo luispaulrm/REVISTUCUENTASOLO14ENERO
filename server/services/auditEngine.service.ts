@@ -24,6 +24,7 @@ import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAu
 // NEW: Import C-NC Rules (Opacity Non-Collapse)
 import { generateNonCollapseText, RULE_C_NC_01, RULE_C_NC_02, RULE_C_NC_03, CANONICAL_NON_COLLAPSE_TEXT, findMatchingDoctrine } from './jurisprudence/jurisprudence.doctrine.js';
 import { reconstructAllOpaque } from './reconstruction.service.js';
+import { resolveFonasaCode, resolveByDescription } from './codeResolver.service.ts';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -334,11 +335,15 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
 
     // BROADENED DETECTION: Include specific codes (1103 is surgical/honorary) 
     // and procedure-specific labels that are functionally honoraries.
-    const hasSurgicalCode = /1103\d{2}/.test(label) || /1103\d{2}/.test(rationale);
+    const hasSurgicalCode = /1103\d{3}/.test(label) || /1103\d{3}/.test(rationale);
     const isSpecificFinance = hasSurgicalCode ||
         /HONORARIO|LIQUIDACION|BONIFICACION|DERECHO DE PABELLON|ANESTESIA|RIZOTOMIA|INFILTRACION/i.test(label);
 
-    const event = eventos.find(e => e.analisis_financiero && e.analisis_financiero.tope_cumplido && e.nivel_confianza === "ALTA");
+    const event = eventos.find(e =>
+        e.analisis_financiero &&
+        (e.analisis_financiero.tope_cumplido || e.analisis_financiero.equipo_quirurgico_completo) &&
+        e.nivel_confianza === "ALTA"
+    );
 
     // UNIVERSAL RULE: If we have a High-Precision triangulation (AC2, VAM, VA, BAM) and the finding 
     // is consistent with that event's financial context, we promote to OK.
@@ -721,17 +726,31 @@ export async function performForensicAudit(
     log(`[AuditEngine] ðŸ”‘ Keywords extraÃ­das: ${caseKeywords.length} tÃ©rminos`);
     log(`[AuditEngine] ðŸ”‘ Muestra: ${caseKeywords.slice(0, 8).join(', ')}...`);
 
-    // Paso 2: Filtrar y cargar solo conocimiento relevante (mÃ¡x 30K tokens)
-    /*
-    const MAX_KNOWLEDGE_TOKENS = 40000;  // Reduced to 40k for better prompt stability
-    const { text: knowledgeBaseText, sources, tokenEstimate, keywordsMatched } =
+    // RE-ENABLE MINI-RAG PER USER REQUEST
+    log('[AuditEngine] 📚 Re-activando base de conocimiento legal...');
+    const MAX_KNOWLEDGE_TOKENS = 40000;
+    const { text: knowledgeBaseTextParsed, sources: ragSources, keywordsMatched } =
         await getRelevantKnowledge(caseKeywords, MAX_KNOWLEDGE_TOKENS, log);
-    */
 
-    // DISABLE MINI-RAG PER USER REQUEST
-    let knowledgeBaseText = "(Base de conocimiento legal omitida en esta iteración para optimización de rendimiento).";
+    let knowledgeBaseText = knowledgeBaseTextParsed;
     if (CANONICAL_MANDATE_TEXT) {
-        knowledgeBaseText += `\n\n[CONTRATO MARCO / MANDATO CLÍNICO ESTÁNDAR(PAGARÉ / MANDATO)]: \n${CANONICAL_MANDATE_TEXT} \n`;
+        knowledgeBaseText += `\n\n[CONTRATO MARCO / MANDATO CLÍNICO ESTÁNDAR (PAGARÉ / MANDATO)]: \n${CANONICAL_MANDATE_TEXT} \n`;
+    }
+
+    // RESOLVE CODES DETERMINISTICALLY (New V6.1)
+    log('[AuditEngine] 🔍 Resolviendo códigos Fonasa encontrados...');
+    const resolvedCodes: string[] = [];
+    for (const kw of caseKeywords) {
+        if (/^\d{7}$/.test(kw)) {
+            const resolved = await resolveFonasaCode(kw);
+            if (resolved) {
+                resolvedCodes.push(`[${kw}] ${resolved.description}`);
+            }
+        }
+    }
+    if (resolvedCodes.length > 0) {
+        knowledgeBaseText += `\n\n[GLOSARIO DE CÓDIGOS FONASA OFICIAL]:\n${resolvedCodes.join('\n')}\n`;
+        log(`[AuditEngine] ✅ Resueltos ${resolvedCodes.length} códigos Fonasa.`);
     }
 
     // INJECT IRREGULAR PRACTICES REPORT KNOWLEDGE
@@ -1665,6 +1684,20 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
 
         // --- Step 3.5: Canonical Finalization Layer (NON-COLLAPSE PROTECTION) ---
+        // V6.2: LAST RESORT RESOLUTION FOR OPAQUE ITEMS
+        log('[AuditEngine] 🔄 Intentando resolución de "último recurso" para ítems opacos...');
+        for (const finding of mergedFindings || []) {
+            if (finding.category === 'Z' || /OPACIDAD|SIN DESGLOSE/i.test(finding.label || "")) {
+                const resolved = await resolveByDescription(finding.label || "");
+                if (resolved) {
+                    log(`[AuditEngine] ✨ Re-clasificado ítem opaco: "${finding.label}" -> ${resolved.code} (${resolved.description})`);
+                    finding.category = 'OK';
+                    finding.action = 'ACEPTAR';
+                    finding.rationale = (finding.rationale || "") + `\n[MEJORA] Código Fonasa auto-detectado: ${resolved.code}. Procedimiento validado como ${resolved.description}.`;
+                    finding.description = resolved.description;
+                }
+            }
+        }
         const canonicalResult = finalizeAuditCanonical({
             findings: mergedFindings,
             totalCopago: totalCopagoReal,

@@ -122,21 +122,15 @@ function groupIntoEpisodes(items: PAMItem[]): EpisodeCandidate[] {
 function classifyEpisode(episode: EpisodeCandidate): TipoEvento {
     let scoreSurgical = 0;
 
-    // Check Signals
     episode.items.forEach(item => {
         const desc = (item.descripcion || "").toUpperCase();
-        const code = (item.codigoGC || "");
+        const code = item.codigoGC || "";
 
-        if (SIGNALS.PABELLON.some(s => code.includes(s) || desc.includes(s))) {
-            episode.signals.add("PABELLON");
-            scoreSurgical += 5;
-        }
-        if (SIGNALS.ANESTESIA.some(s => code.includes(s) || desc.includes(s))) {
-            episode.signals.add("ANESTESIA");
-            scoreSurgical += 3;
-        }
-        if (code.startsWith("1802") || code.startsWith("1801")) {
-            episode.signals.add("CIRUGIA_MAYOR");
+        // Surgical blocks (11-21 are mostly surgical/interventional)
+        const isSurgicalCode = /^(11|12|13|14|15|16|17|18|19|20|21)/.test(code);
+        const isSurgicalText = /PABELLON|ANESTESISTA|QUIRURGICO|CIRUJANO|ARSENALERA/.test(desc);
+
+        if (isSurgicalCode || isSurgicalText) {
             scoreSurgical += 5;
         }
     });
@@ -154,8 +148,13 @@ function collapseHonorarios(episode: EpisodeCandidate): HonorarioConsolidado[] {
 
     episode.items.forEach(item => {
         const code = item.codigoGC || "";
-        const isSurgical = code.startsWith("180") || code.startsWith("1101");
-        if (!isSurgical) return;
+        const desc = (item.descripcion || "").toUpperCase();
+
+        // Broaden honorary detection: Groups 11-18 or explicit medical role suffixes
+        const isHonoraryCode = /^(11|12|13|14|15|16|17|18|22)/.test(code);
+        const isSurgicalRole = /CIRUJANO|ANESTESISTA|ARSENALERA|AYUDANTE/.test(desc) || /\(9[012]\)/.test(desc);
+
+        if (!isHonoraryCode && !isSurgicalRole) return;
 
         const key = `${code}-${parseFecha(item.fecha)?.toISOString() || 'NODATE'}`;
 
@@ -165,13 +164,12 @@ function collapseHonorarios(episode: EpisodeCandidate): HonorarioConsolidado[] {
                 descripcion: item.descripcion,
                 items_origen: [],
                 es_fraccionamiento_valido: false,
-                heuristica: { sum_cantidades: 0, tolerancia: 0, razon: "UNKNOWN" },
-                // copago_total_evento: 0 // Removed from type as per lint error
+                heuristica: { sum_cantidades: 0, tolerancia: 0, razon: "UNKNOWN" }
             });
         }
 
         const entry = map.get(key)!;
-        const qty = parseMonto(item.cantidad); // Quantities are also strings in PAM
+        const qty = parseMonto(item.cantidad);
         const copago = parseMonto(item.copago);
         const bonif = parseMonto(item.bonificacion);
         const total = parseMonto(item.valorTotal);
@@ -183,16 +181,11 @@ function collapseHonorarios(episode: EpisodeCandidate): HonorarioConsolidado[] {
             total: total,
             copago: copago,
             descripcion: item.descripcion
-            // bonificacion property removed from public type ItemOrigen, needed internally for math?
-            // ItemOrigen definition in types.ts does not have bonificacion. 
-            // This is a disconnect. We might need it for validation later.
-            // But we reconstruct validation object anyway.
         });
 
         entry.heuristica.sum_cantidades += qty;
     });
 
-    // Finalize logic
     return Array.from(map.values()).map(h => {
         const diff = Math.abs(h.heuristica.sum_cantidades - 1.0);
         if (diff <= 0.15) {
@@ -244,6 +237,14 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
         let topeCumplidoGlobal = false;
         let valorUnidadInferido = unidadReferencia.valor_pesos_estimado;
 
+        // Detect Full Surgical Team (RFC-User-Context)
+        const teamRoles = {
+            surgeon: ep.items.some(i => /CIRUJANO|\(91\)/i.test(i.descripcion || "")),
+            anesthetist: ep.items.some(i => /ANESTESISTA|\(90\)/i.test(i.descripcion || "")),
+            nurse: ep.items.some(i => /ARSENALERA|AYUDANTE|PABELLONERA|8001001/i.test(i.descripcion || ""))
+        };
+        const equipoCompleto = teamRoles.surgeon && teamRoles.anesthetist && teamRoles.nurse;
+
         honorarios.forEach(h => {
             if (h.items_origen.length > 0) {
                 const proxyItem = h.items_origen[0];
@@ -286,6 +287,7 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
             honorarios_consolidados: honorarios,
             analisis_financiero: {
                 tope_cumplido: topeCumplidoGlobal,
+                equipo_quirurgico_completo: equipoCompleto,
                 valor_unidad_inferido: valorUnidadInferido,
                 unit_type: unidadReferencia.tipo, // Added for dynamic reporting
                 metodo_validacion: (unidadReferencia.confianza === 'ALTA' ? 'FACTOR_ESTANDAR' : 'MANUAL') as any,

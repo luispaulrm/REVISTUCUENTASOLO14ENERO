@@ -394,9 +394,21 @@ function findRelevantChunks(
 
         for (const keyword of keywords) {
             const keywordLower = keyword.toLowerCase();
+
+            // NORMAL MATCH
             if (chunkLower.includes(keywordLower)) {
                 score++;
                 matchedKeywords.push(keyword);
+                continue;
+            }
+
+            // FONASA CODE HEURISTIC: If keyword is 7 digits (e.g. 1103057), try spaced version (11 03 057)
+            if (/^\d{7}$/.test(keyword)) {
+                const spaced = `${keyword.substring(0, 2)} ${keyword.substring(2, 4)} ${keyword.substring(4)}`;
+                if (chunkLower.includes(spaced)) {
+                    score += 2; // Codes are high relevance
+                    matchedKeywords.push(keyword);
+                }
             }
         }
 
