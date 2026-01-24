@@ -66,41 +66,51 @@ export class ArithmeticReconstructor {
         const glo = this.normalizeString(glosa);
         const ctx = this.normalizeString(context || "");
 
-        // PRINCIPLE: Semantic Lock-in per Glosa (Forensic Mandate)
+        // HELPERS: Precise Nature Detection (Clinical Purity)
+        const isMaterialDesc = /GASA|JERINGA|GUANTE|DRENAJE|SUTURA|SONDA|CATETER|EQUIPO.FLEBO|LLAVE.3.PASOS|BRANULA|DELANTAL|PAQUETE|SABANA|MANGA|FUNDA|ELECTRODO|PARCHE|BISTURI|TUBO.ENDOTRAQUEAL|ESTILETE|CANULA.MAYO|CIRCUITO.ANESTESIA|MASCARA.LARINGEA|FILTRO|ALUSA|BANDEJA|SET.ASEO|TERMOMETRO|CALZON|CONFORT|CEPILLO|AGUJA|CURACION|PROTECTOR/i.test(desc);
+        const isMedicationDesc = /(^|\s)(INY|AMP|SOL|GRAG|TAB|CAPS|SUSP|MG|ML|UI|UG|MCG|MEQ|G|UNID|DOSIS|SACHET)(\s|$)/i.test(desc) || /PARACETAMOL|CEFTRIAXONA|ATROPINA|HEPARINA|KETOPROFENO|PROPOFOL|FENTANIL|LIDOCAINA|OMEPRAZOL|SUERO|NATRECUR|PROPO|FENT|SEVO/i.test(desc);
 
         // 1. Bed/Room Charges & Unbundling (Día Cama)
         if (glo.includes("DIA CAMA") || glo.includes("HABITACION") || glo.includes("ESTANCIA")) {
             const isBedSection = /HABITACION|DIA CAMA|ESTANCIA|HOSPITALIZACION/i.test(sec);
             // Nursing/Basic Unbundling (Standard IF-319 / Practice #5)
             const isNursingProc = /NURSING|ENFERMERIA|SIGNOS VITALES|CURACION|INSTALACION.*VIA|FLEBOCLISIS|PUNCION|TOMA.DE.MUESTRA|ADMINISTRACION.*MEDICAMENTOS|HIGIENIZACION/i.test(desc);
-            return isBedSection || isNursingProc;
+            // Day-bed must NOT pull medical drugs (Expensive Pharmacy) or Surgical Material
+            if (isMedicationDesc || isMaterialDesc) {
+                // Exception: very basic nursing supplies (guantes, gasa simple) can stay if nursing glosa
+                const isVeryBasicSupply = /GUANTE|GASA|APOSITO|JERINGA.SIMPLE/i.test(desc);
+                if (isNursingProc || isVeryBasicSupply) return true;
+                return false;
+            }
+            return isBedSection;
         }
 
         // 2. Surgical Context (Surgical Unbundling / Intraoperative Meds / Practice #2 & #3)
         if (glo.includes("QUIRURGICO") || glo.includes("PABELLON") || ctx === "QUIRURGICO" || glo.includes("CIRUGIA")) {
+            // AXIOM: When reconstructing PABELLON, we allow both BUT strictly surgical meds and surgical items
             const isSurgicalSec = /PABELLON|QUIRURGICO|ANESTESIA|RECUPERACION/i.test(sec);
-            // Surgical/Anesthetic Unbundling + Intraoperative Drugs
             const isSurgicalMed = /PROPOFOL|FENTANIL|SEVOFLURANO|LIDOCAINA|BUPIVACAINA|ROCURONIO|VECURONIO|MIDAZOLAM|ETOMIDATO|REMIFENTANIL|NEOSTIGMINA|SUGAMMADEX|ATROPINA|EFEDRINA|FENILEFRINA|NALOXONA|FLUMAZENIL/i.test(desc);
             const isSurgicalItem = /SUTURA|GASA|DRENAJE|BISTURI|TUBO.ENDOTRAQUEAL|ESTILETE|CANULA.MAYO|CIRCUITO.ANESTESIA|MASCARA.LARINGEA|MANGA.LAPAROSCOPICA|FUNDA.CAMARA|ELECTRODO|PARCHE/i.test(desc);
             const isSurgicalConsumable = /DELANTAL.ESTERIL|PAQUETE.CIRUGIA|SABANA.QUIRURGICA|EQUIPO.QUIRURGICO|ROPA.ESTERIL/i.test(desc);
+
             return isSurgicalSec || isSurgicalMed || isSurgicalItem || isSurgicalConsumable;
         }
 
-        // 3. Meds/Materials (Specific Clinical Pools)
+        // 3. Meds/Materials (STRICT CLINICAL PARTITIONING)
         if (/MEDICAMENTO|FARMA|DROGA/i.test(glo)) {
+            // Must BE a medication AND NOT a material
+            if (isMaterialDesc) return false;
             const isMedSec = /MEDICAMENTO|FARMA|DROGA|FARMACIA/i.test(sec);
-            const isMedDesc = /INYECTABLE|AMPOLLA|FRASCO|SOLUCION|GRAGEA|TABLETA|CAPSULA|ALM|SUSPENSI/i.test(desc);
-            return isMedSec || isMedDesc;
+            return isMedSec || isMedicationDesc;
         }
 
         if (/MATERIAL|INSUMO/i.test(glo)) {
-            // Must exclude plain comfort items from clinical "Materiales" if possible
+            // Must BE a material AND NOT a medication
+            if (isMedicationDesc) return false;
+            const isMatSec = /MATERIAL|INSUMO|EQUIPO|ESTERIL/i.test(sec);
             const isComfort = /SET.*ASEO|PANTUFLA|CEPILLO|JABON|CALZON|CONFORT|TELEVISOR|ESTACIONAMIENTO|TOALLA.HUMEDA|KITS?.HIGIENE|PASTA.DENTAL|PEINETA/i.test(desc);
             if (isComfort) return false;
-
-            const isMatSec = /MATERIAL|INSUMO|EQUIPO|ESTERIL/i.test(sec);
-            const isMatDesc = /GASA|JERINGA|GUANTE|DRENAJE|SUTURA|SONDA|CATETER|EQUIPO.FLEBO|LLAVE.3.PASOS|BRANULA/i.test(desc);
-            return isMatSec || isMatDesc;
+            return isMatSec || isMaterialDesc;
         }
 
         // 4. "Gastos No Cubiertos" / "Preg. No Contemplada" (Hospitality & Comfort / Practice #4 & #6)
