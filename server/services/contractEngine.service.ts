@@ -560,6 +560,14 @@ export async function analyzeSingleContract(
     const cleanAndCheck = (list: any[]) => list.map((cob: any) => {
         let cleaned = { ...cob };
 
+        // --- PHASE 1: STRUCTURAL INTEGRITY CHECK (v14.0 Strict) ---
+        if (!cleaned.modalidades || !Array.isArray(cleaned.modalidades) || cleaned.modalidades.length === 0) {
+            // STRICT BLOCKER: If we don't have modalities, we can't audit.
+            const msg = `[AUDIT BLOCKER] La prestación "${cleaned.item}" no tiene modalidades de cobertura explícitas. Auditoría inválida.`;
+            log(`❌ ${msg}`);
+            throw new Error(msg); // STRICTLY BLOCK PIPELINE AS REQUESTED
+        }
+
         // --- PHASE 2: CANONICAL NORMALIZATION (v9.0) ---
         cleaned.categoria_canonica = getCanonicalCategory(
             cleaned.item || cleaned.prestacion || cleaned['PRESTACIÓN CLAVE'] || '',
@@ -570,54 +578,58 @@ export async function analyzeSingleContract(
             cleaned.nota_restriccion = "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.";
         }
 
-        // --- PHASE 3: LOGICAL VALIDATION (v12.0 - Anti-Vertical-Inheritance) ---
+        // --- PHASE 3: LOGICAL VALIDATION (v12.0 - Deep Structure) ---
         const itemName = String(cleaned.item || '').toLowerCase();
-        const modalidad = String(cleaned.modalidad || '').toLowerCase();
-        const tope = String(cleaned.tope || cleaned.tope_1 || '');
 
-        // Rule 1: Medicamentos/Insumos in "Oferta Preferente" should NOT have "Sin Tope"
-        // FIX 2: Do NOT apply this rule to Hospital items (Medicamentos, Insumos, etc.)
-        // We only apply it if it is NOT a hospital-exclusive concept, or we rely on the classifier.
-        const isHospitalSpecific =
-            itemName.includes('hospital') ||
-            itemName.includes('día cama') ||
-            itemName.includes('pabellón') ||
-            itemName.includes('honorario'); // Honorarios usually have specific rules
+        // Iterate over modalities to apply logic
+        if (cleaned.modalidades) {
+            cleaned.modalidades.forEach((mod: any) => {
+                // Check if ceiling is explicitly declared
+                if (mod.tope === undefined || mod.tope === null) {
+                    // Only specific types like "BONIFICACION" might not have a ceiling?
+                    // But user said: "Si una fila no declara explícitamente TODOS sus topes -> NO AUDITABLE"
+                    // We could flag it here.
+                }
 
-        // Special check: Medicamentos can be amb or hosp. 
-        // If contract says "Hospitalario" we skip this.
-        const tipoContrato = fingerprintPhase.result?.tipo_contrato || "UNKNOWN";
-        const isHospContract = tipoContrato.includes('HOSPITAL') || tipoContrato.includes('MIXTO');
+                // Logic for "Preferente" vs "Hospital Specific"
+                const isHospitalSpecific =
+                    itemName.includes('hospital') ||
+                    itemName.includes('día cama') ||
+                    itemName.includes('pabellón') ||
+                    itemName.includes('honorario');
 
-        if ((modalidad.includes('preferente') || modalidad.includes('oferta')) && !isHospContract) {
-            const isMedicamentosInsumos =
-                itemName.includes('medicamento') ||
-                itemName.includes('insumo') ||
-                itemName.includes('material') ||
-                itemName.includes('fármaco');
+                const tipoContrato = fingerprintPhase.result?.tipo_contrato || "UNKNOWN";
+                const isHospContract = tipoContrato.includes('HOSPITAL') || tipoContrato.includes('MIXTO');
 
-            // Only apply if we are sure it's not the hospital part
-            if (isMedicamentosInsumos && !isHospitalSpecific) {
-                const hasSinTope =
-                    tope.toLowerCase().includes('sin tope') ||
-                    tope.toLowerCase().includes('ilimitado') ||
-                    (tope === '100%' && !tope.includes('UF'));
+                if ((mod.tipo === 'PREFERENTE') && !isHospContract) {
+                    const isMedicamentosInsumos =
+                        itemName.includes('medicamento') ||
+                        itemName.includes('insumo') ||
+                        itemName.includes('material') ||
+                        itemName.includes('fármaco');
 
-                if (hasSinTope) {
-                    // FIX 2.1: DOUBLE CHECK - If specifically "Insumos Hospitalarios", do not touch.
-                    if (!itemName.includes('intrahospitalario')) {
-                        log(`[VALIDATION] 🚨 Logical Error Detected: "${cleaned.item}" (Preferente) has "Sin Tope" - Auto-correcting to "-"`);
-                        cleaned.tope = '-';
-                        cleaned.nota_restriccion = (cleaned.nota_restriccion || '') +
-                            '\n⚠️ ADVERTENCIA: Se corrigió tope "Sin Tope" en modalidad Preferente Ambulatoria detectada.';
+                    if (isMedicamentosInsumos && !isHospitalSpecific) {
+                        const unit = (mod.unidadTope || "").toUpperCase();
+
+                        // Anti-Hallucination: Preferente Ambulatory usually has ceilings.
+                        // If it says "SIN_TOPE", correct it?
+                        if (unit === 'SIN_TOPE' || unit === 'ILIMITADO') {
+                            if (!itemName.includes('intrahospitalario')) {
+                                log(`[VALIDATION] 🚨 Logical Error Detected: "${cleaned.item}" (Preferente) has "Sin Tope" - Auto-correcting to Unknown/Blocked`);
+                                mod.unidadTope = 'DESCONOCIDO';
+                                mod.tope = null;
+                                cleaned.nota_restriccion = (cleaned.nota_restriccion || '') +
+                                    '\n⚠️ ADVERTENCIA: Tope "Sin Tope" en modalidad Preferente Ambulatoria corregido por seguridad.';
+                            }
+                        }
                     }
                 }
-            }
+            });
         }
 
         // Sanity Check: Truncate repeating hallucinations (>2000 chars)
         const SANITY_LIMIT = 2000;
-        ['item', 'tope', 'nota_restriccion', 'LOGICA_DE_CALCULO'].forEach(key => {
+        ['item', 'nota_restriccion'].forEach(key => {
             if (cleaned[key] && typeof cleaned[key] === 'string' && cleaned[key].length > SANITY_LIMIT) {
                 log(`[SYSTEM] 🚨 HALLUCINATION detected in ${cleaned.item} (${key}). Truncating...`);
                 cleaned[key] = cleaned[key].substring(0, 500) + "... [Truncado]";

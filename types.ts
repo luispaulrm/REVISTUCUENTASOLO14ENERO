@@ -165,6 +165,11 @@ export interface AnalisisFinanciero {
   unit_type?: string;
   metodo_validacion: 'FACTOR_ESTANDAR' | 'INFERENCIA_BAM' | 'MANUAL';
   glosa_tope?: string; // e.g., "70% tope 2.2 VAM"
+  regla_aplicada?: {
+    tope?: string;
+    cobertura?: string;
+    [key: string]: any;
+  };
 }
 
 export interface EventoHospitalario {
@@ -319,6 +324,7 @@ export interface Finding {
   scope?: FindingScope; // Hardening V6: Explicit scope for precise accounting
   montoCuentaRelacionado?: number; // Total amount in the bill/account
   montoCopagoImpacto?: number;      // Actual impact on patient's copago
+  contract_ceiling?: string;        // Explicit UI Column: "Topes contractuales detectados"
 }
 
 export interface BalanceAlpha {

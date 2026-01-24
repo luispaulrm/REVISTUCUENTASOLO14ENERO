@@ -206,46 +206,57 @@ const CHECKLIST_AMB = `
 
 // --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
 
+// --- REGLAS DE ORO DE EXTRACCIÓN (v14.0) ---
 const SHARED_MANDATE = `
   ** MANDATO FORENSE v14.0: LECTURA DE COLUMNAS CON EXCLUSIÓN INTERNACIONAL (CALCO CARBÓN) **
   OBJETIVO: Extraer datos Nacionales (Preferente/Libre Elección) IGNORANDO ABSOLUTAMENTE las columnas Internacionales.
 
   ⚠️ REGLA DE ORO: EXCLUSIÓN DE "COBERTURA INTERNACIONAL/EXTRANJERO":
   Muchos planes tienen 3 grupos de columnas:
-  1. [Preferente] (CLÍNICAS DEL PLAN) -> EXTRAER
-  2. [Libre Elección] (OTRAS CLÍNICAS) -> EXTRAER
+  1. [Preferente] (CLÍNICAS DEL PLAN) -> EXTRAER (modalidad: "PREFERENTE")
+  2. [Libre Elección] (OTRAS CLÍNICAS) -> EXTRAER (modalidad: "LIBRE_ELECCION")
   3. [Internacional/Extranjero/USA] -> ¡IGNORAR TOTALMENTE!
 
-  **FORMATO DE ENTRADA:**
-  Cada fila del PDF se presenta pre-procesada con marcadores:
-  [COL0]Prestacion | [COL1]XXX | [COL2]YYY | [COL3]ZZZ | [COL4]AAA | [COL5]BBB
-
   **ESTRATEGIA DE MAPEO (AUTO-DETECTAR):**
-  1. Escanea los encabezados: ¿Qué columna dice "Internacional", "Extranjero", "Mundo" o "USA"?
-  2. MARCA ESA COLUMNA COMO "ZONA PROHIBIDA".
-  3. Extrae SOLO de las columnas "Oferta Preferente" y "Libre Elección".
-  4. **REGLA DE REUBICACIÓN (CRÍTICO):** 
+  1. Escanea los encabezados: ¿Qué columna dice "Internacional", "Extranjero", "Mundo" o "USA"? MARCA ESA COLUMNA COMO "ZONA PROHIBIDA".
+  2. Extrae SOLO de las columnas "Oferta Preferente" y "Libre Elección".
+  3. **REGLA DE REUBICACIÓN (CRÍTICO):** 
      - Si ves un valor como "300 UF" o "100 UF" en la columna [COL5] o [COL6] (ZONA PROHIBIDA), pero la columna [COL3] o [COL4] está VACÍA, es altamente probable que sea un error de alineación del OCR.
      - ASIGNA el valor a la columna de Libre Elección (Nacional) y NUNCA a la Internacional.
 
   ⚠️ TRAMPA COMÚN (ERROR DE TOPES):
-  - A veces el OCR mezcla columnas por rayas tenues.
-  - ERROR GRAVE: Reportar "5000 UF" (Tope Internacional) como si fuera nacional.
-  - REGLA DE SEGURIDAD: Los topes nacionales suelen ser pequeños (0.5 a 500 UF). Valores de 5000 UF o 10000 UF suelen ser de la columna Internacional. Si detectas un salto sospechoso, quédate con el valor más coherente para el mercado nacional.
+  - REGLA DE SEGURIDAD: Los topes nacionales suelen ser pequeños (0.5 a 500 UF). Valores de 5000 UF o 10000 UF suelen ser de la columna Internacional.
 
-  **EJEMPLO DE EXTRACCIÓN CORRECTA (CON REUBICACIÓN):**
-  Entrada:
-  [COL0]Medicamentos | [COL1]100% | [COL2]--- | [COL3]--- | [COL4]--- | [COL5]300,00 UF | [COL6]Sin Tope
-  
-  Salida (REUBICANDO EL TOPE):
-  { "modalidad": "Libre Elección", "cobertura": "100%", "tope": "300,00 UF" }
-  (Nota: Se movió el valor de COL5 a COL3/4 porque COL3/4 estaban vacías y COL5 contenía un tope nacional típico).
+  **FORMATO DE SALIDA (NUEVO SCHEMA ESTRUCTURAL):**
+  Cada fila debe generar un objeto con un array 'modalidades'.
+  Debes identificar explícitamente el 'tope', 'unidadTope' y 'tipoTope' para CADA modalidad.
+
+  EJEMPLO:
+  {
+    "categoria": "HOSPITALARIO",
+    "item": "Día Cama",
+    "modalidades": [
+        { 
+            "tipo": "PREFERENTE", 
+            "porcentaje": 100, 
+            "tope": null, 
+            "unidadTope": "SIN_TOPE", 
+            "tipoTope": "ILIMITADO" 
+        },
+        { 
+            "tipo": "LIBRE_ELECCION", 
+            "porcentaje": 80, 
+            "tope": 4.5, 
+            "unidadTope": "UF", 
+            "tipoTope": "POR_EVENTO" 
+        }
+    ]
+  }
 
   ⚠️ INSTRUCCIONES DE FIDELIDAD:
-  - Si la celda Nacional está vacía (—) o dice (—), reporta "-".
-  - Si dice "Sin Tope", reporta "Sin Tope".
-  - NUNCA inventes valores.
-  - NUNCA copies valores de la columna Internacional a menos que ocurra el patrón de reubicación descrito arriba para valores coherentes para el mercado chileno.
+  - Si dice "Sin Tope", reporta unidadTope="SIN_TOPE".
+  - Si el tope es "1.2 veces AC2", reporta tope=1.2, unidadTope="AC2", tipoTope="POR_EVENTO".
+  - NUNCA inventes valores. Si no hay dato, reporta null.
 `;
 
 export const PROMPT_HOSP_P1 = `
@@ -320,32 +331,6 @@ export const PROMPT_AMB_P4 = `
   ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
 `;
 
-export const PROMPT_EXTRAS = `
-  ** MANDATO FORENSE v10.8: PASE 4 - PRESTACIONES VALORIZADAS (ANTI-INVENCIÓN) **
-  
-  ⚠️ ALERTA DE SEGURIDAD (CRÍTICO):
-  Prohibido resumir. Copia TEXTUALMENTE las condiciones.
-  
-  ⚠️ REGLA ANTI-INVENCIÓN:
-  - SOLO extrae lo que veas explícitamente como una tabla o lista de "Prestaciones Valorizadas" adicional a la general.
-  - Si no existe tal sección, DEVUELVE UN ARRAY VACÍO. No inventes datos.
-  
-  ⚠️ REGLA DE EXCLUSIÓN (ESTRICTO):
-  NO EXTRAIGAS NADA QUE YA ESTÉ EN LA GRILLA GENERAL DE LAS PÁGINAS 1 Y 2.
-  - No extraigas "Día Cama", "Pabellón", "Honorarios", "Medicamentos", "Insumos" o "Anestesia" generales.
-  - SÓLO extrae ítems que aparezcan en la sección 'SELECCIÓN DE PRESTACIONES VALORIZADAS' (Generalmente Pág 7).
-  
-  OBJETIVO: Capturar la "Selección de Prestaciones Valorizadas" que SOBREESCRIBE la bonificación general.
-  
-  INSTRUCCIONES:
-  1. **REGLA DE SUPREMACÍA**: Busca cirugías específicas (Apendicectomía, Cesárea, Parto, etc.).
-      - Captura el CÓDIGO FONASA y el Valor en Pesos ('Copago').
-      - Márcalos como 'SUPREMO'.
-  2. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos específicos de estas cirugías.
-  
-  FORMATO: JSON Strict (Schema Coberturas).
-`;
-
 export const PROMPT_ANEXOS_P1 = `
   ** MANDATO: ESCÁNER DE ANEXOS (PARTE 1) v11.2 **
   
@@ -376,6 +361,32 @@ export const PROMPT_ANEXOS_P2 = `
   FORMATO: JSON Strict (Schema Reglas Universal).
 `;
 
+export const PROMPT_EXTRAS = `
+  ** MANDATO FORENSE v10.8: PASE 4 - PRESTACIONES VALORIZADAS (ANTI-INVENCIÓN) **
+  
+  ⚠️ ALERTA DE SEGURIDAD (CRÍTICO):
+  Prohibido resumir. Copia TEXTUALMENTE las condiciones.
+  
+  ⚠️ REGLA ANTI-INVENCIÓN:
+  - SOLO extrae lo que veas explícitamente como una tabla o lista de "Prestaciones Valorizadas" adicional a la general.
+  - Si no existe tal sección, DEVUELVE UN ARRAY VACÍO. No inventes datos.
+  
+  ⚠️ REGLA DE EXCLUSIÓN (ESTRICTO):
+  NO EXTRAIGAS NADA QUE YA ESTÉ EN LA GRILLA GENERAL DE LAS PÁGINAS 1 Y 2.
+  - No extraigas "Día Cama", "Pabellón", "Honorarios", "Medicamentos", "Insumos" o "Anestesia" generales.
+  - SÓLO extrae ítems que aparezcan en la sección 'SELECCIÓN DE PRESTACIONES VALORIZADAS' (Generalmente Pág 7).
+  
+  OBJETIVO: Capturar la "Selección de Prestaciones Valorizadas" que SOBREESCRIBE la bonificación general.
+  
+  INSTRUCCIONES:
+  1. **REGLA DE SUPREMACÍA**: Busca cirugías específicas (Apendicectomía, Cesárea, Parto, etc.).
+      - Captura el CÓDIGO FONASA y el Valor en Pesos ('Copago').
+      - Márcalos como 'SUPREMO'.
+  2. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos específicos de estas cirugías.
+  
+  FORMATO: JSON Strict (Schema Coberturas Estructural).
+`;
+
 export const SCHEMA_REGLAS = {
   description: "Esquema Universal de Reglas de Auditoría v8.4",
   type: SchemaType.OBJECT,
@@ -386,7 +397,7 @@ export const SCHEMA_REGLAS = {
         type: SchemaType.OBJECT,
         properties: {
           'PÁGINA ORIGEN': { type: SchemaType.STRING },
-          'CÓDIGO/SECCIÓN': { type: SchemaType.STRING }, // Mantener compatible
+          'CÓDIGO/SECCIÓN': { type: SchemaType.STRING },
           'CÓDIGO_DISPARADOR_FONASA': {
             type: SchemaType.STRING,
             description: "Lista de códigos que activan esta regla (ej: 1802053, 403, 405)"
@@ -404,7 +415,6 @@ export const SCHEMA_REGLAS = {
         required: ['PÁGINA ORIGEN', 'CÓDIGO/SECCIÓN', 'VALOR EXTRACTO LITERAL DETALLADO'],
       }
     },
-    // Metrics structure remains
     metrics: {
       type: SchemaType.OBJECT,
       properties: {
@@ -415,6 +425,7 @@ export const SCHEMA_REGLAS = {
     }
   }
 };
+
 export const SCHEMA_COBERTURAS = {
   type: SchemaType.OBJECT,
   properties: {
@@ -425,22 +436,42 @@ export const SCHEMA_COBERTURAS = {
         properties: {
           'categoria': { type: SchemaType.STRING },
           'item': { type: SchemaType.STRING },
-          'modalidad': { type: SchemaType.STRING, enum: ["Libre Elección", "Oferta Preferente", "Bonificación"] },
-          'cobertura': { type: SchemaType.STRING },
-          'tope': { type: SchemaType.STRING },
-          'copago': { type: SchemaType.STRING },
           'nota_restriccion': { type: SchemaType.STRING, nullable: true },
 
-          // Campos v8.0/8.4
+          // NUEVA ESTRUCTURA PROFUNDA (v14.0)
+          'modalidades': {
+            type: SchemaType.ARRAY,
+            items: {
+              type: SchemaType.OBJECT,
+              properties: {
+                'tipo': {
+                  type: SchemaType.STRING,
+                  enum: ["PREFERENTE", "LIBRE_ELECCION", "BONIFICACION"]
+                },
+                'porcentaje': { type: SchemaType.NUMBER, nullable: true },
+                'tope': { type: SchemaType.NUMBER, nullable: true },
+                'unidadTope': {
+                  type: SchemaType.STRING,
+                  enum: ["UF", "AC2", "VAM", "PESOS", "SIN_TOPE", "DESCONOCIDO"]
+                },
+                'tipoTope': {
+                  type: SchemaType.STRING,
+                  enum: ["POR_EVENTO", "ANUAL", "ILIMITADO", "DIARIO"]
+                },
+                'copago': { type: SchemaType.STRING, nullable: true } // Legacy text hook if needed
+              },
+              required: ['tipo', 'unidadTope', 'tipoTope']
+            }
+          },
+
           'CÓDIGO_DISPARADOR_FONASA': { type: SchemaType.STRING, description: "Códigos FONASA asociados (ej: 0305xxx)" },
-          'LOGICA_DE_CALCULO': { type: SchemaType.STRING, description: "Ej: % de cobertura sobre el arancel" },
           'NIVEL_PRIORIDAD': {
             type: SchemaType.STRING,
             enum: ["GENERAL", "SUPREMO"],
             description: "'GENERAL' para tablas pág 1, 'SUPREMO' para prestaciones valorizadas pág 7."
           }
         },
-        required: ['categoria', 'item', 'modalidad', 'cobertura']
+        required: ['categoria', 'item', 'modalidades']
       }
     },
     diseno_ux: {

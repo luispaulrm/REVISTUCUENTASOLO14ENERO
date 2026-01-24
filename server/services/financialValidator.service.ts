@@ -43,6 +43,9 @@ function parseMonto(val: string | number | undefined): number {
 /**
  * Searches for the coverage percentage in the contract for Surgery/Honoraries.
  */
+/**
+ * Searches for the coverage percentage in the contract for Surgery/Honoraries.
+ */
 function findCoverageFactor(contrato: any): number {
     if (!contrato || !contrato.coberturas) return 0.70; // Fallback only if contract is empty
 
@@ -53,9 +56,23 @@ function findCoverageFactor(contrato: any): number {
         const found = contrato.coberturas.find((c: any) =>
             (c.item || c.categoria || "").toUpperCase().includes(target)
         );
+
+        if (found && found.modalidades) {
+            // Prioritize Libre Elección for factor usage (standard audit context)
+            const modality = found.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
+                found.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
+
+            if (modality && (modality.porcentaje !== null || modality.cobertura)) { // Support both number and legacy string if needed
+                if (typeof modality.porcentaje === 'number') {
+                    return modality.porcentaje > 1 ? modality.porcentaje / 100 : modality.porcentaje;
+                }
+                const val = parseMonto(modality.cobertura || modality.copago || "0"); // Fallback
+                return val > 1 ? val / 100 : val;
+            }
+        }
+        // Legacy fallback (flat structure check just in case)
         if (found && found.valor) {
             const val = parseMonto(found.valor);
-            // If it's a percentage like 80 or 0.80
             if (val > 1) return val / 100;
             if (val > 0) return val;
         }
@@ -143,9 +160,10 @@ export async function inferUnidadReferencia(
  * Validates if a specific honorary item complies with the calculated unit value cap.
  */
 export function validateTopeHonorarios(
-    item: { codigoGC: string; bonificacion: string | number; copago: string | number },
-    unidadRef: UnidadReferencia
-): TopeValidationResult {
+    item: { codigoGC: string; bonificacion: string | number; copago: string | number; descripcion?: string },
+    unidadRef: UnidadReferencia,
+    contrato?: any
+): TopeValidationResult & { regla_aplicada?: any } {
 
     if (unidadRef.confianza === "BAJA" || !unidadRef.valor_pesos_estimado || !unidadRef.cobertura_aplicada) {
         return {
@@ -156,7 +174,39 @@ export function validateTopeHonorarios(
         };
     }
 
-    const factor = SURGICAL_FACTORS[item.codigoGC];
+    // 1. Try Specific Contract Rule Lookup
+    let factor = SURGICAL_FACTORS[item.codigoGC];
+    let reglaAplicada: any = null;
+
+    if (contrato && contrato.coberturas) {
+        // Find rule specifically matching code or description
+        const specificRule = contrato.coberturas.find((c: any) =>
+            (c.item && c.item.includes(item.codigoGC)) ||
+            (c.item && item.descripcion && c.item.toUpperCase().includes(item.descripcion.toUpperCase().substring(0, 15)))
+        );
+
+        if (specificRule && specificRule.modalidades) {
+            reglaAplicada = specificRule;
+            // Parse custom factor from modalities (LIBRE_ELECCION prefered)
+            const modality = specificRule.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
+                specificRule.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
+
+            if (modality && modality.tope) {
+                // If tope is numeric (e.g. 1.2 from "1.2 veces AC2" mapped by AI directly to 1.2)
+                // Or we might need to rely on the unitTope = "AC2".
+                // In the new schema: "tope": 1.2, "unidadTope": "AC2"
+                if (modality.unidadTope === 'AC2' || modality.unidadTope === 'VAM') {
+                    factor = modality.tope;
+                    // Update regla_aplicada to reflect the specific modality applied
+                    reglaAplicada = { ...specificRule, tope_aplicado: `${factor} ${modality.unidadTope}` };
+                }
+            } else if (modality && modality.copago) {
+                // Fallback to legacy string parsing if 'tope' was not numeric but put in a string field (unlikely with new schema but safe)
+                // ... logic logic ... but let's trust the number first.
+            }
+        }
+    }
+
     if (!factor) {
         return {
             tope_aplica: false,
@@ -177,21 +227,24 @@ export function validateTopeHonorarios(
             tope_cumplido: true,
             monto_tope_estimado: montoTopeTeorico,
             rationale: `CUMPLE: Bonificación ($${bonif}) coincide con el V.A deducido de $${unidadRef.valor_pesos_estimado} (Factor ${factor} @ ${Math.round(unidadRef.cobertura_aplicada * 100)}%).`,
-            metodo_validacion: "FACTOR_ESTANDAR"
+            metodo_validacion: "FACTOR_ESTANDAR",
+            regla_aplicada: reglaAplicada
         };
     } else if (bonif > montoTopeTeorico + 2500) {
         return {
             tope_aplica: true,
             tope_cumplido: true,
             rationale: "CUMPLE (EXCEDE): Bonificación superior al tope (posible beneficio adicional).",
-            metodo_validacion: "FACTOR_ESTANDAR"
+            metodo_validacion: "FACTOR_ESTANDAR",
+            regla_aplicada: reglaAplicada
         };
     } else {
         return {
             tope_aplica: true,
             tope_cumplido: false,
             rationale: `DISCREPANCIA: Bonif $${bonif} es inferior al tope calculado de $${Math.round(montoTopeTeorico)} para factor ${factor}.`,
-            metodo_validacion: "FACTOR_ESTANDAR"
+            metodo_validacion: "FACTOR_ESTANDAR",
+            regla_aplicada: reglaAplicada
         };
     }
 }

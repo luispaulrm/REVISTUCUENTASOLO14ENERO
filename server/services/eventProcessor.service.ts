@@ -236,6 +236,7 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
         // 5. Apply Financial Validation to Honorarios
         let topeCumplidoGlobal = false;
         let valorUnidadInferido = unidadReferencia.valor_pesos_estimado;
+        let reglaAplicadaGlobal: any = undefined;
 
         // Detect Full Surgical Team (RFC-User-Context)
         const teamRoles = {
@@ -259,11 +260,15 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
                     const validation = validateTopeHonorarios({
                         codigoGC: originalItem.codigoGC,
                         bonificacion: parseMonto(originalItem.bonificacion),
-                        copago: parseMonto(originalItem.copago)
-                    } as any, unidadReferencia);
+                        copago: parseMonto(originalItem.copago),
+                        descripcion: originalItem.descripcion // Added description for matching
+                    } as any, unidadReferencia, contratoJson); // Pass contract
 
                     if (validation.tope_cumplido) {
                         topeCumplidoGlobal = true;
+                    }
+                    if (validation.regla_aplicada) {
+                        reglaAplicadaGlobal = validation.regla_aplicada;
                     }
                 }
             }
@@ -291,7 +296,8 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
                 valor_unidad_inferido: valorUnidadInferido,
                 unit_type: unidadReferencia.tipo, // Added for dynamic reporting
                 metodo_validacion: (unidadReferencia.confianza === 'ALTA' ? 'FACTOR_ESTANDAR' : 'MANUAL') as any,
-                glosa_tope: unidadReferencia.evidencia[0] || "No determinado"
+                glosa_tope: unidadReferencia.evidencia[0] || "No determinado",
+                regla_aplicada: reglaAplicadaGlobal // Persist the rule!
             },
             nivel_confianza: "ALTA" as const,
             recomendacion_accion: (topeCumplidoGlobal ? "ACEPTAR" : "SOLICITAR_ACLARACION") as any,

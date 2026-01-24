@@ -21,21 +21,30 @@ export interface UsageMetadata {
 export interface ContractAnalysisResult {
     fingerprint?: ContractFingerprint; // Phase 0 - Universal Architecture
     reglas: Array<{
-        'pagina': string;
-        'seccion': string;
-        'categoria': string;
+        'PÁGINA ORIGEN'?: string;
+        'CÓDIGO/SECCIÓN'?: string;
+        'SUBCATEGORÍA'?: string;
+        'VALOR EXTRACTO LITERAL DETALLADO'?: string;
+        'pagina'?: string; // Legacy compat
+        'seccion'?: string; // Legacy compat
+        'categoria'?: string; // Legacy compat
+        'texto'?: string; // Legacy compat
         'categoria_canonica'?: string;
-        'texto': string;
     }>;
     coberturas: Array<{
-        'prestacion': string;
-        'modalidad': string;
-        'bonificacion': string;
-        'copago': string;
-        'tope': string;
-        'tope_2'?: string;
-        'nota_restriccion': string;
+        'categoria': string;
+        'item': string;
+        'modalidades': Array<{
+            'tipo': "PREFERENTE" | "LIBRE_ELECCION" | "BONIFICACION";
+            'porcentaje': number | null;
+            'tope': number | null;
+            'unidadTope': "UF" | "AC2" | "VAM" | "PESOS" | "SIN_TOPE" | "DESCONOCIDO";
+            'tipoTope': "POR_EVENTO" | "ANUAL" | "ILIMITADO" | "DIARIO";
+            'copago'?: string;
+        }>;
+        'nota_restriccion'?: string;
         'categoria_canonica'?: string;
+        // Legacy flat fields are REMOVED to force structural adoption
     }>;
     diseno_ux: {
         nombre_isapre: string;
