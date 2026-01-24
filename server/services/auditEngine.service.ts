@@ -737,6 +737,7 @@ Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, C
                 quantity: item.quantity,
                 unitPrice: item.unitPrice,
                 total: item.total,
+                index: item.index, // CRITICAL: Preserve index for traceability
                 // NEW: Expose Billing Model to LLM
                 model: item.billingModel,
                 authTotal: item.authoritativeTotal,
@@ -1643,6 +1644,66 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         // Update finalResult with TRUTH
         finalResult.resumenFinanciero = (canonicalResult as any).resumenFinanciero;
         finalResult.totalAhorroDetectado = finalStrictBalance.A;
+        finalResult.balance = finalStrictBalance;
+
+        // --- NEW: Sync Hallazgos with Reconstructed findings for UI/Report consistency ---
+        finalResult.hallazgos = finalFindings.map(f => {
+            const existing = (auditResult.hallazgos || []).find((h: any) => h.id === f.id);
+            return {
+                ...(existing || {}),
+                id: f.id,
+                categoria_final: f.category,
+                categoria: f.category,
+                titulo: f.label,
+                glosa: f.label,
+                montoObjetado: f.amount,
+                recomendacion_accion: f.action,
+                hallazgo: f.rationale,
+                evidenceRefs: f.evidenceRefs,
+                hypothesisParent: f.hypothesisParent
+            };
+        });
+
+        // --- NEW: Patch auditoriaFinalMarkdown to include Reconstructed Findings ---
+        if (finalResult.auditoriaFinalMarkdown) {
+            const reconstructed = finalFindings.filter(f => f.category === 'A' && f.label.includes('(Reconstruido)'));
+            if (reconstructed.length > 0) {
+                // 1. Update Executive Summary (Section 1) - Correcting "Opacidad Estructural" to "Opacidad Resuelta"
+                finalResult.auditoriaFinalMarkdown = finalResult.auditoriaFinalMarkdown.replace(
+                    /revela una \*\*Opacidad Estructural\*\* severa[^.]+\./i,
+                    `revela que, mediante **Reconstrucción Forense Aritmética**, se ha logrado identificar el desglose de los montos opacos, confirmando cobros improcedentes por $${finalResult.totalAhorroDetectado.toLocaleString('es-CL')}.`
+                );
+
+                // 2. Clear "Indeterminado" mentions
+                finalResult.auditoriaFinalMarkdown = finalResult.auditoriaFinalMarkdown.replace(
+                    /El copago asociado a estas líneas es \*\*INDETERMINADO\*\*\./gi,
+                    "El desglose de estas líneas ha sido identificado y validado técnicamente."
+                );
+
+                // 3. Inject Detailed Breakdown Section
+                let reconSection = "\n\n## 4.5 Desglose de Reconstrucción Forense (Opacidad PAM)\nSe ha logrado reconstruir técnicamente los siguientes montos que aparecían sin detalle en el PAM, confirmando su naturaleza improcedente:\n\n";
+                reconstructed.forEach(r => {
+                    reconSection += `- **${r.label}**: $${r.amount.toLocaleString('es-CL')}\n`;
+                });
+                reconSection += "\n*El detalle ítem por ítem se encuentra disponible en los hallazgos individuales de este reporte.*";
+
+                if (finalResult.auditoriaFinalMarkdown.includes("## 5. Recomendación Final")) {
+                    finalResult.auditoriaFinalMarkdown = finalResult.auditoriaFinalMarkdown.replace("## 5. Recomendación Final", reconSection + "\n\n## 5. Recomendación Final");
+                } else if (finalResult.auditoriaFinalMarkdown.includes("## 5.")) {
+                    finalResult.auditoriaFinalMarkdown = finalResult.auditoriaFinalMarkdown.replace("## 5.", reconSection + "\n\n## 5.");
+                } else {
+                    finalResult.auditoriaFinalMarkdown += reconSection;
+                }
+            }
+        }
+
+        // --- NEW: Patch root resumenEjecutivo for UI consistency ---
+        if (finalResult.resumenEjecutivo && finalFindings.some(f => f.label.includes('(Reconstruido)'))) {
+            finalResult.resumenEjecutivo = finalResult.resumenEjecutivo.replace(
+                /1\. \*\*Opacidad Estructural\*\*:[^.]+\./i,
+                `1. **Opacidad Resuelta**: Se reconstruyó el desglose de Medicamentos y Materiales mediante auditoría forense, identificando cobros indebidos específicos.`
+            );
+        }
 
         if (canonicalResult.debug.length > 0) {
             log(`[AuditEngine] ⚖️ Canonical Debug: ${canonicalResult.debug.join(' | ')}`);
