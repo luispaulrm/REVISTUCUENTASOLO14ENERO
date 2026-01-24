@@ -767,6 +767,7 @@ export async function performForensicAudit(
     apiKey: string,
     log: (msg: string) => void,
     htmlContext: string = '',
+    contractMarkdown: string = '', // NEW: Dual Verification Context
     onUsageUpdate?: (usage: any) => void,
     onProgressUpdate?: (progress: number) => void
 ) {
@@ -1309,7 +1310,8 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         .replace('{eventos_hospitalarios}', eventosContext)
         .replace('{contexto_trazabilidad}', traceAnalysis)
         .replace('{va_deduction_context}', vaDeductionSummary + '\n' + rulesContext)
-        .replace('{html_context}', useHtmlContext ? (htmlContext || '') : '(Omitido: JSON completo)');
+        .replace('{html_context}', useHtmlContext ? (htmlContext || '') : '(Omitido: JSON completo)')
+        .replace('{contract_markdown}', contractMarkdown || '(No disponible: Verificación solo JSON)');
 
     // Log prompt size for debugging
     const promptSize = prompt.length;

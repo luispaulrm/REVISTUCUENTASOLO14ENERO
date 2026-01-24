@@ -19,6 +19,7 @@ export interface UsageMetadata {
 }
 
 export interface ContractAnalysisResult {
+    rawMarkdown?: string; // New field for Dual Verification
     fingerprint?: ContractFingerprint; // Phase 0 - Universal Architecture
     reglas: Array<{
         'PÁGINA ORIGEN'?: string;

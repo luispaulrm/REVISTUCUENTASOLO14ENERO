@@ -491,6 +491,9 @@ export async function analyzeSingleContract(
         extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS)
     ];
 
+    // --- TEXT EXTRACTION PHASE (Dual Verification) ---
+    const textExtractionPromise = extractTextFromPdf(file, CONTRACT_OCR_MAX_PAGES, log);
+
     const [
         fingerprintPhase,
         reglasP1Phase,
@@ -503,10 +506,11 @@ export async function analyzeSingleContract(
         ambP2Phase,
         ambP3Phase,
         ambP4Phase,
-        extrasPhase
-    ] = await Promise.all(phasePromises);
+        extrasPhase,
+        ocrResult // New
+    ] = await Promise.all([...phasePromises, textExtractionPromise]);
 
-    log(`\n[ContractEngine] ✅ 12 Fases Modulares Completadas.`);
+    log(`\n[ContractEngine] ✅ 12 Fases Modulares + OCR Completadas.`);
 
     if (fingerprintPhase.result) {
         log(`\n[ContractEngine] 📍 Huella Digital:`);
@@ -549,11 +553,6 @@ export async function analyzeSingleContract(
     const MAX_HOSP_ITEMS = 56;
     const MAX_AMB_ITEMS = 70;
 
-    // Independent slicing
-    // Independent slicing - REMOVED per User Request (Fix 1)
-    // const hospSliced = coberturasHospRaw.slice(0, MAX_HOSP_ITEMS);
-    // const ambSliced = coberturasAmbRaw.slice(0, MAX_AMB_ITEMS);
-    // Instead of slicing, we just filter empty/garbage if needed, but for now we pass ALL.
     const hospSliced = coberturasHospRaw;
     const ambSliced = coberturasAmbRaw;
 
@@ -689,6 +688,7 @@ export async function analyzeSingleContract(
         reglas,
         coberturas,
         diseno_ux,
+        rawMarkdown: (ocrResult as any).text || '', // Include Markdown for Dual Verification
         metrics: {
             executionTimeMs: Date.now() - startTime,
             tokenUsage: {

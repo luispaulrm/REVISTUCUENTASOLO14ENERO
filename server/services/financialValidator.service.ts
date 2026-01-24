@@ -165,16 +165,7 @@ export function validateTopeHonorarios(
     contrato?: any
 ): TopeValidationResult & { regla_aplicada?: any } {
 
-    if (unidadRef.confianza === "BAJA" || !unidadRef.valor_pesos_estimado || !unidadRef.cobertura_aplicada) {
-        return {
-            tope_aplica: false,
-            tope_cumplido: false,
-            rationale: "Unidad de referencia no deducible para este caso.",
-            metodo_validacion: "SIN_TOPE"
-        };
-    }
-
-    // 1. Try Specific Contract Rule Lookup
+    // 1. Try Specific Contract Rule Lookup FIRST (Logic Layer)
     let factor = SURGICAL_FACTORS[item.codigoGC];
     let reglaAplicada: any = null;
 
@@ -196,19 +187,40 @@ export function validateTopeHonorarios(
                 factor = modality.tope;
                 const unit = modality.unidadTope || "AC2";
 
-                // Construct the string expected by parseCeilingFactor in AuditEngine
-                // e.g., "1.2 veces AC2" or just "1.2 AC2"
                 reglaAplicada = {
                     ...specificRule,
-                    tope_aplicado: `${factor} veces ${unit}`, // Format explicit for regex
+                    tope_aplicado: `${factor} veces ${unit}`,
                     _internal_factor: factor,
                     _internal_unit: unit
                 };
             } else if (modality && modality.copago) {
-                // Fallback to legacy string parsing if 'tope' was not numeric but put in a string field (unlikely with new schema but safe)
-                // ... logic logic ... but let's trust the number first.
+                // Fallback to legacy string parsing if 'tope' was not numeric but put in a string field
             }
         }
+    }
+
+    // 2. If we found a rule but have NO Unit Value confidence (Financial Layer failure)
+    // We still return true for "tope_aplica" (we know there IS a ceiling) but false for "tope_cumplido" (uncertain).
+    // This allows the UI to show the ceiling even if we can't calculate exact math.
+    if ((unidadRef.confianza === "BAJA" || !unidadRef.valor_pesos_estimado || !unidadRef.cobertura_aplicada) && !factor) {
+        return {
+            tope_aplica: false,
+            tope_cumplido: false,
+            rationale: "Unidad de referencia no deducible para este caso.",
+            metodo_validacion: "SIN_TOPE"
+        };
+    }
+
+    // Low confidence but we HAVE a factor/rule? 
+    // We can at least report the rule.
+    if ((unidadRef.confianza === "BAJA" || !unidadRef.valor_pesos_estimado) && factor) {
+        return {
+            tope_aplica: true,
+            tope_cumplido: false, // Cannot verify
+            rationale: `DETECTADO: Regla contractual hallada (${reglaAplicada?.tope_aplicado || factor}), pero valor moneda (AC2/UF) no determinado o confianza baja.`,
+            metodo_validacion: "SIN_TOPE",
+            regla_aplicada: reglaAplicada
+        };
     }
 
     if (!factor) {
@@ -221,7 +233,7 @@ export function validateTopeHonorarios(
     }
 
     // Tope = V.A * Factor * Cobertura
-    const montoTopeTeorico = unidadRef.valor_pesos_estimado * factor * unidadRef.cobertura_aplicada;
+    const montoTopeTeorico = unidadRef.valor_pesos_estimado! * factor * unidadRef.cobertura_aplicada!;
     const bonif = parseMonto(item.bonificacion);
 
     // Tolerance of $2.500 for rounding differences in V.A calculation
@@ -230,7 +242,7 @@ export function validateTopeHonorarios(
             tope_aplica: true,
             tope_cumplido: true,
             monto_tope_estimado: montoTopeTeorico,
-            rationale: `CUMPLE: Bonificación ($${bonif}) coincide con el V.A deducido de $${unidadRef.valor_pesos_estimado} (Factor ${factor} @ ${Math.round(unidadRef.cobertura_aplicada * 100)}%).`,
+            rationale: `CUMPLE: Bonificación ($${bonif}) coincide con el V.A deducido de $${unidadRef.valor_pesos_estimado} (Factor ${factor} @ ${Math.round(unidadRef.cobertura_aplicada! * 100)}%).`,
             metodo_validacion: "FACTOR_ESTANDAR",
             regla_aplicada: reglaAplicada
         };

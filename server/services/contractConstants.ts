@@ -256,7 +256,13 @@ const SHARED_MANDATE = `
   ⚠️ INSTRUCCIONES DE FIDELIDAD:
   - Si dice "Sin Tope", reporta unidadTope="SIN_TOPE".
   - Si el tope es "1.2 veces AC2", reporta tope=1.2, unidadTope="AC2", tipoTope="POR_EVENTO".
-  - NUNCA inventes valores. Si no hay dato, reporta null.
+  - NUNCA inventes valores. Si no hay dato, reporta null con "tipoTope": "DESCONOCIDO".
+  
+  **ATENCIÓN A LA ALINEACIÓN:**
+  - Respeta estrictamente los encabezados de columna.
+  - NO asumas que Preferente es siempre "Sin Tope".
+  - Si hay un solo valor en la fila y no está claro a qué columna pertenece, repórtalo en AMBAS modalidades con una nota de "CONFIRMAR".
+
 `;
 
 export const PROMPT_HOSP_P1 = `
