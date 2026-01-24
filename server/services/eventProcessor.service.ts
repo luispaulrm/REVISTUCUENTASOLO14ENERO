@@ -297,35 +297,38 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
         };
     });
 
-    // --- PHASE 6: EVENTO ÚNICO POST-PROCESSING (NEW) ---
-    // If an Urgency event is followed by a Hospitalization (QUIRURGICO/MEDICO) 
-    // on the same day or within 24h, they should be logically linked.
-    // However, the current structure is flat. We'll mark them for the Audit Engine.
+    // --- PHASE 6: EVENTO ÚNICO POST-PROCESSING (RFC-04) ---
+    // Rule RFC-04: If an urgency derivations directly into a hospitalization (24h), it's a single CLINICAL event.
+    // This allows urgency exams to inherit hospital coverage.
     const sortedEvents = [...events].sort((a, b) => new Date(a.fecha_inicio).getTime() - new Date(b.fecha_inicio).getTime());
 
     for (let i = 0; i < sortedEvents.length; i++) {
         const current = sortedEvents[i];
 
-        // Check if current is Urgency (heuristic: contains 'URGENCIA' in items or provider)
-        const hasUrgencySignal = candidateEpisodes.find(ep => ep.id === current.id_evento)?.items.some(it =>
-            /URGENCIA/i.test(it.descripcion) || /URGENCIA/i.test(it.prestador || "")
+        // Check if current is Urgency (detect via signals or description)
+        const ep = candidateEpisodes.find(e => e.id === current.id_evento);
+        const hasUrgencySignal = ep?.items.some(it =>
+            /URGENCIA|EMERGENCIA/i.test(it.descripcion) || /URGENCIA/i.test(current.prestador || "")
         );
 
         if (hasUrgencySignal) {
-            // Find a subsequent hospitalization event within 24h
+            // Find subsequent hospitalization (QUIRURGICO/MEDICO) within 24h
             const hospitalization = sortedEvents.slice(i + 1).find(next => {
                 const diff = new Date(next.fecha_inicio).getTime() - new Date(current.fecha_fin).getTime();
                 const hours24 = 24 * 60 * 60 * 1000;
-                return diff >= 0 && diff <= hours24 && (next.tipo_evento === 'QUIRURGICO' || next.tipo_evento === 'MEDICO');
+                return diff >= 0 && diff <= hours24 &&
+                    (next.tipo_evento === 'QUIRURGICO' || next.tipo_evento === 'MEDICO') &&
+                    next.prestador === current.prestador;
             });
 
             if (hospitalization) {
-                // INTERNAL SIGNAL: Mark as possible Evento Único violation for the audit engine
                 current.posible_continuidad = true;
-                current.recomendacion_accion = "IMPUGNAR";
+                current.recomendacion_accion = "SOLICITAR_ACLARACION" as any;
                 (current as any).metadata = {
-                    evento_unico_target: hospitalization.id_evento,
-                    razon: "Urgencia que deriva en hospitalización (Evento Único)"
+                    ...(current as any).metadata,
+                    evento_unico_v6_detected: true,
+                    target_hosp_id: hospitalization.id_evento,
+                    razon: "Derivación directa Urgencia -> Hospitalización detectada (RFC-04)"
                 };
             }
         }

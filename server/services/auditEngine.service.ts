@@ -117,38 +117,28 @@ function resolveDecision(params: {
     const rawZ = sum(Z_items.map(x => x.amount));
 
     // 2) ENSURE PARTITION (A + K + OK = T)
-    // Priority: A (Confirmed) > K (Opacity) > OK (Legit)
-    // We don't use Z for monetary balance in V6 if K exists.
-    let budget = T;
+    // RFC-09/11: NO speculative cropping. If A+K > T, it's a CONFLICT, not a "fix".
 
-    const finalA = Math.min(rawA, budget);
-    budget -= finalA;
-    if (rawA > T) errors.push(`Exceso_A: Suma A (${rawA}) excede T. Recortado.`);
+    const finalA = rawA;
+    const finalK = rawK;
+    const finalB = rawB;
+    const finalOK_crudo = rawOK;
 
-    const finalK = Math.min(rawK, budget);
-    budget -= finalK;
-    if (rawA + rawK > T + 500) errors.push(`Ajuste_Balance: La suma A+K ($${rawA + rawK}) excedía el total ($${T}). Se realizó ajuste por solape detectado.`);
+    // We still calculate a "Budget Overflow" for reporting but we don't CROP the findings.
+    // The findings are the "Peritaje". The fact they don't sum T is a signal of incoherence.
+    const sumDeterminista = finalA + finalK + finalOK_crudo + finalB;
 
-    // Residual goes to OK (or B if we have it)
-    let finalOK = Math.min(rawOK, budget);
-    budget -= finalOK;
-
-    let finalB = 0;
-    if (budget > 0 && rawB > 0) {
-        finalB = Math.min(rawB, budget);
-        budget -= finalB;
+    if (sumDeterminista > T + 50) {
+        errors.push(`CONFLICTO_REGLA_RFC_07: La suma de hallazgos periciados ($${sumDeterminista}) excede el copago informado ($${T}). Incoherencia en liquidación detectada.`);
     }
 
-    // Si aún queda presupuesto, es OK no observado
-    if (budget > 0) {
-        finalOK += budget;
-        errors.push(`Cierre_por_defecto: Residuo de $${budget} asignado a OK.`);
-    }
+    const finalOK = T - (finalA + finalK + finalB);
+    // If finalOK < 0, it means the clinic/Isapre is "missing" money or our audit found more improcedencia than stated.
 
     // 3) Invariants
-    const invariantsOk = (finalA + finalK + finalOK + finalB) === T;
+    const invariantsOk = Math.abs((finalA + finalK + finalB + (finalOK > 0 ? finalOK : 0)) - T) < 1000;
     if (!invariantsOk) {
-        errors.push(`FALLO_CRITICO_INVARIANTE: A+K+OK+B=${finalA + finalK + finalOK + finalB} != T=${T}.`);
+        errors.push(`FALLO_CRITICO_INVARIANTE: A+K+OK+B=${finalA + finalK + (finalOK > 0 ? finalOK : 0) + finalB} != T=${T}.`);
     }
 
     // 4) Señales y Estado Global (Determinista)
@@ -158,13 +148,13 @@ function resolveDecision(params: {
 
     const opacidad = (finalK + (rawZ > 0 ? 0 : 0)) / Math.max(1, T); // Opacidad real es K/T
 
-    let estado = "COPAGO_VERIFICADO_OK";
+    let estado = "VALIDADO";
     if (finalK > 0 && finalA > 0) {
-        estado = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+        estado = "IMPROCEDENTE_Y_OPACO";
     } else if (finalK > 0) {
-        estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
+        estado = "INDETERMINADO_POR_OPACIDAD";
     } else if (finalA > 0) {
-        estado = "COPAGO_OBJETABLE_CONFIRMADO";
+        estado = "IMPROCEDENTE_CONFIRMADO";
     }
 
     // 5) Resumen y Confianza
@@ -512,7 +502,7 @@ export function finalizeAuditCanonical(input: {
             } else {
                 parent = (parent === "H_OK_CUMPLIMIENTO") ? "H_PRACTICA_IRREGULAR" : parent;
             }
-        } else if (catFinding.category !== "A" && (catFinding.category === "Z" || /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(f.label || ""))) {
+        } else if (catFinding.category === "Z" || /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(f.label || "")) {
             parent = "H_OPACIDAD_ESTRUCTURAL";
             catFinding.category = "Z"; // Hard enforcement of Z for reconstruction trigger
             catFinding.action = "SOLICITAR_ACLARACION";
