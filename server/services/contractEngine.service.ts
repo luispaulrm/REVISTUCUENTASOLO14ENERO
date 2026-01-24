@@ -651,6 +651,63 @@ export async function analyzeSingleContract(
     let coberturas = [...hospClean, ...ambClean, ...extrasClean];
 
     log(`🔧 POST-PROCESSING: Hosp: ${hospClean.length}, Amb: ${ambClean.length}, Extras: ${extrasClean.length}`);
+
+    // --- FALLBACK PHASE: TEXT-BASED EXTRACTION (Dual Verification Activation) ---
+    // If Vision extraction failed (0 items) but we have OCR text, we try to extract from text.
+    if (coberturas.length === 0 && (ocrResult as any).text && (ocrResult as any).text.length > 500) {
+        log(`[ContractEngine] ⚠️ VISIÓN ARTIFICIAL FALLÓ (0 items). Activando FALLBACK TEXTUAL (Dual Verification)...`);
+
+        try {
+            // We use the same schema but a prompt specific for text analysis
+            const fallbackPrompt = `
+            ACTÚA COMO EXPERTO EN ARANCELES MÉDICOS.
+            ANALIZA EL SIGUIENTE TEXTO EXTRAÍDO DE UN CONTRATO DE SALUD (OCR):
+            ---------------------
+            ${(ocrResult as any).text.substring(0, 95000)} ... (Truncado)
+            ---------------------
+            
+            EXTRAE TODAS LAS COBERTURAS, TOPES Y MODALIDADES QUE ENCUENTRES.
+            SI ENCUENTRAS TABLAS, RECONSTRÚYELAS LÓGICAMENTE.
+            BUSCA ESPECIALMENTE: HÚMEDO/CLÍNICO, PABELLÓN, DÍA CAMA, MEDICAMENTOS, MATERIALES, HONORARIOS.
+            
+            RETORNA JSON SEGÚN SCHEMA.
+            `;
+
+            // Reuse extractSection logic but force text input (we wrap it to mimic expected structure if needed, 
+            // but extractSection expects a name, prompt, schema. 
+            // CRITICAL: extractSection uses 'fileToGenerativePart' which uses Vision. 
+            // We need a text-based call. We'll use a direct Gemini call here or a modified extractSection.
+            // Since extractSection is hardcoded for Vision, we'll instantiate Gemini manually here for Text.
+
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({
+                model: CONTRACT_FAST_MODEL, // Use Fast model for text
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: SCHEMA_COBERTURAS as any
+                }
+            });
+
+            const result = await model.generateContent(fallbackPrompt);
+            const textResponse = result.response.text();
+            const jsonFallback = safeJsonParse(textResponse); // Helper from above
+
+            if (jsonFallback && Array.isArray((jsonFallback as any).coberturas)) {
+                const fallbackCoberturas = (jsonFallback as any).coberturas;
+                log(`[ContractEngine] ✅ FALLBACK TEXTUAL EXITOSO: Recuperados ${fallbackCoberturas.length} items de cobertura.`);
+
+                // Clean and check the fallback findings
+                const fallbackClean = cleanAndCheck(fallbackCoberturas);
+                coberturas = [...coberturas, ...fallbackClean];
+            } else {
+                log(`[ContractEngine] ❌ FALLBACK TEXTUAL FALLÓ: No se pudo parsear JSON o no hay coberturas.`);
+            }
+
+        } catch (fallbackError: any) {
+            log(`[ContractEngine] ❌ ERROR EN FALLBACK TEXTUAL: ${fallbackError.message}`);
+        }
+    }
+
     log(`✅ Final total: ${coberturas.length} items.`);
 
 

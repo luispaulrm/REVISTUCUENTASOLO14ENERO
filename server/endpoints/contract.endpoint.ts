@@ -119,7 +119,14 @@ export async function handleContractExtraction(req: Request, res: Response) {
         }
 
         // Send Final Data
-        console.log(`[CONTRACT] Final analysis complete. Serializing and sending ${result.coberturas.length} items...`);
+        // Send Final Data
+        // SAFETY: Truncate markdown if it exceeds 4MB to prevent JSON stringify failure or network timeout
+        if (result.rawMarkdown && result.rawMarkdown.length > 4 * 1024 * 1024) {
+            console.warn(`[CONTRACT] Raw Markdown too large (${result.rawMarkdown.length} chars). Truncating to 4MB.`);
+            result.rawMarkdown = result.rawMarkdown.substring(0, 4 * 1024 * 1024) + '\n... [TRUNCADO POR SEGURIDAD DE RED]';
+        }
+
+        console.log(`[CONTRACT] Final analysis complete. Serializing and sending ${result.coberturas.length} items (MD Size: ${result.rawMarkdown?.length || 0})...`);
         sendUpdate({
             type: 'final',
             data: result
