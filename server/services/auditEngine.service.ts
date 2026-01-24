@@ -368,23 +368,31 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
 function applySubsumptionCanonical(findings: Finding[]): Finding[] {
     if (findings.length === 0) return [];
 
-    // 1. Sort: Micros (specific items) first, Macros (agrupadores) last.
+    // 1. Sort: Priority to Cat A, and specific (Micros) first. Macros always last.
     const sorted = [...findings].sort((a, b) => {
-        const aIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA/i.test(a.label || "");
-        const bIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA/i.test(b.label || "");
+        // Preference for Cat A
+        if (a.category === 'A' && b.category !== 'A') return -1;
+        if (a.category !== 'A' && b.category === 'A') return 1;
+
+        const aIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|RESUMEN/i.test(a.label || "");
+        const bIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|RESUMEN/i.test(b.label || "");
+
+        // Macros always at the end
         if (aIsMacro && !bIsMacro) return 1;
         if (!aIsMacro && bIsMacro) return -1;
+
+        // Otherwise descending by amount
         return (b.amount || 0) - (a.amount || 0);
     });
 
     const out: Finding[] = [];
 
-    for (const f of sorted) {
-        const amount = Math.abs(f.amount || 0);
+    for (let f of sorted) {
+        let amount = Math.abs(f.amount || 0);
         if (amount < 1) continue;
 
         const fLabel = (f.label || "").toUpperCase();
-        const isMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA/i.test(fLabel);
+        const isMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|RESUMEN/i.test(fLabel);
 
         // 2. Exact Deduplication (Strict ±25 CLP)
         const duplicate = out.find(o => Math.abs(o.amount - amount) < 25);
@@ -403,6 +411,33 @@ function applySubsumptionCanonical(findings: Finding[]): Finding[] {
             }
             // Skip redundant finding
             continue;
+        }
+
+        // 3. ARITHMETIC NETTING (NEW: Phase 2)
+        // If this is a Macro finding (like Structural Opacity), subtract any specific findings already in 'out'
+        // that belong to the same context (shared PAM codes).
+        if (isMacro) {
+            const pamCodes = (f.evidenceRefs || []).filter(ref => ref.startsWith("PAM:"));
+            if (pamCodes.length > 0) {
+                let overlap = 0;
+                for (const o of out) {
+                    const shared = (o.evidenceRefs || []).filter(ref => pamCodes.includes(ref));
+                    if (shared.length > 0) {
+                        overlap += (o.amount || 0);
+                    }
+                }
+
+                if (overlap > 0) {
+                    const remaining = amount - overlap;
+                    if (remaining > 100) { // Keep only if there's a significant residual
+                        f = { ...f, amount: remaining, label: `${f.label} (Neto / Remanente)` };
+                        amount = remaining;
+                    } else {
+                        // Fully explained by micros, skip macro
+                        continue;
+                    }
+                }
+            }
         }
 
         out.push(f);
@@ -588,11 +623,11 @@ export function finalizeAuditCanonical(input: {
     const resumenFinanciero = {
         totalCopagoInformado: total,
         totalCopagoLegitimo: balance.OK,
-        totalCopagoObjetado: balance.A + balance.B + balance.K,
+        totalCopagoObjetado: balance.A + balance.B + balance.Z, // Include Z in total debated amount
         ahorro_confirmado: balance.A,
         cobros_improcedentes_exigibles: balance.A,
-        monto_bajo_controversia_opacidad: balance.K,
-        monto_indeterminado_residual: balance.Z,
+        copagos_bajo_controversia: balance.B,
+        monto_indeterminado: balance.Z,
         monto_no_observado: balance.OK,
         totalCopagoReal: total,
         estado_copago: estadoGlobal.includes('MIXTO') ? "MIXTO" : (estadoGlobal.includes('OPACIDAD') ? "INDETERMINADO" : (estadoGlobal.includes('OBJETABLE') ? "OBJETABLE" : "OK")),
