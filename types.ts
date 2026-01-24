@@ -161,6 +161,7 @@ export interface Anclaje {
 export interface AnalisisFinanciero {
   tope_cumplido: boolean;
   valor_unidad_inferido?: number;
+  unit_type?: string;
   metodo_validacion: 'FACTOR_ESTANDAR' | 'INFERENCIA_BAM' | 'MANUAL';
   glosa_tope?: string; // e.g., "70% tope 2.2 VAM"
 }

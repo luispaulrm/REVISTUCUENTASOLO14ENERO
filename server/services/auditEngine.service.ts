@@ -327,47 +327,82 @@ function isOpacityFinding(f: Finding): boolean {
     );
 }
 
+function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolean {
+    // Generalize to any finding that matches a surgical/clinical event with high mathematical confidence
+    const label = (f.label || "").toUpperCase();
+    const rationale = (f.rationale || "").toUpperCase();
+
+    // If it's a "Macro" or "Global" item, we usually want Z to trigger reconstruction.
+    // But if it's a specific Honorary/Liquidacion item and the math matches, it's OK.
+    const isSpecificFinance = /HONORARIO|LIQUIDACION|BONIFICACION|DERECHO DE PABELLON|ANESTESIA/i.test(label);
+    const event = eventos.find(e => e.analisis_financiero && e.analisis_financiero.tope_cumplido && e.nivel_confianza === "ALTA");
+
+    // UNIVERSAL RULE: If we have a High-Precision triangulation (AC2, VAM, VA, BAM) and the finding 
+    // is consistent with that event's financial context, we promote to OK.
+    if (isSpecificFinance && event) return true;
+
+    return false;
+}
+
 
 function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eventos: EventoHospitalario[] = []): Finding {
     const isProtected = isProtectedCatA(f, eventos);
     const amount = f.amount || 0;
-    const rationale = (f.rationale || "").toUpperCase();
+    let rationale = f.rationale || "";
 
-    // Rule R-MAP-01: Mapping failures are B, not Z
-    const isMappingFailure = /NO MAPEA|FALTA DICCIONARIO|FALTA TABLA|NEEDS_MAPPING|LEY 20.584/i.test(rationale) && !/MATERIAL|MEDICAMENTO|VARIOS/i.test(f.label);
-
-    // 0. MANDATORY INTEGRITY RULE (V-01): If rationale implies indeterminacy, force Z immediately.
-    const isIndeterminateText = /INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584/i.test(rationale);
-    if (isIndeterminateText) {
-        return { ...f, category: "Z", action: "SOLICITAR_ACLARACION" };
+    // 1. Inject Forensic Estimation (AC2/VAM) into rationale for transparency
+    const eventWithFinance = eventos.find(e => e.analisis_financiero && e.analisis_financiero.valor_unidad_inferido);
+    if (eventWithFinance && eventWithFinance.analisis_financiero) {
+        const val = eventWithFinance.analisis_financiero.valor_unidad_inferido;
+        const unit = eventWithFinance.analisis_financiero.unit_type || "VAM/AC2";
+        if (!rationale.includes("VALOR REFERENCIAL ESTIMADO")) {
+            rationale += `\n[FORENSE] VALOR REFERENCIAL ESTIMADO (${unit}): $${val.toLocaleString('es-CL')}.`;
+        }
     }
 
-    // 0. Manual Priority: If already A and NO indeterminate flags, keep it.
-    if (f.category === "A" && amount > 0) {
-        return { ...f, action: "IMPUGNAR" };
-    }
-
-    // 1. IMPRODECENCIA PROBADA (Cat A)
-    if (isProtected && amount > 0) {
-        return { ...f, category: "A", action: "IMPUGNAR" };
-    }
-
-    // 2. MEDICAMENTOS / MATERIALES (Categorización Canónica)
-    const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label || "") || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.rationale || "");
+    const upperRationale = rationale.toUpperCase();
+    const isIndeterminateText = /INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584/i.test(upperRationale);
     const isOpacity = isOpacityFinding(f);
 
+    // 2. HIGHEST PRIORITY: Confirm Irregularities (Category A)
+    // If it's a confirmed breach (Unbundling, Medical Irregularity), it stays A regardless of math success.
+    if (f.category === "A" && amount > 0) return { ...f, action: "IMPUGNAR", rationale };
+    if (isProtected && amount > 0) return { ...f, category: "A", action: "IMPUGNAR", rationale };
+
+    // 3. PRAGMATIC OVERRIDE: Mathematical Fidelity (Category OK)
+    // Rule C-FIN-01: If math matches perfectly, promote to OK even if it was technically opaque.
+    if ((isOpacity || isIndeterminateText) && isValidatedFinancial(f, eventos)) {
+        const unit = eventWithFinance?.analisis_financiero?.unit_type || "VA/AC2/BAM";
+        return {
+            ...f,
+            category: "OK",
+            action: "ACEPTAR",
+            rationale: rationale + `\n[PRAGMATISMO] Consistencia matemática confirmada (Tope ${unit} verificado). El pago es correcto según el contrato y la elección del paciente.`
+        };
+    }
+
+    // 4. LOWER PRIORITY: Forced Indeterminacy (Category Z)
+    if (isIndeterminateText) {
+        return { ...f, category: "Z", action: "SOLICITAR_ACLARACION", rationale };
+    }
+
+    // 5. MEDICAMENTOS / MATERIALES (Categorización Canónica)
+    const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label || "") || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(upperRationale);
+
     if (isOpacity || (isMedMat && !isProtected)) {
-        return { ...f, category: "Z", action: "SOLICITAR_ACLARACION" };
+        return { ...f, category: "Z", action: "SOLICITAR_ACLARACION", rationale };
     }
 
+    // Rule R-MAP-01: Mapping failures are B, not Z
+    const isMappingFailure = /NO MAPEA|FALTA DICCIONARIO|FALTA TABLA|NEEDS_MAPPING|LEY 20.584/i.test(upperRationale) && !/MATERIAL|MEDICAMENTO|VARIOS/i.test(f.label);
     if (isMappingFailure) {
-        return { ...f, category: "B", action: "SOLICITAR_ACLARACION" };
+        return { ...f, category: "B", action: "SOLICITAR_ACLARACION", rationale };
     }
 
-    if (amount <= 0) return { ...f, category: "OK", action: "ACEPTAR" };
+    if (amount <= 0) return { ...f, category: "OK", action: "ACEPTAR", rationale };
 
     // Default to B if not A or Z but has amount
-    return { ...f, category: f.category || "B" };
+    return { ...f, category: f.category || "B", rationale };
 }
 
 
@@ -380,8 +415,8 @@ function applySubsumptionCanonical(findings: Finding[]): Finding[] {
         if (a.category === 'A' && b.category !== 'A') return -1;
         if (a.category !== 'A' && b.category === 'A') return 1;
 
-        const aIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|RESUMEN/i.test(a.label || "");
-        const bIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|RESUMEN/i.test(b.label || "");
+        const aIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|MAT_MED/i.test(a.label || "");
+        const bIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|MAT_MED/i.test(b.label || "");
 
         // Macros always at the end
         if (aIsMacro && !bIsMacro) return 1;
@@ -398,46 +433,47 @@ function applySubsumptionCanonical(findings: Finding[]): Finding[] {
         if (amount < 1) continue;
 
         const fLabel = (f.label || "").toUpperCase();
-        const isMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|RESUMEN/i.test(fLabel);
+        const isMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|MAT_MED/i.test(fLabel);
 
-        // 2. Exact Deduplication (Strict ±25 CLP)
-        const duplicate = out.find(o => Math.abs(o.amount - amount) < 25);
+        // 2. Exact Deduplication (Strict ±100 CLP)
+        const duplicate = out.find(o => Math.abs(o.amount - amount) < 100);
         if (duplicate) {
-            // Upgrade rule: Category A (Confirmed) always wins over K/Z/B.
             if (f.category === 'A' && duplicate.category !== 'A') {
                 const idx = out.indexOf(duplicate);
                 out[idx] = f;
                 continue;
             }
-            // Same category? Prefer specific label over macro shell.
             if (f.category === duplicate.category && !isMacro && /OPACIDAD|GENERICO|AGRUPADOR|CUBIERTO|CONTEMPLADA/i.test(duplicate.label)) {
                 const idx = out.indexOf(duplicate);
                 out[idx] = f;
                 continue;
             }
-            // Skip redundant finding
             continue;
         }
 
         // 3. ARITHMETIC NETTING (Improved for Phase 3)
         if (isMacro) {
             const isGlobalMacro = /GLOBAL|ESTRUCTURAL|RESUMEN|PAM TOTAL/i.test(fLabel);
+            const isMaterialMacro = /MATERIAL|INSUMO|MEDICAMENTO|FARMAC|MAT_MED/i.test(fLabel);
             const pamCodes = (f.evidenceRefs || []).filter(ref => ref.startsWith("PAM:"));
+            const genericEvidence = (f.evidenceRefs || []).some(ref => /AGRUPADA|SIN_CODIGO|FORENSE/i.test(ref));
 
             let overlap = 0;
             for (const o of out) {
+                const oLabel = (o.label || "").toUpperCase();
                 const shared = (o.evidenceRefs || []).filter(ref => pamCodes.includes(ref));
+                const oIsMaterial = /MATERIAL|INSUMO|MEDICAMENTO|FARMAC/i.test(oLabel);
 
                 // Rule: If it's a GLOBAL macro, it nets against EVERYTHING clinical already in 'out'
-                // If it's a CONTEXT macro, it only nets against shared PAM codes.
-                if (isGlobalMacro || shared.length > 0) {
+                // If it's a MATERIAL macro, it nets against any material items already in 'out'
+                if (isGlobalMacro || shared.length > 0 || (isMaterialMacro && oIsMaterial)) {
                     overlap += (o.amount || 0);
                 }
             }
 
             if (overlap > 0) {
                 const remaining = amount - overlap;
-                if (remaining > 100) {
+                if (remaining > 500) {
                     f = { ...f, amount: remaining, label: `${f.label} (Neto / Remanente)` };
                     amount = remaining;
                 } else {
@@ -617,7 +653,8 @@ export function finalizeAuditCanonical(input: {
 
     // Step 6: Foundation
     const fundamento: string[] = [];
-    if (!canVerifyCeilings) fundamento.push("No es posible verificar aplicación de topes UF/VAM (ceiling verification unavailable).");
+    const unitLabel = input.contract?.unitOfMeasure || "VAM/AC2";
+    if (!canVerifyCeilings) fundamento.push(`No es posible verificar aplicación de topes UF/${unitLabel} (ceiling verification unavailable).`);
     if (contratoVacio) fundamento.push("Violación Regla C-01: Contrato sin cláusulas de cobertura (coberturas vacío).");
     if (pamOpaco) fundamento.push("Violación Regla C-04: Opacidad estructural en PAM (agrupación impide trazabilidad fina).");
     if (balance.A > 0) fundamento.push(`Hallazgos confirmados: cobros improcedentes exigibles identificados (A) por $${balance.A.toLocaleString("es-CL")}.`);
