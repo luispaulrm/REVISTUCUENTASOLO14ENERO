@@ -221,14 +221,22 @@ function classifyFinding(h: any): "A" | "B" {
 
     // FIX 5: NURSING & SURGICAL DRUGS (IRREGULAR PRACTICES REPORT)
     const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(textUpper) || /ENFERMERIA/.test(glUpper);
-    const isSurgicalDrug = /PROPOFOL|FENTANILO|SEVOFLURANO|MIDAZOLAM|ANESTESIA/.test(textUpper);
+    const isSurgicalDrug = /PROPOFOL|FENTANILO|SEVOFLURANO|MIDAZOLAM|ANESTESIA|ROCURONIO|ROCURONIO|VECURONIO/.test(textUpper);
 
     if (isNursing) return "A"; // Practice #5: Should be included in Bed Day
-    if (isSurgicalDrug && /PABELLON|QUIROFANO/.test(textUpper)) return "A"; // Practice #3: Surgical drugs in Pharmacy
+    if (isSurgicalDrug && /PABELLON|QUIROFANO|FARMACIA PABELLON/.test(textUpper)) return "A"; // Practice #3: Surgical drugs in Pharmacy
 
-    // 2. Layer: CUENTA OPACA (Improcedente por falta de soporte minimo)
-    const isCuentaOpaca = /VARIOS|AJUSTE|DIFERENCIA/.test(glUpper) || /VARIOS|AJUSTE/.test(textUpper) || /SIN BONIFI/.test(textUpper) || /SIN BONIFI/.test(glUpper);
-    if (isCuentaOpaca) return "A"; // Also A
+    // 2. Layer: CUENTA OPACA (Practice #6 & #10)
+    const isCuentaOpaca = /VARIOS|AJUSTE|DIFERENCIA|ESTADO DE CUENTA OPACO/.test(glUpper) || /VARIOS|AJUSTE|BORROSO|SIN DESGLOSE/.test(textUpper);
+    if (isCuentaOpaca) return "A"; // Practice #6: Generic labels
+
+    // PRACTICE #1: Inflamiento / Upcoding
+    const isUpcoding = /UPCODING|INFLA|PRECIO EXCESIVO|DOSIS COMPLETA/.test(textUpper);
+    if (isUpcoding) return "A";
+
+    // PRACTICE #9: Evento Único
+    const isEventoUnico = /EVENTO UNICO|URGENCIA.*INTEGRADO|URGENCIA.*HOSPITALIZACION/.test(textUpper);
+    if (isEventoUnico) return "A";
 
     // 3. Layer: PAM OPACO (Conditioned Findings) -> Cat B/Z
     // If it requires breakdown to be validated, it is B.
