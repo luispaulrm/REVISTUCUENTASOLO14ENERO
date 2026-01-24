@@ -206,7 +206,7 @@ function collapseHonorarios(episode: EpisodeCandidate): HonorarioConsolidado[] {
 /**
  * MAIN ENTRY POINT
  */
-export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoHospitalario[] {
+export async function preProcessEventos(pamJson: any, contratoJson: any = {}): Promise<EventoHospitalario[]> {
     // 1. Flatten PAM Items
     const rawItems: PAMItem[] = [];
     if (pamJson && pamJson.folios) {
@@ -227,7 +227,10 @@ export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoH
 
     // 2. Infer Unit Value Global Context (Root Cause Fix)
     // Dynamic triangulation using real contract data
-    const unidadReferencia = inferUnidadReferencia(contratoJson, pamJson);
+    // Use the first item's date as a reference or today if empty
+    const referenceDate = rawItems.length > 0 ? (parseFecha(rawItems[0].fecha) || new Date()) : new Date();
+    const isapreName = contratoJson?.diseno_ux?.nombre_isapre || "";
+    const unidadReferencia = await inferUnidadReferencia(contratoJson, pamJson, isapreName, referenceDate);
 
     // 3. Group into Episodes
     const candidateEpisodes = groupIntoEpisodes(rawItems);
@@ -284,6 +287,7 @@ export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoH
             analisis_financiero: {
                 tope_cumplido: topeCumplidoGlobal,
                 valor_unidad_inferido: valorUnidadInferido,
+                unit_type: unidadReferencia.tipo, // Added for dynamic reporting
                 metodo_validacion: (unidadReferencia.confianza === 'ALTA' ? 'FACTOR_ESTANDAR' : 'MANUAL') as any,
                 glosa_tope: unidadReferencia.evidencia[0] || "No determinado"
             },

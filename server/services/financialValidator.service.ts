@@ -3,12 +3,14 @@ import { PAMItem, PamDocument } from '../../pamService';
 import { ContractRegla } from '../../types';
 
 export interface UnidadReferencia {
-    tipo: "UF" | "VA" | "UV" | "BAM" | "AC2" | "PESOS" | "DESCONOCIDA";
+    tipo: "UF" | "VA" | "UV" | "BAM" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDA";
     valor_pesos_estimado?: number;
     evidencia: string[];
     confianza: "ALTA" | "MEDIA" | "BAJA";
     factor_origen?: number;
     cobertura_aplicada?: number;
+    fecha_referencia?: Date;
+    valor_uf_fecha?: number;
 }
 
 export interface TopeValidationResult {
@@ -62,17 +64,33 @@ function findCoverageFactor(contrato: any): number {
     return 0.70; // Default safety fallback
 }
 
+import { getUfForDate } from './ufService.js';
+
 /**
- * Infers the internal contractual unit value (VA, AC2, BAM) from the PAM and Contract.
+ * Infers the internal contractual unit value (VA, AC2, BAM, VAM) from the PAM and Contract.
  * Deduce NOTHING via hardcode; everything is triangulated.
  */
-export function inferUnidadReferencia(
-    contrato: { coberturas?: any[], reglas?: ContractRegla[] } | any,
-    pam: PamDocument | any
-): UnidadReferencia {
+export async function inferUnidadReferencia(
+    contrato: { coberturas?: any[], reglas?: ContractRegla[], diseno_ux?: any } | any,
+    pam: PamDocument | any,
+    isapreName?: string,
+    eventDate: Date = new Date()
+): Promise<UnidadReferencia> {
 
     const evidencia: string[] = [];
     const coverage = findCoverageFactor(contrato);
+    const normalizedIsapre = (isapreName || contrato?.diseno_ux?.nombre_isapre || "").toUpperCase();
+
+    // Fetch real UF for the date
+    const valorUf = await getUfForDate(eventDate);
+    evidencia.push(`UF_DETERMINISTA: Valor UF al ${eventDate.toLocaleDateString()} es $${valorUf.toLocaleString('es-CL')}.`);
+
+    // Map unit type based on Isapre
+    let unitType: UnidadReferencia["tipo"] = "VA";
+    if (normalizedIsapre.includes("MASVIDA")) unitType = "VAM";
+    else if (normalizedIsapre.includes("COLMENA")) unitType = "VAM";
+    else if (normalizedIsapre.includes("CONSALUD")) unitType = "AC2";
+    else if (normalizedIsapre.includes("BANMEDICA") || normalizedIsapre.includes("VIDA TRES") || normalizedIsapre.includes("CRUZ BLANCA")) unitType = "VA";
 
     // Reverse Engineering from PAM
     const items = pam.folios?.flatMap((f: any) => f.desglosePorPrestador?.flatMap((d: any) => d.items)) || [];
@@ -95,24 +113,29 @@ export function inferUnidadReferencia(
         // Math: UnitValue = Bonif / (Factor * Coverage)
         const impliedUnitValue = bonif / (factor * coverage);
 
-        evidencia.push(`DEDUCCIÓN DINÁMICA: Valor Unidad inferido desde ${primaryCandidate.codigoGC} (${primaryCandidate.descripcion}).`);
+        evidencia.push(`DEDUCCIÓN DINÁMICA: Tipo ${unitType} inferido para Isapre ${normalizedIsapre || "Desconocida"}.`);
+        evidencia.push(`FUERZA DETERMINISTA: Valor Unidad inferido desde ${primaryCandidate.codigoGC} (${primaryCandidate.descripcion}).`);
         evidencia.push(`MATEMÁTICA: Bonif $${bonif} / (Factor ${factor} * Cobertura ${Math.round(coverage * 100)}%) = $${Math.round(impliedUnitValue)}.`);
         evidencia.push(`ORIGEN: Cobertura extraída del contrato (${Math.round(coverage * 100)}%).`);
 
         return {
-            tipo: "VA",
+            tipo: unitType,
             valor_pesos_estimado: Math.round(impliedUnitValue),
             confianza: "ALTA",
             evidencia: evidencia,
             factor_origen: factor,
-            cobertura_aplicada: coverage
+            cobertura_aplicada: coverage,
+            fecha_referencia: eventDate,
+            valor_uf_fecha: valorUf
         };
     }
 
     return {
-        tipo: "DESCONOCIDA",
-        evidencia: ["No se encontraron ítems ancla suficientes para deducir el V.A/VAM."],
-        confianza: "BAJA"
+        tipo: normalizedIsapre ? unitType : "DESCONOCIDA",
+        evidencia: ["No se encontraron ítems ancla suficientes para deducir el Valor Unidad."],
+        confianza: "BAJA",
+        fecha_referencia: eventDate,
+        valor_uf_fecha: valorUf
     };
 }
 

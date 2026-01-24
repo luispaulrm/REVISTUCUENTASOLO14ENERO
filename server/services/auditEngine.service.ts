@@ -18,7 +18,7 @@ import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.
 import { AlphaFoldService } from './alphaFold.service.js';
 // NEW: Contract Reconstructibility Service (CRC)
 import { ContractReconstructibilityService } from './contractReconstructibility.service.js';
-import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation, ExtractedAccount } from '../../types.js';
+import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation, ExtractedAccount, EventoHospitalario } from '../../types.js';
 // NEW: Import Jurisprudence Layer (Precedent-First Decision System)
 import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAudit } from './jurisprudence/index.js';
 // NEW: Import C-NC Rules (Opacity Non-Collapse)
@@ -288,9 +288,39 @@ function normalizeCode(code: string): string {
     return code.trim().replace(/[^0-9-]/g, "");
 }
 
-function isProtectedCatA(f: Finding): boolean {
+function isProtectedCatA(f: Finding, eventos: EventoHospitalario[] = []): boolean {
     const label = (f.label || "").toUpperCase();
     const rationale = (f.rationale || "").toUpperCase();
+    const amount = f.amount || 0;
+
+    // --- FORENSIC HYPOTHESES FOR "GASTOS NO CUBIERTO" & "PRESTACION NO CONTEMPLADA" ---
+    const isGastoNoCubiertoOrNoArancel = /GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|VARIOS|AJUSTES|INSUMOS VARIOS/i.test(label) || /3201001|3201002/.test(label);
+
+    if (isGastoNoCubiertoOrNoArancel && amount > 0) {
+        // Hypothesis A: Duplicate Charges (Overlap with surgery/hospitalization)
+        const hasSurgicalEvent = eventos.some(e => e.tipo_evento === 'QUIRURGICO');
+        if (hasSurgicalEvent) {
+            // If it's a generic "not covered" charge and there's a surgery, it's highly suspicious of unbundling/duplicity
+            return true;
+        }
+
+        // Hypothesis B: Hospitality/Day-Bed Inclusion
+        const hasHospitalization = eventos.some(e => e.tipo_evento === 'MEDICO' || e.tipo_evento === 'QUIRURGICO');
+        if (hasHospitalization && /ASEO|CONSFORT|KITS?|ROPA|PIJAMA|TERMOMETRO|MUESTRA/i.test(rationale)) {
+            return true;
+        }
+
+        // Hypothesis C: Provider Operational Costs (EPP, infrastructure)
+        if (/EPP|SEGURIDAD|INFRAESTRUCTURA|COSTO OPERACIONAL|INSUMO INSTITUCIONAL/i.test(rationale)) {
+            return true;
+        }
+
+        // Hypothesis D: Contractual Breach (Labeled as not covered but exists in contract)
+        // If the rationale mentions specific coverage indicators or if it's a known clinical item
+        if (/(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale)) {
+            return true;
+        }
+    }
 
     // Level 2: Technical/Normative (Unbundling / Double Billing)
     const isUnbundling = /UNBUNDLING|EVENTO UNICO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(label) || /UNBUNDLING|EVENTO/.test(rationale);
@@ -299,21 +329,16 @@ function isProtectedCatA(f: Finding): boolean {
     const isEventoUnico = /EVENTO UNICO|URGENCIA.*HOSPITALIZACION/i.test(label) || /EVENTO UNICO/i.test(rationale);
 
     // Level 1: Primary Contract Breach (100% Coverage Entitlement)
-    // Rule: "El contrato manda sobre la opacidad". If 100% coverage should exist, absence of breakdown is a breach.
     const isContractBreach = /BONIFICACION INCORRECTA|INCUMPLIMIENTO CONTRACTUAL|DIFERENCIA COBERTURA|RECLASIFICACION ESTRATEGICA/i.test(label) ||
         /(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale);
 
     // Level 3 (Subsidiary): Opacity patterns
     const isOpacity = /OPACO|INDETERMINADO|SIN DESGLOSE|FALTA DE TRAZABILIDAD/i.test(label) || /OPACO|INDETERMINADO|SIN DESGLOSE/i.test(rationale);
 
-    // Hierarchy Re-Mapping:
-    // 1. If Level 1 or Level 2 is present -> It is PROTECTED (Cat A).
-    // 2. Opacity is only subsidiary. If Opacity + Contractual Entitlement -> Promote to A.
     if (isContractBreach || isUnbundling || isHoteleria || isNursing || isEventoUnico) {
         return true;
     }
 
-    // Otherwise, if purely opaque, it is NOT Cat A (it's Cat Z)
     if (isOpacity) {
         return false;
     }
@@ -340,13 +365,14 @@ function isOpacityFinding(f: Finding): boolean {
     return (
         f.hypothesisParent === "H_OPACIDAD_ESTRUCTURAL" ||
         /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE|CARGA DE LA PRUEBA|LEY 20.?584/i.test(label) ||
+        /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(label) ||
         /OPACIDAD|INDETERMINADO|BORROSO|SIN DESGLOSE|RECOLECCION/.test(rationale)
     );
 }
 
 
-function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean): Finding {
-    const isProtected = isProtectedCatA(f);
+function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eventos: EventoHospitalario[] = []): Finding {
+    const isProtected = isProtectedCatA(f, eventos);
     const amount = f.amount || 0;
 
     // 1. IMPRODECENCIA PROBADA (Cat A)
@@ -478,8 +504,8 @@ function decideGlobalStateCanonical(balance: BalanceAlpha): string {
     return "COPAGO_OK_CONFIRMADO";
 }
 
-function assertCanonicalClosure(findings: Finding[], balance: BalanceAlpha, debug: string[]) {
-    const protectedA = findings.filter(h => isProtectedCatA(h) && h.category === "A" && h.amount > 0);
+function assertCanonicalClosure(findings: Finding[], balance: BalanceAlpha, debug: string[], eventos: EventoHospitalario[] = []) {
+    const protectedA = findings.filter(h => isProtectedCatA(h, eventos) && h.category === "A" && h.amount > 0);
 
     if (protectedA.length > 0 && balance.A <= 0) {
         const msg = `C-CLOSE-01 VIOLATION: existen ${protectedA.length} hallazgos Cat A protegidos pero balance.A=0`;
@@ -488,7 +514,7 @@ function assertCanonicalClosure(findings: Finding[], balance: BalanceAlpha, debu
         // We won't throw in prod to avoid crashing, but we'll log it heavily.
     }
 
-    const leaked = findings.filter(h => isProtectedCatA(h) && h.amount > 0 && h.category !== "A");
+    const leaked = findings.filter(h => isProtectedCatA(h, eventos) && h.amount > 0 && h.category !== "A");
     if (leaked.length > 0) {
         const msg = `C-A-01 VIOLATION: ${leaked.length} hallazgo(s) protegido(s) no quedaron en Cat A`;
         debug.push(msg);
@@ -507,6 +533,7 @@ export function finalizeAuditCanonical(input: {
     ceilings?: { canVerify: boolean; reason?: string };
     violations?: { code: string; severity: number }[];
     accountContext?: ExtractedAccount;
+    eventos?: EventoHospitalario[];
 }): {
     estadoGlobal: string;
     findings: Finding[];
@@ -521,8 +548,9 @@ export function finalizeAuditCanonical(input: {
     const accountContext = input.accountContext;
 
     // Step 1: Deterministic Categorization (A, B, Z, OK)
+    const eventos = input.eventos || [];
     let processedFindings = findings.map(f => {
-        const catFinding = canonicalCategorizeFinding(f, input.reconstructible);
+        const catFinding = canonicalCategorizeFinding(f, input.reconstructible, eventos);
 
         // Fix: Hypothesis Parent Correction
         let parent = f.hypothesisParent;
@@ -534,8 +562,10 @@ export function finalizeAuditCanonical(input: {
             } else {
                 parent = (parent === "H_OK_CUMPLIMIENTO") ? "H_PRACTICA_IRREGULAR" : parent;
             }
-        } else if (catFinding.category === "Z") {
+        } else if (catFinding.category === "Z" || /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(f.label || "")) {
             parent = "H_OPACIDAD_ESTRUCTURAL";
+            catFinding.category = "Z"; // Hard enforcement of Z for reconstruction trigger
+            catFinding.action = "SOLICITAR_ACLARACION";
         }
 
         return { ...catFinding, hypothesisParent: parent };
@@ -544,8 +574,8 @@ export function finalizeAuditCanonical(input: {
     // Step 2: Subsumption
     processedFindings = applySubsumptionCanonical(processedFindings);
 
-    // Step 2.1: Arithmetic Reconstruction (NEW)
-    if (accountContext && processedFindings.some(f => f.category === 'Z')) {
+    // Step 2.1: Arithmetic Reconstruction (Desglose Especulativo Controlado)
+    if (accountContext && processedFindings.some(f => f.category === 'Z' || /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO/i.test(f.label || ""))) {
         // Collect all item IDs already "claimed" by Protected Cat A findings
         const claimedItemIds = new Set<number | string>();
         processedFindings.forEach(f => {
@@ -797,7 +827,7 @@ Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, C
     log('[AuditEngine] ðŸ¥ Pre-procesando Eventos Hospitalarios (Arquitectura V3)...');
     onProgressUpdate?.(35);
 
-    const eventosHospitalarios = preProcessEventos(pamJson, contratoJson);
+    const eventosHospitalarios = await preProcessEventos(pamJson, contratoJson);
 
     // --- LOG V.A DEDUCTION EVIDENCE ---
     let vaDeductionSummary = "âš ï¸ No se pudo deducir el V.A/VAM automÃ¡ticamente por falta de Ã­tems ancla conocidos.";
@@ -1618,7 +1648,8 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             signals: alphaSignals,
             violations: ruleEngineResult.rules.filter(r => r.violated).map(r => ({ code: r.ruleId, severity: 1 })), // Map violations
             contract: contratoJson,
-            accountContext: cleanedCuenta // NEW: Pass account context for reconstruction
+            accountContext: cleanedCuenta, // NEW: Pass account context for reconstruction
+            eventos: eventosHospitalarios // NEW: Pass event context
         });
 
         const finalFindings = canonicalResult.findings.map(f => {
@@ -1755,9 +1786,9 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
                     if (finalDecision.estado && (finalDecision.estado.includes('OPACIDAD') || finalDecision.estado.includes('INDETERMINADO') || finalDecision.estado.includes('CONTROVERSIA') || finalDecision.estado.includes('MIXTO'))) {
                         return {
-                            clinica: `La auditoría forense de la cuenta de ${patientNameStr} revela una opacidad estructural significativa en el Programa de Atención Médica (PAM). El copago total informado de $${totalRef} no puede ser completamente validado debido a la falta de desglose detallado en ítems clave como 'Medicamentos Clínicos' y 'Materiales Clínicos', así como glosas genéricas de 'Gastos No Cubiertos por el Plan'. Adicionalmente, se identificaron cobros improcedentes por prestaciones inherentes al día cama (instalación de vía venosa y fleboclisis) y por ítems de hotelería no clínica, que suman un ahorro confirmado de $${ahorroRef}. El copago restante de $${indeterminadoRef} se encuentra bajo controversia por falta de trazabilidad.`,
-                            isapre: `La falta de desglose en el PAM impide auditar la correcta aplicación de topes UF/VAM; sin embargo, no obsta a declarar improcedentes aquellos cobros que, por su naturaleza clínica o normativa, resultan indebidos con independencia de dicha opacidad. "La cuenta clínica no permite reconstruir ni validar la correcta aplicación del contrato de salud, motivo por el cual el copago exigido resulta jurídicamente indeterminable." La carga de la prueba recae en el prestador e Isapre conforme a la Ley 20.584.`,
-                            paciente: `Imagine que lleva su auto al taller (la clínica) y le entregan una factura (la cuenta) con el detalle de cada repuesto y servicio. Luego, su seguro (la Isapre) le entrega un resumen (el PAM) donde dice 'Repuestos Varios' o 'Servicios Generales' con un monto a pagar, sin especificar qué repuestos o servicios fueron. Esto le impide saber si le cobraron de más o si el seguro cubrió lo que debía. En este caso, el seguro no le está dando el detalle necesario para verificar si el cobro es justo, y además, le está cobrando por cosas que deberían estar incluidas en el 'Día de Taller' o por servicios que no son directamente mecánicos.`
+                            clinica: `La auditoría forense de la cuenta de ${patientNameStr} revela una opacidad estructural significativa en el Programa de Atención Médica (PAM). El copago total informado de $${totalRef} no puede ser completamente validado debido a la falta de desglose detallado en ítems clave como 'Medicamentos Clínicos' y 'Materiales Clínicos', así como glosas genéricas de 'Gastos No Cubiertos por el Plan' o 'Prestación No Contemplada en el Arancel'. Conforme a la Circular IF/319 y jurisprudencia administrativa, cuando el prestador factura glosas genéricas sin desglose clínico verificable, no demuestra que el gasto esté realmente excluido del plan, por lo que el copago resulta jurídicamente indeterminado. Adicionalmente, se identificaron cobros improcedentes por prestaciones inherentes al día cama y por ítems de hotelería no clínica que suman un ahorro de $${ahorroRef}. La carga de la prueba recae en el prestador para demostrar que estos 'gastos no cubiertos' o 'prestaciones no aranceladas' no son cobros duplicados o fragmentados de la cirugía o del día cama.`,
+                            isapre: `La falta de desglose en el PAM impide auditar la correcta aplicación de topes UF/VAM; sin embargo, no obsta a declarar improcedentes aquellos cobros que, por su naturaleza clínica o normativa, resultan indebidos con independencia de dicha opacidad. "La cuenta clínica no permite reconstruir ni validar la correcta aplicación del contrato de salud, motivo por el cual el copago exigido resulta jurídicamente indeterminable." Conforme a la doctrina de la Superintendencia de Salud, el prestador debe demostrar exactamente qué es el 'gasto no cubierto' o la 'prestación no arancelada' y por qué no está incluido en el evento quirúrgico o día cama. Si no hay desglose claro, el cobro no es exigible.`,
+                            paciente: `Cuando una clínica le cobra 'Gastos no cubiertos' o 'Prestación no contemplada', tiene la obligación legal de demostrar exactamente qué es ese gasto y por qué no está incluido en su hospitalización o cirugía. En la mayoría de los casos auditados, este tipo de cobros corresponde a elementos que ya están pagados en su 'Día Cama' o en el 'Derecho de Pabellón'. Si la Isapre o la Clínica no le dan un detalle claro, usted tiene derecho a no aceptar ese cobro. Es como si en un restaurante le cobraran 'Cargos Varios' o 'Extra de Cocina' sin decirle qué comió: usted no tiene por qué pagarlo si no le explican qué es.`
                         };
                     }
                     return undefined;

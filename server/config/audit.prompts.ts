@@ -627,7 +627,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
     },
     valorUnidadReferencia: {
       type: Type.STRING,
-      description: "OBLIGATORIO. El 'Valor Unidad' inferido por el sistema (ej: '$360.095 por Factor 1.0'). Si no aplica, 'N/A'."
+      description: "OBLIGATORIO. El 'Valor Unidad' inferido por el sistema (ej: '$360.095 por Factor 1.0 - VAM'). Si no aplica, 'N/A'."
     },
     antecedentes: {
       type: Type.OBJECT,
@@ -718,7 +718,7 @@ Debes conjugar estas capas en orden de prioridad:
 EL PRIMER CAMPO DEL JSON debe ser \`valorUnidadReferencia\`.
 - **Lógica**: Busca en el primer evento quirúrgico dentro de \`{eventos_hospitalarios}\`.
 - IF \`analisis_financiero.valor_unidad_inferido\` EXISTS:
-  - SET \`valorUnidadReferencia\` = "$[valor] (Valor Unidad / BAM - Factor 1.0 - Inferido por Motor)"
+  - SET \`valorUnidadReferencia\` = "$[valor] (Valor Unidad / $[analisis_financiero.unit_type] - Factor 1.0 - Inferido por Motor)"
 - ELSE:
   - SET \`valorUnidadReferencia\` = "No calculado (N/A)"
 
