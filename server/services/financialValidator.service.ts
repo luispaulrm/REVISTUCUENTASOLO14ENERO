@@ -192,14 +192,18 @@ export function validateTopeHonorarios(
                 specificRule.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
 
             if (modality && modality.tope) {
-                // If tope is numeric (e.g. 1.2 from "1.2 veces AC2" mapped by AI directly to 1.2)
-                // Or we might need to rely on the unitTope = "AC2".
-                // In the new schema: "tope": 1.2, "unidadTope": "AC2"
-                if (modality.unidadTope === 'AC2' || modality.unidadTope === 'VAM') {
-                    factor = modality.tope;
-                    // Update regla_aplicada to reflect the specific modality applied
-                    reglaAplicada = { ...specificRule, tope_aplicado: `${factor} ${modality.unidadTope}` };
-                }
+                // FORCE: Always format tope_aplicado so AuditEngine can display it
+                factor = modality.tope;
+                const unit = modality.unidadTope || "AC2";
+
+                // Construct the string expected by parseCeilingFactor in AuditEngine
+                // e.g., "1.2 veces AC2" or just "1.2 AC2"
+                reglaAplicada = {
+                    ...specificRule,
+                    tope_aplicado: `${factor} veces ${unit}`, // Format explicit for regex
+                    _internal_factor: factor,
+                    _internal_unit: unit
+                };
             } else if (modality && modality.copago) {
                 // Fallback to legacy string parsing if 'tope' was not numeric but put in a string field (unlikely with new schema but safe)
                 // ... logic logic ... but let's trust the number first.
