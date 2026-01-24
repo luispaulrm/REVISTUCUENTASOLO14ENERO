@@ -127,7 +127,7 @@ function resolveDecision(params: {
 
     const finalK = Math.min(rawK, budget);
     budget -= finalK;
-    if (rawA + rawK > T) errors.push(`Exceso_K: A+K (${rawA + rawK}) excede T. K recortado.`);
+    if (rawA + rawK > T + 500) errors.push(`Ajuste_Balance: La suma A+K ($${rawA + rawK}) excedía el total ($${T}). Se realizó ajuste por solape detectado.`);
 
     // Residual goes to OK (or B if we have it)
     let finalOK = Math.min(rawOK, budget);
@@ -344,13 +344,18 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
     const isProtected = isProtectedCatA(f, eventos);
     const amount = f.amount || 0;
 
+    // 0. MANUAL OVERRIDE: If already A, keep it.
+    if (f.category === "A" && amount > 0) {
+        return { ...f, action: "IMPUGNAR" };
+    }
+
     // 1. IMPRODECENCIA PROBADA (Cat A)
     if (isProtected && amount > 0) {
         return { ...f, category: "A", action: "IMPUGNAR" };
     }
 
     // 2. MEDICAMENTOS / MATERIALES (Categorización Canónica)
-    const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label) || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.rationale);
+    const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label || "") || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.rationale || "");
     const isOpacity = isOpacityFinding(f);
 
     if (isOpacity || isMedMat) {
@@ -367,74 +372,41 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
 function applySubsumptionCanonical(findings: Finding[]): Finding[] {
     if (findings.length === 0) return [];
 
-    // Sort findings: Specific/Micro first, Macro/Summary last
+    // 1. Sort: Micros (specific items) first, Macros (agrupadores) last.
     const sorted = [...findings].sort((a, b) => {
-        const aIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN/i.test(a.label || "");
-        const bIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN/i.test(b.label || "");
+        const aIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA/i.test(a.label || "");
+        const bIsMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA/i.test(b.label || "");
         if (aIsMacro && !bIsMacro) return 1;
         if (!aIsMacro && bIsMacro) return -1;
-        return a.amount - b.amount;
+        return (b.amount || 0) - (a.amount || 0);
     });
 
     const out: Finding[] = [];
 
     for (const f of sorted) {
-        const labelNorm = (f.label || "").replace(/\s?\(RECONSTRUIDO\)/g, "").toUpperCase();
-        const isMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN/i.test(f.label || "");
+        const amount = Math.abs(f.amount || 0);
+        if (amount < 1) continue;
 
-        // 1. Exact amount and similar label deduplication (1:1)
-        const duplicate = out.find(o =>
-            Math.abs(o.amount - f.amount) < 5 &&
-            (o.label.toUpperCase().includes(labelNorm) || labelNorm.includes(o.label.toUpperCase().replace(/\s?\(RECONSTRUIDO\)/g, "")))
-        );
+        const fLabel = (f.label || "").toUpperCase();
+        const isMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA/i.test(fLabel);
 
+        // 2. Exact Deduplication (Strict ±25 CLP)
+        const duplicate = out.find(o => Math.abs(o.amount - amount) < 25);
         if (duplicate) {
+            // Upgrade rule: Category A (Confirmed) always wins over K/Z/B.
             if (f.category === 'A' && duplicate.category !== 'A') {
                 const idx = out.indexOf(duplicate);
                 out[idx] = f;
+                continue;
             }
+            // Same category? Prefer specific label over macro shell.
+            if (f.category === duplicate.category && !isMacro && /OPACIDAD|GENERICO|AGRUPADOR|CUBIERTO|CONTEMPLADA/i.test(duplicate.label)) {
+                const idx = out.indexOf(duplicate);
+                out[idx] = f;
+                continue;
+            }
+            // Skip redundant finding
             continue;
-        }
-
-        // 2. Multi-item subsumption (Container detection) 
-        // If this finding is a "Macro" and its amount is covered by a combination of items in 'out'
-        if (isMacro) {
-            // Check if there's a set of items in 'out' that sums up to f.amount (with tolerance)
-            // We'll use a simple heuristic: if sum of all items in 'out' equals f.amount, skip f.
-            const totalSumIn = out.reduce((a, b) => a + b.amount, 0);
-
-            // Heuristic A: Exact total match
-            if (Math.abs(f.amount - totalSumIn) < 500) {
-                console.log(`[Subsumption] Skipping macro '${f.label}' ($${f.amount}) as it is covered by sum of micro findings.`);
-                continue;
-            }
-
-            // Heuristic B: Individual items in 'out' that are already part of this macro's evidenceRefs
-            // (If the macro has explicit evidenceRefs and we already have findings for those, we should be careful)
-            // But usually macros don't have detailed refs if they are opaque.
-
-            // Heuristic C: Overlap detection. If f.amount is less than or equal to totalSumIn, 
-            // and f has no specific evidence, it's likely a container we already broke down.
-            const hasRefs = f.evidenceRefs && f.evidenceRefs.length > 0;
-            if (!hasRefs && f.amount <= totalSumIn + 100) {
-                console.log(`[Subsumption] Skipping generic container '${f.label}' ($${f.amount}) as we have enough detailed findings.`);
-                continue;
-            }
-        }
-
-        // 3. Reverse subsumption: if f is specific and out contains a macro that covers it
-        if (!isMacro && f.amount > 0) {
-            const macroContainer = out.find(o =>
-                /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN/i.test(o.label || "") &&
-                o.amount >= f.amount - 10
-            );
-            if (macroContainer) {
-                // If we find a specific finding that was likely part of a macro, 
-                // we keep the specific one (A) and subtract it from the macro (Z/B)
-                // This is complex, but for now let's just keep both and hope 
-                // the final balance clipping handles it, OR improve the macro.
-                // Actually, the best approach is to let reconstruction Promote Z to A.
-            }
         }
 
         out.push(f);
@@ -507,7 +479,7 @@ export function finalizeAuditCanonical(input: {
 }): {
     estadoGlobal: string;
     findings: Finding[];
-    balance: { A: number; B: number; Z: number; OK: number; TOTAL: number };
+    balance: { A: number; B: number; K: number; Z: number; OK: number; TOTAL: number };
     debug: string[];
     resumenFinanciero: any;
     fundamentoText: string;
@@ -532,7 +504,7 @@ export function finalizeAuditCanonical(input: {
             } else {
                 parent = (parent === "H_OK_CUMPLIMIENTO") ? "H_PRACTICA_IRREGULAR" : parent;
             }
-        } else if (catFinding.category === "Z" || /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(f.label || "")) {
+        } else if (catFinding.category !== "A" && (catFinding.category === "Z" || /PRESTACION NO CONTEMPLADA|GASTOS? NO CUBIERTO|VARIOS|AJUSTE|DIFERENCIA/i.test(f.label || ""))) {
             parent = "H_OPACIDAD_ESTRUCTURAL";
             catFinding.category = "Z"; // Hard enforcement of Z for reconstruction trigger
             catFinding.action = "SOLICITAR_ACLARACION";

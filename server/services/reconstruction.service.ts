@@ -5,6 +5,7 @@ export interface ReconstructionResult {
     matchedItems: BillingItem[];
     unmatchedAmount: number;
     success: boolean;
+    compatibilityRationale?: string;
 }
 
 export class ArithmeticReconstructor {
@@ -15,49 +16,35 @@ export class ArithmeticReconstructor {
 
     /**
      * Attempts to find a subset of unused bill items that sum up to the target amount.
-     * Supports tolerance for speculative breakdown.
+     * Strictly filters items by compatibility with the glosa and clinical context.
      */
-    public findMatches(target: number, categoryHint?: string, tolerancePct: number = 0.05): ReconstructionResult {
+    public findMatches(target: number, glosa: string, context?: string, tolerancePct: number = 0.05): ReconstructionResult {
         if (target <= 0) return { matchedItems: [], unmatchedAmount: 0, success: true };
 
         const allItemsWithSection = this.bill.sections.flatMap(s =>
             (s.items || []).map(item => ({ item, section: s.category || "" }))
         );
 
-        const availableItems = allItemsWithSection.filter(entry => {
+        // MANDATORY RULE: Filter by semantic/contextual compatibility
+        const compatibleItems = allItemsWithSection.filter(entry => {
             const id = this.getItemUniqueId(entry.item);
-            return !this.usedItemIds.has(id);
+            if (this.usedItemIds.has(id)) return false;
+
+            return this.isCompatible(entry.item, entry.section, glosa, context);
         });
 
-        // Step 2: Candidates filter
-        const isMedsHint = /MEDICAMENTO|FARMA|DROGA/i.test(categoryHint || "");
-        const isMatsHint = /MATERIAL|INSUMO|EQUIPO|ESTERIL/i.test(categoryHint || "");
-
-        const prioritized = availableItems.filter(entry => {
-            if (isMedsHint) return /MEDICAMENTO|FARMA|DROGA/i.test(entry.section);
-            if (isMatsHint) return /MATERIAL|INSUMO|EQUIPO|ESTERIL/i.test(entry.section);
-            return true;
-        }).map(e => e.item);
-
-        const others = availableItems.filter(entry => {
-            if (isMedsHint) return !/MEDICAMENTO|FARMA|DROGA/i.test(entry.section);
-            if (isMatsHint) return !/MATERIAL|INSUMO|EQUIPO|ESTERIL/i.test(entry.section);
-            return false;
-        }).map(e => e.item);
-
         const toleranceAbs = target * tolerancePct;
+        const itemsOnly = compatibleItems.map(e => e.item);
 
-        let result = this.subsetSum(target, prioritized, toleranceAbs);
-        if (!result) {
-            result = this.subsetSum(target, [...prioritized, ...others], toleranceAbs);
-        }
+        const result = this.subsetSum(target, itemsOnly, toleranceAbs);
 
         if (result) {
             result.forEach(item => this.usedItemIds.add(this.getItemUniqueId(item)));
             return {
                 matchedItems: result,
                 unmatchedAmount: 0,
-                success: true
+                success: true,
+                compatibilityRationale: `Compatibilidad confirmada: ${result.length} ítems coinciden semánticamente con '${glosa}' en contexto ${context || 'General'}.`
             };
         }
 
@@ -66,6 +53,58 @@ export class ArithmeticReconstructor {
             unmatchedAmount: target,
             success: false
         };
+    }
+
+    private normalizeString(s: string): string {
+        return (s || "").toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+
+    private isCompatible(item: BillingItem, section: string, glosa: string, context?: string): boolean {
+        const desc = this.normalizeString(item.description);
+        const sec = this.normalizeString(section);
+        const glo = this.normalizeString(glosa);
+        const ctx = this.normalizeString(context || "");
+
+        // PRINCIPLE: Semantic Lock-in per Glosa
+
+        // 1. Bed/Room Charges (Día Cama)
+        if (glo.includes("DIA CAMA") || glo.includes("HABITACION") || glo.includes("ESTANCIA")) {
+            const isBedSection = /HABITACION|DIA CAMA|ESTANCIA|HOSPITALIZACION/i.test(sec);
+            const isNursingProced = /NURSING|ENFERMERIA|SIGNOS VITALES|CURACION|INSTALACION.*VIA/i.test(desc);
+            return isBedSection || isNursingProced;
+        }
+
+        // 2. Surgical Context (Direct lock or Glosa)
+        if (glo.includes("QUIRURGICO") || glo.includes("PABELLON") || ctx === "QUIRURGICO") {
+            const isSurgicalSec = /PABELLON|QUIRURGICO|ANESTESIA|RECUPERACION/i.test(sec);
+            const isSurgicalItem = /PROPOFOL|FENTANIL|SEVOFLURANO|LIDOCAINA|BUPIVACAINA|ANESTESIA|SUTURA|GASA|DRENAJE|BISTURI/i.test(desc);
+            const isClinicalMed = /INYECTABLE|AMPOLLA|FRASCO|SOLUCION/i.test(desc) && /PABELLON/i.test(sec);
+            return isSurgicalSec || isSurgicalItem || isClinicalMed;
+        }
+
+        // 3. Meds/Materials (Specific Pools)
+        if (/MEDICAMENTO|FARMA|DROGA/i.test(glo)) {
+            const isMedSec = /MEDICAMENTO|FARMA|DROGA|FARMACIA/i.test(sec);
+            const isMedDesc = /INYECTABLE|AMPOLLA|FRASCO|SOLUCION|GRAGEA|TABLETA/i.test(desc);
+            return isMedSec || isMedDesc;
+        }
+
+        if (/MATERIAL|INSUMO/i.test(glo)) {
+            const isMatSec = /MATERIAL|INSUMO|EQUIPO|ESTERIL/i.test(sec);
+            const isMatDesc = /GASA|JERINGA|GUANTE|DRENAJE|SUTURA|SONDA|CATETER/i.test(desc);
+            return isMatSec || isMatDesc;
+        }
+
+        // 4. "Gastos No Cubiertos" / "Prestación No Contemplada" (Forensic Catch-all)
+        if (/GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|VARIOS|AJUSTE|DIFERENCIA/i.test(glo)) {
+            const isComfort = /SET.*ASEO|PANTUFLA|CEPILLO|JABON|CALZON|TERMOMETRO|CONFORT|TELEVISOR|ESTACIONAMIENTO|ALIMENTAC/i.test(desc);
+            const isUnbundled = /INSTALACION.*VIA|FLEBOCLISIS|PUNCION|SIGNOS VITALES/i.test(desc);
+            const isGenericSec = /VARIOS|OTROS|CARGOS GENERALES|ADMINISTRATIVO/i.test(sec);
+            return isComfort || isUnbundled || isGenericSec;
+        }
+
+        // Fallback: If no strict rule matches, allow only if there's generic linguistic overlap
+        return sec.includes(glo) || glo.includes(sec);
     }
 
     private subsetSum(target: number, items: BillingItem[], tolerance: number): BillingItem[] | null {
@@ -150,17 +189,18 @@ export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]
         const amount = f.amount || 0;
 
         if (isOpaqueTrigger && amount > 0) {
-            // STEP 3: Multi-level tolerance check
+            // STEP 3: Multi-level tolerance check with context
+            const context = /PABELLON|INTERVENCION|SURGERY|QUIRURGICA/i.test(desc) ? "QUIRURGICO" : undefined;
 
             // Try 5% (Cat A - High Probability)
-            let result = reconstructor.findMatches(amount, desc, 0.05);
+            let result = reconstructor.findMatches(amount, desc, context, 0.05);
             let category: "A" | "B" | "K" | "Z" | "OK" = result.success ? "A" : "Z";
             let action: "IMPUGNAR" | "SOLICITAR_ACLARACION" = result.success ? "IMPUGNAR" : "SOLICITAR_ACLARACION";
             let forensicStatus = result.success ? "COBRO_ENCUBIERTO" : "OPACIDAD_ESTRUCTURAL_SEVERA";
 
             // If 5% fails, try 10% (Cat B - Partial Redistribution)
             if (!result.success) {
-                result = reconstructor.findMatches(amount, desc, 0.10);
+                result = reconstructor.findMatches(amount, desc, context, 0.10);
                 if (result.success) {
                     category = "B";
                     action = "SOLICITAR_ACLARACION";
@@ -185,7 +225,7 @@ export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]
                     itemsTable += `| ${i.description} | $${(i.total || 0).toLocaleString('es-CL')} | ${normInfo.norma} |\n`;
                 });
 
-                const techMessage = `El monto clasificado como '${f.label}' se explica matemáticamente por la agregación de ítems de la cuenta clínica. Status: ${forensicStatus}.`;
+                const techMessage = `El monto clasificado como '${f.label}' se explica matemáticamente por la agregación de ítems de la cuenta clínica. ${result.compatibilityRationale || ''} Status: ${forensicStatus}.`;
                 const userMessage = `Detectamos que este cargo coincide con materiales e insumos de su hospitalización que carecen de detalle. Esto sugiere cobros redundantes o falta de transparencia.`;
 
                 output.push({
