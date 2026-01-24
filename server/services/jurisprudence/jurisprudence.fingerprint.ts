@@ -155,13 +155,13 @@ export function extractFeatureSet(
     if (lineFeatures.generic) features.add("GENERIC_PAM_LINE");
 
     // 2. Nature of Service (Nivel 2 - Unbundling / Inherently Included)
-    const INHERENTLY_INCLUDED_REGEX = /(SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA|PROPOFOL|FENTANILO|SEVOFLURANO|MIDAZOLAM|ANESTESIA|GAZA|SUTURA|JERINGA|EQUIPO PABELLON|IMPLEMENTOS PABELLON)/i;
+    const INHERENTLY_INCLUDED_REGEX = /(SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA|PROPOFOL|FENTANILO|SEVOFLURANO|MIDAZOLAM|ANESTESIA|GAZA|SUTURA|JERINGA|EQUIPO PABELLON|IMPLEMENTOS PABELLON|MASCARILLA|COMPRESA|ROPA|BANDEJA|TERMOMETRO|KIT ASEO|KIT PACIENTE|INSUMOS BASICOS|GASAS)/i;
     if (INHERENTLY_INCLUDED_REGEX.test(desc)) {
         features.add("INHERENTLY_INCLUDED");
     }
 
     // 3. Hotelería (Nivel 3)
-    const HOTEL_REGEX = /(ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION|CONFORT|KIT DE ASEO|PANTUFLAS|ROPA|MANTENCION|ESTACIONAMIENTO|TELEVISION|WIFI)/i;
+    const HOTEL_REGEX = /(ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION|CONFORT|KIT DE ASEO|PANTUFLAS|ROPA|MANTENCION|ESTACIONAMIENTO|TELEVISION|WIFI|ALIMENTACION)/i;
     if (HOTEL_REGEX.test(desc)) {
         features.add("ES_HOTELERIA");
         // If it's a specific, single-purpose hotel line
@@ -174,8 +174,19 @@ export function extractFeatureSet(
     }
 
     // 4. Exams and Meds (Automatic Relabeling)
-    if (code.startsWith("03") || /EXAMEN|LABORATORIO|RADIOLOG|BIOPSIA/i.test(desc)) {
+    // Expand detection for specific lab terms found in user cases
+    const EXAM_REGEX = /03|EXAMEN|LABORATORIO|RADIOLOG|BIOPSIA|DETECCION|ESTUDIO|HISTOPATOLOG|INMUNOLOG|REACCION|CULTIVO|PERFIL|ORINA|SANGRE|HEMOGRAMA/i;
+    if (code.startsWith("03") || EXAM_REGEX.test(desc)) {
         features.add("ES_EXAMEN");
+    }
+
+    // 4.1 STRATEGIC RECLASSIFICATION DETECTION (NEW)
+    // Detect items that appear to be covered categories (Honorarios, Pabellon, Anestesia) 
+    // but are labeled as "not covered" or similar.
+    const RECLASSIFICATION_TERMS = /(NO CUBIERTO|GASTO NO CUBIERTO|PRESTACION NO CONTEMPLADA|SIN BONIF|SIN COBERTURA|EXCLUIDO)/i;
+    const COVERED_CATEGORY_HINT = /(HONORARIO|PABELLON|ANESTESIA|MEDICAMENTO|INSUMO|MATERIAL CLINICO)/i;
+    if (RECLASSIFICATION_TERMS.test(desc) && (COVERED_CATEGORY_HINT.test(desc) || /MEDIC|INSUM|MATER/.test(lineFeatures.kind))) {
+        features.add("STRATEGIC_RECLASSIFICATION");
     }
 
     if (lineFeatures.kind === "MED" || lineFeatures.kind === "INS") {
@@ -213,7 +224,7 @@ export function extractFeatureSet(
             hasExplicitCoverage = true;
             explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
         }
-        if (features.has("ES_EXAMEN") && catNormal.includes("EXAMEN")) {
+        if (features.has("ES_EXAMEN") && (catNormal.includes("EXAMEN") || itemNormal.includes("EXAMEN"))) {
             hasExplicitCoverage = true;
             explicitCoverageVal = Math.max(explicitCoverageVal, Number(c.cobertura ?? c.coverage ?? 0));
         }
@@ -233,7 +244,7 @@ export function extractFeatureSet(
     // DEBUG LOG
     // console.log(`[FINGERPRINT DEBUG] Item: ${pamLine.descripcion || pamLine.desc} | Kind: ${lineFeatures.kind} | COV_100: ${features.has("COV_100")} (val=${explicitCoverageVal}) | COV_EXPL: ${features.has("COV_EXPLICIT")} | TOPES: ${features.has("TOPES_NO_ALCANZADOS")} | POS: ${lineFeatures.copagoPos} | Generic: ${isGenericClinical}`);
 
-    if ((features.has("COV_100") || (isGenericClinical && features.has("COV_EXPLICIT"))) && features.has("TOPES_NO_ALCANZADOS") && lineFeatures.copagoPos) {
+    if ((features.has("COV_100") || (isGenericClinical && features.has("COV_EXPLICIT")) || features.has("STRATEGIC_RECLASSIFICATION")) && features.has("TOPES_NO_ALCANZADOS") && lineFeatures.copagoPos) {
         features.add("IC_BREACH");
     }
 
@@ -263,7 +274,15 @@ export function extractFeatureSet(
 
     // CAPA 6 Flag: OP_DETECTED
     if (features.has("OPACIDAD_ESTRUCTURAL") || features.has("OPACIDAD_LINEA")) {
-        features.add("OP_DETECTED");
+        // C-NC-02: Only OP_DETECTED if it's NOT an IC_BREACH or UB_DETECTED
+        if (!features.has("IC_BREACH") && !features.has("UB_DETECTED") && !features.has("HT_DETECTED")) {
+            features.add("OP_DETECTED");
+        }
+    }
+
+    // 8. Evento Único Flag (NEW)
+    if (hypothesisResult?.signals?.some((s: any) => s.id === 'EVENTO_UNICO_VIOLATION' && s.value > 0)) {
+        features.add('EVENT_UNIQUE_VIOLATION');
     }
 
     return features;

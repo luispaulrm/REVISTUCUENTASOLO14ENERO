@@ -296,10 +296,11 @@ function isProtectedCatA(f: Finding): boolean {
     const isUnbundling = /UNBUNDLING|EVENTO UNICO|FRAGMENTA|DUPLICI|DOBLE COBRO/.test(label) || /UNBUNDLING|EVENTO/.test(rationale);
     const isHoteleria = /ALIMENTA|NUTRICI|HOTEL|CAMA|PENSION|ASEO PERSONAL|SET DE ASEO/.test(label) || /IF-?319/.test(rationale);
     const isNursing = /SIGNOS VITALES|CURACION|INSTALACION VIA|FLEBOCLISIS|ENFERMERIA|TOMA DE MUESTRA/.test(label) || /ENFERMERIA/.test(rationale);
+    const isEventoUnico = /EVENTO UNICO|URGENCIA.*HOSPITALIZACION/i.test(label) || /EVENTO UNICO/i.test(rationale);
 
     // Level 1: Primary Contract Breach (100% Coverage Entitlement)
     // Rule: "El contrato manda sobre la opacidad". If 100% coverage should exist, absence of breakdown is a breach.
-    const isContractBreach = /BONIFICACION INCORRECTA|INCUMPLIMIENTO CONTRACTUAL|DIFERENCIA COBERTURA/i.test(label) ||
+    const isContractBreach = /BONIFICACION INCORRECTA|INCUMPLIMIENTO CONTRACTUAL|DIFERENCIA COBERTURA|RECLASIFICACION ESTRATEGICA/i.test(label) ||
         /(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale);
 
     // Level 3 (Subsidiary): Opacity patterns
@@ -308,7 +309,7 @@ function isProtectedCatA(f: Finding): boolean {
     // Hierarchy Re-Mapping:
     // 1. If Level 1 or Level 2 is present -> It is PROTECTED (Cat A).
     // 2. Opacity is only subsidiary. If Opacity + Contractual Entitlement -> Promote to A.
-    if (isContractBreach || isUnbundling || isHoteleria || isNursing) {
+    if (isContractBreach || isUnbundling || isHoteleria || isNursing || isEventoUnico) {
         return true;
     }
 
@@ -322,7 +323,7 @@ function isProtectedCatA(f: Finding): boolean {
         return PROTECTED_CODES.has(code);
     });
 
-    return isUnbundling || isHoteleria || isNursing || isContractBreach || !!hasProtectedCode;
+    return isUnbundling || isHoteleria || isNursing || isContractBreach || isEventoUnico || !!hasProtectedCode;
 }
 
 
@@ -330,9 +331,9 @@ function isOpacityFinding(f: Finding): boolean {
     const label = (f.label || "").toUpperCase();
     const rationale = (f.rationale || "").toUpperCase();
 
-    // SUBSIDIARY CHECK: If it has 100% coverage indicators, it is NOT opaque (it is a breach)
+    // SUBSIDIARY CHECK: If it has 100% coverage indicators or irregular practice flags, it is NOT opaque (it is a breach)
     const isContractBreach = /(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale) ||
-        /INCUMPLIMIENTO CONTRACTUAL/i.test(label);
+        /INCUMPLIMIENTO CONTRACTUAL|UNBUNDLING|EVENTO UNICO|RECLASIFICACION/i.test(label);
 
     if (isContractBreach) return false;
 

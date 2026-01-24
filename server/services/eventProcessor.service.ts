@@ -233,7 +233,7 @@ export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoH
     const candidateEpisodes = groupIntoEpisodes(rawItems);
 
     // 4. Transform to EventoHospitalario
-    return candidateEpisodes.map(ep => {
+    const events = candidateEpisodes.map(ep => {
         const tipo = classifyEpisode(ep);
         const honorarios = collapseHonorarios(ep);
 
@@ -246,9 +246,6 @@ export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoH
                 const proxyItem = h.items_origen[0];
 
                 // Need original bonificacion to validate.
-                // We lost it in ItemOrigen mapping.
-                // Solution: Find it in original episode items or pass it temporarily?
-                // Let's find matches in ep.items
                 const originalItem = ep.items.find(i =>
                     i.codigoGC === proxyItem.codigo &&
                     i.folio === proxyItem.folio
@@ -272,7 +269,7 @@ export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoH
             id_evento: ep.id,
             tipo_evento: tipo,
             anclaje: {
-                tipo: 'PRESTADOR_FECHA',
+                tipo: 'PRESTADOR_FECHA' as const,
                 valor: `${ep.prestador} | ${ep.startDate.toISOString().split('T')[0]}`
             },
             prestador: ep.prestador,
@@ -287,12 +284,48 @@ export function preProcessEventos(pamJson: any, contratoJson: any = {}): EventoH
             analisis_financiero: {
                 tope_cumplido: topeCumplidoGlobal,
                 valor_unidad_inferido: valorUnidadInferido,
-                metodo_validacion: unidadReferencia.confianza === 'ALTA' ? 'FACTOR_ESTANDAR' : 'MANUAL',
+                metodo_validacion: (unidadReferencia.confianza === 'ALTA' ? 'FACTOR_ESTANDAR' : 'MANUAL') as any,
                 glosa_tope: unidadReferencia.evidencia[0] || "No determinado"
             },
-            nivel_confianza: "ALTA",
-            recomendacion_accion: topeCumplidoGlobal ? "ACEPTAR" : "SOLICITAR_ACLARACION",
-            origen_probable: "PAM_ESTRUCTURA"
+            nivel_confianza: "ALTA" as const,
+            recomendacion_accion: (topeCumplidoGlobal ? "ACEPTAR" : "SOLICITAR_ACLARACION") as any,
+            origen_probable: "PAM_ESTRUCTURA" as const
         };
     });
+
+    // --- PHASE 6: EVENTO ÚNICO POST-PROCESSING (NEW) ---
+    // If an Urgency event is followed by a Hospitalization (QUIRURGICO/MEDICO) 
+    // on the same day or within 24h, they should be logically linked.
+    // However, the current structure is flat. We'll mark them for the Audit Engine.
+    const sortedEvents = [...events].sort((a, b) => new Date(a.fecha_inicio).getTime() - new Date(b.fecha_inicio).getTime());
+
+    for (let i = 0; i < sortedEvents.length; i++) {
+        const current = sortedEvents[i];
+
+        // Check if current is Urgency (heuristic: contains 'URGENCIA' in items or provider)
+        const hasUrgencySignal = candidateEpisodes.find(ep => ep.id === current.id_evento)?.items.some(it =>
+            /URGENCIA/i.test(it.descripcion) || /URGENCIA/i.test(it.prestador || "")
+        );
+
+        if (hasUrgencySignal) {
+            // Find a subsequent hospitalization event within 24h
+            const hospitalization = sortedEvents.slice(i + 1).find(next => {
+                const diff = new Date(next.fecha_inicio).getTime() - new Date(current.fecha_fin).getTime();
+                const hours24 = 24 * 60 * 60 * 1000;
+                return diff >= 0 && diff <= hours24 && (next.tipo_evento === 'QUIRURGICO' || next.tipo_evento === 'MEDICO');
+            });
+
+            if (hospitalization) {
+                // INTERNAL SIGNAL: Mark as possible Evento Único violation for the audit engine
+                current.posible_continuidad = true;
+                current.recomendacion_accion = "IMPUGNAR";
+                (current as any).metadata = {
+                    evento_unico_target: hospitalization.id_evento,
+                    razon: "Urgencia que deriva en hospitalización (Evento Único)"
+                };
+            }
+        }
+    }
+
+    return sortedEvents;
 }
