@@ -514,7 +514,7 @@ export class AlphaFoldService {
             if (amountOpaco > 0) {
                 findings.push({
                     id: "F_OPACIDAD_MAT_MED",
-                    category: "Z",
+                    category: "B",
                     label: "MATERIALES/MEDICAMENTOS SIN APERTURA",
                     amount: amountOpaco,
                     action: "SOLICITAR_ACLARACION",
@@ -665,9 +665,11 @@ export class AlphaFoldService {
         const processItem = (i: any) => {
             const desc = (i.description || "").toString();
             if (REGEX_HOTEL.test(desc)) {
-                const total = (typeof i.total === 'number' ? i.total : 0);
-                amount += total;
-                refs.push(`${desc} ($${total})`);
+                // Prioritize copago for reconciliation accuracy
+                const val = typeof i.copago === 'number' ? i.copago :
+                    typeof i.total === 'number' ? i.total : 0;
+                amount += val;
+                refs.push(`${desc} ($${val})`);
                 if (REGEX_HIGH_CONFIDENCE.test(desc)) highConfMatches++;
             }
         };
