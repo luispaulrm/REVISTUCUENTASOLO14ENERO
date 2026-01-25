@@ -102,13 +102,12 @@ export class ProjectionService {
                 - SI UNA CELDA ESTÁ VACÍA, DEBES ESCRIBIR UN TD VACÍO CON SU DATA-COL: <td data-col="N" data-empty="true">—</td>.
                 - PROHIBIDO saltar columnas. Si la columna 3 es vacía, escribe el td de la columna 3.
                 
-                **PASO 3: FIDELIDAD VISUAL ABSOLUTA (COLUMN GUARD)**
-                - Copia EXACTAMENTE lo que ves. No corrijas ortografía. No interpretes siglas.
+                - **CALCO DE ALTA FIDELIDAD (ULTRA GUARD)**:
+                - Tu objetivo es una FOTOCOPIA EXACTA en HTML.
                 - SI VES UNA COLUMNA DE TOPE (como "1.2 veces AC2" o "4.5 UF"), ASEGÚRATE DE QUE SE MANTENGA EN SU COLUMNA NACIONAL.
                 - **PROHIBIDO** saltar a la columna de "Mundo" o "Internacional" a menos que el texto diga explícitamente "USA" o "CONVENIOS INTERNACIONALES".
-                - **DOUBLE VERIFICATION (TOPE GUARD)**: Before writing a cell with a limit (tope), cross-verify it twice.
-                - **TAGGING**: For any <td> that contains a successfully extracted limit/tope, add the attribute data-tope="verified". Example: <td data-col="3" data-tope="verified">1.2 veces Arancel</td>.
                 - Si la imagen dice "y así sucesivamente", COPIA "y así sucesivamente". NO LO USES COMO UN COMANDO PARA TI MISMO.
+
 
 
 

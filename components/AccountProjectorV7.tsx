@@ -398,16 +398,15 @@ export default function AccountProjectorV7() {
                                             background-color: #f0fdf4 !important; /* Subtle green to indicate verification */
                                             font-weight: 600 !important;
                                         }
-                                        td[data-tope="verified"]::after {
-                                            content: "➤";
-                                            position: absolute;
-                                            right: 2px;
-                                            top: 50%;
-                                            transform: translateY(-50%);
-                                            color: #16a34a;
-                                            font-size: 8px;
+                                        td {
+                                            border: 1px solid #10b981 !important; /* Green lines like the original contract */
+                                        }
+                                        th {
+                                            border: 1px solid #10b981 !important;
+                                            background-color: #f0fdf4 !important; /* Very subtle green tint for headers */
                                         }
                                     `}</style>
+
                                     {projectionFormat === 'json' ? (
 
                                         <pre className="text-[11px] font-mono text-slate-700 whitespace-pre-wrap bg-slate-50 p-6 rounded-xl border border-slate-200">
