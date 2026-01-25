@@ -483,10 +483,20 @@ export default function PdfProjector() {
                                             border: 2px solid #10b981 !important; /* Thick green lines to match original */
                                             padding: 8px 12px !important;
                                             color: #1a1a1a !important;
+                                            position: relative;
                                         }
                                         #projection-content th {
                                             background-color: #f0fdf4 !important;
                                             font-weight: 800 !important;
+                                        }
+                                        #projection-content td[data-tope="verified"]::after {
+                                            content: "➤";
+                                            position: absolute;
+                                            right: 2px;
+                                            top: 50%;
+                                            transform: translateY(-50%);
+                                            color: #16a34a;
+                                            font-size: 8px;
                                         }
                                         #projection-content table {
                                             width: 100% !important;
@@ -494,6 +504,7 @@ export default function PdfProjector() {
                                             margin-bottom: 2rem !important;
                                         }
                                     `}</style>
+
 
 
 

@@ -400,12 +400,23 @@ export default function AccountProjectorV7() {
                                         }
                                         td {
                                             border: 1px solid #10b981 !important; /* Green lines like the original contract */
+                                            position: relative;
                                         }
                                         th {
                                             border: 1px solid #10b981 !important;
                                             background-color: #f0fdf4 !important; /* Very subtle green tint for headers */
                                         }
+                                        td[data-tope="verified"]::after {
+                                            content: "➤";
+                                            position: absolute;
+                                            right: 2px;
+                                            top: 50%;
+                                            transform: translateY(-50%);
+                                            color: #16a34a;
+                                            font-size: 8px;
+                                        }
                                     `}</style>
+
 
                                     {projectionFormat === 'json' ? (
 

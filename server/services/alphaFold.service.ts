@@ -86,6 +86,33 @@ export class AlphaFoldService {
             evidenceRefs: []
         });
 
+        // --- VALIDATION SIGNALS (Topes/Categories) ---
+        // Honorarios: Validated if PAM is detailed OR if we identified surgery and it matches contract patterns
+        signals.push({
+            id: "S_VAL_HONORARIOS",
+            value: this.scoreCategoryValidation(input.pam, "HONORARIO"),
+            evidenceRefs: []
+        });
+        // Pabellón: Validated if Derecho de Pabellón is found with standard codes
+        signals.push({
+            id: "S_VAL_PABELLON",
+            value: this.scoreCategoryValidation(input.pam, "PABELLON"),
+            evidenceRefs: []
+        });
+        // Medicamentos: Validated if not opaque and follows VAM/AC logic
+        signals.push({
+            id: "S_VAL_MEDICAMENTOS",
+            value: 1 - this.scoreGrouping(input.pam, "MEDICAMENTOS"),
+            evidenceRefs: []
+        });
+        // Materiales: Validated if not opaque
+        signals.push({
+            id: "S_VAL_MATERIALES",
+            value: 1 - this.scoreGrouping(input.pam, "MATERIALES"),
+            evidenceRefs: []
+        });
+
+
         return signals;
     }
 
@@ -672,4 +699,36 @@ export class AlphaFoldService {
         }
         return sum;
     }
+
+    private static scoreCategoryValidation(pam: any, category: string): number {
+        // Simple heuristic: if we find clear codes (not 8002001/9001001 generic ones) 
+        // for the category, it's considered "validated" or at least "analyzable"
+        const GENERIC_CODES = ["8002001", "9001001", "9201001", "201407", "9201003"];
+        let count = 0;
+        let genericCount = 0;
+
+        const check = (i: any) => {
+            const desc = (i.descripcion || "").toUpperCase();
+            if (desc.includes(category.toUpperCase())) {
+                count++;
+                if (GENERIC_CODES.includes(i.codigoGC)) genericCount++;
+                // Additional check: if copago is present but bonificacion is 0 
+                // and it's not a known excluded item, it might be a tope hit
+            }
+        };
+
+        if (pam.folios) {
+            pam.folios.forEach((f: any) => {
+                f.desglosePorPrestador?.forEach((p: any) => p.items?.forEach(check));
+                f.items?.forEach(check);
+            });
+        } else if (pam.items) {
+            pam.items.forEach(check);
+        }
+
+        if (count === 0) return 0;
+        // If > 70% of items are generic/grouped, validation is low (0)
+        return (genericCount / count) > 0.7 ? 0 : 1;
+    }
+
 }

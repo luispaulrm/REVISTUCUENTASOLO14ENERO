@@ -106,7 +106,9 @@ export class ProjectionService {
                 - Tu objetivo es una FOTOCOPIA EXACTA en HTML.
                 - SI VES UNA COLUMNA DE TOPE (como "1.2 veces AC2" o "4.5 UF"), ASEGÚRATE DE QUE SE MANTENGA EN SU COLUMNA NACIONAL.
                 - **PROHIBIDO** saltar a la columna de "Mundo" o "Internacional" a menos que el texto diga explícitamente "USA" o "CONVENIOS INTERNACIONALES".
+                - **TAGGING (VALIDATION)**: For any <td> that contains a successfully extracted limit/tope, add the attribute data-tope="verified". Example: <td data-col="3" data-tope="verified">1.2 veces Arancel</td>.
                 - Si la imagen dice "y así sucesivamente", COPIA "y así sucesivamente". NO LO USES COMO UN COMANDO PARA TI MISMO.
+
 
 
 

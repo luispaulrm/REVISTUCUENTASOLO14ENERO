@@ -204,24 +204,119 @@ export const AlphaFoldVisualizer: React.FC<AlphaFoldVisualizerProps> = ({ auditR
 
             {/* 4. Contact Map (Relational View) */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Contact Map (Relaciones Lógicas)</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-center justify-between">
-                        <span>Día Cama</span>
-                        <span className="text-blue-400 font-bold px-2">── incluye ──▶</span>
-                        <span>Hotelería / Alimentación</span>
+                <h3 className="text-lg font-bold text-gray-800 mb-4 font-mono uppercase tracking-tighter text-sm">AlphaFold Logical Contact Map</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                    {/* Relación Día Cama -> Hotelería */}
+                    <div className={`p-4 border rounded-xl flex items-center justify-between transition-all duration-500 ${activeHypotheses?.includes("H_UNBUNDLING_IF319")
+                        ? "bg-red-50 border-red-200 shadow-[0_0_15px_rgba(239,68,68,0.1)]"
+                        : "bg-blue-50 border-blue-100"
+                        }`}>
+                        <div className="flex flex-col">
+                            <span className="font-bold text-slate-900">Día Cama</span>
+                            <span className="text-[10px] text-slate-500">Gasto Basal</span>
+                        </div>
+                        <div className="flex flex-col items-center px-4">
+                            <span className={`font-black tracking-tighter transition-colors ${activeHypotheses?.includes("H_UNBUNDLING_IF319") ? "text-red-500" : "text-blue-400"}`}>
+                                {activeHypotheses?.includes("H_UNBUNDLING_IF319") ? "── unbundling ──▶" : "── incluye ──▶"}
+                            </span>
+                        </div>
+                        <div className="flex flex-col text-right">
+                            <span className="font-bold text-slate-900">Hotelería / Alim.</span>
+                            <span className="text-[10px] text-slate-500">Insumos Basales</span>
+                        </div>
                     </div>
-                    <div className="p-3 bg-slate-50 border border-slate-100 rounded-lg flex items-center justify-between">
-                        <span>PAM Materiales (Agrupado)</span>
-                        <span className="text-slate-400 font-bold px-2">── bloquea ──▶</span>
-                        <span>Validación Tope UF</span>
-                    </div>
-                    <div className="p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-center justify-between">
-                        <span>Cuenta Detallada</span>
-                        <span className="text-amber-400 font-bold px-2">── no mapea 1:1 ──▶</span>
-                        <span>PAM Agrupado</span>
+
+                    {/* Relación Materiales -> Topes (La que pidió el usuario con flechas ➤) */}
+                    {(() => {
+                        const matGrouping = signals?.find((s: any) => s.id === 'S_PAM_AGRUPADOR_MATERIALES')?.value || 0;
+                        const medGrouping = signals?.find((s: any) => s.id === 'S_PAM_AGRUPADOR_MEDICAMENTOS')?.value || 0;
+                        const isBlocked = matGrouping > 0.5 || medGrouping > 0.5;
+
+                        return (
+                            <div className={`p-4 border rounded-xl flex items-center justify-between transition-all duration-500 ${isBlocked
+                                ? "bg-slate-50 border-slate-200 grayscale"
+                                : "bg-green-50 border-green-200 shadow-[0_0_15px_rgba(34,197,94,0.15)]"
+                                }`}>
+                                <div className="flex flex-col">
+                                    <span className="font-bold text-slate-900">PAM Materiales</span>
+                                    <span className="text-[10px] text-slate-500">{isBlocked ? "Agrupado/Opaco" : "Desglosado"}</span>
+                                </div>
+                                <div className="flex flex-col items-center px-4">
+                                    <span className={`font-black tracking-tighter transition-colors ${isBlocked ? "text-slate-400" : "text-green-600 animate-pulse"}`}>
+                                        {isBlocked ? "── bloquea ──▶" : "── validados ➤"}
+                                    </span>
+                                </div>
+                                <div className="flex flex-col text-right">
+                                    <span className="font-bold text-slate-900">Topes Contrato</span>
+                                    <span className="text-[10px] text-slate-500">{isBlocked ? "No Verificables" : "Cruce Exitoso"}</span>
+                                </div>
+                            </div>
+                        );
+                    })()}
+
+                    {/* Relación Cuenta -> PAM */}
+                    <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl flex items-center justify-between col-span-1 md:col-span-2">
+                        <div className="flex flex-col">
+                            <span className="font-bold text-slate-900">Cuenta Detallada (Ficha)</span>
+                            <span className="text-[10px] text-slate-500">Origen de Datos</span>
+                        </div>
+                        <span className="text-amber-400 font-black tracking-tighter px-4">── Reconstrucción Métrica ──▶</span>
+                        <div className="flex flex-col text-right">
+                            <span className="font-bold text-slate-900">PAM Agrupado</span>
+                            <span className="text-[10px] text-slate-500">Destino Facturación</span>
+                        </div>
                     </div>
                 </div>
+            </div>
+
+            {/* 5. Detailed Tope Validation Panel (The requested corroboration) */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center gap-2 mb-6">
+                    <Scale size={20} className="text-green-600" />
+                    <h3 className="text-lg font-bold text-gray-800">Panel de Verificación de Topes (Cruce Contrato)</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {[
+                        { id: 'S_VAL_HONORARIOS', label: 'Honorarios Médicos', desc: 'Arancel / VAM' },
+                        { id: 'S_VAL_PABELLON', label: 'Derecho Pabellón', desc: 'Recargos / Integral' },
+                        { id: 'S_VAL_MEDICAMENTOS', label: 'Medicamentos', desc: 'Tope Evento/Anual' },
+                        { id: 'S_VAL_MATERIALES', label: 'Materiales Clínicos', desc: 'Tope 20 UF' },
+                    ].map(tope => {
+                        const val = signals?.find((s: any) => s.id === tope.id)?.value || 0;
+                        const isValidated = val > 0.5;
+
+                        return (
+                            <div key={tope.id} className={`p-4 border rounded-xl flex flex-col gap-2 transition-all duration-300 ${isValidated ? 'bg-green-50 border-green-200 shadow-sm' : 'bg-gray-50 border-gray-200 opacity-60'
+                                }`}>
+                                <div className="flex justify-between items-start">
+                                    <span className="font-bold text-sm text-slate-800">{tope.label}</span>
+                                    {isValidated ? (
+                                        <span className="text-green-600 font-black text-xs">➤ VALIDADO</span>
+                                    ) : (
+                                        <span className="text-slate-400 font-bold text-[10px] uppercase">Pendiente</span>
+                                    )}
+                                </div>
+                                <div className="flex items-center justify-between mt-auto">
+                                    <span className="text-[10px] text-slate-500">{tope.desc}</span>
+                                    {isValidated && <CheckCircle2 size={14} className="text-green-600" />}
+                                </div>
+                                {isValidated && (
+                                    <div className="h-1 bg-green-200 rounded-full overflow-hidden mt-1">
+                                        <div className="h-full bg-green-500 w-full animate-progress"></div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {!signals?.some((s: any) => s.id.startsWith('S_VAL_') && s.value > 0.5) && (
+                    <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100 flex items-center gap-2 text-xs text-amber-700">
+                        <AlertTriangle size={14} />
+                        <span>La opacidad estructural impide el cruce automático de topes en algunas categorías.</span>
+                    </div>
+                )}
             </div>
 
         </div>
