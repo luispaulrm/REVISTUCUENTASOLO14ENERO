@@ -249,7 +249,7 @@ async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (ms
 
                 // --- STEP 4: DEBUG OUTPUT & FORMATTING ---
                 const pageLines = tableRows.map(row => {
-                    const formattedRow = row.map((cell, idx) => `[COL${idx}]${cell.trim()}`).join(' | ');
+                    const formattedRow = row.map((cell: string) => cell.trim()).join(' | ');
                     return formattedRow;
                 });
 
