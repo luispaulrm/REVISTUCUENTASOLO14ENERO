@@ -504,14 +504,16 @@ export default function PdfProjector() {
                                             transform: `scale(${scale})`,
                                             boxShadow: '0 0 50px rgba(0,0,0,0.1)'
                                         }}
-                                        dangerouslySetInnerHTML={projectionFormat === 'html' ? { __html: htmlProjection || (isProcessing ? '<div class="flex items-center justify-center h-64 text-slate-400 italic">Generando proyección...</div>' : '') } : undefined}
                                     >
-                                        {projectionFormat === 'json' && (
+                                        {projectionFormat === 'json' ? (
                                             <pre className="text-[11px] font-mono text-slate-700 whitespace-pre-wrap">
                                                 {htmlProjection || (isProcessing ? 'Analizando datos...' : '')}
                                             </pre>
+                                        ) : (
+                                            <div dangerouslySetInnerHTML={{ __html: htmlProjection || (isProcessing ? '<div class="flex items-center justify-center h-64 text-slate-400 italic">Generando proyección...</div>' : '') }} />
                                         )}
                                     </div>
+
 
                                 </div>
                             </div>
