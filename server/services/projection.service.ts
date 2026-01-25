@@ -1,5 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AI_CONFIG } from '../config/ai.config.js';
+import { SCHEMA_PROYECCION_JSON, PROMPT_PROYECCION_JSON } from './contractConstants.js';
+
 
 export interface ProjectionChunk {
     type: 'chunk' | 'usage' | 'error' | 'log';
@@ -28,12 +30,14 @@ export class ProjectionService {
         mimeType: string,
         modelName: string = AI_CONFIG.ACTIVE_MODEL,
         mode: 'FULL' | 'BILL_ONLY' = 'FULL',
-        pageCount: number = 0
+        pageCount: number = 0,
+        format: 'html' | 'json' = 'html'
     ): AsyncIterable<ProjectionChunk> {
-        let fullHtml = "";
+        let fullContent = "";
         let isFinalized = false;
         let pass = 0;
-        const maxPasses = 30; // Aumentado de 10 a 30 para documentos largos
+        const maxPasses = format === 'json' ? 5 : 30; // JSON is usually more compact than full HTML replication
+
 
         // Progress Safety Valves
         let lastFullHtmlLength = 0;
@@ -45,7 +49,8 @@ export class ProjectionService {
             yield { type: 'log', text: `[IA] 🚀 Iniciando Pase ${pass}/${maxPasses}...` };
 
             const isBillOnly = mode === 'BILL_ONLY';
-            const prompt = pass === 1 ? `
+            const prompt = pass === 1 ? (
+                format === 'json' ? PROMPT_PROYECCION_JSON : `
                 ACT AS A HIGH-FIDELITY DOCUMENT PROJECTOR (OCR CALCO MODE).
                 
                 GOAL:
@@ -106,7 +111,9 @@ export class ProjectionService {
                 
                 OUTPUT:
                 A single <div> container containing the HTML projection.
-            ` : `
+            `
+            ) : (
+                format === 'json' ? "CONTINUE EXTRACTING JSON DATA. DO NOT REPEAT AND DO NOT STOP UNTIL COMPLETE." : `
                 CONTINUE PROJECTING THE DOCUMENT.
                 
                 YOU MUST CONTINUE FROM THE EXACT POINT WHERE YOU LEFT OFF.
@@ -121,7 +128,7 @@ export class ProjectionService {
                 you MUST output "<!-- END_OF_DOCUMENT -->" immediately.
                 
                 LAST PROJECTED CONTENT (CONTEXT):
-                "...${fullHtml.slice(-4000)}"
+                "...${fullContent.slice(-4000)}"
                 
                 RULES:
                 1. CONTINUE exactly where you left off. 
@@ -129,7 +136,9 @@ export class ProjectionService {
                 3. NO REPETITION.
                 4. STRICT FIDELITY: Copy every word, symbol, and digit exactly.
                 5. FINAL MARKER: End with "<!-- END_OF_DOCUMENT -->" ONLY if there is NO MORE data in the ENTIRE PDF.
-            `;
+            `
+            );
+
 
             let streamSuccess = false;
             // Strategy: Active Model -> Fallback Model
@@ -155,8 +164,11 @@ export class ProjectionService {
                                     temperature: 0.0,
                                     topP: 0.8,
                                     topK: 20,
+                                    responseMimeType: format === 'json' ? "application/json" : "text/plain",
+                                    responseSchema: format === 'json' ? SCHEMA_PROYECCION_JSON : undefined
                                 }
                             });
+
 
                             if (attempt > 1 || keyIdx > 0 || currentModel !== modelName) {
                                 yield { type: 'log', text: `[IA] 🛡️ Estrategia: Modelo ${currentModel} | Key ${keyIdx + 1}/${this.keys.length} (${keyMask}) | Intento ${attempt}/3` };
@@ -182,7 +194,8 @@ export class ProjectionService {
                             for await (const chunk of resultStream.stream) {
                                 const chunkText = chunk.text();
                                 currentPassOutput += chunkText;
-                                fullHtml += chunkText;
+                                fullContent += chunkText;
+
 
                                 const cleanChunk = chunkText.replace("<!-- END_OF_DOCUMENT -->", "");
                                 if (cleanChunk) {
@@ -233,18 +246,19 @@ export class ProjectionService {
                             const isLazy = isSuspiciouslyShort && triggeredMeta;
 
                             // 2. STAGNATION DETECTION (Safety Valve)
-                            const addedLength = fullHtml.length - lastFullHtmlLength;
+                            const addedLength = fullContent.length - lastFullHtmlLength;
                             if (addedLength < 20) {
                                 stagnatedPasses++;
                                 console.warn(`[PROJECTION] Stagnation detected. Added length: ${addedLength}. Stagnated passes: ${stagnatedPasses}`);
                             } else {
                                 stagnatedPasses = 0;
                             }
-                            lastFullHtmlLength = fullHtml.length;
+                            lastFullHtmlLength = fullContent.length;
 
-                            if (currentPassOutput.includes("<!-- END_OF_DOCUMENT -->") && !isLazy) {
+                            if ((currentPassOutput.includes("<!-- END_OF_DOCUMENT -->") || format === 'json') && !isLazy) {
                                 isFinalized = true;
                                 yield { type: 'log', text: `[IA] ✅ Marcador de finalización detectado en el pase ${pass}.` };
+
                             } else if (stagnatedPasses >= MAX_STAGNATED_PASSES) {
                                 isFinalized = true;
                                 yield { type: 'log', text: `[IA] 🏁 Finalización forzada por estancamiento (no se añade contenido nuevo).` };

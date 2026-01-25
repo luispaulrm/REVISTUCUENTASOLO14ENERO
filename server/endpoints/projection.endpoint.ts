@@ -33,12 +33,13 @@ export async function handleProjection(req: Request, res: Response) {
     };
 
     try {
-        const { image, mimeType, mode } = req.body;
+        const { image, mimeType, mode, format } = req.body;
 
         if (!image || !mimeType) {
             sendUpdate({ type: 'error', error: 'Missing image or mimeType' });
             return res.end();
         }
+
 
         let pageCount = 0;
         if (mimeType === 'application/pdf') {
@@ -128,7 +129,8 @@ export async function handleProjection(req: Request, res: Response) {
         console.log('[PROJECTION] Starting projection stream...', { mode, pageCount });
         sendUpdate({ type: 'log', text: `Iniciando proyector maestro (${mode || 'FULL'}) | ${pageCount || '?'} págs...` });
 
-        const stream = projectionService.projectPdfToHtml(image, mimeType, undefined, mode, pageCount);
+        const stream = projectionService.projectPdfToHtml(image, mimeType, undefined, mode, pageCount, format);
+
 
         for await (const chunk of stream) {
             sendUpdate(chunk);

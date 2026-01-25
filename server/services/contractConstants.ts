@@ -494,7 +494,100 @@ export const SCHEMA_COBERTURAS = {
     }
   },
   required: ['coberturas', 'diseno_ux']
-};
+} as any;
+
+export const SCHEMA_PROYECCION_JSON = {
+  type: SchemaType.OBJECT,
+
+  properties: {
+    plan_info: {
+      type: SchemaType.OBJECT,
+      properties: {
+        isapre: { type: SchemaType.STRING },
+        nombre_plan: { type: SchemaType.STRING },
+        codigo_plan: { type: SchemaType.STRING },
+        tipo_plan: { type: SchemaType.STRING }
+      },
+      required: ['isapre', 'nombre_plan']
+    },
+    coberturas_nacionales: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          seccion: { type: SchemaType.STRING },
+          item: { type: SchemaType.STRING },
+          preferente: {
+            type: SchemaType.OBJECT,
+            properties: {
+              porcentaje: { type: SchemaType.NUMBER, nullable: true },
+              tope: { type: SchemaType.STRING, nullable: true },
+              clinicas: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+            }
+          },
+          libre_eleccion: {
+            type: SchemaType.OBJECT,
+            properties: {
+              porcentaje: { type: SchemaType.NUMBER, nullable: true },
+              tope: { type: SchemaType.STRING, nullable: true }
+            }
+          },
+          tope_anual_uf: { type: SchemaType.STRING, nullable: true }
+        },
+        required: ['seccion', 'item']
+      }
+    },
+    coberturas_internacionales: {
+      type: SchemaType.OBJECT,
+      properties: {
+        existe: { type: SchemaType.BOOLEAN },
+        descripcion: { type: SchemaType.STRING, nullable: true },
+        porcentaje: { type: SchemaType.NUMBER, nullable: true },
+        tope: { type: SchemaType.STRING, nullable: true }
+      },
+      required: ['existe']
+    },
+    notas_explicativas: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          numero: { type: SchemaType.STRING },
+          texto: { type: SchemaType.STRING }
+        },
+        required: ['numero', 'texto']
+      }
+    }
+  },
+  required: ['plan_info', 'coberturas_nacionales', 'coberturas_internacionales']
+} as any;
+
+
+export const PROMPT_PROYECCION_JSON = `
+  ACT AS A HIGH-FIDELITY MEDICAL CONTRACT ANALYST (JSON MAPPING MODE).
+  
+  GOAL:
+  Extract a structured JSON representation of the provided health contract.
+  
+  CRITICAL INSTRUCTIONS:
+  1. **NATIONAL COVERAGES**: Capture all items from the main coverage grids.
+     - Separate "Preferente" (clinics explicitly named) and "Libre Elección".
+     - Identify percentages and topes (ceilings).
+     - If a ceiling is "Sin Tope", use that exact string in the 'tope' field.
+  2. **INTERNATIONAL COVERAGE**: 
+     - Explicitly check if the plan includes international coverage.
+     - Separate it from national coverage.
+  3. **NOTAS EXPLICATIVAS**:
+     - Transcribe the numbered footnotes/explanatory notes verbatim.
+  4. **FIDELITY**: 
+     - Do not summarize.
+     - If a value is missing, use null.
+     - Use the exact names of clinics/prestadores.
+
+  OUTPUT FORMAT: JSON Strict according to the provided schema.
+`;
+
+
 
 
 // Configuration constants
