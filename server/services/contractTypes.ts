@@ -18,6 +18,18 @@ export interface UsageMetadata {
     estimatedCostCLP?: number;
 }
 
+// User-defined Deterministic Flat Coverage
+export interface ContractCoverage {
+    prestacion: string;           // "MATERIALES CLINICOS"
+    ambito: "HOSPITALARIO" | "AMBULATORIO";
+    modalidad: "PREFERENTE" | "LIBRE_ELECCION";
+    porcentaje: number | null;    // 80, 90, null
+    tope: number | null;          // 20, 4.0, null
+    unidad: "UF" | "AC2" | "SIN_TOPE";
+    tipoTope: "POR_EVENTO" | "ANUAL" | "ILIMITADO";
+    fuente: "TABLA_CONTRATO";
+}
+
 export interface ContractAnalysisResult {
     rawMarkdown?: string; // New field for Dual Verification
     fingerprint?: ContractFingerprint; // Phase 0 - Universal Architecture

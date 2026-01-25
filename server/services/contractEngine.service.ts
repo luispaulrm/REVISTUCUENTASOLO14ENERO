@@ -3,7 +3,8 @@ import { GeminiService } from './gemini.service.js';
 import {
     ContractAnalysisResult,
     ContractAnalysisOptions,
-    UploadedFile
+    UploadedFile,
+    ContractCoverage
 } from './contractTypes.js';
 import { jsonrepair } from 'jsonrepair';
 import { getCanonicalCategory } from './contractCanonical.js';
@@ -300,8 +301,89 @@ async function repairJsonWithGemini(
 }
 
 // ============================================================================
-// CORE ANALYSIS FUNCTIONS
+// DETERMINISTIC MARKDOWN PARSER (The "No-Smoke" Engine)
 // ============================================================================
+
+function parseTope(raw: string): { tope: number | null; unidad: "UF" | "AC2" | "SIN_TOPE"; tipoTope: "POR_EVENTO" | "ANUAL" | "ILIMITADO" } {
+    const s = String(raw || "").trim();
+    if (!raw || s === "—" || s === "-" || /sin tope|ilimitado/i.test(s)) {
+        return { tope: null, unidad: "SIN_TOPE", tipoTope: "ILIMITADO" };
+    }
+
+    // Extract number: "4.5 UF" -> 4.5, "20%" -> 20
+    const numMatch = s.match(/([0-9.,]+)/);
+    const num = numMatch ? parseFloat(numMatch[1].replace(",", ".")) : null;
+
+    if (/UF/i.test(s)) {
+        return { tope: num, unidad: "UF", tipoTope: "POR_EVENTO" };
+    }
+
+    if (/AC2|veces/i.test(s)) {
+        return { tope: num, unidad: "AC2", tipoTope: "POR_EVENTO" };
+    }
+
+    // Default fallback (soft fail or treat as pesos/unknown)
+    return { tope: num, unidad: "SIN_TOPE", tipoTope: "ILIMITADO" };
+}
+
+function rowToCoverages(row: string[]): ContractCoverage[] {
+    // Expected format: [Prestación, %Pref, TopePref, %Libre, TopeLibre]
+    if (row.length < 5) return [];
+
+    const [prestacion, porcPref, topePref, porcLibre, topeLibre] = row;
+    const covers: ContractCoverage[] = [];
+
+    // 1. Preferente
+    if (porcPref && porcPref !== "—") {
+        const pVal = parseFloat(porcPref.replace("%", "").replace(",", "."));
+        covers.push({
+            prestacion: prestacion,
+            ambito: prestacion.toLowerCase().includes("hospital") ? "HOSPITALARIO" : "AMBULATORIO", // Simple heuristic for now
+            modalidad: "PREFERENTE",
+            porcentaje: isNaN(pVal) ? null : pVal,
+            ...parseTope(topePref),
+            fuente: "TABLA_CONTRATO"
+        });
+    }
+
+    // 2. Libre Elección
+    if (porcLibre && porcLibre !== "—") {
+        const pVal = parseFloat(porcLibre.replace("%", "").replace(",", "."));
+        covers.push({
+            prestacion: prestacion,
+            ambito: prestacion.toLowerCase().includes("hospital") ? "HOSPITALARIO" : "AMBULATORIO",
+            modalidad: "LIBRE_ELECCION",
+            porcentaje: isNaN(pVal) ? null : pVal,
+            ...parseTope(topeLibre),
+            fuente: "TABLA_CONTRATO"
+        });
+    }
+
+    return covers;
+}
+
+export function parseContractMarkdown(md: string): ContractCoverage[] {
+    if (!md) return [];
+
+    // 1. Split by lines and pipe
+    const lines = md.split("\n").filter(l => l.includes("|"));
+
+    // 2. Extract rows
+    const rows = lines.map(l =>
+        l.split("|").map(c => c.trim()).filter(c => c.length > 0)
+    ).filter(r => r.length >= 5); // Must have at least name + 2 pairs of coverages
+
+    // 3. Filter likely header rows or garbage
+    const dataRows = rows.filter(r =>
+        !/prestaci|bonificaci|tope/i.test(r[0]) && // Not header
+        !/^[\-: ]+$/.test(r[0]) // Not separator
+    );
+
+    // 4. Map to coverages
+    const coberturas = dataRows.flatMap(rowToCoverages);
+
+    return coberturas;
+}
 
 // ============================================================================
 // CORE ANALYSIS FUNCTIONS
@@ -535,17 +617,73 @@ export async function analyzeSingleContract(
     }));
 
     // Combine coverage from all modular prompts
-    const coberturasHospRaw = [
+    let coberturasHospRaw = [
         ...(hospP1Phase.result?.coberturas || []),
         ...(hospP2Phase.result?.coberturas || [])
     ];
-    const coberturasAmbRaw = [
+    let coberturasAmbRaw = [
         ...(ambP1Phase.result?.coberturas || []),
         ...(ambP2Phase.result?.coberturas || []),
         ...(ambP3Phase.result?.coberturas || []),
         ...(ambP4Phase.result?.coberturas || [])
     ];
-    const coberturasExtrasRaw = extrasPhase.result?.coberturas || [];
+    let coberturasExtrasRaw = extrasPhase.result?.coberturas || [];
+
+    // --- INTEGRATION: DETERMINISTIC MARKDOWN PARSER ---
+    // We attempt to parse the OCR markdown directly.
+    // If successful, we can use these items directly or merge them.
+    // For now, let's inject them into the raw streams.
+
+    if ((ocrResult as any).text) {
+        log(`[ContractEngine] 🧠 Ejecutando Parser Determinístico en Markdown OCR...`);
+        const deterministicCoverages = parseContractMarkdown((ocrResult as any).text);
+        log(`[ContractEngine] 🧩 Items Determinísticos Encontrados: ${deterministicCoverages.length}`);
+
+        if (deterministicCoverages.length > 0) {
+            // We classify and inject them based on 'ambito' hint or just into EXTRAS for now 
+            // but mapped correctly to the flat structure expected by cleanAndCheck/contractTypes
+
+            // Convert ContractCoverage (Flat) to Cobertura (Nested) structure expected by cleanAndCheck for now?
+            // OR better: cleanAndCheck expects the nested structure 'modalidades'.
+            // The Parser returns Flat ContractCoverage.
+            // We need a helper to group Flat -> Nested if we want to reuse cleanAndCheck logic.
+
+            const groupedDeterministic: any[] = [];
+            const map = new Map<string, any>();
+
+            deterministicCoverages.forEach(d => {
+                if (!map.has(d.prestacion)) {
+                    map.set(d.prestacion, {
+                        item: d.prestacion,
+                        categoria: d.prestacion, // Temporary
+                        modalidades: []
+                    });
+                    groupedDeterministic.push(map.get(d.prestacion));
+                }
+
+                const entry = map.get(d.prestacion);
+                entry.modalidades.push({
+                    tipo: d.modalidad,
+                    tope: d.tope !== null ? d.tope : undefined,
+                    unidadTope: d.unidad,
+                    tipoTope: d.tipoTope
+                });
+            });
+
+            log(`[ContractEngine] 🧩 Items Agrupados (Nested): ${groupedDeterministic.length}`);
+
+            // If AI failed significantly, we might want to REPLACE.
+            // For safety, let's APPEND to extras or respective buckets.
+            // Ambito helps.
+
+            deterministicCoverages.forEach(d => {
+                // We actually already grouped them above.
+            });
+
+            // Let's just append grouped properties to extras for robust processing
+            coberturasExtrasRaw = [...coberturasExtrasRaw, ...groupedDeterministic];
+        }
+    }
 
     // ============================================================================
     // POST-PROCESSING FILTER v10.4: Quality Control & Forensic Isolation
