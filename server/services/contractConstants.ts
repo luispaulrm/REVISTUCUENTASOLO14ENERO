@@ -570,19 +570,26 @@ export const PROMPT_PROYECCION_JSON = `
   Extract a structured JSON representation of the provided health contract.
   
   CRITICAL INSTRUCTIONS:
-  1. **NATIONAL COVERAGES**: Capture all items from the main coverage grids.
-     - Separate "Preferente" (clinics explicitly named) and "Libre Elección".
-     - Identify percentages and topes (ceilings).
-     - If a ceiling is "Sin Tope", use that exact string in the 'tope' field.
-  2. **INTERNATIONAL COVERAGE**: 
-     - Explicitly check if the plan includes international coverage.
-     - Separate it from national coverage.
-  3. **NOTAS EXPLICATIVAS**:
-     - Transcribe the numbered footnotes/explanatory notes verbatim.
-  4. **FIDELITY**: 
-     - Do not summarize.
-     - If a value is missing, use null.
-     - Use the exact names of clinics/prestadores.
+  1. **COLUMN ALIGNMENT (CRITICAL)**:
+     - Most Isapre contracts have 5-7 columns.
+     - Column 1: Prestación/Item.
+     - Column 2: % Bonificación.
+     - Column 3 & 4: National Topes (usually 1.2x Arancel or UF values like 4.5 UF).
+     - Column 5 & 6: International Coverages (USA/Mundo).
+     - **NEVER** move a value from the National columns (Topes) to the International columns.
+     - If a value like "300 UF" or "100 UF" is in the middle of the table, it is a NATIONAL TOPE.
+  2. **TOPES EXTRACTION**:
+     - Capture even complex strings like "1.2 veces AC2 + 0.5 UF".
+     - If there are multiple topes for one item (e.g., Daily and Yearly), combine them in the 'tope' string or choose the most restrictive.
+     - Use "SIN TOPE" if explicit. Use null only if absolutely blank.
+  3. **INTERNATIONAL COVERAGE**: 
+     - Separate it completely. If there is no explicit International column data, 'existe' must be false.
+  4. **FIDELITY & DOUBLE VERIFICATION (CRITICAL)**:
+     - **STEP 1: EXTRACTION**: Extract the data as seen.
+     - **STEP 2: VERIFICATION**: Double check the extracted 'tope' against the source image. Ensure it matches exactly.
+     - **STEP 3: OUTPUT**: If verified, provide the output.
+     - Do not summarize. Transcribe every digit and symbol.
+
 
   OUTPUT FORMAT: JSON Strict according to the provided schema.
 `;

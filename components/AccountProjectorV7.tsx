@@ -22,6 +22,8 @@ export default function AccountProjectorV7() {
     const [progress, setProgress] = useState(0);
     const [currentPass, setCurrentPass] = useState(1);
     const [hasCache, setHasCache] = useState(false);
+    const [projectionFormat, setProjectionFormat] = useState<'html' | 'json'>('html');
+
     const logEndRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<number | null>(null);
 
@@ -113,8 +115,10 @@ export default function AccountProjectorV7() {
                     body: JSON.stringify({
                         image: base64,
                         mimeType: selectedFile.type,
-                        mode: billOnly ? 'BILL_ONLY' : 'FULL'
+                        mode: billOnly ? 'BILL_ONLY' : 'FULL',
+                        format: projectionFormat
                     })
+
                 });
 
                 if (!response.ok) throw new Error('Error en la comunicación con el servidor');
@@ -209,12 +213,23 @@ export default function AccountProjectorV7() {
         if (!htmlProjection) return;
         let md = `# Proyección Módulo 7: ${file?.name}\n\n`;
         md += `> **Fecha**: ${new Date().toLocaleString()}\n`;
-        md += `> **Tokens**: ${usage?.totalTokens || 0}\n\n`;
+        md += `> **Tokens**: ${usage?.totalTokens || 0}\n`;
+        md += `> **Formato**: ${projectionFormat}\n\n`;
         md += `---\n\n`;
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = htmlProjection;
-        const text = tempDiv.innerText || tempDiv.textContent || "";
-        md += text;
+
+        if (projectionFormat === 'json') {
+            md += "```json\n" + htmlProjection + "\n```";
+        } else {
+            // Heuristic to keep tables somewhat readable in plain text
+            const formattedHtml = htmlProjection
+                .replace(/<\/tr>/g, '\n')
+                .replace(/<\/td>/g, ' | ')
+                .replace(/<th[^>]*>/g, ' [ ')
+                .replace(/<\/th>/g, ' ] | ')
+                .replace(/<[^>]+>/g, '');
+            md += formattedHtml;
+        }
+
         const blob = new Blob([md], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -313,7 +328,27 @@ export default function AccountProjectorV7() {
                             <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${billOnly ? 'left-6' : 'left-1'}`} />
                         </div>
                     </button>
+
+                    <button
+                        onClick={() => setProjectionFormat(projectionFormat === 'html' ? 'json' : 'html')}
+                        className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all duration-300 ${projectionFormat === 'json'
+                            ? 'bg-amber-50 border-amber-200 text-amber-700 shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                            }`}
+                    >
+                        <div className={`p-1.5 rounded-lg transition-colors ${projectionFormat === 'json' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                            <FileJson size={14} />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-xs font-black uppercase tracking-tight">Modo de Salida</p>
+                            <p className="text-[10px] font-medium opacity-70">{projectionFormat === 'json' ? 'Datos Estructurados (JSON)' : 'Fidelidad Visual (HTML)'}</p>
+                        </div>
+                        <div className={`ml-4 w-10 h-5 rounded-full relative transition-colors ${projectionFormat === 'json' ? 'bg-amber-600' : 'bg-slate-200'}`}>
+                            <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${projectionFormat === 'json' ? 'left-6' : 'left-1'}`} />
+                        </div>
+                    </button>
                 </div>
+
             )}
 
             {!file ? (
@@ -357,10 +392,34 @@ export default function AccountProjectorV7() {
                                         boxShadow: '0 0 50px rgba(0,0,0,0.1)',
                                     }}
                                 >
-                                    <div dangerouslySetInnerHTML={{ __html: htmlProjection || (isProcessing ? '<div class="flex items-center justify-center h-64 text-slate-400 italic font-medium">Generando proyección M7...</div>' : '') }} />
+                                    <style>{`
+                                        td[data-tope="verified"] {
+                                            position: relative;
+                                            background-color: #f0fdf4 !important; /* Subtle green to indicate verification */
+                                            font-weight: 600 !important;
+                                        }
+                                        td[data-tope="verified"]::after {
+                                            content: "➤";
+                                            position: absolute;
+                                            right: 2px;
+                                            top: 50%;
+                                            transform: translateY(-50%);
+                                            color: #16a34a;
+                                            font-size: 8px;
+                                        }
+                                    `}</style>
+                                    {projectionFormat === 'json' ? (
+
+                                        <pre className="text-[11px] font-mono text-slate-700 whitespace-pre-wrap bg-slate-50 p-6 rounded-xl border border-slate-200">
+                                            {htmlProjection || (isProcessing ? 'Analizando datos...' : '')}
+                                        </pre>
+                                    ) : (
+                                        <div dangerouslySetInnerHTML={{ __html: htmlProjection || (isProcessing ? '<div class="flex items-center justify-center h-64 text-slate-400 italic font-medium">Generando proyección M7...</div>' : '') }} />
+                                    )}
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <div className="space-y-6">

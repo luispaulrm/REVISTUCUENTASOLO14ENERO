@@ -36,7 +36,7 @@ export class ProjectionService {
         let fullContent = "";
         let isFinalized = false;
         let pass = 0;
-        const maxPasses = format === 'json' ? 5 : 30; // JSON is usually more compact than full HTML replication
+        const maxPasses = format === 'json' ? 10 : 30; // JSON is usually more compact than full HTML replication
 
 
         // Progress Safety Valves
@@ -102,15 +102,22 @@ export class ProjectionService {
                 - SI UNA CELDA ESTÁ VACÍA, DEBES ESCRIBIR UN TD VACÍO CON SU DATA-COL: <td data-col="N" data-empty="true">—</td>.
                 - PROHIBIDO saltar columnas. Si la columna 3 es vacía, escribe el td de la columna 3.
                 
-                **PASO 3: FIDELIDAD VISUAL ABSOLUTA**
+                **PASO 3: FIDELIDAD VISUAL ABSOLUTA (COLUMN GUARD)**
                 - Copia EXACTAMENTE lo que ves. No corrijas ortografía. No interpretes siglas.
+                - SI VES UNA COLUMNA DE TOPE (como "1.2 veces AC2" o "4.5 UF"), ASEGÚRATE DE QUE SE MANTENGA EN SU COLUMNA NACIONAL.
+                - **PROHIBIDO** saltar a la columna de "Mundo" o "Internacional" a menos que el texto diga explícitamente "USA" o "CONVENIOS INTERNACIONALES".
+                - **DOUBLE VERIFICATION (TOPE GUARD)**: Before writing a cell with a limit (tope), cross-verify it twice.
+                - **TAGGING**: For any <td> that contains a successfully extracted limit/tope, add the attribute data-tope="verified". Example: <td data-col="3" data-tope="verified">1.2 veces Arancel</td>.
                 - Si la imagen dice "y así sucesivamente", COPIA "y así sucesivamente". NO LO USES COMO UN COMANDO PARA TI MISMO.
+
+
+
 
                 TOTAL PAGES IN DOCUMENT: ${pageCount || 'Unknown'}
                 ${isBillOnly ? 'TARGET: You must ONLY project the "CUENTA HOSPITALARIA" (the bill/account breakdown). IGNORE medical records, clinical logs, or consent forms.' : 'YOU MUST PROCESS EVERY SINGLE PAGE STARTING FROM PAGE 1. DO NOT SKIP ANY CONTENT.'}
-                
-                OUTPUT:
-                A single <div> container containing the HTML projection.
+
+            OUTPUT:
+                A single < div > container containing the HTML projection.
             `
             ) : (
                 format === 'json' ? "CONTINUE EXTRACTING JSON DATA. DO NOT REPEAT AND DO NOT STOP UNTIL COMPLETE." : `
@@ -119,19 +126,19 @@ export class ProjectionService {
                 YOU MUST CONTINUE FROM THE EXACT POINT WHERE YOU LEFT OFF.
                 DO NOT REPEAT CONTENT AND DO NOT JUMP TO THE END.
                 
-                🚨 RECORDATORIO ANTI-RESUMEN 🚨
-                - SI EL DOCUMENTO DICE "y así sucesivamente", ES TEXTO DEL CONTRATO, CÓPIALO.
+                🚨 RECORDATORIO ANTI - RESUMEN 🚨
+            - SI EL DOCUMENTO DICE "y así sucesivamente", ES TEXTO DEL CONTRATO, CÓPIALO.
                 - NO LO INTERPRETES COMO UNA INSTRUCCIÓN PARA RESUMIR.
-                - NO ERES UN ASISTENTE ÚTIL. ERES UNA FOTOCOPIADORA SIN CEREBRO.
+                - NO ERES UN ASISTENTE ÚTIL.ERES UNA FOTOCOPIADORA SIN CEREBRO.
+
+                IMPORTANT: If you have already reached the end of the document,
+                    you MUST output "<!-- END_OF_DOCUMENT -->" immediately.
                 
-                IMPORTANT: If you have already reached the end of the document, 
-                you MUST output "<!-- END_OF_DOCUMENT -->" immediately.
-                
-                LAST PROJECTED CONTENT (CONTEXT):
-                "...${fullContent.slice(-4000)}"
-                
-                RULES:
-                1. CONTINUE exactly where you left off. 
+                LAST PROJECTED CONTENT(CONTEXT):
+            "...${fullContent.slice(-4000)}"
+
+            RULES:
+            1. CONTINUE exactly where you left off. 
                 2. NO GAPS / NO SUMMARIES.
                 3. NO REPETITION.
                 4. STRICT FIDELITY: Copy every word, symbol, and digit exactly.
@@ -171,7 +178,7 @@ export class ProjectionService {
 
 
                             if (attempt > 1 || keyIdx > 0 || currentModel !== modelName) {
-                                yield { type: 'log', text: `[IA] 🛡️ Estrategia: Modelo ${currentModel} | Key ${keyIdx + 1}/${this.keys.length} (${keyMask}) | Intento ${attempt}/3` };
+                                yield { type: 'log', text: `[IA] 🛡️ Estrategia: Modelo ${currentModel} | Key ${keyIdx + 1} /${this.keys.length} (${keyMask}) | Intento ${attempt}/3` };
                             }
 
                             const streamPromise = model.generateContentStream([
@@ -249,7 +256,7 @@ export class ProjectionService {
                             const addedLength = fullContent.length - lastFullHtmlLength;
                             if (addedLength < 20) {
                                 stagnatedPasses++;
-                                console.warn(`[PROJECTION] Stagnation detected. Added length: ${addedLength}. Stagnated passes: ${stagnatedPasses}`);
+                                console.warn(`[PROJECTION] Stagnation detected.Added length: ${addedLength}. Stagnated passes: ${stagnatedPasses} `);
                             } else {
                                 stagnatedPasses = 0;
                             }
@@ -261,10 +268,10 @@ export class ProjectionService {
 
                             } else if (stagnatedPasses >= MAX_STAGNATED_PASSES) {
                                 isFinalized = true;
-                                yield { type: 'log', text: `[IA] 🏁 Finalización forzada por estancamiento (no se añade contenido nuevo).` };
+                                yield { type: 'log', text: `[IA] 🏁 Finalización forzada por estancamiento(no se añade contenido nuevo).` };
                             } else {
                                 const logMsg = isLazy ?
-                                    `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. GATILLADA POR: "${triggeredMeta}". FORZANDO RE-GENERACIÓN...` :
+                                    `[IA] 🚨 PEREZA DETECTADA EN PASE ${pass}. GATILLADA POR: "${triggeredMeta}".FORZANDO RE - GENERACIÓN...` :
                                     `[IA] 🔄 Truncamiento o fin de pase en ${pass}. Solicitando continuación...`;
                                 yield { type: 'log', text: logMsg };
                             }
@@ -273,12 +280,12 @@ export class ProjectionService {
                             break modelLoop;
 
                         } catch (err: any) {
-                            console.error(`[ProjectionService] Error:`, err);
+                            console.error(`[ProjectionService] Error: `, err);
                             const errorMsg = err.message || err.toString();
                             const isQuota = errorMsg.includes('429') || errorMsg.includes('Quota') || errorMsg.includes('TimeLimitExceeded');
 
                             if (isQuota) {
-                                yield { type: 'log', text: `[IA] ⚠️ Problema de Cuota/Timeout. Rotando Key...` };
+                                yield { type: 'log', text: `[IA] ⚠️ Problema de Cuota / Timeout.Rotando Key...` };
                                 break;
                             }
 

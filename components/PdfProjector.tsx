@@ -21,6 +21,8 @@ export default function PdfProjector() {
     const [progress, setProgress] = useState(0);
     const [currentPass, setCurrentPass] = useState(1);
     const [hasCache, setHasCache] = useState(false);
+    const [projectionFormat, setProjectionFormat] = useState<'html' | 'json'>('html');
+
     const logEndRef = useRef<HTMLDivElement>(null);
     const timerRef = useRef<number | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -142,8 +144,10 @@ export default function PdfProjector() {
                     body: JSON.stringify({
                         image: base64,
                         mimeType: selectedFile.type,
+                        format: projectionFormat
                         // If we had more state to pass back, we could, but the service handles it by analyzing the sequence
                     }),
+
                     signal: controller.signal
                 });
 
@@ -295,14 +299,23 @@ export default function PdfProjector() {
         // Basic HTML to MD conversion logic for the projection
         let md = `# Proyección: ${file?.name}\n\n`;
         md += `> **Fecha**: ${new Date().toLocaleString()}\n`;
-        md += `> **Tokens**: ${usage?.totalTokens || 0}\n\n`;
+        md += `> **Tokens**: ${usage?.totalTokens || 0}\n`;
+        md += `> **Formato**: ${projectionFormat}\n\n`;
         md += `---\n\n`;
 
-        // Simple heuristic: strip HTML tags but keep some structure
-        const tempDiv = document.createElement("div");
-        tempDiv.innerHTML = htmlProjection;
-        const text = tempDiv.innerText || tempDiv.textContent || "";
-        md += text;
+        if (projectionFormat === 'json') {
+            md += "```json\n" + htmlProjection + "\n```";
+        } else {
+            // Heuristic to keep tables somewhat readable in plain text
+            const formattedHtml = htmlProjection
+                .replace(/<\/tr>/g, '\n')
+                .replace(/<\/td>/g, ' | ')
+                .replace(/<th[^>]*>/g, ' [ ')
+                .replace(/<\/th>/g, ' ] | ')
+                .replace(/<[^>]+>/g, '');
+            md += formattedHtml;
+        }
+
 
         const blob = new Blob([md], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
@@ -394,13 +407,31 @@ export default function PdfProjector() {
                         </label>
                         <div className="mt-8 flex justify-center gap-4 opacity-50">
                             <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                                <ShieldCheck size={12} /> Cero Persistencia
-                            </span>
-                            <span className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-500">
                                 <Maximize2 size={12} /> Alta Fidelidad
                             </span>
                         </div>
+                        <div className="mt-8 flex justify-center">
+                            <button
+                                onClick={() => setProjectionFormat(projectionFormat === 'html' ? 'json' : 'html')}
+                                className={`flex items-center gap-3 px-6 py-3 rounded-2xl border transition-all duration-300 ${projectionFormat === 'json'
+                                    ? 'bg-amber-50 border-amber-200 text-amber-700 shadow-sm'
+                                    : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300'
+                                    }`}
+                            >
+                                <div className={`p-1.5 rounded-lg transition-colors ${projectionFormat === 'json' ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                    <FileJson size={14} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-xs font-black uppercase tracking-tight">Modo de Salida</p>
+                                    <p className="text-[10px] font-medium opacity-70">{projectionFormat === 'json' ? 'Datos Estructurados (JSON)' : 'Fidelidad Visual (HTML)'}</p>
+                                </div>
+                                <div className={`ml-4 w-10 h-5 rounded-full relative transition-colors ${projectionFormat === 'json' ? 'bg-amber-600' : 'bg-slate-200'}`}>
+                                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300 ${projectionFormat === 'json' ? 'left-6' : 'left-1'}`} />
+                                </div>
+                            </button>
+                        </div>
                     </div>
+
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                         {/* Projection View */}
@@ -448,7 +479,22 @@ export default function PdfProjector() {
                                             margin-top: 1.5em !important;
                                             margin-bottom: 0.5em !important;
                                         }
+                                        #projection-content td[data-tope="verified"] {
+                                            position: relative;
+                                            background-color: #f0fdf4 !important;
+                                            font-weight: 600 !important;
+                                        }
+                                        #projection-content td[data-tope="verified"]::after {
+                                            content: "➤";
+                                            position: absolute;
+                                            right: 2px;
+                                            top: 50%;
+                                            transform: translateY(-50%);
+                                            color: #16a34a;
+                                            font-size: 8px;
+                                        }
                                     `}</style>
+
 
                                     <div
                                         id="projection-content"
@@ -458,10 +504,18 @@ export default function PdfProjector() {
                                             transform: `scale(${scale})`,
                                             boxShadow: '0 0 50px rgba(0,0,0,0.1)'
                                         }}
-                                        dangerouslySetInnerHTML={{ __html: htmlProjection || (isProcessing ? '<div class="flex items-center justify-center h-64 text-slate-400 italic">Generando proyección...</div>' : '') }}
-                                    />
+                                        dangerouslySetInnerHTML={projectionFormat === 'html' ? { __html: htmlProjection || (isProcessing ? '<div class="flex items-center justify-center h-64 text-slate-400 italic">Generando proyección...</div>' : '') } : undefined}
+                                    >
+                                        {projectionFormat === 'json' && (
+                                            <pre className="text-[11px] font-mono text-slate-700 whitespace-pre-wrap">
+                                                {htmlProjection || (isProcessing ? 'Analizando datos...' : '')}
+                                            </pre>
+                                        )}
+                                    </div>
+
                                 </div>
                             </div>
+
                         </div>
 
                         {/* Sidebar: Logs & Info */}
