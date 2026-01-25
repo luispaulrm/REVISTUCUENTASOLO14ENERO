@@ -810,12 +810,15 @@ export async function analyzeSingleContract(
     }
 
     // --- FALLBACK PHASE: TEXT-BASED EXTRACTION (Dual Verification Activation) ---
-    // If Vision extraction failed (0 items) but we have OCR text, we try to extract from text.
-    if (coberturas.length === 0 && (ocrResult as any).text && (ocrResult as any).text.length > 500) {
-        log(`[ContractEngine] ⚠️ VISIÓN ARTIFICIAL FALLÓ (0 items). Activando FALLBACK TEXTUAL (Dual Verification)...`);
+    // If Vision extraction failed (0 items), we must try fallback methods.
+    // --- FALLBACK PHASE: SEQUENTIAL RECOVERY (v15.0) ---
+    // If Vision extraction failed (0 items), we attempt progressively more aggressive recovery methods.
+
+    // 1. TEXT FALLBACK (Fast, Cheap) - Try this if we have ANY meaningful text
+    if (coberturas.length === 0 && (ocrResult as any).text && (ocrResult as any).text.length > 100) {
+        log(`[ContractEngine] ⚠️ VISIÓN ARTIFICIAL FALLÓ. Intentando FALLBACK TEXTUAL (Opción A)...`);
 
         try {
-            // We use the same schema but a prompt specific for text analysis
             const fallbackPrompt = `
             ACTÚA COMO EXPERTO EN ARANCELES MÉDICOS.
             ANALIZA EL SIGUIENTE TEXTO EXTRAÍDO DE UN CONTRATO DE SALUD (OCR):
@@ -832,7 +835,7 @@ export async function analyzeSingleContract(
 
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({
-                model: CONTRACT_FAST_MODEL, // Use Fast model for text
+                model: CONTRACT_FAST_MODEL,
                 generationConfig: {
                     responseMimeType: "application/json",
                     responseSchema: SCHEMA_COBERTURAS as any
@@ -841,21 +844,76 @@ export async function analyzeSingleContract(
 
             const result = await model.generateContent(fallbackPrompt);
             const textResponse = result.response.text();
-            const jsonFallback = safeJsonParse(textResponse); // Helper from above
+            const jsonFallback = safeJsonParse(textResponse);
 
             if (jsonFallback && Array.isArray((jsonFallback as any).coberturas)) {
                 const fallbackCoberturas = (jsonFallback as any).coberturas;
-                log(`[ContractEngine] ✅ FALLBACK TEXTUAL EXITOSO: Recuperados ${fallbackCoberturas.length} items de cobertura.`);
-
-                // Clean and check the fallback findings
-                const fallbackClean = cleanAndCheck(fallbackCoberturas);
-                coberturas = [...coberturas, ...fallbackClean];
-            } else {
-                log(`[ContractEngine] ❌ FALLBACK TEXTUAL FALLÓ: No se pudo parsear JSON o no hay coberturas.`);
+                if (fallbackCoberturas.length > 0) {
+                    log(`[ContractEngine] ✅ FALLBACK TEXTUAL EXITOSO: Recuperados ${fallbackCoberturas.length} items.`);
+                    const fallbackClean = cleanAndCheck(fallbackCoberturas);
+                    coberturas = [...coberturas, ...fallbackClean];
+                }
             }
-
         } catch (fallbackError: any) {
-            log(`[ContractEngine] ❌ ERROR EN FALLBACK TEXTUAL: ${fallbackError.message}`);
+            log(`[ContractEngine] ❌ FALLBACK TEXTUAL FALLÓ: ${fallbackError.message}`);
+        }
+    }
+
+    // 2. IMAGE FALLBACK (Slow, Powerful - Hail Mary for Scanned Docs)
+    // Runs if we STILL have 0 items (either Text Fallback failed, or there was no text, or Text Fallback returned 0)
+    if (coberturas.length === 0) {
+        log(`[ContractEngine] ⚠️ FALLBACK FINAL: Activando Protocolo de Emergencia por Imagen (Hail Mary)...`);
+        try {
+            const genAI = new GoogleGenerativeAI(apiKey);
+            // Use the strongest available reasoning model for the final attempt
+            const model = genAI.getGenerativeModel({
+                model: CONTRACT_REASONING_MODEL || CONTRACT_FAST_MODEL,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: SCHEMA_COBERTURAS as any
+                }
+            });
+
+            const fallbackPrompt = `
+            EMERGENCY EXTRACTION MODE.
+            The previous attempts to read this contract failed completely. 
+            This is likely a POOR QUALITY SCANNED IMAGE or HANDWRITTEN document.
+            
+            YOUR GOAL: Scan the visual document pixel-by-pixel for ANY tables defining "Coberturas", "Topes", "Hospitalario", "Ambulatorio".
+            
+            EXTRACT:
+            - Item/Prestación (e.g. Dia Cama, Pabellon, Honorarios)
+            - % Cobertura (Preferente/Libre)
+            - Topes (UF, Veces Arancel)
+            
+            CRITICAL:
+            - If text is blurry, infer from context columns.
+            - Provide your best guess for numbers.
+            - Capture at least the "Hospitalario" and "Ambulatorio" sections.
+            `;
+
+            const result = await model.generateContent([
+                { text: fallbackPrompt },
+                { inlineData: { data: base64Data, mimeType: mimeType } }
+            ]);
+
+            const textResponse = result.response.text();
+            const jsonFallback = safeJsonParse(textResponse);
+
+            if (jsonFallback && Array.isArray((jsonFallback as any).coberturas)) {
+                const fallbackCoberturas = (jsonFallback as any).coberturas;
+                if (fallbackCoberturas.length > 0) {
+                    log(`[ContractEngine] ✅ FALLBACK IMAGEN EXITOSO: Recuperados ${fallbackCoberturas.length} items de rescate.`);
+                    const fallbackClean = cleanAndCheck(fallbackCoberturas);
+                    coberturas = [...coberturas, ...fallbackClean];
+                } else {
+                    log(`[ContractEngine] ❌ FALLBACK IMAGEN RETORNÓ 0 ITEMS.`);
+                }
+            } else {
+                log(`[ContractEngine] ❌ FALLBACK IMAGEN FALLÓ (JSON inválido).`);
+            }
+        } catch (err: any) {
+            log(`[ContractEngine] ❌ FALLBACK IMAGEN FALLÓ CRÍTICAMENTE: ${err.message}`);
         }
     }
 

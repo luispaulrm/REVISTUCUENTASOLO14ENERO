@@ -135,7 +135,11 @@ export function resolveDecision(params: {
     const opacidad = effectiveZ / Math.max(1, T);
 
     let estado = "VALIDADO";
-    if (effectiveZ > 0 && finalA > 0) {
+    const hasConflict = (finalA + finalB + finalZ > T + 10);
+
+    if (hasConflict) {
+        estado = "CONFLICTO_DE_EXTRACCION_O_DOBLE_CONTEO";
+    } else if (effectiveZ > 0 && finalA > 0) {
         estado = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
     } else if (effectiveZ > 0) {
         estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
@@ -306,6 +310,10 @@ function isProtectedCatA(f: Finding, eventos: EventoHospitalario[] = []): boolea
 
 
 function isOpacityFinding(f: Finding): boolean {
+    // Fix 3: Respect Code Resolver
+    if ((f as any).resolvedBy === "CODE_RESOLVER") return false;
+    if ((f.rationale || "").includes("[RESUELTO_CODIGO]")) return false;
+
     const label = (f.label || "").toUpperCase();
     const rationale = (f.rationale || "").toUpperCase();
 
@@ -416,6 +424,11 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
     const isProtected = isProtectedCatA(f, eventos);
     const amount = f.amount || 0;
     let rationale = f.rationale || "";
+
+    // Fix 3: Code Resolver Guarantee
+    if ((f as any).resolvedBy === "CODE_RESOLVER") {
+        return { ...f, category: "OK", action: "ACEPTAR", rationale };
+    }
 
     // 0. PRIORITY: If already resolved/promoted via Forensic/Last Resort, don't rollback
     if (f.category === 'OK' && (rationale.includes('[MEJORA]') || rationale.includes('[PRAGMATISMO]'))) {
@@ -584,11 +597,13 @@ function computeBalanceCanonical(findings: Finding[], totalCopago: number): Bala
 
 function decideGlobalStateCanonical(balance: BalanceAlpha): string {
     const hasA = balance.A > 0;
-    const hasOpacity = balance.K > 0;
+    const hasOpacity = (balance.Z > 0);   // <- Opacidad Real (Unified K->Z)
+    const hasB = (balance.B > 0);         // <- Controversia/Mapping Failure
 
-    if (hasA && hasOpacity) return "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
+    if (hasA && (hasOpacity || hasB)) return "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
     if (!hasA && hasOpacity) return "COPAGO_INDETERMINADO_POR_OPACIDAD";
-    if (hasA && !hasOpacity) return "COPAGO_OBJETABLE_CONFIRMADO";
+    if (!hasA && hasB) return "COPAGO_BAJO_CONTROVERSIA"; // New distinct state for B
+    if (hasA && !hasOpacity && !hasB) return "COPAGO_OBJETABLE_CONFIRMADO";
     return "COPAGO_OK_CONFIRMADO";
 }
 
@@ -861,11 +876,11 @@ Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, C
 `;
     knowledgeBaseText += IRREGULAR_PRACTICES_KNOWLEDGE;
 
-    const sources: string[] = ["Informe Prácticas Irregulares", "Mini-RAG Desactivado"];
-    const tokenEstimate = 0;
+    // Fusionar fuentes de conocimiento
+    const sources: string[] = ["Informe Prácticas Irregulares", ...(ragSources || [])];
 
-    log(`[AuditEngine] ðŸ“Š Conocimiento inyectado: 0 fuentes(Mini - RAG OFF)`);
-    // log(`[AuditEngine] ðŸ“š Fuentes: ${ sources.join(' | ') } `);
+    log(`[AuditEngine] 📊 Conocimiento inyectado: ${sources.length} fuentes.`);
+    log(`[AuditEngine] 📚 Fuentes: ${sources.join(' | ').substring(0, 200)}...`);
     onProgressUpdate?.(20);
 
     // Paso 3: Cargar reglas de hotelerÃ­a (siempre, es pequeÃ±o)
@@ -1800,7 +1815,8 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
                     finding.category = 'OK';
                     finding.action = 'ACEPTAR';
-                    finding.rationale = `[MEJORA] Código Fonasa detectado: ${resolved.code}. Procedimiento validado como ${resolved.description}.` + (cleanRationale ? `\nContexto: ${cleanRationale}` : "");
+                    (finding as any).resolvedBy = "CODE_RESOLVER"; // Fix 3: Flag as resolved
+                    finding.rationale = `[MEJORA][RESUELTO_CODIGO] Código Fonasa detectado: ${resolved.code}. Procedimiento validado como ${resolved.description}.` + (cleanRationale ? `\nContexto: ${cleanRationale}` : "");
                     finding.description = resolved.description;
                     finding.codigos = resolved.code;
                 }
@@ -1822,11 +1838,11 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             // FIX: Ensure UI Map aligns with Balance truth
             // If a finding relates to Meds/Mats and we are in a 100% coverage context (Level 1)
             // or if it expresses a technical violation (Level 2), promote category to match balance.
-            const isA = isProtectedCatA(f);
+            const isA = isProtectedCatA(f, eventosHospitalarios); // Fix 4: Pass events
             return {
                 ...f,
                 category: isA ? "A" : f.category,
-                action: isA ? "IMPUGNAR" : f.action
+                action: isA ? "IMPUGNAR" : (isA ? "IMPUGNAR" : f.action)
             };
         });
         const finalStrictBalance = canonicalResult.balance;
@@ -2046,6 +2062,13 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 // FINALIZER: Freeze & Calculate KPIs (Deterministic)
 // ============================================================================
 export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
+    // ✅ Fix 2: Golden Source of Truth Check
+    // If the result already contains a Canonical Balance (from finalizeAuditCanonical), 
+    // DO NOT recalculate using legacy finalizeAudit logic.
+    if (result?.balance?.TOTAL !== undefined && result?.decisionGlobal?.estado) {
+        return result;
+    }
+
     const hallazgos = result.hallazgos || [];
 
     // 0. Detect Structural Opacity Parent to avoid double counting
