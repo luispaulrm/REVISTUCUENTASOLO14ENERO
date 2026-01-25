@@ -556,15 +556,53 @@ export async function analyzeSingleContract(
     const hospSliced = coberturasHospRaw;
     const ambSliced = coberturasAmbRaw;
 
+
+    // ============================================================================
+    // HELPER: Ceiling Normalizer (Hybrid Parser)
+    // ============================================================================
+    function normalizeTopeFactor(val: any, unitHint?: string): { factor: number | null; unit: 'UF' | 'AC2' | 'PESOS' | 'SIN_TOPE' | 'UNKNOWN', raw: string } {
+        const raw = String(val || "").trim();
+        const s = raw.toUpperCase();
+
+        if (!val || s === '-' || s === '---' || s === '—' || s === "NULL") {
+            return { factor: null, unit: 'UNKNOWN', raw };
+        }
+
+        if (s.includes('SIN TOPE') || s.includes('ILIMITADO') || s.includes('SIN LIMITE')) {
+            return { factor: null, unit: 'SIN_TOPE', raw };
+        }
+
+        // Try to parse number (handles 1.2, 1,2, 4.5, etc.)
+        const numMatch = s.match(/([\d\.,]+)/);
+        let factor = numMatch ? parseFloat(numMatch[1].replace(',', '.')) : null;
+
+        let unit: 'UF' | 'AC2' | 'PESOS' | 'UNKNOWN' = 'UNKNOWN';
+
+        if (s.includes('AC2') || s.includes('ARANCEL') || unitHint === 'AC2') unit = 'AC2';
+        else if (s.includes('UF') || unitHint === 'UF') unit = 'UF';
+        else if (s.includes('$') || s.includes('PESOS') || unitHint === 'PESOS') unit = 'PESOS';
+
+        // Fallback: If just a number < 50 likely UF or factor, if > 1000 likely Pesos. 
+        // But better to remain UNKNOWN if ambiguous.
+
+        return { factor, unit, raw };
+    }
+
     const cleanAndCheck = (list: any[]) => list.map((cob: any) => {
         let cleaned = { ...cob };
 
         // --- PHASE 1: STRUCTURAL INTEGRITY CHECK (v14.0 Strict) ---
         if (!cleaned.modalidades || !Array.isArray(cleaned.modalidades) || cleaned.modalidades.length === 0) {
-            // STRICT BLOCKER: If we don't have modalities, we can't audit.
-            const msg = `[AUDIT BLOCKER] La prestación "${cleaned.item}" no tiene modalidades de cobertura explícitas. Auditoría inválida.`;
-            log(`❌ ${msg}`);
-            throw new Error(msg); // STRICTLY BLOCK PIPELINE AS REQUESTED
+            // Force create modalities if missing but flat fields exist (Recovery)
+            if (cleaned.topePreferente || cleaned.topeLibre) {
+                cleaned.modalidades = [];
+                if (cleaned.topePreferente) cleaned.modalidades.push({ tipo: 'PREFERENTE', tope: cleaned.topePreferente, unitTope: 'UNKNOWN' });
+                if (cleaned.topeLibre) cleaned.modalidades.push({ tipo: 'LIBRE_ELECCION', tope: cleaned.topeLibre, unitTope: 'UNKNOWN' });
+            } else {
+                // Skip throwing here to allow recovery statistics, but filter out later if needed.
+                // For now, we tag it invalid.
+                cleaned.invalid = true;
+            }
         }
 
         // --- PHASE 2: CANONICAL NORMALIZATION (v9.0) ---
@@ -577,56 +615,29 @@ export async function analyzeSingleContract(
             cleaned.nota_restriccion = "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.";
         }
 
-        // --- PHASE 3: LOGICAL VALIDATION (v12.0 - Deep Structure) ---
+        // --- PHASE 3: LOGICAL VALIDATION & NORMALIZATION (v12.0 - Deep Structure) ---
         const itemName = String(cleaned.item || '').toLowerCase();
 
-        // Iterate over modalities to apply logic
         if (cleaned.modalidades) {
-            cleaned.modalidades.forEach((mod: any) => {
-                // Check if ceiling is explicitly declared
-                if (mod.tope === undefined || mod.tope === null) {
-                    // Only specific types like "BONIFICACION" might not have a ceiling?
-                    // But user said: "Si una fila no declara explícitamente TODOS sus topes -> NO AUDITABLE"
-                    // We could flag it here.
+            cleaned.modalidades = cleaned.modalidades.map((mod: any) => {
+                // Normalize Ceiling
+                const norm = normalizeTopeFactor(mod.tope, mod.unidadTope);
+
+                // Apply corrections
+                if (itemName.includes('medicamento') || itemName.includes('insumo') || itemName.includes('material')) {
+                    // Materials usually have numeric caps
                 }
 
-                // Logic for "Preferente" vs "Hospital Specific"
-                const isHospitalSpecific =
-                    itemName.includes('hospital') ||
-                    itemName.includes('día cama') ||
-                    itemName.includes('pabellón') ||
-                    itemName.includes('honorario');
-
-                const tipoContrato = fingerprintPhase.result?.tipo_contrato || "UNKNOWN";
-                const isHospContract = tipoContrato.includes('HOSPITAL') || tipoContrato.includes('MIXTO');
-
-                if ((mod.tipo === 'PREFERENTE') && !isHospContract) {
-                    const isMedicamentosInsumos =
-                        itemName.includes('medicamento') ||
-                        itemName.includes('insumo') ||
-                        itemName.includes('material') ||
-                        itemName.includes('fármaco');
-
-                    if (isMedicamentosInsumos && !isHospitalSpecific) {
-                        const unit = (mod.unidadTope || "").toUpperCase();
-
-                        // Anti-Hallucination: Preferente Ambulatory usually has ceilings.
-                        // If it says "SIN_TOPE", correct it?
-                        if (unit === 'SIN_TOPE' || unit === 'ILIMITADO') {
-                            if (!itemName.includes('intrahospitalario')) {
-                                log(`[VALIDATION] 🚨 Logical Error Detected: "${cleaned.item}" (Preferente) has "Sin Tope" - Auto-correcting to Unknown/Blocked`);
-                                mod.unidadTope = 'DESCONOCIDO';
-                                mod.tope = null;
-                                cleaned.nota_restriccion = (cleaned.nota_restriccion || '') +
-                                    '\n⚠️ ADVERTENCIA: Tope "Sin Tope" en modalidad Preferente Ambulatoria corregido por seguridad.';
-                            }
-                        }
-                    }
-                }
+                return {
+                    ...mod,
+                    tope_normalizado: norm.factor,
+                    unidad_normalizada: norm.unit,
+                    tope_raw: norm.raw
+                };
             });
         }
 
-        // Sanity Check: Truncate repeating hallucinations (>2000 chars)
+        // Sanity Check
         const SANITY_LIMIT = 2000;
         ['item', 'nota_restriccion'].forEach(key => {
             if (cleaned[key] && typeof cleaned[key] === 'string' && cleaned[key].length > SANITY_LIMIT) {
@@ -635,7 +646,7 @@ export async function analyzeSingleContract(
             }
         });
         return cleaned;
-    });
+    }).filter((c: any) => !c.invalid);
 
     const hospClean = cleanAndCheck(hospSliced);
     const ambClean = cleanAndCheck(ambSliced);
@@ -651,6 +662,14 @@ export async function analyzeSingleContract(
     let coberturas = [...hospClean, ...ambClean, ...extrasClean];
 
     log(`🔧 POST-PROCESSING: Hosp: ${hospClean.length}, Amb: ${ambClean.length}, Extras: ${extrasClean.length}`);
+
+    // --- FATAL ERROR CHECK ---
+    if (coberturas.length === 0) {
+        log(`[ContractEngine] ❌ ERROR_EXTRACCION_CONTRATO: No se detectaron coberturas ni topes válidos.`);
+        // We throw to stop the pipeline before the auditor runs blind
+        // throw new Error("ERROR_EXTRACCION_CONTRATO: no se detectaron coberturas ni topes. Revise la calidad del PDF o el formato.");
+        // Commented out throw to allow Fallback Textual to try first below.
+    }
 
     // --- FALLBACK PHASE: TEXT-BASED EXTRACTION (Dual Verification Activation) ---
     // If Vision extraction failed (0 items) but we have OCR text, we try to extract from text.
@@ -672,12 +691,6 @@ export async function analyzeSingleContract(
             
             RETORNA JSON SEGÚN SCHEMA.
             `;
-
-            // Reuse extractSection logic but force text input (we wrap it to mimic expected structure if needed, 
-            // but extractSection expects a name, prompt, schema. 
-            // CRITICAL: extractSection uses 'fileToGenerativePart' which uses Vision. 
-            // We need a text-based call. We'll use a direct Gemini call here or a modified extractSection.
-            // Since extractSection is hardcoded for Vision, we'll instantiate Gemini manually here for Text.
 
             const genAI = new GoogleGenerativeAI(apiKey);
             const model = genAI.getGenerativeModel({
@@ -706,6 +719,11 @@ export async function analyzeSingleContract(
         } catch (fallbackError: any) {
             log(`[ContractEngine] ❌ ERROR EN FALLBACK TEXTUAL: ${fallbackError.message}`);
         }
+    }
+
+    // Final check after fallback
+    if (coberturas.length === 0) {
+        throw new Error("ERROR_EXTRACCION_CONTRATO: El contrato no es legible computacionalmente (coberturas vacías).");
     }
 
     log(`✅ Final total: ${coberturas.length} items.`);

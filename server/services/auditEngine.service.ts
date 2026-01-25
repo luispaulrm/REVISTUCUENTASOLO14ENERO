@@ -629,6 +629,7 @@ export function finalizeAuditCanonical(input: {
     debug: string[];
     resumenFinanciero: any;
     fundamentoText: string;
+    contractCeilings?: any[];
 } {
     const debug: string[] = [];
     const findings = input.findings || [];
@@ -735,7 +736,7 @@ export function finalizeAuditCanonical(input: {
     fundamento.push(resolved.fundamento);
 
 
-    // Step 7: Summary
+    // Step 7: Summary & Ceilings matrix
     const resumenFinanciero = {
         totalCopagoInformado: total,
         totalCopagoLegitimo: balance.OK,
@@ -750,13 +751,38 @@ export function finalizeAuditCanonical(input: {
         auditor_score: resolved.score
     };
 
+    // New: Contract Ceilings Matrix visibility
+    const contractCeilings = input.contract?.coberturas?.map((c: any) => {
+        let ceiling = "SIN_TOPE";
+        let normFactor = null;
+        let normUnit = null;
+
+        if (c.modalidades && Array.isArray(c.modalidades)) {
+            // Prioritize Preferente
+            const pref = c.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
+            if (pref) {
+                ceiling = pref.tope_raw || pref.tope || "SIN_TOPE";
+                normFactor = pref.tope_normalizado;
+                normUnit = pref.unidad_normalizada;
+            }
+        }
+        return {
+            category: c.categoria_canonica || c.categoria,
+            item: c.item,
+            ceiling_display: ceiling,
+            factor: normFactor,
+            unit: normUnit
+        };
+    }) || [];
+
     return {
         estadoGlobal,
         findings: processedFindings,
         balance,
         debug,
         resumenFinanciero,
-        fundamentoText: fundamento.join(" ")
+        fundamentoText: fundamento.join(" "),
+        contractCeilings // Added output
     };
 }
 
