@@ -1291,6 +1291,67 @@ Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, C
             hypothesisResult
         );
 
+        // --- NEW: LINK WITH FINANCIAL FINDINGS (LAYER 2) ---
+        // "Active Auditor": Check if eventProcessor attached a finding to this item
+        let financialDecision: { cat: 'A' | 'OK'; reason: string; amount: number } | null = null;
+
+        if (eventosHospitalarios) {
+            for (const event of eventosHospitalarios) {
+                if (event.honorarios_consolidados) {
+                    for (const hon of event.honorarios_consolidados) {
+                        // Match origin item logic
+                        const match = hon.items_origen.find(origin =>
+                            origin.codigo === pamLine.codigo &&
+                            Math.abs(origin.copago - pamLine.copago) < 500 &&
+                            (origin.descripcion || "").includes(pamLine.descripcion.substring(0, 10))
+                        );
+
+                        if (match && (hon as any).hallazgo_auditor) {
+                            const hAuditor = (hon as any).hallazgo_auditor;
+                            if (hAuditor.tipo === "COBRO_IMPROCEDENTE_PARCIAL") {
+                                financialDecision = {
+                                    cat: 'A',
+                                    reason: `[AUDITORIA FINANCIERA] ${hAuditor.fundamento} (Cobro: $${match.copago}, Exceso: $${hAuditor.monto_exceso})`,
+                                    amount: hAuditor.monto_exceso
+                                };
+                            } else if (hAuditor.tipo === "COBRO_ACEPTADO") {
+                                financialDecision = {
+                                    cat: 'OK',
+                                    reason: `[AUDITORIA FINANCIERA] ${hAuditor.fundamento}`,
+                                    amount: 0
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 1. Check Financial Layer First (Highest Priority: Math contract)
+        if (financialDecision) {
+            const decision = {
+                categoria_final: financialDecision.cat,
+                tipo_monto: financialDecision.cat === 'A' ? 'COBRO_IMPROCEDENTE' : 'COPAGO_OPACO',
+                recomendacion: financialDecision.cat === 'A' ? 'IMPUGNAR' : 'ACEPTAR',
+                confidence: 0.99,
+                source: 'FINANCIERO' // Special source preventing override
+            };
+
+            jurisprudenceDecisions.set(pamLine.uniqueId, {
+                decision,
+                features,
+                pamLine
+            });
+            log(`[AuditEngine]   💰 FINANCIAL_DECISION[${pamLine.uniqueId}]: Cat ${financialDecision.cat} | ${financialDecision.reason}`);
+
+            // Count and continue (Skip Engine)
+            if (decision.categoria_final === 'A') catACount++;
+            else if (decision.categoria_final === 'B') catBCount++;
+            else catZCount++;
+
+            continue;
+        }
+
         const decision = jurisprudenceEngine.decide({
             contratoJson,
             pamLine: {

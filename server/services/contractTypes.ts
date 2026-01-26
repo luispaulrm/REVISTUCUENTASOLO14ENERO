@@ -59,15 +59,29 @@ export interface ContractAnalysisResult {
         'modalidades': Array<{
             'tipo': "PREFERENTE" | "LIBRE_ELECCION" | "BONIFICACION";
             'porcentaje': number | null;
-            'tope': number | null;
+            'tope': number | object | null; // Updated to allow object (nested tope)
             'unidadTope': "UF" | "AC2" | "VAM" | "PESOS" | "SIN_TOPE" | "DESCONOCIDO";
             'tipoTope': "POR_EVENTO" | "ANUAL" | "ILIMITADO" | "DIARIO";
             'copago'?: string;
+            // -- CAMPOS DE VALORIZACIÓN (CAPA 2) --
+            'valor_clp'?: number | null;
+            'fecha_valorizacion'?: string | null;
+            'fuente_valorizacion'?: string | null;
+            'tope_nested'?: { // Explicit field for the strict join object if needed
+                unidad: string;
+                valor: number;
+            };
         }>;
         'nota_restriccion'?: string;
         'categoria_canonica'?: string;
-        // Legacy flat fields are REMOVED to force structural adoption
     }>;
+    glosario_unidades?: Array<{
+        sigla: string;
+        descripcion_contrato: string;
+        valor_referencia?: number;
+        fuente_textual: string;
+    }>;
+    // Legacy flat fields are REMOVED to force structural adoption
     diseno_ux: {
         nombre_isapre: string;
         titulo_plan: string;

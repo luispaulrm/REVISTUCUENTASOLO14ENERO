@@ -161,14 +161,48 @@ export async function inferUnidadReferencia(
     }
     evidencia.push(`UF_DETERMINISTA: Valor UF al ${eventDate.toLocaleDateString()} es $${valorUf.toLocaleString('es-CL')}.`);
 
-    // Map unit type based on Isapre
-    let unitType: UnidadReferencia["tipo"] = "VA";
-    if (normalizedIsapre.includes("MASVIDA")) unitType = "VAM";
-    else if (normalizedIsapre.includes("COLMENA")) unitType = "VAM";
-    else if (normalizedIsapre.includes("CONSALUD")) unitType = "AC2";
-    else if (normalizedIsapre.includes("BANMEDICA") || normalizedIsapre.includes("VIDA TRES") || normalizedIsapre.includes("CRUZ BLANCA")) unitType = "VA";
 
-    // Reverse Engineering from PAM
+    // Initialize unit type default
+    let unitType: UnidadReferencia["tipo"] = "VA";
+
+    // 1. V2 SCHEMA PRIORITY: Check "glosario_unidades"
+    if (contrato?.glosario_unidades && Array.isArray(contrato.glosario_unidades) && contrato.glosario_unidades.length > 0) {
+        // Find definitions for AC2 or VAM
+        const def = contrato.glosario_unidades.find((u: any) => ["AC2", "VAM", "AC", "VA"].includes(u.sigla));
+
+        if (def) {
+            evidencia.push(`GLOSARIO CONTRACTUAL: Se detectó definición explícita para ${def.sigla}.`);
+            evidencia.push(`DESCRIPCIÓN: "${def.descripcion_contrato}"`);
+
+            // If the definition contains a reference value (e.g. "valor referencial $35.000"), use it.
+            // This requires extracting the number from the text if simpler parsing isn't available.
+            // For now we assign the type and look for value confirmation in PAM.
+            const normalizedType = def.sigla as UnidadReferencia["tipo"];
+
+            // If the glossary explicitely says "pesos", we might handle it differently.
+            // For now, assume it sets the type.
+            if (def.valor_referencia) {
+                return {
+                    tipo: normalizedType,
+                    valor_pesos_estimado: def.valor_referencia,
+                    confianza: "ALTA",
+                    evidencia,
+                    fecha_referencia: eventDate
+                };
+            }
+
+            // If no value but type is confirmed, we proceed to deduce value from PAM with High Confidence on TYPE.
+            unitType = normalizedType;
+        }
+    } else {
+        // Legacy Heuristic Fallback
+        if (normalizedIsapre.includes("MASVIDA")) unitType = "VAM";
+        else if (normalizedIsapre.includes("COLMENA")) unitType = "VAM";
+        else if (normalizedIsapre.includes("CONSALUD")) unitType = "AC2";
+        else if (normalizedIsapre.includes("BANMEDICA") || normalizedIsapre.includes("VIDA TRES") || normalizedIsapre.includes("CRUZ BLANCA")) unitType = "VA";
+    }
+
+    // Reverse Engineering from PAM (Existing Logic)
     const items = pam.folios?.flatMap((f: any) => f.desglosePorPrestador?.flatMap((d: any) => d.items)) || [];
 
     // Candidates: Items with surgical codes, bonification and copay
@@ -258,10 +292,25 @@ export function validateTopeHonorarios(
                 const modality = specificRule.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
                     specificRule.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
 
-                if (modality && modality.tope) {
-                    factor = modality.tope;
+                if (modality && (modality.tope !== undefined && modality.tope !== null) || modality.tope_nested) {
+
+                    // HANDLE V2 STRICT JOIN (Nested Object)
+                    let explicitUnitStr: string | undefined;
+
+                    if (modality.tope_nested) {
+                        factor = modality.tope_nested.valor;
+                        explicitUnitStr = modality.tope_nested.unidad;
+                    } else if (typeof modality.tope === 'object' && modality.tope !== null) {
+                        // Typed as number | object, so safe to access props if object
+                        factor = (modality.tope as any).valor;
+                        explicitUnitStr = (modality.tope as any).unidad;
+                    } else {
+                        // Legacy number
+                        factor = modality.tope as number;
+                    }
+
                     // Dynamic Unit: Prefer specific unit from rule, else inferred unit type, else generic fallback
-                    const unit = modality.unidadTope || unidadRef.tipo || "FACTOR_ARANCEL";
+                    const unit = explicitUnitStr || modality.unidadTope || unidadRef.tipo || "FACTOR_ARANCEL";
 
                     reglaAplicada = {
                         ...specificRule,

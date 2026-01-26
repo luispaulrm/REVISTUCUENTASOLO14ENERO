@@ -270,6 +270,23 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
                     if (validation.regla_aplicada) {
                         reglaAplicadaGlobal = validation.regla_aplicada;
                     }
+
+                    // SAVE VERDICT (AUDITOR LAYER 3)
+                    // If validation failed, we attach the finding to the honorary object for later reporting
+                    if (validation.tope_aplica && !validation.tope_cumplido) {
+                        // We found a specific violation (Capa 3 Verdict)
+                        (h as any).hallazgo_auditor = {
+                            tipo: "COBRO_IMPROCEDENTE_PARCIAL",
+                            monto_exceso: validation.monto_tope_estimado ? (parseMonto(originalItem.bonificacion) - validation.monto_tope_estimado) : 0,
+                            tope_contractual: validation.regla_aplicada?.tope_aplicado || "N/A",
+                            fundamento: validation.rationale
+                        };
+                    } else if (validation.tope_aplica && validation.tope_cumplido) {
+                        (h as any).hallazgo_auditor = {
+                            tipo: "COBRO_ACEPTADO",
+                            fundamento: validation.rationale
+                        };
+                    }
                 }
             }
         });

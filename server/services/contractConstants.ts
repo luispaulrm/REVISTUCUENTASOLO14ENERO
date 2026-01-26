@@ -448,9 +448,18 @@ export const SCHEMA_COBERTURAS = {
                   type: SchemaType.STRING,
                   enum: ["UF", "AC2", "VAM", "PESOS", "SIN_TOPE", "DESCONOCIDO"]
                 },
-                'tipoTope': {
+                'typeTope': {
                   type: SchemaType.STRING,
                   enum: ["POR_EVENTO", "ANUAL", "ILIMITADO", "DIARIO"]
+                },
+                // V2 SCHEMA (Strict Join)
+                'tope_nested': {
+                  type: SchemaType.OBJECT,
+                  properties: {
+                    'unidad': { type: SchemaType.STRING },
+                    'valor': { type: SchemaType.NUMBER }
+                  },
+                  nullable: true
                 },
                 'copago': { type: SchemaType.STRING, nullable: true } // Legacy text hook if needed
               },
