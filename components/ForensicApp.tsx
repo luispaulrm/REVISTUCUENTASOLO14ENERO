@@ -241,8 +241,12 @@ export default function ForensicApp() {
 
             // PRIORITY: Canonical > Contract Audit Result (Legacy)
             const canonical = JSON.parse(localStorage.getItem('canonical_contract_result') || 'null');
-            const legacyContrato = JSON.parse(localStorage.getItem('contract_audit_result') || '{}');
-            const contrato = canonical || legacyContrato;
+            const legacyContrato = JSON.parse(localStorage.getItem('contract_audit_result') || 'null');
+            const contrato = canonical || legacyContrato || {};
+
+            if (!canonical && !legacyContrato) {
+                addLog('[SISTEMA] ⚠️ AVISO: No se detectó contrato estructurado (JSON). Se intentará usar Contexto HTML o Doctrina Forense de Estándar Mínimo Legal.');
+            }
 
             const htmlContext = localStorage.getItem('html_projection_result') || '';
 
@@ -310,13 +314,15 @@ export default function ForensicApp() {
 
         try {
             const pamString = localStorage.getItem('pam_audit_result');
-            const contratoString = localStorage.getItem('contract_audit_result');
+            const canonical = JSON.parse(localStorage.getItem('canonical_contract_result') || 'null');
+            const legacyContrato = JSON.parse(localStorage.getItem('contract_audit_result') || 'null');
 
-            if (!pamString || !contratoString) return;
+            if (!pamString || (!canonical && !legacyContrato)) {
+                console.log('[PRE-CHECK] Missing PAM or Contract (Legacy/Canonical). Aborting pre-check.');
+                return;
+            }
 
             const pamJson = JSON.parse(pamString);
-            const canonical = JSON.parse(localStorage.getItem('canonical_contract_result') || 'null');
-            const legacyContrato = JSON.parse(contratoString || '{}');
             const contratoJson = canonical || legacyContrato;
 
             const response = await fetch('/api/audit/pre-check', {
@@ -387,32 +393,50 @@ export default function ForensicApp() {
 
     const clearBill = () => {
         localStorage.removeItem('clinic_audit_result');
+        localStorage.removeItem('clinic_audit_file_fingerprint');
         setHasBill(false);
-        addLog('[SISTEMA] 🗑️ Cuenta Clínica eliminada de caché.');
+        setAuditResult(null);
+        setStatus('IDLE');
+        setLogs([]);
+        addLog('[SISTEMA] 🗑️ Cuenta Clínica eliminada de caché. Resultado de auditoría invalidado.');
     };
 
     const clearPam = () => {
         localStorage.removeItem('pam_audit_result');
+        localStorage.removeItem('pam_audit_file_fingerprint');
         setHasPam(false);
-        addLog('[SISTEMA] 🗑️ PAM eliminado de caché.');
+        setAuditResult(null);
+        setStatus('IDLE');
+        setLogs([]);
+        addLog('[SISTEMA] 🗑️ PAM eliminado de caché. Resultado de auditoría invalidado.');
     };
 
     const clearContract = () => {
         localStorage.removeItem('contract_audit_result');
+        localStorage.removeItem('contract_audit_file_fingerprint');
         setHasContract(false);
-        addLog('[SISTEMA] 🗑️ Reglas de Contrato eliminadas de caché.');
+        setAuditResult(null);
+        setStatus('IDLE');
+        setLogs([]);
+        addLog('[SISTEMA] 🗑️ Reglas de Contrato eliminadas de caché. Resultado de auditoría invalidado.');
     };
 
     const clearCanonical = () => {
         localStorage.removeItem('canonical_contract_result');
         setHasCanonical(false);
-        addLog('[SISTEMA] 🗑️ Contrato Canónico eliminado de caché.');
+        setAuditResult(null);
+        setStatus('IDLE');
+        setLogs([]);
+        addLog('[SISTEMA] 🗑️ Contrato Canónico eliminado de caché. Resultado de auditoría invalidado.');
     };
 
     const clearHtml = () => {
         localStorage.removeItem('html_projection_result');
         setHasHtml(false);
-        addLog('[SISTEMA] 🗑️ Proyección HTML eliminada de caché.');
+        setAuditResult(null);
+        setStatus('IDLE');
+        setLogs([]);
+        addLog('[SISTEMA] 🗑️ Proyección HTML eliminada de caché. Resultado de auditoría invalidado.');
     };
 
     const restoreCase = (c: ForensicCase) => {
@@ -727,6 +751,26 @@ export default function ForensicApp() {
                                                 </div>
                                                 <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Gap Técnico / No Verificable</p>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-2">
+                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${hasBill ? 'bg-emerald-950/30 border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-500'}`}>
+                                            <Calculator size={14} />
+                                            <span className="text-[11px] font-bold uppercase tracking-wider">Cuenta</span>
+                                            {hasBill && <CheckCircle2 size={12} className="text-emerald-500" />}
+                                        </div>
+                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${hasPam ? 'bg-emerald-950/30 border-emerald-500/50 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-500'}`}>
+                                            <FileText size={14} />
+                                            <span className="text-[11px] font-bold uppercase tracking-wider">PAM (Isapre)</span>
+                                            {hasPam && <CheckCircle2 size={12} className="text-emerald-500" />}
+                                        </div>
+                                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full border ${hasCanonical || hasContract ? 'bg-indigo-950/30 border-indigo-500/50 text-indigo-400' : 'bg-slate-900 border-slate-700 text-slate-500'}`}>
+                                            <Scale size={14} />
+                                            <span className="text-[11px] font-bold uppercase tracking-wider">
+                                                {hasCanonical ? 'Contrato (Canónico 💎)' : 'Contrato (PDF 📄)'}
+                                            </span>
+                                            {(hasCanonical || hasContract) && <CheckCircle2 size={12} className="text-indigo-500" />}
                                         </div>
                                     </div>
 

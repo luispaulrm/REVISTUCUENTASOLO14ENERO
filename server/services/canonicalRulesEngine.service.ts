@@ -97,10 +97,12 @@ function checkC02_SegregacionHospAmb(billingItems: BillingItem[], contract: Cont
 
     if (!hasHospitalItems) return { ruleId, description: RULES[ruleId], violated: false };
 
-    // 4. Check Contract Capability
+    // 4. Check Contract Capability (Support Canonical V2 + Semantic)
     const hasHospitalCoverage = (contract?.coberturas || []).some(c => {
-        const name = (c['PRESTACIÓN CLAVE'] || c['item'] || "").toUpperCase();
-        return name.includes("HOSP") || name.includes("QUIR") || name.includes("CIRUG");
+        const name = (c['PRESTACIÓN CLAVE'] || c['item'] || c['descripcion_textual'] || "").toUpperCase();
+        const category = (c['categoria'] || c['ambito'] || "").toUpperCase();
+        return name.includes("HOSP") || name.includes("QUIR") || name.includes("CIRUG") ||
+            category.includes("HOSP") || category.includes("QUIR") || category.includes("CIRUG");
     });
 
     if (!hasHospitalCoverage) {
@@ -120,10 +122,10 @@ function checkC02_SegregacionHospAmb(billingItems: BillingItem[], contract: Cont
 function checkC03_MedicamentosPorEvento(billingItems: BillingItem[], contract: Contract): RuleResult {
     const ruleId = "C-03";
 
-    // Check if contract has the "Por Evento" clause for Medications/Supplies
+    // Check if contract has the "Por Evento" clause for Medications/Supplies (Support Semantic)
     const hasPorEventoClause = (contract?.coberturas || []).some(c => {
-        const name = (c['PRESTACIÓN CLAVE'] || c['item'] || "").toUpperCase();
-        return (name.includes("MEDICAMENTOS") || name.includes("MATERIALES")) &&
+        const name = (c['PRESTACIÓN CLAVE'] || c['item'] || c['descripcion_textual'] || "").toUpperCase();
+        return (name.includes("MEDICAMENTOS") || name.includes("MATERIALES") || name.includes("INSUMOS")) &&
             name.includes("POR EVENTO");
     });
 

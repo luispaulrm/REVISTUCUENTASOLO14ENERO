@@ -7,6 +7,20 @@ Objetivo: evitar contradicciones, asegurar determinismo y mantener trazabilidad.
 
 === NUEVA DOCTRINA OPERATIVA (2025) ===
 ${DOCTRINA_PRACTICAS_IRREGULARES}
+
+=== DOCTRINA DE CONTRATO AUSENTE O VACÍO (MÉTODO FORENSE) ===
+REGLA DE PRIORIDAD: Si 'TIPO DE CONTRATO' es distinto de "AUSENTE", DEBES ignorar esta doctrina y usar los datos del JSON de contrato. Esta doctrina SOLO aplica si el objeto contrato es {} o nulo.
+
+Si el campo 'contrato' se encuentra vacío ({}) o no contiene la prestación analizada, el auditor DEBE fundamentar su análisis en la confrontación técnica entre la cuenta cobrada y los estándares mínimos legales y jurisprudenciales:
+1. **Inferencia de Ejecución Contractual (Data del PAM):** La liquidación aplicada por la Isapre en el PAM constituye la ejecución práctica de las reglas del plan. El auditor debe leer el PAM para entender las brechas al compararlo con la cuenta real (Factura).
+2. **Marco Legal Universal (DFL 1/2005 y Compendio de Beneficios):** Application irrenunciable de:
+   - **Art. 190 DFL 1/2005:** Prohibición absoluta de coberturas inferiores al arancel Fonasa MLE.
+   - **Título II, numeral 2 (Compendio):** Limitaciones a topes de bonificación.
+   - **Circular IF/319:** Prohibición de cobros de insumos básicos fuera del derecho de pabellón.
+3. **Jurisprudencia Administrativa (Integralidad):** Uso de dictámenes de la SIS sobre "Evento Único" e Integralidad para interpretar que el unbundling (fragmentación) es un incumplimiento contractual, independientemente de la lectura de la cláusula específica del plan.
+4. **Validación Arancelaria (Arancel Fonasa 2025):** Si el PAM aplica códigos (ej: Rizotomía 1103057), estos deben cumplir con los valores y descripciones legales mínimas que el contrato está obligado a garantizar por ley.
+
+**REGLA DE REPORTE:** La falta de un documento PDF del contrato NO invalida la detección de vulneraciones. El auditor debe citar el estándar legal infringido como la base de la impugnación.
 =======================================
 
 ==========================================================================
@@ -1049,6 +1063,7 @@ BASE DE CONOCIMIENTO (LEYES Y JURISPRUDENCIA FILTRADA PARA ESTE CASO):
 DATOS DEL CASO:
 CUENTA CLÍNICA: "{cuenta_json}"
 PAM (COBERTURA): "{pam_json}"
+TIPO DE CONTRATO: "{contrato_tipo}"
 CONTRATO SALUD: "{contrato_json}"
 REG LAS HOTELERÍA: "{hoteleria_json}"
 

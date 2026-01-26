@@ -969,48 +969,97 @@ Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, C
     };
 
     // 3. Clean Contrato JSON - Keep only essential coverage data
-    // Detect if Canonical structure is present
-    const isCanonical = !!contratoJson.metadata || (contratoJson.coberturas && contratoJson.coberturas.some((c: any) => Array.isArray(c.modalidades)));
+    // Detect structure: Semantic Canonical (Skill) vs High Fidelity (Raw)
+    const hasMetadata = !!contratoJson.metadata;
+    const hasTopesArray = Array.isArray(contratoJson.topes);
+    const hasCoberturasArray = Array.isArray(contratoJson.coberturas);
 
-    const cleanedContrato = {
-        ...contratoJson, // Preserve metadata if present
-        coberturas: contratoJson.coberturas?.map((cob: any) => {
-            const base = {
-                categoria: cob.categoria,
-                item: cob.item,
-                nota_restriccion: cob.nota_restriccion,
-                CODIGO_DISPARADOR_FONASA: cob.CODIGO_DISPARADOR_FONASA,
-                categoria_canonica: cob.categoria_canonica
-            };
+    const isSemanticCanonical = hasMetadata && hasCoberturasArray && hasTopesArray;
+    const isHighFidelity = hasCoberturasArray && contratoJson.coberturas.some((c: any) => Array.isArray(c.modalidades));
 
-            if (cob.modalidades && Array.isArray(cob.modalidades)) {
+    if (isSemanticCanonical) {
+        log(`[AuditEngine] 💎 CONTRATO DETECTADO: Formato Canónico Semántico (${contratoJson.metadata.fuente || 'Sin Fuente'}).`);
+    } else if (isHighFidelity) {
+        log('[AuditEngine] 💎 CONTRATO DETECTADO: Formato High-Fidelity (Raw PDF Extract).');
+    } else if (hasCoberturasArray && contratoJson.coberturas.length > 0) {
+        log('[AuditEngine] 💎 CONTRATO DETECTADO: Estructura de coberturas detectada (Fallback).');
+    } else {
+        log('[AuditEngine] ⚠️ CONTRATO NO DETECTADO: El objeto de contrato está vacío o es inválido.');
+    }
+
+    let cleanedContrato: any;
+
+    if (isSemanticCanonical) {
+        // Normalize Semantic to High-Fidelity like structure for the LLM
+        cleanedContrato = {
+            metadata: contratoJson.metadata,
+            coberturas: contratoJson.coberturas.map((cob: any) => {
+                // Find matching tope in the separate 'topes' array
+                const associatedTope = contratoJson.topes?.find((t: any) =>
+                    t.descripcion_textual === cob.descripcion_textual ||
+                    t.fuente_textual?.includes(cob.descripcion_textual)
+                );
+
+                return {
+                    categoria: cob.ambito.toUpperCase(),
+                    item: cob.descripcion_textual,
+                    modalidades: [{
+                        tipo: (cob.tipo_modalidad || "").toUpperCase(),
+                        porcentaje: cob.porcentaje,
+                        tope: associatedTope ? associatedTope.valor : null,
+                        unidadTope: associatedTope ? associatedTope.unidad : "SIN_TOPE",
+                        tipoTope: associatedTope ? associatedTope.aplicacion?.toUpperCase() : "POR_EVENTO"
+                    }],
+                    fuente: cob.fuente_textual
+                };
+            }),
+            exclusiones: contratoJson.exclusiones,
+            reglas: contratoJson.reglas_aplicacion?.map((r: any) => ({
+                'CÓDIGO/SECCIÓN': r.condicion,
+                'VALOR EXTRACTO LITERAL DETALLADO': r.efecto
+            }))
+        };
+    } else {
+        // High-Fidelity Cleaning
+        cleanedContrato = {
+            ...contratoJson,
+            coberturas: contratoJson.coberturas?.map((cob: any) => {
+                const base = {
+                    categoria: cob.categoria,
+                    item: cob.item,
+                    nota_restriccion: cob.nota_restriccion,
+                    CODIGO_DISPARADOR_FONASA: cob.CODIGO_DISPARADOR_FONASA,
+                    categoria_canonica: cob.categoria_canonica
+                };
+
+                if (cob.modalidades && Array.isArray(cob.modalidades)) {
+                    return {
+                        ...base,
+                        modalidades: cob.modalidades.map((m: any) => ({
+                            tipo: m.tipo,
+                            porcentaje: m.porcentaje,
+                            tope: m.tope,
+                            unidadTope: m.unidadTope,
+                            tipoTope: m.tipoTope
+                        }))
+                    };
+                }
+
                 return {
                     ...base,
-                    modalidades: cob.modalidades.map((m: any) => ({
-                        tipo: m.tipo,
-                        porcentaje: m.porcentaje,
-                        tope: m.tope,
-                        unidadTope: m.unidadTope,
-                        tipoTope: m.tipoTope
-                    }))
+                    modalidad: cob.modalidad,
+                    cobertura: cob.cobertura,
+                    tope: cob.tope
                 };
-            }
-
-            // Legacy fallback (Flat structure)
-            return {
-                ...base,
-                modalidad: cob.modalidad,
-                cobertura: cob.cobertura,
-                tope: cob.tope
-            };
-        }),
-        reglas: contratoJson.reglas?.map((regla: any) => ({
-            'CÓDIGO/SECCIÓN': regla['CÓDIGO/SECCIÓN'] || regla['CÃ“DIGO/SECCIÃ“N'],
-            'VALOR EXTRACTO LITERAL DETALLADO': regla['VALOR EXTRACTO LITERAL DETALLADO'] || regla['VALOR EXTRACTO LITERAL DETALLADO'],
-            'SUBCATEGORÍA': regla['SUBCATEGORÍA'] || regla['SUBCATEGORÃ A'],
-            'categoria_canonica': regla.categoria_canonica
-        }))
-    };
+            }),
+            reglas: contratoJson.reglas?.map((regla: any) => ({
+                'CÓDIGO/SECCIÓN': regla['CÓDIGO/SECCIÓN'] || regla['CÃ“DIGO/SECCIÃ“N'],
+                'VALOR EXTRACTO LITERAL DETALLADO': regla['VALOR EXTRACTO LITERAL DETALLADO'] || regla['VALOR EXTRACTO LITERAL DETALLADO'],
+                'SUBCATEGORÍA': regla['SUBCATEGORÍA'] || regla['SUBCATEGORÃ A'],
+                'categoria_canonica': regla.categoria_canonica
+            }))
+        };
+    }
 
     //  4. Minify JSONs (remove whitespace) - saves ~20% tokens
     let finalCuentaContext = JSON.stringify(cleanedCuenta);
@@ -1394,6 +1443,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         .replace('{cuenta_json}', finalCuentaContext)
         .replace('{pam_json}', finalPamContext)
         .replace('{contrato_json}', finalContratoContext)
+        .replace('{contrato_tipo}', isSemanticCanonical ? 'ESTRUCTURADO_CANONICO' : (isHighFidelity ? 'ALTA_FIDELIDAD' : 'AUSENTE'))
         .replace('{eventos_hospitalarios}', eventosContext)
         .replace('{contexto_trazabilidad}', traceAnalysis)
         .replace('{va_deduction_context}', vaDeductionSummary + '\n' + rulesContext)

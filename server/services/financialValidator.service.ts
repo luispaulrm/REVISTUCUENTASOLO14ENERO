@@ -54,25 +54,34 @@ function findCoverageFactor(contrato: any): number {
 
     for (const target of targets) {
         const found = contrato.coberturas.find((c: any) =>
-            (c.item || c.categoria || "").toUpperCase().includes(target)
+            (c.item || "").toUpperCase().includes(target) ||
+            (c.categoria || "").toUpperCase().includes(target) ||
+            (c.categoria_canonica || "").toUpperCase().includes(target)
         );
 
         if (found && found.modalidades) {
-            // Prioritize Libre Elección for factor usage (standard audit context)
+            // High Fidelity path
             const modality = found.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
                 found.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
 
-            if (modality && (modality.porcentaje !== null || modality.cobertura)) { // Support both number and legacy string if needed
+            if (modality && (modality.porcentaje !== null || modality.cobertura)) {
                 if (typeof modality.porcentaje === 'number') {
                     return modality.porcentaje > 1 ? modality.porcentaje / 100 : modality.porcentaje;
                 }
-                const val = parseMonto(modality.cobertura || modality.copago || "0"); // Fallback
+                const val = parseMonto(modality.cobertura || modality.copago || "0");
                 return val > 1 ? val / 100 : val;
             }
         }
-        // Legacy fallback (flat structure check just in case)
-        if (found && found.valor) {
-            const val = parseMonto(found.valor);
+
+        // Semantic Canonical path (Flattened fields)
+        if (found && (found.porcentaje !== undefined || found.tipo_modalidad)) {
+            const perc = typeof found.porcentaje === 'number' ? found.porcentaje : parseMonto(found.porcentaje || "0");
+            if (perc > 0) return perc > 1 ? perc / 100 : perc;
+        }
+
+        // Legacy fallback
+        if (found && (found.valor || found.cobertura)) {
+            const val = parseMonto(found.valor || found.cobertura);
             if (val > 1) return val / 100;
             if (val > 0) return val;
         }
@@ -170,20 +179,20 @@ export function validateTopeHonorarios(
     let reglaAplicada: any = null;
 
     if (contrato && contrato.coberturas) {
-        // Find rule specifically matching code or description
+        // Find rule specifically matching code or description (Support Canonical V2 fields)
         const specificRule = contrato.coberturas.find((c: any) =>
-            (c.item && c.item.includes(item.codigoGC)) ||
-            (c.item && item.descripcion && c.item.toUpperCase().includes(item.descripcion.toUpperCase().substring(0, 15)))
+            (c.item && typeof c.item === 'string' && c.item.includes(item.codigoGC)) ||
+            (c.CODIGO_DISPARADOR_FONASA && String(c.CODIGO_DISPARADOR_FONASA).includes(item.codigoGC)) ||
+            (c.item && typeof c.item === 'string' && item.descripcion && c.item.toUpperCase().includes(item.descripcion.toUpperCase().substring(0, 15)))
         );
 
         if (specificRule && specificRule.modalidades) {
             reglaAplicada = specificRule;
-            // Parse custom factor from modalities (LIBRE_ELECCION prefered)
+            // High Fidelity path
             const modality = specificRule.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
                 specificRule.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
 
             if (modality && modality.tope) {
-                // FORCE: Always format tope_aplicado so AuditEngine can display it
                 factor = modality.tope;
                 const unit = modality.unidadTope || "AC2";
 
@@ -193,8 +202,25 @@ export function validateTopeHonorarios(
                     _internal_factor: factor,
                     _internal_unit: unit
                 };
-            } else if (modality && modality.copago) {
-                // Fallback to legacy string parsing if 'tope' was not numeric but put in a string field
+            }
+        } else if (contrato.topes && Array.isArray(contrato.topes)) {
+            // Semantic Canonical path (Separate topes array)
+            const associatedTope = contrato.topes.find((t: any) =>
+                (t.descripcion_textual && typeof t.descripcion_textual === 'string' && t.descripcion_textual.includes(item.codigoGC)) ||
+                (t.fuente_textual && typeof t.fuente_textual === 'string' && t.fuente_textual.includes(item.codigoGC))
+            );
+
+            if (associatedTope && associatedTope.valor !== null) {
+                factor = associatedTope.valor;
+                const unit = associatedTope.unidad || "AC2";
+
+                reglaAplicada = {
+                    item: associatedTope.descripcion_textual,
+                    tope_aplicado: `${factor} veces ${unit}`,
+                    _internal_factor: factor,
+                    _internal_unit: unit,
+                    fuente: associatedTope.fuente_textual
+                };
             }
         }
     }

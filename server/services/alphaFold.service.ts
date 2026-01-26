@@ -424,11 +424,13 @@ export class AlphaFoldService {
         if (isCanonical) {
             hasHospitalCoverage = coberturas.some((c: any) =>
                 /HOSPITALARIO|CAMA|PABELLON|UTI|UCI/i.test(c.categoria || "") ||
-                /HOSPITALARIO/i.test(c.categoria_canonica || "")
+                /HOSPITALARIO/i.test(c.categoria_canonica || "") ||
+                /HOSPITALARIO/i.test(c.ambito || "")
             );
             hasAmbulatoryCoverage = coberturas.some((c: any) =>
                 /AMBULATORIO|CONSULTA|LABORATORIO|IMAGEN/i.test(c.categoria || "") ||
-                /AMBULATORIO/i.test(c.categoria_canonica || "")
+                /AMBULATORIO/i.test(c.categoria_canonica || "") ||
+                /AMBULATORIO/i.test(c.ambito || "")
             );
         } else {
             hasHospitalCoverage = coberturas.some((c: any) =>
