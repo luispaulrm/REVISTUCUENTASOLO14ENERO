@@ -139,6 +139,10 @@ export default function CanonicalGeneratorApp() {
                         }
                         if (update.type === 'final') {
                             setCanonicalResult(update.data);
+                            if (update.data.cached) {
+                                addLog('[SISTEMA] 🚀 CACHE HIT! Recuperado de memoria local.');
+                                setProgress(100);
+                            }
                             if (update.metrics) setReportMetrics(update.metrics);
                             if (update.totalCount) setContractCount(update.totalCount);
                             // PERSISTENCE FOR AUDITOR INTEGRATION (v2.2)
@@ -428,6 +432,18 @@ export default function CanonicalGeneratorApp() {
                                         {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
                                     </span>
                                 </div>
+                                {canonicalResult?.cached && (
+                                    <>
+                                        <div className="w-px h-8 bg-slate-800"></div>
+                                        <div className="flex flex-col items-center animate-pulse">
+                                            <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Power Status</span>
+                                            <div className="flex items-center gap-1 text-emerald-400">
+                                                <Zap size={14} fill="currentColor" />
+                                                <span className="font-mono text-xs font-bold">CACHED</span>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* 4. COST & ABORT / SUCCESS */}

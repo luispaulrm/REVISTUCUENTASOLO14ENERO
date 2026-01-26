@@ -40,6 +40,7 @@ import { detectRepetition, truncateAtRepetition } from '../utils/repetitionDetec
 import { safeStreamParse, balanceJson } from '../utils/streamErrorHandler.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { ContractCacheService } from './contractCache.service.js';
 
 // ============================================================================
 // HELPER FUNCTIONS
@@ -417,6 +418,16 @@ export async function analyzeSingleContract(
     log(`[ContractEngine] 📄 Modelo: ${AI_CONFIG.ACTIVE_MODEL}`);
     log(`[ContractEngine] 📄 Doc: ${file.originalname}`);
     log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+    // --- CACHE CHECK (Phase -1) ---
+    const fileHash = ContractCacheService.calculateHash(file.buffer);
+    const cachedResult = await ContractCacheService.get(fileHash);
+    if (cachedResult) {
+        log(`\n[ContractEngine] 🚀 CACHE HIT! Reusing previous analysis for hash: ${fileHash.substring(0, 10)}...`);
+        log(`[ContractEngine] 💰 Tokens Saved: ~${cachedResult.usageMetadata?.totalTokenCount || 'N/A'}`);
+        return cachedResult;
+    }
+    log(`\n[ContractEngine] 🚀 CACHE MISS. Proceeding with LLM analysis...`);
 
     // Convert Buffer to Base64
     const base64Data = file.buffer.toString('base64');
@@ -1025,8 +1036,12 @@ export async function analyzeSingleContract(
             promptTokens: p.metrics?.tokensInput || 0,
             candidatesTokens: p.metrics?.tokensOutput || 0,
             estimatedCostCLP: p.metrics?.cost || 0
-        };
-    }
+        }
+    };
+
+    // --- SAVE TO CACHE (Phase 13) ---
+    await ContractCacheService.save(fileHash, result);
+    log(`\n[ContractEngine] ✅ Analysis persisted to cache for future use.`);
 
     return result;
 }

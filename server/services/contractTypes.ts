@@ -31,6 +31,7 @@ export interface ContractCoverage {
 }
 
 export interface ContractAnalysisResult {
+    cached?: boolean; // Indicates if the result came from cache
     rawMarkdown?: string; // New field for Dual Verification
     fingerprint?: ContractFingerprint; // Phase 0 - Universal Architecture
     reglas: Array<{
