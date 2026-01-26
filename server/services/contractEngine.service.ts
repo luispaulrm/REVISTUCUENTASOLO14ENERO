@@ -432,6 +432,17 @@ export async function analyzeSingleContract(
     }
     log(`\n[ContractEngine] 🚀 CACHE MISS. Proceeding with LLM analysis...`);
 
+    // Discover and stabilize all available API keys globally for this run
+    const allKeys = [
+        apiKey,
+        process.env.GEMINI_API_KEY,
+        process.env.API_KEY,
+        process.env.GEMINI_API_KEY_SECONDARY,
+        process.env.GEMINI_API_KEY_TERTIARY,
+        process.env.GEMINI_API_KEY_QUATERNARY
+    ].filter(k => !!k && k.length > 5);
+    const uniqueKeys = [...new Set(allKeys)];
+
     // Convert Buffer to Base64
     const base64Data = file.buffer.toString('base64');
     const mimeType = file.mimetype;
@@ -439,10 +450,7 @@ export async function analyzeSingleContract(
     // Helper for Extraction Call with Robustness Features
     async function extractSection(name: string, prompt: string, schema: any): Promise<any> {
         log(`\n[ContractEngine] 🚀 Iniciando FASE: ${name.toUpperCase()}...`);
-        const geminiService = new GeminiService(apiKey);
-
-        const allKeys = [apiKey, process.env.GEMINI_API_KEY, process.env.API_KEY, process.env.GEMINI_API_KEY_SECONDARY]
-            .filter(k => !!k && k.length > 5);
+        // Use uniqueKeys defined in parent scope
 
         let finalResult = null;
         let finalMetrics = { tokensInput: 0, tokensOutput: 0, cost: 0 };
@@ -549,7 +557,7 @@ export async function analyzeSingleContract(
         for (const modelName of modelsToTry) {
             log(`[${name}] 📍 Intentando con modelo: ${modelName}...`);
 
-            for (const currentKey of [...new Set(allKeys)]) {
+            for (const currentKey of uniqueKeys) {
                 try {
                     finalResult = await attemptExtraction(currentKey, modelName);
                     log(`[${name}] ✅ Éxito con ${modelName}`);
@@ -650,16 +658,49 @@ export async function analyzeSingleContract(
 
     // Combine coverage from all modular prompts
     // v18.0: CARTESIAN DECODING (RawCell[] -> ContractCoverage[])
-    let coberturasHospRaw = [
+    function groupFlatCoverages(flat: ContractCoverage[]): any[] {
+        const grouped: any[] = [];
+        const map = new Map<string, any>();
+
+        flat.forEach(d => {
+            const key = d.prestacion.toLowerCase().trim();
+            if (!map.has(key)) {
+                map.set(key, {
+                    item: d.prestacion,
+                    categoria: d.prestacion,
+                    modalidades: []
+                });
+                grouped.push(map.get(key));
+            }
+
+            const entry = map.get(key);
+            // Avoid duplicate modalities for the same item name
+            if (!entry.modalidades.find((m: any) => m.tipo === d.modalidad)) {
+                entry.modalidades.push({
+                    tipo: d.modalidad,
+                    porcentaje: d.porcentaje,
+                    tope: d.tope !== null ? d.tope : undefined,
+                    unidadTope: d.unidad,
+                    tipoTope: d.tipoTope
+                });
+            }
+        });
+        return grouped;
+    }
+
+    const hospFlat = [
         ...decodeCartesian(hospP1Phase.result as RawCell[] || [], "HOSPITALARIO"),
         ...decodeCartesian(hospP2Phase.result as RawCell[] || [], "HOSPITALARIO")
     ];
-    let coberturasAmbRaw = [
+    const ambFlat = [
         ...decodeCartesian(ambP1Phase.result as RawCell[] || [], "AMBULATORIO"),
         ...decodeCartesian(ambP2Phase.result as RawCell[] || [], "AMBULATORIO"),
         ...decodeCartesian(ambP3Phase.result as RawCell[] || [], "AMBULATORIO"),
         ...decodeCartesian(ambP4Phase.result as RawCell[] || [], "AMBULATORIO")
     ];
+
+    let coberturasHospRaw = groupFlatCoverages(hospFlat);
+    let coberturasAmbRaw = groupFlatCoverages(ambFlat);
     let coberturasExtrasRaw = extrasPhase.result?.coberturas || [];
 
     // --- INTEGRATION: DETERMINISTIC MARKDOWN PARSER ---
@@ -673,47 +714,8 @@ export async function analyzeSingleContract(
         log(`[ContractEngine] 🧩 Items Determinísticos Encontrados: ${deterministicCoverages.length}`);
 
         if (deterministicCoverages.length > 0) {
-            // We classify and inject them based on 'ambito' hint or just into EXTRAS for now 
-            // but mapped correctly to the flat structure expected by cleanAndCheck/contractTypes
-
-            // Convert ContractCoverage (Flat) to Cobertura (Nested) structure expected by cleanAndCheck for now?
-            // OR better: cleanAndCheck expects the nested structure 'modalidades'.
-            // The Parser returns Flat ContractCoverage.
-            // We need a helper to group Flat -> Nested if we want to reuse cleanAndCheck logic.
-
-            const groupedDeterministic: any[] = [];
-            const map = new Map<string, any>();
-
-            deterministicCoverages.forEach(d => {
-                if (!map.has(d.prestacion)) {
-                    map.set(d.prestacion, {
-                        item: d.prestacion,
-                        categoria: d.prestacion, // Temporary
-                        modalidades: []
-                    });
-                    groupedDeterministic.push(map.get(d.prestacion));
-                }
-
-                const entry = map.get(d.prestacion);
-                entry.modalidades.push({
-                    tipo: d.modalidad,
-                    tope: d.tope !== null ? d.tope : undefined,
-                    unidadTope: d.unidad,
-                    tipoTope: d.tipoTope
-                });
-            });
-
+            const groupedDeterministic = groupFlatCoverages(deterministicCoverages);
             log(`[ContractEngine] 🧩 Items Agrupados (Nested): ${groupedDeterministic.length}`);
-
-            // If AI failed significantly, we might want to REPLACE.
-            // For safety, let's APPEND to extras or respective buckets.
-            // Ambito helps.
-
-            deterministicCoverages.forEach(d => {
-                // We actually already grouped them above.
-            });
-
-            // Let's just append grouped properties to extras for robust processing
             coberturasExtrasRaw = [...coberturasExtrasRaw, ...groupedDeterministic];
         }
     }
@@ -896,57 +898,60 @@ export async function analyzeSingleContract(
     // Runs if we STILL have 0 items (either Text Fallback failed, or there was no text, or Text Fallback returned 0)
     if (coberturas.length === 0) {
         log(`[ContractEngine] ⚠️ FALLBACK FINAL: Activando Protocolo de Emergencia por Imagen (Hail Mary)...`);
-        try {
-            const genAI = new GoogleGenerativeAI(apiKey);
-            // Use the strongest available reasoning model for the final attempt
-            const model = genAI.getGenerativeModel({
-                model: CONTRACT_REASONING_MODEL || CONTRACT_FAST_MODEL,
-                generationConfig: {
-                    responseMimeType: "application/json",
-                    responseSchema: SCHEMA_COBERTURAS as any
-                }
-            });
 
-            const fallbackPrompt = `
-            EMERGENCY EXTRACTION MODE.
-            The previous attempts to read this contract failed completely. 
-            This is likely a POOR QUALITY SCANNED IMAGE or HANDWRITTEN document.
-            
-            YOUR GOAL: Scan the visual document pixel-by-pixel for ANY tables defining "Coberturas", "Topes", "Hospitalario", "Ambulatorio".
-            
-            EXTRACT:
-            - Item/Prestación (e.g. Dia Cama, Pabellon, Honorarios)
-            - % Cobertura (Preferente/Libre)
-            - Topes (UF, Veces Arancel)
-            
-            CRITICAL:
-            - If text is blurry, infer from context columns.
-            - Provide your best guess for numbers.
-            - Capture at least the "Hospitalario" and "Ambulatorio" sections.
-            `;
+        for (const currentKey of uniqueKeys) {
+            try {
+                const genAI = new GoogleGenerativeAI(currentKey);
+                const model = genAI.getGenerativeModel({
+                    model: CONTRACT_REASONING_MODEL || CONTRACT_FAST_MODEL,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: SCHEMA_COBERTURAS as any
+                    }
+                });
 
-            const result = await model.generateContent([
-                { text: fallbackPrompt },
-                { inlineData: { data: base64Data, mimeType: mimeType } }
-            ]);
+                const fallbackPrompt = `
+                EMERGENCY EXTRACTION MODE.
+                The previous attempts to read this contract failed completely. 
+                This is likely a POOR QUALITY SCANNED IMAGE or HANDWRITTEN document.
+                
+                YOUR GOAL: Scan the visual document pixel-by-pixel for ANY tables defining "Coberturas", "Topes", "Hospitalario", "Ambulatorio".
+                
+                EXTRACT:
+                - Item/Prestación (e.g. Dia Cama, Pabellon, Honorarios)
+                - % Cobertura (Preferente/Libre)
+                - Topes (UF, Veces Arancel)
+                
+                CRITICAL:
+                - If text is blurry, infer from context columns.
+                - Provide your best guess for numbers.
+                - Capture at least the "Hospitalario" and "Ambulatorio" sections.
+                `;
 
-            const textResponse = result.response.text();
-            const jsonFallback = safeJsonParse(textResponse);
+                const result = await model.generateContent([
+                    { text: fallbackPrompt },
+                    { inlineData: { data: base64Data, mimeType: mimeType } }
+                ]);
 
-            if (jsonFallback && Array.isArray((jsonFallback as any).coberturas)) {
-                const fallbackCoberturas = (jsonFallback as any).coberturas;
-                if (fallbackCoberturas.length > 0) {
-                    log(`[ContractEngine] ✅ FALLBACK IMAGEN EXITOSO: Recuperados ${fallbackCoberturas.length} items de rescate.`);
-                    const fallbackClean = cleanAndCheck(fallbackCoberturas);
-                    coberturas = [...coberturas, ...fallbackClean];
+                const textResponse = result.response.text();
+                const jsonFallback = safeJsonParse(textResponse);
+
+                if (jsonFallback && Array.isArray((jsonFallback as any).coberturas)) {
+                    const fallbackCoberturas = (jsonFallback as any).coberturas;
+                    if (fallbackCoberturas.length > 0) {
+                        log(`[ContractEngine] ✅ FALLBACK IMAGEN EXITOSO (Llave ${currentKey.substring(0, 4)}...): Recuperados ${fallbackCoberturas.length} items de rescate.`);
+                        const fallbackClean = cleanAndCheck(fallbackCoberturas);
+                        coberturas = [...coberturas, ...fallbackClean];
+                        break; // Success!
+                    } else {
+                        log(`[ContractEngine] ❌ FALLBACK IMAGEN RETORNÓ 0 ITEMS (Llave ${currentKey.substring(0, 4)}...).`);
+                    }
                 } else {
-                    log(`[ContractEngine] ❌ FALLBACK IMAGEN RETORNÓ 0 ITEMS.`);
+                    log(`[ContractEngine] ❌ FALLBACK IMAGEN FALLÓ (JSON inválido) con llave ${currentKey.substring(0, 4)}...`);
                 }
-            } else {
-                log(`[ContractEngine] ❌ FALLBACK IMAGEN FALLÓ (JSON inválido).`);
+            } catch (err: any) {
+                log(`[ContractEngine] ❌ FALLBACK IMAGEN FALLÓ con llave ${currentKey.substring(0, 4)}...: ${err.message}`);
             }
-        } catch (err: any) {
-            log(`[ContractEngine] ❌ FALLBACK IMAGEN FALLÓ CRÍTICAMENTE: ${err.message}`);
         }
     }
 

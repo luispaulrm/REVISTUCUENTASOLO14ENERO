@@ -593,8 +593,9 @@ export const CONTRACT_TEMPERATURE = GENERATION_CONFIG.temperature;
 export const CONTRACT_TOP_P = GENERATION_CONFIG.topP;
 export const CONTRACT_TOP_K = GENERATION_CONFIG.topK;
 
-export const CONTRACT_FAST_MODEL = AI_MODELS.reasoner; // Primary: Gemini 3 Pro (High Intellect)
-export const CONTRACT_REASONING_MODEL = AI_MODELS.primary; // Secondary: Gemini 3 Flash (Speed/Reasoning)
-export const CONTRACT_FALLBACK_MODEL = AI_MODELS.fallback; // Fallback: Gemini 2.5 Flash (Legacy Reliability)
+
+export const CONTRACT_FAST_MODEL = AI_MODELS.primary; // Primary: Gemini 3 Flash (Speed/Reasoning)
+export const CONTRACT_REASONING_MODEL = AI_MODELS.fallback; // Secondary: Gemini 2.5 Flash (Reliability)
+export const CONTRACT_FALLBACK_MODEL = AI_MODELS.reasoner; // Last Resort: Gemini 3 Pro (High Intellect but expensive)
 
 export const CONTRACT_DEFAULT_RETRIES = 3;

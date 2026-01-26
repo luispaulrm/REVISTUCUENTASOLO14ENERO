@@ -11,11 +11,12 @@ import { RawCell, ContractCoverage } from './contractTypes.js';
  * 4. Normalize values (UF, percentages).
  */
 
+
 export function decodeCartesian(cells: RawCell[], ambito: "HOSPITALARIO" | "AMBULATORIO"): ContractCoverage[] {
     if (!cells || cells.length === 0) return [];
 
     // 1. RECONSTRUCT GRID
-    const { grid, maxBytes } = reconstructGrid(cells);
+    const { grid } = reconstructGrid(cells);
     if (grid.length === 0) return [];
 
     // 2. HEADER ANALYSIS (Determines Semantic Map)
@@ -24,50 +25,34 @@ export function decodeCartesian(cells: RawCell[], ambito: "HOSPITALARIO" | "AMBU
     // 3. EXTRACTION LOOP
     const results: ContractCoverage[] = [];
 
-    // Start from row after header (heuristic: row 3 or first row with data)
     // We scan all rows and filter by "has item text".
     for (let r = 0; r < grid.length; r++) {
         const row = grid[r];
         if (!row) continue;
 
-        // Heuristic: Item name is usually in col 0 or 1
-        // We look for the first non-empty column that isn't a known numeric value
         const itemText = findItemName(row, columnMap);
         if (!itemText || itemText.length < 3 || isHeaderRow(itemText)) continue;
 
-        // Extract values using the Map
-        const preferente = extractValue(row, columnMap.preferente);
-        const libre = extractValue(row, columnMap.libre);
+        // Process Modalities
+        ["PREFERENTE", "LIBRE_ELECCION"].forEach(modality => {
+            const cols = modality === "PREFERENTE" ? columnMap.preferente : columnMap.libre;
+            const text = extractValue(row, cols).raw;
+            if (!text) return;
 
-        // Use Modalidad-specific logic if needed. For now, flat coverage.
+            const percentage = parsePercentage(text);
+            const { value, unit } = parseTope(text);
 
-        // CREATE PREFERENTE ENTRY
-        if (preferente.raw) {
             results.push({
                 prestacion: itemText,
                 ambito: ambito,
-                modalidad: "PREFERENTE",
-                porcentaje: parsePercentage(preferente.raw),
-                tope: parseTope(preferente.raw).value,
-                unidad: parseTope(preferente.raw).unit,
-                tipoTope: "POR_EVENTO", // Default, refined by logic later
-                fuente: "TABLA_CONTRATO"
-            });
-        }
-
-        // CREATE LIBRE ELECCION ENTRY
-        if (libre.raw) {
-            results.push({
-                prestacion: itemText,
-                ambito: ambito,
-                modalidad: "LIBRE_ELECCION",
-                porcentaje: parsePercentage(libre.raw),
-                tope: parseTope(libre.raw).value,
-                unidad: parseTope(libre.raw).unit,
+                modalidad: modality as any,
+                porcentaje: percentage,
+                tope: value,
+                unidad: unit,
                 tipoTope: "POR_EVENTO",
                 fuente: "TABLA_CONTRATO"
             });
-        }
+        });
     }
 
     return results;
@@ -77,7 +62,7 @@ export function decodeCartesian(cells: RawCell[], ambito: "HOSPITALARIO" | "AMBU
 // HELPERS
 // ============================================================================
 
-function reconstructGrid(cells: RawCell[]): { grid: string[][], maxBytes: number } {
+function reconstructGrid(cells: RawCell[]): { grid: string[][] } {
     const grid: string[][] = [];
     let maxR = 0;
     let maxC = 0;
@@ -87,82 +72,74 @@ function reconstructGrid(cells: RawCell[]): { grid: string[][], maxBytes: number
         if (c.col_index > maxC) maxC = c.col_index;
     });
 
-    // Initialize
     for (let r = 0; r <= maxR; r++) {
-        grid[r] = [];
-        for (let c = 0; c <= maxC; c++) {
-            grid[r][c] = "";
-        }
+        grid[r] = new Array(maxC + 1).fill("");
     }
 
-    // Fill
     cells.forEach(c => {
         grid[c.fila_index][c.col_index] = (c.texto || "").trim();
     });
 
-    return { grid, maxBytes: maxC };
+    return { grid };
 }
 
 interface ColumnMap {
-    preferente: number[]; // Indices of columns belonging to Preferente
-    libre: number[];     // Indices of columns belonging to Libre Eleccion
+    preferente: number[];
+    libre: number[];
 }
 
 function analyzeHeaders(grid: string[][]): ColumnMap {
-    // Scan first 5 rows for keywords
     const map: ColumnMap = { preferente: [], libre: [] };
 
-    // Heuristic:
-    // "Preferente", "Convenio", "Prestador" -> Preferente
-    // "Libre", "Elección", "Reembolso" -> Libre
-
-    // If we can't find headers, we assume standard layout:
-    // Col 0: Item
-    // Col 1-2: Preferente
-    // Col 3-4: Libre
-    // But let's try to be smart.
-
-    // Simple default for now (v1.0):
-    // Often: Item | % Pref | Tope Pref | % Libre | Tope Libre
-    // Indices: 0 | 1 | 2 | 3 | 4
-
-    // Let's look for "Libre"
-    for (let r = 0; r < Math.min(grid.length, 5); r++) {
+    for (let r = 0; r < Math.min(grid.length, 10); r++) {
         for (let c = 0; c < grid[r].length; c++) {
             const txt = grid[r][c].toUpperCase();
-            if (txt.includes("LIBRE") || txt.includes("ELECCION")) {
-                // Determine if this col and next are Libre
+
+            // LIBRE ELECCION
+            if (txt.includes("LIBRE") || txt.includes("ELECCION") || txt.includes("REEMBOLSO")) {
                 if (!map.libre.includes(c)) map.libre.push(c);
-                if (!map.libre.includes(c + 1)) map.libre.push(c + 1); // Assume pair
+                // Also capture next col if it's likely part of the same modality (e.g. Tope)
+                if (c + 1 < grid[r].length && !txt.includes("PREFERENTE")) {
+                    if (!map.libre.includes(c + 1)) map.libre.push(c + 1);
+                }
             }
-            if (txt.includes("PREFERENTE") || txt.includes("CONVENIO")) {
+
+            // PREFERENTE
+            if (txt.includes("PREFERENTE") || txt.includes("CONVENIO") || txt.includes("CLINICA") || txt.includes("PLAN")) {
                 if (!map.preferente.includes(c)) map.preferente.push(c);
-                if (!map.preferente.includes(c + 1)) map.preferente.push(c + 1);
+                if (c + 1 < grid[r].length && !txt.includes("LIBRE")) {
+                    if (!map.preferente.includes(c + 1)) map.preferente.push(c + 1);
+                }
             }
         }
     }
 
+    // Strict overlap prevention: if a column is in both, remove from Preferente (usually Libre is more specific) or vice versa.
+    // Better: if Preferente was found first, and a column is common, prioritize based on position.
+
     // Fallback if empty
     if (map.preferente.length === 0) map.preferente = [1, 2];
-    if (map.libre.length === 0) map.libre = [3, 4];
+    if (map.libre.length === 0) map.libre = [3, 4, 5];
 
     return map;
 }
 
 function findItemName(row: string[], map: ColumnMap): string {
-    // Item name is in a column NOT in the map
-    // Usually col 0
-    if (row[0] && row[0].length > 3) return row[0];
-    return "";
+    // Try col 0, then col 1 if col 0 is a number (index)
+    if (row[0]) {
+        if (row[0].length > 4) return row[0];
+        // If row[0] is a short number (index), try row[1]
+        if (/^\d{1,3}$/.test(row[0]) && row[1]) return row[1];
+    }
+    return row[0] || "";
 }
 
 function isHeaderRow(text: string): boolean {
     const t = text.toUpperCase();
-    return t.includes("PRESTACION") || t.includes("ITEM") || t.includes("BENEFICIO");
+    return t.includes("PRESTACION") || t.includes("ITEM") || t.includes("BENEFICIO") || t.includes("TABLA");
 }
 
 function extractValue(row: string[], cols: number[]): { raw: string } {
-    // Combine text from all assigned columns
     const texts = cols.map(c => row[c]).filter(t => t && t.trim().length > 0);
     if (texts.length === 0) return { raw: "" };
     return { raw: texts.join(" ") };
@@ -171,31 +148,51 @@ function extractValue(row: string[], cols: number[]): { raw: string } {
 function parsePercentage(raw: string): number | null {
     if (!raw) return null;
     const clean = raw.replace(/,/g, '.');
+    // Look for a number immediately followed by %
     const match = clean.match(/(\d+)\s*%/);
     if (match) return parseFloat(match[1]);
 
-    // Try bare number if it's small (e.g. 80)
+    // Bare number fallback (only if no other numbers exist or it's clearly a lone percentage)
     const num = parseFloat(clean);
-    if (!isNaN(num) && num > 1 && num <= 100) return num;
+    if (!isNaN(num) && num > 1 && num <= 100 && !clean.includes("UF") && !clean.includes("AC2")) {
+        return num;
+    }
 
     return null;
 }
 
 function parseTope(raw: string): { value: number | null, unit: "UF" | "AC2" | "SIN_TOPE" } {
-    if (!raw) return { value: null, unit: "SIN_TOPE" }; // Default assumption? No, careful.
+    if (!raw) return { value: null, unit: "SIN_TOPE" };
     const up = raw.toUpperCase();
 
     if (up.includes("SIN TOPE") || up.includes("ILIMITADO")) return { value: null, unit: "SIN_TOPE" };
 
     // Detect Unit
-    let unit: "UF" | "AC2" | "SIN_TOPE" = "UF"; // Default
-    if (up.includes("AC2") || up.includes("ARANCEL")) unit = "AC2";
+    let unit: "UF" | "AC2" | "SIN_TOPE" = "UF";
+    if (up.includes("AC2") || up.includes("ARANCEL") || up.includes("VECES")) unit = "AC2";
 
-    // Detect Value
-    const match = raw.match(/([\d\.,]+)/);
-    if (match) {
-        return { value: parseFloat(match[1].replace(',', '.')), unit };
+    // Detect Value: Skip any number followed by %
+    const tokens = raw.split(/[\s\(\)]+/);
+    for (const token of tokens) {
+        if (token.includes("%")) continue;
+        const match = token.match(/([\d\.,]+)/);
+        if (match) {
+            const val = parseFloat(match[1].replace(/\./g, '').replace(',', '.')); // Handle thousands
+            // Refined parsing for thousands vs decimals
+            // 3.0 -> 3
+            // 2.000 -> 2000
+            let finalVal = val;
+            if (token.includes(".") && token.includes(",")) {
+                // Standard format 2.000,50
+                finalVal = parseFloat(token.replace(/\./g, '').replace(',', '.'));
+            } else if (token.includes(".") && token.split(".")[1].length === 3) {
+                // Likely thousands: 2.000
+                finalVal = parseFloat(token.replace(/\./g, ''));
+            }
+
+            if (!isNaN(finalVal)) return { value: finalVal, unit };
+        }
     }
 
-    return { value: null, unit };
+    return { value: null, unit: "SIN_TOPE" };
 }
