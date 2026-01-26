@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { analyzeSingleContract } from '../services/contractEngine.service.js';
-import { transformToCanonical } from '../services/canonicalTransform.service.js';
+import { transformToCanonical } from '../services/canonicalTransform.service.ts';
+import { registerProcessedContract, getContractCount } from '../services/contractLearning.service.ts';
 
 function envGet(k: string) {
     const v = process.env[k];
@@ -51,10 +52,15 @@ export async function handleCanonicalExtraction(req: Request, res: Response) {
         // 2. Transform to Canonical JSON
         const canonicalResult = transformToCanonical(result);
 
-        // 3. Send final canonical data
+        // 3. Register as processed unique contract (fingerprint: name|size)
+        const fingerprint = `${file.originalname}|${file.buffer.length}`;
+        const totalCount = await registerProcessedContract(fingerprint);
+
+        // 4. Send final canonical data
         sendUpdate({
             type: 'final',
-            data: canonicalResult
+            data: canonicalResult,
+            totalCount
         });
 
         res.end();

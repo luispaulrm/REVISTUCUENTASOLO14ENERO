@@ -8,6 +8,7 @@ export interface SemanticDictionary {
         category: string;
         description: string;
     }>;
+    processedContracts: string[]; // List of fingerprints (name|size)
     lastUpdated: string;
 }
 
@@ -29,17 +30,18 @@ function ensureDir() {
 export function loadDictionary(): SemanticDictionary {
     ensureDir();
     if (!fs.existsSync(DICTIONARY_PATH)) {
-        const initial: SemanticDictionary = {
+        const initialDict: SemanticDictionary = {
             synonyms: {
-                "VAM": ["Veces Arancel", "VA", "AC2", "V20"],
-                "hospitalario": ["Día Cama", "Estadía Diaria", "Intensivo"],
-                "ambulatorio": ["Consulta", "Exámenes", "Laboratorio"]
+                "VAM": ["Veces Arancel", "VA", "AC2"],
+                "hospitalario": ["Día Cama", "Quirófano"],
+                "ambulatorio": ["Consulta", "Examen"]
             },
             patterns: [],
+            processedContracts: [],
             lastUpdated: new Date().toISOString()
         };
-        fs.writeFileSync(DICTIONARY_PATH, JSON.stringify(initial, null, 2));
-        return initial;
+        fs.writeFileSync(DICTIONARY_PATH, JSON.stringify(initialDict, null, 2));
+        return initialDict;
     }
     return JSON.parse(fs.readFileSync(DICTIONARY_PATH, 'utf-8'));
 }
@@ -78,6 +80,31 @@ export async function learnFromContract(result: any) {
     fs.writeFileSync(DICTIONARY_PATH, JSON.stringify(dict, null, 2));
     return dict;
 }
+
+/**
+ * Registers a contract as processed to update the unique counter
+ */
+export async function registerProcessedContract(fingerprint: string) {
+    const dict = loadDictionary();
+    if (!dict.processedContracts) dict.processedContracts = [];
+
+    if (!dict.processedContracts.includes(fingerprint)) {
+        dict.processedContracts.push(fingerprint);
+        dict.lastUpdated = new Date().toISOString();
+        fs.writeFileSync(DICTIONARY_PATH, JSON.stringify(dict, null, 2));
+        console.log(`[COUNTER] New unique contract registered: ${fingerprint}`);
+    }
+    return dict.processedContracts.length;
+}
+
+/**
+ * Returns the current count of unique contracts
+ */
+export function getContractCount(): number {
+    const dict = loadDictionary();
+    return (dict.processedContracts || []).length;
+}
+
 
 /**
  * Applies synonyms to a term using the dictionary

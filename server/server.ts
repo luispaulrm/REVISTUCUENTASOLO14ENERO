@@ -168,6 +168,15 @@ app.post('/api/learn-contract', async (req, res) => {
     }
 });
 
+app.get('/api/contract-count', async (req, res) => {
+    try {
+        const { getContractCount } = await import('./services/contractLearning.service.js');
+        res.json({ count: getContractCount() });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/api/extract', async (req, res) => {
     console.log(`[REQUEST] New extraction request (Streaming)`);
 

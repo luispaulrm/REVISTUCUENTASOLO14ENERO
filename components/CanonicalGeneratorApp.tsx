@@ -14,6 +14,7 @@ export default function CanonicalGeneratorApp() {
     const [copied, setCopied] = useState(false);
     const [isLearning, setIsLearning] = useState(false);
     const [learned, setLearned] = useState(false);
+    const [contractCount, setContractCount] = useState<number>(0);
 
     const timerRef = useRef<number | null>(null);
     const progressRef = useRef<number | null>(null);
@@ -25,6 +26,13 @@ export default function CanonicalGeneratorApp() {
             logEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [logs]);
+
+    useEffect(() => {
+        fetch('/api/contract-count')
+            .then(res => res.json())
+            .then(data => setContractCount(data.count))
+            .catch(err => console.error('Error fetching contract count:', err));
+    }, []);
 
     useEffect(() => {
         if (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) {
@@ -129,6 +137,7 @@ export default function CanonicalGeneratorApp() {
                         }
                         if (update.type === 'final') {
                             setCanonicalResult(update.data);
+                            if (update.totalCount) setContractCount(update.totalCount);
                             setStatus(AppStatus.SUCCESS);
                         }
                         if (update.type === 'error') throw new Error(update.message);
@@ -184,11 +193,20 @@ export default function CanonicalGeneratorApp() {
                         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Generador de Estructuras Canónicas</p>
                     </div>
                 </div>
-                {status !== AppStatus.IDLE && (
-                    <button onClick={() => setStatus(AppStatus.IDLE)} className="text-slate-400 hover:text-rose-500 transition-colors">
-                        <Trash2 size={20} />
-                    </button>
-                )}
+                <div className="flex items-center gap-6">
+                    <div className="flex flex-col items-end">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Bases de Conocimiento</span>
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-600">{contractCount} Contratos Canonizados</span>
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        </div>
+                    </div>
+                    {status !== AppStatus.IDLE && (
+                        <button onClick={() => setStatus(AppStatus.IDLE)} className="text-slate-400 hover:text-rose-500 transition-colors">
+                            <Trash2 size={20} />
+                        </button>
+                    )}
+                </div>
             </header>
 
             <main className="max-w-[1400px] mx-auto p-6">
