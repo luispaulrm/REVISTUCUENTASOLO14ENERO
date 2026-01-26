@@ -43,4 +43,18 @@ export class ContractCacheService {
             console.error('[ContractCacheService] Error saving cache:', err);
         }
     }
+
+    static async clearAll(): Promise<number> {
+        await this.ensureCacheDir();
+        try {
+            const files = await fs.readdir(CACHE_DIR);
+            const deletePromises = files.map(file => fs.unlink(path.join(CACHE_DIR, file)));
+            await Promise.all(deletePromises);
+            console.log(`[ContractCacheService] Cleared ${files.length} items from cache.`);
+            return files.length;
+        } catch (err: any) {
+            console.error('[ContractCacheService] Error clearing cache:', err);
+            throw new Error(`Failed to clear cache: ${err.message}`);
+        }
+    }
 }

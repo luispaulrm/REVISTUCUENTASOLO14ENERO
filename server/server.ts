@@ -177,6 +177,18 @@ app.get('/api/contract-count', async (req, res) => {
     }
 });
 
+app.post('/api/contracts/clear-cache', async (req, res) => {
+    console.log('[CACHE] Clearing contract cache...');
+    try {
+        const { ContractCacheService } = await import('./services/contractCache.service.js');
+        const count = await ContractCacheService.clearAll();
+        res.json({ success: true, deletedCount: count });
+    } catch (err: any) {
+        console.error('[CACHE] Error clearing cache:', err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/api/extract', async (req, res) => {
     console.log(`[REQUEST] New extraction request (Streaming)`);
 

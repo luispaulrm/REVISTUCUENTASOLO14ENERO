@@ -190,6 +190,23 @@ export default function CanonicalGeneratorApp() {
         }
     };
 
+    const handleClearCache = async () => {
+        if (!confirm('¿Estás seguro de BORRAR LA MEMORIA del canonizador? Esto eliminará todos los análisis guardados.')) return;
+
+        try {
+            const res = await fetch('/api/contracts/clear-cache', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                addLog(`[SISTEMA] 🗑️ Memoria borrada. ${data.deletedCount} registros eliminados.`);
+                setStatus(AppStatus.IDLE);
+                setContractCount(0);
+                setCanonicalResult(null);
+            }
+        } catch (err) {
+            console.error('Error clearing cache:', err);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
             <header className="bg-white border-b border-slate-200 sticky top-0 z-50 px-6 h-16 flex items-center justify-between">
@@ -210,8 +227,8 @@ export default function CanonicalGeneratorApp() {
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                         </div>
                     </div>
-                    {status !== AppStatus.IDLE && (
-                        <button onClick={() => setStatus(AppStatus.IDLE)} className="text-slate-400 hover:text-rose-500 transition-colors">
+                    {contractCount > 0 && (
+                        <button onClick={handleClearCache} title="Borrar Memoria (Cache)" className="text-slate-400 hover:text-rose-500 transition-colors">
                             <Trash2 size={20} />
                         </button>
                     )}
