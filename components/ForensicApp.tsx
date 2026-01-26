@@ -29,7 +29,8 @@ import {
     Image as ImageIcon,
     Paperclip,
     Maximize2,
-    Minimize2
+    Minimize2,
+    Brain
 } from 'lucide-react';
 import { AuditTablesSection } from './tables/AuditTablesSection';
 import { AlphaFoldVisualizer } from './AlphaFoldVisualizer';
@@ -58,6 +59,7 @@ export default function ForensicApp() {
     const [hasBill, setHasBill] = useState(false);
     const [hasPam, setHasPam] = useState(false);
     const [hasContract, setHasContract] = useState(false);
+    const [hasCanonical, setHasCanonical] = useState(false);
     const [hasHtml, setHasHtml] = useState(false);
     const [caseHistory, setCaseHistory] = useState<ForensicCase[]>([]);
     const [showHistory, setShowHistory] = useState(false);
@@ -122,12 +124,14 @@ export default function ForensicApp() {
             setHasBill(!!localStorage.getItem('clinic_audit_result'));
             setHasPam(!!localStorage.getItem('pam_audit_result'));
             setHasContract(!!localStorage.getItem('contract_audit_result'));
+            setHasCanonical(!!localStorage.getItem('canonical_contract_result'));
             setHasHtml(!!localStorage.getItem('html_projection_result'));
         } catch (e) {
             console.warn('LocalStorage access blocked:', e);
             setHasBill(false);
             setHasPam(false);
             setHasContract(false);
+            setHasCanonical(false);
             setHasHtml(false);
         }
     };
@@ -234,8 +238,17 @@ export default function ForensicApp() {
         try {
             const cuenta = JSON.parse(localStorage.getItem('clinic_audit_result') || '{}');
             const pam = JSON.parse(localStorage.getItem('pam_audit_result') || '{}');
-            const contrato = JSON.parse(localStorage.getItem('contract_audit_result') || '{}');
+
+            // PRIORITY: Canonical > Contract Audit Result (Legacy)
+            const canonical = JSON.parse(localStorage.getItem('canonical_contract_result') || 'null');
+            const legacyContrato = JSON.parse(localStorage.getItem('contract_audit_result') || '{}');
+            const contrato = canonical || legacyContrato;
+
             const htmlContext = localStorage.getItem('html_projection_result') || '';
+
+            if (canonical) {
+                addLog('[SISTEMA] 💎 Detectado Contrato Canónico (Estructura de Alta Precisión). Priorizando.');
+            }
 
             const result = await runForensicAudit(
                 cuenta,
@@ -272,6 +285,7 @@ export default function ForensicApp() {
             localStorage.removeItem('clinic_audit_result');
             localStorage.removeItem('pam_audit_result');
             localStorage.removeItem('contract_audit_result');
+            localStorage.removeItem('canonical_contract_result');
             localStorage.removeItem('html_projection_result');
             window.location.reload();
         } else {
@@ -301,7 +315,9 @@ export default function ForensicApp() {
             if (!pamString || !contratoString) return;
 
             const pamJson = JSON.parse(pamString);
-            const contratoJson = JSON.parse(contratoString);
+            const canonical = JSON.parse(localStorage.getItem('canonical_contract_result') || 'null');
+            const legacyContrato = JSON.parse(contratoString || '{}');
+            const contratoJson = canonical || legacyContrato;
 
             const response = await fetch('/api/audit/pre-check', {
                 method: 'POST',
@@ -325,13 +341,13 @@ export default function ForensicApp() {
     };
 
     useEffect(() => {
-        if (hasBill && hasPam && (hasContract || hasHtml) && !preCheckResult && !isPreChecking && status === 'IDLE') {
+        if (hasBill && hasPam && (hasContract || hasHtml || hasCanonical) && !preCheckResult && !isPreChecking && status === 'IDLE') {
             const timer = setTimeout(() => performPreCheck(), 1000);
             return () => clearTimeout(timer);
         }
-    }, [hasBill, hasPam, hasContract, hasHtml, preCheckResult, isPreChecking, status]);
+    }, [hasBill, hasPam, hasContract, hasHtml, hasCanonical, preCheckResult, isPreChecking, status]);
 
-    const handlePreview = (type: 'BILL' | 'PAM' | 'CONTRACT' | 'HTML') => {
+    const handlePreview = (type: 'BILL' | 'PAM' | 'CONTRACT' | 'HTML' | 'CANONICAL') => {
         try {
             let content = '';
             let title = '';
@@ -346,8 +362,11 @@ export default function ForensicApp() {
                     title = 'PAM (JSON)';
                     break;
                 case 'CONTRACT':
-                    content = localStorage.getItem('contract_audit_result') || '';
                     title = 'Contrato (JSON)';
+                    break;
+                case 'CANONICAL':
+                    content = localStorage.getItem('canonical_contract_result') || '';
+                    title = 'Contrato Canónico (JSON)';
                     break;
                 case 'HTML':
                     const rawHtml = localStorage.getItem('html_projection_result') || '';
@@ -382,6 +401,12 @@ export default function ForensicApp() {
         localStorage.removeItem('contract_audit_result');
         setHasContract(false);
         addLog('[SISTEMA] 🗑️ Reglas de Contrato eliminadas de caché.');
+    };
+
+    const clearCanonical = () => {
+        localStorage.removeItem('canonical_contract_result');
+        setHasCanonical(false);
+        addLog('[SISTEMA] 🗑️ Contrato Canónico eliminado de caché.');
     };
 
     const clearHtml = () => {
@@ -537,7 +562,18 @@ export default function ForensicApp() {
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6 print:hidden">
                             <DataStatusCard title="Cuenta Clínica" icon={<FileText size={20} className="sm:w-6 sm:h-6" />} ready={hasBill} desc="Detalle de gastos" onDelete={clearBill} />
                             <DataStatusCard title="PAM (Isapre)" icon={<ShieldCheck size={20} className="sm:w-6 sm:h-6" />} ready={hasPam} desc="Bonificaciones" onDelete={clearPam} />
-                            <DataStatusCard title="Reglas Contrato" icon={<Scale size={20} className="sm:w-6 sm:h-6" />} ready={hasContract} desc="(Legacy) Coberturas" onDelete={clearContract} />
+                            {hasCanonical ? (
+                                <DataStatusCard
+                                    title="Contrato Canónico"
+                                    icon={<Brain size={20} className="sm:w-6 sm:h-6 text-indigo-500" />}
+                                    ready={true}
+                                    desc="Estructura V2 High Precision"
+                                    onClick={() => handlePreview('CANONICAL')}
+                                    onDelete={clearCanonical}
+                                />
+                            ) : (
+                                <DataStatusCard title="Reglas Contrato" icon={<Scale size={20} className="sm:w-6 sm:h-6" />} ready={hasContract} desc="(Legacy) Coberturas" onDelete={clearContract} />
+                            )}
                             <DataStatusCard title="Proyección HTML" icon={<Zap size={20} className="sm:w-6 sm:h-6" />} ready={hasHtml} desc="Contexto Módulo 5" onClick={() => handlePreview('HTML')} onDelete={clearHtml} />
                         </div>
 
@@ -550,7 +586,7 @@ export default function ForensicApp() {
                                     Esta herramienta realiza una validación triple para detectar fraudes,
                                     desagregación indebida de insumos y violaciones al principio de evento único.
                                 </p>
-                                {!hasPam || !hasBill || (!hasContract && !hasHtml) ? (
+                                {!hasPam || !hasBill || (!hasContract && !hasHtml && !hasCanonical) ? (
                                     <div className="p-4 sm:p-6 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3 sm:gap-4 text-left max-w-2xl mx-auto">
                                         <AlertCircle className="text-amber-600 shrink-0 mt-0.5" size={18} />
                                         <div>

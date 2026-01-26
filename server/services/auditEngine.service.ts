@@ -735,13 +735,22 @@ export function finalizeAuditCanonical(input: {
 
 
     // Restore context variables for foundation
+    const isCanonical = !!input.contract?.metadata && Array.isArray(input.contract?.coberturas);
     const contratoVacio = (input.contract?.coberturas?.length ?? 0) === 0;
     const pamOpaco = input.pamState === "OPACO" || !input.reconstructible;
     const canVerifyCeilings = input.ceilings?.canVerify ?? input.reconstructible;
 
     // Step 6: Foundation
     const fundamento: string[] = [];
-    const unitLabel = input.contract?.unitOfMeasure || "VAM/AC2";
+    let unitLabel = "VAM/AC2";
+    if (isCanonical) {
+        // Find most frequent unit in topes
+        const units = (input.contract?.topes || []).map((t: any) => t.unidad);
+        if (units.includes("UF")) unitLabel = "UF";
+        else if (units.includes("VAM")) unitLabel = "VAM";
+    } else {
+        unitLabel = input.contract?.unitOfMeasure || "VAM/AC2";
+    }
     if (!canVerifyCeilings) fundamento.push(`No es posible verificar aplicación de topes UF/${unitLabel} (ceiling verification unavailable).`);
     if (contratoVacio) fundamento.push("Violación Regla C-01: Contrato sin cláusulas de cobertura (coberturas vacío).");
     if (pamOpaco) fundamento.push("Violación Regla C-04: Opacidad estructural en PAM (agrupación impide trazabilidad fina).");
@@ -767,28 +776,41 @@ export function finalizeAuditCanonical(input: {
     };
 
     // New: Contract Ceilings Matrix visibility
-    const contractCeilings = input.contract?.coberturas?.map((c: any) => {
-        let ceiling = "SIN_TOPE";
-        let normFactor = null;
-        let normUnit = null;
+    const contractCeilings = isCanonical ?
+        (input.contract?.coberturas?.map((c: any) => {
+            const matchingTope = (input.contract?.topes || []).find((t: any) =>
+                t.fuente_textual?.includes(c.descripcion_textual)
+            );
+            return {
+                category: c.ambito,
+                item: c.descripcion_textual,
+                ceiling_display: matchingTope ? `${matchingTope.valor} ${matchingTope.unidad}` : "SIN_TOPE",
+                factor: matchingTope?.valor || null,
+                unit: matchingTope?.unidad || null
+            };
+        }) || []) :
+        (input.contract?.coberturas?.map((c: any) => {
+            let ceiling = "SIN_TOPE";
+            let normFactor = null;
+            let normUnit = null;
 
-        if (c.modalidades && Array.isArray(c.modalidades)) {
-            // Prioritize Preferente
-            const pref = c.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
-            if (pref) {
-                ceiling = pref.tope_raw || pref.tope || "SIN_TOPE";
-                normFactor = pref.tope_normalizado;
-                normUnit = pref.unidad_normalizada;
+            if (c.modalidades && Array.isArray(c.modalidades)) {
+                // Prioritize Preferente
+                const pref = c.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
+                if (pref) {
+                    ceiling = pref.tope_raw || pref.tope || "SIN_TOPE";
+                    normFactor = pref.tope_normalizado;
+                    normUnit = pref.unidad_normalizada;
+                }
             }
-        }
-        return {
-            category: c.categoria_canonica || c.categoria,
-            item: c.item,
-            ceiling_display: ceiling,
-            factor: normFactor,
-            unit: normUnit
-        };
-    }) || [];
+            return {
+                category: c.categoria_canonica || c.categoria,
+                item: c.item,
+                ceiling_display: ceiling,
+                factor: normFactor,
+                unit: normUnit
+            };
+        }) || []);
 
     return {
         estadoGlobal,

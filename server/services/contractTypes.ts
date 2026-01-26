@@ -79,6 +79,8 @@ export interface ContractAnalysisResult {
             output: number;
             total: number;
             costClp: number;
+            totalPages?: number;
+            phaseSuccess?: Record<string, boolean>;
             phases?: Array<{
                 phase: string;
                 totalTokens: number;

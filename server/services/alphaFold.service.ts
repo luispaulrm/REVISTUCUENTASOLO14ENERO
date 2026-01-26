@@ -66,13 +66,16 @@ export class AlphaFoldService {
             evidenceRefs: []
         });
 
-        // --- CONTRACT SIGNALS ---
+        // --- CONTRACT SIGNALS (Legacy & Canonical) ---
+        const isCanonical = !!input.contrato?.metadata && Array.isArray(input.contrato?.coberturas);
         const coberturas = input.contrato?.coberturas || [];
+
         signals.push({
             id: "S_CONTRATO_COBERTURAS_VACIAS",
             value: coberturas.length === 0 ? 1 : 0,
             evidenceRefs: ["contrato"]
         });
+
         signals.push({
             id: "S_INCOHERENCIA_AMB_HOSP",
             value: this.scoreAmbHospMismatch(input.contrato, input.cuenta),
@@ -411,15 +414,25 @@ export class AlphaFoldService {
         const hasDayBed = this.hasDayBed(cuenta);
         const isHospital = hasDayBed; // Simple proxy
 
-        // 2. Check contract coverages
+        // 2. Check contract coverages (Legacy vs Canonical)
+        const isCanonical = !!contrato?.metadata && Array.isArray(contrato?.coberturas);
         const coberturas = contrato?.coberturas || [];
-        const hasHospitalCoverage = coberturas.some((c: any) =>
-            /HOSPITAL|SALA|CAMA|DIARIA/i.test(c.modalidad || "") ||
-            /HOSPITAL/i.test(c.categoria || "")
-        );
-        const hasAmbulatoryCoverage = coberturas.some((c: any) =>
-            /AMBULATORI|CONSULTA/i.test(c.modalidad || "")
-        );
+
+        let hasHospitalCoverage = false;
+        let hasAmbulatoryCoverage = false;
+
+        if (isCanonical) {
+            hasHospitalCoverage = coberturas.some((c: any) => c.ambito === "hospitalario" || c.ambito === "mixto");
+            hasAmbulatoryCoverage = coberturas.some((c: any) => c.ambito === "ambulatorio" || c.ambito === "mixto");
+        } else {
+            hasHospitalCoverage = coberturas.some((c: any) =>
+                /HOSPITAL|SALA|CAMA|DIARIA/i.test(c.modalidad || "") ||
+                /HOSPITAL/i.test(c.categoria || "")
+            );
+            hasAmbulatoryCoverage = coberturas.some((c: any) =>
+                /AMBULATORI|CONSULTA/i.test(c.modalidad || "")
+            );
+        }
 
         if (isHospital && !hasHospitalCoverage && hasAmbulatoryCoverage) {
             return 1.0; // Mismatch: Hospital Bill vs Ambulatory Contract

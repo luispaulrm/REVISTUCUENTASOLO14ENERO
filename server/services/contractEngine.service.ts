@@ -432,6 +432,7 @@ export async function analyzeSingleContract(
 
         let finalResult = null;
         let finalMetrics = { tokensInput: 0, tokensOutput: 0, cost: 0 };
+        let isSuccess = false;
 
         // Multi-Model Fallback Strategy (v3.0):
         // 1. Primary: Gemini 3 Pro (High Intellect) - CONTRACT_FAST_MODEL
@@ -538,6 +539,7 @@ export async function analyzeSingleContract(
                 try {
                     finalResult = await attemptExtraction(currentKey, modelName);
                     log(`[${name}] ✅ Éxito con ${modelName}`);
+                    isSuccess = true;
                     break; // Success with this model
                 } catch (err: any) {
                     log(`[${name}] ⚠️ Error con llave ${currentKey.substring(0, 4)}... y modelo ${modelName}: ${err.message}`);
@@ -552,7 +554,7 @@ export async function analyzeSingleContract(
             log(`[${name}] ❌ FALLO CRÍTICO: No se pudo extraer después de todos los reintentos con todos los modelos.`);
         }
 
-        return { result: finalResult, metrics: finalMetrics };
+        return { result: finalResult, metrics: finalMetrics, success: isSuccess };
     }
 
     // --- PHASE 0: CLASSIFIER (Sequential Validation) ---
@@ -979,6 +981,21 @@ export async function analyzeSingleContract(
                 output: totalOutput,
                 total: totalInput + totalOutput,
                 costClp: totalCost,
+                totalPages: (ocrResult as any).totalPages || 0,
+                phaseSuccess: {
+                    CLASSIFIER: fingerprintPhase.success,
+                    REGLAS_P1: reglasP1Phase.success,
+                    REGLAS_P2: reglasP2Phase.success,
+                    ANEXOS_P1: anexosP1Phase.success,
+                    ANEXOS_P2: anexosP2Phase.success,
+                    HOSP_P1: hospP1Phase.success,
+                    HOSP_P2: hospP2Phase.success,
+                    AMB_P1: ambP1Phase.success,
+                    AMB_P2: ambP2Phase.success,
+                    AMB_P3: ambP3Phase.success,
+                    AMB_P4: ambP4Phase.success,
+                    EXTRAS: extrasPhase.success
+                },
                 phases: [
                     { phase: "Clasificación", ...getMetrics(fingerprintPhase) },
                     { phase: "Reglas_P1", ...getMetrics(reglasP1Phase) },

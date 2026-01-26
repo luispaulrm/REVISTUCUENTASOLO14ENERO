@@ -60,6 +60,7 @@ export async function handleCanonicalExtraction(req: Request, res: Response) {
         sendUpdate({
             type: 'final',
             data: canonicalResult,
+            metrics: result.metrics,
             totalCount
         });
 

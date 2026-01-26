@@ -15,6 +15,7 @@ export default function CanonicalGeneratorApp() {
     const [isLearning, setIsLearning] = useState(false);
     const [learned, setLearned] = useState(false);
     const [contractCount, setContractCount] = useState<number>(0);
+    const [reportMetrics, setReportMetrics] = useState<any | null>(null);
 
     const timerRef = useRef<number | null>(null);
     const progressRef = useRef<number | null>(null);
@@ -85,6 +86,7 @@ export default function CanonicalGeneratorApp() {
         setStatus(AppStatus.UPLOADING);
         setError(null);
         setCanonicalResult(null);
+        setReportMetrics(null);
         setFileName(file.name);
         setLogs([]);
         addLog(`[SISTEMA] Iniciando canonización de: ${file.name}`);
@@ -137,7 +139,10 @@ export default function CanonicalGeneratorApp() {
                         }
                         if (update.type === 'final') {
                             setCanonicalResult(update.data);
+                            if (update.metrics) setReportMetrics(update.metrics);
                             if (update.totalCount) setContractCount(update.totalCount);
+                            // PERSISTENCE FOR AUDITOR INTEGRATION (v2.2)
+                            localStorage.setItem('canonical_contract_result', JSON.stringify(update.data));
                             setStatus(AppStatus.SUCCESS);
                         }
                         if (update.type === 'error') throw new Error(update.message);
@@ -231,9 +236,9 @@ export default function CanonicalGeneratorApp() {
                     </div>
                 )}
 
-                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (
-                    <div className="grid grid-cols-1 gap-6 max-w-4xl mx-auto">
-                        <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl h-[500px] flex flex-col border border-slate-800">
+                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING || (status === AppStatus.SUCCESS && reportMetrics)) && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                        <div className="lg:col-span-2 bg-slate-900 rounded-2xl overflow-hidden shadow-2xl h-[500px] flex flex-col border border-slate-800">
                             <div className="px-4 py-2 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Terminal size={14} className="text-indigo-400" />
@@ -241,11 +246,74 @@ export default function CanonicalGeneratorApp() {
                                 </div>
                                 <div className="font-mono text-xs text-slate-400">T+{seconds}s</div>
                             </div>
-                            <div className="p-4 overflow-y-auto font-mono text-[10px] text-slate-300 space-y-1">
+                            <div className="p-4 overflow-y-auto font-mono text-[10px] text-slate-300 space-y-1 bg-slate-950">
                                 {logs.map((log, i) => (
-                                    <div key={i} className="opacity-80 hover:opacity-100">{log}</div>
+                                    <div key={i} className="opacity-80 hover:opacity-100 leading-relaxed border-l border-slate-800 pl-2 mb-0.5">{log}</div>
                                 ))}
                                 <div ref={logEndRef} />
+                            </div>
+                        </div>
+
+                        {/* REPORT DASHBOARD (v2.3) */}
+                        <div className="flex flex-col gap-6">
+                            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 flex flex-col justify-between h-[240px]">
+                                <div>
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado de la Misión</h3>
+                                        <div className={`px-2 py-1 rounded text-[9px] font-black uppercase ${status === AppStatus.SUCCESS ? 'bg-emerald-100 text-emerald-600' : 'bg-indigo-100 text-indigo-600 animate-pulse'}`}>
+                                            {status}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Páginas</span>
+                                            <span className="text-2xl font-black text-slate-900">
+                                                {reportMetrics?.tokenUsage?.totalPages || '--'}
+                                            </span>
+                                        </div>
+                                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                            <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Precisión</span>
+                                            <span className="text-2xl font-black text-indigo-600">
+                                                {reportMetrics?.tokenUsage?.phaseSuccess ?
+                                                    Math.round((Object.values(reportMetrics.tokenUsage.phaseSuccess).filter(Boolean).length / Object.values(reportMetrics.tokenUsage.phaseSuccess).length) * 100)
+                                                    : '0'}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="pt-4 border-t border-slate-100">
+                                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
+                                        <span>Items Extraídos</span>
+                                        <span className="text-slate-900">{reportMetrics?.extractionBreakdown?.totalItems || 0}</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                                        <div
+                                            className="bg-indigo-500 h-full transition-all duration-1000"
+                                            style={{ width: `${Math.min(100, (reportMetrics?.extractionBreakdown?.totalItems || 0) * 2)}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl p-6 flex-grow">
+                                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Pipeline Status</h3>
+                                <div className="space-y-3">
+                                    {reportMetrics?.tokenUsage?.phaseSuccess ? Object.entries(reportMetrics.tokenUsage.phaseSuccess).map(([phase, success]) => (
+                                        <div key={phase} className="flex items-center justify-between">
+                                            <span className="text-[9px] font-mono text-slate-400">{phase}</span>
+                                            {success ?
+                                                <Check size={12} className="text-emerald-500" /> :
+                                                <X size={12} className="text-slate-600" />
+                                            }
+                                        </div>
+                                    )) : (
+                                        <div className="flex items-center gap-2 text-slate-600 italic text-[10px]">
+                                            <Loader2 size={12} className="animate-spin" />
+                                            Analizando capas...
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -304,7 +372,7 @@ export default function CanonicalGeneratorApp() {
                     </div>
                 )}
 
-                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (
+                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING || status === AppStatus.SUCCESS) && (
                     <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb animate-in slide-in-from-bottom duration-500">
                         <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
                             {/* 1. MISSION TIME */}
@@ -332,7 +400,9 @@ export default function CanonicalGeneratorApp() {
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
-                                    <span className="text-xs font-bold text-slate-300 italic">Canonization Phase</span>
+                                    <span className="text-xs font-bold text-slate-300 italic">
+                                        {status === AppStatus.SUCCESS ? 'Mission Finalized' : 'Canonization Phase'}
+                                    </span>
                                 </div>
                             </div>
 
@@ -360,7 +430,7 @@ export default function CanonicalGeneratorApp() {
                                 </div>
                             </div>
 
-                            {/* 4. COST & ABORT */}
+                            {/* 4. COST & ABORT / SUCCESS */}
                             <div className="flex items-center gap-6 pl-8 border-l border-slate-800 h-full">
                                 <div className="flex flex-col items-end">
                                     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Est. Cost</span>
@@ -369,16 +439,24 @@ export default function CanonicalGeneratorApp() {
                                     </span>
                                     <div className="flex items-center gap-1 mt-1">
                                         <ShieldCheck size={10} className="text-emerald-500" />
-                                        <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-tight">Smart Mapping Mode</span>
+                                        <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-tight">
+                                            {status === AppStatus.SUCCESS ? 'Verification Complete' : 'Smart Mapping Mode'}
+                                        </span>
                                     </div>
                                 </div>
-                                <button
-                                    onClick={handleStopAnalysis}
-                                    className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
-                                    title="ABORT ANALYSIS"
-                                >
-                                    <X size={18} />
-                                </button>
+                                {status !== AppStatus.SUCCESS ? (
+                                    <button
+                                        onClick={handleStopAnalysis}
+                                        className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
+                                        title="ABORT ANALYSIS"
+                                    >
+                                        <X size={18} />
+                                    </button>
+                                ) : (
+                                    <div className="w-10 h-10 rounded-full bg-emerald-950/50 flex items-center justify-center border border-emerald-900 text-emerald-500">
+                                        <Check size={18} />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

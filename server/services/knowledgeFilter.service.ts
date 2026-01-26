@@ -180,25 +180,40 @@ export function extractCaseKeywords(
         }
     }
 
-    // === EXTRAER DEL CONTRATO ===
-    if (contratoJson?.coberturas) {
-        for (const cobertura of contratoJson.coberturas) {
-            if (cobertura.categoria) {
-                extractWords(cobertura.categoria, keywords);
-            }
-            if (cobertura.item) {
-                extractWords(cobertura.item, keywords);
-            }
-            if (cobertura.nota_restriccion) {
-                extractWords(cobertura.nota_restriccion, keywords);
+    // === EXTRAER DEL CONTRATO (Legacy & Canonical) ===
+    if (contratoJson?.metadata && Array.isArray(contratoJson.coberturas)) {
+        // CANONICAL DETECTED
+        if (contratoJson.metadata.fuente) keywords.add(contratoJson.metadata.fuente);
+
+        for (const cob of contratoJson.coberturas) {
+            if (cob.descripcion_textual) extractWords(cob.descripcion_textual, keywords);
+            if (cob.red_especifica) keywords.add(cob.red_especifica);
+        }
+        if (Array.isArray(contratoJson.topes)) {
+            for (const tope of contratoJson.topes) {
+                if (tope.fuente_textual) extractWords(tope.fuente_textual, keywords);
             }
         }
-    }
+        if (Array.isArray(contratoJson.exclusiones)) {
+            for (const excl of contratoJson.exclusiones) {
+                if (excl.descripcion) extractWords(excl.descripcion, keywords);
+            }
+        }
+    } else {
+        // LEGACY FORMAT
+        if (contratoJson?.coberturas) {
+            for (const cobertura of contratoJson.coberturas) {
+                if (cobertura.categoria) extractWords(cobertura.categoria, keywords);
+                if (cobertura.item) extractWords(cobertura.item, keywords);
+                if (cobertura.nota_restriccion) extractWords(cobertura.nota_restriccion, keywords);
+            }
+        }
 
-    if (contratoJson?.reglas) {
-        for (const regla of contratoJson.reglas) {
-            if (regla['SUBCATEGORÍA']) {
-                extractWords(regla['SUBCATEGORÍA'], keywords);
+        if (contratoJson?.reglas) {
+            for (const regla of contratoJson.reglas) {
+                if (regla['SUBCATEGORÍA']) {
+                    extractWords(regla['SUBCATEGORÍA'], keywords);
+                }
             }
         }
     }
