@@ -59,22 +59,51 @@ interface CanonicalContract {
       tipo: "preferente" | "libre_eleccion" | "institucional";
       red?: string;
       porcentaje?: number;
-      tope?: {                  // Tope específico de esta línea si existe
+      tope?: {                  // JOÍN LÓGICO ESTRICTO: Si hay tope específico, VA AQUÍ.
         unidad: string;
         valor: number;
+        // -- CAMPOS DE VALORIZACIÓN (CAPA 2) --
+        // El agente deja estos en null, el código auditor los llenará.
+        valor_clp?: number | null; 
+        fecha_valorizacion?: string | null;
+        fuente_valorizacion?: string | null;
       };
     }>;
     fuente_textual: string;      // "[p.N] ..."
   }>;
-  topes_generales: Array<{       // Topes que aplican a todo el plan o grandes grupos
+  topes_generales: Array<{
     ambito: "hospitalario" | "ambulatorio" | "mixto";
     descripcion: string;
-    unidad: "UF" | "VAM" | "AC2" | "PESOS" | "VECES_ARANCEL" | "DESCONOCIDO";
-    tipo_unidad: "monetaria" | "arancel_base" | "multiplicador"; // Semántica
+    
+    // --- OONTOLOGÍA UCA v1.0 ---
+    unidad: "UF" | "PESOS" | "VA" | "VAM" | "AC" | "AC2" | "V20" | "AM" | "UCR" | "SIN_TOPE" | "DESCONOCIDO";
+    familia: "monetaria_publica" | "arancelaria_privada" | "clausula_juridica" | "indeterminada"; 
+    tipo_logico: "valor_absoluto" | "multiplicador" | "ausencia_limite" | "indeterminada";
+    riesgo_juridico?: "Alto" | "Medio" | "Bajo" | "Muy Alto";
+    // ---------------------------
+
     valor: number | null;
-    tope_existe: boolean;        // FALSE si dice "Sin Tope"
+    tope_existe: boolean;
     razon?: "SIN_TOPE_EXPRESO_EN_CONTRATO";
     periodo: "anual" | "evento" | "vida";
+    fuente_textual: string;
+  }>;
+
+... (rest of schema)
+
+### 📌 Referencia: Tabla Ontológica de Unidades (UCA v1.0)
+Usa esta tabla para llenar `familia`, `tipo_logico` y `riesgo_juridico`:
+
+| Sigla | Familia | Tipo Lógico | Riesgo |
+| :--- | :--- | :--- | :--- |
+| **UF / PESOS** | `monetaria_publica` | `valor_absoluto` | Bajo |
+| **VA / VAM / AC / AC2 / V20** | `arancelaria_privada` | `multiplicador` | Alto |
+| **SIN_TOPE** | `clausula_juridica` | `ausencia_limite` | Bajo |
+| **DESCONOCIDO** | `indeterminada` | `indeterminada` | Muy Alto |
+  glosario_unidades: Array<{     // NUEVO: Definiciones explícitas encontradas en el texto
+    sigla: string;               // Ej: "AC2", "VAM"
+    descripcion_contrato: string;// Ej: "Arancel Colmena 2.0 reajustable..."
+    valor_referencia?: number;   // Si el contrato dice "valor referencial $35.000"
     fuente_textual: string;
   }>;
   items_no_clasificados: string[]; // Todo lo que no sea prestación clínica ni tope claro
@@ -115,7 +144,14 @@ Si encuentras siglas como **AC2, VA, VAM**:
 
 1.  **Lectura Secuencial**: Lee página por página. Mantén el contexto de la tabla actual (cabeceras).
 2.  **Filtrado Activo**: Antes de agregar algo a `coberturas`, pregúntate: *¿Es esto una prestación médica?* Si es una edad, un precio en pesos o una cabecera, **IGÑÓRALO** o ponlo en metadata si corresponde.
-3.  **Agrupación**: Si ves "Consulta Médica" en Red 1 y luego "Consulta Médica" en Red 2, intenta agruparlas en un solo objeto `cobertura` con múltiples `modalidades` si es posible. Si es muy difícil, crea entradas separadas pero **limpias**.
+3.  **FASE DE NORMALIZACIÓN OBLIGATORIA (GroupBy)**:
+    Antes de generar el JSON final, debes ejecutar mentalmente un proceso de agrupación:
+    ```javascript
+    groupBy(prestacion_normalizada, ambito)
+    ```
+    - Si tienes 3 entradas para "Consulta Médica" (una por cada red/clínica), **FUSIÓNALAS** en un solo objeto `cobertura`.
+    - Mueve las diferencias (porcentaje, tope, red) al array `modalidades`.
+    - **Resultado esperado**: Una lista limpia de prestaciones únicas, donde cada una contiene todas sus variantes de cobertura. NO REPETIR la misma prestación 3 veces.
 
 ## Output
 Retorna SOLO el objeto JSON válido. Sin markdown de código, sin explicaciones.
