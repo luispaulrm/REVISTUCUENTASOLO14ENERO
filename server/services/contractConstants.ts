@@ -206,73 +206,46 @@ const CHECKLIST_AMB = `
 
 // --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
 
-// --- REGLAS DE ORO DE EXTRACCIÓN (v14.0) ---
 const SHARED_MANDATE = `
-  ** MANDATO FORENSE v14.0: LECTURA DE COLUMNAS CON EXCLUSIÓN INTERNACIONAL (CALCO CARBÓN) **
-  OBJETIVO: Extraer datos Nacionales (Preferente/Libre Elección) IGNORANDO ABSOLUTAMENTE las columnas Internacionales.
+  ** MANDATO FORENSE v18.0: PROYECTOR CARTESIANO (VISIÓN PURA) **
+  OBJETIVO: Replicar la estructura geométrica de la tabla sin interpretar el contenido.
 
-  ⚠️ REGLA DE ORO: EXCLUSIÓN DE "COBERTURA INTERNACIONAL/EXTRANJERO":
-  Muchos planes tienen 3 grupos de columnas:
-  1. [Preferente] (CLÍNICAS DEL PLAN) -> EXTRAER (modalidad: "PREFERENTE")
-  2. [Libre Elección] (OTRAS CLÍNICAS) -> EXTRAER (modalidad: "LIBRE_ELECCION")
-  3. [Internacional/Extranjero/USA] -> ¡IGNORAR TOTALMENTE!
+  ⚠️ REGLA DE ORO DE LA VISIÓN (ZERO-SHOT PROJECTION):
+  - Tú eres un Escáner Óptico Inteligente, NO un auditor.
+  - NO clasifiques (no decidas qué es Preferente o Libre Elección).
+  - NO interpretes (no conviertas "UF 1.2" a 1.2).
+  - NO limpies el texto. Copia lo que ves pixel por pixel (OCR Estructurado).
 
-  **ESTRATEGIA DE MAPEO (AUTO-DETECTAR):**
-  1. Escanea los encabezados: ¿Qué columna dice "Internacional", "Extranjero", "Mundo" o "USA"? MARCA ESA COLUMNA COMO "ZONA PROHIBIDA".
-  2. Extrae SOLO de las columnas "Oferta Preferente" y "Libre Elección".
-  3. **REGLA DE REUBICACIÓN (CRÍTICO):** 
-     - Si ves un valor como "300 UF" o "100 UF" en la columna [COL5] o [COL6] (ZONA PROHIBIDA), pero la columna [COL3] o [COL4] está VACÍA, es altamente probable que sea un error de alineación del OCR.
-     - ASIGNA el valor a la columna de Libre Elección (Nacional) y NUNCA a la Internacional.
+  ** INSTRUCCIONES DE COORDENADAS: **
+  1. Imagina una grilla sobre la imagen (Matrix Matrix).
+  2. Asigna un índice de Fila (fila_index) y Columna (col_index) a cada celda visible.
+  3. Si una celda ocupa varias columnas visualmente (merged), repite el texto en cada coordenada lógica o usa la primera.
 
-  ⚠️ TRAMPA COMÚN (ERROR DE TOPES):
-  - REGLA DE SEGURIDAD: Los topes nacionales suelen ser pequeños (0.5 a 500 UF). Valores de 5000 UF o 10000 UF suelen ser de la columna Internacional.
-
-  **FORMATO DE SALIDA (NUEVO SCHEMA ESTRUCTURAL):**
-  Cada fila debe generar un objeto con un array 'modalidades'.
-  Debes identificar explícitamente el 'tope', 'unidadTope' y 'tipoTope' para CADA modalidad.
-
-  EJEMPLO:
-  {
-    "categoria": "HOSPITALARIO",
-    "item": "Día Cama",
-    "modalidades": [
-        { 
-            "tipo": "PREFERENTE", 
-            "porcentaje": 100, 
-            "tope": null, 
-            "unidadTope": "SIN_TOPE", 
-            "tipoTope": "ILIMITADO" 
-        },
-        { 
-            "tipo": "LIBRE_ELECCION", 
-            "porcentaje": 80, 
-            "tope": 4.5, 
-            "unidadTope": "UF", 
-            "tipoTope": "POR_EVENTO" 
-        }
-    ]
-  }
-
-  ⚠️ INSTRUCCIONES DE FIDELIDAD:
-  - Si dice "Sin Tope", reporta unidadTope="SIN_TOPE".
-  - Si el tope es "1.2 veces AC2", reporta tope=1.2, unidadTope="AC2", tipoTope="POR_EVENTO".
-  - NUNCA inventes valores. Si no hay dato, reporta null con "tipoTope": "DESCONOCIDO".
+  ** FORMATO DE SALIDA (SCHEMA RAW_CELL): **
+  Genera una lista plana de celdas "dispersas" (Sparse Matrix):
+  \`\`\`json
+  [
+    { "tabla_id": "SECCION_1", "fila_index": 0, "col_index": 0, "texto": "Prestaciones" },
+    { "tabla_id": "SECCION_1", "fila_index": 0, "col_index": 1, "texto": "Clínica Indisa (Preferente)" },
+    { "tabla_id": "SECCION_1", "fila_index": 1, "col_index": 0, "texto": "Día Cama" },
+    { "tabla_id": "SECCION_1", "fila_index": 1, "col_index": 1, "texto": "100% (Tope 3.0)" }
+  ]
+  \`\`\`
   
-  **ATENCIÓN A LA ALINEACIÓN:**
-  - Respeta estrictamente los encabezados de columna.
-  - NO asumas que Preferente es siempre "Sin Tope".
-  - Si hay un solo valor en la fila y no está claro a qué columna pertenece, repórtalo en AMBAS modalidades con una nota de "CONFIRMAR".
-
+  ⚠️ PROHIBIDO:
+  - No agrupes por "modalidad".
+  - No generes objetos anidados ("topes", "unidades").
+  - Tu único trabajo es digitalizar la grilla 2D.
 `;
 
 export const PROMPT_HOSP_P1 = `
   ${SHARED_MANDATE}
-  **SEGMENTO ASIGNADO: DÍA CAMA, UTI Y PABELLÓN**
-  
+  ** SEGMENTO ASIGNADO: DÍA CAMA, UTI Y PABELLÓN **
+
   Extrae exactamente las filas 1 a 24 del checklist Hospitalario:
-  1-8: Día Cama (7 clínicas + LE)
-  9-16: UTI/UCI (7 clínicas + LE)
-  17-24: Pabellón (7 clínicas + LE)
+1 - 8: Día Cama(7 clínicas + LE)
+9 - 16: UTI / UCI(7 clínicas + LE)
+17 - 24: Pabellón(7 clínicas + LE)
   
   ⚠️ RESTRICCIÓN: Solo procesa estos 24 ítems.
   ${CHECKLIST_HOSP.substring(CHECKLIST_HOSP.indexOf("**SECCIÓN 1"), CHECKLIST_HOSP.indexOf("**SECCIÓN 4"))}
@@ -280,13 +253,13 @@ export const PROMPT_HOSP_P1 = `
 
 export const PROMPT_HOSP_P2 = `
   ${SHARED_MANDATE}
-  **SEGMENTO ASIGNADO: HONORARIOS, MEDICAMENTOS, INSUMOS Y ANESTESIA**
-  
+  ** SEGMENTO ASIGNADO: HONORARIOS, MEDICAMENTOS, INSUMOS Y ANESTESIA **
+
   Extrae exactamente las filas 25 a 56 del checklist Hospitalario:
-  25-32: Honorarios Médicos Quirúrgicos
-  33-40: Medicamentos
-  41-48: Materiales e Insumos
-  49-56: Anestesia
+25 - 32: Honorarios Médicos Quirúrgicos
+33 - 40: Medicamentos
+41 - 48: Materiales e Insumos
+49 - 56: Anestesia
   
   ⚠️ RESTRICCIÓN: Solo procesa estos 32 ítems.
   ${CHECKLIST_HOSP.substring(CHECKLIST_HOSP.indexOf("**SECCIÓN 4"))}
@@ -294,11 +267,11 @@ export const PROMPT_HOSP_P2 = `
 
 export const PROMPT_AMB_P1 = `
   ${SHARED_MANDATE}
-  **SEGMENTO ASIGNADO: CONSULTAS Y LABORATORIO**
-  
+  ** SEGMENTO ASIGNADO: CONSULTAS Y LABORATORIO **
+
   Extrae exactamente las filas 1 a 18 del checklist Ambulatorio:
-  1-4: Consultas
-  5-18: Laboratorio (Hemograma, Perfil, etc.)
+1 - 4: Consultas
+5 - 18: Laboratorio(Hemograma, Perfil, etc.)
   
   ⚠️ RESTRICCIÓN: Solo procesa estos 18 ítems.
   ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 1"), CHECKLIST_AMB.indexOf("**SECCIÓN 3"))}
@@ -306,8 +279,8 @@ export const PROMPT_AMB_P1 = `
 
 export const PROMPT_AMB_P2 = `
   ${SHARED_MANDATE}
-  **SEGMENTO ASIGNADO: IMAGENOLOGÍA**
-  
+  ** SEGMENTO ASIGNADO: IMAGENOLOGÍA **
+
   Extrae exactamente las filas 19 a 34 del checklist Ambulatorio:
   Rayos X, Ecotomografía, TAC, Resonancia, Mamografía, Densitometría, Doppler.
   
@@ -317,10 +290,10 @@ export const PROMPT_AMB_P2 = `
 
 export const PROMPT_AMB_P3 = `
   ${SHARED_MANDATE}
-  **SEGMENTO ASIGNADO: PROCEDIMIENTOS Y TERAPIAS**
-  
+  ** SEGMENTO ASIGNADO: PROCEDIMIENTOS Y TERAPIAS **
+
   Extrae exactamente las filas 35 a 54 del checklist Ambulatorio:
-  Procedimientos Diagnósticos/Terapéuticos, Endoscopía, Colonoscopía, Biopsia, Electro, Kine, Fono, TO, Nutri.
+  Procedimientos Diagnósticos / Terapéuticos, Endoscopía, Colonoscopía, Biopsia, Electro, Kine, Fono, TO, Nutri.
   
   ⚠️ RESTRICCIÓN: Solo procesa estos 20 ítems.
   ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 4"), CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
@@ -328,69 +301,69 @@ export const PROMPT_AMB_P3 = `
 
 export const PROMPT_AMB_P4 = `
   ${SHARED_MANDATE}
-  **SEGMENTO ASIGNADO: URGENCIAS, SALUD MENTAL, DENTAL Y ÓPTICA**
-  
+  ** SEGMENTO ASIGNADO: URGENCIAS, SALUD MENTAL, DENTAL Y ÓPTICA **
+
   Extrae exactamente las filas 55 a 70 del checklist Ambulatorio:
-  Urgencias, Psiquiatría, Psicología, PAD Dental, Lentes, Audífonos, Prótesis.
+Urgencias, Psiquiatría, Psicología, PAD Dental, Lentes, Audífonos, Prótesis.
   
   ⚠️ RESTRICCIÓN: Solo procesa estos 16 ítems.
   ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
 `;
 
 export const PROMPT_ANEXOS_P1 = `
-  ** MANDATO: ESCÁNER DE ANEXOS (PARTE 1) v11.2 **
-  
-  ROL: Transcriptor legal de anexos.
-  OBJETIVO: Capturar la PRIMERA MITAD de los anexos y secciones post-cobertura.
+  ** MANDATO: ESCÁNER DE ANEXOS(PARTE 1) v11.2 **
+
+    ROL: Transcriptor legal de anexos.
+      OBJETIVO: Capturar la PRIMERA MITAD de los anexos y secciones post - cobertura.
   
   ⚠️ INSTRUCCIONES:
-  1. Identifica el inicio de los Anexos (Anexo 1, Apéndice A, etc.).
-  2. Transcribe íntegramente las primeras 5-10 reglas/cláusulas encontradas.
+1. Identifica el inicio de los Anexos(Anexo 1, Apéndice A, etc.).
+  2. Transcribe íntegramente las primeras 5 - 10 reglas / cláusulas encontradas.
   3. Usa el prefijo "ANEXO" en 'CÓDIGO/SECCIÓN'.
-  4. NO resumas. Copia PÁRRAFO POR PÁRRAFO.
-  
-  FORMATO: JSON Strict (Schema Reglas Universal).
+  4. NO resumas.Copia PÁRRAFO POR PÁRRAFO.
+
+  FORMATO: JSON Strict(Schema Reglas Universal).
 `;
 
 export const PROMPT_ANEXOS_P2 = `
-  ** MANDATO: ESCÁNER DE ANEXOS (PARTE 2) v11.2 **
-  
-  ROL: Transcriptor legal de anexos.
-  OBJETIVO: Capturar la SEGUNDA MITAD de los anexos hasta el FINAL del documento.
+    ** MANDATO: ESCÁNER DE ANEXOS(PARTE 2) v11.2 **
+
+      ROL: Transcriptor legal de anexos.
+        OBJETIVO: Capturar la SEGUNDA MITAD de los anexos hasta el FINAL del documento.
   
   ⚠️ INSTRUCCIONES:
-  1. Busca desde la mitad de los anexos hasta la ÚLTIMA PÁGINA.
+1. Busca desde la mitad de los anexos hasta la ÚLTIMA PÁGINA.
   2. Transcribe íntegramente todas las cláusulas restantes hasta el fin del PDF.
   3. Usa el prefijo "ANEXO" en 'CÓDIGO/SECCIÓN'.
   4. MÁXIMA PRIORIDAD: Llegar hasta el final absoluto del documento.
-  
-  FORMATO: JSON Strict (Schema Reglas Universal).
+
+  FORMATO: JSON Strict(Schema Reglas Universal).
 `;
 
 export const PROMPT_EXTRAS = `
-  ** MANDATO FORENSE v10.8: PASE 4 - PRESTACIONES VALORIZADAS (ANTI-INVENCIÓN) **
+    ** MANDATO FORENSE v10.8: PASE 4 - PRESTACIONES VALORIZADAS(ANTI - INVENCIÓN) **
   
-  ⚠️ ALERTA DE SEGURIDAD (CRÍTICO):
-  Prohibido resumir. Copia TEXTUALMENTE las condiciones.
+  ⚠️ ALERTA DE SEGURIDAD(CRÍTICO):
+  Prohibido resumir.Copia TEXTUALMENTE las condiciones.
   
-  ⚠️ REGLA ANTI-INVENCIÓN:
-  - SOLO extrae lo que veas explícitamente como una tabla o lista de "Prestaciones Valorizadas" adicional a la general.
-  - Si no existe tal sección, DEVUELVE UN ARRAY VACÍO. No inventes datos.
+  ⚠️ REGLA ANTI - INVENCIÓN:
+- SOLO extrae lo que veas explícitamente como una tabla o lista de "Prestaciones Valorizadas" adicional a la general.
+  - Si no existe tal sección, DEVUELVE UN ARRAY VACÍO.No inventes datos.
   
-  ⚠️ REGLA DE EXCLUSIÓN (ESTRICTO):
+  ⚠️ REGLA DE EXCLUSIÓN(ESTRICTO):
   NO EXTRAIGAS NADA QUE YA ESTÉ EN LA GRILLA GENERAL DE LAS PÁGINAS 1 Y 2.
   - No extraigas "Día Cama", "Pabellón", "Honorarios", "Medicamentos", "Insumos" o "Anestesia" generales.
-  - SÓLO extrae ítems que aparezcan en la sección 'SELECCIÓN DE PRESTACIONES VALORIZADAS' (Generalmente Pág 7).
-  
+  - SÓLO extrae ítems que aparezcan en la sección 'SELECCIÓN DE PRESTACIONES VALORIZADAS'(Generalmente Pág 7).
+
   OBJETIVO: Capturar la "Selección de Prestaciones Valorizadas" que SOBREESCRIBE la bonificación general.
-  
-  INSTRUCCIONES:
-  1. **REGLA DE SUPREMACÍA**: Busca cirugías específicas (Apendicectomía, Cesárea, Parto, etc.).
-      - Captura el CÓDIGO FONASA y el Valor en Pesos ('Copago').
+
+    INSTRUCCIONES:
+1. ** REGLA DE SUPREMACÍA **: Busca cirugías específicas(Apendicectomía, Cesárea, Parto, etc.).
+      - Captura el CÓDIGO FONASA y el Valor en Pesos('Copago').
       - Márcalos como 'SUPREMO'.
-  2. **TOPES ESPECÍFICOS**: Busca topes en Pesos para Medicamentos/Insumos específicos de estas cirugías.
-  
-  FORMATO: JSON Strict (Schema Coberturas Estructural).
+  2. ** TOPES ESPECÍFICOS **: Busca topes en Pesos para Medicamentos / Insumos específicos de estas cirugías.
+
+  FORMATO: JSON Strict(Schema Coberturas Estructural).
 `;
 
 export const SCHEMA_REGLAS = {
@@ -429,6 +402,21 @@ export const SCHEMA_REGLAS = {
         cost: { type: SchemaType.NUMBER }
       }
     }
+  }
+};
+
+
+export const SCHEMA_RAW_CELLS = {
+  type: SchemaType.ARRAY,
+  items: {
+    type: SchemaType.OBJECT,
+    properties: {
+      tabla_id: { type: SchemaType.STRING },
+      fila_index: { type: SchemaType.NUMBER },
+      col_index: { type: SchemaType.NUMBER },
+      texto: { type: SchemaType.STRING },
+    },
+    required: ['tabla_id', 'fila_index', 'col_index', 'texto']
   }
 };
 
@@ -564,31 +552,31 @@ export const SCHEMA_PROYECCION_JSON = {
 
 
 export const PROMPT_PROYECCION_JSON = `
-  ACT AS A HIGH-FIDELITY MEDICAL CONTRACT ANALYST (JSON MAPPING MODE).
-  
+  ACT AS A HIGH - FIDELITY MEDICAL CONTRACT ANALYST(JSON MAPPING MODE).
+
   GOAL:
   Extract a structured JSON representation of the provided health contract.
   
   CRITICAL INSTRUCTIONS:
-  1. **COLUMN ALIGNMENT (CRITICAL)**:
-     - Most Isapre contracts have 5-7 columns.
-     - Column 1: Prestación/Item.
+1. ** COLUMN ALIGNMENT(CRITICAL) **:
+- Most Isapre contracts have 5 - 7 columns.
+     - Column 1: Prestación / Item.
      - Column 2: % Bonificación.
-     - Column 3 & 4: National Topes (usually 1.2x Arancel or UF values like 4.5 UF).
-     - Column 5 & 6: International Coverages (USA/Mundo).
-     - **NEVER** move a value from the National columns (Topes) to the International columns.
+     - Column 3 & 4: National Topes(usually 1.2x Arancel or UF values like 4.5 UF).
+     - Column 5 & 6: International Coverages(USA / Mundo).
+     - ** NEVER ** move a value from the National columns(Topes) to the International columns.
      - If a value like "300 UF" or "100 UF" is in the middle of the table, it is a NATIONAL TOPE.
-  2. **TOPES EXTRACTION**:
-     - Capture even complex strings like "1.2 veces AC2 + 0.5 UF".
-     - If there are multiple topes for one item (e.g., Daily and Yearly), combine them in the 'tope' string or choose the most restrictive.
-     - Use "SIN TOPE" if explicit. Use null only if absolutely blank.
-  3. **INTERNATIONAL COVERAGE**: 
-     - Separate it completely. If there is no explicit International column data, 'existe' must be false.
-  4. **FIDELITY & DOUBLE VERIFICATION (CRITICAL)**:
-     - **STEP 1: EXTRACTION**: Extract the data as seen.
-     - **STEP 2: VERIFICATION**: Double check the extracted 'tope' against the source image. Ensure it matches exactly.
-     - **STEP 3: OUTPUT**: If verified, provide the output.
-     - Do not summarize. Transcribe every digit and symbol.
+  2. ** TOPES EXTRACTION **:
+- Capture even complex strings like "1.2 veces AC2 + 0.5 UF".
+     - If there are multiple topes for one item(e.g., Daily and Yearly), combine them in the 'tope' string or choose the most restrictive.
+     - Use "SIN TOPE" if explicit.Use null only if absolutely blank.
+  3. ** INTERNATIONAL COVERAGE **:
+- Separate it completely.If there is no explicit International column data, 'existe' must be false.
+  4. ** FIDELITY & DOUBLE VERIFICATION(CRITICAL) **:
+     - ** STEP 1: EXTRACTION **: Extract the data as seen.
+     - ** STEP 2: VERIFICATION **: Double check the extracted 'tope' against the source image.Ensure it matches exactly.
+     - ** STEP 3: OUTPUT **: If verified, provide the output.
+     - Do not summarize.Transcribe every digit and symbol.
 
 
   OUTPUT FORMAT: JSON Strict according to the provided schema.

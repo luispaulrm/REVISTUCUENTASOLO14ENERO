@@ -4,8 +4,10 @@ import {
     ContractAnalysisResult,
     ContractAnalysisOptions,
     UploadedFile,
-    ContractCoverage
+    ContractCoverage,
+    RawCell // Cartesian Support
 } from './contractTypes.js';
+import { decodeCartesian } from './contractDecoder.js';
 import { jsonrepair } from 'jsonrepair';
 import { getCanonicalCategory } from './contractCanonical.js';
 import {
@@ -23,6 +25,7 @@ import {
     PROMPT_CLASSIFIER,
     SCHEMA_REGLAS,
     SCHEMA_COBERTURAS,
+    SCHEMA_RAW_CELLS, // New Cartesian Schema
     SCHEMA_CLASSIFIER,
     CONTRACT_OCR_MAX_PAGES,
     CONTRACT_FAST_MODEL,
@@ -590,12 +593,16 @@ export async function analyzeSingleContract(
         extractSection("REGLAS_P2", PROMPT_REGLAS_P2, SCHEMA_REGLAS), // PHASE 3
         extractSection("ANEXOS_P1", PROMPT_ANEXOS_P1, SCHEMA_REGLAS), // PHASE 4
         extractSection("ANEXOS_P2", PROMPT_ANEXOS_P2, SCHEMA_REGLAS), // PHASE 5
-        extractSection("HOSP_P1", PROMPT_HOSP_P1, SCHEMA_COBERTURAS),
-        extractSection("HOSP_P2", PROMPT_HOSP_P2, SCHEMA_COBERTURAS),
-        extractSection("AMB_P1", PROMPT_AMB_P1, SCHEMA_COBERTURAS),
-        extractSection("AMB_P2", PROMPT_AMB_P2, SCHEMA_COBERTURAS),
-        extractSection("AMB_P3", PROMPT_AMB_P3, SCHEMA_COBERTURAS),
-        extractSection("AMB_P4", PROMPT_AMB_P4, SCHEMA_COBERTURAS),
+
+        // CARTESIAN PROJECTION PHASES (RawCell[])
+        extractSection("HOSP_P1", PROMPT_HOSP_P1, SCHEMA_RAW_CELLS),
+        extractSection("HOSP_P2", PROMPT_HOSP_P2, SCHEMA_RAW_CELLS),
+        extractSection("AMB_P1", PROMPT_AMB_P1, SCHEMA_RAW_CELLS),
+        extractSection("AMB_P2", PROMPT_AMB_P2, SCHEMA_RAW_CELLS),
+        extractSection("AMB_P3", PROMPT_AMB_P3, SCHEMA_RAW_CELLS),
+        extractSection("AMB_P4", PROMPT_AMB_P4, SCHEMA_RAW_CELLS),
+
+        // EXTRAS usually has simpler structure, keeping COBERTURAS for now unless prompt changed
         extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS)
     ];
 
@@ -642,15 +649,16 @@ export async function analyzeSingleContract(
     }));
 
     // Combine coverage from all modular prompts
+    // v18.0: CARTESIAN DECODING (RawCell[] -> ContractCoverage[])
     let coberturasHospRaw = [
-        ...(hospP1Phase.result?.coberturas || []),
-        ...(hospP2Phase.result?.coberturas || [])
+        ...decodeCartesian(hospP1Phase.result as RawCell[] || [], "HOSPITALARIO"),
+        ...decodeCartesian(hospP2Phase.result as RawCell[] || [], "HOSPITALARIO")
     ];
     let coberturasAmbRaw = [
-        ...(ambP1Phase.result?.coberturas || []),
-        ...(ambP2Phase.result?.coberturas || []),
-        ...(ambP3Phase.result?.coberturas || []),
-        ...(ambP4Phase.result?.coberturas || [])
+        ...decodeCartesian(ambP1Phase.result as RawCell[] || [], "AMBULATORIO"),
+        ...decodeCartesian(ambP2Phase.result as RawCell[] || [], "AMBULATORIO"),
+        ...decodeCartesian(ambP3Phase.result as RawCell[] || [], "AMBULATORIO"),
+        ...decodeCartesian(ambP4Phase.result as RawCell[] || [], "AMBULATORIO")
     ];
     let coberturasExtrasRaw = extrasPhase.result?.coberturas || [];
 

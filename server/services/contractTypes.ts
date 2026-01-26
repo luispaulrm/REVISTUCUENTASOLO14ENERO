@@ -1,5 +1,13 @@
 import { ContractFingerprint } from './contractFingerprint.js';
 
+
+export interface RawCell {
+    tabla_id: string;
+    fila_index: number;
+    col_index: number;
+    texto: string;
+}
+
 export interface UploadedFile {
     buffer: Buffer;
     mimetype: string;
