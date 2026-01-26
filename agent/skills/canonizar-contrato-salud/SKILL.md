@@ -1,49 +1,45 @@
 ---
 name: canonizar-contrato-salud
-description: Lee contratos de salud en PDF y los convierte a un JSON canónico estable, independiente del layout, para auditoría financiera y legal.
+description: Lee contratos de salud en PDF y los convierte a un JSON canónico semántico y limpio, discriminando coberturas reales de metadatos y topes.
 ---
 
-# Skill: Canonización de Contratos de Salud (v1.5 Final)
+# Skill: Canonización de Contratos de Salud (v2.0 Semántica)
 
 ## Objetivo
-Transformar contratos de salud heterogéneos (Isapre/Fonasa) en una representación **JSON canónica, semántica y estable**. Este esquema actúa como el "esperanto" de los contratos de salud, permitiendo que cualquier motor de auditoría o simulación trabaje sobre datos normalizados e independientes del diseño visual del PDF.
+Transformar contratos de salud heterogéneos (Isapre/Fonasa) en una representación **JSON canónica, semántica y limpia**. El objetivo es auditar financieramente, por lo que la precisión en **topes, unidades y ámbitos** es crítica.
 
 ---
 
-## Repositorio de Aprendizaje (Asistente Semántico)
+## 🛑 REGLAS DE ORO ANTIRUIDO (CRÍTICO)
 
-### Principio Rector (Obligatorio)
-👉 **El esquema canónico es inmutable.**
-👉 **El aprendizaje ocurre solo en reglas, sinónimos y patrones.**
-👉 **Nada aprendido puede alterar el output JSON estructural.**
+### 1. Limpieza de Coberturas
+El array `coberturas` debe contener **SOLO prestaciones clínicas**.
+- **PROHIBIDO** incluir en `coberturas`:
+  - Rangos etarios ("0 a menos de 2 años", "80 y más años").
+  - Factores o primas (GES, CAEC).
+  - Títulos de tablas ("TABLA DE BENEFICIOS", "MODALIDAD INSTITUCIONAL").
+  - Textos vacíos o símbolos sueltos ("%", "*").
+  - Metadatos del plan ("TIPO DE PLAN", "USO DEL PLAN").
 
-### Objetivo del Repositorio de Aprendizaje
-Construir y mantener un **Diccionario Semántico** que permita:
-1.  **Reconocer sinónimos contractuales** (ej: "Día Cama" vs "Estadía Diaria").
-2.  **Afinar reglas de clasificación**.
-3.  **Reducir `items_no_clasificados`**.
-4.  **Aumentar consistencia** entre contratos de distintas Isapres.
+### 2. Clasificación de Ámbito (Keywords)
+No usar "desconocido" perezosamente. Aplicar estas reglas de inferencia:
+- **HOSPITALARIO**: Si contiene `pabellón`, `quirúrgic`, `anestesia`, `día cama`, `hospital`, `UCI`, `UTI`, `medicamentos en hospitalización`.
+- **AMBULATORIO**: Si contiene `consulta médica`, `exámenes`, `imagenología`, `procedimientos ambulatorios`.
+- **MIXTO**: Solo si explícitamente aplica a ambos o es un tope global.
 
-*Este repositorio asiste al canonizador, pero no lo reemplaza.*
+### 3. Porcentajes vs Factores (No confundir)
+- **Porcentaje**: Valor entre 0 y 100.
+- **Factor/Tope**:
+  - Si valor > 1.0 (ej: 1.2, 2.0) -> Es un FACTOR o TOPE, **nunca** un porcentaje.
+  - Si valor <= 1.0 pero la unidad es AC2, UF, VAM -> Es un TOPE/FACTOR.
 
----
-
-Este skill NO audita, NO interpreta cobros y NO proyecta HTML.
-Solo traduce lenguaje contractual a estructura lógica.
-
----
-
-## Cuándo usar este Skill
-- Cuando se cargue un contrato de salud en PDF.
-- Antes de cualquier auditoría financiera.
-- Antes de cualquier proyección visual.
-- Cada vez que el contrato sea la “fuente de verdad”.
+### 4. Semántica de "SIN TOPE"
+"SIN TOPE" **NO** es "DESCONOCIDO". Es información jurídica positiva.
+- Mapear a: `{ "tope_existe": false, "razon": "SIN_TOPE_EXPRESO_EN_CONTRATO", "valor": null, "unidad": null }`.
 
 ---
 
----
-
-## Esquema Canónico Final (Blueprint v1.7)
+## Esquema Canónico Final (v2.0)
 
 El output debe ser un único objeto JSON que cumpla estrictamente con la siguiente interfaz:
 
@@ -52,137 +48,74 @@ interface CanonicalContract {
   metadata: {
     origen: "contrato_pdf";
     fuente: string;          // Nombre de la Isapre y Plan
-    vigencia: string;        // Fecha de inicio de vigencia o periodo
-    tipo_contrato: "ISAPRE" | "FONASA" | "COMPLEMENTARIO" | "DENTAL" | "DESCONOCIDO";
-    codigo_arancel?: string; // Nombre/Código del arancel (ej: AC2, V20)
+    vigencia: string;        // Fecha inicio
+    tipo_contrato: "ISAPRE" | "FONASA" | "COMPLEMENTARIO";
   };
   coberturas: Array<{
     ambito: "hospitalario" | "ambulatorio" | "mixto" | "desconocido";
-    descripcion_textual: string;
-    porcentaje: number | null; // 0 a 100
-    red_especifica: string;    // Ej: "Clínica Alemana", "Red UC Christus", "Todas", "desconocido"
-    tipo_modalidad: "preferente" | "libre_eleccion" | "restringida" | "ampliada" | "desconocido";
-    fuente_textual: string;    // Convención: "[p.N] ...texto literal..."
+    descripcion_textual: string; // Nombre limpio de la prestación (ej: "Día Cama")
+    porcentaje: number | null;   // 0-100. NULL si no es % de cobertura directa.
+    modalidades: Array<{        // Agrupar aquí las variantes
+      tipo: "preferente" | "libre_eleccion" | "institucional";
+      red?: string;
+      porcentaje?: number;
+      tope?: {                  // Tope específico de esta línea si existe
+        unidad: string;
+        valor: number;
+      };
+    }>;
+    fuente_textual: string;      // "[p.N] ..."
   }>;
-  topes: Array<{
-    ambito: "hospitalario" | "ambulatorio" | "mixto" | "desconocido";
-    unidad: "UF" | "VAM" | "PESOS" | "DESCONOCIDO";
-    valor: number | null;
-    aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido";
-    tipo_modalidad?: "preferente" | "libre_eleccion" | "desconocido";
-    fuente_textual: string;    // Convención: "[p.N] ...texto literal..."
-  }>;
-  deducibles: Array<{
-    unidad: "UF" | "VAM" | "PESOS" | "DESCONOCIDO";
-    valor: number | null;
-    aplicacion: "anual" | "evento" | "desconocido";
-    fuente_textual: string;    // Convención: "[p.N] ...texto literal..."
-  }>;
-  copagos: Array<{
+  topes_generales: Array<{       // Topes que aplican a todo el plan o grandes grupos
+    ambito: "hospitalario" | "ambulatorio" | "mixto";
     descripcion: string;
-    valor: number;
-    unidad: "UF" | "VAM" | "PESOS";
-    fuente_textual: string;    // Convención: "[p.N] ...texto literal..."
+    unidad: "UF" | "VAM" | "AC2" | "PESOS" | "VECES_ARANCEL" | "DESCONOCIDO";
+    tipo_unidad: "monetaria" | "arancel_base" | "multiplicador"; // Semántica
+    valor: number | null;
+    tope_existe: boolean;        // FALSE si dice "Sin Tope"
+    razon?: "SIN_TOPE_EXPRESO_EN_CONTRATO";
+    periodo: "anual" | "evento" | "vida";
+    fuente_textual: string;
   }>;
-  exclusiones: Array<{
-    descripcion: string;
-    fuente_textual: string;    // Convención: "[p.N] ...texto literal..."
-  }>;
-  reglas_aplicacion: Array<{
-    condicion: string;
-    efecto: string;
-    fuente_textual: string;    // Convención: "[p.N] ...texto literal..."
-  }>;
-  observaciones: string[];
-  items_no_clasificados: string[];
+  items_no_clasificados: string[]; // Todo lo que no sea prestación clínica ni tope claro
 }
 ```
 
----
+### Detalle de Tipos de Unidad Arancelaria
+Si encuentras siglas como **AC2, VA, VAM**:
+- `unidad`: Mantener la sigla original ("AC2", "VAM").
+- `tipo_unidad`: **"arancel_base"**.
+- `interpretable_como`: "multiplicador".
 
-## Transformaciones y Normalizaciones Permitidas
+### Ejemplo de Mapeo Semántico
 
-Para evitar bugs y facilitar la tokenización, se permiten las siguientes normalizaciones:
-1.  **Unidades de Arancel**: Los términos "Veces Arancel", "Veces Arancel Modalidad", "Arancel Convenido", "AC2", "V20", "VA", "VAM" deben mapearse a **`unidad: "VAM"`** (sin alterar el valor numérico).
-2.  **Traza de Origen**: Todas las `fuente_textual` deben comenzar con el prefijo de página **`[p.N]`** (ej: `[p.3] 100% de bonificación...`).
-3.  **Alcance de Topes**: Cuando el contrato especifique el alcance de un tope (ej: "por grupo familiar", "por beneficiario individual"), capturar esta distinción en un objeto dentro de `reglas_aplicacion` con una descripción clara.
-4.  **No Clasificados**: Si una prestación no puede ser categorizada o su unidad es ambigua, usar `ambito: "desconocido"`, `unidad: "DESCONOCIDO"`, y `porcentaje: null`. Si no entra en ninguna entidad, llevar a `items_no_clasificados`.
+**(A) Caso "Sin Tope"**
+ Texto PDF: *"Día Cama: 100% Sin Tope"*
+ ```json
+ {
+   "descripcion_textual": "Día Cama",
+   "porcentaje": 100,
+   "modalidades": [{ "tipo": "libre_eleccion", "tope": { "tope_existe": false, "razon": "SIN_TOPE_EXPRESO_EN_CONTRATO" } }]
+ }
+ ```
 
----
-
-## Reglas de Oro para el Agente
-
-- [ ] Toda inferencia está respaldada por texto.
-- [ ] Los no clasificados están explícitos.
-
----
-
-## 🛑 PROTOCOLO DE VERDAD (ANTI-ALUCINACIÓN)
-
-Para combatir invenciones del modelo, debes seguir estas reglas de extracción **sin excepción**:
-
-1.  **CITA LITERAL O NADA**:
-    *   Si el campo es `valor` o `tope`, **DEBES** ser capaz de seleccionar ese número exacto en el PDF.
-    *   Si la imagen es borrosa o ambigua, usa `valor: null`. **JAMÁS ADIVINES**.
-    
-2.  **TEST DE LA LUPA**:
-    *   Inválido: PDF dice "1.0 veces" -> JSON dice `2.0 veces`. (Alucinación grave).
-    *   Válido: PDF dice "1.0 veces" -> JSON dice `1.0 veces`.
-    
-3.  **PROHIBICIÓN DE "RELLENO"**:
-    *   Si no encuentras el tope de laboratorio en la tabla, **NO COPIES** el de Kinesiología "por si acaso". Déjalo vacío.
-
-Cumplir este protocolo es más importante que llenar todos los campos. Preferimos un JSON incompleto pero VERDADERO a uno completo pero FALSO.
+**(B) Caso Arancel AC2**
+ Texto PDF: *"Honorarios: Tope 2.2 AC2"*
+ ```json
+ {
+   "unidad": "AC2",
+   "tipo_unidad": "arancel_base",
+   "valor": 2.2
+ }
+ ```
 
 ---
 
-## Ejemplo de Salida (Fragmento)
+## Instrucciones de Procesamiento
 
-```json
-{
-  "metadata": {
-    "origen": "contrato_pdf",
-    "fuente": "Isapre Colmena - Plan Integral 2024",
-    "vigencia": "01-01-2024",
-    "tipo_contrato": "ISAPRE"
-  },
-  "coberturas": [
-    {
-      "ambito": "hospitalario",
-      "descripcion_textual": "Día Cama Integral",
-      "porcentaje": 100,
-      "fuente_textual": "Sección 1: 100% Sin Tope en Red Preferente"
-    }
-  ],
-  "topes": [
-    {
-      "ambito": "mixto",
-      "unidad": "UF",
-      "valor": 5000,
-      "aplicacion": "anual",
-      "fuente_textual": "Tope General Anual por Beneficiario: 5.000 UF"
-    }
-  ],
-  "items_no_clasificados": [
-    "Tabla de factores de riesgo 603"
-  ]
-}
-```
+1.  **Lectura Secuencial**: Lee página por página. Mantén el contexto de la tabla actual (cabeceras).
+2.  **Filtrado Activo**: Antes de agregar algo a `coberturas`, pregúntate: *¿Es esto una prestación médica?* Si es una edad, un precio en pesos o una cabecera, **IGÑÓRALO** o ponlo en metadata si corresponde.
+3.  **Agrupación**: Si ves "Consulta Médica" en Red 1 y luego "Consulta Médica" en Red 2, intenta agruparlas en un solo objeto `cobertura` con múltiples `modalidades` si es posible. Si es muy difícil, crea entradas separadas pero **limpias**.
 
----
-
-## Proceso de Validación
-Antes de entregar el JSON, el agente debe verificar:
-- [ ] ¿El porcentaje es un número entre 0 y 100?
-- [ ] ¿La fuente textual es literal?
-- [ ] ¿Se capturaron las exclusiones de las páginas finales?
-- [ ] ¿Están todos los topes de libre elección?
-
----
-
-## Output (formato exacto)
-El resultado final DEBE ser:
-1. Un único objeto JSON
-2. Cumpliendo el esquema canónico
-3. Sin comentarios
-4. Sin texto adicional
+## Output
+Retorna SOLO el objeto JSON válido. Sin markdown de código, sin explicaciones.
