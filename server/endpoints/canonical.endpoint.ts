@@ -35,7 +35,14 @@ export async function handleCanonicalExtraction(req: Request, res: Response) {
             file,
             apiKey,
             (logMsg) => {
-                if (!logMsg.startsWith('@@METRICS@@')) {
+                if (logMsg.startsWith('@@METRICS@@')) {
+                    try {
+                        const metrics = JSON.parse(logMsg.replace('@@METRICS@@', ''));
+                        sendUpdate({ type: 'metrics', metrics });
+                    } catch (e) {
+                        console.error('[CANONICAL] Failed to parse metrics:', e);
+                    }
+                } else {
                     sendUpdate({ type: 'chunk', text: logMsg });
                 }
             }

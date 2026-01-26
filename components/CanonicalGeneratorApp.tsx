@@ -16,6 +16,7 @@ export default function CanonicalGeneratorApp() {
     const [learned, setLearned] = useState(false);
 
     const timerRef = useRef<number | null>(null);
+    const progressRef = useRef<number | null>(null);
     const logEndRef = useRef<HTMLDivElement>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -31,10 +32,20 @@ export default function CanonicalGeneratorApp() {
                 setSeconds(0);
                 timerRef.current = window.setInterval(() => setSeconds(s => s + 1), 1000);
             }
+            if (!progressRef.current) {
+                setProgress(0);
+                progressRef.current = window.setInterval(() => {
+                    setProgress(p => (p < 98 ? p + 0.3 : p));
+                }, 200);
+            }
         } else {
             if (timerRef.current) {
                 clearInterval(timerRef.current);
                 timerRef.current = null;
+            }
+            if (progressRef.current) {
+                clearInterval(progressRef.current);
+                progressRef.current = null;
             }
             if (status === AppStatus.SUCCESS) setProgress(100);
         }
@@ -43,6 +54,20 @@ export default function CanonicalGeneratorApp() {
     const addLog = (msg: string) => {
         const timestamp = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
         setLogs(prev => [...prev, `[${timestamp}] ${msg}`]);
+    };
+
+    const formatTime = (totalSeconds: number) => {
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const handleStopAnalysis = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+            addLog('[SISTEMA] ✋ Análisis detenido manualmente por el usuario.');
+        }
     };
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +118,15 @@ export default function CanonicalGeneratorApp() {
                         if (!line.trim()) continue;
                         const update = JSON.parse(line);
                         if (update.type === 'chunk') addLog(update.text);
+                        if (update.type === 'metrics') {
+                            setRealTimeUsage(prev => ({
+                                promptTokens: (prev?.promptTokens || 0) + (update.metrics.input || 0),
+                                candidatesTokens: (prev?.candidatesTokens || 0) + (update.metrics.output || 0),
+                                totalTokens: (prev?.totalTokens || 0) + (update.metrics.input || 0) + (update.metrics.output || 0),
+                                estimatedCost: (prev?.estimatedCost || 0) + (update.metrics.cost / 900), // Approx USD
+                                estimatedCostCLP: (prev?.estimatedCostCLP || 0) + (update.metrics.cost || 0)
+                            }));
+                        }
                         if (update.type === 'final') {
                             setCanonicalResult(update.data);
                             setStatus(AppStatus.SUCCESS);
@@ -249,6 +283,86 @@ export default function CanonicalGeneratorApp() {
                         >
                             SUBIR OTRO ARCHIVO
                         </button>
+                    </div>
+                )}
+
+                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) && (
+                    <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb animate-in slide-in-from-bottom duration-500">
+                        <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
+                            {/* 1. MISSION TIME */}
+                            <div className="flex items-center gap-4 border-r border-slate-800 pr-8 h-full">
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Mission Time</span>
+                                    <div className="font-mono text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                                        <Timer size={18} className="text-indigo-500" />
+                                        T+{formatTime(seconds)}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2. TRAJECTORY (GAUGE) */}
+                            <div className="flex items-center gap-4 px-8 border-r border-slate-800 h-full min-w-[200px]">
+                                <div className="relative w-12 h-12">
+                                    <svg className="w-full h-full transform -rotate-90">
+                                        <circle cx="24" cy="24" r="20" className="text-slate-800 stroke-current" strokeWidth="4" fill="transparent" />
+                                        <circle cx="24" cy="24" r="20" className="text-white stroke-current" strokeWidth="4" fill="transparent"
+                                            strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * progress) / 100} strokeLinecap="round" />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-[10px] font-bold font-mono text-white">{Math.round(progress)}%</span>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
+                                    <span className="text-xs font-bold text-slate-300 italic">Canonization Phase</span>
+                                </div>
+                            </div>
+
+                            {/* 3. TOKEN METRICS */}
+                            <div className="flex items-center gap-8 px-8 flex-1 justify-center h-full">
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Input Tokens</span>
+                                    <span className="font-mono text-sm font-bold text-slate-300">
+                                        {realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                    </span>
+                                </div>
+                                <div className="w-px h-8 bg-slate-800"></div>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Output Tokens</span>
+                                    <span className="font-mono text-sm font-bold text-white">
+                                        {realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                    </span>
+                                </div>
+                                <div className="w-px h-8 bg-slate-800"></div>
+                                <div className="flex flex-col items-center">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Payload</span>
+                                    <span className="font-mono text-sm font-bold text-indigo-400">
+                                        {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {/* 4. COST & ABORT */}
+                            <div className="flex items-center gap-6 pl-8 border-l border-slate-800 h-full">
+                                <div className="flex flex-col items-end">
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Est. Cost</span>
+                                    <span className="font-mono text-xl font-black text-white tracking-tight">
+                                        ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'} <span className="text-[10px] text-slate-600 font-sans">CLP</span>
+                                    </span>
+                                    <div className="flex items-center gap-1 mt-1">
+                                        <ShieldCheck size={10} className="text-emerald-500" />
+                                        <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-tight">Smart Mapping Mode</span>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={handleStopAnalysis}
+                                    className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
+                                    title="ABORT ANALYSIS"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </main>
