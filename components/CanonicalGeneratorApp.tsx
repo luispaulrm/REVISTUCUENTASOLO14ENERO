@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Loader2, FileText, Trash2, Terminal, Timer, X, Zap, FileJson, Copy, Check, ShieldCheck } from 'lucide-react';
+import { Upload, Loader2, FileText, Trash2, Terminal, Timer, X, Zap, FileJson, Copy, Check, ShieldCheck, Brain } from 'lucide-react';
 import { AppStatus, UsageMetrics } from '../types';
 
 export default function CanonicalGeneratorApp() {
@@ -12,6 +12,8 @@ export default function CanonicalGeneratorApp() {
     const [realTimeUsage, setRealTimeUsage] = useState<UsageMetrics | null>(null);
     const [fileName, setFileName] = useState<string>('');
     const [copied, setCopied] = useState(false);
+    const [isLearning, setIsLearning] = useState(false);
+    const [learned, setLearned] = useState(false);
 
     const timerRef = useRef<number | null>(null);
     const logEndRef = useRef<HTMLDivElement>(null);
@@ -115,6 +117,27 @@ export default function CanonicalGeneratorApp() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handleLearn = async () => {
+        if (!canonicalResult) return;
+        setIsLearning(true);
+        try {
+            const response = await fetch('/api/learn-contract', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(canonicalResult)
+            });
+            if (response.ok) {
+                setLearned(true);
+                setTimeout(() => setLearned(false), 3000);
+                addLog('[APRENDIZAJE] 🧠 He aprendido los nuevos patrones y sinónimos de este contrato.');
+            }
+        } catch (err) {
+            console.error('Learning failed', err);
+        } finally {
+            setIsLearning(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
             <header className="bg-white border-b border-slate-200 sticky top-0 z-50 px-6 h-16 flex items-center justify-between">
@@ -190,6 +213,17 @@ export default function CanonicalGeneratorApp() {
                                 >
                                     {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                                     {copied ? 'COPIADO' : 'COPIAR JSON'}
+                                </button>
+                                <button
+                                    onClick={handleLearn}
+                                    disabled={isLearning}
+                                    className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold transition-all ${learned
+                                            ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                            : 'bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-100'
+                                        }`}
+                                >
+                                    {isLearning ? <Loader2 size={14} className="animate-spin" /> : <Brain size={14} />}
+                                    {learned ? 'APRENDIDO' : 'APRENDER DE ESTE CONTRATO'}
                                 </button>
                             </div>
                             <div className="flex-grow p-6 overflow-hidden">
