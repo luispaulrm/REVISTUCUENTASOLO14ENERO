@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "paciente": "NICOLAS BRAVO",
+    "prestador_detectado": "CLINICA MEDS LA DEHESA SPA",
+    "contrato_usado": "Isapre Consalud - Red Salud Especial 500 (13-RSE500-17)",
+    "fecha_auditoria": "2026-01-26T15:47:57.208Z"
+  },
+  "hallazgos_financieros": [
+    {
+      "evento": "QUIRURGICO",
+      "prestador": "CLINICA MEDS LA DEHESA SPA",
+      "regla_general": {
+        "descripcion": "Honorarios Médicos Quirúrgicos (LE)",
+        "tope": "1.2 veces AC2",
+        "modalidad": "libre_eleccion"
+      },
+      "validacion_matematica": {
+        "metodo": "FACTOR_ESTANDAR",
+        "valor_unidad": 66944,
+        "tipo_unidad": "VA",
+        "cumple_tope": true
+      },
+      "items_detalle": [
+        {
+          "codigo": "1103057",
+          "descripcion": "RIZOTOMIA (CUALQUIER TECNICA) (91-PRIMER CIRUJANO)"
+        },
+        {
+          "codigo": "1103048",
+          "descripcion": "INFILTRACION FACETARIA CO... (91-PRIMER CIRUJANO)"
+        }
+      ]
+    }
+  ],
+  "laboratorio_validacion": [
+    {
+      "codigo": "301051",
+      "descripcion": "IDENTIFICACION DE ANTICUERPOS IRREGULARES ERI",
+      "regla_asociada": "Exámenes Laboratorio (LE)",
+      "tope_teorico": "2.0 veces AC2"
+    },
+    {
+      "codigo": "301034",
+      "descripcion": "CLASIFICACION SANGUINEA AB0 Y RHD",
+      "regla_asociada": "Exámenes Laboratorio (LE)",
+      "tope_teorico": "2.0 veces AC2"
+    }
+  ]
+}

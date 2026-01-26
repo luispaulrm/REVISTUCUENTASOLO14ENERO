@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-01-26T15:51:35.606Z",
+  "contract_source": "Isapre Consalud - Red Salud Especial 500 (13-RSE500-17)",
+  "canonical_validation": {
+    "rules": [
+      {
+        "ruleId": "C-01",
+        "description": "Verificabilidad Contractual",
+        "violated": false
+      },
+      {
+        "ruleId": "C-02",
+        "description": "Clasificación Hospitalario vs Ambulatorio",
+        "violated": false
+      },
+      {
+        "ruleId": "C-03",
+        "description": "Medicamentos e Insumos (Por Evento)",
+        "violated": false
+      },
+      {
+        "ruleId": "C-04",
+        "description": "Tope UF/VAM Exigible",
+        "violated": true,
+        "details": "Unable to verify ceilings due to structural opacity (PAM aggregation blocks fine-grained analysis)"
+      }
+    ],
+    "flags": [
+      {
+        "flagId": "F-01",
+        "description": "Repetición clínica significativa",
+        "detected": true,
+        "riskLevel": "HIGH",
+        "metadata": {
+          "suspiciousCodes": [
+            "APOSITO NO ARANCELADO",
+            "ELECTRODO NO ARANCELADO"
+          ]
+        }
+      },
+      {
+        "flagId": "F-02",
+        "description": "Visitas médicas múltiples",
+        "detected": false,
+        "riskLevel": "MEDIUM",
+        "metadata": {
+          "count": 0
+        }
+      },
+      {
+        "flagId": "F-03",
+        "description": "Consumo iterativo de exámenes (Mixto/Repetido)",
+        "detected": true,
+        "riskLevel": "MEDIUM",
+        "metadata": {
+          "repeatedLabs": [
+            "Coexistencia de Paquetes e Ítems Individuales"
+          ]
+        }
+      },
+      {
+        "flagId": "F-04",
+        "description": "Ampliación de Cobertura sin sustento clínico",
+        "detected": false,
+        "riskLevel": "LOW",
+        "metadata": {
+          "hasAmpliacion": false
+        }
+      }
+    ],
+    "decision": "COPAGO_INDETERMINADO_POR_OPACIDAD"
+  },
+  "explanation": {
+    "decisionGlobal": "COPAGO_INDETERMINADO_POR_OPACIDAD",
+    "fundamento": [
+      "No es posible verificar aplicación de topes UF/VAM.",
+      "Violación Regla C-04: Unable to verify ceilings due to structural opacity (PAM aggregation blocks fine-grained analysis)",
+      "Alerta F-01: Repetición clínica significativa",
+      "Alerta F-03: Consumo iterativo de exámenes (Mixto/Repetido) (Coexistencia de Paquetes e Ítems Individuales)"
+    ],
+    "principioAplicado": "Carga de claridad recae en prestador e Isapre",
+    "legalText": "La cuenta clínica no permite reconstruir ni validar la correcta aplicación del contrato de salud, motivo por el cual el copago exigido resulta jurídicamente indeterminable."
+  }
+}

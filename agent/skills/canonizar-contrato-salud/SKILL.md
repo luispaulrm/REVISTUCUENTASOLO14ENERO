@@ -117,6 +117,25 @@ Para evitar bugs y facilitar la tokenización, se permiten las siguientes normal
 
 ---
 
+## 🛑 PROTOCOLO DE VERDAD (ANTI-ALUCINACIÓN)
+
+Para combatir invenciones del modelo, debes seguir estas reglas de extracción **sin excepción**:
+
+1.  **CITA LITERAL O NADA**:
+    *   Si el campo es `valor` o `tope`, **DEBES** ser capaz de seleccionar ese número exacto en el PDF.
+    *   Si la imagen es borrosa o ambigua, usa `valor: null`. **JAMÁS ADIVINES**.
+    
+2.  **TEST DE LA LUPA**:
+    *   Inválido: PDF dice "1.0 veces" -> JSON dice `2.0 veces`. (Alucinación grave).
+    *   Válido: PDF dice "1.0 veces" -> JSON dice `1.0 veces`.
+    
+3.  **PROHIBICIÓN DE "RELLENO"**:
+    *   Si no encuentras el tope de laboratorio en la tabla, **NO COPIES** el de Kinesiología "por si acaso". Déjalo vacío.
+
+Cumplir este protocolo es más importante que llenar todos los campos. Preferimos un JSON incompleto pero VERDADERO a uno completo pero FALSO.
+
+---
+
 ## Ejemplo de Salida (Fragmento)
 
 ```json

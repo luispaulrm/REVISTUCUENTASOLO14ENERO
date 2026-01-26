@@ -31,6 +31,9 @@ const SURGICAL_FACTORS: Record<string, number> = {
     '1902001': 1.0, // Pabellón (Ref)
     '1101009': 1.0, // Día Cama Integral (Ref)
     '2801001': 1.0, // Intervenciones Menores
+    '1103057': 5.0, // Rizotomía (Estimado referencial para anclaje)
+    '1102025': 2.0, // Bloqueo facetario
+    '1103048': 3.0  // Infiltración
 };
 
 function parseMonto(val: string | number | undefined): number {
@@ -46,8 +49,45 @@ function parseMonto(val: string | number | undefined): number {
 /**
  * Searches for the coverage percentage in the contract for Surgery/Honoraries.
  */
-function findCoverageFactor(contrato: any): number {
-    if (!contrato || !contrato.coberturas) return 0.70; // Fallback only if contract is empty
+/**
+ * Resolves the modality (PREFERENTE vs LIBRE_ELECCION) based on clinic name and contract.
+ */
+export function resolveModalityByPrestador(contrato: any, prestador: string): 'PREFERENTE' | 'LIBRE_ELECCION' {
+    if (!prestador || !contrato || !contrato.coberturas) return 'LIBRE_ELECCION';
+
+    const p = prestador.toUpperCase();
+    console.log(`[DEBUG_NET] Resolving Network for: "${p}"`);
+
+    // Check all coverage items and their red_especifica
+    for (const c of contrato.coberturas) {
+        if (c.tipo_modalidad === 'preferente' && c.red_especifica) {
+            const red = String(c.red_especifica).toUpperCase();
+
+            // Debug potential matches
+            const clinics = red.split(/[,;|]/).map(s => s.trim());
+            for (const clinic of clinics) {
+                if (clinic.length > 3) {
+                    if (p.includes(clinic)) {
+                        console.log(`[DEBUG_NET] MATCH FOUND: Provider "${p}" includes "${clinic}" (from: ${red})`);
+                        return 'PREFERENTE';
+                    }
+                    if (clinic.includes(p)) {
+                        console.log(`[DEBUG_NET] MATCH FOUND: Clinic "${clinic}" includes "${p}"`);
+                        return 'PREFERENTE';
+                    }
+                }
+            }
+        }
+    }
+
+    console.log(`[DEBUG_NET] No match found. Defaulting to LIBRE_ELECCION.`);
+    return 'LIBRE_ELECCION';
+}
+
+function findCoverageFactor(contrato: any, prestador?: string): number {
+    if (!contrato || !contrato.coberturas) return 0.70;
+
+    const modalityType = prestador ? resolveModalityByPrestador(contrato, prestador) : 'LIBRE_ELECCION';
 
     // Hierarchy of search: Honorarios -> Cirugía -> Hospitalario
     const targets = ['HONORARIOS', 'CIRUGIA', 'QUIRURGICO', 'HOSPITALARIO'];
@@ -61,7 +101,8 @@ function findCoverageFactor(contrato: any): number {
 
         if (found && found.modalidades) {
             // High Fidelity path
-            const modality = found.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
+            const modality = found.modalidades.find((m: any) => m.tipo === modalityType) ||
+                found.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
                 found.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
 
             if (modality && (modality.porcentaje !== null || modality.cobertura)) {
@@ -73,21 +114,25 @@ function findCoverageFactor(contrato: any): number {
             }
         }
 
-        // Semantic Canonical path (Flattened fields)
-        if (found && (found.porcentaje !== undefined || found.tipo_modalidad)) {
-            const perc = typeof found.porcentaje === 'number' ? found.porcentaje : parseMonto(found.porcentaje || "0");
-            if (perc > 0) return perc > 1 ? perc / 100 : perc;
-        }
+        // Canonical Skill path (Flattened fields) - Filter by modality if possible
+        const matchingModality = contrato.coberturas.filter((c: any) => {
+            const itemMatch = (c.item || "").toUpperCase().includes(target) ||
+                (c.categoria || "").toUpperCase().includes(target) ||
+                (c.categoria_canonica || "").toUpperCase().includes(target) ||
+                (c.descripcion_textual || "").toUpperCase().includes(target);
 
-        // Legacy fallback
-        if (found && (found.valor || found.cobertura)) {
-            const val = parseMonto(found.valor || found.cobertura);
-            if (val > 1) return val / 100;
-            if (val > 0) return val;
+            return itemMatch && (!c.tipo_modalidad || c.tipo_modalidad === modalityType.toLowerCase());
+        });
+
+        const chosen = matchingModality.length > 0 ? matchingModality[0] : found;
+
+        if (chosen && (chosen.porcentaje !== undefined)) {
+            const perc = typeof chosen.porcentaje === 'number' ? chosen.porcentaje : parseMonto(chosen.porcentaje || "0");
+            if (perc > 0) return perc > 1 ? perc / 100 : perc;
         }
     }
 
-    return 0.70; // Default safety fallback
+    return 0.70;
 }
 
 import { getUfForDate } from './ufService.js';
@@ -104,11 +149,16 @@ export async function inferUnidadReferencia(
 ): Promise<UnidadReferencia> {
 
     const evidencia: string[] = [];
-    const coverage = findCoverageFactor(contrato);
+    const coverage = findCoverageFactor(contrato, pam?.prestadorPrincipal || (pam?.folios && pam.folios[0]?.prestadorPrincipal));
     const normalizedIsapre = (isapreName || contrato?.diseno_ux?.nombre_isapre || "").toUpperCase();
 
     // Fetch real UF for the date
-    const valorUf = await getUfForDate(eventDate);
+    let valorUf = 38000; // Default fallback
+    try {
+        valorUf = await getUfForDate(eventDate);
+    } catch (e) {
+        console.log("[UFService] Fallback to default UF 38000 due to error");
+    }
     evidencia.push(`UF_DETERMINISTA: Valor UF al ${eventDate.toLocaleDateString()} es $${valorUf.toLocaleString('es-CL')}.`);
 
     // Map unit type based on Isapre
@@ -171,8 +221,11 @@ export async function inferUnidadReferencia(
 export function validateTopeHonorarios(
     item: { codigoGC: string; bonificacion: string | number; copago: string | number; descripcion?: string },
     unidadRef: UnidadReferencia,
-    contrato?: any
+    contrato?: any,
+    context?: { prestador?: string } // Added context
 ): TopeValidationResult & { regla_aplicada?: any } {
+
+    const modalityType = context?.prestador ? resolveModalityByPrestador(contrato, context.prestador) : 'LIBRE_ELECCION';
 
     // 1. Try Specific Contract Rule Lookup FIRST (Logic Layer)
     let factor = SURGICAL_FACTORS[item.codigoGC];
@@ -180,31 +233,71 @@ export function validateTopeHonorarios(
 
     if (contrato && contrato.coberturas) {
         // Find rule specifically matching code or description (Support Canonical V2 fields)
-        const specificRule = contrato.coberturas.find((c: any) =>
-            (c.item && typeof c.item === 'string' && c.item.includes(item.codigoGC)) ||
-            (c.CODIGO_DISPARADOR_FONASA && String(c.CODIGO_DISPARADOR_FONASA).includes(item.codigoGC)) ||
-            (c.item && typeof c.item === 'string' && item.descripcion && c.item.toUpperCase().includes(item.descripcion.toUpperCase().substring(0, 15)))
-        );
+        // AND matching modality logic
+        const matchingRules = contrato.coberturas.filter((c: any) => {
+            const triggerCodes = String(c.CODIGO_DISPARADOR_FONASA || "").split(',').map(s => s.trim()).filter(s => s.length > 0);
+            const matchesTrigger = (c.item && typeof c.item === 'string' && c.item.includes(item.codigoGC)) ||
+                (triggerCodes.some(tc => item.codigoGC.startsWith(tc))) ||
+                (c.item && typeof c.item === 'string' && item.descripcion && c.item.toUpperCase().includes(item.descripcion.toUpperCase().substring(0, 15)));
 
-        if (specificRule && specificRule.modalidades) {
+            return matchesTrigger;
+        });
+
+        // Prioritize rule matching the resolved modality
+        let specificRule = matchingRules.find((c: any) => c.tipo_modalidad === modalityType.toLowerCase());
+
+        // Fallback to any matching rule if strict modality match fails
+        if (!specificRule && matchingRules.length > 0) {
+            specificRule = matchingRules[0];
+        }
+
+        if (specificRule) {
             reglaAplicada = specificRule;
-            // High Fidelity path
-            const modality = specificRule.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
-                specificRule.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
+            if (specificRule.modalidades) {
+                // High Fidelity path (Nested)
+                const modality = specificRule.modalidades.find((m: any) => m.tipo === 'LIBRE_ELECCION') ||
+                    specificRule.modalidades.find((m: any) => m.tipo === 'PREFERENTE');
 
-            if (modality && modality.tope) {
-                factor = modality.tope;
-                const unit = modality.unidadTope || "AC2";
+                if (modality && modality.tope) {
+                    factor = modality.tope;
+                    // Dynamic Unit: Prefer specific unit from rule, else inferred unit type, else generic fallback
+                    const unit = modality.unidadTope || unidadRef.tipo || "FACTOR_ARANCEL";
 
-                reglaAplicada = {
-                    ...specificRule,
-                    tope_aplicado: `${factor} veces ${unit}`,
-                    _internal_factor: factor,
-                    _internal_unit: unit
-                };
+                    reglaAplicada = {
+                        ...specificRule,
+                        tope_aplicado: `${factor} veces ${unit}`,
+                        _internal_factor: factor,
+                        _internal_unit: unit
+                    };
+                }
+            } else if (specificRule.porcentaje !== undefined) {
+                // Canonical Skill path (Flat)
+                // Try to find matching tope in topes array if not in this object
+                const associatedTope = contrato.topes?.find((t: any) => {
+                    const topTriggers = String(t.CODIGO_DISPARADOR_FONASA || "").split(',').map(s => s.trim()).filter(s => s.length > 0);
+                    const ruleTriggers = String(specificRule.CODIGO_DISPARADOR_FONASA || "").split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+                    const triggerMatch = topTriggers.some(tt => ruleTriggers.includes(tt));
+                    const modalityMatch = !t.tipo_modalidad || t.tipo_modalidad === modalityType.toLowerCase();
+
+                    return (triggerMatch && modalityMatch) ||
+                        (t.fuente_textual && specificRule.fuente_textual && t.fuente_textual.includes(specificRule.fuente_textual)) ||
+                        (t.descripcion_textual && specificRule.descripcion_textual && t.descripcion_textual.includes(specificRule.descripcion_textual));
+                });
+
+                if (associatedTope && associatedTope.valor !== null) {
+                    factor = associatedTope.valor;
+                    const unit = associatedTope.unidad || unidadRef.tipo || "FACTOR_ARANCEL";
+                    reglaAplicada = {
+                        ...specificRule,
+                        tope_aplicado: `${factor} veces ${unit}`,
+                        _internal_factor: factor,
+                        _internal_unit: unit
+                    };
+                }
             }
         } else if (contrato.topes && Array.isArray(contrato.topes)) {
-            // Semantic Canonical path (Separate topes array)
+            // Semantic Canonical path (Separate topes array - Legacy/Direct match)
             const associatedTope = contrato.topes.find((t: any) =>
                 (t.descripcion_textual && typeof t.descripcion_textual === 'string' && t.descripcion_textual.includes(item.codigoGC)) ||
                 (t.fuente_textual && typeof t.fuente_textual === 'string' && t.fuente_textual.includes(item.codigoGC))

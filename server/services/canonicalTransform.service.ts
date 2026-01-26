@@ -20,7 +20,7 @@ export interface CanonicalCobertura {
 
 export interface CanonicalTope {
     ambito: "hospitalario" | "ambulatorio" | "mixto" | "desconocido";
-    unidad: "UF" | "VAM" | "PESOS" | "DESCONOCIDO";
+    unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO";
     valor: number | null;
     aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido";
     tipo_modalidad?: "preferente" | "libre_eleccion" | "desconocido";
@@ -28,7 +28,7 @@ export interface CanonicalTope {
 }
 
 export interface CanonicalDeducible {
-    unidad: "UF" | "VAM" | "PESOS" | "DESCONOCIDO";
+    unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO";
     valor: number | null;
     aplicacion: "anual" | "evento" | "desconocido";
     fuente_textual: string;
@@ -37,7 +37,7 @@ export interface CanonicalDeducible {
 export interface CanonicalCopago {
     descripcion: string;
     valor: number;
-    unidad: "UF" | "VAM" | "PESOS";
+    unidad: "UF" | "VAM" | "AC2" | "PESOS";
     fuente_textual: string;
 }
 
@@ -141,11 +141,12 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
 
             // Add Tope if exists
             if (mod.tope !== null) {
-                // UNIT NORMALIZATION (v1.7)
-                let unidad: "UF" | "VAM" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
+                // UNIT NORMALIZATION (v1.8) - AC2 Preserved
+                let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
                 const uRaw = (mod.unidadTope || "").toUpperCase();
                 if (uRaw === "UF") unidad = "UF";
-                else if (["VAM", "AC2", "V20", "V10", "VA", "VECES ARANCEL"].includes(uRaw)) unidad = "VAM";
+                else if (uRaw === "AC2") unidad = "AC2";
+                else if (["VAM", "V20", "V10", "VA", "VECES ARANCEL"].includes(uRaw)) unidad = "VAM";
                 else if (uRaw === "PESOS" || uRaw === "$") unidad = "PESOS";
 
                 let aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido" = "desconocido";
@@ -168,11 +169,12 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
                 const unitMatch = mod.copago.match(/(UF|VAM|AC2|V20|PESOS|\$)/i);
 
                 if (valMatch) {
-                    let unidad: "UF" | "VAM" | "PESOS" = "PESOS";
+                    let unidad: "UF" | "VAM" | "AC2" | "PESOS" = "PESOS";
                     if (unitMatch) {
                         const u = unitMatch[0].toUpperCase();
                         if (u === "UF") unidad = "UF";
-                        else if (["VAM", "AC2", "V20"].includes(u)) unidad = "VAM";
+                        else if (u === "AC2") unidad = "AC2";
+                        else if (["VAM", "V20"].includes(u)) unidad = "VAM";
                         else if (u === "PESOS" || u === "$") unidad = "PESOS";
                     }
 

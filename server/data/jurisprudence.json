@@ -1,0 +1,236 @@
+{
+  "precedents": [
+    {
+      "id": "P_a1e7a09f_8a19cf9f_COPAGO_POS",
+      "createdAt": "",
+      "updatedAt": "2026-01-26T13:42:27.204Z",
+      "contractFingerprint": "a1e7a09fd4cb112adae1746756d97428df2696ac",
+      "factFingerprint": "8a19cf9fad0f0d56987af65ec03ccfd7aaec326d",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente automático: MEDICAMENTOS POR HOSPITALIZACION PABELLON 7 ",
+      "tags": [
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "MED_OR_INS",
+        "ES_MED_HOSP",
+        "COV_EXPLICIT"
+      ],
+      "guards": {
+        "requires": [
+          "MED_OR_INS",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: SIN_CODIGO"
+        }
+      ]
+    },
+    {
+      "id": "P_a1e7a09f_fad87c86_COPAGO_POS",
+      "createdAt": "2026-01-26T13:42:27.220Z",
+      "updatedAt": "2026-01-26T13:42:27.220Z",
+      "contractFingerprint": "a1e7a09fd4cb112adae1746756d97428df2696ac",
+      "factFingerprint": "fad87c8675ba2c89d1a8ecc719591ee0e57ab0db",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.9
+      },
+      "rationale": "Precedente automático: DIA CAMA DE HOSPITALIZACION INTEGRAL DE OBSER ",
+      "tags": [
+        "COPAGO_POS",
+        "ES_HOTELERIA",
+        "HOTELERIA_INDIVIDUALIZADA",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS"
+      ],
+      "guards": {
+        "requires": [
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: SIN_CODIGO"
+        }
+      ]
+    },
+    {
+      "id": "P_a1e7a09f_58f0733a_COPAGO_POS",
+      "createdAt": "2026-01-26T13:42:27.228Z",
+      "updatedAt": "2026-01-26T13:42:27.228Z",
+      "contractFingerprint": "a1e7a09fd4cb112adae1746756d97428df2696ac",
+      "factFingerprint": "58f0733aefac06f9947fee60e8d7341e3a461bb6",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente automático: MATERIALES CLINICOS ",
+      "tags": [
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS",
+        "IC_BREACH"
+      ],
+      "guards": {
+        "requires": [
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: SIN_CODIGO"
+        }
+      ]
+    },
+    {
+      "id": "P_a1e7a09f_48df9d23_BONIF_0",
+      "createdAt": "",
+      "updatedAt": "2026-01-26T13:42:27.272Z",
+      "contractFingerprint": "a1e7a09fd4cb112adae1746756d97428df2696ac",
+      "factFingerprint": "48df9d2338a6ccf04ef637e30a58f53143547d73",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.95
+      },
+      "rationale": "Precedente automático: PAQUETE ROPA NO ARANCELADO ",
+      "tags": [
+        "BONIF_0",
+        "COPAGO_POS",
+        "INHERENTLY_INCLUDED",
+        "ES_HOTELERIA",
+        "HOTELERIA_INDIVIDUALIZADA"
+      ],
+      "guards": {
+        "requires": [
+          "BONIF_0",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: SIN_CODIGO"
+        }
+      ]
+    },
+    {
+      "id": "P_a1e7a09f_c6de828a_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-01-26T13:44:12.200Z",
+      "contractFingerprint": "a1e7a09fd4cb112adae1746756d97428df2696ac",
+      "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_a1e7a09f_b8314402_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "2026-01-26T13:44:12.207Z",
+      "updatedAt": "2026-01-26T13:44:12.207Z",
+      "contractFingerprint": "a1e7a09fd4cb112adae1746756d97428df2696ac",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C03] La literatura técnica permite clasificar este ítem (ej. hotelería clínica) como no exigible, a pesar de la falta de desglose en el PAM (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_a1e7a09f_fcf86a74_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "2026-01-26T13:44:12.212Z",
+      "updatedAt": "2026-01-26T13:44:12.212Z",
+      "contractFingerprint": "a1e7a09fd4cb112adae1746756d97428df2696ac",
+      "factFingerprint": "fcf86a74b7673f1f948717bc212f7a375bef9b59",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_a1e7a09f_b8314402_H_UNBUNDLING_IF319",
+      "createdAt": "",
+      "updatedAt": "2026-01-26T13:44:12.239Z",
+      "contractFingerprint": "a1e7a09fd4cb112adae1746756d97428df2696ac",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C02] Prestación inherente a un cargo principal ya bonificado (día cama/pabellón). Su cobro por separado constituye unbundling según circular IF/319 y literatura clínica (Cat A).",
+      "tags": [
+        "H_UNBUNDLING_IF319"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    }
+  ],
+  "version": "1.0.0",
+  "lastUpdated": "2026-01-26T13:44:12.239Z"
+}

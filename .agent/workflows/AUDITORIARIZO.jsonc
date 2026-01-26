@@ -1,0 +1,3287 @@
+{
+    "metadata": {
+        "origen": "contrato_pdf",
+        "fuente": "Consalud - PLAN DE SALUD COMPLEMENTARIO Plan Preferente",
+        "vigencia": "No especificada",
+        "tipo_contrato": "DESCONOCIDO"
+    },
+    "coberturas": [
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Alemana (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Alemana (Oferta Preferente): Día Cama - Clínica Alemana (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Alemana (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Alemana (Oferta Preferente): Día Cama - Clínica Alemana (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Universidad de los Andes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Universidad de los Andes (Oferta Preferente): Día Cama - Clínica Universidad de los Andes (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Universidad de los Andes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Universidad de los Andes (Oferta Preferente): Día Cama - Clínica Universidad de los Andes (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente): Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente): Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Santa María (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Santa María (Oferta Preferente): Día Cama - Clínica Santa María (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Santa María (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Santa María (Oferta Preferente): Día Cama - Clínica Santa María (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Hospital Clínico UC (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama - Hospital Clínico UC (Oferta Preferente): Día Cama - Hospital Clínico UC (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Hospital Clínico UC (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama - Hospital Clínico UC (Oferta Preferente): Día Cama - Hospital Clínico UC (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Las Condes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Las Condes (Oferta Preferente): Día Cama - Clínica Las Condes (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Las Condes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Las Condes (Oferta Preferente): Día Cama - Clínica Las Condes (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Indisa (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Indisa (Oferta Preferente): Día Cama - Clínica Indisa (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama - Clínica Indisa (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama - Clínica Indisa (Oferta Preferente): Día Cama - Clínica Indisa (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama (Libre Elección): Día Cama (Libre Elección)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama (Libre Elección): Día Cama (Libre Elección)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente): Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente): Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente): Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente): Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente): Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente): Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente): Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente): Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente): Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente): Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente): Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente): Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente): Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente): Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI (Libre Elección): Día Cama UTI/UCI (Libre Elección)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama UTI/UCI (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Día Cama UTI/UCI (Libre Elección): Día Cama UTI/UCI (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Alemana (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Derecho Pabellón - Clínica Alemana (Oferta Preferente): Derecho Pabellón - Clínica Alemana (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Alemana (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Derecho Pabellón - Clínica Alemana (Oferta Preferente): Derecho Pabellón - Clínica Alemana (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente): Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente): Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente): Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente): Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Santa María (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Sección Derecho Pabellón - Clínica Santa María (Oferta Preferente): Derecho Pabellón - Clínica Santa María (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Santa María (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección Derecho Pabellón - Clínica Santa María (Oferta Preferente): Derecho Pabellón - Clínica Santa María (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Derecho Pabellón - Hospital Clínico UC (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Derecho Pabellón - Hospital Clínico UC (Oferta Preferente): Derecho Pabellón - Hospital Clínico UC (Oferta Preferente)"
+        },
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Derecho Pabellón - Hospital Clínico UC (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Derecho Pabellón - Hospital Clínico UC (Oferta Preferente): Derecho Pabellón - Hospital Clínico UC (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Las Condes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Derecho Pabellón - Clínica Las Condes (Oferta Preferente): Derecho Pabellón - Clínica Las Condes (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Las Condes (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Derecho Pabellón - Clínica Las Condes (Oferta Preferente): Derecho Pabellón - Clínica Las Condes (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Indisa (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Derecho Pabellón - Clínica Indisa (Oferta Preferente): Derecho Pabellón - Clínica Indisa (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón - Clínica Indisa (Oferta Preferente)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Derecho Pabellón - Clínica Indisa (Oferta Preferente): Derecho Pabellón - Clínica Indisa (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Derecho Pabellón (Libre Elección): Derecho Pabellón (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho Pabellón (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Derecho Pabellón (Libre Elección): Derecho Pabellón (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Honorarios Médicos Quirúrgicos",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Honorarios Médicos Quirúrgicos: Honorarios Médicos Quirúrgicos"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Medicamentos",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Medicamentos: Medicamentos"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Materiales e Insumos Clínicos",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Materiales e Insumos Clínicos: Materiales e Insumos Clínicos"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Anestesia",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Anestesia: Anestesia"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Médica General (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Consulta Médica General (Oferta Preferente): Consulta Médica General (Oferta Preferente)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Médica General (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Consulta Médica General (Oferta Preferente): Consulta Médica General (Oferta Preferente)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Médica General (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Consulta Médica General (Libre Elección): Consulta Médica General (Libre Elección)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Médica General (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Consulta Médica General (Libre Elección): Consulta Médica General (Libre Elección)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Pediatría (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Consulta Pediatría (Oferta Preferente): Consulta Pediatría (Oferta Preferente)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Pediatría (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Consulta Pediatría (Oferta Preferente): Consulta Pediatría (Oferta Preferente)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Pediatría (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Consulta Pediatría (Libre Elección): Consulta Pediatría (Libre Elección)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Pediatría (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Consulta Pediatría (Libre Elección): Consulta Pediatría (Libre Elección)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Exámenes de Laboratorio (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Exámenes de Laboratorio (Oferta Preferente): Exámenes de Laboratorio (Oferta Preferente)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Exámenes de Laboratorio (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Exámenes de Laboratorio (Oferta Preferente): Exámenes de Laboratorio (Oferta Preferente)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Exámenes de Laboratorio (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Exámenes de Laboratorio (Libre Elección): Exámenes de Laboratorio (Libre Elección)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Exámenes de Laboratorio (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Exámenes de Laboratorio (Libre Elección): Exámenes de Laboratorio (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Hemograma (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Hemograma (Oferta Preferente): Hemograma (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Hemograma (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Hemograma (Oferta Preferente): Hemograma (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Hemograma (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Hemograma (Libre Elección): Hemograma (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Hemograma (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Hemograma (Libre Elección): Hemograma (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Perfil Bioquímico (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Perfil Bioquímico (Oferta Preferente): Perfil Bioquímico (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Perfil Bioquímico (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Perfil Bioquímico (Oferta Preferente): Perfil Bioquímico (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Perfil Bioquímico (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Perfil Bioquímico (Libre Elección): Perfil Bioquímico (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Perfil Bioquímico (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Perfil Bioquímico (Libre Elección): Perfil Bioquímico (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Orina Completa (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Orina Completa (Oferta Preferente): Orina Completa (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Orina Completa (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Orina Completa (Oferta Preferente): Orina Completa (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Orina Completa (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Orina Completa (Libre Elección): Orina Completa (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Orina Completa (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Orina Completa (Libre Elección): Orina Completa (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Cultivos (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Cultivos (Oferta Preferente): Cultivos (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Cultivos (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Cultivos (Oferta Preferente): Cultivos (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Cultivos (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Cultivos (Libre Elección): Cultivos (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Cultivos (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Cultivos (Libre Elección): Cultivos (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Glucosa en Sangre (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Glucosa en Sangre (Oferta Preferente): Glucosa en Sangre (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Glucosa en Sangre (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Glucosa en Sangre (Oferta Preferente): Glucosa en Sangre (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Glucosa en Sangre (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Glucosa en Sangre (Libre Elección): Glucosa en Sangre (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Glucosa en Sangre (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Glucosa en Sangre (Libre Elección): Glucosa en Sangre (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Perfil Lipídico (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Perfil Lipídico (Oferta Preferente): Perfil Lipídico (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Perfil Lipídico (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Perfil Lipídico (Oferta Preferente): Perfil Lipídico (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Perfil Lipídico (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Perfil Lipídico (Libre Elección): Perfil Lipídico (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Perfil Lipídico (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Perfil Lipídico (Libre Elección): Perfil Lipídico (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Imagenología (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Imagenología (Oferta Preferente): Imagenología (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Imagenología (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Imagenología (Oferta Preferente): Imagenología (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Imagenología (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Imagenología (Libre Elección): Imagenología (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Rayos X (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Rayos X (Oferta Preferente): Rayos X (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Rayos X (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Rayos X (Oferta Preferente): Rayos X (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Rayos X (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Rayos X (Libre Elección): Rayos X (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Ecotomografía (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Ecotomografía (Oferta Preferente): Ecotomografía (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Ecotomografía (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Ecotomografía (Oferta Preferente): Ecotomografía (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Ecotomografía (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Ecotomografía (Libre Elección): Ecotomografía (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "TAC/Scanner (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección TAC/Scanner (Oferta Preferente): TAC/Scanner (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "TAC/Scanner (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección TAC/Scanner (Libre Elección): TAC/Scanner (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Resonancia Magnética (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Resonancia Magnética (Oferta Preferente): Resonancia Magnética (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Resonancia Magnética (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Resonancia Magnética (Libre Elección): Resonancia Magnética (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Mamografía (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Mamografía (Oferta Preferente): Mamografía (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Mamografía (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Mamografía (Oferta Preferente): Mamografía (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Mamografía (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Mamografía (Libre Elección): Mamografía (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Densitometría Ósea (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Densitometría Ósea (Oferta Preferente): Densitometría Ósea (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Densitometría Ósea (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Densitometría Ósea (Oferta Preferente): Densitometría Ósea (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Densitometría Ósea (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Densitometría Ósea (Libre Elección): Densitometría Ósea (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Ecografía Doppler (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Ecografía Doppler (Oferta Preferente): Ecografía Doppler (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Ecografía Doppler (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Ecografía Doppler (Oferta Preferente): Ecografía Doppler (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Ecografía Doppler (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Ecografía Doppler (Libre Elección): Ecografía Doppler (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Procedimientos Diagnósticos (Oferta Preferente)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Procedimientos Diagnósticos (Oferta Preferente): Procedimientos Diagnósticos (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Procedimientos Diagnósticos (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Procedimientos Diagnósticos (Oferta Preferente): Procedimientos Diagnósticos (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Procedimientos Diagnósticos (Libre Elección)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Procedimientos Diagnósticos (Libre Elección): Procedimientos Diagnósticos (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Procedimientos Diagnósticos (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Procedimientos Diagnósticos (Libre Elección): Procedimientos Diagnósticos (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Procedimientos Terapéuticos (Oferta Preferente)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Procedimientos Terapéuticos (Oferta Preferente): Procedimientos Terapéuticos (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Procedimientos Terapéuticos (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Procedimientos Terapéuticos (Oferta Preferente): Procedimientos Terapéuticos (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Procedimientos Terapéuticos (Libre Elección)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Procedimientos Terapéuticos (Libre Elección): Procedimientos Terapéuticos (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Procedimientos Terapéuticos (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Procedimientos Terapéuticos (Libre Elección): Procedimientos Terapéuticos (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Endoscopía Digestiva (Oferta Preferente)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Endoscopía Digestiva (Oferta Preferente): Endoscopía Digestiva (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Endoscopía Digestiva (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Endoscopía Digestiva (Oferta Preferente): Endoscopía Digestiva (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Endoscopía Digestiva (Libre Elección)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Endoscopía Digestiva (Libre Elección): Endoscopía Digestiva (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Endoscopía Digestiva (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Endoscopía Digestiva (Libre Elección): Endoscopía Digestiva (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Colonoscopía (Oferta Preferente)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Colonoscopía (Oferta Preferente): Colonoscopía (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Colonoscopía (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Colonoscopía (Oferta Preferente): Colonoscopía (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Colonoscopía (Libre Elección)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Colonoscopía (Libre Elección): Colonoscopía (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Colonoscopía (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Colonoscopía (Libre Elección): Colonoscopía (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Biopsia (Oferta Preferente)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Biopsia (Oferta Preferente): Biopsia (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Biopsia (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Biopsia (Oferta Preferente): Biopsia (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Biopsia (Libre Elección)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Biopsia (Libre Elección): Biopsia (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Biopsia (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Biopsia (Libre Elección): Biopsia (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Electrocardiograma (Oferta Preferente)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Electrocardiograma (Oferta Preferente): Electrocardiograma (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Electrocardiograma (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Electrocardiograma (Oferta Preferente): Electrocardiograma (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Electrocardiograma (Libre Elección)",
+            "porcentaje": 70,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Electrocardiograma (Libre Elección): Electrocardiograma (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Electrocardiograma (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Electrocardiograma (Libre Elección): Electrocardiograma (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Kinesiología (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Kinesiología (Oferta Preferente): Kinesiología (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Kinesiología (Oferta Preferente)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Kinesiología (Oferta Preferente): Kinesiología (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Kinesiología (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Kinesiología (Libre Elección): Kinesiología (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Kinesiología (Libre Elección)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Kinesiología (Libre Elección): Kinesiología (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Fonoaudiología (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Fonoaudiología (Oferta Preferente): Fonoaudiología (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Fonoaudiología (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Fonoaudiología (Oferta Preferente): Fonoaudiología (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Fonoaudiología (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Fonoaudiología (Libre Elección): Fonoaudiología (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Fonoaudiología (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Fonoaudiología (Libre Elección): Fonoaudiología (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Nutricionista (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Nutricionista (Oferta Preferente): Nutricionista (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Nutricionista (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Nutricionista (Libre Elección): Nutricionista (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Urgencia Simple Adulto (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Urgencia Simple Adulto (Oferta Preferente): Urgencia Simple Adulto (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Urgencia Simple Adulto (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Urgencia Simple Adulto (Libre Elección): Urgencia Simple Adulto (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Urgencia Compleja Adulto (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Urgencia Compleja Adulto (Oferta Preferente): Urgencia Compleja Adulto (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Urgencia Compleja Adulto (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Urgencia Compleja Adulto (Libre Elección): Urgencia Compleja Adulto (Libre Elección)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Psiquiatría (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Consulta Psiquiatría (Oferta Preferente): Consulta Psiquiatría (Oferta Preferente)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Psiquiatría (Libre Elección)",
+            "porcentaje": 70,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Consulta Psiquiatría (Libre Elección): Consulta Psiquiatría (Libre Elección)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Psicología (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección Consulta Psicología (Oferta Preferente): Consulta Psicología (Oferta Preferente)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Psicología (Libre Elección)",
+            "porcentaje": 70,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Consulta Psicología (Libre Elección): Consulta Psicología (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "PAD Dental (Oferta Preferente)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección PAD Dental (Oferta Preferente): PAD Dental (Oferta Preferente)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "PAD Dental (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección PAD Dental (Libre Elección): PAD Dental (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Lentes Ópticos (Libre Elección)",
+            "porcentaje": 90,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Lentes Ópticos (Libre Elección): Lentes Ópticos (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "Prótesis y Órtesis (Libre Elección)",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección Prótesis y Órtesis (Libre Elección): Prótesis y Órtesis (Libre Elección)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "USO   DEL PLAN",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección USO   DEL PLAN: USO   DEL PLAN"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "USO   DEL PLAN",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección USO   DEL PLAN: USO   DEL PLAN"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "TIPO DE PLAN:",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección TIPO DE PLAN:: TIPO DE PLAN:"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "TIPO DE PLAN:",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección TIPO DE PLAN:: TIPO DE PLAN:"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "%",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección %: %"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "%",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección %: %"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "KINESIOLOGÍA y FISIOTERAPIA",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección KINESIOLOGÍA y FISIOTERAPIA: KINESIOLOGÍA y FISIOTERAPIA"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "KINESIOLOGÍA y FISIOTERAPIA",
+            "porcentaje": 1.2,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección KINESIOLOGÍA y FISIOTERAPIA: KINESIOLOGÍA y FISIOTERAPIA"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA): IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA): IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "CONSULTA / TRATAMIENTO PSIQUIATRÍA",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección CONSULTA / TRATAMIENTO PSIQUIATRÍA: CONSULTA / TRATAMIENTO PSIQUIATRÍA"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "CONSULTA / TRATAMIENTO PSIQUIATRÍA",
+            "porcentaje": 1,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección CONSULTA / TRATAMIENTO PSIQUIATRÍA: CONSULTA / TRATAMIENTO PSIQUIATRÍA"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "MARCOS Y CRISTALES ÓPTICOS (11)",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección MARCOS Y CRISTALES ÓPTICOS (11): MARCOS Y CRISTALES ÓPTICOS (11)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "MARCOS Y CRISTALES ÓPTICOS (11)",
+            "porcentaje": 1.8,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección MARCOS Y CRISTALES ÓPTICOS (11): MARCOS Y CRISTALES ÓPTICOS (11)"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "0 a menos de 2 años",
+            "porcentaje": null,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 0 a menos de 2 años: 0 a menos de 2 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "0 a menos de 2 años",
+            "porcentaje": null,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 0 a menos de 2 años: 0 a menos de 2 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "2 a menos de 5 años",
+            "porcentaje": 1.8,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 2 a menos de 5 años: 2 a menos de 5 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "2 a menos de 5 años",
+            "porcentaje": 1.8,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 2 a menos de 5 años: 2 a menos de 5 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "10 a menos de 15 años 5 a menos de 10 años",
+            "porcentaje": 0.7,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 10 a menos de 15 años 5 a menos de 10 años: 10 a menos de 15 años 5 a menos de 10 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "10 a menos de 15 años 5 a menos de 10 años",
+            "porcentaje": 0.6,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 10 a menos de 15 años 5 a menos de 10 años: 10 a menos de 15 años 5 a menos de 10 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "15 a menos de 20 años",
+            "porcentaje": 0.75,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 15 a menos de 20 años: 15 a menos de 20 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "15 a menos de 20 años",
+            "porcentaje": 0.75,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 15 a menos de 20 años: 15 a menos de 20 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "30 a menos de 35 años",
+            "porcentaje": 1,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 30 a menos de 35 años: 30 a menos de 35 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "30 a menos de 35 años",
+            "porcentaje": 1.3,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 30 a menos de 35 años: 30 a menos de 35 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "40 a menos de 45 años",
+            "porcentaje": 1.3,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 40 a menos de 45 años: 40 a menos de 45 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "40 a menos de 45 años",
+            "porcentaje": 1.5,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 40 a menos de 45 años: 40 a menos de 45 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "55 a menos de 60 años",
+            "porcentaje": 2.35,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 55 a menos de 60 años: 55 a menos de 60 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "55 a menos de 60 años",
+            "porcentaje": 1.9,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 55 a menos de 60 años: 55 a menos de 60 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "60 a menos de 65 años",
+            "porcentaje": 3.2,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 60 a menos de 65 años: 60 a menos de 65 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "60 a menos de 65 años",
+            "porcentaje": 3.7,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 60 a menos de 65 años: 60 a menos de 65 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "65 a menos de 70 años 70 a menos de 75 años",
+            "porcentaje": 3.7,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 65 a menos de 70 años 70 a menos de 75 años: 65 a menos de 70 años 70 a menos de 75 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "65 a menos de 70 años 70 a menos de 75 años",
+            "porcentaje": 3.7,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 65 a menos de 70 años 70 a menos de 75 años: 65 a menos de 70 años 70 a menos de 75 años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "80 y más años",
+            "porcentaje": 5,
+            "red_especifica": "Red Preferente",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Sección 80 y más años: 80 y más años"
+        },
+        {
+            "ambito": "desconocido",
+            "descripcion_textual": "80 y más años",
+            "porcentaje": 4.8,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección 80 y más años: 80 y más años"
+        }
+    ],
+    "topes": [
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Alemana (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Alemana (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Universidad de los Andes (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Universidad de los Andes (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Santa María (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Santa María (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama - Hospital Clínico UC (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama - Hospital Clínico UC (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Las Condes (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Las Condes (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Indisa (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama - Clínica Indisa (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI/UCI (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Derecho Pabellón - Clínica Alemana (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Derecho Pabellón - Clínica Alemana (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.1] Tope para Derecho Pabellón - Clínica Santa María (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Derecho Pabellón - Clínica Santa María (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Derecho Pabellón - Hospital Clínico UC (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "hospitalario",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Derecho Pabellón - Hospital Clínico UC (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Derecho Pabellón - Clínica Las Condes (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Derecho Pabellón - Clínica Las Condes (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Derecho Pabellón - Clínica Indisa (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Derecho Pabellón - Clínica Indisa (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Derecho Pabellón (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Derecho Pabellón (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Honorarios Médicos Quirúrgicos (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Medicamentos (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Materiales e Insumos Clínicos (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Anestesia (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Consulta Médica General (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Consulta Médica General (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Consulta Médica General (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Consulta Médica General (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Consulta Pediatría (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Consulta Pediatría (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Consulta Pediatría (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Consulta Pediatría (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Exámenes de Laboratorio (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Exámenes de Laboratorio (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Exámenes de Laboratorio (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Exámenes de Laboratorio (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Hemograma (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Hemograma (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Hemograma (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Hemograma (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Perfil Bioquímico (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Perfil Bioquímico (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Perfil Bioquímico (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Perfil Bioquímico (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Orina Completa (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Orina Completa (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Orina Completa (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Orina Completa (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Cultivos (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Cultivos (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Cultivos (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Cultivos (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Glucosa en Sangre (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Glucosa en Sangre (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Glucosa en Sangre (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Glucosa en Sangre (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Perfil Lipídico (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Perfil Lipídico (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Perfil Lipídico (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Perfil Lipídico (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Imagenología (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Imagenología (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Imagenología (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Rayos X (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Rayos X (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Rayos X (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Ecotomografía (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Ecotomografía (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Ecotomografía (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para TAC/Scanner (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 0.8,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para TAC/Scanner (Libre Elección) (LIBRE_ELECCION): 0.8 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Resonancia Magnética (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 0.8,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Resonancia Magnética (Libre Elección) (LIBRE_ELECCION): 0.8 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Mamografía (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Mamografía (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Mamografía (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Densitometría Ósea (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Densitometría Ósea (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Densitometría Ósea (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Ecografía Doppler (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Ecografía Doppler (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Ecografía Doppler (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Procedimientos Diagnósticos (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Procedimientos Diagnósticos (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Procedimientos Diagnósticos (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Procedimientos Diagnósticos (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Procedimientos Terapéuticos (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Procedimientos Terapéuticos (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Procedimientos Terapéuticos (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Procedimientos Terapéuticos (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Endoscopía Digestiva (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Endoscopía Digestiva (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Endoscopía Digestiva (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Endoscopía Digestiva (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Colonoscopía (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Colonoscopía (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Colonoscopía (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Colonoscopía (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Biopsia (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Biopsia (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Biopsia (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Biopsia (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Electrocardiograma (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Electrocardiograma (Oferta Preferente) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Electrocardiograma (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Electrocardiograma (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Kinesiología (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 1.2,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Kinesiología (Oferta Preferente) (LIBRE_ELECCION): 1.2 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Kinesiología (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 1.2,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Kinesiología (Libre Elección) (LIBRE_ELECCION): 1.2 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Fonoaudiología (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 2.5,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Fonoaudiología (Oferta Preferente) (LIBRE_ELECCION): 2.5 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Fonoaudiología (Libre Elección) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 2.5,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Fonoaudiología (Libre Elección) (LIBRE_ELECCION): 2.5 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 1,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Nutricionista (Oferta Preferente) (LIBRE_ELECCION): 1 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 1,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Nutricionista (Libre Elección) (LIBRE_ELECCION): 1 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": 1,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Urgencia Simple Adulto (Oferta Preferente) (PREFERENTE): 1 UF"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Urgencia Simple Adulto (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": 2.9,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Urgencia Compleja Adulto (Oferta Preferente) (PREFERENTE): 2.9 UF"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Urgencia Compleja Adulto (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Consulta Psiquiatría (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "VAM",
+            "valor": 1,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Consulta Psiquiatría (Libre Elección) (LIBRE_ELECCION): 1 AC2"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para Consulta Psicología (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "VAM",
+            "valor": 1,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Consulta Psicología (Libre Elección) (LIBRE_ELECCION): 1 AC2"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para PAD Dental (Oferta Preferente) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para PAD Dental (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": 1.8,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Lentes Ópticos (Libre Elección) (LIBRE_ELECCION): 1.8 UF"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Prótesis y Órtesis (Libre Elección) (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para USO   DEL PLAN (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para USO   DEL PLAN (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para TIPO DE PLAN: (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para TIPO DE PLAN: (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para % (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 90,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para KINESIOLOGÍA y FISIOTERAPIA (PREFERENTE): 90 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 5,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para KINESIOLOGÍA y FISIOTERAPIA (LIBRE_ELECCION): 5 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA) (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": 1,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA) (LIBRE_ELECCION): 1 AC2"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "valor": 70,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para CONSULTA / TRATAMIENTO PSIQUIATRÍA (PREFERENTE): 70 SIN_TOPE"
+        },
+        {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "valor": 4,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para CONSULTA / TRATAMIENTO PSIQUIATRÍA (LIBRE_ELECCION): 4 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 90,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para MARCOS Y CRISTALES ÓPTICOS (11) (PREFERENTE): 90 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 2.5,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para MARCOS Y CRISTALES ÓPTICOS (11) (LIBRE_ELECCION): 2.5 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 0 a menos de 2 años (PREFERENTE): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para 0 a menos de 2 años (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 1.8,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 2 a menos de 5 años (PREFERENTE): 1.8 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para 2 a menos de 5 años (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 0.8,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 10 a menos de 15 años 5 a menos de 10 años (PREFERENTE): 0.8 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para 10 a menos de 15 años 5 a menos de 10 años (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 1.3,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 15 a menos de 20 años (PREFERENTE): 1.3 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 1.9,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 30 a menos de 35 años (PREFERENTE): 1.9 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para 30 a menos de 35 años (LIBRE_ELECCION): undefined SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 2,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 40 a menos de 45 años (PREFERENTE): 2 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 2.85,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 55 a menos de 60 años (PREFERENTE): 2.85 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 3.7,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 60 a menos de 65 años (PREFERENTE): 3.7 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 3.7,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 65 a menos de 70 años 70 a menos de 75 años (PREFERENTE): 3.7 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": 4.8,
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "preferente",
+            "fuente_textual": "[p.2] Tope para 80 y más años (PREFERENTE): 4.8 SIN_TOPE"
+        },
+        {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "aplicacion": "desconocido",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para 80 y más años (LIBRE_ELECCION): undefined SIN_TOPE"
+        }
+    ],
+    "deducibles": [],
+    "copagos": [],
+    "exclusiones": [],
+    "reglas_aplicacion": [
+        {
+            "condicion": "Alcance Tope: CONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA) 1)",
+            "efecto": "Que se incorporen al convenio la cantidad de trabajadores como beneficiarios o al menos el 85% de la misma, dentro del plazo de tres meses contados desde la fecha de suscripción del convenio. Este porcentaje mínimo no podrá disminuir durante la vigencia del convenio.",
+            "fuente_textual": "[p.3] Que se incorporen al convenio la cantidad de trabajadores como beneficiarios o al menos el 85% de la misma, dentro del plazo de tres meses contados desde la fecha de suscripción del convenio. Este porcentaje mínimo no podrá disminuir durante la vigencia del convenio."
+        },
+        {
+            "condicion": "Sección CONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA) 2)",
+            "efecto": "Que se mantenga durante la vigencia del convenio, un promedio de cargas legales por afiliado cercana a las personas.",
+            "fuente_textual": "[p.3] Que se mantenga durante la vigencia del convenio, un promedio de cargas legales por afiliado cercana a las personas."
+        },
+        {
+            "condicion": "Sección CONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA) 3)",
+            "efecto": "Que el monto mínimo de cotización mensual del grupo total de los trabajadores afectos al convenio colectivo, no podrá ser inferior a $ o al menos, deberá llegar a un 85% de dicha suma.",
+            "fuente_textual": "[p.3] Que el monto mínimo de cotización mensual del grupo total de los trabajadores afectos al convenio colectivo, no podrá ser inferior a $ o al menos, deberá llegar a un 85% de dicha suma."
+        },
+        {
+            "condicion": "Sección CONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA) 4)",
+            "efecto": "Que el plan o planes de salud contratados se deberán financiar en al menos un 90%. Se entiende por financiamiento al cuociente entre la suma de cotizaciones pagadas de los trabajadores afiliados al convenio colectivo y la suma de precios de los planes de esos trabajadores.",
+            "fuente_textual": "[p.3] Que el plan o planes de salud contratados se deberán financiar en al menos un 90%. Se entiende por financiamiento al cuociente entre la suma de cotizaciones pagadas de los trabajadores afiliados al convenio colectivo y la suma de precios de los planes de esos trabajadores."
+        },
+        {
+            "condicion": "Sección CONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA) 5)",
+            "efecto": "Que la siniestralidad anual del plan no supere el 85%. Se entiende por siniestralidad el cuociente entre la suma de los gastos de Prestaciones de Salud y Subsidios por Incapacidad Laboral a cargo de la Isapre y la suma de las cotizaciones pagadas en ese mismo período.",
+            "fuente_textual": "[p.3] Que la siniestralidad anual del plan no supere el 85%. Se entiende por siniestralidad el cuociente entre la suma de los gastos de Prestaciones de Salud y Subsidios por Incapacidad Laboral a cargo de la Isapre y la suma de las cotizaciones pagadas en ese mismo período."
+        },
+        {
+            "condicion": "Sección CONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA) NOTA",
+            "efecto": "En caso de Planes Grupales en que se pacte el precio en el porcentaje equivalente a la cotización legal para salud, no se producirán excedentes de cotización de salud.",
+            "fuente_textual": "[p.3] En caso de Planes Grupales en que se pacte el precio en el porcentaje equivalente a la cotización legal para salud, no se producirán excedentes de cotización de salud."
+        },
+        {
+            "condicion": "Sección CONDICIONES QUE DEBE CUMPLIR EL AFILIADO PARA INGRESAR Y MANTENERSE EN EL PLAN GRUPAL (CUANDO CORRESPONDA) A)",
+            "efecto": "Que se mantenga permanentemente como trabajador de la empresa.",
+            "fuente_textual": "[p.3] Que se mantenga permanentemente como trabajador de la empresa."
+        },
+        {
+            "condicion": "Sección CONDICIONES QUE DEBE CUMPLIR EL AFILIADO PARA INGRESAR Y MANTENERSE EN EL PLAN GRUPAL (CUANDO CORRESPONDA) B)",
+            "efecto": "Que se mantenga permanentemente como afiliado de CONSALUD.",
+            "fuente_textual": "[p.3] Que se mantenga permanentemente como afiliado de CONSALUD."
+        },
+        {
+            "condicion": "Sección CONDICIONES DE VIGENCIA DEL PLAN MATRIMONIAL (CUANDO CORRESPONDA) A)",
+            "efecto": "Que el cotizante y su cónyuge mantengan la calidad de afiliados vigentes de CONSALUD.",
+            "fuente_textual": "[p.3] Que el cotizante y su cónyuge mantengan la calidad de afiliados vigentes de CONSALUD."
+        },
+        {
+            "condicion": "Sección CONDICIONES DE VIGENCIA DEL PLAN MATRIMONIAL (CUANDO CORRESPONDA) B)",
+            "efecto": "Que el cotizante y su cónyuge estén de acuerdo en mantener el Plan Matrimonial.",
+            "fuente_textual": "[p.3] Que el cotizante y su cónyuge estén de acuerdo en mantener el Plan Matrimonial."
+        },
+        {
+            "condicion": "Alcance Tope: TIEMPOS DE ESPERA",
+            "efecto": "Los tiempos de espera definidos, se cuentan a partir de la fecha en que el beneficiario suscriba el documento de Solicitud de Contabilización del Tiempo de Espera en nuestras oficinas.",
+            "fuente_textual": "[p.3] Los tiempos de espera definidos, se cuentan a partir de la fecha en que el beneficiario suscriba el documento de Solicitud de Contabilización del Tiempo de Espera en nuestras oficinas."
+        },
+        {
+            "condicion": "Sección CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES 1)",
+            "efecto": "AMBULATORIAS: Son aquellas que no requieren de día cama, anterior.",
+            "fuente_textual": "[p.4] AMBULATORIAS: Son aquellas que no requieren de día cama, anterior."
+        },
+        {
+            "condicion": "Alcance Tope: CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES 2)",
+            "efecto": "MEDICAMENTOS Y MATERIALES CLÍNICOS HOSPITALARIOS: Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de prestaciones hospitalarias. Sólo serán objeto de bonificación aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya consignado e...",
+            "fuente_textual": "[p.4] MEDICAMENTOS Y MATERIALES CLÍNICOS HOSPITALARIOS: Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de prestaciones hospitalarias. Sólo serán objeto de bonificación aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya consignado en la cuenta del paciente, de acuerdo a las disposiciones y aranceles vigentes y que formen parte de la intervención que se realice. En ambos casos se bonificarán en los porcentajes y topes específicos definidos para los ítems Drogas Citotóxicas en Ciclos de Quimioterapia y Hospitalización Psiquiátrica, siempre que formen parte del plan de salud. El tope indicado en UF se aplicará a la suma de los valores de los medicamentos y materiales clínicos del proceso, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica por evento hospitalario."
+        },
+        {
+            "condicion": "Sección CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES 3)",
+            "efecto": "HOSPITALIZACION PSIQUIATRICA: La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se determinará conforme a los porcentajes y topes específicos definidos para el plan de salud. Para la aplicación de la cobertura y el c...",
+            "fuente_textual": "[p.4] HOSPITALIZACION PSIQUIATRICA: La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se determinará conforme a los porcentajes y topes específicos definidos para el plan de salud. Para la aplicación de la cobertura y el crédito taxativo, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: día cama, medicamentos, exámenes, consultas médicas, honorarios médicos, procedimientos, imagenología y pabellón. El tope indicado en UF se aplicará después de llegado el tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada."
+        },
+        {
+            "condicion": "Alcance Tope: CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES 4)",
+            "efecto": "ATENCIONES INTEGRALES DE ENFERMERÍA EN DOMICILIO: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 60 años y se encuentren en el plan de salud. El tope indicado se aplica por evento.",
+            "fuente_textual": "[p.4] ATENCIONES INTEGRALES DE ENFERMERÍA EN DOMICILIO: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 60 años y se encuentren en el plan de salud. El tope indicado se aplica por evento."
+        },
+        {
+            "condicion": "Alcance Tope: CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES 5)",
+            "efecto": "ATENCIONES INTEGRALES DE ENFERMERÍA EN CENTRO DE ADULTO MAYOR: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 60 años.",
+            "fuente_textual": "[p.4] ATENCIONES INTEGRALES DE ENFERMERÍA EN CENTRO DE ADULTO MAYOR: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 60 años."
+        },
+        {
+            "condicion": "Sección CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES 6)",
+            "efecto": "TOPES DE BONIFICACIÓN: Los topes de bonificación se expresan en UF y en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial que tenga la unidad de fomento el último día del mes que corresponda a la fecha de la prestación.",
+            "fuente_textual": "[p.4] TOPES DE BONIFICACIÓN: Los topes de bonificación se expresan en UF y en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial que tenga la unidad de fomento el último día del mes que corresponda a la fecha de la prestación."
+        },
+        {
+            "condicion": "Alcance Tope: CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES 7)",
+            "efecto": "VALORACIÓN DE TOPES ANUALES: Los topes anuales por beneficiario se expresan en Unidades de Fomento (UF). Para su cálculo se utilizará el valor oficial que tenga dicha unidad el día en que se bonifica la prestación o se imputa al tope. El tope anual por beneficiario se aplicará a la suma de los valor...",
+            "fuente_textual": "[p.4] VALORACIÓN DE TOPES ANUALES: Los topes anuales por beneficiario se expresan en Unidades de Fomento (UF). Para su cálculo se utilizará el valor oficial que tenga dicha unidad el día en que se bonifica la prestación o se imputa al tope. El tope anual por beneficiario se aplicará a la suma de los valores de las prestaciones bonificadas. Una vez que el tope anual por beneficiario se haya cumplido, el tope, si no es de libre elección, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada. El tope anual por beneficiario se aplicará a la suma de los valores de las prestaciones bonificadas. Una vez que el tope anual por beneficiario se haya cumplido, las prestaciones contempladas en el arancel que se refiere el artículo 31 de la Ley N°19.656 que establece el Régimen General de Garantías de Salud."
+        },
+        {
+            "condicion": "Sección I",
+            "efecto": "Si durante la vigencia del plan contratado, el o los prestadores individualizados en el plan experimentaren una pérdida parcial y permanente de su infraestructura o una sustitución de la especialidad médica a que estaban orientados al momento de celebrarse el contrato, la Isapre deberá comunicar por...",
+            "fuente_textual": "[p.5] Si durante la vigencia del plan contratado, el o los prestadores individualizados en el plan experimentaren una pérdida parcial y permanente de su infraestructura o una sustitución de la especialidad médica a que estaban orientados al momento de celebrarse el contrato, la Isapre deberá comunicar por escrito dicho evento a cada uno de los cotizantes afectados, junto con las alternativas de planes que dispone para ellos. En esta oferta deberá contemplarse como mínimo, el Plan de Salud que tenga el precio que más se ajuste al monto de la cotización legal que corresponda a la remuneración del afiliado al momento de modificarse el contrato."
+        },
+        {
+            "condicion": "Sección J",
+            "efecto": "CONSALUD ofrecerá un nuevo Plan de Salud al afiliado si este así lo requiere, y su petición se fundamenta en alguna de las siguientes situaciones:",
+            "fuente_textual": "[p.5] CONSALUD ofrecerá un nuevo Plan de Salud al afiliado si este así lo requiere, y su petición se fundamenta en alguna de las siguientes situaciones:"
+        },
+        {
+            "condicion": "Alcance Tope: J.1",
+            "efecto": "Modificación del domicilio consignado al incorporarse al plan y que se acredite que dicho cambio dificulta significativamente el acceso de los beneficiarios a los prestadores individualizados en el plan.",
+            "fuente_textual": "[p.5] Modificación del domicilio consignado al incorporarse al plan y que se acredite que dicho cambio dificulta significativamente el acceso de los beneficiarios a los prestadores individualizados en el plan."
+        },
+        {
+            "condicion": "Sección J.2",
+            "efecto": "Incumplimiento por parte de la Isapre de la derivación señalada en el punto C) precedente, o derivación a un prestador distinto de los indicados en el presente Plan de Salud o por falta de atención efectiva y oportuna por parte del prestador derivado.",
+            "fuente_textual": "[p.5] Incumplimiento por parte de la Isapre de la derivación señalada en el punto C) precedente, o derivación a un prestador distinto de los indicados en el presente Plan de Salud o por falta de atención efectiva y oportuna por parte del prestador derivado."
+        },
+        {
+            "condicion": "Alcance Tope: J.3",
+            "efecto": "Falta de otorgamiento de la atención de salud al cotizante o beneficiario que se ha ceñido a los procedimientos de acceso y derivación definidos en el Plan.",
+            "fuente_textual": "[p.5] Falta de otorgamiento de la atención de salud al cotizante o beneficiario que se ha ceñido a los procedimientos de acceso y derivación definidos en el Plan."
+        },
+        {
+            "condicion": "Sección K",
+            "efecto": "Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva.",
+            "fuente_textual": "[p.5] Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva."
+        },
+        {
+            "condicion": "Sección L",
+            "efecto": "CENTROS MÉDICOS DE LA RED DE SALUD UC CHRISTUS EN CONVENIO:",
+            "fuente_textual": "[p.5] CENTROS MÉDICOS DE LA RED DE SALUD UC CHRISTUS EN CONVENIO:"
+        },
+        {
+            "condicion": "Sección L.1",
+            "efecto": "Centro Médico San Joaquín (Av. Vicuña Mackenna 4686)",
+            "fuente_textual": "[p.5] Centro Médico San Joaquín (Av. Vicuña Mackenna 4686)"
+        },
+        {
+            "condicion": "Sección L.2",
+            "efecto": "Centro de Especialidades Médicas (Marcoleta 350)",
+            "fuente_textual": "[p.5] Centro de Especialidades Médicas (Marcoleta 350)"
+        },
+        {
+            "condicion": "Sección L.3",
+            "efecto": "Centro Médico Irarrázaval (Av. Irarrázaval 4949 Ñuñoa)",
+            "fuente_textual": "[p.5] Centro Médico Irarrázaval (Av. Irarrázaval 4949 Ñuñoa)"
+        },
+        {
+            "condicion": "Sección L.4",
+            "efecto": "Centro Médico Lira (Lira 85, 5to piso)",
+            "fuente_textual": "[p.5] Centro Médico Lira (Lira 85, 5to piso)"
+        },
+        {
+            "condicion": "Sección L.5",
+            "efecto": "Centro Médico San Jorge (Nevería 4444)",
+            "fuente_textual": "[p.5] Centro Médico San Jorge (Nevería 4444)"
+        },
+        {
+            "condicion": "Sección L.6",
+            "efecto": "Edificio Médico Alcántara (Av. Apoquindo 3990)",
+            "fuente_textual": "[p.5] Edificio Médico Alcántara (Av. Apoquindo 3990)"
+        },
+        {
+            "condicion": "Sección ANEXO 1) PRESTACIONES",
+            "efecto": "1) PRESTACIONES a) Hospitalarias: Son aquellas que requieren de día cama. b) Ambulatorias: Son aquellas no consideradas en la definición anterior.",
+            "fuente_textual": "[p.Page 4] 1) PRESTACIONES a) Hospitalarias: Son aquellas que requieren de día cama. b) Ambulatorias: Son aquellas no consideradas en la definición anterior."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO 2) MEDICAMENTOS Y MATERIALES CLINICOS HOSPITALARIOS",
+            "efecto": "2) MEDICAMENTOS Y MATERIALES CLINICOS HOSPITALARIOS: Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de prestaciones hospitalarias. Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya consider...",
+            "fuente_textual": "[p.Page 4] 2) MEDICAMENTOS Y MATERIALES CLINICOS HOSPITALARIOS: Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de prestaciones hospitalarias. Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya considerado en su factura. Se excluyen de este ítem los medicamentos y materiales clínicos por tratamiento de cáncer y hospitalización psiquiátrica; dado que en ambos casos se bonificarán en los porcentajes y topes específicos definidos para los ítems Drogas Citotóxicas en Ciclos de Quimioterapia y Hospitalización Psiquiátrica respectivamente. Se excluyen asimismo de la oferta preferente, los medicamentos y materiales clínicos por, tratamiento de infertilidad y fibrosis quística del páncreas, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica por evento/beneficiario."
+        },
+        {
+            "condicion": "Sección ANEXO 3) HOSPITALIZACION PSIQUIATRICA",
+            "efecto": "3) HOSPITALIZACION PSIQUIATRICA: La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración ...",
+            "fuente_textual": "[p.Page 4] 3) HOSPITALIZACION PSIQUIATRICA: La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración sea taxativa, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: días cama, medicamentos, exámenes, consultas médicas. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO 4) ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO",
+            "efecto": "4) ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal.",
+            "fuente_textual": "[p.Page 4] 4) ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO 5) ATENCIONES INTEGRALES DE ENFERMERIA EN CENTRO DE ADULTO MAYOR",
+            "efecto": "5) ATENCIONES INTEGRALES DE ENFERMERIA EN CENTRO DE ADULTO MAYOR: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años.",
+            "fuente_textual": "[p.Page 4] 5) ATENCIONES INTEGRALES DE ENFERMERIA EN CENTRO DE ADULTO MAYOR: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años."
+        },
+        {
+            "condicion": "Sección ANEXO 6) TOPES DE BONIFICACION",
+            "efecto": "6) TOPES DE BONIFICACION: Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifica la prestación.",
+            "fuente_textual": "[p.Page 4] 6) TOPES DE BONIFICACION: Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifica la prestación."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO 7) VALORIZACION TOPES ANUALES",
+            "efecto": "7) VALORIZACION TOPES ANUALES: Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifica la pres...",
+            "fuente_textual": "[p.Page 4] 7) VALORIZACION TOPES ANUALES: Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifica la prestación por un periodo máximo de un año de vigencia de beneficios. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada, ni podrán tener una bonificación inferior a la cobertura financiera que el Fondo Nacional de Salud asegura, en modalidad libre elección a todas las prestaciones contempladas en el arancel que se refiere el articulo 31 de la Ley Nª19.666 que establece el Régimen General de Garantías de Salud."
+        },
+        {
+            "condicion": "Sección ANEXO 8) DROGAS CITOTOXICAS EN CICLOS DE QUIMIOTERAPIA",
+            "efecto": "8) DROGAS CITOTOXICAS EN CICLOS DE QUIMIOTERAPIA: Corresponde a medicamentos de uso endovenoso. Excluye medicamentos orales, medicamen-tos coadyuvantes, medicamentos hormonales, interferon, interleukina, anticuerpos monoclonales, analgésicos, antihistamínicos, soluciones parenterales, alimentos pare...",
+            "fuente_textual": "[p.Page 4] 8) DROGAS CITOTOXICAS EN CICLOS DE QUIMIOTERAPIA: Corresponde a medicamentos de uso endovenoso. Excluye medicamentos orales, medicamen-tos coadyuvantes, medicamentos hormonales, interferon, interleukina, anticuerpos monoclonales, analgésicos, antihistamínicos, soluciones parenterales, alimentos parenterales y medicamentos estimulantes de colonias."
+        },
+        {
+            "condicion": "Sección ANEXO 11) MARCOS Y CRISTALES OPTICOS",
+            "efecto": "11) MARCOS Y CRISTALES OPTICOS: Corresponderá la bonificación de los marcos y cristales ópticos sólo con la presentación de la boleta correspondiente.",
+            "fuente_textual": "[p.Page 4] 11) MARCOS Y CRISTALES OPTICOS: Corresponderá la bonificación de los marcos y cristales ópticos sólo con la presentación de la boleta correspondiente."
+        },
+        {
+            "condicion": "Sección ANEXO 12) PRESTACIONES DENTALES (PAD)",
+            "efecto": "12) PRESTACIONES DENTALES (PAD): Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficia-rios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos a co...",
+            "fuente_textual": "[p.Page 4] 12) PRESTACIONES DENTALES (PAD): Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficia-rios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos a cobertura son: 2503001, 2503002, 2503003, 2503004, 2503005 y 25-03-006. La cobertura se entregará vía IMED en los prestadores en convenio y de acceder a la prestación en un prestador sin convenio la cobertura se entregará vía reembolso."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO A",
+            "efecto": "Los prestadores hospitalarios del plan de salud de la red de salud UC Christus, Clínica Santa María, Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, tendrán cobertura preferente cuando el afiliado se atienda en forma ambulatoria o se hos...",
+            "fuente_textual": "[p.4] Los prestadores hospitalarios del plan de salud de la red de salud UC Christus, Clínica Santa María, Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, tendrán cobertura preferente cuando el afiliado se atienda en forma ambulatoria o se hospitalice en cualquiera de ellos, siempre que exista disponibilidad de la clínica y en caso de no existir disponibilidad, se utilizará habitación doble o la que exista disponible de menor valor. La cobertura preferente se aplicará a la facturación de la clínica y a los honorarios médicos (con tope del 100% del arancel de referencia del prestador) y las diferencias de uso por habitaciones superiores (suite, departamentos u otras) serán de cargo del beneficiario."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO A.1",
+            "efecto": "Las consultas médicas, procedimientos ambulatorios y los Honorarios Médicos por prestaciones hospitalarias en Hospital Clínico de la Red de Salud UC Christus, tendrán cobertura preferente siempre que el médico que atienda al beneficiario sea un médico Staff de la Red de Salud de la Institución de Sa...",
+            "fuente_textual": "[p.4] Las consultas médicas, procedimientos ambulatorios y los Honorarios Médicos por prestaciones hospitalarias en Hospital Clínico de la Red de Salud UC Christus, tendrán cobertura preferente siempre que el médico que atienda al beneficiario sea un médico Staff de la Red de Salud de la Institución de Salud señalada para cada prestación otorgada en el plan. En caso de no cumplir este condiciones, la cobertura preferente se aplicará sólo a la facturación de la clínica y los honorarios médicos serán bonificados de acuerdo a la modalidad libre elección."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO A.2",
+            "efecto": "Las consultas médicas, procedimientos ambulatorios y los Honorarios Médicos por prestaciones hospitalarias realizadas en Clínica Santa María, Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, tendrán cobertura preferente cuando el afiliado...",
+            "fuente_textual": "[p.4] Las consultas médicas, procedimientos ambulatorios y los Honorarios Médicos por prestaciones hospitalarias realizadas en Clínica Santa María, Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, tendrán cobertura preferente cuando el afiliado se atienda en forma ambulatoria o se hospitalice en cualquiera de ellos, siempre que el médico que atienda al beneficiario sea un médico Staff de la Red de Salud que cumpla las condiciones de la oferta preferente se aplicará sólo a la facturación de la clínica y los Honorarios Médicos serán bonificados de acuerdo a la modalidad libre elección."
+        },
+        {
+            "condicion": "Sección ANEXO A",
+            "efecto": "La cobertura preferente aplicará exclusivamente a aquellas prestaciones que formen parte de la capacidad técnica del prestador preferente indicado en el plan y no se extenderá a aquellas que por falta de tal capacidad, sean otorgadas por prestadores distintos a los de la oferta preferente.",
+            "fuente_textual": "[p.4] La cobertura preferente aplicará exclusivamente a aquellas prestaciones que formen parte de la capacidad técnica del prestador preferente indicado en el plan y no se extenderá a aquellas que por falta de tal capacidad, sean otorgadas por prestadores distintos a los de la oferta preferente."
+        },
+        {
+            "condicion": "Sección ANEXO B",
+            "efecto": "El afiliado debe considerar que aquellas prestaciones específicas que, pudiendo entenderse incorporadas en la oferta preferente, no se realizan por el prestador preferente, sino por terceros, no se aplicará la cobertura preferente y se bonificará de acuerdo a la modalidad de libre elección del plan.",
+            "fuente_textual": "[p.4] El afiliado debe considerar que aquellas prestaciones específicas que, pudiendo entenderse incorporadas en la oferta preferente, no se realizan por el prestador preferente, sino por terceros, no se aplicará la cobertura preferente y se bonificará de acuerdo a la modalidad de libre elección del plan."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO C",
+            "efecto": "En caso de insuficiencia de un prestador en convenio, es decir, cuando por falta de profesionales o medios, aquellos se encuentran imposibilitados temporalmente de realizar alguna de las prestaciones que forman parte de la oferta preferente y ha transcurrido el tiempo de espera previsto en el Plan d...",
+            "fuente_textual": "[p.4] En caso de insuficiencia de un prestador en convenio, es decir, cuando por falta de profesionales o medios, aquellos se encuentran imposibilitados temporalmente de realizar alguna de las prestaciones que forman parte de la oferta preferente y ha transcurrido el tiempo de espera previsto en el Plan de Salud para la realización de dicha prestación, la Isapre deberá derivar al beneficiario a otro prestador en convenio que pueda otorgar la prestación (según lo señalado en el punto B). Esta derivación se realizará por medio de la organización de la Isapre, que entregará al cotizante un documento que lo autorice a atenderse en el prestador al que se otorgue la derivación; deberán ser bonificadas por la Isapre manteniendo el monto que habría correspondido al copago del afiliado si hubiese sido atendido en el prestador preferente. En caso de que la Isapre no realice la derivación a un prestador distinto de los prestadores preferentes sin la autorización expresa de CONSALUD, la cobertura se hará bajo la modalidad libre elección. Esta solicitud de derivación deberá ser presentada por el afiliado en cualquier sucursal de CONSALUD, la que deberá ser resuelta en un plazo máximo de 3 días hábiles. Si la derivación se realiza a un prestador distinto de los prestadores preferentes y en días festivos u horarios inhábiles, podrá hacerse al fono 600-Consalud, para obtener respuesta a más tardar al día hábil siguiente."
+        },
+        {
+            "condicion": "Sección ANEXO D",
+            "efecto": "Para recibir atenciones de Urgencia el afiliado deberá acudir a alguno de los prestadores indicados en el recuadro «ATENCIONES DE URGENCIA» del plan de salud, para acceder a la «OFERTA PREFERENTE» del plan de salud. Si el afiliado no accede a este prestador distinto a los señalados en el plan, la co...",
+            "fuente_textual": "[p.4] Para recibir atenciones de Urgencia el afiliado deberá acudir a alguno de los prestadores indicados en el recuadro «ATENCIONES DE URGENCIA» del plan de salud, para acceder a la «OFERTA PREFERENTE» del plan de salud. Si el afiliado no accede a este prestador distinto a los señalados en el plan, la cobertura se hará según lo indicado en «CUADRO DE COBERTURA EN LIBRE ELECCIÓN»."
+        },
+        {
+            "condicion": "Sección ANEXO E",
+            "efecto": "Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro «ATENCIÓN INTEGRAL DE URGENCIA» del esquema del Plan de Salud, tendrá derecho a ser trasladado a alguno de los ...",
+            "fuente_textual": "[p.4] Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro «ATENCIÓN INTEGRAL DE URGENCIA» del esquema del Plan de Salud, tendrá derecho a ser trasladado a alguno de los prestadores individualizados en el Plan de Salud, para acceder a la «OFERTA PREFERENTE» del plan de salud. En este caso, el traslado será de cargo de la Isapre. Si el afiliado no accede a este traslado y opta por permanecer en el prestador en que se encuentre, la cobertura se hará bajo modalidad libre elección."
+        },
+        {
+            "condicion": "Sección ANEXO F",
+            "efecto": "La cobertura internacional se aplicará exclusivamente a las prestaciones que formen parte de la capacidad técnica del prestador preferente indicado en el plan y no se extenderá a aquellas que por falta de tal capacidad, sean otorgadas por prestadores distintos a los de la oferta preferente. Para hac...",
+            "fuente_textual": "[p.4] La cobertura internacional se aplicará exclusivamente a las prestaciones que formen parte de la capacidad técnica del prestador preferente indicado en el plan y no se extenderá a aquellas que por falta de tal capacidad, sean otorgadas por prestadores distintos a los de la oferta preferente. Para hacer uso de esta cobertura, el afiliado deberá presentar a la Isapre los documentos originales (boletas, facturas, informes médicos y documentos de cobro) traducidos al español y debidamente legalizada por el consulado respectivo, es decir, en el País donde recibió la atención de urgencia. El reembolso se realizará de acuerdo al arancel Consalud y a la cobertura de libre elección."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO G",
+            "efecto": "El término del convenio entre un prestador e Isapre CONSALUD, o cualquier modificación que éstos le introduzcan, no afectará el monto que, en virtud del plan contratado, el o los beneficiarios deban pagar por prestaciones de salud, salvo que el precio que más se ajuste al monto de la cotización lega...",
+            "fuente_textual": "[p.4] El término del convenio entre un prestador e Isapre CONSALUD, o cualquier modificación que éstos le introduzcan, no afectará el monto que, en virtud del plan contratado, el o los beneficiarios deban pagar por prestaciones de salud, salvo que el precio que más se ajuste al monto de la cotización legal que corresponda al cumplimiento de la cual la Isapre podrá adecuar el contrato."
+        },
+        {
+            "condicion": "Sección ANEXO I",
+            "efecto": "Si durante la vigencia del plan contratado, el o los prestadores individualizados en el plan experimentaren una pérdida parcial y permanente de su infraestructura o una sustitución de la especialidad médica a que estaban orientados al momento de celebrarse el contrato, la Isapre deberá comunicar por...",
+            "fuente_textual": "[p.5] Si durante la vigencia del plan contratado, el o los prestadores individualizados en el plan experimentaren una pérdida parcial y permanente de su infraestructura o una sustitución de la especialidad médica a que estaban orientados al momento de celebrarse el contrato, la Isapre deberá comunicar por escrito dicho evento a cada uno de los cotizantes afectados, junto con las alternativas de planes que dispone para ellos. En esta oferta deberá contemplarse como mínimo, el Plan de Salud que tenga el precio que más se ajuste al monto de la cotización legal que corresponda a la remuneración del afiliado al momento de modificarse el contrato."
+        },
+        {
+            "condicion": "Sección ANEXO J",
+            "efecto": "CONSALUD ofrecerá un nuevo Plan de Salud al afiliado si este así lo requiere, y su petición se fundamenta en alguna de las siguientes situaciones:",
+            "fuente_textual": "[p.5] CONSALUD ofrecerá un nuevo Plan de Salud al afiliado si este así lo requiere, y su petición se fundamenta en alguna de las siguientes situaciones:"
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO J.1",
+            "efecto": "Modificación del domicilio consignado al incorporarse al plan y que se acredite que dicho cambio dificulta significativamente el acceso de los beneficiarios a los prestadores individualizados en el plan.",
+            "fuente_textual": "[p.5] Modificación del domicilio consignado al incorporarse al plan y que se acredite que dicho cambio dificulta significativamente el acceso de los beneficiarios a los prestadores individualizados en el plan."
+        },
+        {
+            "condicion": "Sección ANEXO J.2",
+            "efecto": "Incumplimiento por parte de la Isapre de la derivación señalada en el punto C) precedente, o derivación a un prestador distinto de los indicados en el presente Plan de Salud o por falta de atención efectiva y oportuna por parte del prestador derivado.",
+            "fuente_textual": "[p.5] Incumplimiento por parte de la Isapre de la derivación señalada en el punto C) precedente, o derivación a un prestador distinto de los indicados en el presente Plan de Salud o por falta de atención efectiva y oportuna por parte del prestador derivado."
+        },
+        {
+            "condicion": "Alcance Tope: ANEXO J.3",
+            "efecto": "Falta de otorgamiento de la atención de salud al cotizante o beneficiario que se ha ceñido a los procedimientos de acceso y derivación definidos en el Plan.",
+            "fuente_textual": "[p.5] Falta de otorgamiento de la atención de salud al cotizante o beneficiario que se ha ceñido a los procedimientos de acceso y derivación definidos en el Plan."
+        },
+        {
+            "condicion": "Sección ANEXO K",
+            "efecto": "Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva.",
+            "fuente_textual": "[p.5] Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva."
+        },
+        {
+            "condicion": "Sección ANEXO L",
+            "efecto": "CENTROS MÉDICOS DE LA RED DE SALUD UC CHRISTUS EN CONVENIO:",
+            "fuente_textual": "[p.5] CENTROS MÉDICOS DE LA RED DE SALUD UC CHRISTUS EN CONVENIO:"
+        },
+        {
+            "condicion": "Sección ANEXO L.1",
+            "efecto": "Centro Médico San Joaquín (Av. Vicuña Mackenna 4686)",
+            "fuente_textual": "[p.5] Centro Médico San Joaquín (Av. Vicuña Mackenna 4686)"
+        },
+        {
+            "condicion": "Sección ANEXO L.2",
+            "efecto": "Centro de Especialidades Médicas (Marcoleta 350)",
+            "fuente_textual": "[p.5] Centro de Especialidades Médicas (Marcoleta 350)"
+        },
+        {
+            "condicion": "Sección ANEXO L.3",
+            "efecto": "Centro Médico Irarrázaval (Av. Irarrázaval 4949 Ñuñoa)",
+            "fuente_textual": "[p.5] Centro Médico Irarrázaval (Av. Irarrázaval 4949 Ñuñoa)"
+        },
+        {
+            "condicion": "Sección ANEXO L.4",
+            "efecto": "Centro Médico Lira (Lira 85, 5to piso)",
+            "fuente_textual": "[p.5] Centro Médico Lira (Lira 85, 5to piso)"
+        },
+        {
+            "condicion": "Sección ANEXO L.5",
+            "efecto": "Centro Médico San Jorge (Nevería 4444)",
+            "fuente_textual": "[p.5] Centro Médico San Jorge (Nevería 4444)"
+        },
+        {
+            "condicion": "Sección ANEXO L.6",
+            "efecto": "Edificio Médico Alcántara (Av. Apoquindo 3990)",
+            "fuente_textual": "[p.5] Edificio Médico Alcántara (Av. Apoquindo 3990)"
+        }
+    ],
+    "observaciones": [
+        "[p.1] Día Cama - Clínica Alemana (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama - Clínica Universidad de los Andes (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama - Clínica Santa María (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama - Hospital Clínico UC (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama - Clínica Las Condes (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama - Clínica Indisa (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Día Cama UTI/UCI (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Derecho Pabellón - Clínica Alemana (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.1] Derecho Pabellón - Clínica Santa María (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Derecho Pabellón - Hospital Clínico UC (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Derecho Pabellón - Clínica Las Condes (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Derecho Pabellón - Clínica Indisa (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Derecho Pabellón (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Honorarios Médicos Quirúrgicos: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Medicamentos: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Materiales e Insumos Clínicos: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Anestesia: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Consulta Médica General (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Consulta Médica General (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Consulta Pediatría (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Consulta Pediatría (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Exámenes de Laboratorio (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Exámenes de Laboratorio (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Hemograma (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Hemograma (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Perfil Bioquímico (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Perfil Bioquímico (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Orina Completa (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Orina Completa (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Cultivos (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Cultivos (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Glucosa en Sangre (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Glucosa en Sangre (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Perfil Lipídico (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Perfil Lipídico (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Imagenología (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Imagenología (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Rayos X (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Rayos X (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Ecotomografía (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Ecotomografía (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] TAC/Scanner (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] TAC/Scanner (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Resonancia Magnética (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Resonancia Magnética (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Mamografía (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Mamografía (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Densitometría Ósea (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Densitometría Ósea (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Ecografía Doppler (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Ecografía Doppler (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Procedimientos Diagnósticos (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Procedimientos Diagnósticos (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Procedimientos Terapéuticos (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Procedimientos Terapéuticos (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Endoscopía Digestiva (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Endoscopía Digestiva (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Colonoscopía (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Colonoscopía (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Biopsia (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Biopsia (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Electrocardiograma (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Electrocardiograma (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Kinesiología (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Kinesiología (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Fonoaudiología (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Fonoaudiología (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Nutricionista (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Nutricionista (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Urgencia Simple Adulto (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Urgencia Simple Adulto (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Urgencia Compleja Adulto (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Urgencia Compleja Adulto (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Consulta Psiquiatría (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Consulta Psiquiatría (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Consulta Psicología (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Consulta Psicología (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] PAD Dental (Oferta Preferente): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] PAD Dental (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Lentes Ópticos (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] Prótesis y Órtesis (Libre Elección): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] USO   DEL PLAN: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] TIPO DE PLAN:: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] %: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] KINESIOLOGÍA y FISIOTERAPIA: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] CONSULTA / TRATAMIENTO PSIQUIATRÍA: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] MARCOS Y CRISTALES ÓPTICOS (11): Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 0 a menos de 2 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 2 a menos de 5 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 10 a menos de 15 años 5 a menos de 10 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 15 a menos de 20 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 30 a menos de 35 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 40 a menos de 45 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 55 a menos de 60 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 60 a menos de 65 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 65 a menos de 70 años 70 a menos de 75 años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "[p.2] 80 y más años: Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.",
+        "Funcionalidad: informativo"
+    ],
+    "items_no_clasificados": []
+}

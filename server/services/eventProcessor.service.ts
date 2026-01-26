@@ -262,7 +262,7 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
                         bonificacion: parseMonto(originalItem.bonificacion),
                         copago: parseMonto(originalItem.copago),
                         descripcion: originalItem.descripcion // Added description for matching
-                    } as any, unidadReferencia, contratoJson); // Pass contract
+                    } as any, unidadReferencia, contratoJson, { prestador: ep.prestador }); // Pass clinic context
 
                     if (validation.tope_cumplido) {
                         topeCumplidoGlobal = true;
