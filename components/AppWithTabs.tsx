@@ -5,10 +5,10 @@ import ContractApp from './ContractApp';
 import ForensicApp from './ForensicApp';
 import PdfProjector from './PdfProjector';
 
-import TotalAuditV8 from './TotalAuditV8';
-import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet, Zap } from 'lucide-react';
+import CanonicalGeneratorApp from './CanonicalGeneratorApp';
+import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet, Zap, FileJson } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'm8';
+type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'canonizar';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -97,14 +97,14 @@ export function AppWithTabs() {
 
 
                         <button
-                            onClick={() => handleTabChange('m8')}
-                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'm8'
+                            onClick={() => handleTabChange('canonizar')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'canonizar'
                                 ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
                                 : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                 }`}
                         >
-                            <Zap size={16} />
-                            Auditoría Total M8
+                            <FileJson size={16} />
+                            JSON Canónico
                         </button>
                     </div>
                 </div>
@@ -128,8 +128,8 @@ export function AppWithTabs() {
                     <PdfProjector />
                 </div>
 
-                <div style={{ display: activeTab === 'm8' ? 'block' : 'none' }}>
-                    <TotalAuditV8 />
+                <div style={{ display: activeTab === 'canonizar' ? 'block' : 'none' }}>
+                    <CanonicalGeneratorApp />
                 </div>
             </div>
         </div>

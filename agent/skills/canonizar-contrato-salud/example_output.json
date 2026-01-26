@@ -1,0 +1,71 @@
+{
+    "metadata": {
+        "origen": "contrato_pdf",
+        "fuente": "Contrato Isapre Colmena 2024",
+        "vigencia": "2024-01-01",
+        "tipo_contrato": "ISAPRE"
+    },
+    "coberturas": [
+        {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Día Cama Integral en Clínica Preferente",
+            "porcentaje": 100,
+            "fuente_textual": "Sección 1: Cobertura Hospitalaria, Ítem Día Cama Integral"
+        },
+        {
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Consulta Médica General",
+            "porcentaje": 80,
+            "fuente_textual": "Arancel de prestaciones ambulatorias, código consulta"
+        }
+    ],
+    "topes": [
+        {
+            "ambito": "hospitalario",
+            "unidad": "VAM",
+            "valor": 2.2,
+            "aplicacion": "por_evento",
+            "fuente_textual": "Tope máximo por evento hospitalario: 2.2 VAM"
+        },
+        {
+            "ambito": "mixto",
+            "unidad": "UF",
+            "valor": 500,
+            "aplicacion": "anual",
+            "fuente_textual": "Tope general de la póliza: 500 UF por año contrato"
+        }
+    ],
+    "deducibles": [
+        {
+            "unidad": "UF",
+            "valor": 10,
+            "aplicacion": "anual",
+            "fuente_textual": "Deducible obligatorio de 10 UF al año."
+        }
+    ],
+    "copagos": [
+        {
+            "descripcion": "Copago fijo consulta médica",
+            "valor": 12000,
+            "unidad": "PESOS",
+            "fuente_textual": "Copago nivel 3: $12.000"
+        }
+    ],
+    "exclusiones": [
+        {
+            "descripcion": "Cirugía estética no reconstructiva",
+            "fuente_textual": "Capítulo Exclusiones, Punto A.1"
+        }
+    ],
+    "reglas_aplicacion": [
+        {
+            "condicion": "Si el paciente es derivado por el médico tratante",
+            "efecto": "Se activa red preferente con 100% cobertura",
+            "fuente_textual": "Cláusula de Derivación Médica"
+        }
+    ],
+    "observaciones": [
+        "Vigencia del plan sujeta a cotización mensual de 7% legal."
+    ],
+    "items_no_clasificados": []
+}
