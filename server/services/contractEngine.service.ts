@@ -555,11 +555,24 @@ export async function analyzeSingleContract(
         return { result: finalResult, metrics: finalMetrics };
     }
 
-    // --- EXECUTE PHASES IN PARALLEL (v10.0 Modular Rule Engine) ---
-    log(`\n[ContractEngine] ⚡ Ejecutando 12 fases en paralelo para cobertura 100%...`);
+    // --- PHASE 0: CLASSIFIER (Sequential Validation) ---
+    const fingerprintPhase = await extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER);
+
+    if (fingerprintPhase.result) {
+        log(`\n[ContractEngine] 📍 Huella Digital:`);
+        log(`   Tipo: ${fingerprintPhase.result.tipo_contrato}`);
+        log(`   Confianza: ${fingerprintPhase.result.confianza}%`);
+
+        if (fingerprintPhase.result.tipo_contrato === 'BILL_OR_PAM') {
+            log(`\n[ContractEngine] ❌ ERROR DE VALIDACIÓN: El documento detectado es una Boleta o PAM.`);
+            throw new Error('EL DOCUMENTO NO ES UN CONTRATO. El generador canónico solo acepta contratos de salud (Isapre/Fonasa). Por favor sube el archivo correcto.');
+        }
+    }
+
+    // --- EXECUTE REMAINING PHASES IN PARALLEL (v10.0 Modular Rule Engine) ---
+    log(`\n[ContractEngine] ⚡ Ejecutando 11 fases restantes en paralelo para cobertura 100%...`);
 
     const phasePromises = [
-        extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER),
         extractSection("REGLAS_P1", PROMPT_REGLAS_P1, SCHEMA_REGLAS), // PHASE 2
         extractSection("REGLAS_P2", PROMPT_REGLAS_P2, SCHEMA_REGLAS), // PHASE 3
         extractSection("ANEXOS_P1", PROMPT_ANEXOS_P1, SCHEMA_REGLAS), // PHASE 4
@@ -577,7 +590,6 @@ export async function analyzeSingleContract(
     const textExtractionPromise = extractTextFromPdf(file, CONTRACT_OCR_MAX_PAGES, log);
 
     const [
-        fingerprintPhase,
         reglasP1Phase,
         reglasP2Phase,
         anexosP1Phase,

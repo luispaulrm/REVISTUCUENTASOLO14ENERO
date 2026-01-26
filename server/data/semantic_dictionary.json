@@ -1,0 +1,22 @@
+{
+  "synonyms": {
+    "VAM": [
+      "Veces Arancel",
+      "VA",
+      "AC2",
+      "V20"
+    ],
+    "hospitalario": [
+      "Día Cama",
+      "Estadía Diaria",
+      "Intensivo"
+    ],
+    "ambulatorio": [
+      "Consulta",
+      "Exámenes",
+      "Laboratorio"
+    ]
+  },
+  "patterns": [],
+  "lastUpdated": "2026-01-26T01:18:49.853Z"
+}

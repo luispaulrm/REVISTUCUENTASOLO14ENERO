@@ -31,6 +31,7 @@ DEVUELVE SOLO:
 - PLAN_CERRADO: Plan empresa/institución específica
 - PRE_2010: Contrato antiguo con formato pre-reforma
 - HIBRIDO: Mezcla de estilos
+- BILL_OR_PAM: El documento es una Boleta, Factura, PAM o Presupuesto de Salud, pero NO un contrato.
 - DESCONOCIDO: No clasificable
 
 **estilo_numeracion**: 
@@ -45,11 +46,13 @@ DEVUELVE SOLO:
 - TABLA_GRILLA: Tabla estructurada con columnas
 - TEXTO_CORRIDO: Texto narrativo/legal
 - HIBRIDO: Mezcla
+- DESCONOCIDO: No clasificable
 
 **lenguaje**:
 - TECNICO: Alta densidad legal, términos jurídicos
 - COMERCIAL: Lenguaje simplificado, comercial
 - MIXTO: Combinación
+- NO_CONTRACTUAL: Lenguaje de cobranza, detalle de prestaciones médicas (facturación)
 
 **densidad_texto**:
 - ALTA: >500 palabras por página
@@ -71,6 +74,7 @@ DEVUELVE SOLO:
 Ejemplo: ["Numeración irregular entre páginas", "Tabla resumen en página 1"]
 
 NO EXTRAIGAS REGLAS. SOLO CLASIFICA.
+⚠️ CRÍTICO: Si detectas que es una BOLETA o PAM, clasifica como 'BILL_OR_PAM' inmediatamente.
 `;
 
 export const SCHEMA_CLASSIFIER = {
@@ -78,7 +82,7 @@ export const SCHEMA_CLASSIFIER = {
     properties: {
         tipo_contrato: {
             type: SchemaType.STRING,
-            enum: ['ISAPRE_TRADICIONAL_SIS', 'PLAN_MODERNO', 'PLAN_CERRADO', 'PRE_2010', 'HIBRIDO', 'DESCONOCIDO']
+            enum: ['ISAPRE_TRADICIONAL_SIS', 'PLAN_MODERNO', 'PLAN_CERRADO', 'PRE_2010', 'HIBRIDO', 'BILL_OR_PAM', 'DESCONOCIDO']
         },
         estilo_numeracion: {
             type: SchemaType.STRING,
@@ -90,7 +94,7 @@ export const SCHEMA_CLASSIFIER = {
         },
         lenguaje: {
             type: SchemaType.STRING,
-            enum: ['TECNICO', 'COMERCIAL', 'MIXTO']
+            enum: ['TECNICO', 'COMERCIAL', 'MIXTO', 'NO_CONTRACTUAL']
         },
         densidad_texto: {
             type: SchemaType.STRING,

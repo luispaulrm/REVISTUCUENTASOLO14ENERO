@@ -50,12 +50,27 @@ export function loadDictionary(): SemanticDictionary {
 export async function learnFromContract(result: any) {
     const dict = loadDictionary();
 
-    // Learning Logic (v1.0): 
-    // 1. If we see a new Isapre name, add it to source patterns
-    // 2. If we see items in 'items_no_clasificados', we might want to flag them for future patterns
-    // 3. Extract common terms from high-fidelity result
-
     console.log('[LEARNING] Processing contract to update semantic dictionary...');
+
+    // 1. Learn from Metadata (Tipo Contrato)
+    if (result.metadata?.tipo_contrato && result.metadata?.fuente) {
+        const canonicalType = result.metadata.tipo_contrato;
+        const sourceName = result.metadata.fuente.split('-')[0].trim(); // Isapre name
+
+        if (!dict.synonyms[canonicalType]) dict.synonyms[canonicalType] = [];
+        if (!dict.synonyms[canonicalType].includes(sourceName)) {
+            dict.synonyms[canonicalType].push(sourceName);
+        }
+    }
+
+    // 2. Learn from Coberturas (Ambitos)
+    // If we have items in observations or rule results that consistently map to an ambito,
+    // we could add patterns. For now, let's detect common keyword variations.
+    const commonKeywords = ["urgencia", "maternidad", "dental", "extranjero"];
+    commonKeywords.forEach(kw => {
+        // Simple heuristic: if it's there, ensure it's in a relevant group or pattern
+        if (!dict.synonyms[kw]) dict.synonyms[kw] = [kw];
+    });
 
     // Update timestamp
     dict.lastUpdated = new Date().toISOString();

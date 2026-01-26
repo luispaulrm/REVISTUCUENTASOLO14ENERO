@@ -218,8 +218,8 @@ export default function CanonicalGeneratorApp() {
                                     onClick={handleLearn}
                                     disabled={isLearning}
                                     className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold transition-all ${learned
-                                            ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                            : 'bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-100'
+                                        ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                        : 'bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-100'
                                         }`}
                                 >
                                     {isLearning ? <Loader2 size={14} className="animate-spin" /> : <Brain size={14} />}
@@ -232,6 +232,23 @@ export default function CanonicalGeneratorApp() {
                                 </pre>
                             </div>
                         </div>
+                    </div>
+                )}
+                {status === AppStatus.ERROR && (
+                    <div className="max-w-2xl mx-auto text-center py-20">
+                        <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-rose-600 mx-auto mb-8 border border-rose-100 shadow-xl">
+                            <X size={36} />
+                        </div>
+                        <h2 className="text-2xl font-bold text-slate-900 mb-4">Error de Validación</h2>
+                        <div className="bg-rose-50 border border-rose-100 rounded-2xl p-6 mb-8 text-rose-700 text-sm font-medium leading-relaxed">
+                            {error || 'Ocurrió un error inesperado al procesar el documento.'}
+                        </div>
+                        <button
+                            onClick={() => setStatus(AppStatus.IDLE)}
+                            className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg"
+                        >
+                            SUBIR OTRO ARCHIVO
+                        </button>
                     </div>
                 )}
             </main>
