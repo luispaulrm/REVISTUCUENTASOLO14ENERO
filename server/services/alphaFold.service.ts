@@ -67,7 +67,7 @@ export class AlphaFoldService {
         });
 
         // --- CONTRACT SIGNALS (Legacy & Canonical) ---
-        const isCanonical = !!input.contrato?.metadata && Array.isArray(input.contrato?.coberturas);
+        const isCanonical = !!input.contrato?.metadata || (input.contrato?.coberturas && input.contrato?.coberturas.some((c: any) => Array.isArray(c.modalidades)));
         const coberturas = input.contrato?.coberturas || [];
 
         signals.push({
@@ -415,15 +415,21 @@ export class AlphaFoldService {
         const isHospital = hasDayBed; // Simple proxy
 
         // 2. Check contract coverages (Legacy vs Canonical)
-        const isCanonical = !!contrato?.metadata && Array.isArray(contrato?.coberturas);
+        const isCanonical = !!contrato?.metadata || (contrato?.coberturas && contrato?.coberturas.some((c: any) => Array.isArray(c.modalidades)));
         const coberturas = contrato?.coberturas || [];
 
         let hasHospitalCoverage = false;
         let hasAmbulatoryCoverage = false;
 
         if (isCanonical) {
-            hasHospitalCoverage = coberturas.some((c: any) => c.ambito === "hospitalario" || c.ambito === "mixto");
-            hasAmbulatoryCoverage = coberturas.some((c: any) => c.ambito === "ambulatorio" || c.ambito === "mixto");
+            hasHospitalCoverage = coberturas.some((c: any) =>
+                /HOSPITALARIO|CAMA|PABELLON|UTI|UCI/i.test(c.categoria || "") ||
+                /HOSPITALARIO/i.test(c.categoria_canonica || "")
+            );
+            hasAmbulatoryCoverage = coberturas.some((c: any) =>
+                /AMBULATORIO|CONSULTA|LABORATORIO|IMAGEN/i.test(c.categoria || "") ||
+                /AMBULATORIO/i.test(c.categoria_canonica || "")
+            );
         } else {
             hasHospitalCoverage = coberturas.some((c: any) =>
                 /HOSPITAL|SALA|CAMA|DIARIA/i.test(c.modalidad || "") ||

@@ -969,22 +969,46 @@ Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, C
     };
 
     // 3. Clean Contrato JSON - Keep only essential coverage data
+    // Detect if Canonical structure is present
+    const isCanonical = !!contratoJson.metadata || (contratoJson.coberturas && contratoJson.coberturas.some((c: any) => Array.isArray(c.modalidades)));
+
     const cleanedContrato = {
-        coberturas: contratoJson.coberturas?.map((cob: any) => ({
-            categoria: cob.categoria,
-            item: cob.item,
-            modalidad: cob.modalidad,
-            cobertura: cob.cobertura,
-            tope: cob.tope,
-            nota_restriccion: cob.nota_restriccion,
-            CODIGO_DISPARADOR_FONASA: cob.CODIGO_DISPARADOR_FONASA
-            // Removed: LOGICA_DE_CALCULO, NIVEL_PRIORIDAD, copago, categoria_canonica
-        })),
+        ...contratoJson, // Preserve metadata if present
+        coberturas: contratoJson.coberturas?.map((cob: any) => {
+            const base = {
+                categoria: cob.categoria,
+                item: cob.item,
+                nota_restriccion: cob.nota_restriccion,
+                CODIGO_DISPARADOR_FONASA: cob.CODIGO_DISPARADOR_FONASA,
+                categoria_canonica: cob.categoria_canonica
+            };
+
+            if (cob.modalidades && Array.isArray(cob.modalidades)) {
+                return {
+                    ...base,
+                    modalidades: cob.modalidades.map((m: any) => ({
+                        tipo: m.tipo,
+                        porcentaje: m.porcentaje,
+                        tope: m.tope,
+                        unidadTope: m.unidadTope,
+                        tipoTope: m.tipoTope
+                    }))
+                };
+            }
+
+            // Legacy fallback (Flat structure)
+            return {
+                ...base,
+                modalidad: cob.modalidad,
+                cobertura: cob.cobertura,
+                tope: cob.tope
+            };
+        }),
         reglas: contratoJson.reglas?.map((regla: any) => ({
-            'CÃ“DIGO/SECCIÃ“N': regla['CÃ“DIGO/SECCIÃ“N'],
-            'VALOR EXTRACTO LITERAL DETALLADO': regla['VALOR EXTRACTO LITERAL DETALLADO'],
-            'SUBCATEGORÃA': regla['SUBCATEGORÃA']
-            // Removed: PÃGINA ORIGEN, LOGICA_DE_CALCULO, categoria_canonica
+            'CÓDIGO/SECCIÓN': regla['CÓDIGO/SECCIÓN'] || regla['CÃ“DIGO/SECCIÃ“N'],
+            'VALOR EXTRACTO LITERAL DETALLADO': regla['VALOR EXTRACTO LITERAL DETALLADO'] || regla['VALOR EXTRACTO LITERAL DETALLADO'],
+            'SUBCATEGORÍA': regla['SUBCATEGORÍA'] || regla['SUBCATEGORÃ A'],
+            'categoria_canonica': regla.categoria_canonica
         }))
     };
 
