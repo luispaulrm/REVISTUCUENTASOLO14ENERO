@@ -1,6 +1,6 @@
 
 import { finalizeAuditCanonical } from './server/services/auditEngine.service.js';
-import { Finding } from './types.js';
+import { Finding } from './src/types.js';
 
 console.log("=== VERIFYING REDUNDANCY FIX (ARITHMETIC NETTING) ===");
 

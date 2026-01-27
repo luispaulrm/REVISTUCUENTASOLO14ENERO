@@ -1,0 +1,4322 @@
+{
+  "contrato": {
+    "metadata": {
+      "fuente": "Contrato 13-RSE500-17-2 (5).pdf",
+      "tipo": "salud_isapre",
+      "fecha_procesamiento": "2026-01-27T05:00:48.558Z"
+    },
+    "tabla_prestaciones": {
+      "ambito": "Hospitalarias y Cirugía Mayor Ambulatoria",
+      "herencia_vertical": true,
+      "lineas": [
+        {
+          "linea_id": "L1_1",
+          "tipo": "encabezado",
+          "texto": "¿QUÉ ES UN PLAN PREFERENTE?",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 1
+          }
+        },
+        {
+          "linea_id": "L1_3",
+          "tipo": "fase_logica",
+          "texto": "“libre elección”   para el resto de clínicas a nivel nacional.",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 3
+          }
+        },
+        {
+          "linea_id": "L1_5",
+          "tipo": "encabezado",
+          "texto": "convenio con Consalud y que exige la Super Intendencia de Salud. ¿QUÉ CUBRE   MI PLAN?",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 5
+          }
+        },
+        {
+          "linea_id": "L1_7",
+          "tipo": "encabezado",
+          "texto": "mascarillas, delantales, pañales, entre otros.",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 7
+          }
+        },
+        {
+          "linea_id": "L1_8",
+          "tipo": "encabezado",
+          "texto": "USO   DEL PLAN   PRESTADO   RESPREFERENTES   TOPE   DEL PLAN",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 8
+          }
+        },
+        {
+          "linea_id": "L1_10",
+          "tipo": "encabezado",
+          "texto": "nuestro Contact Center 600 500 9000 y sin tope. atención en salud.",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 10
+          }
+        },
+        {
+          "linea_id": "L1_11",
+          "tipo": "encabezado",
+          "texto": "te entregaremos toda la orientación que",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 11
+          }
+        },
+        {
+          "linea_id": "L1_12",
+          "tipo": "encabezado",
+          "texto": "necesitas..",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 12
+          }
+        },
+        {
+          "linea_id": "L1_14",
+          "tipo": "encabezado",
+          "texto": "revisar sus valores en tu Sucursal Virtual.",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 14
+          }
+        },
+        {
+          "linea_id": "L1_16",
+          "tipo": "encabezado",
+          "texto": "tipo de urgencia. Este tipo de urgencia sólo aplica si está en tu plan de salud.",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 16
+          }
+        },
+        {
+          "linea_id": "L1_18",
+          "tipo": "fase_logica",
+          "texto": "cobertura libre elección*.   *Sólo si se encuentra especi cado en tu plan contratado.",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 18
+          }
+        },
+        {
+          "linea_id": "L1_20",
+          "tipo": "encabezado",
+          "texto": "CERO, BENEFICIOS DENTALES, DESCUENTO EN SALCOBRAND, REEMBOLSO RUNNING.",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 20
+          }
+        },
+        {
+          "linea_id": "L1_22",
+          "tipo": "encabezado",
+          "texto": "Son seguros que puedes contratar por un monto adicional al plan de salud. Algunos de ellos",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 22
+          }
+        },
+        {
+          "linea_id": "L1_23",
+          "tipo": "encabezado",
+          "texto": "COMPLEMENTOS son: DENTAL, SEGURO DE CESANTÍA, ASISTENCIA EN VIAJE, ETC.   Puedes contratarlos en",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 23
+          }
+        },
+        {
+          "linea_id": "L1_24",
+          "tipo": "encabezado",
+          "texto": "nuestras sucursales y algunos de ellos pueden ser contratados directamente a través de tu Sucursal",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 24
+          }
+        },
+        {
+          "linea_id": "L1_25",
+          "tipo": "encabezado",
+          "texto": "CONSALUD Virtual en consalud.cl",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 25
+          }
+        },
+        {
+          "linea_id": "L1_26",
+          "tipo": "encabezado",
+          "texto": "ORIENTACIÓN   HOSPITALARIA   ORIENTACIÓN   AMBULATORIA",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 26
+          }
+        },
+        {
+          "linea_id": "L1_31",
+          "tipo": "encabezado",
+          "texto": "a   mejores copagos   en cirugías de   Meniscos, Lasik, Parto y/o cesárea,",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 31
+          }
+        },
+        {
+          "linea_id": "L1_32",
+          "tipo": "encabezado",
+          "texto": "entre otras.",
+          "fuente_visual": {
+            "pagina": 1,
+            "fila": 32
+          }
+        },
+        {
+          "linea_id": "L2_34",
+          "tipo": "encabezado",
+          "texto": "RED SALUD ESPECIAL 500   13-RSE500-17",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 34
+          }
+        },
+        {
+          "linea_id": "L2_35",
+          "tipo": "encabezado",
+          "texto": "PLAN CON COBERTURA REDUCIDA EN: PARTO.",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 35
+          }
+        },
+        {
+          "linea_id": "L2_36",
+          "tipo": "encabezado",
+          "texto": "FUN Nº",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 36
+          }
+        },
+        {
+          "linea_id": "L2_37",
+          "tipo": "encabezado",
+          "texto": "TIPO DE PLAN:   INDIVIDUAL   X   GRUPAL FOLIO",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 37
+          }
+        },
+        {
+          "linea_id": "L2_38",
+          "tipo": "encabezado",
+          "texto": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 38
+          }
+        },
+        {
+          "linea_id": "L2_39",
+          "tipo": "encabezado",
+          "texto": "TOPE MÁX. AÑO",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 39
+          }
+        },
+        {
+          "linea_id": "L2_40",
+          "tipo": "encabezado",
+          "texto": "PRESTACIONES  (1)  BONIFICACIÓN  BONIFICACIÓN CONTRATO POR BENEFICIARIO",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 40
+          }
+        },
+        {
+          "linea_id": "L2_41",
+          "tipo": "encabezado",
+          "texto": "% TOPE (6) %   TOPE (6) (U.F) (7)",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 41
+          }
+        },
+        {
+          "linea_id": "L2_42",
+          "tipo": "encabezado",
+          "texto": "HOSPITALARIAS Y   CIRUGÍA",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 42
+          }
+        },
+        {
+          "linea_id": "L2_43",
+          "tipo": "prestacion",
+          "nombre": "MAYOR AMBULATORIA",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Hospital Clínico de la Red de Salud UC Christus",
+              "porcentaje": 80,
+              "modalidad": "A.1",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": []
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 43
+          }
+        },
+        {
+          "linea_id": "L2_44",
+          "tipo": "prestacion",
+          "nombre": "DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Hospital Clínico de la Red de Salud UC Christus",
+              "porcentaje": 80,
+              "modalidad": "A.1",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": []
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 44
+          }
+        },
+        {
+          "linea_id": "L2_45",
+          "tipo": "prestacion",
+          "nombre": "DIA CAMA: SALA CUNA",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Hospital Clínico de la Red de Salud UC Christus",
+              "porcentaje": 80,
+              "modalidad": "A.1",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": []
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 45
+          }
+        },
+        {
+          "linea_id": "L2_46",
+          "tipo": "prestacion",
+          "nombre": "DIA CAMA CUIDADOS INTENSIVOS O CORONARIOS",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Indisa",
+              "porcentaje": 80,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 46
+          }
+        },
+        {
+          "linea_id": "L2_47",
+          "tipo": "prestacion",
+          "nombre": "DERECHO DE PABELLÓN",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Indisa",
+              "porcentaje": 80,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 47
+          }
+        },
+        {
+          "linea_id": "L2_48",
+          "tipo": "prestacion",
+          "nombre": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Indisa",
+              "porcentaje": 80,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 48
+          }
+        },
+        {
+          "linea_id": "L2_49",
+          "tipo": "prestacion",
+          "nombre": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Indisa",
+              "porcentaje": 80,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 49
+          }
+        },
+        {
+          "linea_id": "L2_50",
+          "tipo": "prestacion",
+          "nombre": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Indisa",
+              "porcentaje": 80,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 50
+          }
+        },
+        {
+          "linea_id": "L2_51",
+          "tipo": "prestacion",
+          "nombre": "PROCEDIMIENTOS",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Dávila",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Vespucio",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Avansalud",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Bicentenario",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 51
+          }
+        },
+        {
+          "linea_id": "L2_52",
+          "tipo": "prestacion",
+          "nombre": "KINESIOLOGÍA y FISIOTERAPIA",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Dávila",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Vespucio",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Avansalud",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Bicentenario",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 52
+          }
+        },
+        {
+          "linea_id": "L2_53",
+          "tipo": "prestacion",
+          "nombre": "EXÁMENES LABORATORIO",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Dávila",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Vespucio",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Avansalud",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Bicentenario",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 53
+          }
+        },
+        {
+          "linea_id": "L2_54",
+          "tipo": "prestacion",
+          "nombre": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Dávila",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Vespucio",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Avansalud",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Bicentenario",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 54
+          }
+        },
+        {
+          "linea_id": "L2_55",
+          "tipo": "prestacion",
+          "nombre": "VISITA POR MÉDICO INTERCONSULTOR",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Dávila",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Vespucio",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Avansalud",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Bicentenario",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 55
+          }
+        },
+        {
+          "linea_id": "L2_56",
+          "tipo": "prestacion",
+          "nombre": "VISITA POR MÉDICO TRATANTE",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Dávila",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Vespucio",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Avansalud",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Bicentenario",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 56
+          }
+        },
+        {
+          "linea_id": "L2_57",
+          "tipo": "prestacion",
+          "nombre": "MEDICAMENTOS HOSPITALARIOS (2)",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Dávila",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Vespucio",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Avansalud",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Bicentenario",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 57
+          }
+        },
+        {
+          "linea_id": "L2_58",
+          "tipo": "prestacion",
+          "nombre": "MATERIALES CLÍNICOS (2)",
+          "contexto": {
+            "modalidad_base": "oferta_preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [
+            {
+              "nombre": "Clínica Dávila",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Vespucio",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Avansalud",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            },
+            {
+              "nombre": "Clínica Bicentenario",
+              "porcentaje": 90,
+              "modalidad": "A.2",
+              "tope": {
+                "tipo": "SIN_TOPE"
+              },
+              "condiciones": [
+                "Habitación Individual, Modalidad Institucional"
+              ]
+            }
+          ],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 58
+          }
+        },
+        {
+          "linea_id": "L2_59",
+          "tipo": "fase_logica",
+          "texto": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 59
+          }
+        },
+        {
+          "linea_id": "L2_60",
+          "tipo": "prestacion",
+          "nombre": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "inherited"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 60
+          }
+        },
+        {
+          "linea_id": "L2_61",
+          "tipo": "prestacion",
+          "nombre": "QUIMIOTERAPIA (8)",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "inherited"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 61
+          }
+        },
+        {
+          "linea_id": "L2_62",
+          "tipo": "encabezado",
+          "texto": "AMBULATORIAS",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 62
+          }
+        },
+        {
+          "linea_id": "L2_63",
+          "tipo": "prestacion",
+          "nombre": "CONSULTAS MÉDICAS",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 63
+          }
+        },
+        {
+          "linea_id": "L2_64",
+          "tipo": "prestacion",
+          "nombre": "EXÁMENES LABORATORIO",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 64
+          }
+        },
+        {
+          "linea_id": "L2_65",
+          "tipo": "prestacion",
+          "nombre": "PROCEDIMIENTOS",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 65
+          }
+        },
+        {
+          "linea_id": "L2_66",
+          "tipo": "prestacion",
+          "nombre": "PABELLÓN AMBULATORIO",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 66
+          }
+        },
+        {
+          "linea_id": "L2_67",
+          "tipo": "prestacion",
+          "nombre": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 67
+          }
+        },
+        {
+          "linea_id": "L2_68",
+          "tipo": "prestacion",
+          "nombre": "BOX AMBULATORIO",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 68
+          }
+        },
+        {
+          "linea_id": "L2_69",
+          "tipo": "prestacion",
+          "nombre": "KINESIOLOGÍA y FISIOTERAPIA",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 69
+          }
+        },
+        {
+          "linea_id": "L2_70",
+          "tipo": "prestacion",
+          "nombre": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_59",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 70
+          }
+        },
+        {
+          "linea_id": "L2_72",
+          "tipo": "prestacion",
+          "nombre": "RADIOTERAPIA",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 0.8,
+              "origen": "L2_71",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 72
+          }
+        },
+        {
+          "linea_id": "L2_73",
+          "tipo": "prestacion",
+          "nombre": "FONOAUDIOLOGÍA",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_59",
+            "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 0.8,
+              "origen": "L2_71",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 73
+          }
+        },
+        {
+          "linea_id": "L2_74",
+          "tipo": "fase_logica",
+          "texto": "QUIMIOTERAPIA (8)  Solo cobertura libre elección 4,0 veces AC2  80",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 74
+          }
+        },
+        {
+          "linea_id": "L2_75",
+          "tipo": "prestacion",
+          "nombre": "PRÓTESIS Y ÓRTESIS",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_74",
+            "texto_origen": "QUIMIOTERAPIA (8)  Solo cobertura libre elección 4,0 veces AC2  80",
+            "origen_herencia": "inherited"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 75
+          }
+        },
+        {
+          "linea_id": "L2_76",
+          "tipo": "prestacion",
+          "nombre": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_74",
+            "texto_origen": "QUIMIOTERAPIA (8)  Solo cobertura libre elección 4,0 veces AC2  80",
+            "origen_herencia": "inherited"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 76
+          }
+        },
+        {
+          "linea_id": "L2_77",
+          "tipo": "prestacion",
+          "nombre": "ATENCIÓN INTEGRAL DE NUTRICIONISTA",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_74",
+            "texto_origen": "QUIMIOTERAPIA (8)  Solo cobertura libre elección 4,0 veces AC2  80",
+            "origen_herencia": "inherited"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 77
+          }
+        },
+        {
+          "linea_id": "L2_78",
+          "tipo": "encabezado",
+          "texto": "PRESTACIONES DENTALES (PAD) (12)  1,0 UF   Sin Tope",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 78
+          }
+        },
+        {
+          "linea_id": "L2_79",
+          "tipo": "encabezado",
+          "texto": "PRESTACIONES RESTRINGIDAS",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 79
+          }
+        },
+        {
+          "linea_id": "L2_80",
+          "tipo": "prestacion",
+          "nombre": "CIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_74",
+            "texto_origen": "QUIMIOTERAPIA (8)  Solo cobertura libre elección 4,0 veces AC2  80",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 80
+          }
+        },
+        {
+          "linea_id": "L2_81",
+          "tipo": "fase_logica",
+          "texto": "INFERTILIDAD. HOSPITALIZACIÓN POR PARTO. Solo cobertura libre elección",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 81
+          }
+        },
+        {
+          "linea_id": "L2_82",
+          "tipo": "prestacion",
+          "nombre": "HOSPITALIZACIÓN PSIQUIATRICA (3)",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_81",
+            "texto_origen": "INFERTILIDAD. HOSPITALIZACIÓN POR PARTO. Solo cobertura libre elección",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 82
+          }
+        },
+        {
+          "linea_id": "L2_83",
+          "tipo": "prestacion",
+          "nombre": "CONSULTA / TRATAMIENTO PSIQUIATRÍA",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_81",
+            "texto_origen": "INFERTILIDAD. HOSPITALIZACIÓN POR PARTO. Solo cobertura libre elección",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 83
+          }
+        },
+        {
+          "linea_id": "L2_84",
+          "tipo": "prestacion",
+          "nombre": "OTRAS COBERTURAS",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_81",
+            "texto_origen": "INFERTILIDAD. HOSPITALIZACIÓN POR PARTO. Solo cobertura libre elección",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 84
+          }
+        },
+        {
+          "linea_id": "L2_85",
+          "tipo": "fase_logica",
+          "texto": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 85
+          }
+        },
+        {
+          "linea_id": "L2_86",
+          "tipo": "prestacion",
+          "nombre": "COBERTURA INTERNACIONAL (F)",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 86
+          }
+        },
+        {
+          "linea_id": "L2_87",
+          "tipo": "prestacion",
+          "nombre": "TRASLADOS MEDICOS",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 87
+          }
+        },
+        {
+          "linea_id": "L2_88",
+          "tipo": "encabezado",
+          "texto": "En   Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Indisa, Clínica",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 88
+          }
+        },
+        {
+          "linea_id": "L2_89",
+          "tipo": "prestacion",
+          "nombre": "ATENCIÓN DE URGENCIA",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 89
+          }
+        },
+        {
+          "linea_id": "L2_90",
+          "tipo": "prestacion",
+          "nombre": "Exámenes, Imágenes, Procedimientos y Pabellón.",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 90
+          }
+        },
+        {
+          "linea_id": "L2_91",
+          "tipo": "prestacion",
+          "nombre": "PRESTADORES DERIVADOS",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 91
+          }
+        },
+        {
+          "linea_id": "L2_92",
+          "tipo": "prestacion",
+          "nombre": "ATENCIÓN",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 92
+          }
+        },
+        {
+          "linea_id": "L2_93",
+          "tipo": "prestacion",
+          "nombre": "DE URGENCIA (D) (L) (N)",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 93
+          }
+        },
+        {
+          "linea_id": "L2_94",
+          "tipo": "prestacion",
+          "nombre": "URGENCIA NORMAL",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 94
+          }
+        },
+        {
+          "linea_id": "L2_95",
+          "tipo": "prestacion",
+          "nombre": "URGENCIA ADULTO",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 95
+          }
+        },
+        {
+          "linea_id": "L2_96",
+          "tipo": "prestacion",
+          "nombre": "URGENCIA PEDIÁTRICA",
+          "contexto": {
+            "modalidad_base": "libre_eleccion",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "heredada_desde": "L2_85",
+            "texto_origen": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5",
+            "origen_herencia": "explicit"
+          },
+          "prestadores": [],
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 4,
+              "origen": "L2_74",
+              "sin_tope_adicional": true
+            },
+            "heredado": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 96
+          }
+        },
+        {
+          "linea_id": "L2_97",
+          "tipo": "encabezado",
+          "texto": "(*) VER NOTAS EXPLICATIVAS DEL PLAN DE SALUD PARA LA APLICACIÓN DE LA COBERTURA PREFERENTE",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 97
+          }
+        },
+        {
+          "linea_id": "L2_99",
+          "tipo": "encabezado",
+          "texto": "incluyan prestaciones endoscópicas y aquellas atenciones a pacientes que ingresen en riesgo vital.",
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 99
+          }
+        },
+        {
+          "linea_id": "L3_100",
+          "tipo": "encabezado",
+          "texto": "PRECIO DEL PLAN",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 100
+          }
+        },
+        {
+          "linea_id": "L3_101",
+          "tipo": "encabezado",
+          "texto": "TIPO DE BENEFICIARIO",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 101
+          }
+        },
+        {
+          "linea_id": "L3_103",
+          "tipo": "encabezado",
+          "texto": "HOMBRE   MUJER   HOMBRE  MUJER",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 103
+          }
+        },
+        {
+          "linea_id": "L3_105",
+          "tipo": "encabezado",
+          "texto": "2 a menos de 5 años 0,80 0,80 0,80 0,80 edad:",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 105
+          }
+        },
+        {
+          "linea_id": "L3_106",
+          "tipo": "encabezado",
+          "texto": "5 a menos de 10 años 0,70 0,80 0,60 0,60",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 106
+          }
+        },
+        {
+          "linea_id": "L3_107",
+          "tipo": "encabezado",
+          "texto": "10 a menos de 15 años VALOR BASE 0,70 0,80 0,60 0,60",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 107
+          }
+        },
+        {
+          "linea_id": "L3_108",
+          "tipo": "encabezado",
+          "texto": "15 a menos de 20 años 0,75 1,30 0,60 0,75  U.F.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 108
+          }
+        },
+        {
+          "linea_id": "L3_109",
+          "tipo": "encabezado",
+          "texto": "20 a menos de 25 años 0,80 1,4 0,70 1,00",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 109
+          }
+        },
+        {
+          "linea_id": "L3_110",
+          "tipo": "encabezado",
+          "texto": "25 a menos de 30 años 1,00 1,55 0,80 1,20",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 110
+          }
+        },
+        {
+          "linea_id": "L3_111",
+          "tipo": "encabezado",
+          "texto": "30 a menos de 35 años 1,00 1,90 1,00 1,30  VALOR TOTAL PLAN SEGUN COMPOSICION DEL GRUPO FAMILIAR",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 111
+          }
+        },
+        {
+          "linea_id": "L3_112",
+          "tipo": "encabezado",
+          "texto": "35 a menos de 40 años 1,15 2,10 1,10 1,40",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 112
+          }
+        },
+        {
+          "linea_id": "L3_113",
+          "tipo": "encabezado",
+          "texto": "40 a menos de 45 años 1,30 2,00 1,30 1,50 U.F.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 113
+          }
+        },
+        {
+          "linea_id": "L3_114",
+          "tipo": "encabezado",
+          "texto": "45 a menos de 50 años 1,45 2,30 1,40 1,60",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 114
+          }
+        },
+        {
+          "linea_id": "L3_115",
+          "tipo": "encabezado",
+          "texto": "50 a menos de 55 años 1,85 2,65 1,80 1,80",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 115
+          }
+        },
+        {
+          "linea_id": "L3_118",
+          "tipo": "encabezado",
+          "texto": "65 a menos de 70 años 3,70 3,70 3,70 3,70",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 118
+          }
+        },
+        {
+          "linea_id": "L3_119",
+          "tipo": "encabezado",
+          "texto": "70 a menos de 75 años 4,00 4,00 4,00 4,00 descontar la cotización de la remuneración del cotizante.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 119
+          }
+        },
+        {
+          "linea_id": "L3_120",
+          "tipo": "encabezado",
+          "texto": "75 a menos de 80 años 4,50 4,30 4,50 4,30",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 120
+          }
+        },
+        {
+          "linea_id": "L3_121",
+          "tipo": "encabezado",
+          "texto": "80 y más años   5,00 4,80 5,00 4,80 IDENTIFICACIÓN ÚNICA DE LA TABLA DE FACTORES   N°   603",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 121
+          }
+        },
+        {
+          "linea_id": "L3_122",
+          "tipo": "encabezado",
+          "texto": "ARANCEL",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 122
+          }
+        },
+        {
+          "linea_id": "L3_123",
+          "tipo": "encabezado",
+          "texto": "NOMBRE DEL ARANCEL : AC2   UNIDAD : PESOS",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 123
+          }
+        },
+        {
+          "linea_id": "L3_128",
+          "tipo": "encabezado",
+          "texto": "siguiente.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 128
+          }
+        },
+        {
+          "linea_id": "L3_129",
+          "tipo": "encabezado",
+          "texto": "TOPE GENERAL ANUAL POR BENEFICIARIO",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 129
+          }
+        },
+        {
+          "linea_id": "L3_130",
+          "tipo": "encabezado",
+          "texto": "U.F. 5.000   (7)",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 130
+          }
+        },
+        {
+          "linea_id": "L3_131",
+          "tipo": "encabezado",
+          "texto": "CONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA)",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 131
+          }
+        },
+        {
+          "linea_id": "L3_136",
+          "tipo": "encabezado",
+          "texto": "o al menos, deberá llegar a un 85% de dicha suma.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 136
+          }
+        },
+        {
+          "linea_id": "L3_142",
+          "tipo": "encabezado",
+          "texto": "de cotización de salud.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 142
+          }
+        },
+        {
+          "linea_id": "L3_144",
+          "tipo": "encabezado",
+          "texto": "A ) Que se mantenga permanentemente como trabajador de la empresa.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 144
+          }
+        },
+        {
+          "linea_id": "L3_145",
+          "tipo": "encabezado",
+          "texto": "B) Que se mantenga permanentemente como afiliado de CONSALUD.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 145
+          }
+        },
+        {
+          "linea_id": "L3_146",
+          "tipo": "encabezado",
+          "texto": "CONDICIONES DE VIGENCIA DEL PLAN MATRIMONIAL (CUANDO CORRESPONDA)",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 146
+          }
+        },
+        {
+          "linea_id": "L3_147",
+          "tipo": "encabezado",
+          "texto": "A ) Que el cotizante y su cónyuge mantengan la calidad de afiliados vigentes de CONSALUD.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 147
+          }
+        },
+        {
+          "linea_id": "L3_148",
+          "tipo": "encabezado",
+          "texto": "B) Que el cotizante y su cónyuge estén de acuerdo en mantener el Plan Matrimonial.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 148
+          }
+        },
+        {
+          "linea_id": "L3_149",
+          "tipo": "encabezado",
+          "texto": "TIEMPOS DE ESPERA",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 149
+          }
+        },
+        {
+          "linea_id": "L3_150",
+          "tipo": "encabezado",
+          "texto": "Nº Días Corridos   Inicio del Tiempo de Espera",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 150
+          }
+        },
+        {
+          "linea_id": "L3_151",
+          "tipo": "encabezado",
+          "texto": "- CONSULTAS MEDICAS EN ATENCION PRIMARIA  5",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 151
+          }
+        },
+        {
+          "linea_id": "L3_153",
+          "tipo": "encabezado",
+          "texto": "- EXAMENES 4 beneficiario suscriba el documento de Solicitud de Contabilización del Tiempo",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 153
+          }
+        },
+        {
+          "linea_id": "L3_154",
+          "tipo": "encabezado",
+          "texto": "- PROCEDIMIENTOS DIAGNOSTICOS Y TERAPEUTICOS 10 de Espera en nuestras oficinas.",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 154
+          }
+        },
+        {
+          "linea_id": "L3_155",
+          "tipo": "encabezado",
+          "texto": "- INTERVENCIONES QUIRURGICAS 14",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 155
+          }
+        },
+        {
+          "linea_id": "L3_156",
+          "tipo": "encabezado",
+          "texto": "- HOSPITALIZACIONES EN OTORRINO - OFTALMOLOGIA   -NEUROCIRUGÍA 30",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 156
+          }
+        },
+        {
+          "linea_id": "L3_157",
+          "tipo": "encabezado",
+          "texto": "FIRMA REPRESENTANTE ISAPRE",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 157
+          }
+        },
+        {
+          "linea_id": "L3_158",
+          "tipo": "encabezado",
+          "texto": "FIRMA   AFILIADO: NOMBRE :",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 158
+          }
+        },
+        {
+          "linea_id": "L3_159",
+          "tipo": "encabezado",
+          "texto": "NOMBRE : RUT :",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 159
+          }
+        },
+        {
+          "linea_id": "L3_160",
+          "tipo": "encabezado",
+          "texto": "RUT : FECHA :",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 160
+          }
+        },
+        {
+          "linea_id": "L3_161",
+          "tipo": "encabezado",
+          "texto": "FECHA :",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 161
+          }
+        },
+        {
+          "linea_id": "L3_162",
+          "tipo": "encabezado",
+          "texto": "HUELLA DACTILAR AFILIADO",
+          "fuente_visual": {
+            "pagina": 3,
+            "fila": 162
+          }
+        },
+        {
+          "linea_id": "L4_163",
+          "tipo": "encabezado",
+          "texto": "1) PRESTACIONES",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 163
+          }
+        },
+        {
+          "linea_id": "L4_164",
+          "tipo": "encabezado",
+          "texto": "a) Hospitalarias: Son aquellas que requieren de día cama .",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 164
+          }
+        },
+        {
+          "linea_id": "L4_165",
+          "tipo": "encabezado",
+          "texto": "b) Ambulatorias: Son aquellas   no consideradas en la definición anterior.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 165
+          }
+        },
+        {
+          "linea_id": "L4_170",
+          "tipo": "encabezado",
+          "texto": "Psiquiátrica respectivamente. Se excluyen asimismo de la oferta preferente, los medicamentos y materiales clínicos por, tratamiento de infertilidad y fibrosis",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 170
+          }
+        },
+        {
+          "linea_id": "L4_171",
+          "tipo": "fase_logica",
+          "texto": "quística del páncreas, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 171
+          }
+        },
+        {
+          "linea_id": "L4_172",
+          "tipo": "encabezado",
+          "texto": "por evento/beneficiario.”",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 172
+          }
+        },
+        {
+          "linea_id": "L4_179",
+          "tipo": "encabezado",
+          "texto": "de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 179
+          }
+        },
+        {
+          "linea_id": "L4_181",
+          "tipo": "encabezado",
+          "texto": "cuando sean mayores de 55 años.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 181
+          }
+        },
+        {
+          "linea_id": "L4_182",
+          "tipo": "encabezado",
+          "texto": "6) TOPES DE BONIFICACION:   Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 182
+          }
+        },
+        {
+          "linea_id": "L4_184",
+          "tipo": "encabezado",
+          "texto": "7) VALORIZACION TOPES ANUALES:   Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 184
+          }
+        },
+        {
+          "linea_id": "L4_188",
+          "tipo": "fase_logica",
+          "texto": "ni   podrán tener una bonificación inferior a la cobertura financiera que el Fondo Nacional de Salud asegura, en modalidad libre elección a todas las",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 188
+          }
+        },
+        {
+          "linea_id": "L4_192",
+          "tipo": "encabezado",
+          "texto": "alimentos parenterales y medicamentos estimulantes de colonias.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 192
+          }
+        },
+        {
+          "linea_id": "L4_194",
+          "tipo": "encabezado",
+          "texto": "12) PRESTACIONES DENTALES (PAD):   Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficia-",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 194
+          }
+        },
+        {
+          "linea_id": "L4_197",
+          "tipo": "encabezado",
+          "texto": "acceder a la prestación en un prestador sin convenio la cobertura se entregará vía reembolso.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 197
+          }
+        },
+        {
+          "linea_id": "L4_198",
+          "tipo": "encabezado",
+          "texto": "CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 198
+          }
+        },
+        {
+          "linea_id": "L4_207",
+          "tipo": "fase_logica",
+          "texto": "aplicará solo a la facturación de la clínica y los Honorarios Médicos serán bonificados de acuerdo a la modalidad libre elección.",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 207
+          }
+        },
+        {
+          "linea_id": "L4_212",
+          "tipo": "fase_logica",
+          "texto": "serán bonificados de acuerdo a la modalidad libre elección.",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 212
+          }
+        },
+        {
+          "linea_id": "L4_215",
+          "tipo": "encabezado",
+          "texto": "preferente.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 215
+          }
+        },
+        {
+          "linea_id": "L4_216",
+          "tipo": "encabezado",
+          "texto": "B) El afiliado debe considerar que aquellas prestaciones específicas que, pudiendo entenderse incorporadas en la oferta preferente, no se realizan por el",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 216
+          }
+        },
+        {
+          "linea_id": "L4_218",
+          "tipo": "encabezado",
+          "texto": "del plan.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 218
+          }
+        },
+        {
+          "linea_id": "L4_220",
+          "tipo": "encabezado",
+          "texto": "temporalmente de realizar alguna de las prestaciones que forman parte de la oferta preferente y ha transcurrido el tiempo de espera previsto en el Plan de",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 220
+          }
+        },
+        {
+          "linea_id": "L4_225",
+          "tipo": "fase_logica",
+          "texto": "distinto a los prestadores preferentes sin la autorización expresa de CONSALUD, la cobertura se hará bajo la modalidad libre elección. Esta solicitud de",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 225
+          }
+        },
+        {
+          "linea_id": "L4_228",
+          "tipo": "encabezado",
+          "texto": "siguiente.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 228
+          }
+        },
+        {
+          "linea_id": "L4_230",
+          "tipo": "encabezado",
+          "texto": "Salud. La bonificación en estos prestadores será la correspondiente a «OFERTA PREFERENTE». En caso de que la atención de urgencia ocurra en un",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 230
+          }
+        },
+        {
+          "linea_id": "L4_235",
+          "tipo": "fase_logica",
+          "texto": "afiliado no accede a este traslado y opta por permanecer en el prestador en que se encuentre, la cobertura se hará bajo modalidad libre elección.",
+          "efecto": {
+            "tipo": "cambio_modalidad",
+            "nueva_modalidad": "libre_eleccion",
+            "porcentaje": 90
+          },
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 235
+          }
+        },
+        {
+          "linea_id": "L4_239",
+          "tipo": "encabezado",
+          "texto": "El plazo para presentar dicha documentación, es de 90 días desde la emisión de la factura.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 239
+          }
+        },
+        {
+          "linea_id": "L4_242",
+          "tipo": "encabezado",
+          "texto": "cumplimiento de la cual la Isapre podrá adecuar el contrato.",
+          "fuente_visual": {
+            "pagina": 4,
+            "fila": 242
+          }
+        },
+        {
+          "linea_id": "L5_247",
+          "tipo": "encabezado",
+          "texto": "CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 247
+          }
+        },
+        {
+          "linea_id": "L5_252",
+          "tipo": "encabezado",
+          "texto": "a la remuneración del afiliado al momento de modificarse el contrato.",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 252
+          }
+        },
+        {
+          "linea_id": "L5_255",
+          "tipo": "encabezado",
+          "texto": "beneficiarios a los prestadores individualizados en el plan.",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 255
+          }
+        },
+        {
+          "linea_id": "L5_259",
+          "tipo": "encabezado",
+          "texto": "en el Plan.",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 259
+          }
+        },
+        {
+          "linea_id": "L5_262",
+          "tipo": "encabezado",
+          "texto": "L)   CENTROS MÉDICOS DE LA RED DE SALUD UC CHRISTUS EN CONVENIO:",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 262
+          }
+        },
+        {
+          "linea_id": "L5_263",
+          "tipo": "encabezado",
+          "texto": "•   Centro Médico San Joaquín ( Av. Vicuña Mackenna 4686 )",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 263
+          }
+        },
+        {
+          "linea_id": "L5_264",
+          "tipo": "encabezado",
+          "texto": "•   Centro de Especialidades Médicas (Marcoleta 350)",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 264
+          }
+        },
+        {
+          "linea_id": "L5_265",
+          "tipo": "encabezado",
+          "texto": "•   Centro Médico Irarrázaval (Av. Irarrázaval 4949 Ñuñoa)",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 265
+          }
+        },
+        {
+          "linea_id": "L5_266",
+          "tipo": "encabezado",
+          "texto": "•   Centro Médico Lira (Lira 85, 5to piso)",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 266
+          }
+        },
+        {
+          "linea_id": "L5_267",
+          "tipo": "encabezado",
+          "texto": "•   Centro Médico San Jorge (Nevería 4444 )",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 267
+          }
+        },
+        {
+          "linea_id": "L5_268",
+          "tipo": "encabezado",
+          "texto": "•   Edificio Médico Alcántara (Av. Apoquindo 3990 )",
+          "fuente_visual": {
+            "pagina": 5,
+            "fila": 268
+          }
+        }
+      ]
+    }
+  },
+  "prestaciones_consolidadas": [
+    {
+      "nombre": "MAYOR AMBULATORIA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.1",
+          "prestadores": [
+            "HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_43"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_43"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.1",
+          "prestadores": [
+            "HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_44"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_44"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "DIA CAMA: SALA CUNA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.1",
+          "prestadores": [
+            "HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_45"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_45"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "DIA CAMA CUIDADOS INTENSIVOS O CORONARIOS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA INDISA"
+          ],
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_46"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_46"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "DERECHO DE PABELLÓN",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA INDISA"
+          ],
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_47"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_47"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA INDISA"
+          ],
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_48"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_48"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA INDISA"
+          ],
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_49"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_49",
+            "L2_70"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA INDISA"
+          ],
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_50"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_50"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "PROCEDIMIENTOS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "CLÍNICA VESPUCIO"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_51"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_51",
+            "L2_65"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "KINESIOLOGÍA y FISIOTERAPIA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "CLÍNICA VESPUCIO"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_52"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_52",
+            "L2_69"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "EXÁMENES LABORATORIO",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "CLÍNICA VESPUCIO"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_53"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_53",
+            "L2_64"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "CLÍNICA VESPUCIO"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_54"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_54",
+            "L2_67"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "VISITA POR MÉDICO INTERCONSULTOR",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "CLÍNICA VESPUCIO"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_55"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_55"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "VISITA POR MÉDICO TRATANTE",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "CLÍNICA VESPUCIO"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_56"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_56"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "MEDICAMENTOS HOSPITALARIOS (2)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "CLÍNICA VESPUCIO"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_57"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_57"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "MATERIALES CLÍNICOS (2)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "oferta_preferente",
+          "subtipo": "A.2",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "CLÍNICA VESPUCIO"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "fuente": [
+            "L2_58"
+          ]
+        },
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "fuente": [
+            "L2_58"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 2,
+            "origen": "L2_59",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_60"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "QUIMIOTERAPIA (8)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 2,
+            "origen": "L2_59",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_61"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "CONSULTAS MÉDICAS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 2,
+            "origen": "L2_59",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_63"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "PABELLÓN AMBULATORIO",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 2,
+            "origen": "L2_59",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_66"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "BOX AMBULATORIO",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 2,
+            "origen": "L2_59",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_68"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "RADIOTERAPIA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 0.8,
+            "origen": "L2_71",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_72"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "FONOAUDIOLOGÍA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 0.8,
+            "origen": "L2_71",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_73"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "PRÓTESIS Y ÓRTESIS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_75"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_76"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "ATENCIÓN INTEGRAL DE NUTRICIONISTA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_77"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "CIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_80"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "HOSPITALIZACIÓN PSIQUIATRICA (3)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_82"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "CONSULTA / TRATAMIENTO PSIQUIATRÍA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_83"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "OTRAS COBERTURAS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_84"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "COBERTURA INTERNACIONAL (F)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_86"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "TRASLADOS MEDICOS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_87"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "ATENCIÓN DE URGENCIA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_89"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "Exámenes, Imágenes, Procedimientos y Pabellón.",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_90"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "PRESTADORES DERIVADOS",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_91"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "ATENCIÓN",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_92"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "DE URGENCIA (D) (L) (N)",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_93"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "URGENCIA NORMAL",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_94"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "URGENCIA ADULTO",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_95"
+          ]
+        }
+      ]
+    },
+    {
+      "nombre": "URGENCIA PEDIÁTRICA",
+      "ambito": "hospitalario",
+      "regimenes": [
+        {
+          "modalidad": "libre_eleccion",
+          "prestadores": "red_abierta",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "AC2",
+            "factor": 4,
+            "origen": "L2_74",
+            "sin_tope_adicional": true
+          },
+          "fuente": [
+            "L2_96"
+          ]
+        }
+      ]
+    }
+  ],
+  "auditoria_schema": {
+    "agrupaciones_clinicas": [
+      {
+        "nombre_canonico": "ATENCIÓN DE URGENCIA",
+        "variantes": [
+          "ATENCIÓN DE URGENCIA",
+          "DE URGENCIA (D) (L) (N)",
+          "URGENCIA NORMAL",
+          "URGENCIA ADULTO",
+          "URGENCIA PEDIÁTRICA"
+        ]
+      }
+    ],
+    "definiciones": [
+      {
+        "nombre_norm": "MAYOR AMBULATORIA",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "DIA CAMA: SALA CUNA",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "DIA CAMA CUIDADOS INTENSIVOS O CORONARIOS",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "DERECHO DE PABELLÓN",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "PROCEDIMIENTOS",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "KINESIOLOGÍA y FISIOTERAPIA",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "EXÁMENES LABORATORIO",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "VISITA POR MÉDICO INTERCONSULTOR",
+        "ambito": "ambulatorio",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "VISITA POR MÉDICO TRATANTE",
+        "ambito": "ambulatorio",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "MEDICAMENTOS HOSPITALARIOS (2)",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "MATERIALES CLÍNICOS (2)",
+        "ambito": "hospitalario",
+        "reglas_financieras": []
+      },
+      {
+        "nombre_norm": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 2,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_59"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "QUIMIOTERAPIA (8)",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 2,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_59"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "CONSULTAS MÉDICAS",
+        "ambito": "ambulatorio",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 2,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_59"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "PABELLÓN AMBULATORIO",
+        "ambito": "ambulatorio",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 2,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_59"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "BOX AMBULATORIO",
+        "ambito": "ambulatorio",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 2,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_59"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "RADIOTERAPIA",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 0.8,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_71"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "FONOAUDIOLOGÍA",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 0.8,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_71"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "PRÓTESIS Y ÓRTESIS",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "ATENCIÓN INTEGRAL DE NUTRICIONISTA",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "CIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "HOSPITALIZACIÓN PSIQUIATRICA (3)",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "CONSULTA / TRATAMIENTO PSIQUIATRÍA",
+        "ambito": "ambulatorio",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "OTRAS COBERTURAS",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "COBERTURA INTERNACIONAL (F)",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "TRASLADOS MEDICOS",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "ATENCIÓN DE URGENCIA",
+        "ambito": "hospitalario",
+        "agrupacion": "ATENCIÓN DE URGENCIA",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "Exámenes, Imágenes, Procedimientos y Pabellón.",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "PRESTADORES DERIVADOS",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "ATENCIÓN",
+        "ambito": "hospitalario",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "DE URGENCIA (D) (L) (N)",
+        "ambito": "hospitalario",
+        "agrupacion": "ATENCIÓN DE URGENCIA",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "URGENCIA NORMAL",
+        "ambito": "hospitalario",
+        "agrupacion": "ATENCIÓN DE URGENCIA",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "URGENCIA ADULTO",
+        "ambito": "hospitalario",
+        "agrupacion": "ATENCIÓN DE URGENCIA",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      },
+      {
+        "nombre_norm": "URGENCIA PEDIÁTRICA",
+        "ambito": "hospitalario",
+        "agrupacion": "ATENCIÓN DE URGENCIA",
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 4,
+            "unidad": "AC2",
+            "modalidad": "libre_eleccion",
+            "origen": [
+              "L2_74"
+            ],
+            "sin_tope_adicional": true
+          }
+        ]
+      }
+    ]
+  }
+}

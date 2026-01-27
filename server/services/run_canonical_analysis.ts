@@ -2,7 +2,7 @@
 import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEngine.service.js';
 import { preProcessEventos } from './eventProcessor.service.js';
 import * as fs from 'fs';
-import { BillingItem, Contract } from '../../types.js';
+import { BillingItem, Contract } from '../../src/types.js';
 
 // Paths
 const DATA_PAM_PATH = 'c:/Users/drlui/Downloads/pam_coberturas_1769439956434.json';

@@ -1,6 +1,6 @@
 
-import { PAMItem, PamDocument } from '../../pamService';
-import { ContractRegla } from '../../types';
+import { PAMItem, PamDocument } from '../../src/pamService';
+import { ContractRegla } from '../../src/types';
 
 export interface UnidadReferencia {
     tipo: "UF" | "VA" | "UV" | "BAM" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDA";
@@ -53,27 +53,37 @@ function parseMonto(val: string | number | undefined): number {
  * Resolves the modality (PREFERENTE vs LIBRE_ELECCION) based on clinic name and contract.
  */
 export function resolveModalityByPrestador(contrato: any, prestador: string): 'PREFERENTE' | 'LIBRE_ELECCION' {
-    if (!prestador || !contrato || !contrato.coberturas) return 'LIBRE_ELECCION';
+    if (!prestador || !contrato) return 'LIBRE_ELECCION';
 
     const p = prestador.toUpperCase();
     console.log(`[DEBUG_NET] Resolving Network for: "${p}"`);
 
-    // Check all coverage items and their red_especifica
-    for (const c of contrato.coberturas) {
-        if (c.tipo_modalidad === 'preferente' && c.red_especifica) {
-            const red = String(c.red_especifica).toUpperCase();
-
-            // Debug potential matches
-            const clinics = red.split(/[,;|]/).map(s => s.trim());
-            for (const clinic of clinics) {
-                if (clinic.length > 3) {
-                    if (p.includes(clinic)) {
-                        console.log(`[DEBUG_NET] MATCH FOUND: Provider "${p}" includes "${clinic}" (from: ${red})`);
+    // 1. V3 Support: check agrupaciones_clinicas
+    if (contrato.agrupaciones_clinicas && Array.isArray(contrato.agrupaciones_clinicas)) {
+        for (const ag of contrato.agrupaciones_clinicas) {
+            if (ag.alias_clinicas && Array.isArray(ag.alias_clinicas)) {
+                for (const alias of ag.alias_clinicas) {
+                    if (p.includes(alias.toUpperCase()) || alias.toUpperCase().includes(p)) {
+                        console.log(`[DEBUG_NET] V3 MATCH FOUND: "${p}" belongs to group "${ag.nombre_agrupacion}"`);
                         return 'PREFERENTE';
                     }
-                    if (clinic.includes(p)) {
-                        console.log(`[DEBUG_NET] MATCH FOUND: Clinic "${clinic}" includes "${p}"`);
-                        return 'PREFERENTE';
+                }
+            }
+        }
+    }
+
+    // 2. V2 Support: check coberturas red_especifica
+    if (contrato.coberturas) {
+        for (const c of contrato.coberturas) {
+            if (c.tipo_modalidad === 'preferente' && c.red_especifica) {
+                const red = String(c.red_especifica).toUpperCase();
+                const clinics = red.split(/[,;|]/).map(s => s.trim());
+                for (const clinic of clinics) {
+                    if (clinic.length > 3) {
+                        if (p.includes(clinic) || clinic.includes(p)) {
+                            console.log(`[DEBUG_NET] V2 MATCH FOUND: "${p}" matched "${clinic}"`);
+                            return 'PREFERENTE';
+                        }
                     }
                 }
             }
@@ -312,12 +322,20 @@ export function validateTopeHonorarios(
                     // Dynamic Unit: Prefer specific unit from rule, else inferred unit type, else generic fallback
                     const unit = explicitUnitStr || modality.unidadTope || unidadRef.tipo || "FACTOR_ARANCEL";
 
+                    // Handle AC2 specific fields from V3
+                    const factorVal = modality.factor || factor;
+                    const sinTopeAdicional = !!modality.sin_tope_adicional;
+
                     reglaAplicada = {
                         ...specificRule,
-                        tope_aplicado: `${factor} veces ${unit}`,
-                        _internal_factor: factor,
-                        _internal_unit: unit
+                        tope_aplicado: `${factorVal} veces ${unit}${sinTopeAdicional ? ' (Sin tope adicional)' : ''}`,
+                        _internal_factor: factorVal,
+                        _internal_unit: unit,
+                        _sin_tope_adicional: sinTopeAdicional
                     };
+
+                    // Update factor for math if it was found in V3 structure
+                    factor = factorVal;
                 }
             } else if (specificRule.porcentaje !== undefined) {
                 // Canonical Skill path (Flat)

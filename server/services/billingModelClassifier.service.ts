@@ -1,4 +1,4 @@
-import { BillingModel } from '../../types';
+import { BillingModel } from '../../src/types';
 
 export interface BillingModelClassification {
     model: BillingModel;

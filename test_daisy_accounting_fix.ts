@@ -1,6 +1,6 @@
 
 import { finalizeAuditCanonical } from './server/services/auditEngine.service.js';
-import { Finding, ExtractedAccount } from './types.js';
+import { Finding, ExtractedAccount } from './src/types.js';
 
 const mockBill: ExtractedAccount = {
     clinicName: "CLINICA INDISA",

@@ -1,6 +1,6 @@
 // components/TableView.tsx
 import React from "react";
-import type { Table } from "../../server/tables/types";
+import type { Table } from "../../../server/tables/types";
 
 export function TableView({ table }: { table: Table }) {
     return (

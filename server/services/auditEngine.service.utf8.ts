@@ -96,7 +96,7 @@ export function resolveDecision(params: {
     const { totalCopagoInformado: T, findings, violations, signals } = params;
     const errors: string[] = [];
 
-    // 1) Normaliza montos y unifica categor�as
+    // 1) Normaliza montos y unifica categorías
     // En V6, unificamos K y Z en Z (Opacity). 
     // A = Confirmed, B = Controversy/Mapping, Z = Indeterminate/Opacity
     const norm = findings.map(f => ({
@@ -115,7 +115,7 @@ export function resolveDecision(params: {
     // 2) ENSURE PARTITION (A + B + Z + OK = T)
     // Rule R-BAL-01: Honest accounting. If A+B+Z > T, it's a conflict, not a cap.
     if (finalA + finalB + finalZ > T + 10) {
-        errors.push(`CONFLICTO_DATOS: La suma de hallazgos ($${(finalA + finalB + finalZ).toLocaleString()}) excede el total del copago ($${T.toLocaleString()}). Posible duplicidad o error de extracci�n.`);
+        errors.push(`CONFLICTO_DATOS: La suma de hallazgos ($${(finalA + finalB + finalZ).toLocaleString()}) excede el total del copago ($${T.toLocaleString()}). Posible duplicidad o error de extracción.`);
     }
 
     const finalOK = Math.max(0, T - (finalA + finalB + finalZ));
@@ -127,7 +127,7 @@ export function resolveDecision(params: {
         errors.push(`FALLO_CRITICO_INVARIANTE: A+B+Z+OK=${finalA + finalB + effectiveZ + finalOK} != T=${T}.`);
     }
 
-    // 4) Se�ales y Estado Global
+    // 4) Señales y Estado Global
     const V = Math.min(1, sum(violations.map(v => v.severity)) / Math.max(1, violations.length));
     const riskSignals = signals.filter(s => s.value > 0 && !s.id.includes("OK") && !s.id.includes("CUMPLIMIENTO"));
     const R = Math.min(1, riskSignals.length > 0 ? (sum(riskSignals.map(s => s.value)) / riskSignals.length) : 0);
@@ -214,7 +214,7 @@ function classifyFinding(h: any): "A" | "B" {
     const isUpcoding = /UPCODING|INFLA|PRECIO EXCESIVO|DOSIS COMPLETA/.test(textUpper);
     if (isUpcoding) return "A";
 
-    // PRACTICE #9: Evento �nico
+    // PRACTICE #9: Evento Único
     const isEventoUnico = /EVENTO UNICO|URGENCIA.*INTEGRADO|URGENCIA.*HOSPITALIZACION/.test(textUpper);
     if (isEventoUnico) return "A";
 
@@ -237,7 +237,7 @@ function stableId(parts: string[]): string {
 // ============================================================================
 
 const PROTECTED_CODES = new Set([
-    "99-00-028", // instalaci�n v�a venosa
+    "99-00-028", // instalación vía venosa
     "99-00-045", // fleboclisis
 ]);
 
@@ -396,7 +396,7 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
                 // is the responsibility of the reconstruction engine. 
                 // But we explicitely MARK it as captured.
                 if (!f.rationale?.includes("ALGORITMO DE TOPES")) {
-                    f.rationale = (f.rationale || "") + `\n[ALGORITMO DE TOPES] CAPTURADO: L�mite contractual '${ruleTope}' detectado. Factor ${parsed.factor}x${parsed.unit}.`;
+                    f.rationale = (f.rationale || "") + `\n[ALGORITMO DE TOPES] CAPTURADO: Límite contractual '${ruleTope}' detectado. Factor ${parsed.factor}x${parsed.unit}.`;
                 }
                 // Explicit UI Column Population
                 f.contract_ceiling = ruleTope;
@@ -413,7 +413,7 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
     // Fallback: Log failure if it's an honorario but no ceiling captured
     if (isSpecificFinance && !f.rationale?.includes("[ALGORITMO DE TOPES]")) {
         // Only add negative log if we really expected a match but failed
-        // f.rationale = (f.rationale || "") + "\n[ALGORITMO DE TOPES] NO CAPTURADO: Falta definici�n contractual expl�cita.";
+        // f.rationale = (f.rationale || "") + "\n[ALGORITMO DE TOPES] NO CAPTURADO: Falta definición contractual explícita.";
     }
 
     return false;
@@ -462,7 +462,7 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
             ...f,
             category: "OK",
             action: "ACEPTAR",
-            rationale: rationale + `\n[PRAGMATISMO] Consistencia matem�tica confirmada (Tope ${unit} verificado). El pago es correcto seg�n el contrato y la elecci�n del paciente.`
+            rationale: rationale + `\n[PRAGMATISMO] Consistencia matemática confirmada (Tope ${unit} verificado). El pago es correcto según el contrato y la elección del paciente.`
         };
     }
 
@@ -471,7 +471,7 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
         return { ...f, category: "Z", action: "SOLICITAR_ACLARACION", rationale };
     }
 
-    // 5. MEDICAMENTOS / MATERIALES (Categorizaci�n Can�nica)
+    // 5. MEDICAMENTOS / MATERIALES (Categorización Canónica)
     const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label || "") || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(upperRationale);
 
     if (isOpacity || (isMedMat && !isProtected)) {
@@ -520,7 +520,7 @@ function applySubsumptionCanonical(findings: Finding[]): Finding[] {
         const fLabel = (f.label || "").toUpperCase();
         const isMacro = /GENERICO|GLOBAL|OPACIDAD|CONTROVERSIA|SIN DESGLOSE|RESUMEN|COBERTURA 0%|AGRUPADOR|GASTOS? NO CUBIERTO|PRESTACION NO CONTEMPLADA|MAT_MED/i.test(fLabel);
 
-        // 2. Exact Deduplication (Strict �100 CLP)
+        // 2. Exact Deduplication (Strict ±100 CLP)
         const duplicate = out.find(o => Math.abs(o.amount - amount) < 100);
         if (duplicate) {
             if (f.category === 'A' && duplicate.category !== 'A') {
@@ -734,13 +734,9 @@ export function finalizeAuditCanonical(input: {
     resolved.errors.forEach(e => debug.push(e));
 
 
-    // Step 6: Foundation
-    const isSchemaV3 = !!input.contract?.auditoria_schema || (Array.isArray(input.contract?.definiciones) && Array.isArray(input.contract?.agrupaciones_clinicas));
-    const isCanonical = isSchemaV3 || (!!input.contract?.metadata && Array.isArray(input.contract?.coberturas));
-
-    let coberturas = input.contract?.coberturas || (input.contract?.auditoria_schema?.definiciones) || (input.contract?.definiciones) || [];
-    const contratoVacio = (coberturas.length ?? 0) === 0;
-
+    // Restore context variables for foundation
+    const isCanonical = !!input.contract?.metadata && Array.isArray(input.contract?.coberturas);
+    const contratoVacio = (input.contract?.coberturas?.length ?? 0) === 0;
     const pamOpaco = input.pamState === "OPACO" || !input.reconstructible;
     const canVerifyCeilings = input.ceilings?.canVerify ?? input.reconstructible;
 
@@ -755,11 +751,11 @@ export function finalizeAuditCanonical(input: {
     } else {
         unitLabel = input.contract?.unitOfMeasure || "VAM/AC2";
     }
-    if (!canVerifyCeilings) fundamento.push(`No es posible verificar aplicaci�n de topes UF/${unitLabel} (ceiling verification unavailable).`);
-    if (contratoVacio) fundamento.push("Violaci�n Regla C-01: Contrato sin cl�usulas de cobertura (coberturas vac�o).");
-    if (pamOpaco) fundamento.push("Violaci�n Regla C-04: Opacidad estructural en PAM (agrupaci�n impide trazabilidad fina).");
+    if (!canVerifyCeilings) fundamento.push(`No es posible verificar aplicación de topes UF/${unitLabel} (ceiling verification unavailable).`);
+    if (contratoVacio) fundamento.push("Violación Regla C-01: Contrato sin cláusulas de cobertura (coberturas vacío).");
+    if (pamOpaco) fundamento.push("Violación Regla C-04: Opacidad estructural en PAM (agrupación impide trazabilidad fina).");
     if (balance.A > 0) fundamento.push(`Hallazgos confirmados: cobros improcedentes exigibles identificados (A) por $${balance.A.toLocaleString("es-CL")}.`);
-    if (balance.Z > 0) fundamento.push(`Monto bajo controversia por opacidad (Z/Indeterminado): $${balance.Z.toLocaleString("es-CL")} (requiere desglose/reliquidaci�n).`);
+    if (balance.Z > 0) fundamento.push(`Monto bajo controversia por opacidad (Z/Indeterminado): $${balance.Z.toLocaleString("es-CL")} (requiere desglose/reliquidación).`);
 
     fundamento.push(resolved.fundamento);
 
@@ -847,16 +843,16 @@ export async function performForensicAudit(
 
     // =========================================================================
     // MINI-RAG: BIBLIOTECARIO INTELIGENTE
-    // Carga dinámica de conocimiento legal relevante para este caso específico
+    // Carga dinÃ¡mica de conocimiento legal relevante para este caso especÃ­fico
     // =========================================================================
-    log('[AuditEngine] 📚 Activando Bibliotecario Inteligente (Mini-RAG)...');
+    log('[AuditEngine] ðŸ“š Activando Bibliotecario Inteligente (Mini-RAG)...');
     onProgressUpdate?.(10);
-    log(`[AuditEngine] ℹ️ ${getKnowledgeFilterInfo()} `);
+    log(`[AuditEngine] â„¹ï¸ ${getKnowledgeFilterInfo()} `);
 
     // Paso 1: Extraer keywords del caso (cuenta, PAM, contrato)
     const caseKeywords = extractCaseKeywords(cuentaJson, pamJson, contratoJson, htmlContext);
-    log(`[AuditEngine] 🔑 Keywords extraídas: ${caseKeywords.length} términos`);
-    log(`[AuditEngine] 🔑 Muestra: ${caseKeywords.slice(0, 8).join(', ')}...`);
+    log(`[AuditEngine] ðŸ”‘ Keywords extraÃ­das: ${caseKeywords.length} tÃ©rminos`);
+    log(`[AuditEngine] ðŸ”‘ Muestra: ${caseKeywords.slice(0, 8).join(', ')}...`);
 
     // RE-ENABLE MINI-RAG PER USER REQUEST
     log('[AuditEngine] ?? Re-activando base de conocimiento legal...');
@@ -866,11 +862,11 @@ export async function performForensicAudit(
 
     let knowledgeBaseText = knowledgeBaseTextParsed;
     if (CANONICAL_MANDATE_TEXT) {
-        knowledgeBaseText += `\n\n[CONTRATO MARCO / MANDATO CL�NICO EST�NDAR (PAGAR� / MANDATO)]: \n${CANONICAL_MANDATE_TEXT} \n`;
+        knowledgeBaseText += `\n\n[CONTRATO MARCO / MANDATO CLÍNICO ESTÁNDAR (PAGARÉ / MANDATO)]: \n${CANONICAL_MANDATE_TEXT} \n`;
     }
 
     // RESOLVE CODES DETERMINISTICALLY (New V6.1)
-    log('[AuditEngine] ?? Resolviendo c�digos Fonasa encontrados...');
+    log('[AuditEngine] ?? Resolviendo códigos Fonasa encontrados...');
     const resolvedCodes: string[] = [];
     for (const kw of caseKeywords) {
         if (/^\d{7}$/.test(kw)) {
@@ -881,49 +877,49 @@ export async function performForensicAudit(
         }
     }
     if (resolvedCodes.length > 0) {
-        knowledgeBaseText += `\n\n[GLOSARIO DE C�DIGOS FONASA OFICIAL]:\n${resolvedCodes.join('\n')}\n`;
-        log(`[AuditEngine] ? Resueltos ${resolvedCodes.length} c�digos Fonasa.`);
+        knowledgeBaseText += `\n\n[GLOSARIO DE CÓDIGOS FONASA OFICIAL]:\n${resolvedCodes.join('\n')}\n`;
+        log(`[AuditEngine] ? Resueltos ${resolvedCodes.length} códigos Fonasa.`);
     }
 
     // INJECT IRREGULAR PRACTICES REPORT KNOWLEDGE
     const IRREGULAR_PRACTICES_KNOWLEDGE = `
-        [INFORME OFICIAL: PR�CTICAS IRREGULARES PROHIBIDAS]
-Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una, CLASIFICA COMO 'A'(IMPROCEDENTE).
+        [INFORME OFICIAL: PRÁCTICAS IRREGULARES PROHIBIDAS]
+Analiza la cuenta buscando estas 10 prácticas específicas.Si encuentras una, CLASIFICA COMO 'A'(IMPROCEDENTE).
 1. Inflamiento de Medicamentos: Cobro por caja completa en vez de dosis unitaria(Upcoding).
-2. Desagregaci�n de Pabell�n(Unbundling): Cobro separado de insumos b�sicos(gasas, suturas, jeringas) que deben estar en 'Derecho de Pabell�n'.
-3. F�rmacos de Pabell�n en Farmacia: Anestesia / Analgesia intraoperatoria(Propofol, Fentanilo) cobrada aparte en 'Farmacia' en vez de Pabell�n.
-4. Hoteler�a No Cl�nica: Cobro de 'Confort', 'Kit de Aseo', 'Pantuflas', 'Ropa' sin consentimiento expl�cito.No es prestaci�n m�dica.
-5. Enfermer�a B�sica en D�a Cama: Cobro separado de 'Control Signos Vitales', 'Curaci�n Simple', 'Instalaci�n V�a', 'Fleboclisis'.ESTO EST� INCLUIDO EN EL D�A CAMA.Es Doble Cobro.
-6. Glosas Gen�ricas(3201001 / 2): Montos abultados en 'Gastos No Cubiertos' o 'Insumos Varios' sin desglose.Es Opacidad, pero si oculta insumos b�sicos, es Indebido.
+2. Desagregación de Pabellón(Unbundling): Cobro separado de insumos básicos(gasas, suturas, jeringas) que deben estar en 'Derecho de Pabellón'.
+3. Fármacos de Pabellón en Farmacia: Anestesia / Analgesia intraoperatoria(Propofol, Fentanilo) cobrada aparte en 'Farmacia' en vez de Pabellón.
+4. Hotelería No Clínica: Cobro de 'Confort', 'Kit de Aseo', 'Pantuflas', 'Ropa' sin consentimiento explícito.No es prestación médica.
+5. Enfermería Básica en Día Cama: Cobro separado de 'Control Signos Vitales', 'Curación Simple', 'Instalación Vía', 'Fleboclisis'.ESTO ESTÁ INCLUIDO EN EL DÍA CAMA.Es Doble Cobro.
+6. Glosas Genéricas(3201001 / 2): Montos abultados en 'Gastos No Cubiertos' o 'Insumos Varios' sin desglose.Es Opacidad, pero si oculta insumos básicos, es Indebido.
 7. Incumplimiento Cobertura 100 %: Cobro de copago en prestaciones que el plan cubre al 100 % (ej.Medicamentos Hospitalarios) sin justificar tope.
-8. Upcoding / Reconversi�n: Cobrar un insumo est�ndar como 'Especial/Importado' o un procedimiento menor como cirug�a compleja.
-9. Separaci�n Urgencia / Hospitalizaci�n: Cobrar Urgencia como evento aparte con su propio tope, cuando deriv� en hospitalizaci�n(debe ser Evento �nico).
-10. Falta de Respaldo: Cobros que no coinciden con ficha cl�nica o hoja de consumo.
+8. Upcoding / Reconversión: Cobrar un insumo estándar como 'Especial/Importado' o un procedimiento menor como cirugía compleja.
+9. Separación Urgencia / Hospitalización: Cobrar Urgencia como evento aparte con su propio tope, cuando derivó en hospitalización(debe ser Evento Único).
+10. Falta de Respaldo: Cobros que no coinciden con ficha clínica o hoja de consumo.
 `;
     knowledgeBaseText += IRREGULAR_PRACTICES_KNOWLEDGE;
 
     // Fusionar fuentes de conocimiento
-    const sources: string[] = ["Informe Pr�cticas Irregulares", ...(ragSources || [])];
+    const sources: string[] = ["Informe Prácticas Irregulares", ...(ragSources || [])];
 
     log(`[AuditEngine] ?? Conocimiento inyectado: ${sources.length} fuentes.`);
     log(`[AuditEngine] ?? Fuentes: ${sources.join(' | ').substring(0, 200)}...`);
     onProgressUpdate?.(20);
 
-    // Paso 3: Cargar reglas de hotelería (siempre, es pequeño)
+    // Paso 3: Cargar reglas de hotelerÃ­a (siempre, es pequeÃ±o)
     const hoteleriaRules = await loadHoteleriaRules();
     if (hoteleriaRules) {
-        log('[AuditEngine] 🏨 Cargadas reglas de hotelería (IF-319)');
+        log('[AuditEngine] ðŸ¨ Cargadas reglas de hotelerÃ­a (IF-319)');
     }
 
     // ============================================================================
     // CRC: CONTRACT RECONSTRUCTIBILITY CLASSIFIER (NEW)
     // ============================================================================
     const reconstructibility = ContractReconstructibilityService.assess(contratoJson, cuentaJson);
-    log(`[AuditEngine] 🧩 CRC Analysis: Reconstructible = ${reconstructibility.isReconstructible} (Conf: ${(reconstructibility.confidence * 100).toFixed(0)
+    log(`[AuditEngine] ðŸ§© CRC Analysis: Reconstructible = ${reconstructibility.isReconstructible} (Conf: ${(reconstructibility.confidence * 100).toFixed(0)
         }%)`);
     reconstructibility.reasoning.forEach(r => log(`[AuditEngine] - ${r} `));
 
-    log('[AuditEngine] 🧠 Sincronizando datos y analizando hallazgos con Super-Contexto...');
+    log('[AuditEngine] ðŸ§  Sincronizando datos y analizando hallazgos con Super-Contexto...');
     onProgressUpdate?.(30);
 
     // ============================================================================
@@ -974,60 +970,26 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
 
     // 3. Clean Contrato JSON - Keep only essential coverage data
     // Detect structure: Semantic Canonical (Skill) vs High Fidelity (Raw)
-    const hasMetadata = !!contratoJson.metadata || !!contratoJson.contrato?.metadata;
-    const hasTopesArray = Array.isArray(contratoJson.topes) || Array.isArray(contratoJson.contrato?.topes);
-    const hasCoberturasArray = Array.isArray(contratoJson.coberturas) || Array.isArray(contratoJson.contrato?.coberturas);
+    const hasMetadata = !!contratoJson.metadata;
+    const hasTopesArray = Array.isArray(contratoJson.topes);
+    const hasCoberturasArray = Array.isArray(contratoJson.coberturas);
 
-    const isSemanticCanonical = hasMetadata && (hasCoberturasArray || hasTopesArray);
-    const isHighFidelity = hasCoberturasArray && (contratoJson.coberturas?.some((c: any) => Array.isArray(c.modalidades)) || contratoJson.contrato?.coberturas?.some((c: any) => Array.isArray(c.modalidades)));
+    const isSemanticCanonical = hasMetadata && hasCoberturasArray && hasTopesArray;
+    const isHighFidelity = hasCoberturasArray && contratoJson.coberturas.some((c: any) => Array.isArray(c.modalidades));
 
-    // Schema V3 Detection (Sibling structure: { contrato, auditoria_schema })
-    const isSchemaV3 = !!contratoJson.auditoria_schema || !!contratoJson.definiciones || (!!contratoJson.contrato && (!!contratoJson.contrato.auditoria_schema || !!contratoJson.auditoria_schema));
-
-    // Normalize wrapped structure from Canonizer Layer 3
-    if (contratoJson.contrato && (contratoJson.auditoria_schema || contratoJson.contrato.auditoria_schema)) {
-        // It's a wrapped V3 contract. We need both.
-        // We'll merge them for the cleaning logic.
-        if (!contratoJson.auditoria_schema) contratoJson.auditoria_schema = contratoJson.contrato.auditoria_schema;
-    }
-
-    if (isSchemaV3) {
-        log(`[AuditEngine] 🏆 CONTRATO DETECTADO: Formato Auditoria V3 (Canonizador Deterministico).`);
-    } else if (isSemanticCanonical) {
-        log(`[AuditEngine] 💎 CONTRATO DETECTADO: Formato Canónico Semántico (${contratoJson.metadata?.fuente || 'Sin Fuente'}).`);
-        if (contratoJson.contrato) contratoJson = contratoJson.contrato;
+    if (isSemanticCanonical) {
+        log(`[AuditEngine] ?? CONTRATO DETECTADO: Formato Canónico Semántico (${contratoJson.metadata.fuente || 'Sin Fuente'}).`);
     } else if (isHighFidelity) {
-        log('[AuditEngine] 🎯 CONTRATO DETECTADO: Formato High-Fidelity (Raw PDF Extract).');
+        log('[AuditEngine] ?? CONTRATO DETECTADO: Formato High-Fidelity (Raw PDF Extract).');
     } else if (hasCoberturasArray && contratoJson.coberturas.length > 0) {
-        log('[AuditEngine] 📡 CONTRATO DETECTADO: Estructura de coberturas detectada (Fallback).');
+        log('[AuditEngine] ?? CONTRATO DETECTADO: Estructura de coberturas detectada (Fallback).');
     } else {
-        log('[AuditEngine] ⚠️ CONTRATO NO DETECTADO: El objeto de contrato está vacío o es inválido.');
+        log('[AuditEngine] ?? CONTRATO NO DETECTADO: El objeto de contrato está vacío o es inválido.');
     }
 
     let cleanedContrato: any;
 
-    if (isSchemaV3) {
-        const schema = contratoJson.auditoria_schema || contratoJson;
-        cleanedContrato = {
-            metadata: contratoJson.metadata || schema.metadata,
-            coberturas: (schema.definiciones || []).map((def: any) => ({
-                categoria: (def.categoria_canonica || def.ambito || "OTROS").toUpperCase(),
-                item: def.descripcion_textual,
-                modalidades: (def.modalidades || []).map((m: any) => ({
-                    tipo: (m.modalidad || "").toUpperCase(),
-                    porcentaje: m.porcentaje,
-                    tope: m.tope?.valor ?? null,
-                    unidadTope: m.tope?.tipo ?? "SIN_TOPE",
-                    tipoTope: m.tope?.aplicacion?.toUpperCase() ?? "POR_EVENTO",
-                    factor: m.tope?.factor,
-                    sin_tope_adicional: m.tope?.sin_tope_adicional
-                })),
-                CODIGO_DISPARADOR_FONASA: (def.codigos_fonasa_disparadores || []).join(",")
-            })),
-            agrupaciones_clinicas: schema.agrupaciones_clinicas,
-            reglas_financieras: schema.reglas_financieras
-        };
-    } else if (isSemanticCanonical) {
+    if (isSemanticCanonical) {
         // Normalize Semantic to High-Fidelity like structure for the LLM
         cleanedContrato = {
             metadata: contratoJson.metadata,
@@ -1053,7 +1015,7 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
             }),
             exclusiones: contratoJson.exclusiones,
             reglas: contratoJson.reglas_aplicacion?.map((r: any) => ({
-                'C�DIGO/SECCI�N': r.condicion,
+                'CÓDIGO/SECCIÓN': r.condicion,
                 'VALOR EXTRACTO LITERAL DETALLADO': r.efecto
             }))
         };
@@ -1091,9 +1053,9 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
                 };
             }),
             reglas: contratoJson.reglas?.map((regla: any) => ({
-                'C�DIGO/SECCI�N': regla['C�DIGO/SECCI�N'] || regla['CÓDIGO/SECCIÓN'],
+                'CÓDIGO/SECCIÓN': regla['CÓDIGO/SECCIÓN'] || regla['CÃ“DIGO/SECCIÃ“N'],
                 'VALOR EXTRACTO LITERAL DETALLADO': regla['VALOR EXTRACTO LITERAL DETALLADO'] || regla['VALOR EXTRACTO LITERAL DETALLADO'],
-                'SUBCATEGOR�A': regla['SUBCATEGOR�A'] || regla['SUBCATEGOR� A'],
+                'SUBCATEGORÍA': regla['SUBCATEGORÍA'] || regla['SUBCATEGORÃ A'],
                 'categoria_canonica': regla.categoria_canonica
             }))
         };
@@ -1107,21 +1069,21 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
     // ============================================================================
     // EVENT PRE-PROCESSING (DETERMINISTIC LAYER - V3 ARCHITECTURE)
     // ============================================================================
-    log('[AuditEngine] 🏥 Pre-procesando Eventos Hospitalarios (Arquitectura V3)...');
+    log('[AuditEngine] ðŸ¥ Pre-procesando Eventos Hospitalarios (Arquitectura V3)...');
     onProgressUpdate?.(35);
 
     const eventosHospitalarios = await preProcessEventos(pamJson, contratoJson);
 
     // --- LOG V.A DEDUCTION EVIDENCE ---
-    let vaDeductionSummary = "⚠️ No se pudo deducir el V.A/VAM automáticamente por falta de ítems ancla conocidos.";
+    let vaDeductionSummary = "âš ï¸ No se pudo deducir el V.A/VAM automÃ¡ticamente por falta de Ã­tems ancla conocidos.";
     if (eventosHospitalarios.length > 0 && eventosHospitalarios[0].analisis_financiero) {
         const fin = eventosHospitalarios[0].analisis_financiero;
         if (fin.valor_unidad_inferido) {
-            vaDeductionSummary = `💎 DEDUCCIÓN V.A / VAM: $${fin.valor_unidad_inferido?.toLocaleString('es-CL')} | EVIDENCIA: ${fin.glosa_tope} `;
+            vaDeductionSummary = `ðŸ’Ž DEDUCCIÃ“N V.A / VAM: $${fin.valor_unidad_inferido?.toLocaleString('es-CL')} | EVIDENCIA: ${fin.glosa_tope} `;
             log(`[AuditEngine] ${vaDeductionSummary} `);
         }
     }
-    log(`[AuditEngine] 📋 Eventos detectados: ${eventosHospitalarios.length} `);
+    log(`[AuditEngine] ðŸ“‹ Eventos detectados: ${eventosHospitalarios.length} `);
 
     // --- INTEGRITY CHECK (FAIL FAST - NO MONEY NO HONEY) ---
     // If PAM has money but Events show $0, abort to prevent hallucinations.
@@ -1140,7 +1102,7 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
     ) || (cleanedPam.items || []).some((i: any) => (i.copago || 0) > 0);
 
     if (numericPamCopago > 0 && eventsTotalCopago === 0 && eventosHospitalarios.length > 0 && hasPamItemsWithCopay) {
-        throw new Error(`[DATA_INTEGRITY_FAIL] El PAM declara copago($${numericPamCopago}) y tiene ítems, pero los eventos sumaron $0. ` +
+        throw new Error(`[DATA_INTEGRITY_FAIL] El PAM declara copago($${numericPamCopago}) y tiene Ã­tems, pero los eventos sumaron $0. ` +
             `Revisar parsing de montos en eventProcessor.Abortando audit.`);
     }
 
@@ -1149,29 +1111,29 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
         if (evento.honorarios_consolidados && evento.honorarios_consolidados.length > 0) {
             const validFractions = evento.honorarios_consolidados.filter(h => h.es_fraccionamiento_valido);
             if (validFractions.length > 0) {
-                log(`[AuditEngine]      └─ Fraccionamientos válidos detectados: ${validFractions.length} (NO son duplicidad)`);
+                log(`[AuditEngine]      â””â”€ Fraccionamientos vÃ¡lidos detectados: ${validFractions.length} (NO son duplicidad)`);
             }
         }
     });
 
     const eventosContext = JSON.stringify(eventosHospitalarios);
-    log(`[AuditEngine] ✅ Eventos serializados(~${(eventosContext.length / 1024).toFixed(2)} KB)`);
+    log(`[AuditEngine] âœ… Eventos serializados(~${(eventosContext.length / 1024).toFixed(2)} KB)`);
 
     // CONDITIONAL HTML: Only use HTML if structured JSON is incomplete
     const hasStructuredPam = cleanedPam && Object.keys(cleanedPam).length > 2;
     const useHtmlContext = !hasStructuredCuenta || !hasStructuredPam; // Fix 7: Prevent auto-trigger if JSON is structured
 
     if (useHtmlContext && htmlContext) {
-        log('[AuditEngine] 💎 Usando HTML Context (JSON incompleto o Módulo 8 detectado).');
+        log('[AuditEngine] ðŸ’Ž Usando HTML Context (JSON incompleto o MÃ³dulo 8 detectado).');
     } else if (!useHtmlContext) {
-        log('[AuditEngine] ⚡ HTML Context omitido (JSON estructurado completo, ahorro ~40k tokens).');
+        log('[AuditEngine] âš¡ HTML Context omitido (JSON estructurado completo, ahorro ~40k tokens).');
     }
 
     // ============================================================================
     // TRACEABILITY CHECK (DETERMINISTIC LAYER - V3)
     // ============================================================================
     const traceAnalysis = traceGenericChargesTopK(cleanedCuenta, cleanedPam);
-    log('[AuditEngine] � Trazabilidad de Ajustes:');
+    log('[AuditEngine] ðŸ” Trazabilidad de Ajustes:');
     traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line} `));
 
     // ============================================================================
@@ -1254,7 +1216,7 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
         uniqueId: string;        // Unique identifier for this line
         codigo: string;          // GC code or similar
         descripcion: string;     // Description/glosa
-        bonificacion: number;    // Bonificaci�n amount
+        bonificacion: number;    // Bonificación amount
         copago: number;          // Copago amount
         folioIdx: number;        // Position in folios
         prestadorIdx: number;    // Position in prestador
@@ -1439,7 +1401,7 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
                         recomendacion: decision.recomendacion,
                         confidence: decision.confidence
                     },
-                    `Precedente autom�tico: ${pamLine.descripcion.substring(0, 50)} `,
+                    `Precedente automático: ${pamLine.descripcion.substring(0, 50)} `,
                     Array.from(features).slice(0, 5),
                     { requires: Array.from(features).filter(f => f.startsWith('COV_') || f.startsWith('BONIF_') || f.startsWith('MED_')) }
                 );
@@ -1510,9 +1472,9 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
 
     const rulesContext = `
 ==========================================================================
-?? RESULTADO MOTOR DE REGLAS CAN�NICAS (SUBORDINADO A JURISPRUDENCIA)
+?? RESULTADO MOTOR DE REGLAS CANÓNICAS (SUBORDINADO A JURISPRUDENCIA)
 ==========================================================================
-ESTADO DETERMIN�STICO: ${effectiveCanonicalDecision}
+ESTADO DETERMINÍSTICO: ${effectiveCanonicalDecision}
 DECISIONES JURISPRUDENCIALES CONGELADAS: ${frozenCategories.size} (${catACount} Cat A, ${catBCount} Cat B)
 PRINCIPIO LEGAL: ${canonicalOutput.principioAplicado}
 
@@ -1521,13 +1483,13 @@ REGLA NUCLEAR:
 - Cat A decididos por DOCTRINA/PRECEDENTE son INMUTABLES.
 - Opacidad global NO invalida hallazgos locales confirmados.
 
-FUNDAMENTOS T�CNICOS DETECTADOS:
+FUNDAMENTOS TÉCNICOS DETECTADOS:
 ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
 ?? INSTRUCCIONES OBLIGATORIAS DE RAZONAMIENTO:
 1. Hallazgos Cat A (DOCTRINA/PRECEDENTE) son COBRO IMPROCEDENTE final.
 2. NO reinterpretar ni diluir decisiones congeladas.
-3. Opacidad aplica SOLO a l�neas NO decididas por jurisprudencia.
+3. Opacidad aplica SOLO a líneas NO decididas por jurisprudencia.
 ==========================================================================
 `;
 
@@ -1545,12 +1507,12 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         .replace('{contexto_trazabilidad}', traceAnalysis)
         .replace('{va_deduction_context}', vaDeductionSummary + '\n' + rulesContext)
         .replace('{html_context}', useHtmlContext ? (htmlContext || '') : '(Omitido: JSON completo)')
-        .replace('{contract_markdown}', contractMarkdown || '(No disponible: Verificaci�n solo JSON)');
+        .replace('{contract_markdown}', contractMarkdown || '(No disponible: Verificación solo JSON)');
 
     // Log prompt size for debugging
     const promptSize = prompt.length;
     const promptSizeKB = (promptSize / 1024).toFixed(2);
-    log(`[AuditEngine] 📏 Tamaño del prompt: ${promptSizeKB} KB(${promptSize} caracteres)`);
+    log(`[AuditEngine] ðŸ“ TamaÃ±o del prompt: ${promptSizeKB} KB(${promptSize} caracteres)`);
     // -----------------------------------------------------
 
     // Initialize GeminiService with multiple API keys for rotation
@@ -1562,7 +1524,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
     ].filter(k => k && k.length > 5);
 
     const geminiService = new GeminiService(apiKeys);
-    log(`[AuditEngine] 🔑 GeminiService initialized with ${apiKeys.length} API key(s)`);
+    log(`[AuditEngine] ðŸ”‘ GeminiService initialized with ${apiKeys.length} API key(s)`);
 
     for (const modelName of modelsToTry) {
         if (!modelName) continue;
@@ -1572,7 +1534,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             const keyMask = currentKey.substring(0, 4) + '...';
 
             try {
-                log(`[AuditEngine] 🛡️ Strategy: Intentando con modelo ${modelName} (Key ${keyIdx + 1}/${apiKeys.length}: ${keyMask})...`);
+                log(`[AuditEngine] ðŸ›¡ï¸ Strategy: Intentando con modelo ${modelName} (Key ${keyIdx + 1}/${apiKeys.length}: ${keyMask})...`);
                 onProgressUpdate?.(40);
 
                 const timeoutMs = 120000;
@@ -1593,16 +1555,16 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                 });
 
                 const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error(`Timeout: La API no respondió en ${timeoutMs / 1000} segundos`)), timeoutMs);
+                    setTimeout(() => reject(new Error(`Timeout: La API no respondiÃ³ en ${timeoutMs / 1000} segundos`)), timeoutMs);
                 });
 
-                log('[AuditEngine] 📡 Enviando consulta a Gemini (Streaming)...');
+                log('[AuditEngine] ðŸ“¡ Enviando consulta a Gemini (Streaming)...');
                 const streamResult = await Promise.race([
                     model.generateContentStream(prompt),
                     timeoutPromise
                 ]) as any;
 
-                log('[AuditEngine] 📥 Recibiendo respuesta en tiempo real...');
+                log('[AuditEngine] ðŸ“¥ Recibiendo respuesta en tiempo real...');
                 for await (const chunk of streamResult.stream) {
                     const chunkText = chunk.text();
                     fullText += chunkText;
@@ -1614,7 +1576,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
                     if (fullText.length % 500 < chunkText.length) {
                         const kbReceived = Math.floor(fullText.length / 1024);
-                        log(`[AuditEngine] 📊 Procesando... ${kbReceived}KB recibidos`);
+                        log(`[AuditEngine] ðŸ“Š Procesando... ${kbReceived}KB recibidos`);
                         // Fix 1.5: Simulated Progress Heuristic (Chars / 4 = Tokens approx)
                         const estimatedTokens = fullText.length / 4;
                         const simulatedProgress = Math.min(90, 40 + (estimatedTokens / ESTIMATED_TOTAL_TOKENS) * 50);
@@ -1629,7 +1591,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     }
                 };
 
-                log(`[AuditEngine] ✅ Éxito con modelo ${modelName} y Key ${keyIdx + 1}`);
+                log(`[AuditEngine] âœ… Ã‰xito con modelo ${modelName} y Key ${keyIdx + 1}`);
                 break; // Exit key loop on success
 
             } catch (error: any) {
@@ -1639,16 +1601,16 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                 const isTimeout = errStr.includes('Timeout');
 
                 if (isTimeout) {
-                    log(`[AuditEngine] ⏱️ Timeout en ${modelName} con Key ${keyIdx + 1}.`);
+                    log(`[AuditEngine] â±ï¸ Timeout en ${modelName} con Key ${keyIdx + 1}.`);
                     // Try next key
                     continue;
                 } else if (isQuota) {
-                    log(`[AuditEngine] ⚠️ Fallo en ${modelName} con Key ${keyIdx + 1} por Quota/Server. Probando siguiente clave...`);
+                    log(`[AuditEngine] âš ï¸ Fallo en ${modelName} con Key ${keyIdx + 1} por Quota/Server. Probando siguiente clave...`);
                     // Small backoff
                     await new Promise(r => setTimeout(r, 2000));
                     continue;
                 } else {
-                    log(`[AuditEngine] ❌ Error no recuperable en ${modelName} / Key ${keyIdx + 1}: ${error.message}`);
+                    log(`[AuditEngine] âŒ Error no recuperable en ${modelName} / Key ${keyIdx + 1}: ${error.message}`);
                     // Depending on error, we might want to try next key or bail
                     // If it's 400 (Bad Request), trying next key won't help.
                     // But for robustness, let's try at least one more key or switch model.
@@ -1661,7 +1623,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
     }
 
     if (!result) {
-        log(`[AuditEngine] ❌ Todos los modelos fallaron.`);
+        log(`[AuditEngine] âŒ Todos los modelos fallaron.`);
         throw lastError || new Error("Forensic Audit failed on all models.");
     }
 
@@ -1676,7 +1638,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             .trim();
 
         // 2. Escape bad control characters (newlines/tabs inside strings)
-        // Fix 1.4: "Reparación JSON" peligrosa disabled. Control chars are risky to strip blindly.
+        // Fix 1.4: "ReparaciÃ³n JSON" peligrosa disabled. Control chars are risky to strip blindly.
         // This regex looks for control chars that are NOT properly escaped
         // However, a simpler approach for AI JSON is often just to clean common issues
 
@@ -1692,7 +1654,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             // Ensure camelCase structure
             if (!auditResult.resumenFinanciero) auditResult.resumenFinanciero = {};
         } catch (parseError) {
-            log(`[AuditEngine] ⚠️ JSON.parse falló inicialmente: ${parseError.message}. Intentando reparación básica...`);
+            log(`[AuditEngine] âš ï¸ JSON.parse fallÃ³ inicialmente: ${parseError.message}. Intentando reparaciÃ³n bÃ¡sica...`);
 
             // Repair: sometimes AI returns newlines inside strings which breaks JSON
             // Fix 1.4: Safer repair or just raw fallback. For now, we attempt very conservative repair or none.
@@ -1704,16 +1666,16 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                 // Just log and fallback.
                 throw new Error("JSON repair disabled per V5 guidelines.");
                 // auditResult = JSON.parse(cleanedText);
-                // log('[AuditEngine] ✅ Reparación de JSON exitosa.');
+                // log('[AuditEngine] âœ… ReparaciÃ³n de JSON exitosa.');
             } catch (repairError) {
-                log(`[AuditEngine] ❌ Reparación falló.Devolviendo raw text para depuración.`);
+                log(`[AuditEngine] âŒ ReparaciÃ³n fallÃ³.Devolviendo raw text para depuraciÃ³n.`);
                 // Fallback: return structure with raw content
                 auditResult = {
                     metadata: { type: 'ERROR_FALLBACK' },
                     resumen_financiero: { total_reclamado: 0, total_cobertura: 0, copago_final: 0 },
                     hallazgos: [{
                         titulo: "Error de Formato JSON",
-                        descripcion: "La IA generó una respuesta válida pero con formato JSON corrupto. Ver 'observaciones' para el texto crudo.",
+                        descripcion: "La IA generÃ³ una respuesta vÃ¡lida pero con formato JSON corrupto. Ver 'observaciones' para el texto crudo.",
                         impacto_financiero: 0,
                         categoria: "SISTEMA",
                         estado: "REVISION_MANUAL",
@@ -1736,7 +1698,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             cleanedPam,
             reconstructibility // Pass CRC result
         );
-        log('[AuditEngine] 🛡️ Validaciones de seguridad aplicadas (Safety Belt & CRC).');
+        log('[AuditEngine] ðŸ›¡ï¸ Validaciones de seguridad aplicadas (Safety Belt & CRC).');
 
         // --- POST-PROCESSING: DETERMINISTIC GAP RECONCILIATION ---
         try {
@@ -1754,9 +1716,9 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             // If AI says $1.4M is legitimate (30% copay) and $395k is objected, and Total is $1.8M
             // Gap = 1.8M - (1.4M + 0.395M) = ~0.
 
-            // 🚨 REGLA NUCLEAR: Si el estado es INDETERMINADO, NO generamos GAP/orphans
+            // ðŸš¨ REGLA NUCLEAR: Si el estado es INDETERMINADO, NO generamos GAP/orphans
             if (estadoCopago === 'INDETERMINADO_POR_OPACIDAD') {
-                log(`[AuditEngine] � Estado INDETERMINADO detectado.NO se ejecuta GAP reconciliation(evita ghost hunters).`);
+                log(`[AuditEngine] ðŸ” Estado INDETERMINADO detectado.NO se ejecuta GAP reconciliation(evita ghost hunters).`);
                 // Early return: skip all gap/orphan logic
             } else {
 
@@ -1783,7 +1745,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
                 // Threshold: $5000 CLP
                 if (gap > 5000) {
-                    log(`[AuditEngine] 🚨 GAP REAL DETECTADO: $${gap} (Total: $${numericTotalCopago} - Validado: $${legitimadoPorIA} - Hallazgos: $${sumFindings})`);
+                    log(`[AuditEngine] ðŸš¨ GAP REAL DETECTADO: $${gap} (Total: $${numericTotalCopago} - Validado: $${legitimadoPorIA} - Hallazgos: $${sumFindings})`);
 
                     // 1. SCAN FOR ORPHANED ITEMS (The "Ghost Code Hunter")
                     const orphanedItems: any[] = [];
@@ -1823,39 +1785,39 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
                     // 2. ASSIGN GAP TO ORPHANS (Traceability)
                     if (orphanedItems.length > 0) {
-                        log(`[AuditEngine] 🕵️‍♂️ Ítems Huérfanos encontrados: ${orphanedItems.length} `);
+                        log(`[AuditEngine] ðŸ•µï¸â€â™‚ï¸ Ãtems HuÃ©rfanos encontrados: ${orphanedItems.length} `);
 
                         orphanedItems.forEach(item => {
                             const monto = parseAmountCLP(item.copago);
                             auditResult.hallazgos.push({
                                 codigos: item.codigo || "SIN-CODIGO",
-                                glosa: item.descripcion || "ÍTEM SIN DESCRIPCION",
+                                glosa: item.descripcion || "ÃTEM SIN DESCRIPCION",
                                 scope: { type: 'PAM_LINE', pamLineKey: item.codigo || 'UNKNOWN' }, // Explicit Scope
                                 hallazgo: `
-    ** I.Identificación del ítem cuestionado **
-        Se cuestiona el cobro de ** $${monto.toLocaleString('es-CL')}** asociado a la prestación codificada como "${item.codigo}".
+    ** I.IdentificaciÃ³n del Ã­tem cuestionado **
+        Se cuestiona el cobro de ** $${monto.toLocaleString('es-CL')}** asociado a la prestaciÃ³n codificada como "${item.codigo}".
 
-** II.Contexto clínico y administrativo **
-    Este ítem aparece con copago positivo en el PAM pero no cuenta con bonificación adecuada ni código arancelario estándar(Código Fantasma / 0), generando una "fuga de cobertura" silenciosa.
+** II.Contexto clÃ­nico y administrativo **
+    Este Ã­tem aparece con copago positivo en el PAM pero no cuenta con bonificaciÃ³n adecuada ni cÃ³digo arancelario estÃ¡ndar(CÃ³digo Fantasma / 0), generando una "fuga de cobertura" silenciosa.
 
 ** III.Norma contractual aplicable **
-    Según Circular IF / N°176 y Art. 33 Ley 18.933, los errores de codificación o el uso de códigos internos(no homologados) por parte del prestador NO pueden traducirse en copagos para el afiliado.La Isapre debe cubrir la prestación al 100 % (Plan Pleno) asimilándola al código Fonasa más cercano(ej: Vía Venosa, Insumos de Pabellón).
+    SegÃºn Circular IF / NÂ°176 y Art. 33 Ley 18.933, los errores de codificaciÃ³n o el uso de cÃ³digos internos(no homologados) por parte del prestador NO pueden traducirse en copagos para el afiliado.La Isapre debe cubrir la prestaciÃ³n al 100 % (Plan Pleno) asimilÃ¡ndola al cÃ³digo Fonasa mÃ¡s cercano(ej: VÃ­a Venosa, Insumos de PabellÃ³n).
 
 ** IV.Forma en que se materializa la controversia **
-    Se configura un ** Error de Codificación Imputable al Prestador **.La clínica utilizó un código interno(99 - XX o 00-00) que la Isapre rechazó o bonificó parcialmente como "No Arancelado", cuando en realidad corresponde a insumos / procedimientos cubiertos.
+    Se configura un ** Error de CodificaciÃ³n Imputable al Prestador **.La clÃ­nica utilizÃ³ un cÃ³digo interno(99 - XX o 00-00) que la Isapre rechazÃ³ o bonificÃ³ parcialmente como "No Arancelado", cuando en realidad corresponde a insumos / procedimientos cubiertos.
 
-** VI.Efecto económico concreto **
-    El afiliado paga $${monto.toLocaleString('es-CL')} indebidamente por un error administrativo de catalogación.
+** VI.Efecto econÃ³mico concreto **
+    El afiliado paga $${monto.toLocaleString('es-CL')} indebidamente por un error administrativo de catalogaciÃ³n.
 
-** VII.Conclusión de la impugnación **
-    Se solicita la re - liquidación total de este ítem bajo el principio de homologación y cobertura integral.
+** VII.ConclusiÃ³n de la impugnaciÃ³n **
+    Se solicita la re - liquidaciÃ³n total de este Ã­tem bajo el principio de homologaciÃ³n y cobertura integral.
 
 ** VIII.Trazabilidad y Origen del Cobro **
-    Anclaje exacto en PAM: Ítem "${item.descripcion}"(Copago: $${monto}).
+    Anclaje exacto en PAM: Ãtem "${item.descripcion}"(Copago: $${monto}).
                              `,
                                 montoObjetado: monto,
                                 tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Orphan items are exigible
-                                normaFundamento: "Circular IF/176 (Errores de Codificación) y Ley 18.933",
+                                normaFundamento: "Circular IF/176 (Errores de CodificaciÃ³n) y Ley 18.933",
                                 anclajeJson: `PAM_AUTO_DETECT: ${item.codigo} `
                             });
                             // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
@@ -1864,58 +1826,58 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                         // If there is still a residual gap, create a smaller generic finding
                         if (remainingGap > 5000) {
                             // ... (Add generic finding logic for remainingGap if needed, or ignore if small)
-                            log(`[AuditEngine] ⚠️ Aún queda un gap residual de $${remainingGap} no asignable a ítems específicos.`);
+                            log(`[AuditEngine] âš ï¸ AÃºn queda un gap residual de $${remainingGap} no asignable a Ã­tems especÃ­ficos.`);
                         }
 
                     } else {
                         // 3. FALLBACK TO GENERIC GAP (If no orphans found)
                         auditResult.hallazgos.push({
                             codigos: "GAP_RECONCILIATION",
-                            glosa: "DIFERENCIA NO EXPLICADA (DÉFICIT DE COBERTURA)",
+                            glosa: "DIFERENCIA NO EXPLICADA (DÃ‰FICIT DE COBERTURA)",
                             hallazgo: `
-    ** I.Identificación del ítem cuestionado **
-        Se detecta un monto residual de ** $${gap.toLocaleString('es-CL')}** que no fue cubierto por la Isapre y NO corresponde al copago contractual legítimo.
+    ** I.IdentificaciÃ³n del Ã­tem cuestionado **
+        Se detecta un monto residual de ** $${gap.toLocaleString('es-CL')}** que no fue cubierto por la Isapre y NO corresponde al copago contractual legÃ­timo.
 
-** II.Contexto clínico y administrativo **
-    Diferencia aritmética entre Copago Total y la suma de(Copago Legítimo + Hallazgos).
+** II.Contexto clÃ­nico y administrativo **
+    Diferencia aritmÃ©tica entre Copago Total y la suma de(Copago LegÃ­timo + Hallazgos).
 
 ** III.Norma contractual aplicable **
-    El plan(cobertura preferente) no debería generar copagos residuales salvo Topes Contractuales alcanzados o Exclusiones legítimas.
+    El plan(cobertura preferente) no deberÃ­a generar copagos residuales salvo Topes Contractuales alcanzados o Exclusiones legÃ­timas.
 
 ** IV.Forma en que se materializa la controversia **
-    Existe un ** Déficit de Cobertura Global **.Si este monto de $${gap.toLocaleString('es-CL')} corresponde a prestaciones no aranceladas, debe ser acreditado.De lo contrario, se presume cobro en exceso por falta de bonificación integral.
+    Existe un ** DÃ©ficit de Cobertura Global **.Si este monto de $${gap.toLocaleString('es-CL')} corresponde a prestaciones no aranceladas, debe ser acreditado.De lo contrario, se presume cobro en exceso por falta de bonificaciÃ³n integral.
 
-** VI.Efecto económico concreto **
-    Costo adicional de $${gap.toLocaleString('es-CL')} sin justificación contractual.
+** VI.Efecto econÃ³mico concreto **
+    Costo adicional de $${gap.toLocaleString('es-CL')} sin justificaciÃ³n contractual.
 
-** VII.Conclusión de la impugnación **
+** VII.ConclusiÃ³n de la impugnaciÃ³n **
     Se objeta este remanente por falta de transparencia.
 
 ** VIII.Trazabilidad y Origen del Cobro **
 | Concepto | Monto |
 | : --- | : --- |
 | Copago Total PAM | $${numericTotalCopago.toLocaleString('es-CL')} |
-| (-) Copago Legítimo(Contrato) | -$${legitimadoPorIA.toLocaleString('es-CL')} |
+| (-) Copago LegÃ­timo(Contrato) | -$${legitimadoPorIA.toLocaleString('es-CL')} |
 | (-) Suma Hallazgos | -$${sumFindings.toLocaleString('es-CL')} |
 | **= GAP(DIFERENCIA) ** | ** $${gap.toLocaleString('es-CL')}** |
     `,
                             montoObjetado: gap,
                             tipo_monto: "COBRO_IMPROCEDENTE", // GAP: Generic coverage deficit is exigible
-                            anclajeJson: "CÁLCULO_AUTOMÁTICO_SISTEMA",
+                            anclajeJson: "CÃLCULO_AUTOMÃTICO_SISTEMA",
                             categoria: "Z", // Fix 4: Force Z
                             categoria_final: "Z",
                             scope: { type: 'GLOBAL' } // GAP is Global
                         });
                         // DO NOT add to totalAhorroDetectado here - Safety Belt will calculate
-                        log('[AuditEngine] ✅ GAP GENÉRICO inyectado (Cat Z).');
+                        log('[AuditEngine] âœ… GAP GENÃ‰RICO inyectado (Cat Z).');
                     }
                 }
             } // End of else block for !INDETERMINADO
         } catch (gapError: any) {
             const errMsg = gapError?.message || String(gapError);
-            log(`[AuditEngine] ⚠️ Error en cálculo de Gap: ${errMsg} `);
+            log(`[AuditEngine] âš ï¸ Error en cÃ¡lculo de Gap: ${errMsg} `);
         }
-        log('[AuditEngine] ✅ Auditoría forense completada.');
+        log('[AuditEngine] âœ… AuditorÃ­a forense completada.');
 
         // --- FINALIZATION (DETERMINISTIC CATEGORIZATION) ---
         // Calculate Canonical Total from PAM Source of Truth if available
@@ -1925,7 +1887,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         if (pamGlobal) {
             const val = pamGlobal.totalValor || 0;
             const bon = pamGlobal.totalBonif || 0;
-            // Canonical Formula: COPAGO_TOTAL = Σ(Valor ISA) − Σ(Bonificación)
+            // Canonical Formula: COPAGO_TOTAL = Î£(Valor ISA) âˆ’ Î£(BonificaciÃ³n)
             totalCopagoReal = val - bon;
 
             // Fallback if 0 (sometimes totalValor is not populated but totalCopago is)
@@ -1959,7 +1921,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     amount: v.pamLine.copago,
                     action: v.decision.recomendacion as any,
                     evidenceRefs: [`PAM:${v.pamLine.codigo}`],
-                    rationale: doctrineRule?.rationale || "Hallazgo detectado por motor de jurisprudencia (�rbol de Decisi�n del Auditor).",
+                    rationale: doctrineRule?.rationale || "Hallazgo detectado por motor de jurisprudencia (Árbol de Decisión del Auditor).",
                     hypothesisParent: v.decision.categoria_final === 'A' ?
                         (v.features.has('INHERENTLY_INCLUDED') ? "H_UNBUNDLING_IF319" : "H_INCUMPLIMIENTO_CONTRACTUAL") :
                         "H_OPACIDAD_ESTRUCTURAL"
@@ -1994,12 +1956,12 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
 
         // V6.2: LAST RESORT RESOLUTION FOR OPAQUE ITEMS
-        log('[AuditEngine] ?? Intentando resoluci�n de "�ltimo recurso" para �tems opacos...');
+        log('[AuditEngine] ?? Intentando resolución de "último recurso" para ítems opacos...');
         for (const finding of mergedFindings || []) {
             if (finding.category === 'Z' || /OPACIDAD|SIN DESGLOSE/i.test(finding.label || "")) {
                 const resolved = await resolveByDescription(finding.label || "");
                 if (resolved) {
-                    log(`[AuditEngine] ? Re-clasificado �tem opaco: "${finding.label}" -> ${resolved.code} (${resolved.description})`);
+                    log(`[AuditEngine] ? Re-clasificado ítem opaco: "${finding.label}" -> ${resolved.code} (${resolved.description})`);
 
                     // CLEAN RATIONALE: Remove "Indeterminacion/Ley 20.584" markers that confuse the user
                     let cleanRationale = (finding.rationale || "");
@@ -2009,7 +1971,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     finding.category = 'OK';
                     finding.action = 'ACEPTAR';
                     (finding as any).resolvedBy = "CODE_RESOLVER"; // Fix 3: Flag as resolved
-                    finding.rationale = `[MEJORA][RESUELTO_CODIGO] C�digo Fonasa detectado: ${resolved.code}. Procedimiento validado como ${resolved.description}.` + (cleanRationale ? `\nContexto: ${cleanRationale}` : "");
+                    finding.rationale = `[MEJORA][RESUELTO_CODIGO] Código Fonasa detectado: ${resolved.code}. Procedimiento validado como ${resolved.description}.` + (cleanRationale ? `\nContexto: ${cleanRationale}` : "");
                     finding.description = resolved.description;
                     finding.codigos = resolved.code;
                 }
@@ -2094,27 +2056,27 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         }
 
         // --- STEP: GLOBAL REPORT SCRUBBING (V6.5) ---
-        // If there's no residual Category Z balance, scrub all references to "Indeterminaci�n" or "Ley 20.584"
+        // If there's no residual Category Z balance, scrub all references to "Indeterminación" or "Ley 20.584"
         const finalZBalance = finalStrictBalance.Z || 0;
         if (finalZBalance === 0) {
-            log('[AuditEngine] ?? Realizando limpieza global de indeterminaci�n (Balance Z = 0)...');
+            log('[AuditEngine] ?? Realizando limpieza global de indeterminación (Balance Z = 0)...');
 
             // 1. Scrub Executive Summary
             if (finalResult.resumenEjecutivo) {
-                finalResult.resumenEjecutivo = finalResult.resumenEjecutivo.replace(/�TEMS? INDETERMINADOS?|INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584|OPACIDAD ESTRUCTURAL/gi, '').trim();
-                if (!finalResult.resumenEjecutivo.includes('[RESOLUCI�N]')) {
-                    finalResult.resumenEjecutivo += "\n[RESOLUCI�N] La auditor�a forense ha logrado clasificar la totalidad de los eventos mediante an�lisis literario y reconstrucci�n aritm�tica.";
+                finalResult.resumenEjecutivo = finalResult.resumenEjecutivo.replace(/ÍTEMS? INDETERMINADOS?|INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584|OPACIDAD ESTRUCTURAL/gi, '').trim();
+                if (!finalResult.resumenEjecutivo.includes('[RESOLUCIÓN]')) {
+                    finalResult.resumenEjecutivo += "\n[RESOLUCIÓN] La auditoría forense ha logrado clasificar la totalidad de los eventos mediante análisis literario y reconstrucción aritmética.";
                 }
             }
 
-            // 2. Scrub Bit�cora
+            // 2. Scrub Bitácora
             if (finalResult.bitacoraAnalisis) {
                 finalResult.bitacoraAnalisis.forEach((b: any) => {
                     if (b.decision_logica && (b.decision_logica.motivo_cierre === 'INDETERMINADO' || /INDETERMINAD/i.test(b.razonamiento))) {
                         b.decision_logica.objetable = false;
                         b.decision_logica.motivo_cierre = 'TOPE_O_VALOR_VALIDADO';
-                        b.razonamiento = b.razonamiento.replace(/INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584/gi, 'VALIDACI�N �XITOSA').trim();
-                        b.razonamiento = "[AJUSTE FORENSE] Prestaci�n validada tras resoluci�n de opacidad. " + b.razonamiento;
+                        b.razonamiento = b.razonamiento.replace(/INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584/gi, 'VALIDACIÓN ÉXITOSA').trim();
+                        b.razonamiento = "[AJUSTE FORENSE] Prestación validada tras resolución de opacidad. " + b.razonamiento;
                     }
                 });
             }
@@ -2122,11 +2084,11 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             // 3. Scrub Markdown Report
             if (finalResult.auditoriaFinalMarkdown) {
                 finalResult.auditoriaFinalMarkdown = finalResult.auditoriaFinalMarkdown
-                    .replace(/## \d\. Hallazgo Principal Estructural \(Foco en imposibilidad de validaci�n PAM\)/gi, '## 2. Validaci�n de Integridad Estructural')
-                    .replace(/revela una \*\*Opacidad Estructural\*\* severa/gi, 'revela **Integridad Estructural** validada mediante reconstrucci�n')
-                    .replace(/correspondiente a la \*\*Ley 20\.584\*\*/gi, 'correspondiente a la resoluci�n t�cnica del Arancel')
-                    .replace(/esto obliga a aplicar la norma de cierre \(Cat Z\)/gi, 'esto se ha resuelto mediante an�lisis forense')
-                    .replace(/INDETERMINACION|NO SE PUEDE VERIFICAR|NO PERMITE CLASIFICAR/gi, 'RESOLUCI�N T�CNICA');
+                    .replace(/## \d\. Hallazgo Principal Estructural \(Foco en imposibilidad de validación PAM\)/gi, '## 2. Validación de Integridad Estructural')
+                    .replace(/revela una \*\*Opacidad Estructural\*\* severa/gi, 'revela **Integridad Estructural** validada mediante reconstrucción')
+                    .replace(/correspondiente a la \*\*Ley 20\.584\*\*/gi, 'correspondiente a la resolución técnica del Arancel')
+                    .replace(/esto obliga a aplicar la norma de cierre \(Cat Z\)/gi, 'esto se ha resuelto mediante análisis forense')
+                    .replace(/INDETERMINACION|NO SE PUEDE VERIFICAR|NO PERMITE CLASIFICAR/gi, 'RESOLUCIÓN TÉCNICA');
             }
 
             // 4. Update Decision Global State
@@ -2139,7 +2101,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         if (finalResult.resumenEjecutivo && finalFindings.some(f => f.label.includes('(Reconstruido)'))) {
             finalResult.resumenEjecutivo = finalResult.resumenEjecutivo.replace(
                 /1\. \*\*Opacidad Estructural\*\*:[^.]+\./i,
-                `1. **Opacidad Resuelta**: Se reconstruy� el desglose de Medicamentos y Materiales mediante auditor�a forense, identificando cobros indebidos espec�ficos.`
+                `1. **Opacidad Resuelta**: Se reconstruyó el desglose de Medicamentos y Materiales mediante auditoría forense, identificando cobros indebidos específicos.`
             );
         }
 
@@ -2172,15 +2134,15 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     fundamento: finalDecision.fundamento
                 },
                 legalContext: {
-                    axioma_fundamental: "La inteligencia del auditor consiste en suplir las deficiencias estructurales del PAM mediante la aplicaci�n activa de literatura, normativa y contrato, y no en declarar indeterminaci�n ante la primera falta de desglose.",
+                    axioma_fundamental: "La inteligencia del auditor consiste en suplir las deficiencias estructurales del PAM mediante la aplicación activa de literatura, normativa y contrato, y no en declarar indeterminación ante la primera falta de desglose.",
                     analisis_capas: [
-                        "1. CAPA CONTRACTUAL: Prioridad absoluta a incumplimientos de cobertura expl�cita y topes (Breach = Cat A).",
-                        "2. CAPA CL�NICO-T�CNICA: Aplicaci�n activa de bibliograf�a para definir qu� �tems son hoteler�a o insumos incluidos por norma.",
-                        "3. CAPA DE RECONSTRUCCI�N: Inferencia de naturaleza y detecci�n de unbundling cuando el PAM agrupa glosas.",
-                        "4. CAPA DE OPACIDAD RESIDUAL: La Ley 20.584 aplica solo cuando contrato y literatura no permiten la clasificaci�n."
+                        "1. CAPA CONTRACTUAL: Prioridad absoluta a incumplimientos de cobertura explícita y topes (Breach = Cat A).",
+                        "2. CAPA CLÍNICO-TÉCNICA: Aplicación activa de bibliografía para definir qué ítems son hotelería o insumos incluidos por norma.",
+                        "3. CAPA DE RECONSTRUCCIÓN: Inferencia de naturaleza y detección de unbundling cuando el PAM agrupa glosas.",
+                        "4. CAPA DE OPACIDAD RESIDUAL: La Ley 20.584 aplica solo cuando contrato y literatura no permiten la clasificación."
                     ],
-                    fraudeCheck: "La hip�tesis dominante es el incumplimiento directo o la falta de transparencia estructural acumulada.",
-                    disclaimer: "Este reporte constituye una pre-liquidaci�n forense reconstructiva. No reemplaza el juicio de un tribunal."
+                    fraudeCheck: "La hipótesis dominante es el incumplimiento directo o la falta de transparencia estructural acumulada.",
+                    disclaimer: "Este reporte constituye una pre-liquidación forense reconstructiva. No reemplaza el juicio de un tribunal."
                 },
                 canonical_rules_output: (canonicalResult as any).debug,
 
@@ -2192,9 +2154,9 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 
                     if (finalDecision.estado && (finalDecision.estado.includes('OPACIDAD') || finalDecision.estado.includes('INDETERMINADO') || finalDecision.estado.includes('CONTROVERSIA') || finalDecision.estado.includes('MIXTO'))) {
                         return {
-                            clinica: `La auditor�a forense de la cuenta de ${patientNameStr} revela una opacidad estructural significativa en el Programa de Atenci�n M�dica (PAM). El copago total informado de $${totalRef} no puede ser completamente validado debido a la falta de desglose detallado en �tems clave como 'Medicamentos Cl�nicos' y 'Materiales Cl�nicos', as� como glosas gen�ricas de 'Gastos No Cubiertos por el Plan' o 'Prestaci�n No Contemplada en el Arancel'. Conforme a la Circular IF/319 y jurisprudencia administrativa, cuando el prestador factura glosas gen�ricas sin desglose cl�nico verificable, no demuestra que el gasto est� realmente excluido del plan, por lo que el copago resulta jur�dicamente indeterminado. Adicionalmente, se identificaron cobros improcedentes por prestaciones inherentes al d�a cama y por �tems de hoteler�a no cl�nica que suman un ahorro de $${ahorroRef}. La carga de la prueba recae en el prestador para demostrar que estos 'gastos no cubiertos' o 'prestaciones no aranceladas' no son cobros duplicados o fragmentados de la cirug�a o del d�a cama.`,
-                            isapre: `La falta de desglose en el PAM impide auditar la correcta aplicaci�n de topes UF/VAM; sin embargo, no obsta a declarar improcedentes aquellos cobros que, por su naturaleza cl�nica o normativa, resultan indebidos con independencia de dicha opacidad. "La cuenta cl�nica no permite reconstruir ni validar la correcta aplicaci�n del contrato de salud, motivo por el cual el copago exigido resulta jur�dicamente indeterminable." Conforme a la doctrina de la Superintendencia de Salud, el prestador debe demostrar exactamente qu� es el 'gasto no cubierto' o la 'prestaci�n no arancelada' y por qu� no est� incluido en el evento quir�rgico o d�a cama. Si no hay desglose claro, el cobro no es exigible.`,
-                            paciente: `Cuando una cl�nica le cobra 'Gastos no cubiertos' o 'Prestaci�n no contemplada', tiene la obligaci�n legal de demostrar exactamente qu� es ese gasto y por qu� no est� incluido en su hospitalizaci�n o cirug�a. En la mayor�a de los casos auditados, este tipo de cobros corresponde a elementos que ya est�n pagados en su 'D�a Cama' o en el 'Derecho de Pabell�n'. Si la Isapre o la Cl�nica no le dan un detalle claro, usted tiene derecho a no aceptar ese cobro. Es como si en un restaurante le cobraran 'Cargos Varios' o 'Extra de Cocina' sin decirle qu� comi�: usted no tiene por qu� pagarlo si no le explican qu� es.`
+                            clinica: `La auditoría forense de la cuenta de ${patientNameStr} revela una opacidad estructural significativa en el Programa de Atención Médica (PAM). El copago total informado de $${totalRef} no puede ser completamente validado debido a la falta de desglose detallado en ítems clave como 'Medicamentos Clínicos' y 'Materiales Clínicos', así como glosas genéricas de 'Gastos No Cubiertos por el Plan' o 'Prestación No Contemplada en el Arancel'. Conforme a la Circular IF/319 y jurisprudencia administrativa, cuando el prestador factura glosas genéricas sin desglose clínico verificable, no demuestra que el gasto esté realmente excluido del plan, por lo que el copago resulta jurídicamente indeterminado. Adicionalmente, se identificaron cobros improcedentes por prestaciones inherentes al día cama y por ítems de hotelería no clínica que suman un ahorro de $${ahorroRef}. La carga de la prueba recae en el prestador para demostrar que estos 'gastos no cubiertos' o 'prestaciones no aranceladas' no son cobros duplicados o fragmentados de la cirugía o del día cama.`,
+                            isapre: `La falta de desglose en el PAM impide auditar la correcta aplicación de topes UF/VAM; sin embargo, no obsta a declarar improcedentes aquellos cobros que, por su naturaleza clínica o normativa, resultan indebidos con independencia de dicha opacidad. "La cuenta clínica no permite reconstruir ni validar la correcta aplicación del contrato de salud, motivo por el cual el copago exigido resulta jurídicamente indeterminable." Conforme a la doctrina de la Superintendencia de Salud, el prestador debe demostrar exactamente qué es el 'gasto no cubierto' o la 'prestación no arancelada' y por qué no está incluido en el evento quirúrgico o día cama. Si no hay desglose claro, el cobro no es exigible.`,
+                            paciente: `Cuando una clínica le cobra 'Gastos no cubiertos' o 'Prestación no contemplada', tiene la obligación legal de demostrar exactamente qué es ese gasto y por qué no está incluido en su hospitalización o cirugía. En la mayoría de los casos auditados, este tipo de cobros corresponde a elementos que ya están pagados en su 'Día Cama' o en el 'Derecho de Pabellón'. Si la Isapre o la Clínica no le dan un detalle claro, usted tiene derecho a no aceptar ese cobro. Es como si en un restaurante le cobraran 'Cargos Varios' o 'Extra de Cocina' sin decirle qué comió: usted no tiene por qué pagarlo si no le explican qué es.`
                         };
                     }
                     return undefined;
@@ -2245,7 +2207,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             })()
         };
     } catch (error: any) {
-        log(`[AuditEngine] ? Error en el proceso de auditor�a: ${error.message}`);
+        log(`[AuditEngine] ? Error en el proceso de auditoría: ${error.message}`);
         throw error;
     }
 
@@ -2275,11 +2237,11 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
 
     // Protected code patterns (IF-319 unbundling, nursing procedures)
     const PROTECTED_CODE_PATTERNS = [
-        /^99-00-028/,  // Instalaci�n de v�a venosa
+        /^99-00-028/,  // Instalación de vía venosa
         /^99-00-045/,  // Fleboclisis
         /^99-00-/,     // Generic nursing procedures
-        /^01-01-010/,  // D�a cama components
-        /^01-04-/,     // Pabell�n inherent procedures
+        /^01-01-010/,  // Día cama components
+        /^01-04-/,     // Pabellón inherent procedures
     ];
 
     // Protected keywords in titulo/glosa indicating clinical/normative Cat A
@@ -2388,7 +2350,7 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
         }
 
         // --- STRICT OVERRIDE FOR SUSPECTED PARTIAL MATCHES ---
-        // If we have a finding that mentions "Alimentaci�n" or "Sin Bonificaci�n" but was NOT marked as "A" above (Exact Match),
+        // If we have a finding that mentions "Alimentación" or "Sin Bonificación" but was NOT marked as "A" above (Exact Match),
         // we force it to Z (Indeterminate) to avoid "Green" oscillation.
         // EXCEPTION: Protected findings are NEVER downgraded
         if ((h.titulo?.includes("ALIMENTACION") || h.glosa?.includes("SIN BONIF")) && cat !== "A" && !isProtectedFromSubsumption) {
@@ -2492,10 +2454,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
 
     if (sumA > 0) canonicalText += `$${txtA} corresponden a cobros improcedentes.\n\n`;
     if (sumB > 0) canonicalText += `$${txtB} se encuentran en controversia por falta de desglose.\n\n`;
-    if (catOK > 0) canonicalText += `$${txtOK} no presentan observaciones con la información disponible.\n\n`;
-    if (sumZ > 0) canonicalText += `$${txtZ} corresponden a montos indeterminados (sin información suficiente).\n\n`;
+    if (catOK > 0) canonicalText += `$${txtOK} no presentan observaciones con la informaciÃ³n disponible.\n\n`;
+    if (sumZ > 0) canonicalText += `$${txtZ} corresponden a montos indeterminados (sin informaciÃ³n suficiente).\n\n`;
 
-    canonicalText += `La suma de todas las categorías coincide exactamente con el copago total.`;
+    canonicalText += `La suma de todas las categorÃ­as coincide exactamente con el copago total.`;
 
     // --- UPDATED ARGUMENTATIVE LOGIC (FIX 7: Hybrid State & Non-Collapse Principle) ---
     // RULE_OPACIDAD_NO_COLAPSA: Opacity does not invalidate verified findings.
@@ -2508,7 +2470,7 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
     const hasCatZ = sumZ > 0; // Indeterminate
     const hasOpacity = hasStructuralOpacity || hasCatZ || hasCatB;
 
-    // 7. Diagn�stico Global del Caso (Specification v1.0 - CANONICAL CORRECTION)
+    // 7. Diagnóstico Global del Caso (Specification v1.0 - CANONICAL CORRECTION)
     // REGLA MADRE: Si existe incumplimiento contractual determinado (Cat A > 0), 
     // el estado global NO puede ser MIXTO ni OPACO. 
     // La opacidad (Z) pasa a ser secundaria explicativa, no determinante del estado.
@@ -2538,10 +2500,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
 
     // --- MANDATORY LEGAL TEXT INJECTION (Point 8) ---
     // This overrides the 'legalContext' or 'explicaciones' to ensure the phrase is present.
-    const MANDATORY_PHRASE = "La auditor�a identifica partidas cuya procedencia o improcedencia puede determinarse con independencia de la opacidad documental existente, as� como otras que requieren aclaraci�n adicional. En consecuencia, la opacidad detectada es parcial y no invalida los hallazgos cl�nicos y normativos acreditados.";
+    const MANDATORY_PHRASE = "La auditoría identifica partidas cuya procedencia o improcedencia puede determinarse con independencia de la opacidad documental existente, así como otras que requieren aclaración adicional. En consecuencia, la opacidad detectada es parcial y no invalida los hallazgos clínicos y normativos acreditados.";
 
     if (result.explicaciones) {
-        // We append it to the 'conclusi�n' section of 'isapre' or 'clinica'
+        // We append it to the 'conclusión' section of 'isapre' or 'clinica'
         if (result.explicaciones.isapre) {
             result.explicaciones.isapre += "\n\n" + MANDATORY_PHRASE;
         }
@@ -2551,10 +2513,10 @@ export function finalizeAudit(result: any, totalCopagoReal: number = 0): any {
 }
 
 // ============================================================================
-// HELPER: Subset-Sum for Nutrition (Alimentaci�n) Reconciliation
+// HELPER: Subset-Sum for Nutrition (Alimentación) Reconciliation
 // ============================================================================
 export function reconcileNutritionCharges(cuenta: any, pam: any): any {
-    // 1. Identify Target Amount (Code 3101306 or PRESTACIONES SIN BONIFICACI�N)
+    // 1. Identify Target Amount (Code 3101306 or PRESTACIONES SIN BONIFICACIÓN)
     let targetAmount = 0;
     let pamItemName = "";
 
@@ -2662,7 +2624,7 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
         });
     });
 
-    if (adjustments.length === 0) return "No se detectaron cargos gen�ricos relevantes para trazar.";
+    if (adjustments.length === 0) return "No se detectaron cargos genéricos relevantes para trazar.";
 
     const pamItems: any[] = [];
     pam.folios?.forEach((f: any) => {
@@ -2679,7 +2641,7 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
 
         const directMatch = pamItems.find(p => Math.abs(p.amount - target) <= 1000);
         if (directMatch) {
-            traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con �tem PAM '${directMatch.descripcion}'($${directMatch.amount}).`);
+            traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con ítem PAM '${directMatch.descripcion}'($${directMatch.amount}).`);
             matchFound = true;
         }
 
@@ -2693,13 +2655,13 @@ function traceGenericChargesTopK(cuenta: any, pam: any): string {
             });
 
             if (folioMatch) {
-                traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con Bonificaci�n Total del Folio ${folioMatch.folioPAM}.`);
+                traceResults.push(`- AJUSTE '${adj.description}'($${target}) COINCIDE con Bonificación Total del Folio ${folioMatch.folioPAM}.`);
                 matchFound = true;
             }
         }
 
         if (!matchFound) {
-            traceResults.push(`- AJUSTE '${adj.description}'($${target}) NO TIENE CORRELACI�N aritm�tica evidente en PAM.`);
+            traceResults.push(`- AJUSTE '${adj.description}'($${target}) NO TIENE CORRELACIÓN aritmética evidente en PAM.`);
         }
     });
 

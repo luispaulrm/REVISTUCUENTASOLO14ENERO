@@ -229,8 +229,32 @@
           "label": "PAM line: UNKNOWN"
         }
       ]
+    },
+    {
+      "id": "P_c000c518_b8314402_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-01-27T05:13:41.456Z",
+      "contractFingerprint": "c000c5183e2ee47ee0ed0ae20ad67bcd02ac49fd",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "Hallazgo detectado por motor de jurisprudencia (�rbol de Decisi�n del Auditor).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
     }
   ],
   "version": "1.0.0",
-  "lastUpdated": "2026-01-26T13:44:12.239Z"
+  "lastUpdated": "2026-01-27T05:13:41.456Z"
 }

@@ -1,6 +1,6 @@
 
 import { reconstructAllOpaque } from './server/services/reconstruction.service.js';
-import { Finding } from './types.js';
+import { Finding } from './src/types.js';
 
 const mockBill: any = {
     sections: [

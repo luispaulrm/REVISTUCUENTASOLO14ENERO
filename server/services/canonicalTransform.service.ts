@@ -153,13 +153,27 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
                 if (mod.tipoTope === "ANUAL") aplicacion = "anual";
                 else if (mod.tipoTope === "POR_EVENTO") aplicacion = "por_evento";
 
+                // V2 Support: Check nested tope first, then legacy number, or extract if object
+                let val: number | null = mod.tope_nested?.valor ?? null;
+
+                if (val === null) {
+                    if (typeof mod.tope === 'number') {
+                        val = mod.tope;
+                    } else if (typeof mod.tope === 'object' && mod.tope !== null) {
+                        // Handle case where LLM puts object in 'tope' instead of 'tope_nested'
+                        val = (mod.tope as any).valor ?? null;
+                    }
+                }
+
+                const unit = mod.tope_nested?.unidad ?? (typeof mod.tope === 'object' ? (mod.tope as any)?.unidad : mod.unidadTope) ?? "";
+
                 canonical.topes.push({
                     ambito,
                     unidad,
-                    valor: mod.tope,
+                    valor: val,
                     aplicacion,
                     tipo_modalidad: mod.tipo === "LIBRE_ELECCION" ? "libre_eleccion" : (mod.tipo === "PREFERENTE" ? "preferente" : "desconocido"),
-                    fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${mod.tope} ${mod.unidadTope}`
+                    fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${val} ${unit || "SIN_UNIDAD"}`
                 });
             }
 

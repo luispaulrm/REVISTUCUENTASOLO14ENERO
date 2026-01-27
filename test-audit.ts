@@ -1,5 +1,5 @@
 import { performForensicAudit } from './server/services/auditEngine.service.ts';
-import { CONSALUD_EJEMPLO } from './mocks.ts';
+import { CONSALUD_EJEMPLO } from './src/mocks.ts';
 import dotenv from 'dotenv';
 
 dotenv.config();

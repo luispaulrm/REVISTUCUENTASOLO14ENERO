@@ -1,5 +1,5 @@
 
-import { BillingItem } from '../../types.js';
+import { BillingItem } from '../../src/types.js';
 
 export enum ZoneA {
     PABELLON = "PABELLON",

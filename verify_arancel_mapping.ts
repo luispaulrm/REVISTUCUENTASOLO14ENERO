@@ -38,12 +38,12 @@ const cases = [
     { name: "Unknown", expected: "VA" }
 ];
 
-cases.forEach(c => {
-    const res = inferUnidadReferencia(mockContrato(c.name), mockPam, c.name);
+for (const c of cases) {
+    const res = await inferUnidadReferencia(mockContrato(c.name), mockPam, c.name);
     console.log(`Isapre: ${c.name} -> Tipo Detectado: ${res.tipo} (Esperado: ${c.expected})`);
     if (res.tipo === c.expected) {
         console.log("✅ OK");
     } else {
         console.log("❌ FALLO");
     }
-});
+}

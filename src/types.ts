@@ -109,6 +109,7 @@ export interface Contract {
   reglas: ContractRegla[];
   coberturas: ContractCobertura[];
   usage?: UsageMetrics;
+  metadata?: any;
 }
 
 export enum AppStatus {

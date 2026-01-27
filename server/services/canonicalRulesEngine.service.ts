@@ -8,7 +8,7 @@ import {
     RuleResult,
     FlagResult,
     ExplainableOutput
-} from '../../types.js';
+} from '../../src/types.js';
 
 // NEW: Import Hypothesis Router types
 import {

@@ -15,7 +15,7 @@ import type {
     ItemOrigen,
     Anclaje,
     AnalisisFinanciero
-} from '../../types.js';
+} from '../../src/types.js';
 import { inferUnidadReferencia, validateTopeHonorarios, UnidadReferencia } from './financialValidator.service.js';
 
 // --- SIGNALS FOR EVENT CLASSIFICATION ---

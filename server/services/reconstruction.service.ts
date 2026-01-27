@@ -1,5 +1,5 @@
 
-import { BillingItem, Finding, ExtractedAccount } from '../../types.js';
+import { BillingItem, Finding, ExtractedAccount } from '../../src/types.js';
 import { TaxonomyService, FamilyB, ZoneA } from './taxonomy.service.js';
 
 export interface ReconstructionResult {

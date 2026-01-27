@@ -1,6 +1,6 @@
 
 import { ArithmeticReconstructor, reconstructAllOpaque } from './server/services/reconstruction.service.js';
-import { ExtractedAccount, Finding } from './types.js';
+import { ExtractedAccount, Finding } from './src/types.js';
 
 const mockBill: any = {
     clinicName: "CLINICA INDISA",

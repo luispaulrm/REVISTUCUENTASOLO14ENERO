@@ -10,7 +10,7 @@
 //
 // ============================================================================
 
-import { Balance, ScopeBalance } from '../../types.js';
+import { Balance, ScopeBalance } from '../../src/types.js';
 import { CapabilityMatrix, HypothesisScope, RuleContext, isCapabilityAllowed } from './hypothesisRouter.service.js';
 
 export interface PAMLineInput {

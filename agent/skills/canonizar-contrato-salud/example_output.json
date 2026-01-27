@@ -1,71 +1,266 @@
 {
-    "metadata": {
-        "origen": "contrato_pdf",
-        "fuente": "Contrato Isapre Colmena 2024",
-        "vigencia": "2024-01-01",
-        "tipo_contrato": "ISAPRE"
+    "contrato": {
+        "metadata": {
+            "fuente": "Contrato Salud - Gemini 3",
+            "tipo": "salud_isapre",
+            "fecha_procesamiento": "2026-01-27T04:57:00.000Z"
+        },
+        "tabla_prestaciones": {
+            "ambito": "Hospitalarias y Cirugía Mayor Ambulatoria",
+            "herencia_vertical": true,
+            "lineas": [
+                {
+                    "linea_id": "L2_38",
+                    "tipo": "encabezado",
+                    "texto": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+                    "fuente_visual": {
+                        "pagina": 2,
+                        "fila": 38
+                    }
+                },
+                {
+                    "linea_id": "L2_54",
+                    "tipo": "prestacion",
+                    "nombre": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+                    "contexto": {
+                        "modalidad_base": "oferta_preferente",
+                        "tiene_libre_eleccion": true,
+                        "porcentaje_le": 90,
+                        "heredada_desde": "L2_38",
+                        "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+                        "origen_herencia": "explicit"
+                    },
+                    "prestadores": [
+                        {
+                            "nombre": "Clínica Dávila",
+                            "porcentaje": 90,
+                            "modalidad": "A.2",
+                            "tope": {
+                                "tipo": "SIN_TOPE"
+                            }
+                        },
+                        {
+                            "nombre": "Clínica Vespucio",
+                            "porcentaje": 90,
+                            "modalidad": "A.2",
+                            "tope": {
+                                "tipo": "SIN_TOPE"
+                            }
+                        }
+                    ],
+                    "libre_eleccion": {
+                        "aplica": true,
+                        "porcentaje": 90,
+                        "tope": {
+                            "tipo": "VARIABLE"
+                        },
+                        "heredado": true
+                    },
+                    "fuente_visual": {
+                        "pagina": 2,
+                        "fila": 54
+                    }
+                },
+                {
+                    "linea_id": "L2_59",
+                    "tipo": "fase_logica",
+                    "texto": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+                    "efecto": {
+                        "tipo": "cambio_modalidad",
+                        "nueva_modalidad": "libre_eleccion",
+                        "porcentaje": 90
+                    },
+                    "fuente_visual": {
+                        "pagina": 2,
+                        "fila": 59
+                    }
+                },
+                {
+                    "linea_id": "L2_72",
+                    "tipo": "prestacion",
+                    "nombre": "RADIOTERAPIA",
+                    "contexto": {
+                        "modalidad_base": "libre_eleccion",
+                        "tiene_libre_eleccion": true,
+                        "porcentaje_le": 90,
+                        "heredada_desde": "L2_59",
+                        "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+                        "origen_herencia": "explicit"
+                    },
+                    "prestadores": [],
+                    "libre_eleccion": {
+                        "aplica": true,
+                        "porcentaje": 90,
+                        "tope": {
+                            "tipo": "AC2",
+                            "factor": 2.0,
+                            "origen": "L2_59",
+                            "sin_tope_adicional": true
+                        },
+                        "heredado": true
+                    },
+                    "fuente_visual": {
+                        "pagina": 2,
+                        "fila": 72
+                    }
+                },
+                {
+                    "linea_id": "L2_73",
+                    "tipo": "prestacion",
+                    "nombre": "QUIMIOTERAPIA (8)",
+                    "contexto": {
+                        "modalidad_base": "libre_eleccion",
+                        "tiene_libre_eleccion": true,
+                        "porcentaje_le": 90,
+                        "heredada_desde": "L2_59",
+                        "texto_origen": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope",
+                        "origen_herencia": "inherited"
+                    },
+                    "prestadores": [],
+                    "libre_eleccion": {
+                        "aplica": true,
+                        "porcentaje": 90,
+                        "tope": {
+                            "tipo": "AC2",
+                            "factor": 2.0,
+                            "origen": "L2_59",
+                            "sin_tope_adicional": true
+                        },
+                        "heredado": true
+                    },
+                    "fuente_visual": {
+                        "pagina": 2,
+                        "fila": 73
+                    }
+                }
+            ]
+        }
     },
-    "coberturas": [
+    "prestaciones_consolidadas": [
         {
+            "nombre": "HONORARIOS MÉDICOS QUIRÚRGICOS",
             "ambito": "hospitalario",
-            "descripcion_textual": "Día Cama Integral en Clínica Preferente",
-            "porcentaje": 100,
-            "fuente_textual": "Sección 1: Cobertura Hospitalaria, Ítem Día Cama Integral"
+            "regimenes": [
+                {
+                    "modalidad": "oferta_preferente",
+                    "subtipo": "A.2",
+                    "prestadores": [
+                        "CLÍNICA AVANSALUD",
+                        "CLÍNICA BICENTENARIO",
+                        "CLÍNICA DÁVILA",
+                        "CLÍNICA VESPUCIO"
+                    ],
+                    "porcentaje": 90,
+                    "tope": "SIN_TOPE",
+                    "fuente": [
+                        "L2_54"
+                    ]
+                },
+                {
+                    "modalidad": "libre_eleccion",
+                    "prestadores": "red_abierta",
+                    "porcentaje": 90,
+                    "tope": {
+                        "tipo": "VARIABLE"
+                    },
+                    "fuente": [
+                        "L2_54"
+                    ]
+                }
+            ]
         },
         {
-            "ambito": "ambulatorio",
-            "descripcion_textual": "Consulta Médica General",
-            "porcentaje": 80,
-            "fuente_textual": "Arancel de prestaciones ambulatorias, código consulta"
-        }
-    ],
-    "topes": [
-        {
+            "nombre": "RADIOTERAPIA",
             "ambito": "hospitalario",
-            "unidad": "VAM",
-            "valor": 2.2,
-            "aplicacion": "por_evento",
-            "fuente_textual": "Tope máximo por evento hospitalario: 2.2 VAM"
+            "regimenes": [
+                {
+                    "modalidad": "libre_eleccion",
+                    "prestadores": "red_abierta",
+                    "porcentaje": 90,
+                    "tope": {
+                        "tipo": "AC2",
+                        "factor": 2.0,
+                        "origen": "L2_59",
+                        "sin_tope_adicional": true
+                    },
+                    "fuente": [
+                        "L2_72"
+                    ]
+                }
+            ]
         },
         {
-            "ambito": "mixto",
-            "unidad": "UF",
-            "valor": 500,
-            "aplicacion": "anual",
-            "fuente_textual": "Tope general de la póliza: 500 UF por año contrato"
+            "nombre": "QUIMIOTERAPIA (8)",
+            "ambito": "hospitalario",
+            "regimenes": [
+                {
+                    "modalidad": "libre_eleccion",
+                    "prestadores": "red_abierta",
+                    "porcentaje": 90,
+                    "tope": {
+                        "tipo": "AC2",
+                        "factor": 2.0,
+                        "origen": "L2_59",
+                        "sin_tope_adicional": true
+                    },
+                    "fuente": [
+                        "L2_73"
+                    ]
+                }
+            ]
         }
     ],
-    "deducibles": [
-        {
-            "unidad": "UF",
-            "valor": 10,
-            "aplicacion": "anual",
-            "fuente_textual": "Deducible obligatorio de 10 UF al año."
-        }
-    ],
-    "copagos": [
-        {
-            "descripcion": "Copago fijo consulta médica",
-            "valor": 12000,
-            "unidad": "PESOS",
-            "fuente_textual": "Copago nivel 3: $12.000"
-        }
-    ],
-    "exclusiones": [
-        {
-            "descripcion": "Cirugía estética no reconstructiva",
-            "fuente_textual": "Capítulo Exclusiones, Punto A.1"
-        }
-    ],
-    "reglas_aplicacion": [
-        {
-            "condicion": "Si el paciente es derivado por el médico tratante",
-            "efecto": "Se activa red preferente con 100% cobertura",
-            "fuente_textual": "Cláusula de Derivación Médica"
-        }
-    ],
-    "observaciones": [
-        "Vigencia del plan sujeta a cotización mensual de 7% legal."
-    ],
-    "items_no_clasificados": []
+    "auditoria_schema": {
+        "agrupaciones_clinicas": [
+            {
+                "nombre_canonico": "ATENCIÓN DE URGENCIA",
+                "variantes": [
+                    "ATENCIÓN DE URGENCIA",
+                    "DE URGENCIA (D) (L) (N)",
+                    "URGENCIA NORMAL",
+                    "URGENCIA ADULTO",
+                    "URGENCIA PEDIÁTRICA"
+                ]
+            }
+        ],
+        "definiciones": [
+            {
+                "nombre_norm": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+                "ambito": "hospitalario",
+                "reglas_financieras": []
+            },
+            {
+                "nombre_norm": "RADIOTERAPIA",
+                "ambito": "hospitalario",
+                "reglas_financieras": [
+                    {
+                        "tipo": "TOPE_ARANCELARIO",
+                        "factor": 2.0,
+                        "unidad": "AC2",
+                        "modalidad": "libre_eleccion",
+                        "origen": [
+                            "L2_59"
+                        ],
+                        "sin_tope_adicional": true
+                    }
+                ]
+            },
+            {
+                "nombre_norm": "QUIMIOTERAPIA (8)",
+                "ambito": "hospitalario",
+                "reglas_financieras": [
+                    {
+                        "tipo": "TOPE_ARANCELARIO",
+                        "factor": 2.0,
+                        "unidad": "AC2",
+                        "modalidad": "libre_eleccion",
+                        "origen": [
+                            "L2_59"
+                        ],
+                        "sin_tope_adicional": true
+                    }
+                ]
+            }
+        ]
+    }
 }

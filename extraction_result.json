@@ -1,0 +1,3838 @@
+{
+  "metadata": {
+    "origen": "contrato_pdf",
+    "fuente": "Contrato 13-RSE500-17-2 (5).pdf",
+    "paginas_total": 5
+  },
+  "lineas": [
+    {
+      "pagina": 1,
+      "indice_linea": 1,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "¿QUÉ ES UN PLAN PREFERENTE?"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 2,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Plan de salud que tiene una cobertura más alta para el grupo de   clínicas que más te interesan,   y además tiene una cobertura"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 3,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "“libre elección”   para el resto de clínicas a nivel nacional."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 4,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Prestaciones ambulatorias y hospitalarias aranceladas en fonasa, realizadas por el sta de médicos en"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 5,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "convenio con Consalud y que exige la Super Intendencia de Salud. ¿QUÉ CUBRE   MI PLAN?"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 6,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Cirugías de embellecimiento, insumos que no forman parte de la intervención en si, como por ejemplo:  ¿QUÉ NO CUBRE   MI PLAN?"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 7,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "mascarillas, delantales, pañales, entre otros."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 8,
+      "tipo": "cabecera_tabla",
+      "cabecera_activa": [
+        "USO",
+        "DEL PLAN",
+        "PRESTADO",
+        "RESPREFERENTES",
+        "TOPE",
+        "DEL PLAN"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "USO"
+        },
+        {
+          "indice_columna": 2,
+          "texto": " "
+        },
+        {
+          "indice_columna": 3,
+          "texto": "DEL PLAN"
+        },
+        {
+          "indice_columna": 4,
+          "texto": " "
+        },
+        {
+          "indice_columna": 5,
+          "texto": "PRESTADO"
+        },
+        {
+          "indice_columna": 6,
+          "texto": " "
+        },
+        {
+          "indice_columna": 7,
+          "texto": "RESPREFERENTES"
+        },
+        {
+          "indice_columna": 8,
+          "texto": " "
+        },
+        {
+          "indice_columna": 9,
+          "texto": "TOPE"
+        },
+        {
+          "indice_columna": 10,
+          "texto": " "
+        },
+        {
+          "indice_columna": 11,
+          "texto": "DEL PLAN"
+        }
+      ],
+      "texto_plano": "USO   DEL PLAN   PRESTADO   RESPREFERENTES   TOPE   DEL PLAN"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 9,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "USO",
+        "DEL PLAN",
+        "PRESTADO",
+        "RESPREFERENTES",
+        "TOPE",
+        "DEL PLAN"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "Cuando vayas a usar tu plan, llámanos a"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "Prestadores con una mejor cobertura"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Es el monto máximo a cubrir sobre una"
+        }
+      ],
+      "texto_plano": "Cuando vayas a usar tu plan, llámanos a Prestadores con una mejor cobertura Es el monto máximo a cubrir sobre una"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 10,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "USO",
+        "DEL PLAN",
+        "PRESTADO",
+        "RESPREFERENTES",
+        "TOPE",
+        "DEL PLAN"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "nuestro Contact Center 600 500 9000 y"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "sin tope."
+        },
+        {
+          "indice_columna": 3,
+          "texto": "atención en salud."
+        }
+      ],
+      "texto_plano": "nuestro Contact Center 600 500 9000 y sin tope. atención en salud."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 11,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "USO",
+        "DEL PLAN",
+        "PRESTADO",
+        "RESPREFERENTES",
+        "TOPE",
+        "DEL PLAN"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "te entregaremos toda la orientación que"
+        }
+      ],
+      "texto_plano": "te entregaremos toda la orientación que"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 12,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "USO",
+        "DEL PLAN",
+        "PRESTADO",
+        "RESPREFERENTES",
+        "TOPE",
+        "DEL PLAN"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "necesitas.."
+        }
+      ],
+      "texto_plano": "necesitas.."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 13,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "USO",
+        "DEL PLAN",
+        "PRESTADO",
+        "RESPREFERENTES",
+        "TOPE",
+        "DEL PLAN"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "Definición de arancel (AC2):"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Arancel Consalud, es una lista valorizada de prestaciones cubiertas por tu plan de salud. Puedes"
+        }
+      ],
+      "texto_plano": "Definición de arancel (AC2): Arancel Consalud, es una lista valorizada de prestaciones cubiertas por tu plan de salud. Puedes"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 14,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "USO",
+        "DEL PLAN",
+        "PRESTADO",
+        "RESPREFERENTES",
+        "TOPE",
+        "DEL PLAN"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "revisar sus valores en tu Sucursal Virtual."
+        }
+      ],
+      "texto_plano": "revisar sus valores en tu Sucursal Virtual."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 15,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "USO",
+        "DEL PLAN",
+        "PRESTADO",
+        "RESPREFERENTES",
+        "TOPE",
+        "DEL PLAN"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "Urgencia Integral"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Accede a una urgencia integral sólo cancelando el copago jo mencionado en tu plan dependiendo del"
+        }
+      ],
+      "texto_plano": "Urgencia Integral  Accede a una urgencia integral sólo cancelando el copago jo mencionado en tu plan dependiendo del"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 16,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "tipo de urgencia. Este tipo de urgencia sólo aplica si está en tu plan de salud."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 17,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Cobertura internacional Puedes atenderte en cualquier parte del mundo y luego reembolsar en Consalud utilizando tu"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 18,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "cobertura libre elección*.   *Sólo si se encuentra especi cado en tu plan contratado."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 19,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "BENEFICIOS Son Beneficios sin costo, adicionales a la cobertura de tu plan, por ejemplo:   BONOS COSTO"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 20,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "CERO, BENEFICIOS DENTALES, DESCUENTO EN SALCOBRAND, REEMBOLSO RUNNING."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 21,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "GRATUITOS  Conoce el detalle de todos los beneficios gratuitos en consalud.cl o ingresando a tu Sucursal Virtual."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 22,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Son seguros que puedes contratar por un monto adicional al plan de salud. Algunos de ellos"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 23,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "COMPLEMENTOS son: DENTAL, SEGURO DE CESANTÍA, ASISTENCIA EN VIAJE, ETC.   Puedes contratarlos en"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 24,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "nuestras sucursales y algunos de ellos pueden ser contratados directamente a través de tu Sucursal"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 25,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "CONSALUD Virtual en consalud.cl"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 26,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "ORIENTACIÓN   HOSPITALARIA   ORIENTACIÓN   AMBULATORIA"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 27,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Recibe la orientación que necesitas a través de ejecutivas especializadas  A través de nuestro Contact Center 600 500 9000 y en tu Sucursal"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 28,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "que te asesorarán para entregarte la mejor alternativa para tu cirugía Virtual consalud.cl, te entregamos la opción más conveniente para tus"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 29,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "programada. Además conoce nuestro servicio prepaga tu cirugía que te atenciones ambulatorias. Además en tu Sucursal Virtual te damos los"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 30,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "permite conocer el valor final de tu cuenta antes de tu cirugía. Accede mejores copagos para tus atenciones médicas."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 31,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "a   mejores copagos   en cirugías de   Meniscos, Lasik, Parto y/o cesárea,"
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 32,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "entre otras."
+    },
+    {
+      "pagina": 1,
+      "indice_linea": 33,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Recuerda que tu plan queda activado y puedes acceder a todos los bene cios al mes subsiguiente de haber contratado tu plan de salud."
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 34,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "RED SALUD ESPECIAL 500   13-RSE500-17"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 35,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "PLAN CON COBERTURA REDUCIDA EN: PARTO."
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 36,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "FUN Nº"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 37,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "TIPO DE PLAN:   INDIVIDUAL   X   GRUPAL FOLIO"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 38,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 39,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "TOPE MÁX. AÑO"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 40,
+      "tipo": "cabecera_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES",
+        "(1)",
+        "BONIFICACIÓN",
+        "BONIFICACIÓN",
+        "CONTRATO POR",
+        "BENEFICIARIO"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "PRESTACIONES"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "(1)"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "BONIFICACIÓN"
+        },
+        {
+          "indice_columna": 7,
+          "texto": ""
+        },
+        {
+          "indice_columna": 8,
+          "texto": "BONIFICACIÓN"
+        },
+        {
+          "indice_columna": 9,
+          "texto": "CONTRATO POR"
+        },
+        {
+          "indice_columna": 10,
+          "texto": "BENEFICIARIO"
+        }
+      ],
+      "texto_plano": "PRESTACIONES  (1)  BONIFICACIÓN  BONIFICACIÓN CONTRATO POR BENEFICIARIO"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 41,
+      "tipo": "cabecera_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "%"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "TOPE (6)"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "%"
+        },
+        {
+          "indice_columna": 5,
+          "texto": " "
+        },
+        {
+          "indice_columna": 6,
+          "texto": "TOPE (6)"
+        },
+        {
+          "indice_columna": 7,
+          "texto": "(U.F)"
+        },
+        {
+          "indice_columna": 8,
+          "texto": "(7)"
+        }
+      ],
+      "texto_plano": "% TOPE (6) %   TOPE (6) (U.F) (7)"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 42,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "HOSPITALARIAS Y"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "CIRUGÍA"
+        }
+      ],
+      "texto_plano": "HOSPITALARIAS Y   CIRUGÍA"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 43,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "MAYOR AMBULATORIA"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "80% Sin Tope:"
+        }
+      ],
+      "texto_plano": "MAYOR AMBULATORIA  80% Sin Tope:"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 44,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Hospital Clínico de la Red de Salud UC Christus (con"
+        },
+        {
+          "indice_columna": 5,
+          "texto": "médicos Staff ASOMEDUC (A.1))"
+        },
+        {
+          "indice_columna": 6,
+          "texto": ""
+        },
+        {
+          "indice_columna": 7,
+          "texto": "4,0 UF"
+        }
+      ],
+      "texto_plano": "DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA  Hospital Clínico de la Red de Salud UC Christus (con médicos Staff ASOMEDUC (A.1))  4,0 UF"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 45,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "DIA CAMA: SALA CUNA"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "2,5 UF"
+        }
+      ],
+      "texto_plano": "DIA CAMA: SALA CUNA 2,5 UF"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 46,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "DIA CAMA CUIDADOS INTENSIVOS O CORONARIOS"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "80% Sin Tope:"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "7,0 UF"
+        }
+      ],
+      "texto_plano": "DIA CAMA CUIDADOS INTENSIVOS O CORONARIOS  80% Sin Tope: 7,0 UF"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 47,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "DERECHO DE PABELLÓN"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Clínica Santa Maria"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "2,5 veces AC2"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "Sin Tope"
+        }
+      ],
+      "texto_plano": "DERECHO DE PABELLÓN  Clínica Santa Maria 2,5 veces AC2  Sin Tope"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 48,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "Clínica Tabancura, Clínica Indisa"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "1,2 veces AC2"
+        }
+      ],
+      "texto_plano": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN Clínica Tabancura, Clínica Indisa 1,2 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 49,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "(Modalidad Institucional (A.2))"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "1,5 veces AC2"
+        }
+      ],
+      "texto_plano": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA) (Modalidad Institucional (A.2)) 1,5 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 50,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "IMAGENOLOGÍA (RESONANCIA, SCANNER)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "1,2 veces AC2"
+        }
+      ],
+      "texto_plano": "IMAGENOLOGÍA (RESONANCIA, SCANNER) 1,2 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 51,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "PROCEDIMIENTOS"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "90% Sin Tope en:"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "1,2 veces AC2"
+        }
+      ],
+      "texto_plano": "PROCEDIMIENTOS  90% Sin Tope en: 1,2 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 52,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "KINESIOLOGÍA y FISIOTERAPIA"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Clínica Dávila, Clínica Vespucio"
+        },
+        {
+          "indice_columna": 4,
+          "texto": ""
+        },
+        {
+          "indice_columna": 5,
+          "texto": "90%"
+        },
+        {
+          "indice_columna": 6,
+          "texto": "1,2 veces AC2"
+        },
+        {
+          "indice_columna": 7,
+          "texto": ""
+        },
+        {
+          "indice_columna": 8,
+          "texto": "5,0"
+        }
+      ],
+      "texto_plano": "KINESIOLOGÍA y FISIOTERAPIA  Clínica Dávila, Clínica Vespucio  90% 1,2 veces AC2  5,0"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 53,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "EXÁMENES LABORATORIO"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "Clínica Avansalud, Clínica Bicentenario"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "1,0 veces AC2"
+        }
+      ],
+      "texto_plano": "EXÁMENES LABORATORIO Clínica Avansalud, Clínica Bicentenario 1,0 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 54,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "HONORARIOS MÉDICOS QUIRÚRGICOS"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "(Modalidad Institucional (A.2))"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "1,2 veces AC2"
+        }
+      ],
+      "texto_plano": "HONORARIOS MÉDICOS QUIRÚRGICOS  (Modalidad Institucional (A.2)) 1,2 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 55,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "VISITA POR MÉDICO INTERCONSULTOR"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "(Habitación Individual )"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "0,6 UF"
+        },
+        {
+          "indice_columna": 5,
+          "texto": "Sin Tope"
+        }
+      ],
+      "texto_plano": "VISITA POR MÉDICO INTERCONSULTOR  (Habitación Individual ) 0,6 UF Sin Tope"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 56,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "VISITA POR MÉDICO TRATANTE"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "0,5 UF"
+        }
+      ],
+      "texto_plano": "VISITA POR MÉDICO TRATANTE 0,5 UF"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 57,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "MEDICAMENTOS HOSPITALARIOS (2)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "30"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "UF"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "60"
+        }
+      ],
+      "texto_plano": "MEDICAMENTOS HOSPITALARIOS (2) 30   UF  60"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 58,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "MATERIALES CLÍNICOS (2)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "20"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "UF"
+        },
+        {
+          "indice_columna": 5,
+          "texto": "40"
+        }
+      ],
+      "texto_plano": "MATERIALES CLÍNICOS (2) 20   UF 40"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 59,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "TRASLADOS MÉDICOS"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Solo cobertura libre elección"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "2,0 veces AC2"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "Sin Tope"
+        }
+      ],
+      "texto_plano": "TRASLADOS MÉDICOS  Solo cobertura libre elección 2,0 veces AC2  Sin Tope"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 60,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "1,0 veces AC2"
+        }
+      ],
+      "texto_plano": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS 1,0 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 61,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "QUIMIOTERAPIA (8)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "4,0 veces AC2"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "80"
+        }
+      ],
+      "texto_plano": "QUIMIOTERAPIA (8) 4,0 veces AC2  80"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 62,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "AMBULATORIAS"
+        }
+      ],
+      "texto_plano": "AMBULATORIAS"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 63,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "CONSULTAS MÉDICAS"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "70 % Sin Tope en:"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "0,5 UF"
+        }
+      ],
+      "texto_plano": "CONSULTAS MÉDICAS  70 % Sin Tope en:  0,5 UF"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 64,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "EXÁMENES LABORATORIO"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Centros Médicos de la Red de Salud UC Christus (L),"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "1,0 veces AC2"
+        },
+        {
+          "indice_columna": 5,
+          "texto": "Clínica Santa Maria, Clínica Tabancura,"
+        }
+      ],
+      "texto_plano": "EXÁMENES LABORATORIO  Centros Médicos de la Red de Salud UC Christus (L), 1,0 veces AC2 Clínica Santa Maria, Clínica Tabancura,"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 65,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "PROCEDIMIENTOS"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "Clínica Indisa y Arauco Salud"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "1,1"
+        },
+        {
+          "indice_columna": 5,
+          "texto": " "
+        },
+        {
+          "indice_columna": 6,
+          "texto": "veces AC2"
+        },
+        {
+          "indice_columna": 7,
+          "texto": "Sin Tope"
+        }
+      ],
+      "texto_plano": "PROCEDIMIENTOS Clínica Indisa y Arauco Salud  1,1   veces AC2 Sin Tope"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 66,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "PABELLÓN AMBULATORIO"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "2,0"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "veces AC2"
+        }
+      ],
+      "texto_plano": "PABELLÓN AMBULATORIO 2,0   veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 67,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "HONORARIOS MÉDICOS QUIRÚRGICOS"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "1,5 veces AC2"
+        }
+      ],
+      "texto_plano": "HONORARIOS MÉDICOS QUIRÚRGICOS 1,5 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 68,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "BOX AMBULATORIO"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "80% Sin Tope:"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "1,0 veces AC2"
+        }
+      ],
+      "texto_plano": "BOX AMBULATORIO  80% Sin Tope: 1,0 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 69,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "KINESIOLOGÍA y FISIOTERAPIA"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Integramédica, Clínica Dávila,"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Clínica Vespucio, Clínica Avansalud"
+        },
+        {
+          "indice_columna": 5,
+          "texto": "1,2 veces AC2"
+        },
+        {
+          "indice_columna": 6,
+          "texto": ""
+        },
+        {
+          "indice_columna": 7,
+          "texto": "5,0"
+        }
+      ],
+      "texto_plano": "KINESIOLOGÍA y FISIOTERAPIA  Integramédica, Clínica Dávila, Clínica Vespucio, Clínica Avansalud 1,2 veces AC2  5,0"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 70,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "y Clínica"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Bicentenario"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "80%"
+        },
+        {
+          "indice_columna": 7,
+          "texto": "1,0 veces AC2"
+        }
+      ],
+      "texto_plano": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA) y Clínica   Bicentenario  80% 1,0 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 71,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "0,8 veces AC2"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "Sin Tope"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "IMAGENOLOGÍA (RESONANCIA, SCANNER)"
+        }
+      ],
+      "texto_plano": "0,8 veces AC2 Sin Tope IMAGENOLOGÍA (RESONANCIA, SCANNER)"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 72,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "RADIOTERAPIA"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "1,0 veces AC2"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Sin Tope"
+        }
+      ],
+      "texto_plano": "RADIOTERAPIA 1,0 veces AC2  Sin Tope"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 73,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "FONOAUDIOLOGÍA"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "2,5 veces AC2"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "3,5"
+        }
+      ],
+      "texto_plano": "FONOAUDIOLOGÍA 2,5 veces AC2 3,5"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 74,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "QUIMIOTERAPIA (8)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Solo cobertura libre elección"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "4,0 veces AC2"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "80"
+        }
+      ],
+      "texto_plano": "QUIMIOTERAPIA (8)  Solo cobertura libre elección 4,0 veces AC2  80"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 75,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "PRÓTESIS Y ÓRTESIS"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "1,0 veces AC2"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Sin Tope"
+        }
+      ],
+      "texto_plano": "PRÓTESIS Y ÓRTESIS 1,0 veces AC2  Sin Tope"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 76,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "1,0 veces AC2"
+        }
+      ],
+      "texto_plano": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5) 1,0 veces AC2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 77,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "%",
+        "TOPE (6)",
+        "%",
+        "TOPE (6)",
+        "(U.F)",
+        "(7)"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "ATENCIÓN INTEGRAL DE NUTRICIONISTA"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "1,0 veces AC2"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "1,5"
+        }
+      ],
+      "texto_plano": "ATENCIÓN INTEGRAL DE NUTRICIONISTA 1,0 veces AC2  1,5"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 78,
+      "tipo": "cabecera_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "PRESTACIONES DENTALES (PAD) (12)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "1,0 UF"
+        },
+        {
+          "indice_columna": 4,
+          "texto": " "
+        },
+        {
+          "indice_columna": 5,
+          "texto": "Sin Tope"
+        }
+      ],
+      "texto_plano": "PRESTACIONES DENTALES (PAD) (12)  1,0 UF   Sin Tope"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 79,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "PRESTACIONES RESTRINGIDAS"
+        }
+      ],
+      "texto_plano": "PRESTACIONES RESTRINGIDAS"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 80,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "CIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE"
+        },
+        {
+          "indice_columna": 2,
+          "texto": ""
+        },
+        {
+          "indice_columna": 3,
+          "texto": "25% de la cobertura gral. del plan"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Sin Tope"
+        }
+      ],
+      "texto_plano": "CIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE  25% de la cobertura gral. del plan Sin Tope"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 81,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "INFERTILIDAD. HOSPITALIZACIÓN POR PARTO."
+        },
+        {
+          "indice_columna": 2,
+          "texto": "Solo cobertura libre elección"
+        }
+      ],
+      "texto_plano": "INFERTILIDAD. HOSPITALIZACIÓN POR PARTO. Solo cobertura libre elección"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 82,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "HOSPITALIZACIÓN PSIQUIATRICA (3)"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "70 %"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "1,0 veces AC2"
+        },
+        {
+          "indice_columna": 7,
+          "texto": "6,7"
+        }
+      ],
+      "texto_plano": "HOSPITALIZACIÓN PSIQUIATRICA (3)  70 %  1,0 veces AC2 6,7"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 83,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "CONSULTA / TRATAMIENTO PSIQUIATRÍA"
+        },
+        {
+          "indice_columna": 2,
+          "texto": " "
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Y/O PSICOLOGÍA"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "70 %"
+        },
+        {
+          "indice_columna": 5,
+          "texto": "1,0 veces AC2"
+        },
+        {
+          "indice_columna": 6,
+          "texto": ""
+        },
+        {
+          "indice_columna": 7,
+          "texto": "4,0"
+        }
+      ],
+      "texto_plano": "CONSULTA / TRATAMIENTO PSIQUIATRÍA   Y/O PSICOLOGÍA 70 % 1,0 veces AC2  4,0"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 84,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "OTRAS COBERTURAS"
+        }
+      ],
+      "texto_plano": "OTRAS COBERTURAS"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 85,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "MARCOS Y CRISTALES ÓPTICOS (11)"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "90 %"
+        },
+        {
+          "indice_columna": 4,
+          "texto": " "
+        },
+        {
+          "indice_columna": 5,
+          "texto": "Solo cobertura libre elección"
+        },
+        {
+          "indice_columna": 6,
+          "texto": "1,8 UF"
+        },
+        {
+          "indice_columna": 7,
+          "texto": " "
+        },
+        {
+          "indice_columna": 8,
+          "texto": "2,5"
+        }
+      ],
+      "texto_plano": "MARCOS Y CRISTALES ÓPTICOS (11) 90 %   Solo cobertura libre elección 1,8 UF   2,5"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 86,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "PRESTACIONES DENTALES (PAD) (12)",
+        "1,0 UF",
+        "Sin Tope"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "COBERTURA INTERNACIONAL (F)"
+        }
+      ],
+      "texto_plano": "COBERTURA INTERNACIONAL (F)"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 87,
+      "tipo": "cabecera_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "TRASLADOS MEDICOS"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "90 %"
+        },
+        {
+          "indice_columna": 5,
+          "texto": " "
+        },
+        {
+          "indice_columna": 6,
+          "texto": "2,0 veces AC2"
+        },
+        {
+          "indice_columna": 7,
+          "texto": "SIN TOPE"
+        }
+      ],
+      "texto_plano": "TRASLADOS MEDICOS   90 %   2,0 veces AC2 SIN TOPE"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 88,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "En"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Indisa, Clínica"
+        }
+      ],
+      "texto_plano": "En   Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Indisa, Clínica"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 89,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "ATENCIÓN DE URGENCIA"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Avansalud y Clínica Vespucio,"
+        },
+        {
+          "indice_columna": 4,
+          "texto": " "
+        },
+        {
+          "indice_columna": 5,
+          "texto": "idénticos porcentajes preferentes ambulatorio de Consulta de Urgencia,"
+        }
+      ],
+      "texto_plano": "ATENCIÓN DE URGENCIA Avansalud y Clínica Vespucio,   idénticos porcentajes preferentes ambulatorio de Consulta de Urgencia,"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 90,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "Exámenes, Imágenes, Procedimientos y Pabellón."
+        }
+      ],
+      "texto_plano": "Exámenes, Imágenes, Procedimientos y Pabellón."
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 91,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "PRESTADORES DERIVADOS"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Hospital Clínico Universidad de Chile, Clínica Avansalud y Clínica Bicentenario."
+        }
+      ],
+      "texto_plano": "PRESTADORES DERIVADOS   Hospital Clínico Universidad de Chile, Clínica Avansalud y Clínica Bicentenario."
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 92,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "ATENCIÓN"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "INTEGRAL"
+        },
+        {
+          "indice_columna": 5,
+          "texto": ""
+        },
+        {
+          "indice_columna": 6,
+          "texto": "Incluye consulta médica de urgencia, insumos, medicamentos, imágenología, exámenes, procedimientos y"
+        }
+      ],
+      "texto_plano": "ATENCIÓN   INTEGRAL  Incluye consulta médica de urgencia, insumos, medicamentos, imágenología, exámenes, procedimientos y"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 93,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": "DE URGENCIA (D) (L) (N)"
+        },
+        {
+          "indice_columna": 2,
+          "texto": "honorarios médicos solo en"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Clínicas Tabancura, Bicentenario y Dávila."
+        }
+      ],
+      "texto_plano": "DE URGENCIA (D) (L) (N) honorarios médicos solo en   Clínicas Tabancura, Bicentenario y Dávila."
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 94,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "URGENCIA NORMAL"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "URGENCIA COMPLEJA (*)"
+        }
+      ],
+      "texto_plano": "URGENCIA NORMAL  URGENCIA COMPLEJA (*)"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 95,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "URGENCIA ADULTO"
+        },
+        {
+          "indice_columna": 3,
+          "texto": ""
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Copago Fijo de 1,0 UF"
+        },
+        {
+          "indice_columna": 5,
+          "texto": "Copago Fijo de 2,9 UF"
+        }
+      ],
+      "texto_plano": "URGENCIA ADULTO  Copago Fijo de 1,0 UF Copago Fijo de 2,9 UF"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 96,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "URGENCIA PEDIÁTRICA"
+        },
+        {
+          "indice_columna": 3,
+          "texto": "Copago Fijo de 0,9 UF"
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Copago Fijo de 1,7 UF"
+        }
+      ],
+      "texto_plano": "URGENCIA PEDIÁTRICA Copago Fijo de 0,9 UF Copago Fijo de 1,7 UF"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 97,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "(*) VER NOTAS EXPLICATIVAS DEL PLAN DE SALUD PARA LA APLICACIÓN DE LA COBERTURA PREFERENTE"
+        }
+      ],
+      "texto_plano": "(*) VER NOTAS EXPLICATIVAS DEL PLAN DE SALUD PARA LA APLICACIÓN DE LA COBERTURA PREFERENTE"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 98,
+      "tipo": "fila_tabla",
+      "cabecera_activa": [
+        "TRASLADOS MEDICOS",
+        "90 %",
+        "2,0 veces AC2",
+        "SIN TOPE"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "(*) La complejidad está definida por la realización de exámenes de imagenología de los subgrupos 03, TAC, 04 ultrasonografía y subgrupo 05 resonancias y procedimientos médicos que"
+        }
+      ],
+      "texto_plano": "(*) La complejidad está definida por la realización de exámenes de imagenología de los subgrupos 03, TAC, 04 ultrasonografía y subgrupo 05 resonancias y procedimientos médicos que"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 99,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "incluyan prestaciones endoscópicas y aquellas atenciones a pacientes que ingresen en riesgo vital."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 100,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "PRECIO DEL PLAN"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 101,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "TIPO DE BENEFICIARIO"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 102,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "EDAD   COTIZANTE   CARGAS  El precio del Plan de Salud se expresa en Unidades de Fomento (U.F.). Dicho precio"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 103,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "HOMBRE   MUJER   HOMBRE  MUJER"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 104,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "0 a menos de 2 años se determina conforme a su   valor base y la tabla de factores relativos por sexo y 1,80  1,80 1,80  1,80"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 105,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "2 a menos de 5 años 0,80 0,80 0,80 0,80 edad:"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 106,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "5 a menos de 10 años 0,70 0,80 0,60 0,60"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 107,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "10 a menos de 15 años VALOR BASE 0,70 0,80 0,60 0,60"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 108,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "15 a menos de 20 años 0,75 1,30 0,60 0,75  U.F."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 109,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "20 a menos de 25 años 0,80 1,4 0,70 1,00"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 110,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "25 a menos de 30 años 1,00 1,55 0,80 1,20"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 111,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "30 a menos de 35 años 1,00 1,90 1,00 1,30  VALOR TOTAL PLAN SEGUN COMPOSICION DEL GRUPO FAMILIAR"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 112,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "35 a menos de 40 años 1,15 2,10 1,10 1,40"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 113,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "40 a menos de 45 años 1,30 2,00 1,30 1,50 U.F."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 114,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "45 a menos de 50 años 1,45 2,30 1,40 1,60"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 115,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "50 a menos de 55 años 1,85 2,65 1,80 1,80"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 116,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "55 a menos de 60 años 2,35 2,85 2,35 1,90  El precio final del plan se pagará en su equivalente en pesos. Para su cálculo se"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 117,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "60 a menos de 65 años 3,20 3,70 3,20 3,70 utilizará el valor oficial que tenga la U.F. el último día del mes que corresponde"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 118,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "65 a menos de 70 años 3,70 3,70 3,70 3,70"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 119,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "70 a menos de 75 años 4,00 4,00 4,00 4,00 descontar la cotización de la remuneración del cotizante."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 120,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "75 a menos de 80 años 4,50 4,30 4,50 4,30"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 121,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "80 y más años   5,00 4,80 5,00 4,80 IDENTIFICACIÓN ÚNICA DE LA TABLA DE FACTORES   N°   603"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 122,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "ARANCEL"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 123,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "NOMBRE DEL ARANCEL : AC2   UNIDAD : PESOS"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 124,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "El Arancel tendrá un Reajuste General el 01 de abril de cada año hasta en un 100% de la variación experimentada por el Indice de Precios al Consumidor"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 125,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "(IPC) entre el 01 de enero y el 31 de diciembre del año inmediatamente anterior al de la fecha del reajuste."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 126,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Además del Reajuste General del Arancel, CONSALUD podrá reajustar algunas prestaciones en un porcentaje superior sólo con el fin de incrementar los"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 127,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "beneficios, como asimismo, podrá anticipar la fecha de reajuste con el mismo objeto, pudiendo imputarlo al reajuste que se realice en el mes de abril"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 128,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "siguiente."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 129,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "TOPE GENERAL ANUAL POR BENEFICIARIO"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 130,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "U.F. 5.000   (7)"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 131,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "CONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA)"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 132,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "1) Que se incorporen al convenio la cantidad de ............... trabajadores como beneficiarios o al menos el 85% de la misma, dentro del plazo de tres"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 133,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "meses contados desde la fecha de suscripción del convenio. Este porcentaje mínimo no podrá disminuir durante la vigencia del convenio."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 134,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "2) Que se mantenga durante la vigencia del convenio, un promedio de cargas legales por afiliado cercana a las ........ personas."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 135,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "3) Que el monto mínimo de cotización mensual del grupo total de los trabajadores afectos al convenio colectivo, no podrá ser inferior a $ ......................."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 136,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "o al menos, deberá llegar a un 85% de dicha suma."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 137,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "4) Que el plan o planes de salud contratados se deberán financiar en al menos un 90%. Se entiende por financiamiento al cuociente entre la suma de"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 138,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "cotizaciones pagadas de los trabajadores afiliados al convenio colectivo y la suma de precios de los planes de esos trabajadores."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 139,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "5) Que la siniestralidad anual del plan no supere el 85%. Se entiende por siniestralidad el cuociente entre la suma de los gastos de Prestaciones de"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 140,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Salud y Subsidios por Incapacidad Laboral a cargo de la Isapre y la suma de las cotizaciones pagadas en ese mismo período."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 141,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "NOTA:   En caso de Planes Grupales en que se pacte el precio en el porcentaje equivalente a la cotización legal para salud, no se producirán excedentes"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 142,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "de cotización de salud."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 143,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "CONDICIONES QUE DEBE CUMPLIR EL AFILIADO PARA INGRESAR Y MANTENERSE EN EL PLAN GRUPAL (CUANDO CORRESPONDA)"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 144,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "A ) Que se mantenga permanentemente como trabajador de la empresa."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 145,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "B) Que se mantenga permanentemente como afiliado de CONSALUD."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 146,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "CONDICIONES DE VIGENCIA DEL PLAN MATRIMONIAL (CUANDO CORRESPONDA)"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 147,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "A ) Que el cotizante y su cónyuge mantengan la calidad de afiliados vigentes de CONSALUD."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 148,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "B) Que el cotizante y su cónyuge estén de acuerdo en mantener el Plan Matrimonial."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 149,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "TIEMPOS DE ESPERA"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 150,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Nº Días Corridos   Inicio del Tiempo de Espera"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 151,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "- CONSULTAS MEDICAS EN ATENCION PRIMARIA  5"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 152,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "- CONSULTAS MEDICAS EN ESPECIALIDAD 7  Los tiempos de espera definidos, se cuentan a partir de la fecha en que el"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 153,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "- EXAMENES 4 beneficiario suscriba el documento de Solicitud de Contabilización del Tiempo"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 154,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "- PROCEDIMIENTOS DIAGNOSTICOS Y TERAPEUTICOS 10 de Espera en nuestras oficinas."
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 155,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "- INTERVENCIONES QUIRURGICAS 14"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 156,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "- HOSPITALIZACIONES EN OTORRINO - OFTALMOLOGIA   -NEUROCIRUGÍA 30"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 157,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "FIRMA REPRESENTANTE ISAPRE"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 158,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "FIRMA   AFILIADO: NOMBRE :"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 159,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "NOMBRE : RUT :"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 160,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "RUT : FECHA :"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 161,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "FECHA :"
+    },
+    {
+      "pagina": 3,
+      "indice_linea": 162,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "HUELLA DACTILAR AFILIADO"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 163,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "1) PRESTACIONES"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 164,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "a) Hospitalarias: Son aquellas que requieren de día cama ."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 165,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "b) Ambulatorias: Son aquellas   no consideradas en la definición anterior."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 166,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "2) MEDICAMENTOS Y MATERIALES CLINICOS HOSPITALARIOS:   Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 167,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "prestaciones hospitalarias. Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya conside-"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 168,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "rado en su factura. Se excluyen de este ítem los medicamentos y materiales clínicos por tratamiento de cáncer y hospitalización psiquiátrica; dado que en"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 169,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "ambos casos se bonificarán en los porcentajes y topes específicos definidos para los ítems Drogas Citotóxicas en Ciclos de Quimioterapia y Hospitalización"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 170,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Psiquiátrica respectivamente. Se excluyen asimismo de la oferta preferente, los medicamentos y materiales clínicos por, tratamiento de infertilidad y fibrosis"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 171,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "quística del páncreas, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 172,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "por evento/beneficiario.”"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 173,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "3) HOSPITALIZACION PSIQUIATRICA:   La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 174,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración sea"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 175,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "taxativa, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: días cama, medicamentos, exámenes, consultas"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 176,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "médicas. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25%"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 177,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 178,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "4) ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO:   Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 179,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 180,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "5) ATENCIONES INTEGRALES DE ENFERMERIA EN CENTRO DE ADULTO MAYOR:   Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 181,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "cuando sean mayores de 55 años."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 182,
+      "tipo": "cabecera_tabla",
+      "cabecera_activa": [
+        "6) TOPES DE BONIFICACION:",
+        "Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "6) TOPES DE BONIFICACION:"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor"
+        }
+      ],
+      "texto_plano": "6) TOPES DE BONIFICACION:   Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 183,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifica la prestación."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 184,
+      "tipo": "cabecera_tabla",
+      "cabecera_activa": [
+        "7) VALORIZACION TOPES ANUALES:",
+        "Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "7) VALORIZACION TOPES ANUALES:"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que"
+        }
+      ],
+      "texto_plano": "7) VALORIZACION TOPES ANUALES:   Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 185,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifica la prestación"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 186,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "por un periodo máximo de un año de vigencia de beneficios. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 187,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada,"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 188,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "ni   podrán tener una bonificación inferior a la cobertura financiera que el Fondo Nacional de Salud asegura, en modalidad libre elección a todas las"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 189,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "prestaciones contempladas en el arancel que se refiere el articulo 31 de la Ley Nª19.666 que establece el Régimen General de Garantías de Salud."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 190,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "8) DROGAS CITOTOXICAS EN CICLOS DE QUIMIOTERAPIA : Corresponde a medicamentos de uso endovenoso. Excluye medicamentos orales, medicamen-"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 191,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "tos coadyuvantes, medicamentos hormonales, interferon, interleukina, anticuerpos monoclonales, analgésicos, antihistamínicos, soluciones parenterales,"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 192,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "alimentos parenterales y medicamentos estimulantes de colonias."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 193,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "11) MARCOS Y CRISTALES OPTICOS : Corresponderá la bonificación de los marcos y cristales ópticos sólo con la presentación de la boleta correspondiente."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 194,
+      "tipo": "cabecera_tabla",
+      "cabecera_activa": [
+        "12) PRESTACIONES DENTALES (PAD):",
+        "Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficia-"
+      ],
+      "celdas": [
+        {
+          "indice_columna": 1,
+          "texto": ""
+        },
+        {
+          "indice_columna": 2,
+          "texto": "12) PRESTACIONES DENTALES (PAD):"
+        },
+        {
+          "indice_columna": 3,
+          "texto": " "
+        },
+        {
+          "indice_columna": 4,
+          "texto": "Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficia-"
+        }
+      ],
+      "texto_plano": "12) PRESTACIONES DENTALES (PAD):   Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficia-"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 195,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "rios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 196,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "a cobertura son: 2503001, 2503002, 2503003, 2503004, 2503005 y 25-03-006. La cobertura se entregará vía IMED en los prestadores en convenio y de"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 197,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "acceder a la prestación en un prestador sin convenio la cobertura se entregará vía reembolso."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 198,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 199,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "A ) Los prestadores hospitalarios del plan de salud serán exclusivamente Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Dávila,"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 200,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, en Habitación individual. La Habitación Individual se utilizará"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 201,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "según disponibilidad de la clínica y en caso de no existir disponibilidad, se utilizará habitación doble o la siguiente que exista disponible de menor valor.   La"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 202,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "bonificación preferente del día cama, tendrá como tope máximo la que corresponde al día cama individual estándar (habitación con baño privado de menor"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 203,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "precio del prestador) y las diferencias de uso por habitaciones superiores (suite, departamentos u otras) serán de cargo del beneficiario."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 204,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "A.1) Las Consultas Médicas, procedimientos ambulatorios y los Honorario Médicos por prestaciones hospitalarias en Hospital Clínico de la Red de"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 205,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Salud UC Christus , tendrán cobertura preferente cuando sean efectuadas por médicos Staff ASOMEDUC en convenio entre   Isapre Consalud y la"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 206,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Institución de Salud señalada para cada prestación otorgada en el plan. En caso de no cumplir estas condiciones, la cobertura preferente se"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 207,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "aplicará solo a la facturación de la clínica y los Honorarios Médicos serán bonificados de acuerdo a la modalidad libre elección."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 208,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "A.2) Las Consultas Médicas, procedimientos ambulatorios y los Honorario Médicos por prestaciones hospitalarias realizadas en Clínica Santa Maria,"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 209,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa , tendrán cobertura preferente cuando"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 210,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "sean efectuadas por médicos Staff en convenio entre   Isapre Consalud y las Instituciones de Salud señaladas para cada prestación otorgada en"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 211,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "el plan. En caso de no cumplir estas condiciones, la cobertura preferente se aplicará solo a la facturación de la clínica y los Honorarios Médicos"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 212,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "serán bonificados de acuerdo a la modalidad libre elección."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 213,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "La cobertura preferente aplicará exclusivamente para aquellas prestaciones que forman parte de la capacidad técnica del prestador preferente"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 214,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "nominado en el plan y no se extenderá a aquellas que por falta de tal capacidad, sean otorgadas por prestadores distintos a los de la oferta"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 215,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "preferente."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 216,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "B) El afiliado debe considerar que aquellas prestaciones específicas que, pudiendo entenderse incorporadas en la oferta preferente, no se realizan por el"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 217,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "respectivo prestador, serán derivadas por la Isapre a un prestador de similares características, en cuyo caso se mantendrán las condiciones de cobertura"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 218,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "del plan."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 219,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "C) En caso de insuficiencia de un prestador en convenio, es decir, cuando por falta de profesionales o medios, aquéllos se encuentran imposibilitados"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 220,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "temporalmente de realizar alguna de las prestaciones que forman parte de la oferta preferente y ha transcurrido el tiempo de espera previsto en el Plan de"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 221,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Salud para el otorgamiento de las mismas, el beneficiario tendrá el derecho de solicitar a Isapre CONSALUD la derivación a otro prestador, en cuyo caso rige"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 222,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "lo mismo señalado en el punto B). Esta derivación sólo tendrá por objeto el otorgamiento de las prestaciones específicas que no pudieron ser brindadas por"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 223,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "los prestadores preferentes. Las prestaciones que se otorguen con ocasión de la derivación, deberán ser bonificadas por la Isapre manteniendo el monto que"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 224,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "le habría correspondido copagar al afiliado de haberse atendido en el prestador que dio origen a la derivación.   De realizarse la atención en un prestador"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 225,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "distinto a los prestadores preferentes sin la autorización expresa de CONSALUD, la cobertura se hará bajo la modalidad libre elección. Esta solicitud de"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 226,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "derivación se podrá solicitar en el formulario correspondiente en cualquier oficina de Consalud o en los puestos de atención que la Isapre tiene en las oficinas"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 227,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "de los prestadores preferentes y, en días festivos u horarios inhábiles, podrá hacerse al fono 600-Consalud, para obtener respuesta a más tardar al día hábil"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 228,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "siguiente."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 229,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "D) Para recibir Atenciones de Urgencia el afiliado deberá acudir a alguno de los prestadores indicados en el recuadro «ATENCIONES DE URGENCIA» del Plan de"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 230,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "Salud. La bonificación en estos prestadores será la correspondiente a «OFERTA PREFERENTE». En caso de que la atención de urgencia ocurra en un"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 231,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "prestador distinto a los señalados en el Plan, la cobertura se hará según lo indicado en « CUADRO DE COBERTURA EN LIBRE ELECCION»."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 232,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "E) El afiliado que con ocasión de una emergencia haya ingresado a un prestador distinto de los mencionados en el recuadro «ATENCIONES DE URGENCIA» del"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 233,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "esquema del Plan de Salud, tendrá derecho a ser trasladado a alguno de los prestadores individualizados en el Plan de Salud, para acceder a la «OFERTA"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 234,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "PREFERENTE». Por su parte CONSALUD tendrá el derecho a trasladar al afiliado a uno de estos prestadores una vez que lo autorice el médico tratante. Si el"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 235,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "afiliado no accede a este traslado y opta por permanecer en el prestador en que se encuentre, la cobertura se hará bajo modalidad libre elección."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 236,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "F) Las prestaciones de salud que el afiliado reciba en el extranjero, sólo serán cubiertas en caso de urgencia. La cobertura se regirá de acuerdo a lo indicado"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 237,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "en «CUADRO DE COBERTURA EN LIBRE ELECCION». El afiliado, deberá entregar en la sucursal de Isapre consalud, la documentación (antecedentes médicos"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 238,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "y documentos de cobro) traducidos al español y debidamente legalizada por el consulado respectivo, es decir, en el País donde recibió la atención de urgencia."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 239,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "El plazo para presentar dicha documentación, es de 90 días desde la emisión de la factura."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 240,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "G) El término del convenio entre un prestador e Isapre CONSALUD, o cualquier modificación que éstos le introduzcan, no afectará el monto que, en virtud del plan"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 241,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "contratado, le corresponde copagar a los beneficiarios por las atenciones recibidas del respectivo prestador, hasta la anualidad que corresponda, al"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 242,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "cumplimiento de la cual la Isapre podrá adecuar el contrato."
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 243,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "H) Si durante la vigencia del plan contratado, terminare la existencia legal del o los prestadores individualizados en el plan o éstos experimentaren una pérdida"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 244,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "total de su infraestructura o una paralización permanente de sus actividades, la Isapre deberá comunicar por escrito dicho evento a cada uno de los"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 245,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "cotizantes afectados, junto con las alternativas de planes que dispone para ellos. En esta oferta deberá contemplarse como mínimo, el Plan de Salud que tenga"
+    },
+    {
+      "pagina": 4,
+      "indice_linea": 246,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "el precio que más se ajuste al monto de la cotización legal que corresponda a la remuneración del afiliado al momento de modificarse el contrato."
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 247,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 248,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "I)   Si durante la vigencia del plan contratado, el o los prestadores individualizados en el plan experimentaren una pérdida parcial y permanente de su"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 249,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "infraestructura o una sustitución de la especialidad médica a que estaban orientados al momento de celebrarse el contrato, la Isapre deberá"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 250,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "comunicar por escrito dicho evento a cada uno de los cotizantes afectados, junto con las alternativas de planes que dispone para ellos. En esta"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 251,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "oferta deberá contemplarse como mínimo, el Plan de Salud que tenga el precio que más se ajuste al monto de la cotización legal que corresponda"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 252,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "a la remuneración del afiliado al momento de modificarse el contrato."
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 253,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "J)   CONSALUD ofrecerá un nuevo Plan de Salud al afiliado si este así lo requiere, y su petición se fundamenta en alguna de las siguientes situaciones:"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 254,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "• Modificación del domicilio consignado al incorporarse al plan y que se acredite que dicho cambio dificulta significativamente el acceso de los"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 255,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "beneficiarios a los prestadores individualizados en el plan."
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 256,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "• Incumplimiento por parte de la Isapre de la derivación señalada en el punto C) precedente, o derivación a un prestador distinto de los indicados"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 257,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "en el presente Plan de Salud o por falta de atención efectiva y oportuna por parte del prestador derivado."
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 258,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "• Falta de otorgamiento de la atención de salud al cotizante o beneficiario que se ha ceñido a los procedimientos de acceso y derivación definidos"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 259,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "en el Plan."
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 260,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "K )   Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 261,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "al tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva."
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 262,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "L)   CENTROS MÉDICOS DE LA RED DE SALUD UC CHRISTUS EN CONVENIO:"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 263,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "•   Centro Médico San Joaquín ( Av. Vicuña Mackenna 4686 )"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 264,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "•   Centro de Especialidades Médicas (Marcoleta 350)"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 265,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "•   Centro Médico Irarrázaval (Av. Irarrázaval 4949 Ñuñoa)"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 266,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "•   Centro Médico Lira (Lira 85, 5to piso)"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 267,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "•   Centro Médico San Jorge (Nevería 4444 )"
+    },
+    {
+      "pagina": 5,
+      "indice_linea": 268,
+      "tipo": "texto_libre",
+      "cabecera_activa": [],
+      "celdas": [],
+      "texto_plano": "•   Edificio Médico Alcántara (Av. Apoquindo 3990 )"
+    }
+  ]
+}

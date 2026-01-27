@@ -1,5 +1,5 @@
 import { resolveDecision } from './auditEngine.service.js';
-import { Finding, Signal } from '../../types.js';
+import { Finding, Signal } from '../../src/types.js';
 
 function assert(condition: boolean, message: string) {
     if (!condition) {

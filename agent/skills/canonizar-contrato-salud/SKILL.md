@@ -37,6 +37,14 @@ No usar "desconocido" perezosamente. Aplicar estas reglas de inferencia:
 "SIN TOPE" **NO** es "DESCONOCIDO". Es información jurídica positiva.
 - Mapear a: `{ "tope_existe": false, "razon": "SIN_TOPE_EXPRESO_EN_CONTRATO", "valor": null, "unidad": null }`.
 
+### 5. Principio de Supremacía del Texto (Global)
+Esta regla aplica a **TODAS** las columnas y filas sin excepción.
+- **Regla**: Si el texto dentro de una celda contradice el título de su columna o fila, **EL TEXTO MANDA**.
+- **Caso Típico 1**: Columna "Preferente" tiene una celda que dice "(Libre Elección)" -> Clasificar como `libre_eleccion`.
+- **Caso Típico 2**: Fila "Hospitalario" tiene una celda que dice "Consulta Médica" -> Clasificar como `ambulatorio`.
+- **Caso Típico 3 (CRÍTICO)**: Si una celda en Preferente dice "Solo cobertura libre elección", **IGNORA** la columna y clasifícalo como `libre_eleccion`.
+- **Acción**: Nunca generar datos contradictorios (ej: `tipo: preferente` con `fuente: (MLE)`). Divide la celda o re-clasifica según el contenido explícito.
+
 ---
 
 ## Esquema Canónico Final (v2.0)

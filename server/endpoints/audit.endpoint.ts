@@ -39,12 +39,14 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
             apiKey,
             (msg) => sendUpdate({ type: 'log', message: msg }),
             htmlContext,
+            '', // contractMarkdown (New argument)
             // onUsageUpdate
             (usage) => {
+                const usageData = usage as any;
                 const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(
                     'gemini-2.5-flash',
-                    usage.promptTokenCount || usage.promptTokens,
-                    usage.candidatesTokenCount || usage.candidatesTokens
+                    usageData.promptTokenCount || usageData.promptTokens,
+                    usageData.candidatesTokenCount || usageData.candidatesTokens
                 );
                 sendUpdate({
                     type: 'usage',

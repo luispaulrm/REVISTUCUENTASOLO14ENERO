@@ -1,5 +1,5 @@
 
-import { Contract } from '../../types';
+import { Contract } from '../../src/types';
 
 export interface ReconstructibilityResult {
     isReconstructible: boolean;

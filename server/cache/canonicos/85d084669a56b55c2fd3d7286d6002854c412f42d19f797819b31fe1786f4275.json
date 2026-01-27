@@ -4,326 +4,260 @@
     "estilo_numeracion": "MIXTA",
     "layout": "HIBRIDO",
     "lenguaje": "MIXTO",
-    "densidad_texto": "MEDIA",
+    "densidad_texto": "ALTA",
     "tiene_notas_explicativas": true,
     "tiene_seleccion_valorizada": false,
     "tiene_oferta_preferente": true,
     "tiene_pad_dental": true,
     "tiene_tabla_resumen": true,
-    "total_paginas_estimadas": 5,
+    "total_paginas_estimadas": 6,
     "confianza": 95,
     "observaciones": [
-      "Página 1 con diseño comercial explicativo",
-      "Grilla de beneficios estándar SIS en página 2",
-      "Tabla de factores de precio incluida en página 3",
-      "Sección detallada de condiciones de oferta preferente en páginas 4 y 5"
+      "El documento presenta una carátula comercial seguida de la grilla estándar de beneficios SIS",
+      "Incluye tabla de factores de riesgo y precios en la página 3",
+      "La numeración combina números arábigos, letras y números romanos en las condiciones generales",
+      "Se identifica claramente la estructura de Plan Preferente con columnas diferenciadas"
     ]
   },
   "reglas": [
     {
       "PÁGINA ORIGEN": "4",
       "CÓDIGO/SECCIÓN": "1",
-      "VALOR EXTRACTO LITERAL DETALLADO": "a) Hospitalarias: Son aquellas que requieren de día cama. b) Ambulatorias: Son aquellas no consideradas en la definición anterior.",
+      "VALOR EXTRACTO LITERAL DETALLADO": "1) PRESTACIONES a) Hospitalarias: Son aquellas que requieren de día cama. b) Ambulatorias: Son aquellas no consideradas en la definición anterior.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Definición cualitativa de la modalidad de atención para efectos de aplicación de topes diferenciados.",
+      "LOGICA_DE_CALCULO": "Definición operativa de prestaciones para efectos de cobertura: hospitalario requiere día cama, ambulatorio es todo lo demás.",
       "SUBCATEGORÍA": "Definiciones Generales",
       "categoria_canonica": "HOSPITALARIO"
     },
     {
       "PÁGINA ORIGEN": "4",
       "CÓDIGO/SECCIÓN": "2",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de prestaciones hospitalarias. Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya considerado en su factura. Se excluyen de este ítem los medicamentos y materiales clínicos por tratamiento de cáncer y hospitalización psiquiátrica; dado que en ambos casos se bonificarán en los porcentajes y topes específicos definidos para los ítems Drogas Citotóxicas en Ciclos de Quimioterapia y Hospitalización Psiquiátrica respectivamente. Se excluyen asimismo de la oferta preferente, los medicamentos y materiales clínicos por, tratamiento de infertilidad y fibrosis quística del páncreas, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica por evento/beneficiario.",
+      "VALOR EXTRACTO LITERAL DETALLADO": "2) MEDICAMENTOS Y MATERIALES CLINICOS HOSPITALARIOS: Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de prestaciones hospitalarias. Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya considerado en su factura. Se excluyen de este ítem los medicamentos y materiales clínicos por tratamiento de cáncer y hospitalización psiquiátrica; dado que en ambos casos se bonificarán en los porcentajes y topes específicos definidos para los ítems Drogas Citotóxicas en Ciclos de Quimioterapia y Hospitalización Psiquiátrica respectivamente. Se excluyen asimismo de la oferta preferente, los medicamentos y materiales clínicos por, tratamiento de infertilidad y fibrosis quística del páncreas, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica por evento/beneficiario.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Tope por evento/beneficiario. Excluye patologías específicas (cáncer, psiquiatría, infertilidad, fibrosis) derivándolas a sus propios ítems o libre elección.",
-      "SUBCATEGORÍA": "Insumos y Fármacos",
+      "LOGICA_DE_CALCULO": "Tope por evento/beneficiario. Excluye cáncer, psiquiatría, infertilidad y fibrosis quística de la cobertura general de este ítem, derivándolos a sus secciones específicas o libre elección.",
+      "SUBCATEGORÍA": "Insumos y Medicamentos",
       "categoria_canonica": "HOSPITALARIO"
     },
     {
       "PÁGINA ORIGEN": "4",
       "CÓDIGO/SECCIÓN": "3",
-      "VALOR EXTRACTO LITERAL DETALLADO": "La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración sea taxativa, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: días cama, medicamentos, exámenes, consultas médicas. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada.",
+      "VALOR EXTRACTO LITERAL DETALLADO": "3) HOSPITALIZACION PSIQUIATRICA: La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración sea taxativa, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: días cama, medicamentos, exámenes, consultas médicas. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Tope acumulativo anual por contrato. Garantiza un piso mínimo de cobertura del 25% respecto al plan general incluso tras agotar el tope.",
-      "SUBCATEGORÍA": "Hospitalización Psiquiátrica",
+      "LOGICA_DE_CALCULO": "Tope acumulativo anual por año contrato. Incluye piso de protección del 25% de la cobertura general una vez superado el tope.",
+      "SUBCATEGORÍA": "Hospitalización",
       "categoria_canonica": "HOSPITALARIO"
     },
     {
       "PÁGINA ORIGEN": "4",
       "CÓDIGO/SECCIÓN": "4",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal.",
+      "VALOR EXTRACTO LITERAL DETALLADO": "4) ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Restricción de acceso por edad (>55 años) o condición clínica específica (>15 años postrado/terminal).",
+      "LOGICA_DE_CALCULO": "Restricción de acceso por edad (>55 años) o condición médica específica (>15 años postrados o terminales).",
       "SUBCATEGORÍA": "Enfermería",
       "categoria_canonica": "OTRO"
     },
     {
       "PÁGINA ORIGEN": "4",
       "CÓDIGO/SECCIÓN": "6",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifica la prestación.",
+      "VALOR EXTRACTO LITERAL DETALLADO": "6) TOPES DE BONIFICACION: Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifica la prestación.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Conversión de moneda: UF del último día del mes anterior a la bonificación.",
-      "SUBCATEGORÍA": "Topes de Bonificación",
+      "LOGICA_DE_CALCULO": "Cálculo de topes basado en el valor de la UF del último día del mes anterior al evento.",
+      "SUBCATEGORÍA": "Topes",
       "categoria_canonica": "AMBULATORIO"
     },
     {
       "PÁGINA ORIGEN": "4",
       "CÓDIGO/SECCIÓN": "7",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifica la prestación por un periodo máximo de un año de vigencia de beneficios. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada, ni podrán tener una bonificación inferior a la cobertura financiera que el Fondo Nacional de Salud asegura, en modalidad libre elección a todas las prestaciones contempladas en el arancel que se refiere el articulo 31 de la Ley Nª19.666 que establece el Régimen General de Garantías de Salud.",
+      "VALOR EXTRACTO LITERAL DETALLADO": "7) VALORIZACION TOPES ANUALES: Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifica la prestación por un periodo máximo de un año de vigencia de beneficios. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada, ni podrán tener una bonificación inferior a la cobertura financiera que el Fondo Nacional de Salud asegura, en modalidad libre elección a todas las prestaciones contempladas en el arancel que se refiere el articulo 31 de la Ley Nª19.666 que establece el Régimen General de Garantías de Salud.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Tope anual con doble garantía: piso del 25% del plan general y piso de cobertura Fonasa MLE para prestaciones de Ley 19.666.",
-      "SUBCATEGORÍA": "Topes Anuales",
+      "LOGICA_DE_CALCULO": "Tope anual con doble garantía de piso: 25% del plan general y no inferior a la cobertura financiera de Fonasa MLE (Ley 19.666).",
+      "SUBCATEGORÍA": "Topes",
       "categoria_canonica": "AMBULATORIO"
     },
     {
       "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "8",
+      "VALOR EXTRACTO LITERAL DETALLADO": "8) DROGAS CITOTOXICAS EN CICLOS DE QUIMIOTERAPIA: Corresponde a medicamentos de uso endovenoso. Excluye medicamentos orales, medicamentos coadyuvantes, medicamentos hormonales, interferon, interleukina, anticuerpos monoclonales, analgésicos, antihistamínicos, soluciones parenterales, alimentos parenterales y medicamentos estimulantes de colonias.",
+      "CÓDIGO_DISPARADOR_FONASA": "N/A",
+      "LOGICA_DE_CALCULO": "Restricción de cobertura únicamente a drogas de administración endovenosa; lista taxativa de exclusiones (orales, coadyuvantes, etc.).",
+      "SUBCATEGORÍA": "Quimioterapia",
+      "categoria_canonica": "ONCOLOGIA"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
       "CÓDIGO/SECCIÓN": "12",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficiarios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos a cobertura son: 2503001, 2503002, 2503003, 2503004, 2503005 y 25-03-006. La cobertura se entregará vía IMED en los prestadores en convenio y de acceder a la prestación en un prestador sin convenio la cobertura se entregará vía reembolso.",
+      "VALOR EXTRACTO LITERAL DETALLADO": "12) PRESTACIONES DENTALES (PAD): Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficiarios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos a cobertura son: 2503001, 2503002, 2503003, 2503004, 2503005 y 25-03-06. La cobertura se entregará vía IMED en los prestadores en convenio y de acceder a la prestación en un prestador sin convenio la cobertura se entregará vía reembolso.",
       "CÓDIGO_DISPARADOR_FONASA": "2503001, 2503002, 2503003, 2503004, 2503005, 2503006",
-      "LOGICA_DE_CALCULO": "Cobertura tipo PAD (Pago Asociado a Diagnóstico) restringida por edad (12 a 17 años inclusive).",
+      "LOGICA_DE_CALCULO": "Restricción etaria estricta (12 a 17 años). Cobertura vía IMED para convenios y reembolso para otros.",
       "SUBCATEGORÍA": "Dental",
       "categoria_canonica": "AMBULATORIO"
     },
     {
       "PÁGINA ORIGEN": "4",
       "CÓDIGO/SECCIÓN": "A",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Los prestadores hospitalarios del plan de salud serán exclusivamente Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, en Habitación individual. La Habitación Individual se utilizará según disponibilidad de la clínica y en caso de no existir disponibilidad, se utilizará habitación doble o la siguiente que exista disponible de menor valor. La bonificación preferente del día cama, tendrá como tope máximo la que corresponde al día cama individual estándar (habitación con baño privado de menor precio del prestador) y las diferencias de uso por habitaciones superiores (suite, departamentos u otras) serán de cargo del beneficiario.",
+      "VALOR EXTRACTO LITERAL DETALLADO": "A) Los prestadores hospitalarios del plan de salud serán exclusivamente Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, en Habitación individual. La Habitación Individual se utilizará según disponibilidad de la clínica y en caso de no existir disponibilidad, se utilizará habitación doble o la siguiente que exista disponible de menor valor. La bonificación preferente del día cama, tendrá como tope máximo la que corresponde al día cama individual estándar (habitación con baño privado de menor precio del prestador) y las diferencias de uso por habitaciones superiores (suite, departamentos u otras) serán de cargo del beneficiario.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Tope de habitación: Se cubre hasta el valor de la habitación individual estándar. Excesos por suites o departamentos son de cargo exclusivo del afiliado.",
-      "SUBCATEGORÍA": "Oferta Preferente",
+      "LOGICA_DE_CALCULO": "Tope de cobertura fijado en habitación individual estándar. Diferencias por suites o departamentos son de cargo exclusivo del afiliado.",
+      "SUBCATEGORÍA": "Hospitalización",
       "categoria_canonica": "HOSPITALARIO"
     },
     {
       "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "6) TOPES DE BONIFICACION",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifica la prestación.",
+      "CÓDIGO/SECCIÓN": "A.1",
+      "VALOR EXTRACTO LITERAL DETALLADO": "A.1) Las ConsultAS Médicas, procedimientos ambulatorios y los Honorario Médicos por prestaciones hospitalarias en Hospital Clínico de la Red de Salud UC Christus, tendrán cobertura preferente cuando sean efectuadas por médicos Staff ASOMEDUC en convenio entre Isapre Consalud y la Institución de Salud señalada para cada prestación otorgada en el plan. En caso de no cumplir estas condiciones, la cobertura preferente se aplicará solo a la facturación de la clínica y los Honorarios Médicos serán bonificados de acuerdo a la modalidad libre elección.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Cálculo de topes basado en el valor de la UF del último día del mes anterior a la bonificación o en veces el Arancel Consalud.",
+      "LOGICA_DE_CALCULO": "Condición de Staff: Si el médico no es ASOMEDUC, los honorarios médicos bajan a cobertura Libre Elección (MLE), manteniendo preferente solo la clínica.",
+      "SUBCATEGORÍA": "Honorarios Médicos",
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "NOTA EXPLICATIVA 6",
+      "VALOR EXTRACTO LITERAL DETALLADO": "TOPES DE BONIFICACION: Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifique la prestación. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada.",
+      "CÓDIGO_DISPARADOR_FONASA": "N/A",
+      "LOGICA_DE_CALCULO": "Tope expresado en UF o veces Arancel AC2. El valor de la UF se fija al último día del mes anterior al evento. Garantiza un piso mínimo del 25% de la cobertura del plan general.",
       "SUBCATEGORÍA": "Topes de Bonificación",
       "categoria_canonica": "AMBULATORIO"
     },
     {
       "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "7) VALORIZACION TOPES ANUALES",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifica la prestación por un periodo máximo de un año de vigencia de beneficios. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada, ni podrán tener una bonificación inferior a la cobertura financiera que el Fondo Nacional de Salud asegura, en modalidad libre elección a todas las prestaciones contempladas en el arancel que se refiere el articulo 31 de la Ley Nª19.666 que establece el Régimen General de Garantías de Salud.",
+      "CÓDIGO/SECCIÓN": "NOTA EXPLICATIVA 7",
+      "VALOR EXTRACTO LITERAL DETALLADO": "VALORIZACION TOPES ANUALES: Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifique la prestación por un período máximo de un año de vigencia de beneficios.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Tope anual con garantía de cobertura mínima del 25% del plan general o el mínimo de Fonasa MLE según Ley 19.666.",
+      "LOGICA_DE_CALCULO": "Cálculo de topes anuales utilizando el valor de la UF del día de la bonificación efectiva.",
       "SUBCATEGORÍA": "Topes Anuales",
       "categoria_canonica": "AMBULATORIO"
     },
     {
       "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "8) DROGAS CITOTOXICAS EN CICLOS DE QUIMIOTERAPIA",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Corresponde a medicamentos de uso endovenoso. Excluye medicamentos orales, medicamentos coadyuvantes, medicamentos hormonales, interferon, interleukina, anticuerpos monoclonales, analgésicos, antihistamínicos, soluciones parenterales, alimentos parenterales y medicamentos estimulantes de colonias.",
+      "CÓDIGO/SECCIÓN": "NOTA EXPLICATIVA 12",
+      "VALOR EXTRACTO LITERAL DETALLADO": "PRESTACIONES DENTALES (PAD): Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficiarios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos a cobertura son: 2503001, 2503002, 2503003, 2503004, 2503005 y 25-03-006.",
+      "CÓDIGO_DISPARADOR_FONASA": "2503001, 2503002, 2503003, 2503004, 2503005, 2503006",
+      "LOGICA_DE_CALCULO": "Cobertura específica para tramo etario de 12 a 17 años. Operatividad vía IMED en convenio o reembolso en prestadores externos.",
+      "SUBCATEGORÍA": "Dental PAD",
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "CONDICIÓN A.1",
+      "VALOR EXTRACTO LITERAL DETALLADO": "A.1) Las Consultas Médicas, procedimientos ambulatorios y los Honorarios Médicos por prestaciones hospitalarias en Hospital Clínico de la Red de Salud UC Christus, tendrán cobertura preferente sólo cuando sean efectuadas por médicos Staff ASOMEDUC en convenio entre Isapre Consalud y la Institución de Salud señalada para cada prestación otorgada en el plan.",
       "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Cobertura limitada exclusivamente a administración endovenosa; exclusión explícita de fármacos orales y coadyuvantes.",
-      "SUBCATEGORÍA": "Quimioterapia",
+      "LOGICA_DE_CALCULO": "La cobertura preferente en UC Christus está condicionada a que el profesional pertenezca al Staff ASOMEDUC; de lo contrario, aplica Libre Elección para honorarios.",
+      "SUBCATEGORÍA": "Red Preferente",
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "CONDICIÓN F",
+      "VALOR EXTRACTO LITERAL DETALLADO": "Las prestaciones de salud que el afiliado reciba en el extranjero, sólo serán cubiertas en caso de urgencia. La cobertura se regirá de acuerdo a lo indicado en «CUADRO DE COBERTURA EN LIBRE ELECCIÓN». El afiliado, deberá entregar en la sucursal de Isapre consalud, la documentación (antecedentes médicos y documentos de cobro) traducidos al español y debidamente legalizada por el consulado respectivo.",
+      "CÓDIGO_DISPARADOR_FONASA": "N/A",
+      "LOGICA_DE_CALCULO": "Cobertura internacional restringida a urgencias. Liquidación bajo arancel de Libre Elección. Plazo de 90 días para presentación de documentos legalizados.",
+      "SUBCATEGORÍA": "Cobertura Internacional",
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "PÁGINA ORIGEN": "5",
+      "CÓDIGO/SECCIÓN": "CONDICIÓN K",
+      "VALOR EXTRACTO LITERAL DETALLADO": "Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva.",
+      "CÓDIGO_DISPARADOR_FONASA": "N/A",
+      "LOGICA_DE_CALCULO": "Suma de copago fijo por evento de urgencia más el copago porcentual o fijo derivado de la hospitalización subsiguiente.",
+      "SUBCATEGORÍA": "Urgencia Integral",
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 2",
+      "VALOR EXTRACTO LITERAL DETALLADO": "MEDICAMENTOS Y MATERIALES CLINICOS HOSPITALARIOS: Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de prestaciones hospitalarias. Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya considerado en su factura. Se excluyen de este ítem los medicamentos y materiales clínicos por tratamiento de cáncer y hospitalización psiquiátrica; dado que en ambos casos se bonificarán en los porcentajes y topes específicos definidos para los ítems Drogas Citotóxicas en Ciclos de Quimioterapia y Hospitalización Psiquiátrica respectivamente. Se excluyen asimismo de la oferta preferente, los medicamentos y materiales clínicos por, tratamiento de infertilidad y fibrosis quística del páncreas, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica por evento/beneficiario.",
+      "CÓDIGO_DISPARADOR_FONASA": "Medicamentos, Materiales Clínicos",
+      "LOGICA_DE_CALCULO": "Bonificación basada en factura hospitalaria con exclusión expresa de tratamientos oncológicos, psiquiátricos, infertilidad y fibrosis quística en modalidad preferente.",
+      "SUBCATEGORÍA": "Insumos Hospitalarios",
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 3",
+      "VALOR EXTRACTO LITERAL DETALLADO": "HOSPITALIZACION PSIQUIATRICA: La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración sea taxativa, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: días cama, medicamentos, exámenes, consultas médicas. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada.",
+      "CÓDIGO_DISPARADOR_FONASA": "Psiquiatría, Hospitalización",
+      "LOGICA_DE_CALCULO": "Tope acumulativo anual por beneficiario; garantiza un piso mínimo de bonificación del 25% respecto a la prestación genérica del plan.",
+      "SUBCATEGORÍA": "Salud Mental",
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 4",
+      "VALOR EXTRACTO LITERAL DETALLADO": "ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal.",
+      "CÓDIGO_DISPARADOR_FONASA": "Enfermería Domiciliaria",
+      "LOGICA_DE_CALCULO": "Restricción de acceso por edad (mayor a 55 años) o por condición clínica específica (postrados o terminales mayores de 15 años).",
+      "SUBCATEGORÍA": "Cuidados Domiciliarios",
+      "categoria_canonica": "OTRO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 5",
+      "VALOR EXTRACTO LITERAL DETALLADO": "ATENCIONES INTEGRALES DE ENFERMERIA EN CENTRO DE ADULTO MAYOR: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años.",
+      "CÓDIGO_DISPARADOR_FONASA": "Enfermería Adulto Mayor",
+      "LOGICA_DE_CALCULO": "Restricción de acceso por edad mínima de 55 años para el beneficiario.",
+      "SUBCATEGORÍA": "Cuidados Adulto Mayor",
+      "categoria_canonica": "OTRO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 6",
+      "VALOR EXTRACTO LITERAL DETALLADO": "TOPES DE BONIFICACION: Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifique la prestación.",
+      "CÓDIGO_DISPARADOR_FONASA": "UF, AC2",
+      "LOGICA_DE_CALCULO": "Cálculo de conversión de UF basado en el valor oficial del último día del mes anterior al evento de bonificación.",
+      "SUBCATEGORÍA": "Administrativo",
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 7",
+      "VALOR EXTRACTO LITERAL DETALLADO": "VALORIZACION TOPES ANUALES: Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifique la prestación por un período máximo de un año de vigencia de beneficios. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada, ni al valor de la bonificación que le correspondería en la modalidad de libre elección.",
+      "CÓDIGO_DISPARADOR_FONASA": "Tope Anual",
+      "LOGICA_DE_CALCULO": "Valorización de UF al día de la bonificación; establece un piso de bonificación del 25% y prohíbe bonificaciones inferiores a la modalidad libre elección.",
+      "SUBCATEGORÍA": "Administrativo",
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "PÁGINA ORIGEN": "4",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 8",
+      "VALOR EXTRACTO LITERAL DETALLADO": "DROGAS CITOTOXICAS EN CICLOS DE QUIMIOTERAPIA: Corresponde a medicamentos de uso endovenoso. Excluye medicamentos orales, medicamentos coadyuvantes, medicamentos hormonales, interferon, interleukina, anticuerpos monoclonales, analgésicos, antihistamínicos, soluciones parenterales, alimentos parenterales y medicamentos estimulantes de colonias.",
+      "CÓDIGO_DISPARADOR_FONASA": "Quimioterapia, Drogas Citotóxicas",
+      "LOGICA_DE_CALCULO": "Cobertura restringida exclusivamente a administración endovenosa; lista taxativa de exclusiones (orales, coadyuvantes, etc.).",
+      "SUBCATEGORÍA": "Oncología",
       "categoria_canonica": "ONCOLOGIA"
     },
     {
       "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "11) MARCOS Y CRISTALES OPTICOS",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Corresponderá la bonificación de los marcos y cristales ópticos sólo con la presentación de la boleta correspondiente.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Bonificación sujeta a reembolso mediante presentación de documento tributario (boleta).",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 11",
+      "VALOR EXTRACTO LITERAL DETALLADO": "MARCOS Y CRISTALES OPTICOS: Corresponderá la bonificación de los marcos y cristales ópticos sólo con la presentación de la boleta correspondiente.",
+      "CÓDIGO_DISPARADOR_FONASA": "Óptica, Marcos, Cristales",
+      "LOGICA_DE_CALCULO": "Reembolso condicionado a la presentación de boleta de respaldo.",
       "SUBCATEGORÍA": "Óptica",
       "categoria_canonica": "AMBULATORIO"
     },
     {
       "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "12) PRESTACIONES DENTALES (PAD)",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficiarios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos a cobertura son: 2503001, 2503002, 2503003, 2503004, 2503005 y 25-03-006. La cobertura se entregará vía IMED en los prestadores en convenio y de acceder a la prestación en un prestador sin convenio la cobertura se entregará vía reembolso.",
+      "CÓDIGO/SECCIÓN": "ANEXO - NOTA 12",
+      "VALOR EXTRACTO LITERAL DETALLADO": "PRESTACIONES DENTALES (PAD): Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficiarios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos a cobertura son: 2503001, 2503002, 2503003, 2503004, 2503005 y 25-03-006. La cobertura se entregará vía IMED en los prestadores en convenio y de acceder a la prestación en un prestador sin convenio la cobertura se entregará vía reembolso.",
       "CÓDIGO_DISPARADOR_FONASA": "2503001, 2503002, 2503003, 2503004, 2503005, 2503006",
-      "LOGICA_DE_CALCULO": "Cobertura PAD dental restringida a rango etario (12 a 17 años). Bonificación vía IMED o reembolso.",
+      "LOGICA_DE_CALCULO": "Restricción etaria estricta (12 a 17 años) y por códigos específicos; bonificación vía IMED o reembolso.",
       "SUBCATEGORÍA": "Dental",
       "categoria_canonica": "AMBULATORIO"
     },
     {
       "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "A) CONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Los prestadores hospitalarios del plan de salud serán exclusivamente Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, en Habitación individual. La Habitación Individual se utilizará según disponibilidad de la clínica y en caso de no existir disponibilidad, se utilizará habitación doble o la siguiente que exista disponible de menor valor. La bonificación preferente del día cama, tendrá como tope máximo la que corresponde al día cama individual estándar (habitación con baño privado de menor precio del prestador) y las diferencias de uso por habitaciones superiores (suite, departamentos u otras) serán de cargo del beneficiario.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Tope de cobertura en día cama equivalente a habitación individual estándar; excedentes por suites son de cargo del afiliado.",
-      "SUBCATEGORÍA": "Hospitalización",
+      "CÓDIGO/SECCIÓN": "ANEXO - CONDICIÓN A",
+      "VALOR EXTRACTO LITERAL DETALLADO": "Los prestadores hospitalarios del plan de salud serán exclusivamente Hospital Clínico de la Red de Salud UC Christus, Clínica Santa María, Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa. La Habitación Individual se utilizará según disponibilidad de la clínica y en caso de no existir disponibilidad, se utilizará habitación doble o la siguiente que exista disponible de menor valor. La bonificación preferente del día cama, tendrá como tope máximo la que corresponde al día cama individual estándar (habitación con baño privado de menor precio del prestador) y las diferencias de uso por habitaciones superiores (suite, departamentos u otras) serán de cargo del beneficiario.",
+      "CÓDIGO_DISPARADOR_FONASA": "Día Cama, Hospitalización",
+      "LOGICA_DE_CALCULO": "Tope de bonificación limitado a habitación individual estándar; excedentes por suites o departamentos son responsabilidad del afiliado.",
+      "SUBCATEGORÍA": "Hospitalario",
       "categoria_canonica": "HOSPITALARIO"
     },
     {
       "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "C) DERIVACIÓN POR INSUFICIENCIA",
-      "VALOR EXTRACTO LITERAL DETALLADO": "En caso de insuficiencia de un prestador en convenio, es decir, cuando por falta de profesionales o medios, aquéllos se encuentran imposibilitados temporalmente de realizar alguna de las prestaciones que forman parte de la oferta preferente y ha transcurrido el tiempo de espera previsto en el Plan de Salud para el otorgamiento de las mismas, el beneficiario tendrá el derecho de solicitar a Isapre CONSALUD la derivación a otro prestador... Las prestaciones que se otorguen con ocasión de la derivación, deberán ser bonificadas por la Isapre manteniendo el monto que le habría correspondido copagar al afiliado de haberse atendido en el prestador que dio origen a la derivación.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Garantía de mantenimiento de copago preferente en caso de derivación forzada por falta de medios del prestador original.",
-      "SUBCATEGORÍA": "Gestión de Red",
-      "categoria_canonica": "AMBULATORIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "F) PRESTACIONES EN EL EXTRANJERO",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Las prestaciones de salud que el afiliado reciba en el extranjero, sólo serán cubiertas en caso de urgencia. La cobertura se regirá de acuerdo a lo indicado en «CUADRO DE COBERTURA EN LIBRE ELECCION». El afiliado, deberá entregar en la sucursal de Isapre consalud, la documentación (antecedentes médicos y documentos de cobro) traducidos al español y debidamente legalizada por el consulado respectivo... El plazo para presentar dicha documentación, es de 90 días desde la emisión de la factura.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Cobertura internacional limitada a urgencias bajo modalidad Libre Elección. Plazo de caducidad de 90 días para presentación de documentos.",
-      "SUBCATEGORÍA": "Cobertura Internacional",
-      "categoria_canonica": "AMBULATORIO"
-    },
-    {
-      "PÁGINA ORIGEN": "5",
-      "CÓDIGO/SECCIÓN": "K) HOSPITALIZACIÓN POR URGENCIA",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Suma de copago fijo de urgencia más el copago variable o porcentual de la hospitalización subsiguiente.",
-      "SUBCATEGORÍA": "Urgencias",
-      "categoria_canonica": "HOSPITALARIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO - 1",
-      "VALOR EXTRACTO LITERAL DETALLADO": "1) PRESTACIONES a) Hospitalarias: Son aquellas que requieren de día cama. b) Ambulatorias: Son aquellas no consideradas en la definición anterior.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Definición técnica de prestaciones basada en el requerimiento de día cama para diferenciar hospitalarias de ambulatorias.",
-      "SUBCATEGORÍA": "Definiciones Generales",
-      "categoria_canonica": "HOSPITALARIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO - 2",
-      "VALOR EXTRACTO LITERAL DETALLADO": "2) MEDICAMENTOS Y MATERIALES CLINICOS HOSPITALARIOS: Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de prestaciones hospitalarias. Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya considerado en su factura. Se excluyen de este ítem los medicamentos y materiales clínicos por tratamiento de cáncer y hospitalización psiquiátrica; dado que en ambos casos se bonificarán en los porcentajes y topes específicos definidos para los ítems Drogas Citotóxicas en Ciclos de Quimioterapia y Hospitalización Psiquiátrica respectivamente. Se excluyen asimismo de la oferta preferente, los medicamentos y materiales clínicos por, tratamiento de infertilidad y fibrosis quística del páncreas, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica por evento/beneficiario.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Bonificación condicionada a facturación hospitalaria; exclusiones específicas para cáncer, psiquiatría, infertilidad y fibrosis quística; tope por evento.",
-      "SUBCATEGORÍA": "Medicamentos e Insumos",
-      "categoria_canonica": "HOSPITALARIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO - 3",
-      "VALOR EXTRACTO LITERAL DETALLADO": "3) HOSPITALIZACION PSIQUIATRICA: La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración sea taxativa, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: días cama, medicamentos, exámenes, consultas médicas. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Tope acumulativo anual por contrato; incluye cama, fármacos y consultas; garantiza un piso mínimo del 25% de bonificación respecto al plan general.",
-      "SUBCATEGORÍA": "Salud Mental",
-      "categoria_canonica": "HOSPITALARIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO - 4",
-      "VALOR EXTRACTO LITERAL DETALLADO": "4) ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Restricción de cobertura basada en edad (>55 años) o condición clínica específica (>15 años postrados o terminales).",
-      "SUBCATEGORÍA": "Enfermería",
-      "categoria_canonica": "OTRO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO - 5",
-      "VALOR EXTRACTO LITERAL DETALLADO": "5) ATENCIONES INTEGRALES DE ENFERMERIA EN CENTRO DE ADULTO MAYOR: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Restricción de cobertura por edad mínima de 55 años para atenciones en centros especializados.",
-      "SUBCATEGORÍA": "Enfermería",
-      "categoria_canonica": "OTRO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO - 6",
-      "VALOR EXTRACTO LITERAL DETALLADO": "6) TOPES DE BONIFICACION: Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifica la prestación.",
-      "CÓDIGO_DISPARADOR_FONASA": "N/A",
-      "LOGICA_DE_CALCULO": "Metodología de cálculo de topes; utiliza el valor de la UF del último día del mes anterior a la fecha de la prestación.",
-      "SUBCATEGORÍA": "Generalidades de Cobertura",
-      "categoria_canonica": "AMBULATORIO"
-    },
-    {
-      "PÁGINA ORIGEN": "3",
-      "CÓDIGO/SECCIÓN": "ANEXO / ARANCEL",
-      "VALOR EXTRACTO LITERAL DETALLADO": "El Arancel tendrá un Reajuste General el 01 de abril de cada año hasta en un 100% de la variación experimentada por el Indice de Precios al Consumidor (IPC) entre el 01 de enero y el 31 de diciembre del año inmediatamente anterior al de la fecha del reajuste.",
-      "CÓDIGO_DISPARADOR_FONASA": "AC2",
-      "LOGICA_DE_CALCULO": "Reajuste anual de la lista de precios (Arancel Consalud) basado en el 100% de la variación del IPC del año calendario anterior.",
-      "SUBCATEGORÍA": "Reajustabilidad",
-      "categoria_canonica": "FINANCIERO"
-    },
-    {
-      "PÁGINA ORIGEN": "3",
-      "CÓDIGO/SECCIÓN": "ANEXO / TOPE GENERAL",
-      "VALOR EXTRACTO LITERAL DETALLADO": "TOPE GENERAL ANUAL POR BENEFICIARIO U.F. 5.000 (7). El precio del Plan de Salud se expresa en Unidades de Fomento (U.F.). Dicho precio se determina conforme a su valor base y la tabla de factores relativos por sexo y edad.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Tope máximo de cobertura agregada por beneficiario fijado en 5.000 UF por año de vigencia del contrato.",
-      "SUBCATEGORÍA": "Topes Generales",
-      "categoria_canonica": "FACTORES"
-    },
-    {
-      "PÁGINA ORIGEN": "3",
-      "CÓDIGO/SECCIÓN": "ANEXO / TIEMPOS DE ESPERA",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Los tiempos de espera definidos, se cuentan a partir de la fecha en que el beneficiario suscriba el documento de Solicitud de Contabilización del Tiempo de Espera en nuestras oficinas.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Periodos de carencia o espera que varían entre 4 y 30 días corridos según la complejidad de la prestación (Consultas, Exámenes, Cirugías).",
-      "SUBCATEGORÍA": "Carencias",
-      "categoria_canonica": "OTRO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO / NOTA 2",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya considerado en su factura. Se excluyen de este ítem los medicamentos y materiales clínicos por tratamiento de cáncer y hospitalización psiquiátrica.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Bonificación condicionada a la inclusión en factura hospitalaria; exclusión de cobertura bajo este ítem para oncología y psiquiatría (tienen topes propios).",
-      "SUBCATEGORÍA": "Insumos y Fármacos",
-      "categoria_canonica": "HOSPITALARIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO / NOTA 3",
-      "VALOR EXTRACTO LITERAL DETALLADO": "La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Cálculo de tope acumulativo anual para salud mental que integra días cama, fármacos, exámenes y honorarios médicos.",
-      "SUBCATEGORÍA": "Salud Mental",
-      "categoria_canonica": "HOSPITALARIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO / NOTA 4",
-      "VALOR EXTRACTO LITERAL DETALLADO": "ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO: Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Restricción de acceso por edad (mínimo 55 años) o por condición clínica documentada (postración/terminalidad en mayores de 15 años).",
-      "SUBCATEGORÍA": "Enfermería",
-      "categoria_canonica": "OTRO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO / NOTA 7",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Garantía de piso mínimo de cobertura: la Isapre debe cubrir al menos el 25% del valor del plan general incluso si se ha sobrepasado el tope específico.",
-      "SUBCATEGORÍA": "Garantía de Cobertura",
-      "categoria_canonica": "AMBULATORIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO / NOTA 12",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficiarios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales.",
-      "CÓDIGO_DISPARADOR_FONASA": "2503001, 2503002, 2503003, 2503004, 2503005, 2503006",
-      "LOGICA_DE_CALCULO": "Cobertura bajo modalidad PAD (Pago Asociado a Diagnóstico) restringida estrictamente al rango etario de 12 a 17 años.",
-      "SUBCATEGORÍA": "Odontología",
-      "categoria_canonica": "AMBULATORIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO / CONDICIÓN A",
-      "VALOR EXTRACTO LITERAL DETALLADO": "La bonificación preferente del día cama, tendrá como tope máximo la que corresponde al día cama individual estándar (habitación con baño privado de menor precio del prestador) y las diferencias de uso por habitaciones superiores (suite, departamentos u otras) serán de cargo del beneficiario.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Tope de bonificación fijado en el valor de la habitación individual más económica del prestador; cualquier upgrade es costo directo del afiliado.",
-      "SUBCATEGORÍA": "Hospitalización",
-      "categoria_canonica": "HOSPITALARIO"
-    },
-    {
-      "PÁGINA ORIGEN": "4",
-      "CÓDIGO/SECCIÓN": "ANEXO / CONDICIÓN F",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Las prestaciones de salud que el afiliado reciba en el extranjero, sólo serán cubiertas en caso de urgencia. La cobertura se regirá de acuerdo a lo indicado en «CUADRO DE COBERTURA EN LIBRE ELECCION». El plazo para presentar dicha documentación, es de 90 días desde la emisión de la factura.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Cobertura internacional limitada a urgencias vitales bajo arancel de libre elección, con plazo de caducidad de reembolso de 90 días.",
-      "SUBCATEGORÍA": "Cobertura Internacional",
-      "categoria_canonica": "AMBULATORIO"
-    },
-    {
-      "PÁGINA ORIGEN": "5",
-      "CÓDIGO/SECCIÓN": "ANEXO / CONDICIÓN K",
-      "VALOR EXTRACTO LITERAL DETALLADO": "Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo al tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva.",
-      "CÓDIGO_DISPARADOR_FONASA": "null",
-      "LOGICA_DE_CALCULO": "Suma de copagos: se aplica el monto fijo de la urgencia más el porcentaje/tope correspondiente a la cuenta hospitalaria derivada.",
-      "SUBCATEGORÍA": "Urgencias",
+      "CÓDIGO/SECCIÓN": "ANEXO NOTA 3",
+      "VALOR EXTRACTO LITERAL DETALLADO": "HOSPITALIZACION PSIQUIATRICA: La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración sea taxativa, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: días cama, medicamentos, exámenes, consultas médicas. Asimismo, se aclara que",
       "categoria_canonica": "HOSPITALARIO"
     }
   ],
@@ -344,12 +278,11 @@
         {
           "tipo": "LIBRE_ELECCION",
           "porcentaje": 90,
-          "tope": 4,
-          "unidadTope": "UF",
+          "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 4,
-          "unidad_normalizada": "UF",
-          "tope_raw": "4"
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
         }
       ],
       "categoria_canonica": "HOSPITALARIO",
@@ -371,12 +304,11 @@
         {
           "tipo": "LIBRE_ELECCION",
           "porcentaje": 90,
-          "tope": 2.5,
-          "unidadTope": "UF",
+          "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 2.5,
-          "unidad_normalizada": "UF",
-          "tope_raw": "2.5"
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
         }
       ],
       "categoria_canonica": "HOSPITALARIO",
@@ -398,12 +330,11 @@
         {
           "tipo": "LIBRE_ELECCION",
           "porcentaje": 90,
-          "tope": 7,
-          "unidadTope": "UF",
+          "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 7,
-          "unidad_normalizada": "UF",
-          "tope_raw": "7"
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
         }
       ],
       "categoria_canonica": "HOSPITALARIO",
@@ -414,395 +345,16 @@
       "categoria": "DERECHO DE PABELLÓN",
       "modalidades": [
         {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 90,
           "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
           "tope_normalizado": null,
           "unidad_normalizada": "UNKNOWN",
           "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 2.5,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 2.5,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "2.5"
         }
       ],
       "categoria_canonica": "HOSPITALARIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN",
-      "categoria": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1.2,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.2"
-        }
-      ],
-      "categoria_canonica": "HOSPITALARIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
-      "categoria": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1.5,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.5,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.5"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
-      "categoria": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1.2,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.2"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "PROCEDIMIENTOS",
-      "categoria": "PROCEDIMIENTOS",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1.2,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.2"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "KINESIOLOGÍA y FISIOTERAPIA",
-      "categoria": "KINESIOLOGÍA y FISIOTERAPIA",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1.2,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.2"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "EXÁMENES LABORATORIO",
-      "categoria": "EXÁMENES LABORATORIO",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1"
-        },
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "HONORARIOS MÉDICOS QUIRÚRGICOS",
-      "categoria": "HONORARIOS MÉDICOS QUIRÚRGICOS",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1.2,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.2"
-        }
-      ],
-      "categoria_canonica": "URGENCIA",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "VISITA POR MÉDICO INTERCONSULTOR",
-      "categoria": "VISITA POR MÉDICO INTERCONSULTOR",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 0.6,
-          "unidadTope": "UF",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 0.6,
-          "unidad_normalizada": "UF",
-          "tope_raw": "0.6"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "VISITA POR MÉDICO TRATANTE",
-      "categoria": "VISITA POR MÉDICO TRATANTE",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 0.5,
-          "unidadTope": "UF",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 0.5,
-          "unidad_normalizada": "UF",
-          "tope_raw": "0.5"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "MEDICAMENTOS HOSPITALARIOS (2)",
-      "categoria": "MEDICAMENTOS HOSPITALARIOS (2)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 30,
-          "unidadTope": "UF",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 30,
-          "unidad_normalizada": "UF",
-          "tope_raw": "30"
-        }
-      ],
-      "categoria_canonica": "HOSPITALARIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "MATERIALES CLÍNICOS (2)",
-      "categoria": "MATERIALES CLÍNICOS (2)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 20,
-          "unidadTope": "UF",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 20,
-          "unidad_normalizada": "UF",
-          "tope_raw": "20"
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "TRASLADOS MÉDICOS",
-      "categoria": "TRASLADOS MÉDICOS",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 2,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "2"
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS",
-      "categoria": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "QUIMIOTERAPIA (8)",
-      "categoria": "QUIMIOTERAPIA (8)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 4,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 4,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "4"
-        }
-      ],
-      "categoria_canonica": "ONCOLOGIA",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "CONSULTAS MÉDICAS",
-      "categoria": "CONSULTAS MÉDICAS",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "tope": 0.5,
-          "unidadTope": "UF",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 0.5,
-          "unidad_normalizada": "UF",
-          "tope_raw": "0.5"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
@@ -1383,63 +935,12 @@
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Anestesia - Clínica Alemana (Oferta Preferente)",
-      "categoria": "Anestesia - Clínica Alemana (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Anestesia - Clínica Universidad de los Andes (Oferta Preferente)",
-      "categoria": "Anestesia - Clínica Universidad de los Andes (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Anestesia - Clínica San Carlos de Apoquindo (Oferta Preferente)",
-      "categoria": "Anestesia - Clínica San Carlos de Apoquindo (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Anestesia - Clínica Santa María (Oferta Preferente)",
-      "categoria": "Anestesia - Clínica Santa María (Oferta Preferente)",
+      "item": "CONSULTAS MÉDICAS",
+      "categoria": "CONSULTAS MÉDICAS",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
-          "porcentaje": 80,
+          "porcentaje": 70,
           "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
           "tope_normalizado": null,
@@ -1448,7 +949,7 @@
         },
         {
           "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
+          "porcentaje": 80,
           "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
           "tope_normalizado": null,
@@ -1456,16 +957,16 @@
           "tope_raw": ""
         }
       ],
-      "categoria_canonica": "OTRO",
+      "categoria_canonica": "AMBULATORIO",
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Anestesia - Hospital Clínico UC (Oferta Preferente)",
-      "categoria": "Anestesia - Hospital Clínico UC (Oferta Preferente)",
+      "item": "EXÁMENES LABORATORIO",
+      "categoria": "EXÁMENES LABORATORIO",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
-          "porcentaje": 80,
+          "porcentaje": 70,
           "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
           "tope_normalizado": null,
@@ -1474,7 +975,59 @@
         },
         {
           "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
+          "porcentaje": 80,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "AMBULATORIO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "PROCEDIMIENTOS",
+      "categoria": "PROCEDIMIENTOS",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": 70,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "AMBULATORIO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "PABELLÓN AMBULATORIO",
+      "categoria": "PABELLÓN AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": 70,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
           "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
           "tope_normalizado": null,
@@ -1486,68 +1039,8 @@
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Anestesia - Clínica Las Condes (Oferta Preferente)",
-      "categoria": "Anestesia - Clínica Las Condes (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Anestesia - Clínica Indisa (Oferta Preferente)",
-      "categoria": "Anestesia - Clínica Indisa (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Anestesia (Libre Elección)",
-      "categoria": "Anestesia (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Consulta Médica General (Oferta Preferente)",
-      "categoria": "Consulta Médica General (Oferta Preferente)",
+      "item": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+      "categoria": "HONORARIOS MÉDICOS QUIRÚRGICOS",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -1560,32 +1053,6 @@
         },
         {
           "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Consulta Médica General (Libre Elección)",
-      "categoria": "Consulta Médica General (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
           "porcentaje": 80,
           "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
@@ -1594,756 +1061,12 @@
           "tope_raw": ""
         }
       ],
-      "categoria_canonica": "AMBULATORIO",
+      "categoria_canonica": "URGENCIA",
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Consulta Pediatría (Oferta Preferente)",
-      "categoria": "Consulta Pediatría (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Consulta Pediatría (Libre Elección)",
-      "categoria": "Consulta Pediatría (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Exámenes de Laboratorio (Oferta Preferente)",
-      "categoria": "Exámenes de Laboratorio (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Exámenes de Laboratorio (Libre Elección)",
-      "categoria": "Exámenes de Laboratorio (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Hemograma (Oferta Preferente)",
-      "categoria": "Hemograma (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Hemograma (Libre Elección)",
-      "categoria": "Hemograma (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Perfil Bioquímico (Oferta Preferente)",
-      "categoria": "Perfil Bioquímico (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Perfil Bioquímico (Libre Elección)",
-      "categoria": "Perfil Bioquímico (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Orina Completa (Oferta Preferente)",
-      "categoria": "Orina Completa (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Orina Completa (Libre Elección)",
-      "categoria": "Orina Completa (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Cultivos (Oferta Preferente)",
-      "categoria": "Cultivos (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Cultivos (Libre Elección)",
-      "categoria": "Cultivos (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Glucosa en Sangre (Oferta Preferente)",
-      "categoria": "Glucosa en Sangre (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Glucosa en Sangre (Libre Elección)",
-      "categoria": "Glucosa en Sangre (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Perfil Lipídico (Oferta Preferente)",
-      "categoria": "Perfil Lipídico (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Perfil Lipídico (Libre Elección)",
-      "categoria": "Perfil Lipídico (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Imagenología (Oferta Preferente)",
-      "categoria": "Imagenología (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Imagenología (Libre Elección)",
-      "categoria": "Imagenología (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Rayos X (Oferta Preferente)",
-      "categoria": "Rayos X (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Rayos X (Libre Elección)",
-      "categoria": "Rayos X (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Ecotomografía (Oferta Preferente)",
-      "categoria": "Ecotomografía (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Ecotomografía (Libre Elección)",
-      "categoria": "Ecotomografía (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "TAC/Scanner (Oferta Preferente)",
-      "categoria": "TAC/Scanner (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "TAC/Scanner (Libre Elección)",
-      "categoria": "TAC/Scanner (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "tope": 0.8,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 0.8,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "0.8"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Resonancia Magnética (Oferta Preferente)",
-      "categoria": "Resonancia Magnética (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Resonancia Magnética (Libre Elección)",
-      "categoria": "Resonancia Magnética (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "tope": 0.8,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 0.8,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "0.8"
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Mamografía (Oferta Preferente)",
-      "categoria": "Mamografía (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Mamografía (Libre Elección)",
-      "categoria": "Mamografía (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Densitometría Ósea (Oferta Preferente)",
-      "categoria": "Densitometría Ósea (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Densitometría Ósea (Libre Elección)",
-      "categoria": "Densitometría Ósea (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Ecografía Doppler (Oferta Preferente)",
-      "categoria": "Ecografía Doppler (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": null,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Ecografía Doppler (Libre Elección)",
-      "categoria": "Ecografía Doppler (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Procedimientos Diagnósticos (Oferta Preferente)",
-      "categoria": "Procedimientos Diagnósticos (Oferta Preferente)",
+      "item": "BOX AMBULATORIO",
+      "categoria": "BOX AMBULATORIO",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2368,296 +1091,8 @@
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Procedimientos Diagnósticos (Libre Elección)",
-      "categoria": "Procedimientos Diagnósticos (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Procedimientos Terapéuticos (Oferta Preferente)",
-      "categoria": "Procedimientos Terapéuticos (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Procedimientos Terapéuticos (Libre Elección)",
-      "categoria": "Procedimientos Terapéuticos (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Endoscopía Digestiva (Oferta Preferente)",
-      "categoria": "Endoscopía Digestiva (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Endoscopía Digestiva (Libre Elección)",
-      "categoria": "Endoscopía Digestiva (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Colonoscopía (Oferta Preferente)",
-      "categoria": "Colonoscopía (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Colonoscopía (Libre Elección)",
-      "categoria": "Colonoscopía (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Biopsia (Oferta Preferente)",
-      "categoria": "Biopsia (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Biopsia (Libre Elección)",
-      "categoria": "Biopsia (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 70,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 80,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        }
-      ],
-      "categoria_canonica": "AMBULATORIO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Electrocardiograma (Oferta Preferente)",
-      "categoria": "Electrocardiograma (Oferta Preferente)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1.2,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.2"
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Electrocardiograma (Libre Elección)",
-      "categoria": "Electrocardiograma (Libre Elección)",
-      "modalidades": [
-        {
-          "tipo": "PREFERENTE",
-          "porcentaje": 90,
-          "unidadTope": "SIN_TOPE",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": null,
-          "unidad_normalizada": "UNKNOWN",
-          "tope_raw": ""
-        },
-        {
-          "tipo": "LIBRE_ELECCION",
-          "porcentaje": 90,
-          "tope": 1.2,
-          "unidadTope": "AC2",
-          "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.2"
-        }
-      ],
-      "categoria_canonica": "OTRO",
-      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
-    },
-    {
-      "item": "Kinesiología (Oferta Preferente)",
-      "categoria": "Kinesiología (Oferta Preferente)",
+      "item": "KINESIOLOGÍA Y FISIOTERAPIA",
+      "categoria": "KINESIOLOGÍA Y FISIOTERAPIA",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2683,8 +1118,8 @@
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Kinesiología (Libre Elección)",
-      "categoria": "Kinesiología (Libre Elección)",
+      "item": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+      "categoria": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2698,20 +1133,71 @@
         {
           "tipo": "LIBRE_ELECCION",
           "porcentaje": 80,
-          "tope": 1.2,
-          "unidadTope": "AC2",
+          "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1.2,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1.2"
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
         }
       ],
       "categoria_canonica": "AMBULATORIO",
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Fonoaudiología (Oferta Preferente)",
-      "categoria": "Fonoaudiología (Oferta Preferente)",
+      "item": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
+      "categoria": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": 80,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "AMBULATORIO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "RADIOTERAPIA",
+      "categoria": "RADIOTERAPIA",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "ONCOLOGIA",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "FONOAUDIOLOGÍA",
+      "categoria": "FONOAUDIOLOGÍA",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2737,8 +1223,8 @@
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Fonoaudiología (Libre Elección)",
-      "categoria": "Fonoaudiología (Libre Elección)",
+      "item": "QUIMIOTERAPIA (8)",
+      "categoria": "QUIMIOTERAPIA (8)",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2752,20 +1238,20 @@
         {
           "tipo": "LIBRE_ELECCION",
           "porcentaje": 80,
-          "tope": 2.5,
+          "tope": 4,
           "unidadTope": "AC2",
           "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 2.5,
+          "tope_normalizado": 4,
           "unidad_normalizada": "AC2",
-          "tope_raw": "2.5"
+          "tope_raw": "4"
         }
       ],
-      "categoria_canonica": "AMBULATORIO",
+      "categoria_canonica": "ONCOLOGIA",
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Nutricionista (Oferta Preferente)",
-      "categoria": "Nutricionista (Oferta Preferente)",
+      "item": "PRÓTESIS Y ÓRTESIS",
+      "categoria": "PRÓTESIS Y ÓRTESIS",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2778,21 +1264,20 @@
         },
         {
           "tipo": "LIBRE_ELECCION",
-          "porcentaje": null,
-          "tope": 1,
-          "unidadTope": "AC2",
+          "porcentaje": 80,
+          "unidadTope": "SIN_TOPE",
           "tipoTope": "POR_EVENTO",
-          "tope_normalizado": 1,
-          "unidad_normalizada": "AC2",
-          "tope_raw": "1"
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
         }
       ],
       "categoria_canonica": "AMBULATORIO",
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "Nutricionista (Libre Elección)",
-      "categoria": "Nutricionista (Libre Elección)",
+      "item": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)",
+      "categoria": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2805,7 +1290,34 @@
         },
         {
           "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": 1,
+          "unidadTope": "AC2",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 1,
+          "unidad_normalizada": "AC2",
+          "tope_raw": "1"
+        }
+      ],
+      "categoria_canonica": "OTRO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "ATENCIÓN INTEGRAL DE NUTRICIONISTA",
+      "categoria": "ATENCIÓN INTEGRAL DE NUTRICIONISTA",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
           "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
           "tope": 1,
           "unidadTope": "AC2",
           "tipoTope": "POR_EVENTO",
@@ -2818,8 +1330,8 @@
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "URGENCIA ADULTO",
-      "categoria": "URGENCIA ADULTO",
+      "item": "Urgencia Simple Adulto (Oferta Preferente)",
+      "categoria": "Urgencia Simple Adulto (Oferta Preferente)",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2836,8 +1348,8 @@
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "CONSULTA / TRATAMIENTO PSIQUIATRÍAY/O PSICOLOGÍA",
-      "categoria": "CONSULTA / TRATAMIENTO PSIQUIATRÍAY/O PSICOLOGÍA",
+      "item": "Urgencia Simple Adulto (Libre Elección)",
+      "categoria": "Urgencia Simple Adulto (Libre Elección)",
       "modalidades": [
         {
           "tipo": "PREFERENTE",
@@ -2847,9 +1359,69 @@
           "tope_normalizado": null,
           "unidad_normalizada": "UNKNOWN",
           "tope_raw": ""
-        },
+        }
+      ],
+      "categoria_canonica": "URGENCIA",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Urgencia Compleja Adulto (Oferta Preferente)",
+      "categoria": "Urgencia Compleja Adulto (Oferta Preferente)",
+      "modalidades": [
         {
-          "tipo": "LIBRE_ELECCION",
+          "tipo": "PREFERENTE",
+          "porcentaje": null,
+          "tope": 2.9,
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 2.9,
+          "unidad_normalizada": "UF",
+          "tope_raw": "2.9"
+        }
+      ],
+      "categoria_canonica": "URGENCIA",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Urgencia Compleja Adulto (Libre Elección)",
+      "categoria": "Urgencia Compleja Adulto (Libre Elección)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "URGENCIA",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Consulta Psiquiatría (Oferta Preferente)",
+      "categoria": "Consulta Psiquiatría (Oferta Preferente)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "AMBULATORIO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Consulta Psiquiatría (Libre Elección)",
+      "categoria": "Consulta Psiquiatría (Libre Elección)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
           "porcentaje": 70,
           "tope": 70,
           "unidadTope": "AC2",
@@ -2857,17 +1429,150 @@
           "tope_normalizado": 70,
           "unidad_normalizada": "AC2",
           "tope_raw": "70"
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 4,
+          "tope": 4,
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 4,
+          "unidad_normalizada": "UF",
+          "tope_raw": "4"
         }
       ],
       "categoria_canonica": "AMBULATORIO",
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "MARCOS Y CRISTALES ÓPTICOS (11)",
-      "categoria": "MARCOS Y CRISTALES ÓPTICOS (11)",
+      "item": "Consulta Psicología (Oferta Preferente)",
+      "categoria": "Consulta Psicología (Oferta Preferente)",
       "modalidades": [
         {
+          "tipo": "PREFERENTE",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "AMBULATORIO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Consulta Psicología (Libre Elección)",
+      "categoria": "Consulta Psicología (Libre Elección)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": 70,
+          "tope": 70,
+          "unidadTope": "AC2",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 70,
+          "unidad_normalizada": "AC2",
+          "tope_raw": "70"
+        },
+        {
           "tipo": "LIBRE_ELECCION",
+          "porcentaje": 4,
+          "tope": 4,
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 4,
+          "unidad_normalizada": "UF",
+          "tope_raw": "4"
+        }
+      ],
+      "categoria_canonica": "AMBULATORIO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "PAD Dental (Oferta Preferente)",
+      "categoria": "PAD Dental (Oferta Preferente)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "DENTAL",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "PAD Dental (Libre Elección)",
+      "categoria": "PAD Dental (Libre Elección)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": 80,
+          "tope": 1,
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 1,
+          "unidad_normalizada": "UF",
+          "tope_raw": "1"
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "DENTAL",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Tratamiento Dental General (Oferta Preferente)",
+      "categoria": "Tratamiento Dental General (Oferta Preferente)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "DENTAL",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Tratamiento Dental General (Libre Elección)",
+      "categoria": "Tratamiento Dental General (Libre Elección)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": 80,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "DENTAL",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Lentes Ópticos (Libre Elección)",
+      "categoria": "Lentes Ópticos (Libre Elección)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
           "porcentaje": 90,
           "tope": 90,
           "unidadTope": "UF",
@@ -2875,17 +1580,72 @@
           "tope_normalizado": 90,
           "unidad_normalizada": "UF",
           "tope_raw": "90"
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 2.5,
+          "tope": 2.5,
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 2.5,
+          "unidad_normalizada": "UF",
+          "tope_raw": "2.5"
         }
       ],
-      "categoria_canonica": "OTRO",
+      "categoria_canonica": "AMBULATORIO",
       "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
     },
     {
-      "item": "PRÓTESIS Y ÓRTESIS",
-      "categoria": "PRÓTESIS Y ÓRTESIS",
+      "item": "Lentes de Contacto (Libre Elección)",
+      "categoria": "Lentes de Contacto (Libre Elección)",
       "modalidades": [
         {
+          "tipo": "PREFERENTE",
+          "porcentaje": 90,
+          "tope": 90,
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 90,
+          "unidad_normalizada": "UF",
+          "tope_raw": "90"
+        },
+        {
           "tipo": "LIBRE_ELECCION",
+          "porcentaje": 2.5,
+          "tope": 2.5,
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": 2.5,
+          "unidad_normalizada": "UF",
+          "tope_raw": "2.5"
+        }
+      ],
+      "categoria_canonica": "AMBULATORIO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Audífonos (Libre Elección)",
+      "categoria": "Audífonos (Libre Elección)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
+        }
+      ],
+      "categoria_canonica": "AMBULATORIO",
+      "nota_restriccion": "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan."
+    },
+    {
+      "item": "Prótesis y Órtesis (Libre Elección)",
+      "categoria": "Prótesis y Órtesis (Libre Elección)",
+      "modalidades": [
+        {
+          "tipo": "PREFERENTE",
           "porcentaje": 80,
           "tope": 1,
           "unidadTope": "AC2",
@@ -2893,6 +1653,15 @@
           "tope_normalizado": 1,
           "unidad_normalizada": "AC2",
           "tope_raw": "1"
+        },
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": null,
+          "unidadTope": "SIN_TOPE",
+          "tipoTope": "POR_EVENTO",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": ""
         }
       ],
       "categoria_canonica": "AMBULATORIO",
@@ -3364,21 +2133,20 @@
     }
   ],
   "diseno_ux": {
-    "nombre_isapre": "Consalud",
-    "titulo_plan": "PLAN DE SALUD COMPLEMENTARIO",
-    "layout": "moderno",
-    "funcionalidad": "informativo",
-    "salida_json": "coberturas_y_diseno_ux",
-    "subtitulo_plan": "Plan Preferente"
+    "nombre_isapre": "ISAPRE",
+    "titulo_plan": "Unknown",
+    "layout": "failed_extraction",
+    "funcionalidad": "multi_pass_v4_universal",
+    "salida_json": "merged"
   },
   "rawMarkdown": "--- PÁGINA 1 ---\n¿QUÉ ES UN PLAN PREFERENTE? |  |  |  |  |  |  |  |  |  |  |  |  | \nPlan de salud que tiene una cobertura más alta para el grupo de |  |  |  |  |  |  | clínicas que más te interesan, |  |  | y además tiene una cobertura |  |  | \n“libre elección” | para el resto de clínicas a nivel nacional. |  |  |  |  |  |  |  |  |  |  |  | \nPrestaciones ambulatorias y hospitalarias aranceladas en fonasa, realizadas por el sta de médicos en |  |  |  |  |  |  |  |  |  |  |  |  | \n | convenio con Consalud y que exige la Super Intendencia de Salud. |  |  |  |  |  |  |  |  | ¿QUÉ CUBRE |  | MI PLAN? | \nCirugías de embellecimiento, insumos que no forman parte de la intervención en si, como por ejemplo: |  |  |  |  |  |  |  |  |  | ¿QUÉ NO CUBRE |  |  | MI PLAN?\n |  | mascarillas, delantales, pañales, entre otros. |  |  |  |  |  |  |  |  |  |  | \n | USO   DEL PLAN |  |  | PRESTADO |  | RESPREFERENTES |  |  |  | TOPE | DEL PLAN |  | \nCuando vayas a usar tu plan, llámanos a |  |  |  | Prestadores con una mejor cobertura |  |  |  |  | Es el monto máximo a cubrir sobre una |  |  |  | \nnuestro Contact Center 600 500 9000 y |  |  |  | sin tope. |  |  |  |  | atención en salud. |  |  |  | \nte entregaremos toda la orientación que |  |  |  |  |  |  |  |  |  |  |  |  | \nnecesitas.. |  |  |  |  |  |  |  |  |  |  |  |  | \nDefinición de arancel (AC2): |  |  | Arancel Consalud, es una lista valorizada de prestaciones cubiertas por tu plan de salud. Puedes |  |  |  |  |  |  |  |  |  | \n |  |  | revisar sus valores en tu Sucursal Virtual. |  |  |  |  |  |  |  |  |  | \nUrgencia Integral |  |  | Accede a una urgencia integral sólo cancelando el copago jo mencionado en tu plan dependiendo del |  |  |  |  |  |  |  |  |  | \n |  |  | tipo de urgencia. Este tipo de urgencia sólo aplica si está en tu plan de salud. |  |  |  |  |  |  |  |  |  | \nCobertura internacional |  |  | Puedes atenderte en cualquier parte del mundo y luego reembolsar en Consalud utilizando tu |  |  |  |  |  |  |  |  |  | \n |  |  | cobertura libre elección*. |  |  | *Sólo si se encuentra especi cado en tu plan contratado. |  |  |  |  |  |  | \nBENEFICIOS |  |  | Son Beneficios sin costo, adicionales a la cobertura de tu plan, por ejemplo: |  |  |  |  |  |  |  | BONOS COSTO |  | \n |  |  | CERO, BENEFICIOS DENTALES, DESCUENTO EN SALCOBRAND, REEMBOLSO RUNNING. |  |  |  |  |  |  |  |  |  | \nGRATUITOS |  |  | Conoce el detalle de todos los beneficios gratuitos en consalud.cl o ingresando a tu Sucursal Virtual. |  |  |  |  |  |  |  |  |  | \n |  |  | Son seguros que puedes contratar por un monto adicional al plan de salud. Algunos de ellos |  |  |  |  |  |  |  |  |  | \nCOMPLEMENTOS |  |  | son: DENTAL, SEGURO DE CESANTÍA, ASISTENCIA EN VIAJE, ETC. |  |  |  |  |  |  | Puedes contratarlos en |  |  | \n |  |  | nuestras sucursales y algunos de ellos pueden ser contratados directamente a través de tu Sucursal |  |  |  |  |  |  |  |  |  | \nCONSALUD |  |  | Virtual en consalud.cl |  |  |  |  |  |  |  |  |  | \n | ORIENTACIÓN |  | HOSPITALARIA |  |  |  |  |  | ORIENTACIÓN |  | AMBULATORIA |  | \nRecibe la orientación que necesitas a través de ejecutivas especializadas |  |  |  |  |  |  | A través de nuestro Contact Center 600 500 9000 y en tu Sucursal |  |  |  |  |  | \nque te asesorarán para entregarte la mejor alternativa para tu cirugía |  |  |  |  |  |  | Virtual consalud.cl, te entregamos la opción más conveniente para tus |  |  |  |  |  | \nprogramada. Además conoce nuestro servicio prepaga tu cirugía que te |  |  |  |  |  |  | atenciones ambulatorias. Además en tu Sucursal Virtual te damos los |  |  |  |  |  | \npermite conocer el valor final de tu cuenta antes de tu cirugía. Accede |  |  |  |  |  |  | mejores copagos para tus atenciones médicas. |  |  |  |  |  | \na   mejores copagos | en cirugías de | Meniscos, Lasik, Parto y/o cesárea, |  |  |  |  |  |  |  |  |  |  | \nentre otras. |  |  |  |  |  |  |  |  |  |  |  |  | \n | Recuerda que tu plan queda activado y puedes acceder a todos los bene cios al mes subsiguiente de haber contratado tu plan de salud. |  |  |  |  |  |  |  |  |  |  |  | \n\n--- PÁGINA 2 ---\n | RED SALUD ESPECIAL 500 |  |  |  |  |  | 13-RSE500-17 |  |  |  |  |  |  | \n |  | PLAN CON COBERTURA REDUCIDA EN: PARTO. |  |  |  |  |  |  |  |  |  |  |  | \n |  |  |  |  |  |  |  |  |  |  |  | FUN Nº |  | \nTIPO DE PLAN: |  | INDIVIDUAL |  | X | GRUPAL |  |  |  |  |  |  | FOLIO |  | \n |  |  |  |  |  |  |  | OFERTA PREFERENTE (*) |  |  | LIBRE ELECCIÓN |  |  | \n |  |  |  |  |  |  |  |  |  |  |  |  |  | TOPE MÁX. AÑO\n |  | PRESTACIONES |  |  | (1) |  |  | BONIFICACIÓN |  |  | BONIFICACIÓN |  |  | CONTRATO POR BENEFICIARIO\n |  |  |  |  |  |  |  | % |  | TOPE (6) | % |  | TOPE (6) | (U.F) (7)\nHOSPITALARIAS Y |  | CIRUGÍA |  |  |  |  |  |  |  |  |  |  |  | \nMAYOR AMBULATORIA |  |  |  |  |  |  |  | 80% Sin Tope: |  |  |  |  |  | \nDIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA |  |  |  |  |  |  | Hospital Clínico de la Red de Salud UC Christus (con | médicos Staff ASOMEDUC (A.1)) |  |  |  |  | 4,0 UF | \nDIA CAMA: SALA CUNA |  |  |  |  |  |  |  |  |  |  |  |  | 2,5 UF | \nDIA CAMA CUIDADOS INTENSIVOS O CORONARIOS |  |  |  |  |  |  |  | 80% Sin Tope: |  |  |  |  | 7,0 UF | \nDERECHO DE PABELLÓN |  |  |  |  |  |  |  | Clínica Santa Maria |  |  |  |  | 2,5 veces AC2 | Sin Tope\nDIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN |  |  |  |  |  |  |  | Clínica Tabancura, Clínica Indisa |  |  |  |  | 1,2 veces AC2 | \nIMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA) |  |  |  |  |  |  |  | (Modalidad Institucional (A.2)) |  |  |  |  | 1,5 veces AC2 | \nIMAGENOLOGÍA (RESONANCIA, SCANNER) |  |  |  |  |  |  |  |  |  |  |  |  | 1,2 veces AC2 | \nPROCEDIMIENTOS |  |  |  |  |  |  |  | 90% Sin Tope en: |  |  |  |  | 1,2 veces AC2 | \nKINESIOLOGÍA y FISIOTERAPIA |  |  |  |  |  |  |  | Clínica Dávila, Clínica Vespucio |  |  | 90% |  | 1,2 veces AC2 | 5,0\nEXÁMENES LABORATORIO |  |  |  |  |  |  |  | Clínica Avansalud, Clínica Bicentenario |  |  |  |  | 1,0 veces AC2 | \nHONORARIOS MÉDICOS QUIRÚRGICOS |  |  |  |  |  |  |  | (Modalidad Institucional (A.2)) |  |  |  |  | 1,2 veces AC2 | \nVISITA POR MÉDICO INTERCONSULTOR |  |  |  |  |  |  |  | (Habitación Individual ) |  |  |  |  | 0,6 UF | Sin Tope\nVISITA POR MÉDICO TRATANTE |  |  |  |  |  |  |  |  |  |  |  |  | 0,5 UF | \nMEDICAMENTOS HOSPITALARIOS (2) |  |  |  |  |  |  |  |  |  |  |  |  | 30   UF | 60\nMATERIALES CLÍNICOS (2) |  |  |  |  |  |  |  | Solo cobertura libre elección |  |  |  |  | 20   UF | 40\nTRASLADOS MÉDICOS |  |  |  |  |  |  |  |  |  |  |  |  | 2,0 veces AC2 | Sin Tope\nPRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS |  |  |  |  |  |  |  |  |  |  |  |  | 1,0 veces AC2 | \nQUIMIOTERAPIA (8) |  |  |  |  |  |  |  |  |  |  |  |  | 4,0 veces AC2 | 80\nAMBULATORIAS |  |  |  |  |  |  |  |  |  |  |  |  |  | \nCONSULTAS MÉDICAS |  |  |  |  |  |  |  | 70 % Sin Tope en: |  |  |  |  | 0,5 UF | \nEXÁMENES LABORATORIO |  |  |  |  |  |  | Centros Médicos de la Red de Salud UC Christus (L), | Clínica Santa Maria, Clínica Tabancura, |  |  |  |  | 1,0 veces AC2 | \nPROCEDIMIENTOS |  |  |  |  |  |  |  | Clínica Indisa y Arauco Salud |  |  |  |  | 1,1   veces AC2 | Sin Tope\nPABELLÓN AMBULATORIO |  |  |  |  |  |  |  |  |  |  |  |  | 2,0   veces AC2 | \nHONORARIOS MÉDICOS QUIRÚRGICOS |  |  |  |  |  |  |  |  |  |  |  |  | 1,5 veces AC2 | \nBOX AMBULATORIO |  |  |  |  |  |  |  | Integramédica, Clínica Dávila,  80% Sin Tope: |  |  |  |  | 1,0 veces AC2 | \nKINESIOLOGÍA y FISIOTERAPIA |  |  |  |  |  |  |  | Clínica Vespucio, Clínica Avansalud |  |  |  |  | 1,2 veces AC2 | 5,0\nIMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA) |  |  |  |  |  |  |  | y Clínica | Bicentenario |  | 80% |  | 1,0 veces AC2 | Sin Tope\nIMAGENOLOGÍA (RESONANCIA, SCANNER) |  |  |  |  |  |  |  |  |  |  |  |  | 0,8 veces AC2 | \nRADIOTERAPIA |  |  |  |  |  |  |  |  |  |  |  |  | 1,0 veces AC2 | Sin Tope\nFONOAUDIOLOGÍA |  |  |  |  |  |  |  |  |  |  |  |  | 2,5 veces AC2 | 3,5\nQUIMIOTERAPIA (8) |  |  |  |  |  |  |  | Solo cobertura libre elección |  |  |  |  | 4,0 veces AC2 | 80\nPRÓTESIS Y ÓRTESIS |  |  |  |  |  |  |  |  |  |  |  |  | 1,0 veces AC2 | Sin Tope\nATENCIONES INTEGRALES DE ENFERMERÍA (4) (5) |  |  |  |  |  |  |  |  |  |  |  |  | 1,0 veces AC2 | 1,5\nATENCIÓN INTEGRAL DE NUTRICIONISTA |  |  |  |  |  |  |  |  |  |  |  |  | 1,0 veces AC2 | \nPRESTACIONES DENTALES (PAD) (12) |  |  |  |  |  |  |  |  |  |  |  |  | 1,0 UF | Sin Tope\nPRESTACIONES RESTRINGIDAS |  |  |  |  |  |  |  |  |  |  |  |  |  | \nCIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE |  |  |  |  |  |  |  |  |  |  | 25% de la cobertura gral. del plan |  |  | Sin Tope\nINFERTILIDAD. HOSPITALIZACIÓN POR PARTO. |  |  |  |  |  |  |  | Solo cobertura libre elección |  |  |  |  |  | \nHOSPITALIZACIÓN PSIQUIATRICA (3) |  |  |  |  |  |  |  |  |  |  | 70 % |  | 1,0 veces AC2 | 6,7\nCONSULTA / TRATAMIENTO PSIQUIATRÍA |  |  |  | Y/O PSICOLOGÍA |  |  |  |  |  |  | 70 % |  | 1,0 veces AC2 | 4,0\nOTRAS COBERTURAS |  |  |  |  |  |  |  |  |  |  |  |  |  | \nMARCOS Y CRISTALES ÓPTICOS (11) |  |  |  |  |  |  |  | Solo cobertura libre elección |  |  | 90 % |  | 1,8 UF | 2,5\nCOBERTURA INTERNACIONAL (F) |  |  |  |  |  |  |  |  |  |  |  |  |  | \nTRASLADOS MEDICOS |  |  |  |  |  |  |  |  |  |  | 90 % |  | 2,0 veces AC2 | SIN TOPE\n |  |  |  |  |  |  | En   Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Indisa, Clínica |  |  |  |  |  |  | \nATENCIÓN DE URGENCIA |  |  |  |  |  |  | Avansalud y Clínica Vespucio, |  | idénticos porcentajes preferentes ambulatorio de Consulta de Urgencia, |  |  |  |  | \n |  |  |  |  |  |  | Exámenes, Imágenes, Procedimientos y Pabellón. |  |  |  |  |  |  | \nPRESTADORES DERIVADOS |  |  |  |  |  |  | Hospital Clínico Universidad de Chile, Clínica Avansalud y Clínica Bicentenario. |  |  |  |  |  |  | \nATENCIÓN |  | INTEGRAL |  |  |  |  | Incluye consulta médica de urgencia, insumos, medicamentos, imágenología, exámenes, procedimientos y |  |  |  |  |  |  | \nDE URGENCIA (D) (L) (N) |  |  |  |  |  |  | honorarios médicos solo en |  | Clínicas Tabancura, Bicentenario y Dávila. |  |  |  |  | \n |  |  |  |  |  |  |  | URGENCIA NORMAL |  |  | URGENCIA COMPLEJA (*) |  |  | \nURGENCIA ADULTO |  |  |  |  |  |  |  | Copago Fijo de 1,0 UF |  |  | Copago Fijo de 2,9 UF |  |  | \nURGENCIA PEDIÁTRICA |  |  |  |  |  |  |  | Copago Fijo de 0,9 UF |  |  | Copago Fijo de 1,7 UF |  |  | \n(*) VER NOTAS EXPLICATIVAS DEL PLAN DE SALUD PARA LA APLICACIÓN DE LA COBERTURA PREFERENTE |  |  |  |  |  |  |  |  |  |  |  |  |  | \n(*) La complejidad está definida por la realización de exámenes de imagenología de los subgrupos 03, TAC, 04 ultrasonografía y subgrupo 05 resonancias y procedimientos médicos que |  |  |  |  |  |  |  |  |  |  |  |  |  | \nincluyan prestaciones endoscópicas y aquellas atenciones a pacientes que ingresen en riesgo vital. |  |  |  |  |  |  |  |  |  |  |  |  |  | \n\n--- PÁGINA 3 ---\nPRECIO DEL PLAN |  |  |  |  |  |  |  |  |  | \n | TIPO DE BENEFICIARIO |  |  |  |  |  |  |  |  | \n |  |  | CARGAS |  |  |  |  |  |  | \nEDAD | COTIZANTE |  |  | El precio del Plan de Salud se expresa en Unidades de Fomento (U.F.). Dicho precio |  |  |  |  |  | \n0 a menos de 2 años | HOMBRE | MUJER   HOMBRE | MUJER | se determina conforme a su |  |  | valor base y la tabla de factores relativos por sexo y |  |  | \n2 a menos de 5 años | 1,80 0,80 | 1,80 0,80 1,80 0,80 | 1,80 0,80 | edad: |  |  |  |  |  | \n10 a menos de 15 años 5 a menos de 10 años | 0,70 | 0,80 0,60 0,60 | 0,60 | VALOR BASE |  |  |  |  |  | \n | 0,70 | 0,80 | 0,60 |  |  |  |  |  |  | \n15 a menos de 20 años | 0,75 | 1,30 0,60 | 0,75 |  |  | U.F. |  |  |  | \n20 a menos de 25 años | 0,80 | 1,4 0,70 | 1,00 |  |  |  |  |  |  | \n25 a menos de 30 años | 1,00 | 1,55 0,80 | 1,20 |  |  |  |  |  |  | \n30 a menos de 35 años | 1,00 | 1,90 1,00 | 1,30 | VALOR TOTAL PLAN SEGUN COMPOSICION DEL GRUPO FAMILIAR |  |  |  |  |  | \n35 a menos de 40 años | 1,15 | 2,10 1,10 | 1,40 |  |  |  |  |  |  | \n40 a menos de 45 años | 1,30 | 2,00 1,30 | 1,50 |  |  |  |  |  |  | U.F.\n45 a menos de 50 años | 1,45 | 2,30 1,40 | 1,60 |  |  |  |  |  |  | \n50 a menos de 55 años | 1,85 | 2,65 1,80 | 1,80 |  |  |  |  |  |  | \n55 a menos de 60 años | 2,35 | 2,85 2,35 | 1,90 | El precio final del plan se pagará en su equivalente en pesos. Para su cálculo se |  |  |  |  |  | \n60 a menos de 65 años | 3,20 | 3,70 3,20 | 3,70 | utilizará el valor oficial que tenga la U.F. el último día del mes que corresponde |  |  |  |  |  | \n65 a menos de 70 años 70 a menos de 75 años | 3,70 4,00 | 3,70 4,00 3,70 4,00 | 3,70 4,00 | descontar la cotización de la remuneración del cotizante. |  |  |  |  |  | \n75 a menos de 80 años | 4,50 | 4,30 4,50 | 4,30 |  |  |  |  |  |  | \n80 y más años | 5,00 | 4,80 5,00 | 4,80 | IDENTIFICACIÓN ÚNICA DE LA TABLA DE FACTORES |  |  |  |  | N° | 603\nARANCEL |  |  |  |  |  |  |  |  |  | \nNOMBRE DEL ARANCEL | : AC2 |  |  |  | UNIDAD : PESOS |  |  |  |  | \nEl Arancel tendrá un Reajuste General el 01 de abril de cada año hasta en un 100% de la variación experimentada por el Indice de Precios al Consumidor |  |  |  |  |  |  |  |  |  | \n(IPC) entre el 01 de enero y el 31 de diciembre del año inmediatamente anterior al de la fecha del reajuste. |  |  |  |  |  |  |  |  |  | \nAdemás del Reajuste General del Arancel, CONSALUD podrá reajustar algunas prestaciones en un porcentaje superior sólo con el fin de incrementar los |  |  |  |  |  |  |  |  |  | \nbeneficios, como asimismo, podrá anticipar la fecha de reajuste con el mismo objeto, pudiendo imputarlo al reajuste que se realice en el mes de abril |  |  |  |  |  |  |  |  |  | \nsiguiente. |  |  |  |  |  |  |  |  |  | \nTOPE GENERAL ANUAL POR BENEFICIARIO |  |  |  |  |  |  |  |  |  | \n | U.F. 5.000 | (7) |  |  |  |  |  |  |  | \nCONDICIONES DE VIGENCIA PLAN COLECTIVO Y OTROS GRUPALES (CUANDO CORRESPONDA) |  |  |  |  |  |  |  |  |  | \n1) Que se incorporen al convenio la cantidad de ............... trabajadores como beneficiarios o al menos el 85% de la misma, dentro del plazo de tres |  |  |  |  |  |  |  |  |  | \nmeses contados desde la fecha de suscripción del convenio. Este porcentaje mínimo no podrá disminuir durante la vigencia del convenio. |  |  |  |  |  |  |  |  |  | \n2) Que se mantenga durante la vigencia del convenio, un promedio de cargas legales por afiliado cercana a las ........ personas. |  |  |  |  |  |  |  |  |  | \n3) Que el monto mínimo de cotización mensual del grupo total de los trabajadores afectos al convenio colectivo, no podrá ser inferior a $ ....................... |  |  |  |  |  |  |  |  |  | \no al menos, deberá llegar a un 85% de dicha suma. |  |  |  |  |  |  |  |  |  | \n4) Que el plan o planes de salud contratados se deberán financiar en al menos un 90%. Se entiende por financiamiento al cuociente entre la suma de |  |  |  |  |  |  |  |  |  | \ncotizaciones pagadas de los trabajadores afiliados al convenio colectivo y la suma de precios de los planes de esos trabajadores. |  |  |  |  |  |  |  |  |  | \n5) Que la siniestralidad anual del plan no supere el 85%. Se entiende por siniestralidad el cuociente entre la suma de los gastos de Prestaciones de |  |  |  |  |  |  |  |  |  | \nSalud y Subsidios por Incapacidad Laboral a cargo de la Isapre y la suma de las cotizaciones pagadas en ese mismo período. |  |  |  |  |  |  |  |  |  | \nNOTA:   En caso de Planes Grupales en que se pacte el precio en el porcentaje equivalente a la cotización legal para salud, no se producirán excedentes |  |  |  |  |  |  |  |  |  | \nde cotización de salud. |  |  |  |  |  |  |  |  |  | \nCONDICIONES QUE DEBE CUMPLIR EL AFILIADO PARA INGRESAR Y MANTENERSE EN EL PLAN GRUPAL (CUANDO CORRESPONDA) |  |  |  |  |  |  |  |  |  | \nA ) Que se mantenga permanentemente como trabajador de la empresa. |  |  |  |  |  |  |  |  |  | \nB) Que se mantenga permanentemente como afiliado de CONSALUD. |  |  |  |  |  |  |  |  |  | \nCONDICIONES DE VIGENCIA DEL PLAN MATRIMONIAL (CUANDO CORRESPONDA) |  |  |  |  |  |  |  |  |  | \nA ) Que el cotizante y su cónyuge mantengan la calidad de afiliados vigentes de CONSALUD. |  |  |  |  |  |  |  |  |  | \nB) Que el cotizante y su cónyuge estén de acuerdo en mantener el Plan Matrimonial. |  |  |  |  |  |  |  |  |  | \nTIEMPOS DE ESPERA |  |  |  |  |  |  |  |  |  | \n |  |  | Nº Días Corridos |  |  |  |  | Inicio del Tiempo de Espera |  | \n- CONSULTAS MEDICAS EN ATENCION PRIMARIA |  |  |  | 5 |  |  |  |  |  | \n- CONSULTAS MEDICAS EN ESPECIALIDAD |  |  |  | 7 |  | Los tiempos de espera definidos, se cuentan a partir de la fecha en que el |  |  |  | \n- EXAMENES |  |  |  | 4 |  | beneficiario suscriba el documento de Solicitud de Contabilización del Tiempo |  |  |  | \n- PROCEDIMIENTOS DIAGNOSTICOS Y TERAPEUTICOS |  |  |  | 10 |  | de Espera en nuestras oficinas. |  |  |  | \n- INTERVENCIONES QUIRURGICAS |  |  |  | 14 |  |  |  |  |  | \n- HOSPITALIZACIONES EN OTORRINO - OFTALMOLOGIA |  | -NEUROCIRUGÍA |  | 30 |  |  |  |  |  | \n |  |  |  |  |  |  |  |  | FIRMA REPRESENTANTE ISAPRE | \nFIRMA   AFILIADO: |  |  |  |  |  |  |  |  | NOMBRE : | \nNOMBRE : |  |  |  |  |  |  |  |  | RUT : | \nRUT : |  |  |  |  |  |  |  |  | FECHA : | \nFECHA : |  |  |  |  |  |  |  |  |  | \n |  |  |  | HUELLA DACTILAR AFILIADO |  |  |  |  |  | \n\n--- PÁGINA 4 ---\n1) PRESTACIONES |  |  |  |  |  |  |  |  | \na) Hospitalarias: Son aquellas que requieren de día cama |  |  |  | . |  |  |  |  | \nb) Ambulatorias: Son aquellas |  | no consideradas en la definición anterior. |  |  |  |  |  |  | \n2) MEDICAMENTOS Y MATERIALES CLINICOS HOSPITALARIOS: |  |  |  |  | Son aquellos medicamentos y materiales clínicos recibidos por el beneficiario por causa de |  |  |  | \n | prestaciones hospitalarias. Sólo serán objeto de bonificación, aquellos medicamentos y materiales clínicos que el establecimiento hospitalario haya conside- |  |  |  |  |  |  |  | \n | rado en su factura. Se excluyen de este ítem los medicamentos y materiales clínicos por tratamiento de cáncer y hospitalización psiquiátrica; dado que en |  |  |  |  |  |  |  | \n | ambos casos se bonificarán en los porcentajes y topes específicos definidos para los ítems Drogas Citotóxicas en Ciclos de Quimioterapia y Hospitalización |  |  |  |  |  |  |  | \n | Psiquiátrica respectivamente. Se excluyen asimismo de la oferta preferente, los medicamentos y materiales clínicos por, tratamiento de infertilidad y fibrosis |  |  |  |  |  |  |  | \n | quística del páncreas, dado que se bonificarán en los porcentajes y topes específicos definidos para la modalidad de libre elección. El tope indicado se aplica |  |  |  |  |  |  |  | \n | por evento/beneficiario.” |  |  |  |  |  |  |  | \n3) HOSPITALIZACION PSIQUIATRICA: |  |  | La bonificación por consultas y tratamientos hospitalarios, como asimismo los medicamentos que se reciban durante |  |  |  |  |  | \n | la hospitalización, se deben sumar para considerar la aplicación del tope de bonificación por año contrato. A modo de ejemplo y sin que esta enumeración sea |  |  |  |  |  |  |  | \n | taxativa, se detallan las siguientes prestaciones que se considerarán para la determinación de este tope: días cama, medicamentos, exámenes, consultas |  |  |  |  |  |  |  | \n | médicas. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes ni después de llegado al tope, será inferior al 25% |  |  |  |  |  |  |  | \n | de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada. |  |  |  |  |  |  |  | \n4) ATENCIONES INTEGRALES DE ENFERMERIA EN DOMICILIO: |  |  |  |  | Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo cuando sean mayores |  |  |  | \n | de 55 años, o mayores de 15 años que se encuentren postrados o en estado terminal. |  |  |  |  |  |  |  | \n5) ATENCIONES INTEGRALES DE ENFERMERIA EN CENTRO DE ADULTO MAYOR: |  |  |  |  |  | Se bonificará la atención que reciba el afiliado y sus beneficiarios, sólo |  |  | \n | cuando sean mayores de 55 años. |  |  |  |  |  |  |  | \n6) TOPES DE BONIFICACION: |  | Los topes de bonificación se expresan en UF o en veces el Arancel Consalud (AC2). Los topes en UF se calcularán al valor |  |  |  |  |  |  | \n | oficial registrado por dicha unidad el último día del mes anterior a la fecha en que se bonifica la prestación. |  |  |  |  |  |  |  | \n7) VALORIZACION TOPES ANUALES: |  |  | Para el Tope General Anual por Beneficiario y el Monto Máximo de Bonificación, se contabilizarán las prestaciones que |  |  |  |  |  | \n | correspondan, las que en caso de estar expresado el tope en U.F. se valorizarán según el valor que tenga dicha unidad el día en que se bonifica la prestación |  |  |  |  |  |  |  | \n | por un periodo máximo de un año de vigencia de beneficios. Asimismo, se aclara que la bonificación de cada prestación específica en ningún caso, ni antes |  |  |  |  |  |  |  | \n | ni después de llegado al tope, será inferior al 25% de la definida en el plan general convenido para la prestación genérica con que se encuentre relacionada, |  |  |  |  |  |  |  | \n | ni   podrán tener una bonificación inferior a la cobertura financiera que el Fondo Nacional de Salud asegura, en modalidad libre elección a todas las |  |  |  |  |  |  |  | \n | prestaciones contempladas en el arancel que se refiere el articulo 31 de la Ley Nª19.666 que establece el Régimen General de Garantías de Salud. |  |  |  |  |  |  |  | \n8) DROGAS CITOTOXICAS EN CICLOS DE QUIMIOTERAPIA |  |  |  |  | : Corresponde a medicamentos de uso endovenoso. Excluye medicamentos orales, medicamen- |  |  |  | \n | tos coadyuvantes, medicamentos hormonales, interferon, interleukina, anticuerpos monoclonales, analgésicos, antihistamínicos, soluciones parenterales, |  |  |  |  |  |  |  | \n | alimentos parenterales y medicamentos estimulantes de colonias. |  |  |  |  |  |  |  | \n11) MARCOS Y CRISTALES OPTICOS |  |  | : Corresponderá la bonificación de los marcos y cristales ópticos sólo con la presentación de la boleta correspondiente. |  |  |  |  |  | \n12) PRESTACIONES DENTALES (PAD): |  |  | Podrán acceder a la bonificación de los tratamientos contemplados en los PAD de prestaciones dentales los beneficia- |  |  |  |  |  | \n | rios que tengan entre 12 años y 17 años 11 meses 29 días, que presenten caries de una o más piezas dentales. Los códigos FONASA de los PAD sujetos |  |  |  |  |  |  |  | \n | a cobertura son: 2503001, 2503002, 2503003, 2503004, 2503005 y 25-03-006. La cobertura se entregará vía IMED en los prestadores en convenio y de |  |  |  |  |  |  |  | \n | acceder a la prestación en un prestador sin convenio la cobertura se entregará vía reembolso. |  |  |  |  |  |  |  | \nCONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES |  |  |  |  |  |  |  |  | \nA ) Los prestadores hospitalarios del plan de salud serán exclusivamente Hospital Clínico de la Red de Salud UC Christus, Clínica Santa Maria, Clínica Dávila, |  |  |  |  |  |  |  |  | \n | Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa, en Habitación individual. La Habitación Individual se utilizará |  |  |  |  |  |  |  | \n | según disponibilidad de la clínica y en caso de no existir disponibilidad, se utilizará habitación doble o la siguiente que exista disponible de menor valor. |  |  |  |  |  |  |  | La\n | bonificación preferente del día cama, tendrá como tope máximo la que corresponde al día cama individual estándar (habitación con baño privado de menor |  |  |  |  |  |  |  | \n | precio del prestador) y las diferencias de uso por habitaciones superiores (suite, departamentos u otras) serán de cargo del beneficiario. |  |  |  |  |  |  |  | \n | A.1) Las Consultas Médicas, procedimientos ambulatorios y los Honorario Médicos por prestaciones hospitalarias en Hospital Clínico de la Red de |  |  |  |  |  |  |  | \n | Salud UC Christus , tendrán cobertura preferente cuando sean efectuadas por médicos Staff ASOMEDUC en convenio entre |  |  |  |  |  |  | Isapre Consalud y la | \n | Institución de Salud señalada para cada prestación otorgada en el plan. En caso de no cumplir estas condiciones, la cobertura preferente se |  |  |  |  |  |  |  | \n | aplicará solo a la facturación de la clínica y los Honorarios Médicos serán bonificados de acuerdo a la modalidad libre elección. |  |  |  |  |  |  |  | \n | A.2) Las Consultas Médicas, procedimientos ambulatorios y los Honorario Médicos por prestaciones hospitalarias realizadas en Clínica Santa Maria, |  |  |  |  |  |  |  | \n | Clínica Dávila, Clínica Vespucio, Clínica Avansalud, Clínica Bicentenario, Clínica Tabancura y Clínica Indisa , tendrán cobertura preferente cuando |  |  |  |  |  |  |  | \n | sean efectuadas por médicos Staff en convenio entre |  |  |  | Isapre Consalud y las Instituciones de Salud señaladas para cada prestación otorgada en |  |  |  | \n | el plan. En caso de no cumplir estas condiciones, la cobertura preferente se aplicará solo a la facturación de la clínica y los Honorarios Médicos |  |  |  |  |  |  |  | \n | serán bonificados de acuerdo a la modalidad libre elección. |  |  |  |  |  |  |  | \n | La cobertura preferente aplicará exclusivamente para aquellas prestaciones que forman parte de la capacidad técnica del prestador preferente |  |  |  |  |  |  |  | \n | nominado en el plan y no se extenderá a aquellas que por falta de tal capacidad, sean otorgadas por prestadores distintos a los de la oferta |  |  |  |  |  |  |  | \n | preferente. |  |  |  |  |  |  |  | \nB) El afiliado debe considerar que aquellas prestaciones específicas que, pudiendo entenderse incorporadas en la oferta preferente, no se realizan por el |  |  |  |  |  |  |  |  | \n | respectivo prestador, serán derivadas por la Isapre a un prestador de similares características, en cuyo caso se mantendrán las condiciones de cobertura |  |  |  |  |  |  |  | \n | del plan. |  |  |  |  |  |  |  | \nC) En caso de insuficiencia de un prestador en convenio, es decir, cuando por falta de profesionales o medios, aquéllos se encuentran imposibilitados |  |  |  |  |  |  |  |  | \n | temporalmente de realizar alguna de las prestaciones que forman parte de la oferta preferente y ha transcurrido el tiempo de espera previsto en el Plan de |  |  |  |  |  |  |  | \n | Salud para el otorgamiento de las mismas, el beneficiario tendrá el derecho de solicitar a Isapre CONSALUD la derivación a otro prestador, en cuyo caso rige |  |  |  |  |  |  |  | \n | lo mismo señalado en el punto B). Esta derivación sólo tendrá por objeto el otorgamiento de las prestaciones específicas que no pudieron ser brindadas por |  |  |  |  |  |  |  | \n | los prestadores preferentes. Las prestaciones que se otorguen con ocasión de la derivación, deberán ser bonificadas por la Isapre manteniendo el monto que |  |  |  |  |  |  |  | \n | le habría correspondido copagar al afiliado de haberse atendido en el prestador que dio origen a la derivación. |  |  |  |  |  | De realizarse la atención en un prestador |  | \n | distinto a los prestadores preferentes sin la autorización expresa de CONSALUD, la cobertura se hará bajo la modalidad libre elección. Esta solicitud de |  |  |  |  |  |  |  | \n | derivación se podrá solicitar en el formulario correspondiente en cualquier oficina de Consalud o en los puestos de atención que la Isapre tiene en las oficinas |  |  |  |  |  |  |  | \n | de los prestadores preferentes y, en días festivos u horarios inhábiles, podrá hacerse al fono 600-Consalud, para obtener respuesta a más tardar al día hábil |  |  |  |  |  |  |  | \n | siguiente. |  |  |  |  |  |  |  | \nD) Para recibir Atenciones de Urgencia el afiliado deberá acudir a alguno de los prestadores indicados en el recuadro «ATENCIONES DE URGENCIA» del Plan de |  |  |  |  |  |  |  |  | \n | Salud. La bonificación en estos prestadores será la correspondiente a «OFERTA PREFERENTE». En caso de que la atención de urgencia ocurra en un |  |  |  |  |  |  |  | \n | prestador distinto a los señalados en el Plan, la cobertura se hará según lo indicado en « CUADRO DE COBERTURA EN LIBRE ELECCION». |  |  |  |  |  |  |  | \nE) El afiliado que con ocasión de una emergencia haya ingresado a un prestador distinto de los mencionados en el recuadro «ATENCIONES DE URGENCIA» del |  |  |  |  |  |  |  |  | \n | esquema del Plan de Salud, tendrá derecho a ser trasladado a alguno de los prestadores individualizados en el Plan de Salud, para acceder a la «OFERTA |  |  |  |  |  |  |  | \n | PREFERENTE». Por su parte CONSALUD tendrá el derecho a trasladar al afiliado a uno de estos prestadores una vez que lo autorice el médico tratante. Si el |  |  |  |  |  |  |  | \n | afiliado no accede a este traslado y opta por permanecer en el prestador en que se encuentre, la cobertura se hará bajo modalidad libre elección. |  |  |  |  |  |  |  | \nF) Las prestaciones de salud que el afiliado reciba en el extranjero, sólo serán cubiertas en caso de urgencia. La cobertura se regirá de acuerdo a lo indicado |  |  |  |  |  |  |  |  | \n | en «CUADRO DE COBERTURA EN LIBRE ELECCION». El afiliado, deberá entregar en la sucursal de Isapre consalud, la documentación (antecedentes médicos |  |  |  |  |  |  |  | \n | y documentos de cobro) traducidos al español y debidamente legalizada por el consulado respectivo, es decir, en el País donde recibió la atención de urgencia. |  |  |  |  |  |  |  | \n | El plazo para presentar dicha documentación, es de 90 días desde la emisión de la factura. |  |  |  |  |  |  |  | \nG) El término del convenio entre un prestador e Isapre CONSALUD, o cualquier modificación que éstos le introduzcan, no afectará el monto que, en virtud del plan |  |  |  |  |  |  |  |  | \n | contratado, le corresponde copagar a los beneficiarios por las atenciones recibidas del respectivo prestador, hasta la anualidad que corresponda, al |  |  |  |  |  |  |  | \n | cumplimiento de la cual la Isapre podrá adecuar el contrato. |  |  |  |  |  |  |  | \nH) Si durante la vigencia del plan contratado, terminare la existencia legal del o los prestadores individualizados en el plan o éstos experimentaren una pérdida |  |  |  |  |  |  |  |  | \n | total de su infraestructura o una paralización permanente de sus actividades, la Isapre deberá comunicar por escrito dicho evento a cada uno de los |  |  |  |  |  |  |  | \n | cotizantes afectados, junto con las alternativas de planes que dispone para ellos. En esta oferta deberá contemplarse como mínimo, el Plan de Salud que tenga |  |  |  |  |  |  |  | \n | el precio que más se ajuste al monto de la cotización legal que corresponda a la remuneración del afiliado al momento de modificarse el contrato. |  |  |  |  |  |  |  | \n\n--- PÁGINA 5 ---\nCONDICIONES Y CARACTERISTICAS DE LA OFERTA PREFERENTE DEL PLAN CON PRESTADORES PREFERENTES | \nI)   Si durante la vigencia del plan contratado, el o los prestadores individualizados en el plan experimentaren una pérdida parcial y permanente de su | \ninfraestructura o una sustitución de la especialidad médica a que estaban orientados al momento de celebrarse el contrato, la Isapre deberá | \ncomunicar por escrito dicho evento a cada uno de los cotizantes afectados, junto con las alternativas de planes que dispone para ellos. En esta | \noferta deberá contemplarse como mínimo, el Plan de Salud que tenga el precio que más se ajuste al monto de la cotización legal que corresponda | \na la remuneración del afiliado al momento de modificarse el contrato. | \nJ)   CONSALUD ofrecerá un nuevo Plan de Salud al afiliado si este así lo requiere, y su petición se fundamenta en alguna de las siguientes situaciones: | \n• Modificación del domicilio consignado al incorporarse al plan y que se acredite que dicho cambio dificulta significativamente el acceso de los | \nbeneficiarios a los prestadores individualizados en el plan. | \n• Incumplimiento por parte de la Isapre de la derivación señalada en el punto C) precedente, o derivación a un prestador distinto de los indicados | \nen el presente Plan de Salud o por falta de atención efectiva y oportuna por parte del prestador derivado. | \n• Falta de otorgamiento de la atención de salud al cotizante o beneficiario que se ha ceñido a los procedimientos de acceso y derivación definidos | \nen el Plan. | \nK )   Si el afiliado, producto de la atención de urgencia integral, debe quedar hospitalizado, deberá cancelar el copago fijo que corresponda de acuerdo | \nal tipo de atención señalado en el cuadro \"ATENCIÓN INTEGRAL DE URGENCIA\" más el copago correpondiente a la hospitalización respectiva. | \nL)   CENTROS MÉDICOS DE LA RED DE SALUD UC CHRISTUS EN CONVENIO: | \n• | Centro Médico San Joaquín ( Av. Vicuña Mackenna 4686 )\n• | Centro de Especialidades Médicas (Marcoleta 350)\n• | Centro Médico Irarrázaval (Av. Irarrázaval 4949 Ñuñoa)\n• | Centro Médico Lira (Lira 85, 5to piso)\n• | Centro Médico San Jorge (Nevería 4444 )\n• | Edificio Médico Alcántara (Av. Apoquindo 3990 )",
   "metrics": {
-    "executionTimeMs": 425590,
+    "executionTimeMs": 189838,
     "tokenUsage": {
-      "input": 35383,
-      "output": 35240,
-      "total": 70623,
-      "costClp": 128,
+      "input": 33703,
+      "output": 29348,
+      "total": 63051,
+      "costClp": 108,
       "totalPages": 5,
       "phaseSuccess": {
         "CLASSIFIER": true,
@@ -3392,99 +2160,99 @@
         "AMB_P2": true,
         "AMB_P3": true,
         "AMB_P4": true,
-        "EXTRAS": true
+        "EXTRAS": false
       },
       "phases": [
         {
           "phase": "Clasificación",
-          "totalTokens": 3561,
+          "totalTokens": 3579,
           "promptTokens": 3338,
-          "candidatesTokens": 223,
+          "candidatesTokens": 241,
           "estimatedCostCLP": 3
         },
         {
           "phase": "Reglas_P1",
-          "totalTokens": 4913,
+          "totalTokens": 5150,
           "promptTokens": 2863,
-          "candidatesTokens": 2050,
-          "estimatedCostCLP": 8
+          "candidatesTokens": 2287,
+          "estimatedCostCLP": 9
         },
         {
           "phase": "Reglas_P2",
-          "totalTokens": 5073,
+          "totalTokens": 4269,
           "promptTokens": 2793,
-          "candidatesTokens": 2280,
-          "estimatedCostCLP": 9
-        },
-        {
-          "phase": "Anexos_P1",
-          "totalTokens": 4150,
-          "promptTokens": 2779,
-          "candidatesTokens": 1371,
+          "candidatesTokens": 1476,
           "estimatedCostCLP": 6
         },
         {
-          "phase": "Anexos_P2",
-          "totalTokens": 4960,
-          "promptTokens": 2771,
-          "candidatesTokens": 2189,
-          "estimatedCostCLP": 8
-        },
-        {
-          "phase": "Hosp_P1",
-          "totalTokens": 9504,
-          "promptTokens": 3759,
-          "candidatesTokens": 5745,
-          "estimatedCostCLP": 19
-        },
-        {
-          "phase": "Hosp_P2",
-          "totalTokens": 9698,
-          "promptTokens": 3971,
-          "candidatesTokens": 5727,
-          "estimatedCostCLP": 19
-        },
-        {
-          "phase": "Amb_P1",
-          "totalTokens": 5771,
-          "promptTokens": 3495,
-          "candidatesTokens": 2276,
+          "phase": "Anexos_P1",
+          "totalTokens": 5310,
+          "promptTokens": 2779,
+          "candidatesTokens": 2531,
           "estimatedCostCLP": 9
         },
         {
-          "phase": "Amb_P2",
-          "totalTokens": 7039,
-          "promptTokens": 2139,
-          "candidatesTokens": 4900,
+          "phase": "Anexos_P2",
+          "totalTokens": 370,
+          "promptTokens": 171,
+          "candidatesTokens": 199,
+          "estimatedCostCLP": 1
+        },
+        {
+          "phase": "Hosp_P1",
+          "totalTokens": 4483,
+          "promptTokens": 3759,
+          "candidatesTokens": 724,
+          "estimatedCostCLP": 4
+        },
+        {
+          "phase": "Hosp_P2",
+          "totalTokens": 12056,
+          "promptTokens": 3971,
+          "candidatesTokens": 8085,
+          "estimatedCostCLP": 26
+        },
+        {
+          "phase": "Amb_P1",
+          "totalTokens": 8192,
+          "promptTokens": 3495,
+          "candidatesTokens": 4697,
           "estimatedCostCLP": 16
         },
         {
+          "phase": "Amb_P2",
+          "totalTokens": 7058,
+          "promptTokens": 3449,
+          "candidatesTokens": 3609,
+          "estimatedCostCLP": 13
+        },
+        {
           "phase": "Amb_P3",
-          "totalTokens": 9057,
-          "promptTokens": 2245,
-          "candidatesTokens": 6812,
-          "estimatedCostCLP": 22
+          "totalTokens": 7207,
+          "promptTokens": 3555,
+          "candidatesTokens": 3652,
+          "estimatedCostCLP": 13
         },
         {
           "phase": "Amb_P4",
-          "totalTokens": 5127,
+          "totalTokens": 5377,
           "promptTokens": 3530,
-          "candidatesTokens": 1597,
-          "estimatedCostCLP": 7
+          "candidatesTokens": 1847,
+          "estimatedCostCLP": 8
         },
         {
           "phase": "Extras",
-          "totalTokens": 1770,
-          "promptTokens": 1700,
-          "candidatesTokens": 70,
-          "estimatedCostCLP": 2
+          "totalTokens": 0,
+          "promptTokens": 0,
+          "candidatesTokens": 0,
+          "estimatedCostCLP": 0
         }
       ]
     },
     "extractionBreakdown": {
-      "totalReglas": 34,
-      "totalCoberturas": 124,
-      "totalItems": 158
+      "totalReglas": 27,
+      "totalCoberturas": 76,
+      "totalItems": 103
     }
   }
 }

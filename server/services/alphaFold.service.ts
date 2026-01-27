@@ -4,7 +4,7 @@ import {
     HypothesisScore,
     HypothesisId,
     ConstraintsViolation
-} from '../../types.js';
+} from '../../src/types.js';
 
 // Helper for fuzzy matching / scoring
 const clamp = (val: number) => Math.min(1, Math.max(0, val));

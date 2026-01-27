@@ -1,0 +1,748 @@
+{
+  "metadata": {
+    "origen": "segmentador-bloques",
+    "fuente": "Contrato 13-RSE500-17-2 (5).pdf"
+  },
+  "bloques": [
+    {
+      "bloque_id": "PREF_BLK_1",
+      "pagina_inicio": 2,
+      "linea_inicio": 43,
+      "columna_inicio": 3,
+      "modalidad": "preferente",
+      "tipo_bloque": "bloque_compuesto",
+      "porcentaje": 80,
+      "tope": {
+        "existe": false,
+        "unidad": null,
+        "valor": null,
+        "razon": "SIN_TOPE_EXPRESO"
+      },
+      "texto_fuente": "80% Sin Tope:",
+      "reglas": [
+        {
+          "regla_id": "PREF_BLK_1_R1",
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "prestadores": []
+        }
+      ],
+      "texto_expandido": "80% Sin Tope: DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA DIA CAMA: SALA CUNA"
+    },
+    {
+      "bloque_id": "PREF_BLK_2",
+      "pagina_inicio": 2,
+      "linea_inicio": 46,
+      "columna_inicio": 3,
+      "modalidad": "preferente",
+      "tipo_bloque": "bloque_compuesto",
+      "porcentaje": 80,
+      "tope": {
+        "existe": false,
+        "unidad": null,
+        "valor": null,
+        "razon": "SIN_TOPE_EXPRESO"
+      },
+      "texto_fuente": "80% Sin Tope:",
+      "reglas": [
+        {
+          "regla_id": "PREF_BLK_2_R1",
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "prestadores": [
+            "Clínica Tabancura",
+            "Clínica Indisa"
+          ],
+          "condicion": "A.2 Modalidad Institucional"
+        }
+      ],
+      "texto_expandido": "80% Sin Tope:  Clínica Tabancura, Clínica Indisa (Modalidad Institucional (A.2))"
+    },
+    {
+      "bloque_id": "PREF_BLK_3",
+      "pagina_inicio": 2,
+      "linea_inicio": 51,
+      "columna_inicio": 3,
+      "modalidad": "preferente",
+      "tipo_bloque": "bloque_compuesto",
+      "porcentaje": 90,
+      "tope": {
+        "existe": false,
+        "unidad": null,
+        "valor": null,
+        "razon": "SIN_TOPE_EXPRESO"
+      },
+      "texto_fuente": "90% Sin Tope en:",
+      "reglas": [
+        {
+          "regla_id": "PREF_BLK_3_R1",
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "prestadores": [
+            "Clínica Avansalud",
+            "Clínica Bicentenario HONORARIOS M",
+            "HOSPITALARIOS"
+          ]
+        }
+      ],
+      "texto_expandido": "90% Sin Tope en:  Clínica Avansalud, Clínica Bicentenario HONORARIOS MÉDICOS QUIRÚRGICOS  VISITA POR MÉDICO INTERCONSULTOR  VISITA POR MÉDICO TRATANTE MEDICAMENTOS HOSPITALARIOS (2) 30 20"
+    },
+    {
+      "bloque_id": "LE_BLK_4",
+      "pagina_inicio": 2,
+      "linea_inicio": 52,
+      "columna_inicio": 5,
+      "modalidad": "libre_eleccion",
+      "tipo_bloque": "porcentaje",
+      "porcentaje": 90,
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "90%"
+    },
+    {
+      "bloque_id": "PREF_BLK_5",
+      "pagina_inicio": 2,
+      "linea_inicio": 59,
+      "columna_inicio": 3,
+      "modalidad": "preferente",
+      "tipo_bloque": "exclusion_modalidad",
+      "porcentaje": null,
+      "excluye": "preferente",
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "Solo cobertura libre elección"
+    },
+    {
+      "bloque_id": "PREF_BLK_6",
+      "pagina_inicio": 2,
+      "linea_inicio": 63,
+      "columna_inicio": 4,
+      "modalidad": "preferente",
+      "tipo_bloque": "bloque_compuesto",
+      "porcentaje": 70,
+      "tope": {
+        "existe": false,
+        "unidad": null,
+        "valor": null,
+        "razon": "SIN_TOPE_EXPRESO"
+      },
+      "texto_fuente": "70 % Sin Tope en:",
+      "reglas": [
+        {
+          "regla_id": "PREF_BLK_6_R1",
+          "porcentaje": 70,
+          "tope": "SIN_TOPE",
+          "prestadores": [
+            "Clínica Indisa",
+            "Arauco Salud 2"
+          ]
+        }
+      ],
+      "texto_expandido": "70 % Sin Tope en:  Clínica Indisa y Arauco Salud 2,0 HONORARIOS MÉDICOS QUIRÚRGICOS"
+    },
+    {
+      "bloque_id": "PREF_BLK_7",
+      "pagina_inicio": 2,
+      "linea_inicio": 68,
+      "columna_inicio": 3,
+      "modalidad": "preferente",
+      "tipo_bloque": "bloque_compuesto",
+      "porcentaje": 80,
+      "tope": {
+        "existe": false,
+        "unidad": null,
+        "valor": null,
+        "razon": "SIN_TOPE_EXPRESO"
+      },
+      "texto_fuente": "80% Sin Tope:",
+      "reglas": [
+        {
+          "regla_id": "PREF_BLK_7_R1",
+          "porcentaje": 80,
+          "tope": "SIN_TOPE",
+          "prestadores": [
+            "Clínica Sin Tope"
+          ]
+        }
+      ],
+      "texto_expandido": "80% Sin Tope:  y Clínica Sin Tope"
+    },
+    {
+      "bloque_id": "LE_BLK_8",
+      "pagina_inicio": 2,
+      "linea_inicio": 70,
+      "columna_inicio": 6,
+      "modalidad": "libre_eleccion",
+      "tipo_bloque": "porcentaje",
+      "porcentaje": 80,
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "80%"
+    },
+    {
+      "bloque_id": "PREF_BLK_9",
+      "pagina_inicio": 2,
+      "linea_inicio": 74,
+      "columna_inicio": 3,
+      "modalidad": "preferente",
+      "tipo_bloque": "exclusion_modalidad",
+      "porcentaje": null,
+      "excluye": "preferente",
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "Solo cobertura libre elección"
+    },
+    {
+      "bloque_id": "PREF_BLK_10",
+      "pagina_inicio": 2,
+      "linea_inicio": 80,
+      "columna_inicio": 3,
+      "modalidad": "preferente",
+      "tipo_bloque": "porcentaje",
+      "porcentaje": 25,
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "25% de la cobertura gral. del plan"
+    },
+    {
+      "bloque_id": "PREF_BLK_11",
+      "pagina_inicio": 2,
+      "linea_inicio": 81,
+      "columna_inicio": 2,
+      "modalidad": "preferente",
+      "tipo_bloque": "exclusion_modalidad",
+      "porcentaje": null,
+      "excluye": "preferente",
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "Solo cobertura libre elección"
+    },
+    {
+      "bloque_id": "PREF_BLK_12",
+      "pagina_inicio": 2,
+      "linea_inicio": 82,
+      "columna_inicio": 4,
+      "modalidad": "preferente",
+      "tipo_bloque": "porcentaje",
+      "porcentaje": 70,
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "70 %"
+    },
+    {
+      "bloque_id": "PREF_BLK_13",
+      "pagina_inicio": 2,
+      "linea_inicio": 83,
+      "columna_inicio": 4,
+      "modalidad": "preferente",
+      "tipo_bloque": "porcentaje",
+      "porcentaje": 70,
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "70 %"
+    },
+    {
+      "bloque_id": "PREF_BLK_14",
+      "pagina_inicio": 2,
+      "linea_inicio": 85,
+      "columna_inicio": 3,
+      "modalidad": "preferente",
+      "tipo_bloque": "porcentaje",
+      "porcentaje": 90,
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "90 %"
+    },
+    {
+      "bloque_id": "LE_BLK_15",
+      "pagina_inicio": 2,
+      "linea_inicio": 85,
+      "columna_inicio": 5,
+      "modalidad": "libre_eleccion",
+      "tipo_bloque": "exclusion_modalidad",
+      "porcentaje": null,
+      "excluye": "preferente",
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "Solo cobertura libre elección"
+    },
+    {
+      "bloque_id": "PREF_BLK_16",
+      "pagina_inicio": 2,
+      "linea_inicio": 87,
+      "columna_inicio": 4,
+      "modalidad": "preferente",
+      "tipo_bloque": "porcentaje",
+      "porcentaje": 90,
+      "tope": {
+        "existe": null,
+        "unidad": null,
+        "valor": null,
+        "razon": null
+      },
+      "texto_fuente": "90 %"
+    }
+  ],
+  "asignaciones": [
+    {
+      "pagina": 2,
+      "indice_linea": 43,
+      "prestacion_textual": "MAYOR AMBULATORIA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_1"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 44,
+      "prestacion_textual": "DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_1"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 45,
+      "prestacion_textual": "DIA CAMA: SALA CUNA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_1"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 46,
+      "prestacion_textual": "DIA CAMA CUIDADOS INTENSIVOS O CORONARIOS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 47,
+      "prestacion_textual": "DERECHO DE PABELLÓN",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 48,
+      "prestacion_textual": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 49,
+      "prestacion_textual": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 50,
+      "prestacion_textual": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_2"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 51,
+      "prestacion_textual": "PROCEDIMIENTOS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_3"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 52,
+      "prestacion_textual": "KINESIOLOGÍA y FISIOTERAPIA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_3"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 52,
+      "prestacion_textual": "KINESIOLOGÍA y FISIOTERAPIA",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 53,
+      "prestacion_textual": "EXÁMENES LABORATORIO",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_3"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 53,
+      "prestacion_textual": "EXÁMENES LABORATORIO",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 54,
+      "prestacion_textual": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_3"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 54,
+      "prestacion_textual": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 55,
+      "prestacion_textual": "VISITA POR MÉDICO INTERCONSULTOR",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_3"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 55,
+      "prestacion_textual": "VISITA POR MÉDICO INTERCONSULTOR",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 56,
+      "prestacion_textual": "VISITA POR MÉDICO TRATANTE",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_3"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 56,
+      "prestacion_textual": "VISITA POR MÉDICO TRATANTE",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 57,
+      "prestacion_textual": "MEDICAMENTOS HOSPITALARIOS (2)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_3"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 57,
+      "prestacion_textual": "MEDICAMENTOS HOSPITALARIOS (2)",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 58,
+      "prestacion_textual": "MATERIALES CLÍNICOS (2)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_3"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 58,
+      "prestacion_textual": "MATERIALES CLÍNICOS (2)",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 59,
+      "prestacion_textual": "TRASLADOS MÉDICOS",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 60,
+      "prestacion_textual": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 61,
+      "prestacion_textual": "QUIMIOTERAPIA (8)",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_4"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 63,
+      "prestacion_textual": "CONSULTAS MÉDICAS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_6"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 64,
+      "prestacion_textual": "EXÁMENES LABORATORIO",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_6"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 65,
+      "prestacion_textual": "PROCEDIMIENTOS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_6"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 66,
+      "prestacion_textual": "PABELLÓN AMBULATORIO",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_6"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 67,
+      "prestacion_textual": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_6"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 68,
+      "prestacion_textual": "BOX AMBULATORIO",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_7"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 69,
+      "prestacion_textual": "KINESIOLOGÍA y FISIOTERAPIA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_7"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 70,
+      "prestacion_textual": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_7"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 70,
+      "prestacion_textual": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_8"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 71,
+      "prestacion_textual": "0,8 veces AC2",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_7"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 71,
+      "prestacion_textual": "0,8 veces AC2",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_8"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 72,
+      "prestacion_textual": "RADIOTERAPIA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_7"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 72,
+      "prestacion_textual": "RADIOTERAPIA",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_8"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 73,
+      "prestacion_textual": "FONOAUDIOLOGÍA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_7"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 73,
+      "prestacion_textual": "FONOAUDIOLOGÍA",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_8"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 74,
+      "prestacion_textual": "QUIMIOTERAPIA (8)",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_8"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 75,
+      "prestacion_textual": "PRÓTESIS Y ÓRTESIS",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_8"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 76,
+      "prestacion_textual": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_8"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 77,
+      "prestacion_textual": "ATENCIÓN INTEGRAL DE NUTRICIONISTA",
+      "modalidad": "libre_eleccion",
+      "bloque_id": "LE_BLK_8"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 80,
+      "prestacion_textual": "CIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_10"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 82,
+      "prestacion_textual": "HOSPITALIZACIÓN PSIQUIATRICA (3)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_12"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 83,
+      "prestacion_textual": "CONSULTA / TRATAMIENTO PSIQUIATRÍA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_13"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 84,
+      "prestacion_textual": "OTRAS COBERTURAS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_13"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 85,
+      "prestacion_textual": "MARCOS Y CRISTALES ÓPTICOS (11)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_14"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 86,
+      "prestacion_textual": "COBERTURA INTERNACIONAL (F)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_14"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 87,
+      "prestacion_textual": "TRASLADOS MEDICOS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 89,
+      "prestacion_textual": "ATENCIÓN DE URGENCIA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 90,
+      "prestacion_textual": "Exámenes, Imágenes, Procedimientos y Pabellón.",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 91,
+      "prestacion_textual": "PRESTADORES DERIVADOS",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 92,
+      "prestacion_textual": "ATENCIÓN",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 93,
+      "prestacion_textual": "DE URGENCIA (D) (L) (N)",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 94,
+      "prestacion_textual": "URGENCIA NORMAL",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 95,
+      "prestacion_textual": "URGENCIA ADULTO",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    },
+    {
+      "pagina": 2,
+      "indice_linea": 96,
+      "prestacion_textual": "URGENCIA PEDIÁTRICA",
+      "modalidad": "preferente",
+      "bloque_id": "PREF_BLK_16"
+    }
+  ]
+}

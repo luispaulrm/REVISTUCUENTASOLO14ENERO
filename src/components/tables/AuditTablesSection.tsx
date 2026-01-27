@@ -1,7 +1,7 @@
 // components/tables/AuditTablesSection.tsx
 import React, { useMemo } from "react";
-import type { AuditJSON, PamJSON, CuentaJSON } from "../../server/tables/types";
-import { buildAllTables } from "../../server/tables/buildAll";
+import type { AuditJSON, PamJSON, CuentaJSON } from "../../../server/tables/types";
+import { buildAllTables } from "../../../server/tables/buildAll";
 import { TableView } from "./TableView";
 
 export function AuditTablesSection(props: {

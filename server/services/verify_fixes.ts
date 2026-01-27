@@ -80,7 +80,7 @@ async function testFixes() {
         ]
     };
 
-    const processedEvents = preProcessEventos(mockPam);
+    const processedEvents = await preProcessEventos(mockPam);
     console.log('Processed Events Count:', processedEvents.length);
     const urgencyEvent = processedEvents.find(e => e.prestador === "URGENCIA CLINICA");
     if (urgencyEvent && urgencyEvent.posible_continuidad && urgencyEvent.recomendacion_accion === "IMPUGNAR") {
