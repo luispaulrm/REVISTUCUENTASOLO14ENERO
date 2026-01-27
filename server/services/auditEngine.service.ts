@@ -978,11 +978,11 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
     const hasTopesArray = Array.isArray(contratoJson.topes) || Array.isArray(contratoJson.contrato?.topes);
     const hasCoberturasArray = Array.isArray(contratoJson.coberturas) || Array.isArray(contratoJson.contrato?.coberturas);
 
-    const isSemanticCanonical = hasMetadata && (hasCoberturasArray || hasTopesArray);
-    const isHighFidelity = hasCoberturasArray && (contratoJson.coberturas?.some((c: any) => Array.isArray(c.modalidades)) || contratoJson.contrato?.coberturas?.some((c: any) => Array.isArray(c.modalidades)));
-
-    // Schema V3 Detection (Sibling structure: { contrato, auditoria_schema })
     const isSchemaV3 = !!contratoJson.auditoria_schema || !!contratoJson.definiciones || (!!contratoJson.contrato && (!!contratoJson.contrato.auditoria_schema || !!contratoJson.auditoria_schema));
+    const isSemanticCanonical = !isSchemaV3 && hasMetadata && (hasCoberturasArray || hasTopesArray);
+    const isHighFidelity = !isSchemaV3 && !isSemanticCanonical && hasCoberturasArray && (contratoJson.coberturas?.some((c: any) => Array.isArray(c.modalidades)) || contratoJson.contrato?.coberturas?.some((c: any) => Array.isArray(c.modalidades)));
+
+
 
     // Normalize wrapped structure from Canonizer Layer 3
     if (contratoJson.contrato && (contratoJson.auditoria_schema || contratoJson.contrato.auditoria_schema)) {
@@ -1009,18 +1009,18 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
     if (isSchemaV3) {
         const schema = contratoJson.auditoria_schema || contratoJson;
         cleanedContrato = {
-            metadata: contratoJson.metadata || schema.metadata,
+            metadata: contratoJson.metadata || contratoJson.contrato?.metadata || schema.metadata,
             coberturas: (schema.definiciones || []).map((def: any) => ({
                 categoria: (def.categoria_canonica || def.ambito || "OTROS").toUpperCase(),
-                item: def.descripcion_textual,
-                modalidades: (def.modalidades || []).map((m: any) => ({
-                    tipo: (m.modalidad || "").toUpperCase(),
+                item: def.descripcion_textual || def.nombre_norm || def.nombre,
+                modalidades: (def.modalidades || def.reglas_financieras || def.regimenes || []).map((m: any) => ({
+                    tipo: (m.modalidad || m.tipo || "").toUpperCase(),
                     porcentaje: m.porcentaje,
-                    tope: m.tope?.valor ?? null,
-                    unidadTope: m.tope?.tipo ?? "SIN_TOPE",
-                    tipoTope: m.tope?.aplicacion?.toUpperCase() ?? "POR_EVENTO",
-                    factor: m.tope?.factor,
-                    sin_tope_adicional: m.tope?.sin_tope_adicional
+                    tope: m.tope?.valor ?? m.valor ?? m.tope,
+                    unidadTope: m.tope?.tipo ?? m.unidad ?? "SIN_TOPE",
+                    tipoTope: m.tope?.aplicacion?.toUpperCase() ?? m.aplicacion?.toUpperCase() ?? "POR_EVENTO",
+                    factor: m.tope?.factor ?? m.factor,
+                    sin_tope_adicional: m.tope?.sin_tope_adicional ?? m.sin_tope_adicional
                 })),
                 CODIGO_DISPARADOR_FONASA: (def.codigos_fonasa_disparadores || []).join(",")
             })),
@@ -1540,7 +1540,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
         .replace('{cuenta_json}', finalCuentaContext)
         .replace('{pam_json}', finalPamContext)
         .replace('{contrato_json}', finalContratoContext)
-        .replace('{contrato_tipo}', isSemanticCanonical ? 'ESTRUCTURADO_CANONICO' : (isHighFidelity ? 'ALTA_FIDELIDAD' : 'AUSENTE'))
+        .replace('{contrato_tipo}', isSchemaV3 ? 'CANONICO_DETERMINISTICO' : (isSemanticCanonical ? 'ESTRUCTURADO_CANONICO' : (isHighFidelity ? 'ALTA_FIDELIDAD' : 'AUSENTE')))
         .replace('{eventos_hospitalarios}', eventosContext)
         .replace('{contexto_trazabilidad}', traceAnalysis)
         .replace('{va_deduction_context}', vaDeductionSummary + '\n' + rulesContext)

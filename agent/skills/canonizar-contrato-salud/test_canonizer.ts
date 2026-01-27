@@ -11,20 +11,25 @@ interface TestResult {
 }
 
 const results: TestResult[] = [];
+let logBuffer = '🧪 Running Canonizer Test Suite...\n\n';
 
 function test(name: string, fn: () => boolean, errorMsg?: string): void {
     try {
         const passed = fn();
+        const status = passed ? '✅ PASS' : `❌ FAIL: ${errorMsg || 'Assertion failed'}`;
+        logBuffer += `${status} - ${name}\n`;
         results.push({
             name,
             passed,
-            message: passed ? '✅ PASS' : `❌ FAIL: ${errorMsg || 'Assertion failed'}`
+            message: status
         });
     } catch (error) {
+        const errorStr = `❌ ERROR: ${error instanceof Error ? error.message : String(error)}`;
+        logBuffer += `${errorStr} - ${name}\n`;
         results.push({
             name,
             passed: false,
-            message: `❌ ERROR: ${error instanceof Error ? error.message : String(error)}`
+            message: errorStr
         });
     }
 }
@@ -37,12 +42,10 @@ if (!fs.existsSync(CANONICAL_PATH)) {
 
 const canonical = JSON.parse(fs.readFileSync(CANONICAL_PATH, 'utf-8'));
 
-console.log('🧪 Running Canonizer Test Suite...\n');
-
 // ============================================================
 // LAYER 1 TESTS (Linear Representation)
 // ============================================================
-console.log('📄 LAYER 1 TESTS (Linear Representation)');
+logBuffer += '📄 LAYER 1 TESTS (Linear Representation)\n';
 
 test('L1.1: contrato.tabla_prestaciones exists',
     () => !!canonical.contrato?.tabla_prestaciones,
@@ -71,19 +74,19 @@ test('L1.4: Lines have correct structure (linea_id, tipo, fuente_visual)',
     'Lines missing required fields'
 );
 
-test('L1.5: Prestaciones have contexto with heredada_desde',
+test('L1.5: Prestaciones have preferente with aplica flag',
     () => {
         const lines = canonical.contrato?.tabla_prestaciones?.lineas || [];
         const prestacion = lines.find((l: any) => l.tipo === 'prestacion');
-        return prestacion?.contexto?.heredada_desde !== undefined;
+        return prestacion?.preferente?.aplica !== undefined;
     },
-    'Missing heredada_desde in contexto'
+    'Missing preferente.aplica flag in prestacion'
 );
 
 // ============================================================
 // LAYER 2 TESTS (Consolidated Prestations)
 // ============================================================
-console.log('\n🔍 LAYER 2 TESTS (Consolidated Prestations)');
+logBuffer += '\n🔍 LAYER 2 TESTS (Consolidated Prestations)\n';
 
 test('L2.1: prestaciones_consolidadas exists',
     () => !!canonical.prestaciones_consolidadas,
@@ -100,18 +103,18 @@ test('L2.3: Has at least 30 consolidated prestations',
     `Only ${canonical.prestaciones_consolidadas?.length} prestations found`
 );
 
-test('L2.4: Each prestation has regimenes array',
+test('L2.4: Each prestation has opciones array',
     () => {
         const prest = canonical.prestaciones_consolidadas?.[0];
-        return prest && Array.isArray(prest.regimenes);
+        return prest && Array.isArray(prest.opciones);
     },
-    'Prestations missing regimenes array'
+    'Prestations missing opciones array'
 );
 
 test('L2.5: Regimes have fuente traceability',
     () => {
-        const prest = canonical.prestaciones_consolidadas?.find((p: any) => p.regimenes?.length > 0);
-        const regime = prest?.regimenes?.[0];
+        const prest = canonical.prestaciones_consolidadas?.find((p: any) => p.opciones?.length > 0);
+        const regime = prest?.opciones?.[0];
         return regime && Array.isArray(regime.fuente) && regime.fuente.length > 0;
     },
     'Regimes missing fuente array'
@@ -120,7 +123,7 @@ test('L2.5: Regimes have fuente traceability',
 // ============================================================
 // LAYER 3 TESTS (Audit Schema)
 // ============================================================
-console.log('\n⚖️ LAYER 3 TESTS (Audit Schema)');
+logBuffer += '\n⚖️ LAYER 3 TESTS (Audit Schema)\n';
 
 test('L3.1: auditoria_schema exists',
     () => !!canonical.auditoria_schema,
@@ -158,7 +161,7 @@ test('L3.5: URGENCIA variants are grouped',
 // ============================================================
 // CONSOLIDATION TESTS
 // ============================================================
-console.log('\n🔬 CONSOLIDATION & DEDUPLICATION TESTS');
+logBuffer += '\n🔬 CONSOLIDATION & DEDUPLICATION TESTS\n';
 
 test('C1: HONORARIOS MÉDICOS QUIRÚRGICOS exists',
     () => {
@@ -174,20 +177,19 @@ test('C2: HONORARIOS has at least 2 regimes',
         const honorarios = canonical.prestaciones_consolidadas?.find((p: any) =>
             p.nombre?.includes('HONORARIOS') && p.nombre?.includes('QUIRÚRGICOS')
         );
-        return honorarios?.regimenes?.length >= 2;
+        return honorarios?.opciones?.length >= 2;
     },
-    `HONORARIOS has ${canonical.prestaciones_consolidadas?.find((p: any) =>
-        p.nombre?.includes('HONORARIOS'))?.regimenes?.length} regimes`
+    `HONORARIOS has insufficient regimes`
 );
 
-test('C3: HONORARIOS has oferta_preferente regime',
+test('C3: HONORARIOS has preferente regime',
     () => {
         const honorarios = canonical.prestaciones_consolidadas?.find((p: any) =>
             p.nombre?.includes('HONORARIOS') && p.nombre?.includes('QUIRÚRGICOS')
         );
-        return honorarios?.regimenes?.some((r: any) => r.modalidad === 'oferta_preferente');
+        return honorarios?.opciones?.some((r: any) => r.modalidad === 'preferente');
     },
-    'Missing oferta_preferente regime'
+    'Missing preferente regime'
 );
 
 test('C4: HONORARIOS has libre_eleccion regime',
@@ -195,90 +197,136 @@ test('C4: HONORARIOS has libre_eleccion regime',
         const honorarios = canonical.prestaciones_consolidadas?.find((p: any) =>
             p.nombre?.includes('HONORARIOS') && p.nombre?.includes('QUIRÚRGICOS')
         );
-        return honorarios?.regimenes?.some((r: any) => r.modalidad === 'libre_eleccion');
+        return honorarios?.opciones?.some((r: any) => r.modalidad === 'libre_eleccion');
     },
     'Missing libre_eleccion regime'
 );
 
-test('C5: Oferta preferente regime has subtipo',
+test('C5: Oferta preferente has multiple explicit regimes (BCC)',
     () => {
         const honorarios = canonical.prestaciones_consolidadas?.find((p: any) =>
             p.nombre?.includes('HONORARIOS') && p.nombre?.includes('QUIRÚRGICOS')
         );
-        const prefRegime = honorarios?.regimenes?.find((r: any) => r.modalidad === 'oferta_preferente');
-        return prefRegime && 'subtipo' in prefRegime;
+        // Should have at least 2 preferential regimes (e.g. one for 80% and one for 90%)
+        const prefRegimes = honorarios?.opciones?.filter((r: any) => r.modalidad === 'preferente');
+        return prefRegimes && prefRegimes.length >= 2;
     },
-    'Oferta preferente missing subtipo field'
+    'Honorarios should have multiple explicit preferential regimes (BCC explosion)'
+);
+
+test('C6: DIA CAMA CUIDADOS INTENSIVOS has 3 preferential options (BCC Decision Tree)',
+    () => {
+        const diaCama = canonical.prestaciones_consolidadas?.find((p: any) =>
+            p.nombre?.includes('DIA CAMA CUIDADOS INTENSIVOS')
+        );
+        const prefOptions = diaCama?.opciones?.filter((o: any) => o.modalidad === 'preferente');
+        return prefOptions && prefOptions.length === 3;
+    },
+    'DIA CAMA CUIDADOS INTENSIVOS should have 3 preferential options'
+);
+
+test('C7: Options include conditions (e.g. Habitación Individual)',
+    () => {
+        const diaCama = canonical.prestaciones_consolidadas?.find((p: any) =>
+            p.nombre?.includes('DIA CAMA CUIDADOS INTENSIVOS')
+        );
+        return diaCama?.opciones?.some((o: any) =>
+            Array.isArray(o.condiciones) && o.condiciones.some((c: string) => c.toLowerCase().includes('individual'))
+        );
+    },
+    'Missing condition "Habitación Individual" in Dia Cama options'
 );
 
 // ============================================================
 // NORMALIZATION TESTS
 // ============================================================
-console.log('\n🧹 NORMALIZATION TESTS');
+logBuffer += '\n🧹 NORMALIZATION TESTS\n';
 
-test('N1: Provider names are uppercase',
+test('N1: Provider names are uppercase (LE only)',
     () => {
-        const prest = canonical.prestaciones_consolidadas?.find((p: any) =>
-            p.regimenes?.some((r: any) => r.prestadores?.length > 0)
-        );
-        const regime = prest?.regimenes?.find((r: any) => Array.isArray(r.prestadores) && r.prestadores.length > 0);
-        const provider = regime?.prestadores?.[0];
+        const leRegime = canonical.prestaciones_consolidadas?.find((p: any) =>
+            p.opciones?.some((r: any) => r.modalidad === 'libre_eleccion' && Array.isArray(r.prestadores))
+        )?.opciones?.find((r: any) => r.modalidad === 'libre_eleccion');
+
+        if (!leRegime || !Array.isArray(leRegime.prestadores)) return true;
+        const provider = leRegime.prestadores[0];
         return provider && provider === provider.toUpperCase();
     },
     'Provider names not normalized to uppercase'
 );
 
-test('N2: Provider names are sorted alphabetically',
+test('N2: Provider names are sorted alphabetically (LE only)',
     () => {
-        const prest = canonical.prestaciones_consolidadas?.find((p: any) =>
-            p.regimenes?.some((r: any) => Array.isArray(r.prestadores) && r.prestadores.length > 1)
-        );
-        const regime = prest?.regimenes?.find((r: any) => Array.isArray(r.prestadores) && r.prestadores.length > 1);
-        const providers = regime?.prestadores;
-        if (!providers || providers.length < 2) return true; // Skip if not enough data
+        const leRegime = canonical.prestaciones_consolidadas?.find((p: any) =>
+            p.opciones?.some((r: any) => r.modalidad === 'libre_eleccion' && Array.isArray(r.prestadores) && r.prestadores.length > 1)
+        )?.opciones?.find((r: any) => r.modalidad === 'libre_eleccion');
+
+        if (!leRegime || !Array.isArray(leRegime.prestadores) || leRegime.prestadores.length < 2) return true;
+        const providers = leRegime.prestadores;
         const sorted = [...providers].sort();
         return JSON.stringify(providers) === JSON.stringify(sorted);
     },
     'Provider names not sorted alphabetically'
 );
 
-test('N3: Provider names cleaned of table noise',
+test('N3: Provider names cleaned (LE only)',
     () => {
-        const prest = canonical.prestaciones_consolidadas?.find((p: any) =>
-            p.regimenes?.some((r: any) => Array.isArray(r.prestadores) && r.prestadores.length > 0)
-        );
-        const regime = prest?.regimenes?.find((r: any) => Array.isArray(r.prestadores) && r.prestadores.length > 0);
-        const provider = regime?.prestadores?.[0];
-        // Check that provider names don't contain noise words
+        const leRegime = canonical.prestaciones_consolidadas?.find((p: any) =>
+            p.opciones?.some((r: any) => r.modalidad === 'libre_eleccion' && Array.isArray(r.prestadores))
+        )?.opciones?.find((r: any) => r.modalidad === 'libre_eleccion');
+
+        if (!leRegime || !Array.isArray(leRegime.prestadores)) return true;
+        const provider = leRegime.prestadores[0];
         return provider && !provider.includes('HONORARIOS') && !provider.includes('QUIRÚRGICOS');
     },
     'Provider names contain table noise'
 );
 
 // ============================================================
+// NFE STRUCTURAL TESTS
+// ============================================================
+logBuffer += '\n🧪 NFE STRUCTURAL TESTS\n';
+
+test('N4: HONORARIOS has NFE "Sin Tope"',
+    () => {
+        const honorarios = canonical.prestaciones_consolidadas?.find((p: any) =>
+            p.nombre?.includes('HONORARIOS MÉDICOS QUIRÚRGICOS')
+        );
+        return honorarios?.nfe_resumen?.aplica === true && honorarios?.nfe_resumen?.razon === 'SIN_TOPE_EXPRESO';
+    },
+    'Honorarios missing NFE "Sin Tope"'
+);
+
+test('N5: MEDICAMENTOS has NFE "60"',
+    () => {
+        const med = canonical.prestaciones_consolidadas?.find((p: any) =>
+            p.nombre?.includes('MEDICAMENTOS HOSPITALARIOS')
+        );
+        return med?.nfe_resumen?.aplica === true && med?.nfe_resumen?.valor === 60;
+    },
+    'Medicamentos missing NFE "60"'
+);
+
+// ============================================================
 // RESULTS SUMMARY
 // ============================================================
-console.log('\n' + '='.repeat(60));
-console.log('📊 TEST RESULTS SUMMARY');
-console.log('='.repeat(60));
+logBuffer += '\n' + '='.repeat(60) + '\n';
+logBuffer += '📊 TEST RESULTS SUMMARY\n';
+logBuffer += '='.repeat(60) + '\n';
 
-const passed = results.filter(r => r.passed).length;
-const failed = results.filter(r => !r.passed).length;
-const total = results.length;
+const passedCount = results.filter(r => r.passed).length;
+const failedCount = results.filter(r => !r.passed).length;
+const totalCount = results.length;
 
-results.forEach(result => {
-    console.log(`${result.message} - ${result.name}`);
-});
+logBuffer += `\n✅ PASSED: ${passedCount}/${totalCount}\n`;
+logBuffer += `❌ FAILED: ${failedCount}/${totalCount}\n`;
+logBuffer += '='.repeat(60) + '\n';
 
-console.log('\n' + '='.repeat(60));
-console.log(`✅ PASSED: ${passed}/${total}`);
-console.log(`❌ FAILED: ${failed}/${total}`);
-console.log('='.repeat(60));
+fs.writeFileSync('test_results.txt', logBuffer, 'utf-8');
+console.log(logBuffer);
 
-if (failed > 0) {
-    console.log('\n⚠️  Some tests failed. Review the output above.');
+if (failedCount > 0) {
     process.exit(1);
 } else {
-    console.log('\n🎉 All tests passed! Canonizer is production-ready.');
     process.exit(0);
 }

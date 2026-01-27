@@ -448,7 +448,7 @@ export const SCHEMA_COBERTURAS = {
                   type: SchemaType.STRING,
                   enum: ["UF", "AC2", "VAM", "PESOS", "SIN_TOPE", "DESCONOCIDO"]
                 },
-                'typeTope': {
+                'tipoTope': {
                   type: SchemaType.STRING,
                   enum: ["POR_EVENTO", "ANUAL", "ILIMITADO", "DIARIO"]
                 },

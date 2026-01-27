@@ -60,9 +60,38 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
         console.error("[ASK] Error loading literature:", err);
     }
 
-    // Calculate context size roughly
-    const ctxSize = htmlContext.length + JSON.stringify(contractJson || {}).length + JSON.stringify(pamJson || {}).length + extraLiterature.length;
-    console.log(`[ASK] Question: "${question}" | Context Size: ${ctxSize} chars | Images: ${images?.length || 0}`);
+    // --- CONTRACT NORMALIZATION (Support for V3 Schema) ---
+    let finalContractDisplay = "No disponible";
+    let finalContractData = "";
+
+    if (contractJson) {
+        const isSchemaV3 = !!contractJson.auditoria_schema || !!contractJson.definiciones || (!!contractJson.contrato && (!!contractJson.contrato.auditoria_schema || !!contractJson.auditoria_schema));
+
+        if (isSchemaV3) {
+            const schema = contractJson.auditoria_schema || contractJson;
+            const cleaned = {
+                metadata: contractJson.metadata || contractJson.contrato?.metadata || schema.metadata,
+                coberturas: (schema.definiciones || []).map((def: any) => ({
+                    categoria: (def.categoria_canonica || def.ambito || "OTROS").toUpperCase(),
+                    item: def.descripcion_textual || def.nombre_norm || def.nombre,
+                    modalidades: (def.modalidades || def.reglas_financieras || def.regimenes || []).map((m: any) => ({
+                        tipo: (m.modalidad || m.tipo || "").toUpperCase(),
+                        porcentaje: m.porcentaje,
+                        tope: m.tope?.valor ?? m.valor ?? m.tope,
+                        unidadTope: m.tope?.tipo ?? m.unidad ?? "SIN_TOPE",
+                        tipoTope: m.tope?.aplicacion?.toUpperCase() ?? m.aplicacion?.toUpperCase() ?? "POR_EVENTO",
+                        factor: m.tope?.factor ?? m.factor,
+                        sin_tope_adicional: m.tope?.sin_tope_adicional ?? m.sin_tope_adicional
+                    }))
+                }))
+            };
+            finalContractDisplay = "Disponible (V3 Deterministico)";
+            finalContractData = `CONTRATO (TIPO: CANONICO_DETERMINISTICO): ${JSON.stringify(cleaned)}`;
+        } else {
+            finalContractDisplay = "Disponible (Legacy)";
+            finalContractData = `CONTRATO: ${JSON.stringify(contractJson)}`;
+        }
+    }
 
     const PROMPT_TEXT = `
         ACTÚA COMO UN AUDITOR MÉDICO FORENSE EXPERTO Y METICULOSO CON ACCESO A LITERATURA LEGAL Y REGLAMENTARIA.
@@ -78,13 +107,13 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
         
         2. DATA ESTRUCTURADA (JSON):
            - Cuenta: ${billJson ? "Disponible" : "No disponible"}
-           - Contrato: ${contractJson ? "Disponible" : "No disponible"}
+           - Contrato: ${finalContractDisplay}
            - PAM: ${pamJson ? "Disponible" : "No disponible"}
            - RESULTADOS AUDITORÍA FORENSE: ${auditResult ? "Disponible (USAR PARA ACLARAR DUDAS SOBRE EL INFORME)" : "No disponible"}
 
         --------------------
         DATOS JSON DEL CASO:
-        ${contractJson ? `CONTRATO: ${JSON.stringify(contractJson)}` : ""}
+        ${finalContractData}
         ${pamJson ? `PAM: ${JSON.stringify(pamJson)}` : ""}
         ${billJson ? `CUENTA: ${JSON.stringify(billJson)}` : ""}
         ${auditResult ? `RESULTADOS AUDITORÍA: ${JSON.stringify(auditResult)}` : ""}

@@ -1235,7 +1235,7 @@ function InterrogationZone({ auditResult, compactMode = false, responsiveHeight 
                         htmlContext: localStorage.getItem('html_projection_result') || '',
                         billJson: JSON.parse(localStorage.getItem('clinic_audit_result') || '{}'),
                         pamJson: JSON.parse(localStorage.getItem('pam_audit_result') || '{}'),
-                        contractJson: JSON.parse(localStorage.getItem('contract_audit_result') || '{}'),
+                        contractJson: JSON.parse(localStorage.getItem('canonical_contract_result') || localStorage.getItem('contract_audit_result') || '{}'),
                         auditResult
                     }
                 })

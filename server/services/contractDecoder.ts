@@ -68,8 +68,8 @@ function reconstructGrid(cells: RawCell[]): { grid: string[][] } {
     let maxC = 0;
 
     cells.forEach(c => {
-        if (c.fila_index > maxR) maxR = c.fila_index;
-        if (c.col_index > maxC) maxC = c.col_index;
+        if (typeof c.fila_index === 'number' && c.fila_index > maxR) maxR = c.fila_index;
+        if (typeof c.col_index === 'number' && c.col_index > maxC) maxC = c.col_index;
     });
 
     for (let r = 0; r <= maxR; r++) {
@@ -77,7 +77,11 @@ function reconstructGrid(cells: RawCell[]): { grid: string[][] } {
     }
 
     cells.forEach(c => {
-        grid[c.fila_index][c.col_index] = (c.texto || "").trim();
+        // ROBUST CHECK: Skip cells with missing, invalid or negative indices
+        if (typeof c.fila_index !== 'number' || typeof c.col_index !== 'number' || c.fila_index < 0 || c.col_index < 0) return;
+        if (grid[c.fila_index]) {
+            grid[c.fila_index][c.col_index] = (c.texto || "").trim();
+        }
     });
 
     return { grid };

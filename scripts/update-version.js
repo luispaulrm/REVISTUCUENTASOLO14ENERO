@@ -8,7 +8,7 @@ import { execSync } from 'child_process';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const versionFilePath = path.join(__dirname, '../version.ts');
+const versionFilePath = path.join(__dirname, '../src/version.ts');
 
 try {
     // CI/CD GUARD: Skip version bump in CI environments (GitHub Actions, Render, etc.)

@@ -1,0 +1,48 @@
+🧪 Running Canonizer Test Suite...
+
+📄 LAYER 1 TESTS (Linear Representation)
+✅ PASS - L1.1: contrato.tabla_prestaciones exists
+✅ PASS - L1.2: tabla_prestaciones.lineas is an array
+✅ PASS - L1.3: tabla_prestaciones has at least 100 lines
+✅ PASS - L1.4: Lines have correct structure (linea_id, tipo, fuente_visual)
+✅ PASS - L1.5: Prestaciones have preferente with aplica flag
+
+🔍 LAYER 2 TESTS (Consolidated Prestations)
+✅ PASS - L2.1: prestaciones_consolidadas exists
+✅ PASS - L2.2: prestaciones_consolidadas is an array
+✅ PASS - L2.3: Has at least 30 consolidated prestations
+✅ PASS - L2.4: Each prestation has opciones array
+✅ PASS - L2.5: Regimes have fuente traceability
+
+⚖️ LAYER 3 TESTS (Audit Schema)
+✅ PASS - L3.1: auditoria_schema exists
+✅ PASS - L3.2: auditoria_schema has agrupaciones_clinicas
+✅ PASS - L3.3: auditoria_schema has definiciones
+✅ PASS - L3.4: Definiciones include ambito classification
+✅ PASS - L3.5: URGENCIA variants are grouped
+
+🔬 CONSOLIDATION & DEDUPLICATION TESTS
+✅ PASS - C1: HONORARIOS MÉDICOS QUIRÚRGICOS exists
+✅ PASS - C2: HONORARIOS has at least 2 regimes
+✅ PASS - C3: HONORARIOS has preferente regime
+✅ PASS - C4: HONORARIOS has libre_eleccion regime
+✅ PASS - C5: Oferta preferente has multiple explicit regimes (BCC)
+✅ PASS - C6: DIA CAMA CUIDADOS INTENSIVOS has 3 preferential options (BCC Decision Tree)
+✅ PASS - C7: Options include conditions (e.g. Habitación Individual)
+
+🧹 NORMALIZATION TESTS
+✅ PASS - N1: Provider names are uppercase (LE only)
+✅ PASS - N2: Provider names are sorted alphabetically (LE only)
+✅ PASS - N3: Provider names cleaned (LE only)
+
+🧪 NFE STRUCTURAL TESTS
+✅ PASS - N4: HONORARIOS has NFE "Sin Tope"
+✅ PASS - N5: MEDICAMENTOS has NFE "60"
+
+============================================================
+📊 TEST RESULTS SUMMARY
+============================================================
+
+✅ PASSED: 27/27
+❌ FAILED: 0/27
+============================================================

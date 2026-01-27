@@ -10,6 +10,20 @@ Transformar contratos de salud heterogéneos (Isapre/Fonasa) en una representaci
 
 ---
 
+## Modelo Conceptual: Descubrimiento Dinámico de Paths (CRÍTICO)
+
+### Corrección Conceptual
+El error no está en visualizar paths por prestación, sino en permitir que la prestación seleccione el path.
+En el modelo correcto, las prestaciones solo declaran elegibilidad para **Oferta Preferente**, y la determinación del path específico es una decisión dinámica en tiempo de auditoría, basada exclusivamente en el **prestador efectivo** utilizado por el paciente.
+
+### Regla de Oro para Auditoría
+- Si el prestador no decide → el auditor está mal
+- Si la prestación decide → el auditor está mal
+- **Solo el prestador decide el path**
+
+---
+
+
 ## 🛑 REGLAS DE ORO ANTIRUIDO (CRÍTICO)
 
 ### 1. Limpieza de Coberturas
@@ -47,7 +61,33 @@ Esta regla aplica a **TODAS** las columnas y filas sin excepción.
 
 ---
 
+### 6. FASE 0 — Detección de Bloques Verticales (BCC) (NUEVO)
+Antes de interpretar filas como coberturas:
+- Detecta celdas que:
+  - contienen porcentajes + “Sin Tope”
+  - mencionan prestadores
+  - se extienden visualmente sobre múltiples filas
+- Marca esas celdas como **BLOQUES DE COBERTURA COMPARTIDOS (BCC)**
+- Asocia cada BCC a todas las filas alineadas verticalmente.
+
+### 7. Regla de Modalidades Derivadas (BCC)
+**Si una prestación está alineada verticalmente con un Bloque de Cobertura Compartido, la cobertura NO se define en la fila, sino que se expresa como múltiples modalidades derivadas del bloque.**
+
+### 8. Regla de Latencia
+“Una prestación puede declarar múltiples modalidades preferentes simultáneamente. Estas NO son decisiones clínicas ni contractuales del paciente, sino opciones latentes que solo el prestador efectivo resolverá en auditoría.”
+
+### 9. Habilidad de Análisis Estructural Visual (DBPV) (CRÍTICO)
+
+**Habilidad de Análisis Estructural Visual**
+El agente debe identificar celdas que se extienden verticalmente y funcionan como bloques de cobertura compartidos, usando criterios de altura relativa, continuidad textual y alineación con múltiples filas de prestaciones. Estas celdas prevalecen sobre la lógica fila–columna tradicional.
+
+**INSTRUCCIÓN OPERATIVA:**
+**Si existe ambigüedad entre cobertura por fila y cobertura por bloque vertical, SIEMPRE priorizar el bloque vertical.**
+
+---
+
 ## Esquema Canónico Final (v2.0)
+
 
 El output debe ser un único objeto JSON que cumpla estrictamente con la siguiente interfaz:
 
