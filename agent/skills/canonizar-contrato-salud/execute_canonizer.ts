@@ -1,5 +1,500 @@
 import fs from 'fs';
 import path from 'path';
+// ----------------------
+// 1) Core semantic types
+// ----------------------
+
+export type BlockEffect = "LIMITANTE" | "NEUTRO" | "EXPANSIVO";
+
+export type BlockScope =
+    | "PREFERENTE_RED"
+    | "PREFERENTE_MODAL"
+    | "PORCENTAJE"
+    | "TOPE_EVENTO"
+    | "TOPE_ANUAL_NFE"
+    | "FINANCIAL_DOMAIN"; // útil para CAMBIO_DOMINIO
+
+export type LatentReason =
+    | "HERENCIA_CORTADA"
+    | "LIMITANTE_TOPE"
+    | "CAMBIO_DOMINIO"
+    | "OTRA";
+
+export type Modalidad = "preferente" | "libre_eleccion";
+
+export interface SemanticBlock {
+    id: string;              // p.ej. "L2_53_C7" o similar
+    text: string;            // texto crudo
+    col: number;             // columna (1..n)
+    rowId: string;           // id prestación / fila detectada
+    segmentId: string;       // sub-tramo horizontal (delta) dentro de la fila
+    effect: BlockEffect;
+    scope: BlockScope;
+}
+
+export interface Restriction {
+    scope: BlockScope;
+    kind: "TOPE_UF" | "TOPE_AC2" | "SIN_TOPE" | "PORCENTAJE" | "OTRA";
+    value?: number;          // UF o factor AC2 o porcentaje
+    raw: string;
+    byBlock: string;
+}
+
+export interface SemanticOptionNode {
+    id: string;              // OptionID estable (NO usar modalidad como key)
+    modalidad: Modalidad;
+    scopes: Set<BlockScope>;
+    porcentaje?: number;     // 80 / 90
+    prestadores: string[];   // clínicas/red
+    tope_evento?: { tipo: "UF" | "AC2" | "SIN_TOPE"; valor?: number };
+    tope_anual?: { tipo: "UF" | "AC2" | "SIN_TOPE"; valor?: number }; // NFE
+    meta?: Record<string, any>;
+}
+
+export interface OptionGraph {
+    rowId: string;
+    options: Map<string, SemanticOptionNode>; // id -> node
+    edges: Array<{ from: string; to: string; type: "COMPATIBLE" | "CONFLICT" }>;
+}
+
+export interface LatentOption {
+    id: string;
+    reason: LatentReason;
+    scope: BlockScope;
+    byBlock: string;
+}
+
+export interface LineState {
+    opciones_activas: Set<string>;        // OptionIDs
+    opciones_latentes: LatentOption[];    // con razón
+    restricciones: Restriction[];
+    historial_bloques: string[];
+    dominio: "CLINICO" | "FINANCIERO";    // cambio de dominio
+    herencia_cortada: boolean;            // línea verde / solo LE
+    nfe?: {
+        valor: number | null;
+        bloque_id: string;
+        razon?: string;
+        fuente_linea: string;
+    };
+}
+
+// Utilidad para comparar scope
+export function intersectsScope(blockScope: BlockScope, optionScopes: Set<BlockScope>) {
+    return optionScopes.has(blockScope);
+}
+
+// Added Missing Exports
+export type SemanticOperator =
+    | { type: "HERENCIA_CORTADA"; byBlock: string }
+    | { type: "CAMBIO_DOMINIO_FINANCIERO"; byBlock: string }
+    | { type: "TOPE_EVENTO"; restr: Restriction }
+    | { type: "TOPE_ANUAL_NFE"; restr: Restriction }
+    | { type: "PORCENTAJE"; restr: Restriction };
+
+export interface HistorialFinancieroEntry {
+    tipo: "exclusion_modal" | "regimen" | "tope_evento" | "tope_anual";
+    valor?: any;
+    unidad?: string;
+    porcentaje?: number;
+    descripcion?: string;
+    fuente?: string;
+}
+
+export type ForensicOperatorType =
+    | "OP_CORTE_HERENCIA"
+    | "OP_CAMBIO_DOMINIO"
+    | "OP_RE_EXPANSION_NFE"
+    | "OP_VACIO_CONTRACTUAL";
+
+export interface ForensicOperator {
+    tipo: ForensicOperatorType;
+    fuente_linea: string;
+    detalle?: string;
+}
+
+// -----------------------------------------------------
+// 2) Clasificación de bloques (BlockEffect + BlockScope)
+// -----------------------------------------------------
+
+export function classifyBlockEffect(text: string): BlockEffect {
+    const t = text.toLowerCase();
+
+    if (t.includes("sin tope")) return "EXPANSIVO";
+
+    // limitantes típicos: "tope", "uf", "ac2", "veces", "x"
+    if (t.includes("tope") || t.includes("uf") || t.includes("ac2") || t.includes("veces") || t.match(/\b\d+([.,]\d+)?\s*x\b/)) {
+        return "LIMITANTE";
+    }
+
+    return "NEUTRO";
+}
+
+export function inferScope(col: number, text: string): BlockScope {
+    const t = text.toLowerCase();
+
+    // Señal fuerte: "solo cobertura libre elección" corta herencia preferente
+    if (t.includes("solo") && t.includes("libre elecci")) return "PREFERENTE_RED";
+
+    // Columnas (Refined based on extraction):
+    // Col 2, 4, 5, 6 = EVENTO (Tope 6 often shifts)
+    // Col 7 = ANUAL (Tope 7)
+    if (col === 2 || col === 4 || col === 5 || col === 6) return "TOPE_EVENTO";
+    if (col === 7) return "TOPE_ANUAL_NFE";
+
+    // Porcentaje
+    if (t.includes("%")) return "PORCENTAJE";
+
+    // Prestadores/red/modalidad A.1/A.2
+    if (t.includes("a.1") || t.includes("a.2") || t.includes("institucional")) return "PREFERENTE_MODAL";
+    if (t.includes("clínica") || t.includes("red") || t.includes("uc") || t.includes("christus") || t.includes("davila") || t.includes("vespucio")) {
+        return "PREFERENTE_RED";
+    }
+
+    return "FINANCIAL_DOMAIN"; // fallback seguro
+}
+
+// ----------------------------------------------
+// 3) OperatorEngine (detectOperators + applyOperators)
+// ----------------------------------------------
+
+export function detectOperators(block: SemanticBlock): SemanticOperator[] {
+    const ops: SemanticOperator[] = [];
+    const t = block.text.toLowerCase();
+
+    // Línea verde / barrera semántica
+    if (t.includes("solo") && t.includes("libre elecci")) {
+        ops.push({ type: "HERENCIA_CORTADA", byBlock: block.id });
+    }
+
+    // Cambio dominio (meds/mats/transfers/etc.)
+    const isFinancialDomain =
+        t.includes("medic") ||
+        t.includes("material") ||
+        t.includes("traslado") ||
+        t.includes("prótesis") || t.includes("protesis") ||
+        t.includes("órtesis") || t.includes("ortesis") ||
+        t.includes("osteosíntesis") || t.includes("osteosintesis") ||
+        t.includes("quimioterapia");
+
+    if (isFinancialDomain) {
+        ops.push({ type: "CAMBIO_DOMINIO_FINANCIERO", byBlock: block.id });
+    }
+
+    // Restricciones por scope
+    const effect = block.effect;
+    const scope = block.scope;
+
+    if (scope === "TOPE_EVENTO") {
+        ops.push({ type: "TOPE_EVENTO", restr: parseRestriction(block, "TOPE_EVENTO") });
+    }
+
+    // FORENSIC IMPROVEMENT: If "Sin Tope" exists in a financial domain line (like Traslados),
+    // we must treat it as an NFE expander, BUT ONLY if it's NOT explicitly an event limit column.
+    if (scope === "TOPE_ANUAL_NFE" || (isFinancialDomain && t.includes("sin tope") && scope !== "TOPE_EVENTO")) {
+        ops.push({ type: "TOPE_ANUAL_NFE", restr: parseRestriction(block, "TOPE_ANUAL_NFE") });
+    }
+
+    if (scope === "PORCENTAJE") {
+        ops.push({ type: "PORCENTAJE", restr: parseRestriction(block, "PORCENTAJE") });
+    }
+
+    return ops;
+}
+
+// Parse básico: detecta SIN TOPE, UF, AC2 factor, porcentaje
+export function parseRestriction(block: SemanticBlock, scope: BlockScope): Restriction {
+    const raw = block.text;
+    const t = raw.toLowerCase();
+
+    if (t.includes("sin tope")) {
+        return { scope, kind: "SIN_TOPE", raw, byBlock: block.id };
+    }
+
+    // porcentaje
+    const mPct = raw.match(/(\d{1,3})\s*%/);
+    if (mPct) {
+        return { scope, kind: "PORCENTAJE", value: Number(mPct[1]), raw, byBlock: block.id };
+    }
+
+    // UF (Explicit or Bare Number in Event Column)
+    const mUf = raw.match(/(\d+([.,]\d+)?)\s*uf/i);
+    if (mUf) {
+        return { scope, kind: "TOPE_UF", value: Number(mUf[1].replace(",", ".")), raw, byBlock: block.id };
+    }
+
+    // Bare number check (Implicit UF context)
+    // If we are in TOPE_EVENTO column and see a bare number like "20" or "20,5", assume UF.
+    if (scope === "TOPE_EVENTO") {
+        const mBare = raw.match(/^(\d+([.,]\d+)?)$/);
+        if (mBare) {
+            return { scope, kind: "TOPE_UF", value: Number(mBare[1].replace(",", ".")), raw, byBlock: block.id };
+        }
+    }
+
+    // AC2 factor: "1.2 veces AC2" / "2.0 x AC2"
+    const mAc2 = raw.match(/(\d+([.,]\d+)?)\s*(x|veces)\s*ac2/i);
+    if (mAc2) {
+        return { scope, kind: "TOPE_AC2", value: Number(mAc2[1].replace(",", ".")), raw, byBlock: block.id };
+    }
+
+    return { scope, kind: "OTRA", raw, byBlock: block.id };
+}
+
+export function applyOperators(state: LineState, ops: SemanticOperator[]): LineState {
+    let s = { ...state };
+
+    for (const op of ops) {
+        switch (op.type) {
+            case "HERENCIA_CORTADA":
+                s.herencia_cortada = true;
+                // mueve cualquier opción que tenga scopes preferentes a latente (NO destruir)
+                s = cutPreferenteInheritance(s, op.byBlock);
+                break;
+
+            case "CAMBIO_DOMINIO_FINANCIERO":
+                s.dominio = "FINANCIERO";
+                break;
+
+            case "TOPE_EVENTO":
+            case "TOPE_ANUAL_NFE":
+            case "PORCENTAJE":
+                s.restricciones = [...s.restricciones, op.restr];
+                break;
+        }
+    }
+
+    return s;
+}
+
+function cutPreferenteInheritance(s: LineState, byBlock: string): LineState {
+    const actives = new Set(s.opciones_activas);
+    const latents = [...s.opciones_latentes];
+
+    // En esta capa NO sabemos aún el scope de la option sin tener el graph;
+    // así que aquí el corte es "global" y se refina en RE/interpret cuando ya conoces option.scopes.
+    // Si tú ya tienes optionScopes accesible acá, mejor: mover solo las que intersecten PREFERENTE_*.
+
+    // Aproximación segura: marca bandera; el movimiento fino lo hace RE expand/limit.
+    return { ...s, opciones_activas: actives, opciones_latentes: latents };
+}
+
+// ----------------------------------------------
+// 4) RE Operator (Phase 2 + Phase 7)
+// ----------------------------------------------
+
+export interface Memory {
+    // memoria por fila/segmento si quieres
+    latentes_global: LatentOption[];
+}
+
+export function applyReExpansion(block: SemanticBlock, state: LineState, memory: Memory, optGraph?: OptionGraph): LineState {
+    const s: LineState = {
+        ...state,
+        historial_bloques: [...state.historial_bloques, block.id],
+    };
+
+    if (block.effect === "NEUTRO") return s;
+
+    if (block.effect === "LIMITANTE") {
+        return limitState(block, s, optGraph);
+    }
+
+    // EXPANSIVO
+    return expandState(block, s, memory, optGraph);
+}
+
+function limitState(block: SemanticBlock, s: LineState, optGraph?: OptionGraph): LineState {
+    if (!optGraph) return s;
+
+    const newActives = new Set<string>();
+    const newLatents = [...s.opciones_latentes];
+
+    for (const optId of s.opciones_activas) {
+        const opt = optGraph.options.get(optId);
+        if (!opt) continue;
+
+        const affected = intersectsScope(block.scope, opt.scopes);
+        if (!affected) {
+            newActives.add(optId);
+            continue;
+        }
+
+        // si afectado por limitante, lo mandamos a latente
+        newLatents.push({ id: optId, reason: "LIMITANTE_TOPE", scope: block.scope, byBlock: block.id });
+    }
+
+    return { ...s, opciones_activas: newActives, opciones_latentes: newLatents };
+}
+
+function expandState(block: SemanticBlock, s: LineState, memory: Memory, optGraph?: OptionGraph): LineState {
+    if (!optGraph) return s;
+
+    const newActives = new Set(s.opciones_activas);
+    const remainingLatents: LatentOption[] = [];
+
+    // reactivación: solo latentes afectados por scope y reason != HERENCIA_CORTADA
+    for (const lo of s.opciones_latentes) {
+        if (lo.reason === "HERENCIA_CORTADA") {
+            remainingLatents.push(lo);
+            continue;
+        }
+
+        const opt = optGraph.options.get(lo.id);
+        if (!opt) {
+            remainingLatents.push(lo);
+            continue;
+        }
+
+        const affected = intersectsScope(block.scope, opt.scopes);
+        if (affected) {
+            newActives.add(lo.id);
+            continue;
+        }
+
+        remainingLatents.push(lo);
+    }
+
+    return { ...s, opciones_activas: newActives, opciones_latentes: remainingLatents };
+}
+
+
+// ----------------------------------------------
+// 5) Stoppers (línea verde) para MEDICAMENTOS/MATERIALES
+// ----------------------------------------------
+
+export function isGreenLineBarrier(text: string): boolean {
+    const t = text.toLowerCase();
+    return (
+        (t.includes("solo") && t.includes("libre elecci")) ||
+        t.includes("medicamentos hospitalarios") ||
+        t.includes("materiales clínicos") ||
+        t.includes("materiales clinicos")
+    );
+}
+
+// ----------------------------------------------
+// 6) Checker 6-Puntos
+// ----------------------------------------------
+
+export interface Violation {
+    code: string;
+    severity: "CRITICA" | "ALTA" | "MEDIA" | "BAJA";
+    rowId: string;
+    message: string;
+    evidence?: any;
+}
+
+export function run6PointChecker(prestacion: {
+    rowId: string;
+    nombre: string;
+    opciones: Array<{
+        id: string;
+        modalidad: Modalidad;
+        porcentaje?: number;
+        prestadores?: string[];
+        tope_evento?: any;
+        tope_anual?: any;
+        flags?: { herencia_cortada?: boolean; dominio?: string };
+    }>;
+    flags?: { herencia_cortada?: boolean; dominio?: string };
+}): Violation[] {
+    const v: Violation[] = [];
+    const { rowId, nombre, opciones } = prestacion;
+
+    // (1) No provider mixing entre grupos distintos % en misma “familia” (A.2-80 vs A.2-90)
+    // Heurística: si hay 80 y 90 en preferente, sus prestadores deben ser disjuntos.
+    const pref80 = new Set<string>();
+    const pref90 = new Set<string>();
+
+    for (const o of opciones) {
+        if (o.modalidad !== "preferente") continue;
+        const ps = o.prestadores ?? [];
+        if (o.porcentaje === 80) ps.forEach(p => pref80.add(p));
+        if (o.porcentaje === 90) ps.forEach(p => pref90.add(p));
+    }
+
+    for (const p of pref80) {
+        if (pref90.has(p)) {
+            v.push({
+                code: "E1_PROVIDER_MIXING",
+                severity: "CRITICA",
+                rowId,
+                message: `Prestador mezclado entre preferente 80% y 90%: ${p}`,
+                evidence: { prestador: p, nombre }
+            });
+            break;
+        }
+    }
+
+    // (2) A.2 80% re-expansion: si aparecen Santa María/Tabancura/Indisa en contrato esperado,
+    // deberían estar agrupadas en alguna opción 80% preferente (esto requiere expectedProviders externo).
+    // Aquí solo validamos que si están, NO estén repartidas en opciones de 90%.
+    const suspicious = ["Santa María", "Tabancura", "Indisa"];
+    for (const sName of suspicious) {
+        const in90 = opciones.some(o => o.modalidad === "preferente" && o.porcentaje === 90 && (o.prestadores ?? []).some(p => p.includes(sName)));
+        if (in90) {
+            v.push({
+                code: "E2_A2_80_BAD_REEXPANSION",
+                severity: "ALTA",
+                rowId,
+                message: `${sName} apareció en grupo preferente 90% (debería estar en 80% si corresponde al tramo A.2-80).`,
+                evidence: { sName, nombre }
+            });
+        }
+    }
+
+    // (3) Missing providers (requiere expectedProviders)
+    // -> Te dejo la firma para que la llames con expectedProviders cuando lo tengas.
+    // validateMissingProviders(rowId, opciones, expectedProviders)
+
+    // (4) Distinct paths: no opción debe tener prestadores de dos grupos distintos %.
+    for (const o of opciones) {
+        if (!o.prestadores?.length) continue;
+        if (o.modalidad !== "preferente") continue;
+
+        // regla simple: cada opción preferente debe tener porcentaje definido
+        if (typeof o.porcentaje !== "number") {
+            v.push({
+                code: "E4_WIDE_PATH_NO_PERCENT",
+                severity: "MEDIA",
+                rowId,
+                message: `Opción preferente sin porcentaje (path demasiado ancho / colapso).`,
+                evidence: { optionId: o.id, nombre }
+            });
+        }
+    }
+
+    // (5) Herencia cortada: si flags herencia_cortada, NO debe haber preferente aplica
+    const hc = prestacion.flags?.herencia_cortada || opciones.some(o => o.flags?.herencia_cortada);
+    if (hc) {
+        const hasPreferente = opciones.some(o => o.modalidad === "preferente" && (o.prestadores?.length ?? 0) > 0);
+        if (hasPreferente) {
+            v.push({
+                code: "E5_HERENCIA_CORTADA_BROKEN",
+                severity: "CRITICA",
+                rowId,
+                message: `Herencia cortada activa, pero aún existen opciones preferentes con prestadores.`,
+                evidence: { nombre }
+            });
+        }
+    }
+
+    // (6) Tope separation: evento vs anual deben estar en campos distintos.
+    for (const o of opciones) {
+        if (o.tope_evento && o.tope_anual && JSON.stringify(o.tope_evento) === JSON.stringify(o.tope_anual)) {
+            v.push({
+                code: "E6_TOPE_COLLAPSE",
+                severity: "ALTA",
+                rowId,
+                message: `Posible colapso: tope_evento y tope_anual idénticos (separación falló).`,
+                evidence: { optionId: o.id, nombre, tope_evento: o.tope_evento, tope_anual: o.tope_anual }
+            });
+        }
+    }
+
+    return v;
+}
 
 // --- INPUT/OUTPUT PATHS ---
 const EXTRACTION_PATH = path.join(process.cwd(), 'extraction_result.json');
@@ -101,6 +596,7 @@ interface LineaPrestacion {
         fuente_linea: string;
         clausula_activa?: boolean;
     };
+    operadores_forenses?: ForensicOperator[];
     fuente_visual: {
         pagina: number;
         fila: number;
@@ -125,19 +621,40 @@ interface LineaEncabezado {
 type Linea = LineaPrestacion | LineaEncabezado;
 
 // --- UTILS ---
+function isValidProvider(name: string): boolean {
+    if (!name) return false;
+    const n = name.toUpperCase().trim();
+    // Regex filtering: Must start with provider keywords
+    const validStartRegex = /^(CLÍNICA|HOSPITAL|RED|INTEGRAMÉDICA|CENTRO MÉDICO|CM)\b/i;
+    // Blacklist: Explicitly reject clinical terms that match column 1 content
+    const clinicalBlacklist = [
+        "DIA CAMA", "ENFERMERÍA", "ENFERMERIA", "MEDICINA", "PEDIATRIA", "PEDIATRÍA",
+        "GINECO", "OBSTETRICIA", "SALA CUNA", "UCI", "UTI", "CORONARIOS", "PABELLÓN",
+        "PABELLON", "CIRUGIA", "CIRUGÍA", "OBSERVACIÓN", "OBSERVACION", "INTERMEDIO",
+        "EXÁMENES", "EXAMENES", "KINESIOLOGÍA", "KINESIOLOGIA", "NUTRICIONISTA"
+    ];
+
+    if (!validStartRegex.test(n)) return false;
+    if (clinicalBlacklist.some(term => n.includes(term))) return false;
+
+    return true;
+}
+
 function cleanProviderName(name: string): string | null {
     if (!name) return null;
     const noisePatterns = [
         /\bHONORARIOS\b/gi, /\bHOSPITALARIOS\b/gi, /\bAMBULATORIOS\b/gi,
         /\bQUIRÚRGICOS\b/gi, /\bHOSPITALARIO\b/gi, /\bAMBULATORIO\b/gi,
-        /\bMÉDICOS\b/gi
+        /\bMÉDICOS\b/gi, /\bSIN TOPE\b/gi
     ];
     let clean = name;
     for (const pattern of noisePatterns) { clean = clean.replace(pattern, '').trim(); }
     clean = clean.replace(/\s+/g, ' ').trim();
     if (!clean || clean.length < 3) return null;
-    const upper = clean.toUpperCase();
-    if (["SIN TOPE", "UF"].some(n => upper.includes(n))) return null;
+
+    // Strict forensic filter
+    if (!isValidProvider(clean)) return null;
+
     return clean;
 }
 
@@ -166,131 +683,6 @@ interface NfeBlock {
     linea_fin: number; // For cartography
     valor: number | null;
     razon?: string;
-}
-
-// ============================================================================
-// RE-EXPANSION OPERATOR: FORMAL IMPLEMENTATION
-// ============================================================================
-
-type BlockEffect = "LIMITANTE" | "NEUTRO" | "EXPANSIVO";
-
-interface OptionNode {
-    id: string;
-    tipo: "preferente" | "libre_eleccion";
-    porcentaje: number | null;
-    tope: Tope | string;
-    prestadores: string[] | "red_abierta";
-    condiciones: string[];
-    path_id?: string;
-    estado: "ACTIVA" | "LATENTE";
-}
-
-interface NonLinearLineState {
-    prestacion_id: string;
-    opciones_activas: Map<string, OptionNode>;
-    opciones_latentes: Map<string, OptionNode>;
-    restricciones: Array<{ tipo: string; valor: any; origen: string }>;
-    historial_bloques: string[];
-    nfe_activo: NfeBlock | null;
-}
-
-function classifyBlockEffect(text: string): BlockEffect {
-    const upper = text.toUpperCase().trim();
-
-    // EXPANSIVO: Re-enables options
-    if (upper.includes("SIN TOPE") || upper === "SIN LÍMITE" || upper === "SIN RESTRICCIÓN") {
-        return "EXPANSIVO";
-    }
-
-    // LIMITANTE: Reduces options with specific caps
-    if (upper.match(/\\d+\\s*(UF|VECES|AC2)/) || upper.includes("TOPE") && !upper.includes("SIN TOPE")) {
-        return "LIMITANTE";
-    }
-
-    // NEUTRO: Headers, labels, informational
-    return "NEUTRO";
-}
-
-/**
- * RE Operator: Applies block effect to current state
- * RE(B, S, M) → S'
- * 
- * - LIMITANTE: Moves affected options from activas to latentes
- * - NEUTRO: No change
- * - EXPANSIVO: Moves affected options from latentes back to activas
- */
-function applyReExpansion(
-    block: { effect: BlockEffect; restriccion?: any; origen: string },
-    state: NonLinearLineState
-): NonLinearLineState {
-    const newState = { ...state };
-
-    switch (block.effect) {
-        case "LIMITANTE":
-            // Add restriction, options remain but are constrained
-            if (block.restriccion) {
-                newState.restricciones = [...state.restricciones, {
-                    tipo: block.restriccion.tipo,
-                    valor: block.restriccion.valor,
-                    origen: block.origen
-                }];
-            }
-            newState.historial_bloques = [...state.historial_bloques, block.origen];
-            break;
-
-        case "EXPANSIVO":
-            // RE-EXPANSION: Move latent options back to active
-            // This is the KEY operation that was missing
-            for (const [id, option] of state.opciones_latentes) {
-                option.estado = "ACTIVA";
-                newState.opciones_activas.set(id, option);
-            }
-            newState.opciones_latentes = new Map();
-            newState.historial_bloques = [...state.historial_bloques, block.origen];
-            break;
-
-        case "NEUTRO":
-            // No change to options
-            break;
-    }
-
-    return newState;
-}
-
-/**
- * Creates initial NonLinearLineState for a prestation
- */
-function initializeLineState(prestacionId: string): NonLinearLineState {
-    return {
-        prestacion_id: prestacionId,
-        opciones_activas: new Map(),
-        opciones_latentes: new Map(),
-        restricciones: [],
-        historial_bloques: [],
-        nfe_activo: null
-    };
-}
-
-// ============================================================================
-// OPERADOR DE COBERTURA: Formal Definition
-// ============================================================================
-
-interface OperadorCobertura {
-    tipo: "expand" | "contraer" | "reexpandir";
-    ambito: "prestacion" | "grupo_prestaciones" | "global";
-    efecto: {
-        porcentaje?: number;
-        tope?: Tope | "SIN_TOPE";
-    };
-    condicion_aplicacion: {
-        prestaciones_afectadas?: string[];
-        columna_origen: string;
-    };
-    fuente_visual: {
-        pagina: number;
-        columna: number;
-        filas: [number, number];
-    };
 }
 
 interface TopeActivo {
@@ -351,84 +743,59 @@ function buildTopesStack(
 // OPERADOR APLICADO: Dynamic RE Operator History
 // ============================================================================
 
-interface OperadorAplicado {
-    secuencia: number;
-    bloque_id: string;
-    tipo_efecto: BlockEffect;
-    descripcion: string;
-    restriccion_nueva?: {
-        tipo: string;
-        valor: any;
-        ambito: string;
-    };
-    opciones_afectadas: {
-        reactivadas: string[];
-        restringidas: string[];
-    };
-    fuente: string;
-}
+// -----------------------------------------------------
+// 4) RE Operator (Deprecated local version removed)
+// -----------------------------------------------------
 
 /**
- * Builds the operadores_aplicados history for a prestation
- * This shows the SEQUENCE of RE operator applications
+ * Builds the EFNL (Estado Financiero No Lineal) history
+ * Captures the forest of rules without collapsing them.
  */
-function buildOperadoresHistorial(
+function buildHistorialFinanciero(
     leTope: Tope | null,
     nfeBlock: NfeBlock | null,
     lineaId: string,
-    pathIds: string[]
-): OperadorAplicado[] {
-    const historial: OperadorAplicado[] = [];
-    let seq = 0;
+    contexto: any,
+    isExcluded: boolean
+): HistorialFinancieroEntry[] {
+    const historial: HistorialFinancieroEntry[] = [];
 
-    // Step 1: Base state - all preferente paths are ACTIVA
-    // (This is implicit, no operator needed)
-
-    // Step 2: If AC2/UF tope exists, it's a LIMITANTE operator
-    if (leTope && (leTope.tipo === "AC2" || leTope.tipo === "UF")) {
-        seq++;
+    // Layer 1: Exclusion (Green Line)
+    if (isExcluded || contexto.modalidad_base === "libre_eleccion") {
         historial.push({
-            secuencia: seq,
-            bloque_id: leTope.origen || lineaId,
-            tipo_efecto: "LIMITANTE",
-            descripcion: leTope.tipo === "AC2"
-                ? `Tope por evento: ${leTope.factor} veces AC2`
-                : `Tope por evento: ${leTope.valor} UF`,
-            restriccion_nueva: {
-                tipo: leTope.tipo,
-                valor: leTope.tipo === "AC2" ? leTope.factor : leTope.valor,
-                ambito: "por_prestacion"
-            },
-            opciones_afectadas: {
-                reactivadas: [],
-                restringidas: ["libre_eleccion"]  // LE is now constrained
-            },
+            tipo: "exclusion_modal",
+            valor: "solo_libre_eleccion",
+            descripcion: isExcluded ? "BARRERA: Green Line Cut (Solo Libre Elección)" : "Régimen General Libre Elección",
+            fuente: contexto.heredada_desde || lineaId
+        });
+    }
+
+    // Layer 2: Regime (Base Coverage)
+    historial.push({
+        tipo: "regimen",
+        porcentaje: contexto.porcentaje_le || 90,
+        descripcion: `Cobertura base del ${contexto.porcentaje_le || 90}%`
+    });
+
+    // Layer 3: Event Tope
+    if (leTope && (leTope.tipo === "AC2" || leTope.tipo === "UF" || leTope.tipo === "VARIABLE")) {
+        historial.push({
+            tipo: "tope_evento",
+            unidad: leTope.tipo === "AC2" ? "veces AC2" : (leTope.tipo === "UF" ? "UF" : "VARIABLE"),
+            valor: leTope.tipo === "AC2" ? leTope.factor : (leTope.tipo === "UF" ? leTope.valor : null),
+            descripcion: leTope.tipo === "VARIABLE" ? "Variable según arancel" : `Límite por evento: ${leTope.tipo === "AC2" ? leTope.factor + "x AC2" : leTope.valor + " UF"}`,
             fuente: leTope.origen || lineaId
         });
     }
 
-    // Step 3: If NFE block exists, classify and apply RE operator
+    // Layer 4: Annual Tope (NFE)
     if (nfeBlock) {
-        seq++;
-        const isExpansivo = nfeBlock.razon === "SIN_TOPE_EXPRESO";
-
+        const isSinTope = nfeBlock.razon === "SIN_TOPE_EXPRESO";
         historial.push({
-            secuencia: seq,
-            bloque_id: nfeBlock.bloque_id,
-            tipo_efecto: isExpansivo ? "EXPANSIVO" : "LIMITANTE",
-            descripcion: isExpansivo
-                ? "RE-EXPANSIÓN: Tope anual NFE eliminado (SIN TOPE)"
-                : `Tope anual NFE: ${nfeBlock.valor} UF`,
-            restriccion_nueva: {
-                tipo: "NFE",
-                valor: isExpansivo ? null : nfeBlock.valor,
-                ambito: "anual_beneficiario"
-            },
-            opciones_afectadas: {
-                // EXPANSIVO reactivates all paths that were latent due to annual limits
-                reactivadas: isExpansivo ? [...pathIds, "libre_eleccion"] : [],
-                restringidas: isExpansivo ? [] : [...pathIds, "libre_eleccion"]
-            },
+            tipo: "tope_anual",
+            unidad: isSinTope ? null : "UF",
+            valor: isSinTope ? "SIN_TOPE" : nfeBlock.valor,
+            descripcion: isSinTope ? "Re-expansión: Cobertura anual ILIMITADA" : `Límite máximo año beneficiario: ${nfeBlock.valor} UF`,
             fuente: `L${nfeBlock.pagina}_${nfeBlock.linea_inicio}`
         });
     }
@@ -453,7 +820,7 @@ function computeNfeBlocks(lineas: ExtractionLine[], stoppersByPage: Map<number, 
                 if (upperText.includes("SIN TOPE")) {
                     found = { valor: null, razon: "SIN_TOPE_EXPRESO" };
                 } else {
-                    const ac2Match = text.match(/[\d+[.,]?\d*]*\s*veces\s*AC2/i);
+                    const ac2Match = text.match(/\d+([.,]\d+)?\s*veces\s*AC2/i);
                     let textToScan = text;
                     if (ac2Match) {
                         textToScan = text.replace(ac2Match[0], "");
@@ -471,8 +838,15 @@ function computeNfeBlocks(lineas: ExtractionLine[], stoppersByPage: Map<number, 
 
                 if (found) {
                     if (!nfePointsByPage.has(line.pagina)) nfePointsByPage.set(line.pagina, []);
-                    nfePointsByPage.get(line.pagina)!.push({ linea: line.indice_linea, ...found });
-                    break;
+                    const existing = nfePointsByPage.get(line.pagina)!.find(p => p.linea === line.indice_linea);
+                    if (existing) {
+                        if (found.razon === "SIN_TOPE_EXPRESO") {
+                            existing.valor = null;
+                            existing.razon = "SIN_TOPE_EXPRESO";
+                        }
+                    } else {
+                        nfePointsByPage.get(line.pagina)!.push({ linea: line.indice_linea, ...found });
+                    }
                 }
             }
         }
@@ -547,12 +921,39 @@ async function runCanonizer() {
     const extractionData = JSON.parse(fs.readFileSync(EXTRACTION_PATH, 'utf-8'));
     const expansionData: ExpansionData = JSON.parse(fs.readFileSync(EXPANSION_PATH, 'utf-8'));
 
+    // --- EXTRACTION: ARANCEL AC2 VALOR EN PESOS (PAG 3) ---
+    let ac2PesosValue: number | null = null;
+    for (const line of extractionData.lineas as ExtractionLine[]) {
+        if (line.pagina === 3 && line.texto_plano) {
+            const t = line.texto_plano.toUpperCase();
+            if (t.includes("NOMBRE DEL ARANCEL : AC2") && t.includes("PESOS")) {
+                const idx = (extractionData.lineas as ExtractionLine[]).indexOf(line);
+                // Look ahead 5 lines for a peso amount
+                for (let i = idx; i < idx + 5; i++) {
+                    const l = (extractionData.lineas as ExtractionLine[])[i];
+                    if (!l || !l.texto_plano) continue;
+                    const m = l.texto_plano.match(/\$\s*([\d.]+)/);
+                    if (m) {
+                        ac2PesosValue = Number(m[1].replace(/\./g, ''));
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     const output = {
         contrato: {
             metadata: {
-                fuente: extractionData.metadata?.fuente || "unknown",
-                tipo: "salud_isapre",
-                fecha_procesamiento: new Date().toISOString()
+                ...extractionData.metadata,
+                fecha_procesamiento: new Date().toISOString(),
+                aranceles: {
+                    AC2: {
+                        nombre: "Arancel Consalud 2",
+                        unidad: "PESOS",
+                        valor_pesos: ac2PesosValue
+                    }
+                }
             },
             tabla_prestaciones: {
                 ambito: "Hospitalarias y Cirugía Mayor Ambulatoria",
@@ -572,7 +973,11 @@ async function runCanonizer() {
 
     const stoppersByPage = new Map<number, number[]>();
     for (const line of (extractionData.lineas as ExtractionLine[])) {
-        if (line.tipo === 'cabecera_tabla' || line.tipo === 'titulo_seccion') {
+        const text = line.texto_plano?.toUpperCase() || "";
+        const isStructuralStopper = line.tipo === 'cabecera_tabla' || line.tipo === 'titulo_seccion';
+        const isForensicStopper = text.includes("MEDICAMENTOS") || text.includes("MATERIALES") || text.includes("TRASLADOS");
+
+        if (isStructuralStopper || isForensicStopper) {
             if (!stoppersByPage.has(line.pagina)) stoppersByPage.set(line.pagina, []);
             stoppersByPage.get(line.pagina)!.push(line.indice_linea);
         }
@@ -612,6 +1017,8 @@ async function runCanonizer() {
 
     output.contrato.tabla_prestaciones.oferta_preferente_paths = Array.from(preferentePathsById.values());
 
+    output.contrato.tabla_prestaciones.oferta_preferente_paths = Array.from(preferentePathsById.values());
+
     function preferentePathsForLine(pagina: number, indice_linea: number): string[] {
         const allPaths: string[] = [];
         const pageStoppers = stoppersByPage.get(pagina) || [];
@@ -633,7 +1040,9 @@ async function runCanonizer() {
         return allPaths;
     }
 
-    function getNfeForLine(pagina: number, indice_linea: number): LineaPrestacion['nfe'] {
+    function getNfeForLine(pagina: number, indice_linea: number, text: string): LineaPrestacion['nfe'] {
+        const t = text.toUpperCase();
+        const isFinancialSensitive = t.includes("PRÓTESIS") || t.includes("PROTESIS") || t.includes("ÓRTESIS") || t.includes("ORTESIS") || t.includes("TRASLADO") || t.includes("TRANSPLANTE");
         const pageStoppers = stoppersByPage.get(pagina) || [];
         const prevStopper = [...pageStoppers].reverse().find(s => s <= indice_linea);
 
@@ -657,7 +1066,11 @@ async function runCanonizer() {
             }
         }
 
-        if (bestNfe && minDistance <= 8) {
+        // RADIUS CONTROL: Sensitive financial items (Gold Standard) have zero tolerance for inheritance.
+        // They must either have an explicit NFE on the same line or they are a VACUUM.
+        const radius = isFinancialSensitive ? 0 : 8;
+
+        if (bestNfe && minDistance <= radius) {
             return {
                 aplica: true,
                 valor: bestNfe.valor,
@@ -669,43 +1082,124 @@ async function runCanonizer() {
             };
         }
 
+        if (isFinancialSensitive && !t.includes("SIN TOPE")) {
+            return {
+                aplica: true,
+                valor: null,
+                unidad: null,
+                bloque_id: "NFE_VACUUM",
+                razon: "VACIO_CONTRACTUAL_FORENSE", // Strict Forensic Gold Standard
+                fuente_linea: `L${pagina}_${indice_linea}`,
+                clausula_activa: false
+            };
+        }
+
         return { aplica: false, valor: null, unidad: null, bloque_id: "NONE", fuente_linea: "NONE" };
     }
 
-    let lastHeaderId: string = "ROOT";
-    let lastHeaderText: string = "INICIO CONTRATO";
-    const state = {
-        modalidad_base: "preferente" as "preferente" | "libre_eleccion",
-        tiene_libre_eleccion: true,
-        porcentaje_le: 90,
-        regla_financiera_le: null as { tipo: "AC2"; factor: number; origen: string; sin_tope_adicional: boolean } | null
+    // State management
+    const stateByRowSeg = new Map<string, LineState>();
+
+    // Initial global state (inherited)
+    let currentInheritedState: LineState = {
+        opciones_activas: new Set(),
+        opciones_latentes: [],
+        restricciones: [],
+        historial_bloques: [],
+        dominio: "CLINICO",
+        herencia_cortada: false,
+        nfe: {
+            valor: null,
+            bloque_id: "NONE",
+            razon: "INITIAL",
+            fuente_linea: "INITIAL"
+        }
     };
 
     for (const rawLine of (extractionData.lineas as ExtractionLine[])) {
-        const key = `${rawLine.pagina}_${rawLine.indice_linea}`;
-        const asigs = asigByLine.get(key) || [];
-        const textoLimpio = rawLine.texto_plano?.trim() || "";
         const lineId = `L${rawLine.pagina}_${rawLine.indice_linea}`;
+        const textoLimpio = rawLine.texto_plano?.trim() || "";
+        const asigs = asigByLine.get(`${rawLine.pagina}_${rawLine.indice_linea}`) || [];
 
-        const isExclusionPhrase = textoLimpio.match(/Solo cobertura libre elección/i);
-        const isLEHeading = textoLimpio.match(/LIBRE ELECCIÓN/i) && !textoLimpio.match(/OFERTA PREFERENTE/i);
+        // 1. Create Segment Block (Conceptual)
+        // We treat the whole line as one block for operator detection initially
+        const block: SemanticBlock = {
+            id: lineId,
+            text: textoLimpio,
+            col: 0, // Text mode
+            rowId: lineId,
+            segmentId: "MAIN",
+            effect: "NEUTRO",
+            scope: inferScope(0, textoLimpio)
+        };
+        block.effect = classifyBlockEffect(textoLimpio);
 
-        if (isExclusionPhrase || isLEHeading) {
-            state.modalidad_base = "libre_eleccion";
-            lastHeaderId = lineId; lastHeaderText = textoLimpio;
-            const factorAC2 = parseVecesAC2(textoLimpio);
-            if (factorAC2 !== null) { state.regla_financiera_le = { tipo: "AC2", factor: factorAC2, origen: lineId, sin_tope_adicional: true }; }
-            output.contrato.tabla_prestaciones.lineas.push({
-                linea_id: lineId, tipo: "fase_logica", texto: textoLimpio,
-                efecto: { tipo: "cambio_modalidad", nueva_modalidad: "libre_eleccion", porcentaje: 90 },
-                fuente_visual: { pagina: rawLine.pagina, fila: rawLine.indice_linea }
-            });
-            continue;
+        // 2. Detect Operators
+        const ops = detectOperators(block);
+        const rowLocalOps = [...ops]; // Collection for this specific row
+        const forensicOps: ForensicOperator[] = []; // Collect forensic operators for this line
+
+        // 3. Apply Operators to State
+        // First, apply "vertical" operators (like HERENCIA_CORTADA persisting downwards)
+        // If HERENCIA_CORTADA is detected, it modifies the *inherited* state for this and future lines
+        // Detección estricta de NFE por Columna 7 o 8 (Geometric Evidence)
+        const hasCellInNfeCols = rawLine.celdas?.some(c => c.indice_columna >= 7);
+        const cellText78 = rawLine.celdas?.filter(c => c.indice_columna >= 7).map(c => c.texto).join(" ");
+
+        let nfeStateValue = currentInheritedState.nfe?.valor;
+        let nfeStateBloqueId = currentInheritedState.nfe?.bloque_id;
+        let nfeStateRazon = currentInheritedState.nfe?.razon;
+        let nfeStateFuente = currentInheritedState.nfe?.fuente_linea;
+
+        if (hasCellInNfeCols && cellText78!.trim() !== "") {
+            const nfeText = cellText78!;
+            const mUF = nfeText.match(/(\d+([.,]\d+)?)\s*UF/i);
+            const isSinTopeExpreso = /SIN\s*TOPE/i.test(nfeText);
+
+            if (isSinTopeExpreso) {
+                nfeStateValue = null;
+                nfeStateBloqueId = `NFE_${rawLine.pagina}_${rawLine.indice_linea}`;
+                nfeStateRazon = "SIN_TOPE_EXPRESO";
+                nfeStateFuente = `L${rawLine.pagina}_${rawLine.indice_linea}`;
+            } else if (mUF) {
+                nfeStateValue = Number(mUF[1].replace(",", "."));
+                nfeStateBloqueId = `NFE_${rawLine.pagina}_${rawLine.indice_linea}`;
+                nfeStateRazon = "TOPE_UF_EXPRESO";
+                nfeStateFuente = `L${rawLine.pagina}_${rawLine.indice_linea}`;
+            }
+        } else if (hasCellInNfeCols && cellText78!.trim() === "") {
+            // Inherit (rowspan evidence)
+        } else {
+            // No cell in NFE columns: Reset inheritance
+            nfeStateValue = null;
+            nfeStateBloqueId = "NFE_DEFAULT";
+            nfeStateRazon = "INHERITANCE_RESET";
+            nfeStateFuente = "RESET";
         }
 
+        // Update inherited state for next iterations
+        currentInheritedState = {
+            ...currentInheritedState,
+            nfe: {
+                valor: nfeStateValue,
+                bloque_id: nfeStateBloqueId,
+                razon: nfeStateRazon,
+                fuente_linea: nfeStateFuente
+            }
+        };
+
+        let currentState = { ...currentInheritedState };
+        currentState = applyOperators(currentState, ops);
+
+        // Update inherited state for next lines if we are in a section header logic
+        // But mainly we process the CURRENT line
+
+        // Maintain state by row
+        stateByRowSeg.set(lineId, currentState);
+
         if (textoLimpio.match(/OFERTA PREFERENTE|¿QUÉ ES UN PLAN PREFERENTE?/i) && !asigs.length) {
-            state.modalidad_base = "preferente"; state.regla_financiera_le = null;
-            lastHeaderId = lineId; lastHeaderText = textoLimpio;
+            currentInheritedState.dominio = "CLINICO";
+            currentInheritedState.herencia_cortada = false;
             output.contrato.tabla_prestaciones.lineas.push({
                 linea_id: lineId, tipo: "encabezado", texto: textoLimpio,
                 fuente_visual: { pagina: rawLine.pagina, fila: rawLine.indice_linea }
@@ -713,79 +1207,127 @@ async function runCanonizer() {
             continue;
         }
 
-        const possibleRule = asigs.length > 0 ? asigs[0].prestacion_textual : textoLimpio;
-        const factorAC2 = parseVecesAC2(possibleRule);
-        if (factorAC2 !== null) { state.regla_financiera_le = { tipo: "AC2", factor: factorAC2, origen: lineId, sin_tope_adicional: true }; continue; }
+        const isExclusionPhrase = ops.some(op => op.type === "HERENCIA_CORTADA");
+        const isLEHeading = textoLimpio.match(/LIBRE ELECCIÓN/i) && !textoLimpio.match(/OFERTA PREFERENTE/i);
+
+        if (isExclusionPhrase || isLEHeading) {
+            currentState.herencia_cortada = true;
+            currentState.dominio = "FINANCIERO"; // Often implies financial mode
+            currentInheritedState = { ...currentState }; // Persist this mode
+
+            // FORENSIC RECORDING
+            if (isExclusionPhrase) forensicOps.push({ tipo: "OP_CORTE_HERENCIA", fuente_linea: lineId });
+            if (isLEHeading) forensicOps.push({ tipo: "OP_CAMBIO_DOMINIO", fuente_linea: lineId });
+
+            output.contrato.tabla_prestaciones.lineas.push({
+                linea_id: lineId, tipo: "fase_logica", texto: textoLimpio,
+                efecto: { tipo: "cambio_modalidad", nueva_modalidad: "libre_eleccion", porcentaje: 90 },
+                fuente_visual: { pagina: rawLine.pagina, fila: rawLine.indice_linea }
+            });
+
+            // CRITICAL FIX: Only skip if NO assignments. If there ARE assignments (like TRASLADOS),
+            // we must proceed to the prestation processing below.
+            if (!asigs.length) continue;
+        }
+
+        // Logic for PRESTACIONES lines
+        const factorAC2 = parseVecesAC2(textoLimpio);
+        if (factorAC2 !== null) {
+            // Register implicit financial rule if found in text
+            currentState.restricciones.push({
+                scope: "TOPE_EVENTO", kind: "TOPE_AC2", value: factorAC2, raw: "Implicit Text", byBlock: lineId
+            });
+
+            // CRITICAL FIX: Only skip if this is ONLY a financial factor line without a prestation assignment.
+            // Prestations like "TRASLADOS" often have the factor in the name line.
+            if (!asigs.length) continue;
+        }
 
         if (asigs.length > 0) {
             const prestacionName = asigs[0].prestacion_textual;
+
+            // Check Explicit Exclusion from Assignment
             const prefAsigs = asigs.filter(a => a.modalidad === 'preferente');
             const isExcluded = prefAsigs.some(a => expansionData.bloques.find(b => b.bloque_id === a.bloque_id)?.tipo_bloque === 'exclusion_modalidad');
 
             if (isExcluded) {
-                lastHeaderId = lineId; lastHeaderText = `EXCLUSIÓN PREFERENTE: ${prestacionName}`;
-                output.contrato.tabla_prestaciones.lineas.push({
-                    linea_id: lineId, tipo: "fase_logica", texto: lastHeaderText,
-                    efecto: { tipo: "cambio_modalidad", nueva_modalidad: "libre_eleccion" },
-                    fuente_visual: { pagina: rawLine.pagina, fila: rawLine.indice_linea }
-                });
-                state.modalidad_base = "libre_eleccion"; state.regla_financiera_le = null; continue;
+                currentState.herencia_cortada = true;
             }
 
-            const pathsAplicables = (state.modalidad_base === "preferente") ? preferentePathsForLine(rawLine.pagina, rawLine.indice_linea) : [];
+            const pathsAplicables = (!currentState.herencia_cortada) ? preferentePathsForLine(rawLine.pagina, rawLine.indice_linea) : [];
             let rowTopeLE: Tope | null = null;
 
-            // FORENSIC: Active Block NFE State Logic
-            // Check if this line is covered by an expanding Active Block
-            let nfeStatus: LineaPrestacion['nfe'] = { aplica: false, valor: null, unidad: null, bloque_id: "NONE", fuente_linea: "NONE" };
-
-            // 1. Is there a dominant active block from the cartography?
-            // The active block should have been determined by the loop logic
-            const pageBlocks = nfeBlocks.filter(b => b.pagina === rawLine.pagina);
-            // Find ALL matching blocks
-            const matchingBlocks = pageBlocks.filter(b => rawLine.indice_linea >= b.linea_inicio && rawLine.indice_linea <= b.linea_fin);
-
-            let activeBlock: NfeBlock | undefined;
-
-            if (matchingBlocks.length > 0) {
-                // Priority Rule: "SIN_TOPE_EXPRESO" overrides numerical artifacts in overlaps
-                // Sort so that Sin Tope comes first
-                matchingBlocks.sort((a, b) => {
-                    if (a.razon === "SIN_TOPE_EXPRESO" && b.razon !== "SIN_TOPE_EXPRESO") return -1;
-                    if (b.razon === "SIN_TOPE_EXPRESO" && a.razon !== "SIN_TOPE_EXPRESO") return 1;
-
-                    // Secondary sort: Proximity of definition line?
-                    // If multiple SAME types, maybe closest definition wins?
-                    const distA = Math.abs(a.linea_inicio - rawLine.indice_linea); // Actually definition is mostly at start or end?
-                    // "p.linea" is not stored in block directly, but usually start or end.
-                    // Let's just assume definition line is what created the block.
-                    // For now, Sin Tope priority is the key fix.
-                    return 0;
-                });
-                activeBlock = matchingBlocks[0];
-            }
-
-            if (activeBlock) {
-                nfeStatus = {
-                    aplica: true,
-                    valor: activeBlock.valor,
-                    unidad: activeBlock.valor !== null ? "UF" : null,
-                    bloque_id: activeBlock.bloque_id,
-                    razon: activeBlock.razon,
-                    fuente_linea: `L${activeBlock.pagina}_${activeBlock.linea_inicio}`,
-                    clausula_activa: activeBlock.razon === "SIN_TOPE_EXPRESO"
-                };
-            } else {
-                // Fallback to proximity
-                nfeStatus = getNfeForLine(rawLine.pagina, rawLine.indice_linea);
-            }
-
+            // Extract Restrictions from cells
             if (rawLine.celdas) {
                 for (const cell of rawLine.celdas) {
-                    const ct = cell.texto?.trim() || "";
-                    const fAC2 = parseVecesAC2(ct);
-                    if (fAC2 !== null) { rowTopeLE = { tipo: "AC2", factor: fAC2, origen: lineId, sin_tope_adicional: true }; }
+                    // Create pseudo-block for cell
+                    const cellBlock: SemanticBlock = {
+                        id: `${lineId}_C${cell.indice_columna}`,
+                        text: cell.texto || "",
+                        col: cell.indice_columna,
+                        rowId: lineId,
+                        segmentId: `SEG_C${cell.indice_columna}`,
+                        effect: classifyBlockEffect(cell.texto || ""),
+                        scope: inferScope(cell.indice_columna, cell.texto || "")
+                    };
+                    const cellOps = detectOperators(cellBlock);
+                    rowLocalOps.push(...cellOps);
+                    currentState = applyOperators(currentState, cellOps);
                 }
+            }
+
+            // Mapping State Restrictions to Legacy Logic (Hybrid Glue)
+            // FORENSIC: Prioritize operators found in THIS row (rowLocalOps) over inherited ones
+            const localAc2Op = rowLocalOps.find(op => op.type === "TOPE_EVENTO" && op.restr.kind === "TOPE_AC2") as any;
+            const localUfOp = rowLocalOps.find(op => op.type === "TOPE_EVENTO" && op.restr.kind === "TOPE_UF") as any;
+
+            const inheritedAc2Restr = currentState.restricciones.find(r => r.kind === "TOPE_AC2");
+            const inheritedUfRestr = currentState.restricciones.find(r => r.kind === "TOPE_UF" && (r.scope === "TOPE_EVENTO" || r.scope === "FINANCIAL_DOMAIN"));
+
+            if (localAc2Op) {
+                rowTopeLE = { tipo: "AC2", factor: localAc2Op.restr.value, origen: localAc2Op.restr.byBlock, sin_tope_adicional: true };
+            } else if (localUfOp) {
+                rowTopeLE = { tipo: "UF", valor: localUfOp.restr.value, origen: localUfOp.restr.byBlock };
+            } else if (inheritedAc2Restr && inheritedAc2Restr.value) {
+                rowTopeLE = { tipo: "AC2", factor: inheritedAc2Restr.value, origen: inheritedAc2Restr.byBlock, sin_tope_adicional: true };
+            } else if (inheritedUfRestr && inheritedUfRestr.value) {
+                rowTopeLE = { tipo: "UF", valor: inheritedUfRestr.value, origen: inheritedUfRestr.byBlock };
+            }
+
+            // FORENSIC: Active Block NFE State Logic (Legacy Integration)
+            let nfeStatus = getNfeForLine(rawLine.pagina, rawLine.indice_linea, textoLimpio);
+
+
+
+
+            let nfeOp = rowLocalOps.find(op => op.type === "TOPE_ANUAL_NFE") as any;
+            if (nfeOp) {
+                const restr = nfeOp.restr;
+                nfeStatus = {
+                    aplica: true,
+                    valor: restr.kind === "SIN_TOPE" ? null : restr.value || null,
+                    unidad: restr.kind !== "SIN_TOPE" ? "UF" : null,
+                    bloque_id: restr.byBlock,
+                    razon: restr.kind === "SIN_TOPE" ? "SIN_TOPE_EXPRESO" : undefined,
+                    fuente_linea: lineId,
+                    clausula_activa: restr.kind === "SIN_TOPE"
+                };
+
+                if (restr.kind === "SIN_TOPE") {
+                    forensicOps.push({ tipo: "OP_RE_EXPANSION_NFE", fuente_linea: lineId, detalle: "Sin Tope Expreso" });
+                }
+            } else if (nfeStatus.razon === "VACIO_CONTRACTUAL_FORENSE" || ((rowLocalOps.some(op => op.type === "CAMBIO_DOMINIO_FINANCIERO") || textoLimpio.includes("PRÓTESIS") || textoLimpio.includes("ÓRTESIS")) && nfeStatus.bloque_id === "NONE")) {
+
+                // Force NFE active state for Vacuum
+                if (nfeStatus.bloque_id === "NONE") {
+                    nfeStatus = {
+                        aplica: true, valor: null, unidad: null,
+                        bloque_id: "NFE_VACUUM", razon: "VACIO_CONTRACTUAL_FORENSE",
+                        fuente_linea: lineId, clausula_activa: false
+                    };
+                }
+
+                forensicOps.push({ tipo: "OP_VACIO_CONTRACTUAL", fuente_linea: lineId, detalle: "Vacuum detected in financial domain" });
             }
 
             // Generate Logical ID for Traceability
@@ -797,18 +1339,24 @@ async function runCanonizer() {
                 tipo: "prestacion",
                 nombre: prestacionName,
                 contexto: {
-                    modalidad_base: state.modalidad_base, tiene_libre_eleccion: true, porcentaje_le: state.porcentaje_le,
-                    origen_porcentaje_le: state.porcentaje_le === 90 ? "implicit_global" : "explicit",
-                    heredada_desde: lastHeaderId, texto_origen: lastHeaderText,
-                    origen_herencia: pathsAplicables.length > 0 ? "explicit" : "inherited"
+                    modalidad_base: currentState.herencia_cortada ? "libre_eleccion" : "preferente",
+                    tiene_libre_eleccion: true,
+                    porcentaje_le: 90, // Default 90 if not specified
+                    origen_porcentaje_le: "implicit_global",
+                    heredada_desde: "ROOT", // Simplified
+                    origen_herencia: currentState.herencia_cortada ? "explicit" : "inherited"
                 },
-                preferente: { aplica: !isExcluded, paths: pathsAplicables },
+                preferente: {
+                    aplica: !currentState.herencia_cortada && pathsAplicables.length > 0,
+                    paths: (!currentState.herencia_cortada) ? pathsAplicables : []
+                },
                 libre_eleccion: {
-                    aplica: true, porcentaje: state.porcentaje_le,
-                    tope: rowTopeLE || state.regla_financiera_le || { tipo: "VARIABLE" },
-                    heredado: !rowTopeLE && !state.regla_financiera_le
+                    aplica: true, porcentaje: 90,
+                    tope: rowTopeLE || { tipo: "VARIABLE" },
+                    heredado: !rowTopeLE
                 },
                 nfe: nfeStatus,
+                operadores_forenses: forensicOps,
                 fuente_visual: { pagina: rawLine.pagina, fila: rawLine.indice_linea }
             });
         } else if (rawLine.tipo === 'cabecera_tabla' || (textoLimpio.length > 3 && textoLimpio.length < 100)) {
@@ -838,13 +1386,14 @@ async function runCanonizer() {
         ambito: string;
         opciones: Opcion[];  // All options including latent
         topes_activos: TopeActivo[];  // STACK: AC2 + NFE coexist as separate layers
-        operadores_aplicados: OperadorAplicado[];  // RE Operator application history
-        estado_grafo: {
+        historial_financiero: HistorialFinancieroEntry[];  // EFNL model
+        estado_no_lineal_de_linea: {
             opciones_activas: number;
             opciones_latentes: number;
             ultimo_bloque_aplicado?: string;
         };
         nfe_resumen: LineaPrestacion['nfe'];
+        operadores_forenses?: ForensicOperator[]; // Exposed in Consolidated View
         decision_final: "PENDIENTE_CUENTA_PACIENTE";
     }
 
@@ -862,13 +1411,26 @@ async function runCanonizer() {
                 ambito: "hospitalario",
                 opciones: [],
                 topes_activos: [],
-                operadores_aplicados: [],  // RE Operator history
-                estado_grafo: { opciones_activas: 0, opciones_latentes: 0 },
+                historial_financiero: [],  // EFNL sequence
+                estado_no_lineal_de_linea: { opciones_activas: 0, opciones_latentes: 0 },
                 nfe_resumen: prestLinea.nfe,
+                // Inherit forensic ops from the first line definition
+                operadores_forenses: prestLinea.operadores_forenses || [],
                 decision_final: "PENDIENTE_CUENTA_PACIENTE"
             });
         }
         const consolidated = consolidationMap.get(normalizedName)!;
+
+        // Merge forensic operators from all lines (deduplicate by type)
+        if (prestLinea.operadores_forenses) {
+            for (const fOp of prestLinea.operadores_forenses) {
+                if (!consolidated.operadores_forenses) consolidated.operadores_forenses = [];
+                if (!consolidated.operadores_forenses.some(existing => existing.tipo === fOp.tipo)) {
+                    consolidated.operadores_forenses.push(fOp);
+                }
+            }
+        }
+
         if (prestLinea.nfe.aplica && !consolidated.nfe_resumen.aplica) {
             consolidated.nfe_resumen = prestLinea.nfe;
         }
@@ -893,21 +1455,22 @@ async function runCanonizer() {
             }
         }
 
-        // Build operadores_aplicados historial (RE Operator sequence)
-        // Only build once per prestation (first line encounter)
-        if (consolidated.operadores_aplicados.length === 0) {
-            const pathIds = prestLinea.preferente.paths || [];
-            const operadoresHistorial = buildOperadoresHistorial(
+        // Build historial_financiero (EFNL model)
+        if (consolidated.historial_financiero.length === 0) {
+            const hist = buildHistorialFinanciero(
                 leTopeForStack,
                 nfeBlockForStack,
                 prestLinea.linea_id,
-                pathIds
+                prestLinea.contexto,
+                !prestLinea.preferente.aplica || prestLinea.preferente.paths.length === 0
             );
-            consolidated.operadores_aplicados = operadoresHistorial;
+            consolidated.historial_financiero = hist;
 
-            // Update estado_grafo with last applied block
-            if (operadoresHistorial.length > 0) {
-                consolidated.estado_grafo.ultimo_bloque_aplicado = operadoresHistorial[operadoresHistorial.length - 1].bloque_id;
+            // Update state with last relevant block
+            if (nfeBlockForStack) {
+                consolidated.estado_no_lineal_de_linea.ultimo_bloque_aplicado = nfeBlockForStack.bloque_id;
+            } else if (leTopeForStack) {
+                consolidated.estado_no_lineal_de_linea.ultimo_bloque_aplicado = leTopeForStack.origen;
             }
         }
 
@@ -924,7 +1487,7 @@ async function runCanonizer() {
                     modalidad: "preferente",
                     grupo_decisional: "OFERTA_PREFERENTE",
                     subtipo: pathBlock.modalidad_codigo || "institucional",
-                    prestadores: pathBlock.prestadores,
+                    prestadores: [...pathBlock.prestadores],
                     porcentaje: pathBlock.porcentaje,
                     tope: pathBlock.tope.tipo || "SIN_TOPE",
                     condiciones: pathBlock.condiciones,
@@ -933,9 +1496,77 @@ async function runCanonizer() {
                     requiere: ["prestador_real", "prestacion_facturada", "modalidad_aplicada_en_cuenta"],
                     fuente: [prestLinea.linea_id]
                 };
+
+                // --- LOCAL ENRICHMENT (Per-Prestation and Per-Percentage) ---
+                const targetNameUpper = prestLinea.nombre.toUpperCase();
+                const targetShort = targetNameUpper.includes("LABORATORIO") ? "LABORATORIO" :
+                    targetNameUpper.includes("KINESIOLOGÍA") ? "KINESIOLOGÍA" : targetNameUpper.split(":")[0];
+                const span = prefSpanById.get(pathId.split('_R')[0]); // Get block span from pathId
+
+                if (span) {
+                    const linesInBlock = (extractionData.lineas as ExtractionLine[]).filter(l =>
+                        l.pagina === span.pagina && l.indice_linea >= span.ini && l.indice_linea <= span.fin
+                    );
+
+                    let sectionPct: number | null = null;
+                    let currentRowPct: number | null = null;
+                    const enrichedProviders = new Set<string>(newOpcion.prestadores as string[]);
+
+                    for (const line of linesInBlock) {
+                        const lineText = (line.texto_plano || "").toUpperCase();
+                        const firstCell = (line.celdas?.[0]?.texto || "").toUpperCase().trim();
+                        const isContinuation = firstCell === "";
+
+                        // 1. Trace context (%)
+                        // Regex for both "80%" and " 80 " when in percentage plausible range
+                        const pctMatch = lineText.match(/(?:^|\s)(20|30|35|40|50|60|70|75|80|90|100)(?:\s*%|\s|$)/);
+                        const foundLinePct = pctMatch ? parseInt(pctMatch[1]) : null;
+
+                        if (!isContinuation) {
+                            currentRowPct = foundLinePct;
+                            // If it's a section header (Caps and relatively short), update sectionPct
+                            if (firstCell.length > 5 && firstCell.length < 50 && !firstCell.includes(":") && foundLinePct) {
+                                sectionPct = foundLinePct;
+                            }
+                        } else if (foundLinePct) {
+                            currentRowPct = foundLinePct;
+                        }
+
+                        const activePct = currentRowPct ?? sectionPct;
+
+                        // 2. Relevance Check
+                        const isTarget = lineText.includes(targetShort) || lineText.includes(targetNameUpper);
+                        if (!isTarget && !isContinuation) continue;
+
+                        // 3. Percentage Match (be lenient if no percentage is found in context)
+                        if (activePct !== null && newOpcion.porcentaje !== activePct) continue;
+
+                        // 4. Extract Providers
+                        if (line.celdas) {
+                            for (const cell of line.celdas) {
+                                if (cell.indice_columna === 0 && !isContinuation) continue;
+                                const rawParts = cell.texto.split(/[,;\n]/);
+                                for (const part of rawParts) {
+                                    const cleaned = cleanProviderName(part);
+                                    if (!cleaned || cleaned.length < 4) continue;
+                                    const upper = cleaned.toUpperCase().trim();
+
+                                    const noise = ["AC2", "VECES", "UF", "TOPE", "COPAGO", "PREFERENTE", "MODALIDAD", "HABITACIÓN", "HOSPITALARIA", "AMBULATORIA", "MEDICAMENTO", "INSUMO", "MATERIALES"];
+                                    if (noise.some(kw => upper.includes(kw))) continue;
+
+                                    if (!Array.from(enrichedProviders).some(ext => ext.includes(upper) || upper.includes(ext))) {
+                                        enrichedProviders.add(upper);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    newOpcion.prestadores = Array.from(enrichedProviders).sort();
+                }
+
                 const existing = consolidated.opciones.find(o => o.modalidad === "preferente" && JSON.stringify(o.prestadores) === JSON.stringify(newOpcion.prestadores) && o.porcentaje === newOpcion.porcentaje && o.tope === newOpcion.tope);
                 if (existing) { if (!existing.fuente.includes(prestLinea.linea_id)) existing.fuente.push(prestLinea.linea_id); }
-                else { consolidated.opciones.push(newOpcion); consolidated.estado_grafo.opciones_activas++; }
+                else { consolidated.opciones.push(newOpcion); consolidated.estado_no_lineal_de_linea.opciones_activas++; }
             }
         }
         if (prestLinea.libre_eleccion.aplica && prestLinea.libre_eleccion.porcentaje) {
@@ -954,7 +1585,7 @@ async function runCanonizer() {
                     requiere: ["prestador_real", "prestacion_facturada", "modalidad_aplicada_en_cuenta"],
                     fuente: [prestLinea.linea_id]
                 });
-                consolidated.estado_grafo.opciones_activas++;
+                consolidated.estado_no_lineal_de_linea.opciones_activas++;
             }
         }
     }

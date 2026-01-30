@@ -1,0 +1,151 @@
+﻿          "nombre": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+          "contexto": {
+            "modalidad_base": "preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "origen_porcentaje_le": "implicit_global",
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "preferente": {
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_1_R0",
+              "PREF_BLK_2_R0",
+              "PREF_BLK_3_R0"
+            ]
+          },
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "AC2",
+              "factor": 1.2,
+              "origen": "L2_54",
+              "sin_tope_adicional": true
+            },
+            "heredado": false
+          },
+          "nfe": {
+            "aplica": true,
+            "valor": null,
+            "unidad": null,
+            "bloque_id": "NFE_2_55",
+            "razon": "SIN_TOPE_EXPRESO",
+            "fuente_linea": "L2_55",
+            "clausula_activa": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 54
+          }
+        },
+        {
+          "linea_id": "L2_55",
+          "tipo": "prestacion",
+          "nombre": "VISITA POR MÉDICO INTERCONSULTOR",
+          "contexto": {
+            "modalidad_base": "preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "origen_porcentaje_le": "implicit_global",
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "preferente": {
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_1_R0",
+              "PREF_BLK_2_R0",
+              "PREF_BLK_3_R0",
+              "PREF_BLK_6_R0"
+            ]
+          },
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "nfe": {
+            "aplica": true,
+            "valor": null,
+            "unidad": null,
+            "bloque_id": "NFE_2_55",
+            "razon": "SIN_TOPE_EXPRESO",
+            "fuente_linea": "L2_55",
+            "clausula_activa": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 55
+          }
+        },
+        {
+          "linea_id": "L2_56",
+          "tipo": "prestacion",
+          "nombre": "VISITA POR MÉDICO TRATANTE",
+          "contexto": {
+            "modalidad_base": "preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "origen_porcentaje_le": "implicit_global",
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "preferente": {
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_1_R0",
+              "PREF_BLK_2_R0",
+              "PREF_BLK_3_R0",
+              "PREF_BLK_6_R0"
+            ]
+          },
+          "libre_eleccion": {
+            "aplica": true,
+            "porcentaje": 90,
+            "tope": {
+              "tipo": "VARIABLE"
+            },
+            "heredado": true
+          },
+          "nfe": {
+            "aplica": true,
+            "valor": null,
+            "unidad": null,
+            "bloque_id": "NFE_2_55",
+            "razon": "SIN_TOPE_EXPRESO",
+            "fuente_linea": "L2_55",
+            "clausula_activa": true
+          },
+          "fuente_visual": {
+            "pagina": 2,
+            "fila": 56
+          }
+        },
+        {
+          "linea_id": "L2_57",
+          "tipo": "prestacion",
+          "nombre": "MEDICAMENTOS HOSPITALARIOS (2)",
+          "contexto": {
+            "modalidad_base": "preferente",
+            "tiene_libre_eleccion": true,
+            "porcentaje_le": 90,
+            "origen_porcentaje_le": "implicit_global",
+            "heredada_desde": "L2_38",
+            "texto_origen": "OFERTA PREFERENTE (*)  LIBRE ELECCIÓN",
+            "origen_herencia": "explicit"
+          },
+          "preferente": {
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_1_R0",
+              "PREF_BLK_2_R0",
+              "PREF_BLK_3_R0",
+              "PREF_BLK_6_R0"
