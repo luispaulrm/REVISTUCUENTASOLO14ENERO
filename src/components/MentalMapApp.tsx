@@ -40,15 +40,24 @@ interface MentalModel {
     prestaciones: Prestacion[];
 }
 
-export default function MentalMapApp({ isActive }: { isActive: boolean }) {
-    const [model, setModel] = useState<MentalModel | null>(null);
-    const [loading, setLoading] = useState(true);
+export default function MentalMapApp({ isActive, initialData }: { isActive: boolean, initialData?: MentalModel }) {
+    const [model, setModel] = useState<MentalModel | null>(initialData || null);
+    const [loading, setLoading] = useState(!initialData);
     const [error, setError] = useState<string | null>(null);
     const [selectedSlug, setSelectedSlug] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterLocked, setFilterLocked] = useState(false);
 
     useEffect(() => {
+        if (initialData) {
+            setModel(initialData);
+            setLoading(false);
+            if (initialData.prestaciones?.length > 0) {
+                setSelectedSlug(initialData.prestaciones[0].slug);
+            }
+            return;
+        }
+
         if (!isActive) return;
 
         setLoading(true);

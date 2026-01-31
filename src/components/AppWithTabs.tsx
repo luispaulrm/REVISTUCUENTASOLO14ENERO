@@ -108,16 +108,6 @@ export function AppWithTabs() {
                             JSON Canónico
                         </button>
 
-                        <button
-                            onClick={() => handleTabChange('mapa')}
-                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'mapa'
-                                ? 'bg-indigo-900 text-white shadow-lg shadow-indigo-200'
-                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
-                                }`}
-                        >
-                            <Brain size={16} />
-                            Mapa Mental
-                        </button>
                     </div>
                 </div>
             </div>
@@ -144,9 +134,6 @@ export function AppWithTabs() {
                     <CanonicalGeneratorApp />
                 </div>
 
-                <div style={{ display: activeTab === 'mapa' ? 'block' : 'none' }}>
-                    <MentalMapApp isActive={activeTab === 'mapa'} />
-                </div>
             </div>
         </div>
     );

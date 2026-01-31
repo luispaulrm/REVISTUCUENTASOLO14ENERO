@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Loader2, FileText, Trash2, Terminal, Timer, X, Zap, FileJson, Copy, Check, ShieldCheck, Brain } from 'lucide-react';
+import { Upload, Loader2, FileText, Trash2, Terminal, Timer, X, Zap, FileJson, Copy, Check, ShieldCheck, Brain, LayoutTemplate } from 'lucide-react';
 import { AppStatus, UsageMetrics } from '../types';
+import MentalMapApp from './MentalMapApp';
 
 export default function CanonicalGeneratorApp() {
     const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
@@ -16,6 +17,7 @@ export default function CanonicalGeneratorApp() {
     const [learned, setLearned] = useState(false);
     const [contractCount, setContractCount] = useState<number>(0);
     const [reportMetrics, setReportMetrics] = useState<any | null>(null);
+    const [viewMode, setViewMode] = useState<'json' | 'map'>('json');
 
     const timerRef = useRef<number | null>(null);
     const progressRef = useRef<number | null>(null);
@@ -244,6 +246,41 @@ export default function CanonicalGeneratorApp() {
                         <h2 className="text-3xl font-black text-slate-900 mb-2">Generador de JSON Canónico</h2>
                         <p className="text-slate-500 mb-10">Sube un contrato para obtener su representación semántica purificada en formato JSON.</p>
 
+                        <div className="flex items-center justify-between mb-8">
+                            <div>
+                                <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                                    <Zap className="text-indigo-600" fill="currentColor" />
+                                    Canonizador de Contratos
+                                </h1>
+                                <p className="text-slate-500 font-medium mt-1">Transforma contratos PDF en estructuras de verdad JSON deterministas.</p>
+                            </div>
+
+                            {status === AppStatus.SUCCESS && viewMode === 'map' && (
+                                <div className="animate-in fade-in zoom-in duration-500 mt-6 border border-slate-200 rounded-3xl overflow-hidden shadow-2xl h-[800px] relative">
+                                    <MentalMapApp isActive={true} initialData={canonicalResult} />
+                                </div>
+                            )}
+                            {status === AppStatus.SUCCESS && (
+                                <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+                                    <button
+                                        onClick={() => setViewMode('json')}
+                                        className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${viewMode === 'json' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-900'
+                                            }`}
+                                    >
+                                        <FileJson size={14} />
+                                        JSON Raw
+                                    </button>
+                                    <button
+                                        onClick={() => setViewMode('map')}
+                                        className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${viewMode === 'map' ? 'bg-indigo-600 shadow-md text-white' : 'text-slate-500 hover:text-slate-900'
+                                            }`}
+                                    >
+                                        <Brain size={14} />
+                                        Mapa Mental
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                         <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-slate-50 hover:border-indigo-500 transition-all group">
                             <input type="file" className="hidden" accept="application/pdf,image/*" onChange={handleFileUpload} />
                             <div className="flex flex-col items-center p-6">
@@ -339,9 +376,9 @@ export default function CanonicalGeneratorApp() {
                         </div>
                     </div>
                 )}
-
-                {status === AppStatus.SUCCESS && canonicalResult && (
-                    <div className="grid grid-cols-1 gap-6">
+                {/* RESULT AREA */}
+                {status === AppStatus.SUCCESS && canonicalResult && viewMode === 'json' && (
+                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col h-[700px]">
                             <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                                 <div className="flex items-center gap-2">
