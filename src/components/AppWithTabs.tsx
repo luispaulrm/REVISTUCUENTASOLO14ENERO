@@ -145,7 +145,7 @@ export function AppWithTabs() {
                 </div>
 
                 <div style={{ display: activeTab === 'mapa' ? 'block' : 'none' }}>
-                    <MentalMapApp />
+                    <MentalMapApp isActive={activeTab === 'mapa'} />
                 </div>
             </div>
         </div>

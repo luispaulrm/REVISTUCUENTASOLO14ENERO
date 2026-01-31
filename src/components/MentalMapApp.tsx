@@ -40,7 +40,7 @@ interface MentalModel {
     prestaciones: Prestacion[];
 }
 
-export default function MentalMapApp() {
+export default function MentalMapApp({ isActive }: { isActive: boolean }) {
     const [model, setModel] = useState<MentalModel | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -49,6 +49,9 @@ export default function MentalMapApp() {
     const [filterLocked, setFilterLocked] = useState(false);
 
     useEffect(() => {
+        if (!isActive) return;
+
+        setLoading(true);
         fetch('/api/mental-model')
             .then(res => {
                 if (!res.ok) throw new Error('Modelo mental no encontrado. Por favor, corre la canonización primero.');
@@ -65,7 +68,7 @@ export default function MentalMapApp() {
                 setError(err.message);
                 setLoading(false);
             });
-    }, []);
+    }, [isActive]);
 
     const filteredPrestaciones = model?.prestaciones.filter(p => {
         const matchesSearch = p.titulo.toLowerCase().includes(searchQuery.toLowerCase());
