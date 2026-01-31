@@ -247,6 +247,7 @@ export default function CanonicalGeneratorApp() {
                         <p className="text-slate-500 mb-10">Sube un contrato para obtener su representación semántica purificada en formato JSON.</p>
 
                         <div className="flex items-center justify-between mb-8">
+                            {/* Header Text */}
                             <div>
                                 <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                                     <Zap className="text-indigo-600" fill="currentColor" />
@@ -255,32 +256,9 @@ export default function CanonicalGeneratorApp() {
                                 <p className="text-slate-500 font-medium mt-1">Transforma contratos PDF en estructuras de verdad JSON deterministas.</p>
                             </div>
 
-                            {status === AppStatus.SUCCESS && viewMode === 'map' && (
-                                <div className="animate-in fade-in zoom-in duration-500 mt-6 border border-slate-200 rounded-3xl overflow-hidden shadow-2xl h-[800px] relative">
-                                    <MentalMapApp isActive={true} initialData={canonicalResult} />
-                                </div>
-                            )}
-                            {status === AppStatus.SUCCESS && (
-                                <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
-                                    <button
-                                        onClick={() => setViewMode('json')}
-                                        className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${viewMode === 'json' ? 'bg-white shadow-sm text-indigo-600' : 'text-slate-500 hover:text-slate-900'
-                                            }`}
-                                    >
-                                        <FileJson size={14} />
-                                        JSON Raw
-                                    </button>
-                                    <button
-                                        onClick={() => setViewMode('map')}
-                                        className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all ${viewMode === 'map' ? 'bg-indigo-600 shadow-md text-white' : 'text-slate-500 hover:text-slate-900'
-                                            }`}
-                                    >
-                                        <Brain size={14} />
-                                        Mapa Mental
-                                    </button>
-                                </div>
-                            )}
                         </div>
+                        {/* END HEADER */}
+
                         <label className="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 rounded-3xl bg-white cursor-pointer hover:bg-slate-50 hover:border-indigo-500 transition-all group">
                             <input type="file" className="hidden" accept="application/pdf,image/*" onChange={handleFileUpload} />
                             <div className="flex flex-col items-center p-6">
@@ -292,245 +270,284 @@ export default function CanonicalGeneratorApp() {
                             </div>
                         </label>
                     </div>
-                )}
+                )
+                }
 
-                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING || (status === AppStatus.SUCCESS && reportMetrics)) && (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-                        <div className="lg:col-span-2 bg-slate-900 rounded-2xl overflow-hidden shadow-2xl h-[500px] flex flex-col border border-slate-800">
-                            <div className="px-4 py-2 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <Terminal size={14} className="text-indigo-400" />
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Execution Log</span>
+                {
+                    (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING || (status === AppStatus.SUCCESS && reportMetrics)) && (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                            <div className="lg:col-span-2 bg-slate-900 rounded-2xl overflow-hidden shadow-2xl h-[500px] flex flex-col border border-slate-800">
+                                <div className="px-4 py-2 bg-slate-800 border-b border-slate-700 flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <Terminal size={14} className="text-indigo-400" />
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Execution Log</span>
+                                    </div>
+                                    <div className="font-mono text-xs text-slate-400">T+{seconds}s</div>
                                 </div>
-                                <div className="font-mono text-xs text-slate-400">T+{seconds}s</div>
+                                <div className="p-4 overflow-y-auto font-mono text-[10px] text-slate-300 space-y-1 bg-slate-950">
+                                    {logs.map((log, i) => (
+                                        <div key={i} className="opacity-80 hover:opacity-100 leading-relaxed border-l border-slate-800 pl-2 mb-0.5">{log}</div>
+                                    ))}
+                                    <div ref={logEndRef} />
+                                </div>
                             </div>
-                            <div className="p-4 overflow-y-auto font-mono text-[10px] text-slate-300 space-y-1 bg-slate-950">
-                                {logs.map((log, i) => (
-                                    <div key={i} className="opacity-80 hover:opacity-100 leading-relaxed border-l border-slate-800 pl-2 mb-0.5">{log}</div>
-                                ))}
-                                <div ref={logEndRef} />
+
+                            {/* REPORT DASHBOARD (v2.3) */}
+                            <div className="flex flex-col gap-6">
+                                <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 flex flex-col justify-between h-[240px]">
+                                    <div>
+                                        <div className="flex items-center justify-between mb-6">
+                                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado de la Misión</h3>
+                                            <div className={`px-2 py-1 rounded text-[9px] font-black uppercase ${status === AppStatus.SUCCESS ? 'bg-emerald-100 text-emerald-600' : 'bg-indigo-100 text-indigo-600 animate-pulse'}`}>
+                                                {status}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Páginas</span>
+                                                <span className="text-2xl font-black text-slate-900">
+                                                    {reportMetrics?.tokenUsage?.totalPages || '--'}
+                                                </span>
+                                            </div>
+                                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Precisión</span>
+                                                <span className="text-2xl font-black text-indigo-600">
+                                                    {reportMetrics?.tokenUsage?.phaseSuccess ?
+                                                        Math.round((Object.values(reportMetrics.tokenUsage.phaseSuccess).filter(Boolean).length / Object.values(reportMetrics.tokenUsage.phaseSuccess).length) * 100)
+                                                        : '0'}%
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="pt-4 border-t border-slate-100">
+                                        <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
+                                            <span>Items Extraídos</span>
+                                            <span className="text-slate-900">{reportMetrics?.extractionBreakdown?.totalItems || 0}</span>
+                                        </div>
+                                        <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
+                                            <div
+                                                className="bg-indigo-500 h-full transition-all duration-1000"
+                                                style={{ width: `${Math.min(100, (reportMetrics?.extractionBreakdown?.totalItems || 0) * 2)}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl p-6 flex-grow">
+                                    <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Pipeline Status</h3>
+                                    <div className="space-y-3">
+                                        {reportMetrics?.tokenUsage?.phaseSuccess ? Object.entries(reportMetrics.tokenUsage.phaseSuccess).map(([phase, success]) => (
+                                            <div key={phase} className="flex items-center justify-between">
+                                                <span className="text-[9px] font-mono text-slate-400">{phase}</span>
+                                                {success ?
+                                                    <Check size={12} className="text-emerald-500" /> :
+                                                    <X size={12} className="text-slate-600" />
+                                                }
+                                            </div>
+                                        )) : (
+                                            <div className="flex items-center gap-2 text-slate-600 italic text-[10px]">
+                                                <Loader2 size={12} className="animate-spin" />
+                                                Analizando capas...
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-
-                        {/* REPORT DASHBOARD (v2.3) */}
-                        <div className="flex flex-col gap-6">
-                            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 flex flex-col justify-between h-[240px]">
-                                <div>
-                                    <div className="flex items-center justify-between mb-6">
-                                        <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Estado de la Misión</h3>
-                                        <div className={`px-2 py-1 rounded text-[9px] font-black uppercase ${status === AppStatus.SUCCESS ? 'bg-emerald-100 text-emerald-600' : 'bg-indigo-100 text-indigo-600 animate-pulse'}`}>
-                                            {status}
+                    )
+                }
+                {/* RESULT AREA */}
+                {
+                    status === AppStatus.SUCCESS && canonicalResult && (
+                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col h-[700px]">
+                                <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <ShieldCheck size={18} className="text-emerald-500" />
+                                            <h3 className="font-bold text-slate-900 uppercase tracking-tight">Result: {fileName}</h3>
+                                        </div>
+                                        <div className="flex bg-slate-200 p-1 rounded-lg">
+                                            <button
+                                                onClick={() => setViewMode('json')}
+                                                className={`flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'json' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                                    }`}
+                                            >
+                                                <FileJson size={12} />
+                                                JSON
+                                            </button>
+                                            <button
+                                                onClick={() => setViewMode('map')}
+                                                className={`flex items-center gap-2 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all ${viewMode === 'map' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-700'
+                                                    }`}
+                                            >
+                                                <Brain size={12} />
+                                                Mapa
+                                            </button>
                                         </div>
                                     </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Páginas</span>
-                                            <span className="text-2xl font-black text-slate-900">
-                                                {reportMetrics?.tokenUsage?.totalPages || '--'}
-                                            </span>
-                                        </div>
-                                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                                            <span className="text-[9px] font-bold text-slate-400 uppercase block mb-1">Precisión</span>
-                                            <span className="text-2xl font-black text-indigo-600">
-                                                {reportMetrics?.tokenUsage?.phaseSuccess ?
-                                                    Math.round((Object.values(reportMetrics.tokenUsage.phaseSuccess).filter(Boolean).length / Object.values(reportMetrics.tokenUsage.phaseSuccess).length) * 100)
-                                                    : '0'}%
-                                            </span>
-                                        </div>
+                                    <div className="flex items-center gap-2">
+                                        <button
+                                            onClick={copyToClipboard}
+                                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold hover:bg-slate-100 transition-all"
+                                        >
+                                            {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
+                                            {copied ? 'COPIADO' : 'COPIAR'}
+                                        </button>
+                                        <button
+                                            onClick={handleLearn}
+                                            disabled={isLearning}
+                                            className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold transition-all ${learned
+                                                ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                                : 'bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-100'
+                                                }`}
+                                        >
+                                            {isLearning ? <Loader2 size={14} className="animate-spin" /> : <Brain size={14} />}
+                                            {learned ? 'APRENDIDO' : 'APRENDER'}
+                                        </button>
                                     </div>
                                 </div>
-                                <div className="pt-4 border-t border-slate-100">
-                                    <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
-                                        <span>Items Extraídos</span>
-                                        <span className="text-slate-900">{reportMetrics?.extractionBreakdown?.totalItems || 0}</span>
-                                    </div>
-                                    <div className="w-full bg-slate-100 h-1.5 rounded-full mt-2 overflow-hidden">
-                                        <div
-                                            className="bg-indigo-500 h-full transition-all duration-1000"
-                                            style={{ width: `${Math.min(100, (reportMetrics?.extractionBreakdown?.totalItems || 0) * 2)}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl p-6 flex-grow">
-                                <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Pipeline Status</h3>
-                                <div className="space-y-3">
-                                    {reportMetrics?.tokenUsage?.phaseSuccess ? Object.entries(reportMetrics.tokenUsage.phaseSuccess).map(([phase, success]) => (
-                                        <div key={phase} className="flex items-center justify-between">
-                                            <span className="text-[9px] font-mono text-slate-400">{phase}</span>
-                                            {success ?
-                                                <Check size={12} className="text-emerald-500" /> :
-                                                <X size={12} className="text-slate-600" />
-                                            }
+                                <div className="flex-grow overflow-hidden relative bg-slate-50">
+                                    {viewMode === 'json' ? (
+                                        <div className="absolute inset-0 p-6 overflow-auto custom-scrollbar">
+                                            <pre className="font-mono text-xs text-slate-700 whitespace-pre-wrap">
+                                                {JSON.stringify(canonicalResult, null, 2)}
+                                            </pre>
                                         </div>
-                                    )) : (
-                                        <div className="flex items-center gap-2 text-slate-600 italic text-[10px]">
-                                            <Loader2 size={12} className="animate-spin" />
-                                            Analizando capas...
+                                    ) : (
+                                        <div className="absolute inset-0 flex flex-col">
+                                            <MentalMapApp isActive={true} initialData={canonicalResult} />
                                         </div>
                                     )}
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
-                {/* RESULT AREA */}
-                {status === AppStatus.SUCCESS && canonicalResult && viewMode === 'json' && (
-                    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col h-[700px]">
-                            <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <ShieldCheck size={18} className="text-emerald-500" />
-                                    <h3 className="font-bold text-slate-900 uppercase tracking-tight">Resultado Canónico: {fileName}</h3>
-                                </div>
-                                <button
-                                    onClick={copyToClipboard}
-                                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold hover:bg-slate-100 transition-all"
-                                >
-                                    {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
-                                    {copied ? 'COPIADO' : 'COPIAR JSON'}
-                                </button>
-                                <button
-                                    onClick={handleLearn}
-                                    disabled={isLearning}
-                                    className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold transition-all ${learned
-                                        ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
-                                        : 'bg-indigo-50 border-indigo-100 text-indigo-600 hover:bg-indigo-100'
-                                        }`}
-                                >
-                                    {isLearning ? <Loader2 size={14} className="animate-spin" /> : <Brain size={14} />}
-                                    {learned ? 'APRENDIDO' : 'APRENDER DE ESTE CONTRATO'}
-                                </button>
+                    )
+                }
+                {
+                    status === AppStatus.ERROR && (
+                        <div className="max-w-2xl mx-auto text-center py-20">
+                            <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-rose-600 mx-auto mb-8 border border-rose-100 shadow-xl">
+                                <X size={36} />
                             </div>
-                            <div className="flex-grow p-6 overflow-hidden">
-                                <pre className="w-full h-full p-4 bg-slate-50 rounded-2xl border border-slate-200 font-mono text-xs overflow-auto text-slate-700">
-                                    {JSON.stringify(canonicalResult, null, 2)}
-                                </pre>
+                            <h2 className="text-2xl font-bold text-slate-900 mb-4">Error de Validación</h2>
+                            <div className="bg-rose-50 border border-rose-100 rounded-2xl p-6 mb-8 text-rose-700 text-sm font-medium leading-relaxed">
+                                {error || 'Ocurrió un error inesperado al procesar el documento.'}
                             </div>
+                            <button
+                                onClick={() => setStatus(AppStatus.IDLE)}
+                                className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg"
+                            >
+                                SUBIR OTRO ARCHIVO
+                            </button>
                         </div>
-                    </div>
-                )}
-                {status === AppStatus.ERROR && (
-                    <div className="max-w-2xl mx-auto text-center py-20">
-                        <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center text-rose-600 mx-auto mb-8 border border-rose-100 shadow-xl">
-                            <X size={36} />
-                        </div>
-                        <h2 className="text-2xl font-bold text-slate-900 mb-4">Error de Validación</h2>
-                        <div className="bg-rose-50 border border-rose-100 rounded-2xl p-6 mb-8 text-rose-700 text-sm font-medium leading-relaxed">
-                            {error || 'Ocurrió un error inesperado al procesar el documento.'}
-                        </div>
-                        <button
-                            onClick={() => setStatus(AppStatus.IDLE)}
-                            className="px-8 py-3 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-lg"
-                        >
-                            SUBIR OTRO ARCHIVO
-                        </button>
-                    </div>
-                )}
+                    )
+                }
 
-                {(status === AppStatus.PROCESSING || status === AppStatus.UPLOADING || status === AppStatus.SUCCESS) && (
-                    <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb animate-in slide-in-from-bottom duration-500">
-                        <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
-                            {/* 1. MISSION TIME */}
-                            <div className="flex items-center gap-4 border-r border-slate-800 pr-8 h-full">
-                                <div className="flex flex-col">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Mission Time</span>
-                                    <div className="font-mono text-2xl font-black text-white tracking-tight flex items-center gap-2">
-                                        <Timer size={18} className="text-indigo-500" />
-                                        T+{formatTime(seconds)}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* 2. TRAJECTORY (GAUGE) */}
-                            <div className="flex items-center gap-4 px-8 border-r border-slate-800 h-full min-w-[200px]">
-                                <div className="relative w-12 h-12">
-                                    <svg className="w-full h-full transform -rotate-90">
-                                        <circle cx="24" cy="24" r="20" className="text-slate-800 stroke-current" strokeWidth="4" fill="transparent" />
-                                        <circle cx="24" cy="24" r="20" className="text-white stroke-current" strokeWidth="4" fill="transparent"
-                                            strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * progress) / 100} strokeLinecap="round" />
-                                    </svg>
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <span className="text-[10px] font-bold font-mono text-white">{Math.round(progress)}%</span>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
-                                    <span className="text-xs font-bold text-slate-300 italic">
-                                        {status === AppStatus.SUCCESS ? 'Mission Finalized' : 'Canonization Phase'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* 3. TOKEN METRICS */}
-                            <div className="flex items-center gap-8 px-8 flex-1 justify-center h-full">
-                                <div className="flex flex-col items-center">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Input Tokens</span>
-                                    <span className="font-mono text-sm font-bold text-slate-300">
-                                        {realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '0.0k'}
-                                    </span>
-                                </div>
-                                <div className="w-px h-8 bg-slate-800"></div>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Output Tokens</span>
-                                    <span className="font-mono text-sm font-bold text-white">
-                                        {realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '0.0k'}
-                                    </span>
-                                </div>
-                                <div className="w-px h-8 bg-slate-800"></div>
-                                <div className="flex flex-col items-center">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Payload</span>
-                                    <span className="font-mono text-sm font-bold text-indigo-400">
-                                        {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
-                                    </span>
-                                </div>
-                                {canonicalResult?.cached && (
-                                    <>
-                                        <div className="w-px h-8 bg-slate-800"></div>
-                                        <div className="flex flex-col items-center animate-pulse">
-                                            <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Power Status</span>
-                                            <div className="flex items-center gap-1 text-emerald-400">
-                                                <Zap size={14} fill="currentColor" />
-                                                <span className="font-mono text-xs font-bold">CACHED</span>
-                                            </div>
+                {
+                    (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING || status === AppStatus.SUCCESS) && (
+                        <div className="fixed bottom-0 left-0 w-full bg-slate-950 text-white z-[200] border-t border-slate-800 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] safe-pb animate-in slide-in-from-bottom duration-500">
+                            <div className="max-w-[1800px] mx-auto px-8 h-20 flex items-center justify-between">
+                                {/* 1. MISSION TIME */}
+                                <div className="flex items-center gap-4 border-r border-slate-800 pr-8 h-full">
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Mission Time</span>
+                                        <div className="font-mono text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                                            <Timer size={18} className="text-indigo-500" />
+                                            T+{formatTime(seconds)}
                                         </div>
-                                    </>
-                                )}
-                            </div>
+                                    </div>
+                                </div>
 
-                            {/* 4. COST & ABORT / SUCCESS */}
-                            <div className="flex items-center gap-6 pl-8 border-l border-slate-800 h-full">
-                                <div className="flex flex-col items-end">
-                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Est. Cost</span>
-                                    <span className="font-mono text-xl font-black text-white tracking-tight">
-                                        ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'} <span className="text-[10px] text-slate-600 font-sans">CLP</span>
-                                    </span>
-                                    <div className="flex items-center gap-1 mt-1">
-                                        <ShieldCheck size={10} className="text-emerald-500" />
-                                        <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-tight">
-                                            {status === AppStatus.SUCCESS ? 'Verification Complete' : 'Smart Mapping Mode'}
+                                {/* 2. TRAJECTORY (GAUGE) */}
+                                <div className="flex items-center gap-4 px-8 border-r border-slate-800 h-full min-w-[200px]">
+                                    <div className="relative w-12 h-12">
+                                        <svg className="w-full h-full transform -rotate-90">
+                                            <circle cx="24" cy="24" r="20" className="text-slate-800 stroke-current" strokeWidth="4" fill="transparent" />
+                                            <circle cx="24" cy="24" r="20" className="text-white stroke-current" strokeWidth="4" fill="transparent"
+                                                strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * progress) / 100} strokeLinecap="round" />
+                                        </svg>
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="text-[10px] font-bold font-mono text-white">{Math.round(progress)}%</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progress</span>
+                                        <span className="text-xs font-bold text-slate-300 italic">
+                                            {status === AppStatus.SUCCESS ? 'Mission Finalized' : 'Canonization Phase'}
                                         </span>
                                     </div>
                                 </div>
-                                {status !== AppStatus.SUCCESS ? (
-                                    <button
-                                        onClick={handleStopAnalysis}
-                                        className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
-                                        title="ABORT ANALYSIS"
-                                    >
-                                        <X size={18} />
-                                    </button>
-                                ) : (
-                                    <div className="w-10 h-10 rounded-full bg-emerald-950/50 flex items-center justify-center border border-emerald-900 text-emerald-500">
-                                        <Check size={18} />
+
+                                {/* 3. TOKEN METRICS */}
+                                <div className="flex items-center gap-8 px-8 flex-1 justify-center h-full">
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Input Tokens</span>
+                                        <span className="font-mono text-sm font-bold text-slate-300">
+                                            {realTimeUsage ? (realTimeUsage.promptTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                        </span>
                                     </div>
-                                )}
+                                    <div className="w-px h-8 bg-slate-800"></div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Output Tokens</span>
+                                        <span className="font-mono text-sm font-bold text-white">
+                                            {realTimeUsage ? (realTimeUsage.candidatesTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                        </span>
+                                    </div>
+                                    <div className="w-px h-8 bg-slate-800"></div>
+                                    <div className="flex flex-col items-center">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Payload</span>
+                                        <span className="font-mono text-sm font-bold text-indigo-400">
+                                            {realTimeUsage ? (realTimeUsage.totalTokens / 1000).toFixed(1) + 'k' : '0.0k'}
+                                        </span>
+                                    </div>
+                                    {canonicalResult?.cached && (
+                                        <>
+                                            <div className="w-px h-8 bg-slate-800"></div>
+                                            <div className="flex flex-col items-center animate-pulse">
+                                                <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Power Status</span>
+                                                <div className="flex items-center gap-1 text-emerald-400">
+                                                    <Zap size={14} fill="currentColor" />
+                                                    <span className="font-mono text-xs font-bold">CACHED</span>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* 4. COST & ABORT / SUCCESS */}
+                                <div className="flex items-center gap-6 pl-8 border-l border-slate-800 h-full">
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-1">Est. Cost</span>
+                                        <span className="font-mono text-xl font-black text-white tracking-tight">
+                                            ${realTimeUsage ? realTimeUsage.estimatedCostCLP : '0'} <span className="text-[10px] text-slate-600 font-sans">CLP</span>
+                                        </span>
+                                        <div className="flex items-center gap-1 mt-1">
+                                            <ShieldCheck size={10} className="text-emerald-500" />
+                                            <span className="text-[9px] font-bold text-emerald-500 uppercase tracking-tight">
+                                                {status === AppStatus.SUCCESS ? 'Verification Complete' : 'Smart Mapping Mode'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    {status !== AppStatus.SUCCESS ? (
+                                        <button
+                                            onClick={handleStopAnalysis}
+                                            className="group flex items-center justify-center w-10 h-10 rounded-full bg-rose-950/50 hover:bg-rose-600 border border-rose-900 transition-all text-rose-500 hover:text-white"
+                                            title="ABORT ANALYSIS"
+                                        >
+                                            <X size={18} />
+                                        </button>
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-emerald-950/50 flex items-center justify-center border border-emerald-900 text-emerald-500">
+                                            <Check size={18} />
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
             </main>
         </div>
     );
