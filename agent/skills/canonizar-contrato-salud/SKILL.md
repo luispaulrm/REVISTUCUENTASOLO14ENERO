@@ -84,6 +84,18 @@ El agente debe identificar celdas que se extienden verticalmente y funcionan com
 **INSTRUCCIÓN OPERATIVA:**
 **Si existe ambigüedad entre cobertura por fila y cobertura por bloque vertical, SIEMPRE priorizar el bloque vertical.**
 
+### 10. Arquitectura Híbrida Determinista (NUEVO - v3.0)
+El Skill no delega la lógica a la IA. La IA solo actúa como "Ojos Refinados" (OCR Semántico). El "Cerebro" de la interpretación es algorítmico y reside en el código del Skill (`execute_canonizer.ts`):
+
+1.  **Visión Bruta (AI):** Extrae texto y coordenadas.
+2.  **Lógica Determinista (Skill Code):**
+    - **Persistencia Vertical (Sticky):** El código rellena huecos basándose en la última cobertura válida.
+    - **Mapeo de Columnas:** El código asigna topes basándose en índices de columna, no en "sentido común de IA".
+    - **Confluencia (Flux Capacitor):** El código detecta listas de prestadores y las enruta a un único objeto de beneficio.
+
+**Regla de Autoridad:**
+Si la IA sugiere algo (ej. "Sin Tope" en una celda vacía) pero el Algoritmo Vertical dicta "80%", **MANDA EL ALGORITMO VERTICAL**. La IA provee los datos crudos, el Skill provee la Lógica de Negocio.
+
 ---
 
 ## Esquema Canónico Final (v2.0)

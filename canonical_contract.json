@@ -4,7 +4,7 @@
       "origen": "contrato_pdf",
       "fuente": "Contrato 13-RSE500-17-2 (5).pdf",
       "paginas_total": 5,
-      "fecha_procesamiento": "2026-01-30T12:24:09.636Z",
+      "fecha_procesamiento": "2026-01-31T04:25:18.280Z",
       "aranceles": {
         "AC2": {
           "nombre": "Arancel Consalud 2",
@@ -185,6 +185,222 @@
             "pagina": 2,
             "linea_inicio": 87,
             "linea_fin": 91
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_50_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 80,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Clínica Santa Maria"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 50,
+            "linea_fin": 50
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_56_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Clínica Dávila, Clínica Vespucio"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 56,
+            "linea_fin": 56
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_57_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Clínica Dávila, Clínica Vespucio"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 57,
+            "linea_fin": 57
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_58_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Clínica Dávila, Clínica Vespucio"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 58,
+            "linea_fin": 58
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_65_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Centros Médicos de la Red de Salud UC Christus (L),"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 65,
+            "linea_fin": 65
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_65_C5",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Clínica Santa Maria, Clínica Tabancura,"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 65,
+            "linea_fin": 65
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_70_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 80,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Integramédica, Clínica Dávila,"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 70,
+            "linea_fin": 70
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_72_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 80,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Integramédica, Clínica Dávila,"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 72,
+            "linea_fin": 72
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_90_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Avansalud y Clínica Vespucio,"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 90,
+            "linea_fin": 90
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_91_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Avansalud y Clínica Vespucio,"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 91,
+            "linea_fin": 91
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_92_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Avansalud y Clínica Vespucio,"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 92,
+            "linea_fin": 92
+          }
+        },
+        {
+          "id": "OPT_GIANT_L2_93_C3",
+          "modalidad": "preferente",
+          "grupo_decisional": "PREFERENTE_RED",
+          "porcentaje": 90,
+          "tope": {
+            "tipo": "VARIABLE"
+          },
+          "prestadores": [
+            "Avansalud y Clínica Vespucio,"
+          ],
+          "condiciones": [],
+          "fuente": {
+            "pagina": 2,
+            "linea_inicio": 93,
+            "linea_fin": 93
           }
         }
       ],
@@ -482,13 +698,20 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": 4,
-            "unidad": "UF",
-            "bloque_id": "NFE_2_44",
-            "fuente_linea": "L2_42",
-            "clausula_activa": false
+            "valor": null,
+            "unidad": null,
+            "bloque_id": "L2_43_C3",
+            "razon": "SIN_TOPE_EXPRESO",
+            "fuente_linea": "L2_43",
+            "clausula_activa": true
           },
-          "operadores_forenses": [],
+          "operadores_forenses": [
+            {
+              "tipo": "OP_RE_EXPANSION_NFE",
+              "fuente_linea": "L2_43",
+              "detalle": "Sin Tope Expreso"
+            }
+          ],
           "fuente_visual": {
             "pagina": 2,
             "fila": 43
@@ -528,6 +751,7 @@
             "valor": 4,
             "unidad": "UF",
             "bloque_id": "L2_44_C7",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_44",
             "clausula_activa": false
           },
@@ -661,13 +885,20 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": 90,
-            "unidad": "UF",
-            "bloque_id": "NFE_2_52",
-            "fuente_linea": "L2_48",
-            "clausula_activa": false
+            "valor": null,
+            "unidad": null,
+            "bloque_id": "L2_47_C6",
+            "razon": "SIN_TOPE_EXPRESO",
+            "fuente_linea": "L2_47",
+            "clausula_activa": true
           },
-          "operadores_forenses": [],
+          "operadores_forenses": [
+            {
+              "tipo": "OP_RE_EXPANSION_NFE",
+              "fuente_linea": "L2_47",
+              "detalle": "Sin Tope Expreso"
+            }
+          ],
           "fuente_visual": {
             "pagina": 2,
             "fila": 47
@@ -783,7 +1014,8 @@
             "paths": [
               "PREF_BLK_1_R0",
               "PREF_BLK_2_R0",
-              "PREF_BLK_3_R0"
+              "PREF_BLK_3_R0",
+              "OPT_GIANT_L2_50_C3"
             ]
           },
           "libre_eleccion": {
@@ -898,9 +1130,10 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": null,
+            "valor": 5,
             "unidad": "UF",
-            "bloque_id": "L2_52_C7",
+            "bloque_id": "L2_52_C8",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_52",
             "clausula_activa": false
           },
@@ -1039,12 +1272,18 @@
             "aplica": true,
             "valor": null,
             "unidad": null,
-            "bloque_id": "NFE_2_55",
+            "bloque_id": "L2_55_C5",
             "razon": "SIN_TOPE_EXPRESO",
-            "fuente_linea": "L2_53",
+            "fuente_linea": "L2_55",
             "clausula_activa": true
           },
-          "operadores_forenses": [],
+          "operadores_forenses": [
+            {
+              "tipo": "OP_RE_EXPANSION_NFE",
+              "fuente_linea": "L2_55",
+              "detalle": "Sin Tope Expreso"
+            }
+          ],
           "fuente_visual": {
             "pagina": 2,
             "fila": 55
@@ -1068,7 +1307,8 @@
             "paths": [
               "PREF_BLK_1_R0",
               "PREF_BLK_2_R0",
-              "PREF_BLK_3_R0"
+              "PREF_BLK_3_R0",
+              "OPT_GIANT_L2_56_C3"
             ]
           },
           "libre_eleccion": {
@@ -1110,8 +1350,10 @@
             "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "OPT_GIANT_L2_57_C3"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -1127,7 +1369,8 @@
             "aplica": true,
             "valor": 60,
             "unidad": "UF",
-            "bloque_id": "NFE_2_57",
+            "bloque_id": "L2_57_C6",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_57",
             "clausula_activa": false
           },
@@ -1151,8 +1394,10 @@
             "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "OPT_GIANT_L2_58_C3"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -1168,7 +1413,8 @@
             "aplica": true,
             "valor": 40,
             "unidad": "UF",
-            "bloque_id": "NFE_2_58",
+            "bloque_id": "L2_58_C5",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_58",
             "clausula_activa": false
           },
@@ -1321,10 +1567,11 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": 0.5,
+            "valor": 80,
             "unidad": "UF",
-            "bloque_id": "NFE_2_63",
-            "fuente_linea": "L2_60",
+            "bloque_id": "L2_61_C4",
+            "razon": "NFE_PROPIO",
+            "fuente_linea": "L2_61",
             "clausula_activa": false
           },
           "operadores_forenses": [
@@ -1357,16 +1604,19 @@
           "tipo": "prestacion",
           "nombre": "CONSULTAS MÉDICAS",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -1399,16 +1649,19 @@
           "tipo": "prestacion",
           "nombre": "EXÁMENES LABORATORIO",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -1442,24 +1695,30 @@
           "tipo": "prestacion",
           "nombre": "PROCEDIMIENTOS",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0",
+              "OPT_GIANT_L2_65_C3",
+              "OPT_GIANT_L2_65_C5"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
             "porcentaje": 90,
             "tope": {
-              "tipo": "UF",
-              "valor": 1.1,
-              "origen": "L2_65_C4"
+              "tipo": "AC2",
+              "factor": 2.5,
+              "origen": "L2_47",
+              "sin_tope_adicional": true
             },
             "heredado": false
           },
@@ -1490,24 +1749,28 @@
           "tipo": "prestacion",
           "nombre": "PABELLÓN AMBULATORIO",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
             "porcentaje": 90,
             "tope": {
-              "tipo": "UF",
-              "valor": 2,
-              "origen": "L2_66_C2"
+              "tipo": "AC2",
+              "factor": 2,
+              "origen": "L2_66_C2",
+              "sin_tope_adicional": true
             },
             "heredado": false
           },
@@ -1531,16 +1794,19 @@
           "tipo": "prestacion",
           "nombre": "HONORARIOS MÉDICOS QUIRÚRGICOS",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -1573,16 +1839,19 @@
           "tipo": "prestacion",
           "nombre": "BOX AMBULATORIO",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -1615,16 +1884,19 @@
           "tipo": "prestacion",
           "nombre": "KINESIOLOGÍA y FISIOTERAPIA",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -1639,9 +1911,10 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": null,
+            "valor": 5,
             "unidad": "UF",
             "bloque_id": "L2_69_C7",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_69",
             "clausula_activa": false
           },
@@ -1657,20 +1930,24 @@
           "tipo": "prestacion",
           "nombre": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0",
+              "OPT_GIANT_L2_70_C3"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 2.5,
@@ -1684,6 +1961,7 @@
             "valor": 1,
             "unidad": "UF",
             "bloque_id": "L2_70_C7",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_70",
             "clausula_activa": false
           },
@@ -1699,20 +1977,23 @@
           "tipo": "prestacion",
           "nombre": "0,8 veces AC2",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 2.5,
@@ -1741,20 +2022,24 @@
           "tipo": "prestacion",
           "nombre": "RADIOTERAPIA",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0",
+              "OPT_GIANT_L2_72_C3"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 1,
@@ -1765,13 +2050,20 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": 80,
-            "unidad": "UF",
-            "bloque_id": "NFE_2_74",
-            "fuente_linea": "L2_71",
-            "clausula_activa": false
+            "valor": null,
+            "unidad": null,
+            "bloque_id": "L2_72_C4",
+            "razon": "SIN_TOPE_EXPRESO",
+            "fuente_linea": "L2_72",
+            "clausula_activa": true
           },
-          "operadores_forenses": [],
+          "operadores_forenses": [
+            {
+              "tipo": "OP_RE_EXPANSION_NFE",
+              "fuente_linea": "L2_72",
+              "detalle": "Sin Tope Expreso"
+            }
+          ],
           "fuente_visual": {
             "pagina": 2,
             "fila": 72
@@ -1783,20 +2075,23 @@
           "tipo": "prestacion",
           "nombre": "FONOAUDIOLOGÍA",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_6_R0",
+              "PREF_BLK_7_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 2.5,
@@ -1807,10 +2102,11 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": 80,
+            "valor": 3.5,
             "unidad": "UF",
-            "bloque_id": "NFE_2_74",
-            "fuente_linea": "L2_71",
+            "bloque_id": "L2_73_C3",
+            "razon": "NFE_PROPIO",
+            "fuente_linea": "L2_73",
             "clausula_activa": false
           },
           "operadores_forenses": [],
@@ -1841,7 +2137,7 @@
           "contexto": {
             "modalidad_base": "libre_eleccion",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
             "origen_herencia": "explicit"
@@ -1852,7 +2148,7 @@
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 4,
@@ -1865,8 +2161,9 @@
             "aplica": true,
             "valor": 80,
             "unidad": "UF",
-            "bloque_id": "NFE_2_74",
-            "fuente_linea": "L2_71",
+            "bloque_id": "L2_74_C6",
+            "razon": "NFE_PROPIO",
+            "fuente_linea": "L2_74",
             "clausula_activa": false
           },
           "operadores_forenses": [
@@ -1892,7 +2189,7 @@
           "contexto": {
             "modalidad_base": "libre_eleccion",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
             "origen_herencia": "explicit"
@@ -1903,7 +2200,7 @@
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 1,
@@ -1941,7 +2238,7 @@
           "contexto": {
             "modalidad_base": "libre_eleccion",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
             "origen_herencia": "explicit"
@@ -1952,7 +2249,7 @@
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 2.5,
@@ -1983,7 +2280,7 @@
           "contexto": {
             "modalidad_base": "libre_eleccion",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
             "origen_herencia": "explicit"
@@ -1994,7 +2291,7 @@
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 1,
@@ -2005,10 +2302,11 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": 80,
+            "valor": 1.5,
             "unidad": "UF",
-            "bloque_id": "NFE_2_74",
-            "fuente_linea": "L2_71",
+            "bloque_id": "L2_77_C4",
+            "razon": "NFE_PROPIO",
+            "fuente_linea": "L2_77",
             "clausula_activa": false
           },
           "operadores_forenses": [],
@@ -2043,7 +2341,7 @@
           "contexto": {
             "modalidad_base": "libre_eleccion",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 80,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
             "origen_herencia": "explicit"
@@ -2054,7 +2352,7 @@
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 80,
             "tope": {
               "tipo": "AC2",
               "factor": 2.5,
@@ -2065,13 +2363,20 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": 6.7,
-            "unidad": "UF",
-            "bloque_id": "NFE_2_82",
-            "fuente_linea": "L2_79",
-            "clausula_activa": false
+            "valor": null,
+            "unidad": null,
+            "bloque_id": "L2_80_C4",
+            "razon": "SIN_TOPE_EXPRESO",
+            "fuente_linea": "L2_80",
+            "clausula_activa": true
           },
-          "operadores_forenses": [],
+          "operadores_forenses": [
+            {
+              "tipo": "OP_RE_EXPANSION_NFE",
+              "fuente_linea": "L2_80",
+              "detalle": "Sin Tope Expreso"
+            }
+          ],
           "fuente_visual": {
             "pagina": 2,
             "fila": 80
@@ -2099,7 +2404,7 @@
           "contexto": {
             "modalidad_base": "libre_eleccion",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 70,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
             "origen_herencia": "explicit"
@@ -2110,7 +2415,7 @@
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 70,
             "tope": {
               "tipo": "AC2",
               "factor": 1,
@@ -2121,9 +2426,10 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": null,
+            "valor": 6.7,
             "unidad": "UF",
             "bloque_id": "L2_82_C7",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_82",
             "clausula_activa": false
           },
@@ -2141,7 +2447,7 @@
           "contexto": {
             "modalidad_base": "libre_eleccion",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 70,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
             "origen_herencia": "explicit"
@@ -2152,7 +2458,7 @@
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 70,
             "tope": {
               "tipo": "AC2",
               "factor": 1,
@@ -2163,9 +2469,10 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": null,
+            "valor": 4,
             "unidad": "UF",
             "bloque_id": "L2_83_C7",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_83",
             "clausula_activa": false
           },
@@ -2183,7 +2490,7 @@
           "contexto": {
             "modalidad_base": "libre_eleccion",
             "tiene_libre_eleccion": true,
-            "porcentaje_le": 90,
+            "porcentaje_le": 70,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
             "origen_herencia": "explicit"
@@ -2194,7 +2501,7 @@
           },
           "libre_eleccion": {
             "aplica": true,
-            "porcentaje": 90,
+            "porcentaje": 70,
             "tope": {
               "tipo": "AC2",
               "factor": 2.5,
@@ -2260,9 +2567,10 @@
           },
           "nfe": {
             "aplica": true,
-            "valor": null,
+            "valor": 2.5,
             "unidad": "UF",
-            "bloque_id": "L2_85_C7",
+            "bloque_id": "L2_85_C8",
+            "razon": "NFE_PROPIO",
             "fuente_linea": "L2_85",
             "clausula_activa": false
           },
@@ -2387,16 +2695,18 @@
           "tipo": "prestacion",
           "nombre": "ATENCIÓN DE URGENCIA",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_16_R0"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -2430,16 +2740,19 @@
           "tipo": "prestacion",
           "nombre": "Exámenes, Imágenes, Procedimientos y Pabellón.",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_16_R0",
+              "OPT_GIANT_L2_90_C3"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -2473,16 +2786,19 @@
           "tipo": "prestacion",
           "nombre": "PRESTADORES DERIVADOS",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "PREF_BLK_16_R0",
+              "OPT_GIANT_L2_91_C3"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -2516,16 +2832,18 @@
           "tipo": "prestacion",
           "nombre": "ATENCIÓN",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "OPT_GIANT_L2_92_C3"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -2558,16 +2876,18 @@
           "tipo": "prestacion",
           "nombre": "DE URGENCIA (D) (L) (N)",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
-            "aplica": false,
-            "paths": []
+            "aplica": true,
+            "paths": [
+              "OPT_GIANT_L2_93_C3"
+            ]
           },
           "libre_eleccion": {
             "aplica": true,
@@ -2600,12 +2920,12 @@
           "tipo": "prestacion",
           "nombre": "URGENCIA NORMAL",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
             "aplica": false,
@@ -2642,12 +2962,12 @@
           "tipo": "prestacion",
           "nombre": "URGENCIA ADULTO",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
             "aplica": false,
@@ -2683,12 +3003,12 @@
           "tipo": "prestacion",
           "nombre": "URGENCIA PEDIÁTRICA",
           "contexto": {
-            "modalidad_base": "libre_eleccion",
+            "modalidad_base": "preferente",
             "tiene_libre_eleccion": true,
             "porcentaje_le": 90,
             "origen_porcentaje_le": "implicit_global",
             "heredada_desde": "ROOT",
-            "origen_herencia": "explicit"
+            "origen_herencia": "inherited"
           },
           "preferente": {
             "aplica": false,
@@ -3606,8 +3926,8 @@
       "topes_activos": [
         {
           "tipo": "NFE",
-          "valor": 4,
-          "estado": "LIMITADO",
+          "valor": null,
+          "estado": "SIN_TOPE",
           "origen": "L2_43",
           "ambito": "anual_beneficiario"
         }
@@ -3627,26 +3947,33 @@
         },
         {
           "tipo": "tope_anual",
-          "unidad": "UF",
-          "valor": 4,
-          "descripcion": "Límite máximo año beneficiario: 4 UF",
+          "unidad": null,
+          "valor": "SIN_TOPE",
+          "descripcion": "Re-expansión: Cobertura anual ILIMITADA",
           "fuente": "L2_43"
         }
       ],
       "estado_no_lineal_de_linea": {
         "opciones_activas": 4,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_44"
+        "ultimo_bloque_aplicado": "L2_43_C3"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": 4,
-        "unidad": "UF",
-        "bloque_id": "NFE_2_44",
-        "fuente_linea": "L2_42",
-        "clausula_activa": false
+        "valor": null,
+        "unidad": null,
+        "bloque_id": "L2_43_C3",
+        "razon": "SIN_TOPE_EXPRESO",
+        "fuente_linea": "L2_43",
+        "clausula_activa": true
       },
-      "operadores_forenses": [],
+      "operadores_forenses": [
+        {
+          "tipo": "OP_RE_EXPANSION_NFE",
+          "fuente_linea": "L2_43",
+          "detalle": "Sin Tope Expreso"
+        }
+      ],
       "decision_final": "PENDIENTE_CUENTA_PACIENTE"
     },
     {
@@ -3786,6 +4113,7 @@
         "valor": 4,
         "unidad": "UF",
         "bloque_id": "L2_44_C7",
+        "razon": "NFE_PROPIO",
         "fuente_linea": "L2_44",
         "clausula_activa": false
       },
@@ -4198,8 +4526,8 @@
         },
         {
           "tipo": "NFE",
-          "valor": 90,
-          "estado": "LIMITADO",
+          "valor": null,
+          "estado": "SIN_TOPE",
           "origen": "L2_47",
           "ambito": "anual_beneficiario"
         }
@@ -4219,26 +4547,33 @@
         },
         {
           "tipo": "tope_anual",
-          "unidad": "UF",
-          "valor": 90,
-          "descripcion": "Límite máximo año beneficiario: 90 UF",
+          "unidad": null,
+          "valor": "SIN_TOPE",
+          "descripcion": "Re-expansión: Cobertura anual ILIMITADA",
           "fuente": "L2_47"
         }
       ],
       "estado_no_lineal_de_linea": {
         "opciones_activas": 4,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_52"
+        "ultimo_bloque_aplicado": "L2_47_C6"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": 90,
-        "unidad": "UF",
-        "bloque_id": "NFE_2_52",
-        "fuente_linea": "L2_48",
-        "clausula_activa": false
+        "valor": null,
+        "unidad": null,
+        "bloque_id": "L2_47_C6",
+        "razon": "SIN_TOPE_EXPRESO",
+        "fuente_linea": "L2_47",
+        "clausula_activa": true
       },
-      "operadores_forenses": [],
+      "operadores_forenses": [
+        {
+          "tipo": "OP_RE_EXPANSION_NFE",
+          "fuente_linea": "L2_47",
+          "detalle": "Sin Tope Expreso"
+        }
+      ],
       "decision_final": "PENDIENTE_CUENTA_PACIENTE"
     },
     {
@@ -4492,6 +4827,75 @@
             "L2_49",
             "L2_70"
           ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_70"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_70"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Integramédica, Clínica Dávila,"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_70"
+          ]
         }
       ],
       "topes_activos": [
@@ -4533,7 +4937,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 4,
+        "opciones_activas": 7,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_52"
       },
@@ -4623,6 +5027,27 @@
           ]
         },
         {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Clínica Santa Maria"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_50"
+          ]
+        },
+        {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
@@ -4685,7 +5110,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 4,
+        "opciones_activas": 5,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_52"
       },
@@ -4797,6 +5222,96 @@
             "L2_51",
             "L2_65"
           ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_65"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_65"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Centros Médicos de la Red de Salud UC Christus (L),"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_65"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Clínica Santa Maria, Clínica Tabancura,"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_65"
+          ]
         }
       ],
       "topes_activos": [
@@ -4814,13 +5329,6 @@
           "estado": "SIN_TOPE",
           "origen": "L2_51",
           "ambito": "anual_beneficiario"
-        },
-        {
-          "tipo": "UF",
-          "valor": 1.1,
-          "estado": "LIMITADO",
-          "origen": "L2_65_C4",
-          "ambito": "por_prestacion"
         }
       ],
       "historial_financiero": [
@@ -4845,7 +5353,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 4,
+        "opciones_activas": 8,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_55"
       },
@@ -4964,6 +5472,54 @@
             "L2_52",
             "L2_69"
           ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_69"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_69"
+          ]
         }
       ],
       "topes_activos": [
@@ -4977,7 +5533,7 @@
         },
         {
           "tipo": "NFE",
-          "valor": null,
+          "valor": 5,
           "estado": "LIMITADO",
           "origen": "L2_52",
           "ambito": "anual_beneficiario"
@@ -4999,21 +5555,22 @@
         {
           "tipo": "tope_anual",
           "unidad": "UF",
-          "valor": null,
-          "descripcion": "Límite máximo año beneficiario: null UF",
+          "valor": 5,
+          "descripcion": "Límite máximo año beneficiario: 5 UF",
           "fuente": "L2_52"
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 4,
+        "opciones_activas": 6,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "L2_52_C7"
+        "ultimo_bloque_aplicado": "L2_52_C8"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": null,
+        "valor": 5,
         "unidad": "UF",
-        "bloque_id": "L2_52_C7",
+        "bloque_id": "L2_52_C8",
+        "razon": "NFE_PROPIO",
         "fuente_linea": "L2_52",
         "clausula_activa": false
       },
@@ -5117,6 +5674,55 @@
             "L2_53",
             "L2_64"
           ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARIA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_64"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_64"
+          ]
         }
       ],
       "topes_activos": [
@@ -5158,7 +5764,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 4,
+        "opciones_activas": 6,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_55"
       },
@@ -5271,6 +5877,54 @@
             "L2_54",
             "L2_67"
           ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_67"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_67"
+          ]
         }
       ],
       "topes_activos": [
@@ -5312,7 +5966,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 4,
+        "opciones_activas": 6,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_55"
       },
@@ -5465,18 +6119,24 @@
       "estado_no_lineal_de_linea": {
         "opciones_activas": 4,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_55"
+        "ultimo_bloque_aplicado": "L2_55_C5"
       },
       "nfe_resumen": {
         "aplica": true,
         "valor": null,
         "unidad": null,
-        "bloque_id": "NFE_2_55",
+        "bloque_id": "L2_55_C5",
         "razon": "SIN_TOPE_EXPRESO",
-        "fuente_linea": "L2_53",
+        "fuente_linea": "L2_55",
         "clausula_activa": true
       },
-      "operadores_forenses": [],
+      "operadores_forenses": [
+        {
+          "tipo": "OP_RE_EXPANSION_NFE",
+          "fuente_linea": "L2_55",
+          "detalle": "Sin Tope Expreso"
+        }
+      ],
       "decision_final": "PENDIENTE_CUENTA_PACIENTE"
     },
     {
@@ -5554,6 +6214,27 @@
           ]
         },
         {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Clínica Dávila, Clínica Vespucio"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_56"
+          ]
+        },
+        {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
@@ -5614,7 +6295,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 4,
+        "opciones_activas": 5,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_55"
       },
@@ -5634,6 +6315,27 @@
       "nombre": "MEDICAMENTOS HOSPITALARIOS (2)",
       "ambito": "hospitalario",
       "opciones": [
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Clínica Dávila, Clínica Vespucio"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_57"
+          ]
+        },
         {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
@@ -5675,12 +6377,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -5701,15 +6397,16 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 2,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_57"
+        "ultimo_bloque_aplicado": "L2_57_C6"
       },
       "nfe_resumen": {
         "aplica": true,
         "valor": 60,
         "unidad": "UF",
-        "bloque_id": "NFE_2_57",
+        "bloque_id": "L2_57_C6",
+        "razon": "NFE_PROPIO",
         "fuente_linea": "L2_57",
         "clausula_activa": false
       },
@@ -5720,6 +6417,27 @@
       "nombre": "MATERIALES CLÍNICOS (2)",
       "ambito": "hospitalario",
       "opciones": [
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Clínica Dávila, Clínica Vespucio"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_58"
+          ]
+        },
         {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
@@ -5761,12 +6479,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -5787,15 +6499,16 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 2,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_58"
+        "ultimo_bloque_aplicado": "L2_58_C5"
       },
       "nfe_resumen": {
         "aplica": true,
         "valor": 40,
         "unidad": "UF",
-        "bloque_id": "NFE_2_58",
+        "bloque_id": "L2_58_C5",
+        "razon": "NFE_PROPIO",
         "fuente_linea": "L2_58",
         "clausula_activa": false
       },
@@ -6033,7 +6746,7 @@
         },
         {
           "tipo": "NFE",
-          "valor": 0.5,
+          "valor": 80,
           "estado": "LIMITADO",
           "origen": "L2_61",
           "ambito": "anual_beneficiario"
@@ -6061,22 +6774,23 @@
         {
           "tipo": "tope_anual",
           "unidad": "UF",
-          "valor": 0.5,
-          "descripcion": "Límite máximo año beneficiario: 0.5 UF",
+          "valor": 80,
+          "descripcion": "Límite máximo año beneficiario: 80 UF",
           "fuente": "L2_61"
         }
       ],
       "estado_no_lineal_de_linea": {
         "opciones_activas": 1,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_63"
+        "ultimo_bloque_aplicado": "L2_61_C4"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": 0.5,
+        "valor": 80,
         "unidad": "UF",
-        "bloque_id": "NFE_2_63",
-        "fuente_linea": "L2_60",
+        "bloque_id": "L2_61_C4",
+        "razon": "NFE_PROPIO",
+        "fuente_linea": "L2_61",
         "clausula_activa": false
       },
       "operadores_forenses": [
@@ -6095,6 +6809,54 @@
       "nombre": "CONSULTAS MÉDICAS",
       "ambito": "hospitalario",
       "opciones": [
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_63"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_63"
+          ]
+        },
         {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
@@ -6136,12 +6898,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -6162,7 +6918,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 3,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_65"
       },
@@ -6183,14 +6939,63 @@
       "ambito": "hospitalario",
       "opciones": [
         {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_66"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_66"
+          ]
+        },
+        {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
           "porcentaje": 90,
           "tope": {
-            "tipo": "UF",
-            "valor": 2,
-            "origen": "L2_66_C2"
+            "tipo": "AC2",
+            "factor": 2,
+            "origen": "L2_66_C2",
+            "sin_tope_adicional": true
           },
           "condiciones": [],
           "estado_opcion": "ACTIVA",
@@ -6207,9 +7012,10 @@
       ],
       "topes_activos": [
         {
-          "tipo": "UF",
-          "valor": 2,
-          "estado": "LIMITADO",
+          "tipo": "AC2",
+          "valor": null,
+          "factor": 2,
+          "estado": "ACTIVO",
           "origen": "L2_66_C2",
           "ambito": "por_prestacion"
         },
@@ -6223,21 +7029,15 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
         },
         {
           "tipo": "tope_evento",
-          "unidad": "UF",
+          "unidad": "veces AC2",
           "valor": 2,
-          "descripcion": "Límite por evento: 2 UF",
+          "descripcion": "Límite por evento: 2x AC2",
           "fuente": "L2_66_C2"
         },
         {
@@ -6249,7 +7049,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 3,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_69"
       },
@@ -6268,6 +7068,54 @@
       "nombre": "BOX AMBULATORIO",
       "ambito": "hospitalario",
       "opciones": [
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_68"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_68"
+          ]
+        },
         {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
@@ -6311,12 +7159,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -6337,7 +7179,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 3,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_69"
       },
@@ -6357,10 +7199,58 @@
       "ambito": "hospitalario",
       "opciones": [
         {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_71"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_71"
+          ]
+        },
+        {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 80,
           "tope": {
             "tipo": "AC2",
             "factor": 2.5,
@@ -6399,15 +7289,9 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 80,
+          "descripcion": "Cobertura base del 80%"
         },
         {
           "tipo": "tope_evento",
@@ -6425,7 +7309,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 3,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_74"
       },
@@ -6445,10 +7329,79 @@
       "ambito": "hospitalario",
       "opciones": [
         {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_72"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_72"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Integramédica, Clínica Dávila,"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_72"
+          ]
+        },
+        {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 80,
           "tope": {
             "tipo": "AC2",
             "factor": 1,
@@ -6479,23 +7432,17 @@
         },
         {
           "tipo": "NFE",
-          "valor": 80,
-          "estado": "LIMITADO",
+          "valor": null,
+          "estado": "SIN_TOPE",
           "origen": "L2_72",
           "ambito": "anual_beneficiario"
         }
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 80,
+          "descripcion": "Cobertura base del 80%"
         },
         {
           "tipo": "tope_evento",
@@ -6506,26 +7453,33 @@
         },
         {
           "tipo": "tope_anual",
-          "unidad": "UF",
-          "valor": 80,
-          "descripcion": "Límite máximo año beneficiario: 80 UF",
+          "unidad": null,
+          "valor": "SIN_TOPE",
+          "descripcion": "Re-expansión: Cobertura anual ILIMITADA",
           "fuente": "L2_72"
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 4,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_74"
+        "ultimo_bloque_aplicado": "L2_72_C4"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": 80,
-        "unidad": "UF",
-        "bloque_id": "NFE_2_74",
-        "fuente_linea": "L2_71",
-        "clausula_activa": false
+        "valor": null,
+        "unidad": null,
+        "bloque_id": "L2_72_C4",
+        "razon": "SIN_TOPE_EXPRESO",
+        "fuente_linea": "L2_72",
+        "clausula_activa": true
       },
-      "operadores_forenses": [],
+      "operadores_forenses": [
+        {
+          "tipo": "OP_RE_EXPANSION_NFE",
+          "fuente_linea": "L2_72",
+          "detalle": "Sin Tope Expreso"
+        }
+      ],
       "decision_final": "PENDIENTE_CUENTA_PACIENTE"
     },
     {
@@ -6533,10 +7487,58 @@
       "ambito": "hospitalario",
       "opciones": [
         {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARÍA",
+            "CLÍNICA TABANCURA",
+            "RED DE SALUD UC CHRISTUS"
+          ],
+          "porcentaje": 70,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_73"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD",
+            "CLÍNICA BICENTENARIO",
+            "CLÍNICA DÁVILA",
+            "INTEGRAMÉDICA"
+          ],
+          "porcentaje": 80,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_73"
+          ]
+        },
+        {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 80,
           "tope": {
             "tipo": "AC2",
             "factor": 2.5,
@@ -6567,7 +7569,7 @@
         },
         {
           "tipo": "NFE",
-          "valor": 80,
+          "valor": 3.5,
           "estado": "LIMITADO",
           "origen": "L2_73",
           "ambito": "anual_beneficiario"
@@ -6575,15 +7577,9 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 80,
+          "descripcion": "Cobertura base del 80%"
         },
         {
           "tipo": "tope_evento",
@@ -6595,22 +7591,23 @@
         {
           "tipo": "tope_anual",
           "unidad": "UF",
-          "valor": 80,
-          "descripcion": "Límite máximo año beneficiario: 80 UF",
+          "valor": 3.5,
+          "descripcion": "Límite máximo año beneficiario: 3.5 UF",
           "fuente": "L2_73"
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 3,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_74"
+        "ultimo_bloque_aplicado": "L2_73_C3"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": 80,
+        "valor": 3.5,
         "unidad": "UF",
-        "bloque_id": "NFE_2_74",
-        "fuente_linea": "L2_71",
+        "bloque_id": "L2_73_C3",
+        "razon": "NFE_PROPIO",
+        "fuente_linea": "L2_73",
         "clausula_activa": false
       },
       "operadores_forenses": [],
@@ -6624,7 +7621,7 @@
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 80,
           "tope": {
             "tipo": "AC2",
             "factor": 1,
@@ -6670,8 +7667,8 @@
         },
         {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 80,
+          "descripcion": "Cobertura base del 80%"
         },
         {
           "tipo": "tope_evento",
@@ -6719,7 +7716,7 @@
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 80,
           "tope": {
             "tipo": "AC2",
             "factor": 2.5,
@@ -6765,8 +7762,8 @@
         },
         {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 80,
+          "descripcion": "Cobertura base del 80%"
         },
         {
           "tipo": "tope_evento",
@@ -6807,7 +7804,7 @@
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 80,
           "tope": {
             "tipo": "AC2",
             "factor": 1,
@@ -6838,7 +7835,7 @@
         },
         {
           "tipo": "NFE",
-          "valor": 80,
+          "valor": 1.5,
           "estado": "LIMITADO",
           "origen": "L2_77",
           "ambito": "anual_beneficiario"
@@ -6853,8 +7850,8 @@
         },
         {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 80,
+          "descripcion": "Cobertura base del 80%"
         },
         {
           "tipo": "tope_evento",
@@ -6866,22 +7863,23 @@
         {
           "tipo": "tope_anual",
           "unidad": "UF",
-          "valor": 80,
-          "descripcion": "Límite máximo año beneficiario: 80 UF",
+          "valor": 1.5,
+          "descripcion": "Límite máximo año beneficiario: 1.5 UF",
           "fuente": "L2_77"
         }
       ],
       "estado_no_lineal_de_linea": {
         "opciones_activas": 1,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_74"
+        "ultimo_bloque_aplicado": "L2_77_C4"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": 80,
+        "valor": 1.5,
         "unidad": "UF",
-        "bloque_id": "NFE_2_74",
-        "fuente_linea": "L2_71",
+        "bloque_id": "L2_77_C4",
+        "razon": "NFE_PROPIO",
+        "fuente_linea": "L2_77",
         "clausula_activa": false
       },
       "operadores_forenses": [],
@@ -6895,7 +7893,7 @@
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 80,
           "tope": {
             "tipo": "AC2",
             "factor": 2.5,
@@ -6926,8 +7924,8 @@
         },
         {
           "tipo": "NFE",
-          "valor": 6.7,
-          "estado": "LIMITADO",
+          "valor": null,
+          "estado": "SIN_TOPE",
           "origen": "L2_80",
           "ambito": "anual_beneficiario"
         }
@@ -6941,8 +7939,8 @@
         },
         {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 80,
+          "descripcion": "Cobertura base del 80%"
         },
         {
           "tipo": "tope_evento",
@@ -6953,26 +7951,33 @@
         },
         {
           "tipo": "tope_anual",
-          "unidad": "UF",
-          "valor": 6.7,
-          "descripcion": "Límite máximo año beneficiario: 6.7 UF",
+          "unidad": null,
+          "valor": "SIN_TOPE",
+          "descripcion": "Re-expansión: Cobertura anual ILIMITADA",
           "fuente": "L2_80"
         }
       ],
       "estado_no_lineal_de_linea": {
         "opciones_activas": 1,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "NFE_2_82"
+        "ultimo_bloque_aplicado": "L2_80_C4"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": 6.7,
-        "unidad": "UF",
-        "bloque_id": "NFE_2_82",
-        "fuente_linea": "L2_79",
-        "clausula_activa": false
+        "valor": null,
+        "unidad": null,
+        "bloque_id": "L2_80_C4",
+        "razon": "SIN_TOPE_EXPRESO",
+        "fuente_linea": "L2_80",
+        "clausula_activa": true
       },
-      "operadores_forenses": [],
+      "operadores_forenses": [
+        {
+          "tipo": "OP_RE_EXPANSION_NFE",
+          "fuente_linea": "L2_80",
+          "detalle": "Sin Tope Expreso"
+        }
+      ],
       "decision_final": "PENDIENTE_CUENTA_PACIENTE"
     },
     {
@@ -6983,7 +7988,7 @@
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 70,
           "tope": {
             "tipo": "AC2",
             "factor": 1,
@@ -7014,7 +8019,7 @@
         },
         {
           "tipo": "NFE",
-          "valor": null,
+          "valor": 6.7,
           "estado": "LIMITADO",
           "origen": "L2_82",
           "ambito": "anual_beneficiario"
@@ -7029,8 +8034,8 @@
         },
         {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 70,
+          "descripcion": "Cobertura base del 70%"
         },
         {
           "tipo": "tope_evento",
@@ -7042,8 +8047,8 @@
         {
           "tipo": "tope_anual",
           "unidad": "UF",
-          "valor": null,
-          "descripcion": "Límite máximo año beneficiario: null UF",
+          "valor": 6.7,
+          "descripcion": "Límite máximo año beneficiario: 6.7 UF",
           "fuente": "L2_82"
         }
       ],
@@ -7054,9 +8059,10 @@
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": null,
+        "valor": 6.7,
         "unidad": "UF",
         "bloque_id": "L2_82_C7",
+        "razon": "NFE_PROPIO",
         "fuente_linea": "L2_82",
         "clausula_activa": false
       },
@@ -7071,7 +8077,7 @@
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 70,
           "tope": {
             "tipo": "AC2",
             "factor": 1,
@@ -7102,7 +8108,7 @@
         },
         {
           "tipo": "NFE",
-          "valor": null,
+          "valor": 4,
           "estado": "LIMITADO",
           "origen": "L2_83",
           "ambito": "anual_beneficiario"
@@ -7117,8 +8123,8 @@
         },
         {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 70,
+          "descripcion": "Cobertura base del 70%"
         },
         {
           "tipo": "tope_evento",
@@ -7130,8 +8136,8 @@
         {
           "tipo": "tope_anual",
           "unidad": "UF",
-          "valor": null,
-          "descripcion": "Límite máximo año beneficiario: null UF",
+          "valor": 4,
+          "descripcion": "Límite máximo año beneficiario: 4 UF",
           "fuente": "L2_83"
         }
       ],
@@ -7142,9 +8148,10 @@
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": null,
+        "valor": 4,
         "unidad": "UF",
         "bloque_id": "L2_83_C7",
+        "razon": "NFE_PROPIO",
         "fuente_linea": "L2_83",
         "clausula_activa": false
       },
@@ -7159,7 +8166,7 @@
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
-          "porcentaje": 90,
+          "porcentaje": 70,
           "tope": {
             "tipo": "AC2",
             "factor": 2.5,
@@ -7205,8 +8212,8 @@
         },
         {
           "tipo": "regimen",
-          "porcentaje": 90,
-          "descripcion": "Cobertura base del 90%"
+          "porcentaje": 70,
+          "descripcion": "Cobertura base del 70%"
         },
         {
           "tipo": "tope_evento",
@@ -7276,7 +8283,7 @@
         },
         {
           "tipo": "NFE",
-          "valor": null,
+          "valor": 2.5,
           "estado": "LIMITADO",
           "origen": "L2_85",
           "ambito": "anual_beneficiario"
@@ -7304,21 +8311,22 @@
         {
           "tipo": "tope_anual",
           "unidad": "UF",
-          "valor": null,
-          "descripcion": "Límite máximo año beneficiario: null UF",
+          "valor": 2.5,
+          "descripcion": "Límite máximo año beneficiario: 2.5 UF",
           "fuente": "L2_85"
         }
       ],
       "estado_no_lineal_de_linea": {
         "opciones_activas": 1,
         "opciones_latentes": 0,
-        "ultimo_bloque_aplicado": "L2_85_C7"
+        "ultimo_bloque_aplicado": "L2_85_C8"
       },
       "nfe_resumen": {
         "aplica": true,
-        "valor": null,
+        "valor": 2.5,
         "unidad": "UF",
-        "bloque_id": "L2_85_C7",
+        "bloque_id": "L2_85_C8",
+        "razon": "NFE_PROPIO",
         "fuente_linea": "L2_85",
         "clausula_activa": false
       },
@@ -7522,6 +8530,32 @@
       "ambito": "hospitalario",
       "opciones": [
         {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD Y CLÍNICA BICENTENARIO.",
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARIA",
+            "CLÍNICA SANTA MARÍA",
+            "HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS",
+            "HOSPITAL CLÍNICO UNIVERSIDAD DE CHILE"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_89"
+          ]
+        },
+        {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
           "prestadores": "red_abierta",
@@ -7564,12 +8598,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -7590,7 +8618,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 2,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_87"
       },
@@ -7610,6 +8638,53 @@
       "nombre": "Exámenes, Imágenes, Procedimientos y Pabellón.",
       "ambito": "hospitalario",
       "opciones": [
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD Y CLÍNICA BICENTENARIO.",
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARIA",
+            "CLÍNICA SANTA MARÍA",
+            "HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS",
+            "HOSPITAL CLÍNICO UNIVERSIDAD DE CHILE"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_90"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Avansalud y Clínica Vespucio,"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_90"
+          ]
+        },
         {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
@@ -7653,12 +8728,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -7679,7 +8748,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 3,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_87"
       },
@@ -7699,6 +8768,53 @@
       "nombre": "PRESTADORES DERIVADOS",
       "ambito": "hospitalario",
       "opciones": [
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "CLÍNICA AVANSALUD Y CLÍNICA BICENTENARIO.",
+            "CLÍNICA INDISA",
+            "CLÍNICA SANTA MARIA",
+            "CLÍNICA SANTA MARÍA",
+            "HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS",
+            "HOSPITAL CLÍNICO UNIVERSIDAD DE CHILE"
+          ],
+          "porcentaje": 90,
+          "tope": "SIN_TOPE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_91"
+          ]
+        },
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Avansalud y Clínica Vespucio,"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_91"
+          ]
+        },
         {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
@@ -7742,12 +8858,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -7768,7 +8878,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 3,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_87"
       },
@@ -7788,6 +8898,27 @@
       "nombre": "ATENCIÓN",
       "ambito": "hospitalario",
       "opciones": [
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Avansalud y Clínica Vespucio,"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_92"
+          ]
+        },
         {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
@@ -7831,12 +8962,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -7857,7 +8982,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 2,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_95"
       },
@@ -7876,6 +9001,27 @@
       "nombre": "DE URGENCIA (D) (L) (N)",
       "ambito": "hospitalario",
       "opciones": [
+        {
+          "modalidad": "preferente",
+          "grupo_decisional": "OFERTA_PREFERENTE",
+          "subtipo": "institucional",
+          "prestadores": [
+            "Avansalud y Clínica Vespucio,"
+          ],
+          "porcentaje": 90,
+          "tope": "VARIABLE",
+          "condiciones": [],
+          "estado_opcion": "ACTIVA",
+          "estado_decisional": "NO_RESUELTA",
+          "requiere": [
+            "prestador_real",
+            "prestacion_facturada",
+            "modalidad_aplicada_en_cuenta"
+          ],
+          "fuente": [
+            "L2_93"
+          ]
+        },
         {
           "modalidad": "libre_eleccion",
           "grupo_decisional": "LIBRE_ELECCION",
@@ -7919,12 +9065,6 @@
       ],
       "historial_financiero": [
         {
-          "tipo": "exclusion_modal",
-          "valor": "solo_libre_eleccion",
-          "descripcion": "BARRERA: Green Line Cut (Solo Libre Elección)",
-          "fuente": "ROOT"
-        },
-        {
           "tipo": "regimen",
           "porcentaje": 90,
           "descripcion": "Cobertura base del 90%"
@@ -7945,7 +9085,7 @@
         }
       ],
       "estado_no_lineal_de_linea": {
-        "opciones_activas": 1,
+        "opciones_activas": 2,
         "opciones_latentes": 0,
         "ultimo_bloque_aplicado": "NFE_2_95"
       },
@@ -8247,9 +9387,10 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": 4,
+          "valor": null,
+          "razon": "SIN_TOPE_EXPRESO",
           "fuente": [
-            "L2_42"
+            "L2_43"
           ]
         },
         "reglas_financieras": []
@@ -8260,6 +9401,7 @@
         "delta_nfe": {
           "aplica": true,
           "valor": 4,
+          "razon": "NFE_PROPIO",
           "fuente": [
             "L2_44"
           ]
@@ -8297,9 +9439,10 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": 90,
+          "valor": null,
+          "razon": "SIN_TOPE_EXPRESO",
           "fuente": [
-            "L2_48"
+            "L2_47"
           ]
         },
         "reglas_financieras": [
@@ -8393,7 +9536,8 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": null,
+          "valor": 5,
+          "razon": "NFE_PROPIO",
           "fuente": [
             "L2_52"
           ]
@@ -8455,7 +9599,7 @@
           "valor": null,
           "razon": "SIN_TOPE_EXPRESO",
           "fuente": [
-            "L2_53"
+            "L2_55"
           ]
         },
         "reglas_financieras": []
@@ -8479,6 +9623,7 @@
         "delta_nfe": {
           "aplica": true,
           "valor": 60,
+          "razon": "NFE_PROPIO",
           "fuente": [
             "L2_57"
           ]
@@ -8491,6 +9636,7 @@
         "delta_nfe": {
           "aplica": true,
           "valor": 40,
+          "razon": "NFE_PROPIO",
           "fuente": [
             "L2_58"
           ]
@@ -8541,9 +9687,10 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": 0.5,
+          "valor": 80,
+          "razon": "NFE_PROPIO",
           "fuente": [
-            "L2_60"
+            "L2_61"
           ]
         },
         "reglas_financieras": [
@@ -8578,7 +9725,14 @@
             "L2_66"
           ]
         },
-        "reglas_financieras": []
+        "reglas_financieras": [
+          {
+            "tipo": "TOPE_ARANCELARIO",
+            "factor": 2,
+            "unidad": "AC2",
+            "origen": "L2_66_C2"
+          }
+        ]
       },
       {
         "nombre_norm": "BOX AMBULATORIO",
@@ -8623,9 +9777,10 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": 80,
+          "valor": null,
+          "razon": "SIN_TOPE_EXPRESO",
           "fuente": [
-            "L2_71"
+            "L2_72"
           ]
         },
         "reglas_financieras": [
@@ -8642,9 +9797,10 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": 80,
+          "valor": 3.5,
+          "razon": "NFE_PROPIO",
           "fuente": [
-            "L2_71"
+            "L2_73"
           ]
         },
         "reglas_financieras": [
@@ -8700,9 +9856,10 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": 80,
+          "valor": 1.5,
+          "razon": "NFE_PROPIO",
           "fuente": [
-            "L2_71"
+            "L2_77"
           ]
         },
         "reglas_financieras": [
@@ -8719,9 +9876,10 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": 6.7,
+          "valor": null,
+          "razon": "SIN_TOPE_EXPRESO",
           "fuente": [
-            "L2_79"
+            "L2_80"
           ]
         },
         "reglas_financieras": [
@@ -8738,7 +9896,8 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": null,
+          "valor": 6.7,
+          "razon": "NFE_PROPIO",
           "fuente": [
             "L2_82"
           ]
@@ -8757,7 +9916,8 @@
         "ambito": "ambulatorio",
         "delta_nfe": {
           "aplica": true,
-          "valor": null,
+          "valor": 4,
+          "razon": "NFE_PROPIO",
           "fuente": [
             "L2_83"
           ]
@@ -8795,7 +9955,8 @@
         "ambito": "hospitalario",
         "delta_nfe": {
           "aplica": true,
-          "valor": null,
+          "valor": 2.5,
+          "razon": "NFE_PROPIO",
           "fuente": [
             "L2_85"
           ]

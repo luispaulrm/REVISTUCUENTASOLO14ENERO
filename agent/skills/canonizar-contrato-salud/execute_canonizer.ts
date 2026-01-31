@@ -113,6 +113,14 @@ export interface ForensicOperator {
     detalle?: string;
 }
 
+// "Giant Table" Column Context
+export interface ColumnContext {
+    providers: string[]; // e.g. "UC Christus", "Dávila"
+    percentage?: number; // e.g. 70, 80
+    tope?: string;       // e.g. "1,0 veces AC2" (raw)
+    source: string;      // Debug line ID
+}
+
 // -----------------------------------------------------
 // 2) Clasificación de bloques (BlockEffect + BlockScope)
 // -----------------------------------------------------
@@ -158,7 +166,7 @@ export function inferScope(col: number, text: string): BlockScope {
 // 3) OperatorEngine (detectOperators + applyOperators)
 // ----------------------------------------------
 
-export function detectOperators(block: SemanticBlock): SemanticOperator[] {
+export function detectOperators(block: SemanticBlock, headerMap?: Map<number, string>): SemanticOperator[] {
     const ops: SemanticOperator[] = [];
     const t = block.text.toLowerCase();
 
@@ -186,24 +194,24 @@ export function detectOperators(block: SemanticBlock): SemanticOperator[] {
     const scope = block.scope;
 
     if (scope === "TOPE_EVENTO") {
-        ops.push({ type: "TOPE_EVENTO", restr: parseRestriction(block, "TOPE_EVENTO") });
+        ops.push({ type: "TOPE_EVENTO", restr: parseRestriction(block, "TOPE_EVENTO", headerMap) });
     }
 
     // FORENSIC IMPROVEMENT: If "Sin Tope" exists in a financial domain line (like Traslados),
     // we must treat it as an NFE expander, BUT ONLY if it's NOT explicitly an event limit column.
     if (scope === "TOPE_ANUAL_NFE" || (isFinancialDomain && t.includes("sin tope") && scope !== "TOPE_EVENTO")) {
-        ops.push({ type: "TOPE_ANUAL_NFE", restr: parseRestriction(block, "TOPE_ANUAL_NFE") });
+        ops.push({ type: "TOPE_ANUAL_NFE", restr: parseRestriction(block, "TOPE_ANUAL_NFE", headerMap) });
     }
 
     if (scope === "PORCENTAJE") {
-        ops.push({ type: "PORCENTAJE", restr: parseRestriction(block, "PORCENTAJE") });
+        ops.push({ type: "PORCENTAJE", restr: parseRestriction(block, "PORCENTAJE", headerMap) });
     }
 
     return ops;
 }
 
 // Parse básico: detecta SIN TOPE, UF, AC2 factor, porcentaje
-export function parseRestriction(block: SemanticBlock, scope: BlockScope): Restriction {
+export function parseRestriction(block: SemanticBlock, scope: BlockScope, headerMap?: Map<number, string>): Restriction {
     const raw = block.text;
     const t = raw.toLowerCase();
 
@@ -223,12 +231,59 @@ export function parseRestriction(block: SemanticBlock, scope: BlockScope): Restr
         return { scope, kind: "TOPE_UF", value: Number(mUf[1].replace(",", ".")), raw, byBlock: block.id };
     }
 
-    // Bare number check (Implicit UF context)
-    // If we are in TOPE_EVENTO column and see a bare number like "20" or "20,5", assume UF.
-    if (scope === "TOPE_EVENTO") {
-        const mBare = raw.match(/^(\d+([.,]\d+)?)$/);
-        if (mBare) {
-            return { scope, kind: "TOPE_UF", value: Number(mBare[1].replace(",", ".")), raw, byBlock: block.id };
+    // 0. PRIORITY: If TOPE_ANUAL_NFE is forced (e.g. by last-cell geometry), 
+    // we must interpret it as a number even if regex is strict or headers are missing.
+    if (scope === "TOPE_ANUAL_NFE") {
+        // Aggressive parse: remove UF, spaces, etc.
+        const clean = raw.toLowerCase().replace("uf", "").trim().replace(",", ".");
+        if (clean.length === 0) return { scope, kind: "OTRA", raw, byBlock: block.id }; // Avoid empty cells becoming 0
+        const val = Number(clean);
+        if (!isNaN(val)) {
+            return { scope: "TOPE_ANUAL_NFE", kind: "TOPE_UF", value: val, raw, byBlock: block.id };
+        }
+    }
+
+    // Bare number check (Implicit UF context OR Header Context)
+    const mBare = raw.match(/^(\d+([.,]\d+)?)$/);
+    if (mBare) {
+        const val = Number(mBare[1].replace(",", "."));
+
+        // 1. Check Header Context FIRST
+        if (headerMap) {
+            let h = headerMap.get(block.col) || "";
+
+            // PRIORITY: If we already forced TOPE_ANUAL_NFE (e.g. last cell heuristic), 
+            // don't let the neighbor hack turn it into a percentage.
+            if (scope === "TOPE_ANUAL_NFE") {
+                return { scope: "TOPE_ANUAL_NFE", kind: "TOPE_UF", value: val, raw, byBlock: block.id };
+            }
+
+            // Check left neighbor if current is empty (often merged headers like "BONIFICACION | DEL PLAN")
+            if (!h && headerMap.has(block.col - 1)) {
+                const hLeft = headerMap.get(block.col - 1)!;
+                if (hLeft.includes("PLAN") || hLeft.includes("BONIFIC")) {
+                    h = "PORCENTAJE"; // Infer percentage context
+                }
+            }
+
+            if (h.includes("AÑO") || h.includes("ANUAL") || h.includes("MAX")) {
+                return { scope: "TOPE_ANUAL_NFE", kind: "TOPE_UF", value: val, raw, byBlock: block.id };
+            }
+            if (h.includes("%") || h.includes("BONIFIC") || h.includes("COBERTURA") || h.includes("PLAN") || h === "PORCENTAJE") {
+                return { scope: "PORCENTAJE", kind: "PORCENTAJE", value: val, raw, byBlock: block.id };
+            }
+            if (h.includes("UF")) {
+                return { scope, kind: "TOPE_UF", value: val, raw, byBlock: block.id };
+            }
+            if (h.includes("AC2") || h.includes("VECES")) {
+                return { scope, kind: "TOPE_AC2", value: val, raw, byBlock: block.id };
+            }
+        }
+
+        // 2. Fallback to Scope Default
+        if (scope === "TOPE_EVENTO") {
+            // Default to UF for Event Tope if no header info contradicts
+            return { scope, kind: "TOPE_UF", value: val, raw, byBlock: block.id };
         }
     }
 
@@ -964,6 +1019,23 @@ async function runCanonizer() {
         }
     };
 
+    // --- HEADER MAP EXTRACTION (Lines 1-20) ---
+    const headerMap = new Map<number, string>();
+    const linesToScan = (extractionData.lineas as ExtractionLine[]).slice(0, 20);
+    for (const line of linesToScan) {
+        if (!line.celdas) continue;
+        for (const cell of line.celdas) {
+            const t = cell.texto?.toUpperCase() || "";
+            if (t.includes("TOPE") || t.includes("BONIFIC") || t.includes("COBERTURA") || t.includes("%") || t.includes("PLAN") || t.includes("AÑO") || t.includes("ANUAL")) {
+                // If header found, store it. Prefer "TOPE" or "BONIFIC" over generic text.
+                if (!headerMap.has(cell.indice_columna) || t.includes("TOPE") || t.includes("%") || t.includes("AÑO")) {
+                    headerMap.set(cell.indice_columna, t);
+                }
+            }
+        }
+    }
+    console.log("DETECTED HEADERS:", Object.fromEntries(headerMap));
+
     const asigByLine = new Map<string, Assignment[]>();
     for (const asig of expansionData.asignaciones) {
         const key = `${asig.pagina}_${asig.indice_linea}`;
@@ -1116,10 +1188,99 @@ async function runCanonizer() {
         }
     };
 
+    // State for Vertical Persistence ("Sticky" Logic)
+    let lastExplicitPercentage: number | null = null;
+    let lastExplicitValuesSource: string | null = null;
+
+    // GIANT TABLE CONTEXT (Vertical Column Inheritance)
+    const columnContext = new Map<number, ColumnContext>();
+
     for (const rawLine of (extractionData.lineas as ExtractionLine[])) {
         const lineId = `L${rawLine.pagina}_${rawLine.indice_linea}`;
         const textoLimpio = rawLine.texto_plano?.trim() || "";
         const asigs = asigByLine.get(`${rawLine.pagina}_${rawLine.indice_linea}`) || [];
+
+        // --- DEBUG CABECERA ---
+        if ((rawLine as any).cabecera_activa) {
+            console.log(`DEBUG META: L${rawLine.pagina}_${rawLine.indice_linea} has Cabecera: `, JSON.stringify((rawLine as any).cabecera_activa));
+        }
+        // ----------------------
+
+        // --- HEADER METADATA PARSING ---
+        // If the line carries 'cabecera_activa', use it to prime the columnContext.
+        if ((rawLine as any).cabecera_activa && Array.isArray((rawLine as any).cabecera_activa)) {
+            (rawLine as any).cabecera_activa.forEach((headerText: any, idx: number) => {
+                const colIndex = idx + 1; // 1-based index assumption
+                if (headerText && typeof headerText === 'string') {
+                    // Look for patterns like "PREFERENTE (Provider)"
+                    if (headerText.match(/(PREFERENTE|CL[ÍI]NICA|HOSPITAL|CENTRO|RED|SALUD|INTEGRA)/i)) {
+                        const existing = columnContext.get(colIndex) || { providers: [], source: `HEADER_META_${rawLine.pagina}` };
+                        let potentialProvider = headerText;
+                        const parenMatch = headerText.match(/\((.*?)\)/);
+                        if (parenMatch) {
+                            potentialProvider = parenMatch[1];
+                        }
+                        // Clean up "PREFERENTE 1"
+                        potentialProvider = potentialProvider.replace(/PREFERENTE\s*\d*/i, "").trim();
+
+                        if (potentialProvider.length > 3) {
+                            existing.providers = [potentialProvider];
+                            columnContext.set(colIndex, existing);
+                            console.log(`CONTEXT HEADER UPDATE Col ${colIndex}:`, existing);
+                        }
+                    }
+                }
+            });
+        }
+        // --------------------------------
+
+        // Reset Context on Section Headers (Heuristic)
+        const isHeader = rawLine.texto_plano.match(/(HOSPITALARI|AMBULATORI|URGENCIA|MATERNIDAD|HONORARIOS|MEDICAMENTOS|MATERIALES)/i);
+        if (isHeader) {
+            // ONLY Clear Context if it's a MAIN Section Header AND NOT a Sub-Item
+            if (rawLine.texto_plano.match(/(HOSPITALARI|AMBULATORI|URGENCIA|MATERNIDAD)/i) &&
+                !rawLine.texto_plano.match(/(MEDICAMENTOS|HONORARIOS|MATERIALES|INSUMOS)/i)) {
+                columnContext.clear();
+            }
+            currentInheritedState.herencia_cortada = false; // Reset inherited exclusion before newState creation
+            // console.log(`CONTEXT RESET by Header: ${textoLimpio}`);
+        }
+
+        // Update Column Context
+        if (rawLine.celdas) {
+            for (const cell of rawLine.celdas) {
+                const col = cell.indice_columna;
+                const txt = cell.texto;
+                if (!txt || txt.trim() === "") continue;
+
+                // Extract Providers
+                const providers = [];
+                if (txt.match(/Clínica|Hospital|Centro|Red|Integramédica|Dávila/i)) { // Simple keyword heuristic
+                    providers.push(txt.trim());
+                }
+
+                // Extract Percentage
+                let pct = null;
+                const pctMatch = txt.match(/(\d+)%/);
+                if (pctMatch) pct = parseInt(pctMatch[1]);
+
+                // GUARD: Context Poisoning Defense
+                // Do not allow "Modalidad Institucional" or "Solo Libre Eleccion" to become the Provider Context.
+                const validProviders = providers.filter(p => !p.match(/(MODALIDAD.*INSTITUCIONAL|SOLO.*LIBRE.*ELECCION)/i));
+
+                if (validProviders.length > 0 || pct) {
+                    const existing = columnContext.get(col) || { providers: [], source: lineId };
+                    // Merge or Overwrite? 
+                    // If new providers found, overwrite list. If only %, keep providers?
+                    // Strategy: Overwrite if present.
+                    if (validProviders.length > 0) existing.providers = validProviders;
+                    if (pct) existing.percentage = pct;
+                    existing.source = lineId; // Update source
+                    columnContext.set(col, existing);
+                    console.log(`CONTEXT UPDATE Col ${col}:`, existing);
+                }
+            }
+        }
 
         // 1. Create Segment Block (Conceptual)
         // We treat the whole line as one block for operator detection initially
@@ -1135,7 +1296,7 @@ async function runCanonizer() {
         block.effect = classifyBlockEffect(textoLimpio);
 
         // 2. Detect Operators
-        const ops = detectOperators(block);
+        const ops = detectOperators(block, headerMap);
         const rowLocalOps = [...ops]; // Collection for this specific row
         const forensicOps: ForensicOperator[] = []; // Collect forensic operators for this line
 
@@ -1250,39 +1411,178 @@ async function runCanonizer() {
             const prefAsigs = asigs.filter(a => a.modalidad === 'preferente');
             const isExcluded = prefAsigs.some(a => expansionData.bloques.find(b => b.bloque_id === a.bloque_id)?.tipo_bloque === 'exclusion_modalidad');
 
-            if (isExcluded) {
+            if (isExcluded && !textoLimpio.match(/(HOSPITALARI|AMBULATORI|URGENCIA|MATERNIDAD|HONORARIOS|MEDICAMENTOS|MATERIALES)/i)) {
                 currentState.herencia_cortada = true;
             }
 
-            const pathsAplicables = (!currentState.herencia_cortada) ? preferentePathsForLine(rawLine.pagina, rawLine.indice_linea) : [];
+            // Base paths from Graph
+            let pathsAplicables = (!currentState.herencia_cortada) ? preferentePathsForLine(rawLine.pagina, rawLine.indice_linea) : [];
+
+            // --- GIANT TABLE INJECTION (Vertical Persistence) ---
+            // If current row has specific empty columns (3, 5, etc.), check if we have inherited providers.
+            if (!currentState.herencia_cortada) {
+                const syntheticPaths: string[] = [];
+                const checkCols = [3, 5];
+
+                checkCols.forEach(col => {
+                    const localCell = rawLine.celdas ? rawLine.celdas.find(c => c.indice_columna === col) : null;
+                    const isLocalEmpty = !localCell || !localCell.texto || localCell.texto.trim() === "";
+
+                    if (isLocalEmpty) {
+                        const ctx = columnContext.get(col);
+                        if (textoLimpio.includes("PABELLÓN")) {
+                            console.log(`DEBUG GIANT: L${lineId} C${col} Empty? ${isLocalEmpty} Context? ${!!ctx} Providers: ${ctx?.providers}`);
+                        }
+
+                        if (ctx && ctx.providers.length > 0) {
+                            // Synthesize Option ID
+                            const syntheticId = `OPT_GIANT_${lineId}_C${col}`;
+
+                            // Check if already registered
+                            if (!preferentePathsById.has(syntheticId)) {
+                                const newPath: any = { // Construct Output Type
+                                    id: syntheticId,
+                                    modalidad: "preferente",
+                                    grupo_decisional: "PREFERENTE_RED",
+                                    porcentaje: ctx.percentage || 90,
+                                    // Use explicit tope if known, or generic. 
+                                    // NOTE: Pabellon might have 2.0 AC2 local. 
+                                    // Preferred options usually have their own tope. 
+                                    // If context header implies "Sin Tope" (L63), we use it.
+                                    tope: ctx.percentage === 70 ? { tipo: "SIN_TOPE" } : { tipo: "VARIABLE" },
+                                    prestadores: [...ctx.providers],
+                                    condiciones: [],
+                                    fuente: {
+                                        pagina: rawLine.pagina,
+                                        linea_inicio: rawLine.indice_linea,
+                                        linea_fin: rawLine.indice_linea
+                                    }
+                                };
+                                preferentePathsById.set(syntheticId, newPath);
+                                // IMPORTANT: Sync with Output List
+                                output.contrato.tabla_prestaciones.oferta_preferente_paths.push(newPath);
+                                console.log(`DEBUG GIANT: Injected ${syntheticId}`);
+                            }
+                            syntheticPaths.push(syntheticId);
+                        }
+                    } else if (textoLimpio.includes("PABELLÓN")) {
+                        console.log(`DEBUG GIANT: L${lineId} C${col} NOT EMPTY: '${localCell?.texto}'`);
+                    }
+                });
+
+                if (syntheticPaths.length > 0) {
+                    pathsAplicables = [...pathsAplicables, ...syntheticPaths];
+                }
+            } else if (textoLimpio.includes("PABELLÓN")) {
+                console.log(`DEBUG GIANT: L${lineId} Herencia Cortada!`);
+            }
+
             let rowTopeLE: Tope | null = null;
 
             // Extract Restrictions from cells
             if (rawLine.celdas) {
+                const nonEmptyCells = rawLine.celdas.filter(c => c.texto && c.texto.trim().length > 0);
+                const lastCell = nonEmptyCells.length > 0 ? nonEmptyCells[nonEmptyCells.length - 1] : null;
+
                 for (const cell of rawLine.celdas) {
+                    const isLast = lastCell && cell.indice_columna === lastCell.indice_columna;
+                    const cellText = cell.texto || "";
+
+                    // HEURISTIC: If it's the last non-empty cell in a financial row, it's likely TOPE_ANUAL_NFE
+                    // especially if it's a number or contains "Sin Tope".
+                    let forcedScope: BlockScope | undefined = undefined;
+                    if (isLast && (cellText.match(/^\d+([.,]\d+)?$/) || cellText.toLowerCase().includes("sin tope"))) {
+                        forcedScope = "TOPE_ANUAL_NFE";
+                    }
+
                     // Create pseudo-block for cell
                     const cellBlock: SemanticBlock = {
                         id: `${lineId}_C${cell.indice_columna}`,
-                        text: cell.texto || "",
+                        text: cellText.trim(),
                         col: cell.indice_columna,
                         rowId: lineId,
                         segmentId: `SEG_C${cell.indice_columna}`,
-                        effect: classifyBlockEffect(cell.texto || ""),
-                        scope: inferScope(cell.indice_columna, cell.texto || "")
+                        effect: classifyBlockEffect(cellText),
+                        scope: forcedScope || inferScope(cell.indice_columna, cellText)
                     };
-                    const cellOps = detectOperators(cellBlock);
-                    rowLocalOps.push(...cellOps);
-                    currentState = applyOperators(currentState, cellOps);
+
+                    if (prestacionName.includes("MARCOS Y CRISTALES") && cell.indice_columna > 6) {
+                        console.log(`DEBUG MARCOS Col ${cell.indice_columna}: Text='${cellBlock.text}' Scope='${cellBlock.scope}' Forced='${forcedScope}'`);
+                    }
+
+                    const cellOps = detectOperators(cellBlock, headerMap);
+
+                    // FILTER: Don't push useless OTRA/unknown ops for NFE, as they mask valid ones found later in row
+                    const validOps = cellOps.filter(op => {
+                        if (op.type === "TOPE_ANUAL_NFE") return op.restr.kind !== "OTRA";
+                        return true;
+                    });
+
+                    if (prestacionName.includes("MARCOS Y CRISTALES") && cell.indice_columna > 6) {
+                        console.log(`DEBUG MARCOS OPS (After Filter):`, JSON.stringify(validOps));
+                    }
+
+                    rowLocalOps.push(...validOps);
+                    currentState = applyOperators(currentState, validOps);
                 }
             }
 
             // Mapping State Restrictions to Legacy Logic (Hybrid Glue)
             // FORENSIC: Prioritize operators found in THIS row (rowLocalOps) over inherited ones
-            const localAc2Op = rowLocalOps.find(op => op.type === "TOPE_EVENTO" && op.restr.kind === "TOPE_AC2") as any;
-            const localUfOp = rowLocalOps.find(op => op.type === "TOPE_EVENTO" && op.restr.kind === "TOPE_UF") as any;
+            // (Debug block removed for cleanup)
+
+            // --- SPLIT UNIT HEURISTIC: Merge "Value" + "Unit" separated in columns ---
+            // Example: Col 2="2.0", Col 4="veces AC2" -> TOPE_AC2 value 2.0
+            // We are less strict: If we have a UF value (default guess) and an AC2 unit nearby, we merge.
+            const valueOpIndex = rowLocalOps.findIndex(op => op.type === "TOPE_EVENTO" && op.restr.kind === "TOPE_UF");
+            const unitAc2OpIndex = rowLocalOps.findIndex(op => op.type === "TOPE_EVENTO" && op.restr.kind === "TOPE_AC2");
+
+            if (textoLimpio.includes("PABELLÓN AMBULATORIO")) {
+                console.log("DEBUG PABELLON RAW OPS:", JSON.stringify(rowLocalOps, null, 2));
+                console.log("DEBUG INDICES:", valueOpIndex, unitAc2OpIndex);
+            }
+
+            if (valueOpIndex !== -1 && unitAc2OpIndex !== -1) {
+                // Merge into the AC2 Op
+                const valOp = rowLocalOps[valueOpIndex];
+                const unitOp = rowLocalOps[unitAc2OpIndex];
+
+                // Update AC2 Op with the value from the other column
+                (unitOp as any).restr.value = (valOp as any).restr.value;
+                (unitOp as any).restr.raw += " + " + (valOp as any).restr.raw;
+                // Remove the "UF" op (which was just a guess)
+                rowLocalOps.splice(valueOpIndex, 1);
+            }
+
+            if (textoLimpio.includes("PABELLÓN AMBULATORIO")) {
+                console.log("DEBUG PABELLON POST-MERGE OPS:", JSON.stringify(rowLocalOps, null, 2));
+            }
+            // --------------------------------------------------------------------------
+
+            // --- TEXTUAL FORCE FIX (The "Desconfiado" Rule) ---
+            // If we have a value (e.g. 2.0) detected as UF (default), but the text explicitly says "AC2",
+            // we FORCE the unit to AC2. This overrides brittle column splitting.
+            const hasAc2Text = textoLimpio.match(/\bAC2\b/i);
+            const ufOpForForce = rowLocalOps.find(op => op.type === "TOPE_EVENTO" && (op as any).restr.kind === "TOPE_UF");
+            const ac2OpForForce = rowLocalOps.find(op => op.type === "TOPE_EVENTO" && (op as any).restr.kind === "TOPE_AC2");
+
+            if (hasAc2Text && ufOpForForce) {
+                console.log("FORCE FIX APPLIED: Converting UF -> AC2 for", textoLimpio);
+                // Mutate the UF op to be AC2
+                (ufOpForForce as any).restr.kind = "TOPE_AC2";
+                (ufOpForForce as any).restr.raw += " (Textual Force AC2)";
+            }
+            // --------------------------------------------------------------------------
+
+            const localAc2Op = rowLocalOps.find(op => op.type === "TOPE_EVENTO" && (op as any).restr.kind === "TOPE_AC2") as any;
+            const localUfOp = rowLocalOps.find(op => op.type === "TOPE_EVENTO" && (op as any).restr.kind === "TOPE_UF") as any;
+            const localPctOp = rowLocalOps.find(op => op.type === "PORCENTAJE") as any;
+            const localNfeOp = rowLocalOps.find(op => op.type === "TOPE_ANUAL_NFE") as any;
 
             const inheritedAc2Restr = currentState.restricciones.find(r => r.kind === "TOPE_AC2");
             const inheritedUfRestr = currentState.restricciones.find(r => r.kind === "TOPE_UF" && (r.scope === "TOPE_EVENTO" || r.scope === "FINANCIAL_DOMAIN"));
+            const inheritedPctRestr = currentState.restricciones.find(r => r.kind === "PORCENTAJE");
+            const inheritedNfeRestr = currentState.restricciones.find(r => r.scope === "TOPE_ANUAL_NFE");
 
             if (localAc2Op) {
                 rowTopeLE = { tipo: "AC2", factor: localAc2Op.restr.value, origen: localAc2Op.restr.byBlock, sin_tope_adicional: true };
@@ -1294,26 +1594,70 @@ async function runCanonizer() {
                 rowTopeLE = { tipo: "UF", valor: inheritedUfRestr.value, origen: inheritedUfRestr.byBlock };
             }
 
-            // FORENSIC: Active Block NFE State Logic (Legacy Integration)
+            // Percentage Resolution & Sticky Logic
+            let finalPct = 90; // Default
+
+            // 1. Detect Explicit Local Percentage
+            if (localPctOp && localPctOp.restr.value) {
+                finalPct = localPctOp.restr.value;
+
+                // Sticky Logic: Update persistence if valid
+                lastExplicitPercentage = finalPct;
+                lastExplicitValuesSource = lineId;
+
+            } else if (lastExplicitPercentage !== null) {
+                // 2. Vertical Fill (Sticky) - Apply if no local pct
+                // ALLOW STICKY even if herencia_cortada is true (LE Mode)
+                finalPct = lastExplicitPercentage;
+
+                // CRITICAL: Push restriction to currentState
+                const stickyRestr: Restriction = {
+                    scope: "PORCENTAJE",
+                    kind: "PORCENTAJE",
+                    value: finalPct,
+                    scope_raw: "PORCENTAJE",
+                    raw: "Vertical Inheritance",
+                    byBlock: lastExplicitValuesSource || "UNKNOWN"
+                } as any;
+
+                rowLocalOps.push({
+                    type: "PORCENTAJE",
+                    restr: stickyRestr
+                });
+                currentState.restricciones.push(stickyRestr);
+            } else if (inheritedPctRestr && inheritedPctRestr.value) {
+                // 3. Fallback to Global Inheritance (Header-based)
+                finalPct = inheritedPctRestr.value;
+            }
+
+            // RESET Sticky Percentage on Section Boundaries
+            if (textoLimpio.match(/HOSPITALARIA|AMBULATORIA|URGENCIA/i)) {
+                lastExplicitPercentage = null;
+            }
+
+            // FORENSIC: Active Block NFE State Logic
             let nfeStatus = getNfeForLine(rawLine.pagina, rawLine.indice_linea, textoLimpio);
 
-
-
-
-            let nfeOp = rowLocalOps.find(op => op.type === "TOPE_ANUAL_NFE") as any;
-            if (nfeOp) {
-                const restr = nfeOp.restr;
+            // STOP NFE INHERITANCE if we have a local NFE Op
+            if (localNfeOp) {
+                const restr = localNfeOp.restr;
                 nfeStatus = {
                     aplica: true,
                     valor: restr.kind === "SIN_TOPE" ? null : restr.value || null,
                     unidad: restr.kind !== "SIN_TOPE" ? "UF" : null,
                     bloque_id: restr.byBlock,
-                    razon: restr.kind === "SIN_TOPE" ? "SIN_TOPE_EXPRESO" : undefined,
+                    razon: restr.kind === "SIN_TOPE" ? "SIN_TOPE_EXPRESO" : "NFE_PROPIO",
                     fuente_linea: lineId,
                     clausula_activa: restr.kind === "SIN_TOPE"
                 };
+            } else if (inheritedNfeRestr && inheritedNfeRestr.value) {
+                // Potentially use inherited if no local found
+            }
 
-                if (restr.kind === "SIN_TOPE") {
+            let nfeOp = localNfeOp; // Simplified variable reuse
+            if (nfeOp) {
+                // Already handled above
+                if (nfeOp.restr.kind === "SIN_TOPE") {
                     forensicOps.push({ tipo: "OP_RE_EXPANSION_NFE", fuente_linea: lineId, detalle: "Sin Tope Expreso" });
                 }
             } else if (nfeStatus.razon === "VACIO_CONTRACTUAL_FORENSE" || ((rowLocalOps.some(op => op.type === "CAMBIO_DOMINIO_FINANCIERO") || textoLimpio.includes("PRÓTESIS") || textoLimpio.includes("ÓRTESIS")) && nfeStatus.bloque_id === "NONE")) {
@@ -1341,7 +1685,7 @@ async function runCanonizer() {
                 contexto: {
                     modalidad_base: currentState.herencia_cortada ? "libre_eleccion" : "preferente",
                     tiene_libre_eleccion: true,
-                    porcentaje_le: 90, // Default 90 if not specified
+                    porcentaje_le: finalPct, // Used calculated pct
                     origen_porcentaje_le: "implicit_global",
                     heredada_desde: "ROOT", // Simplified
                     origen_herencia: currentState.herencia_cortada ? "explicit" : "inherited"
@@ -1351,7 +1695,7 @@ async function runCanonizer() {
                     paths: (!currentState.herencia_cortada) ? pathsAplicables : []
                 },
                 libre_eleccion: {
-                    aplica: true, porcentaje: 90,
+                    aplica: true, porcentaje: finalPct,
                     tope: rowTopeLE || { tipo: "VARIABLE" },
                     heredado: !rowTopeLE
                 },
