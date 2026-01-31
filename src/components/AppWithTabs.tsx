@@ -6,9 +6,10 @@ import ForensicApp from './ForensicApp';
 import PdfProjector from './PdfProjector';
 
 import CanonicalGeneratorApp from './CanonicalGeneratorApp';
-import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet, Zap, FileJson } from 'lucide-react';
+import MentalMapApp from './MentalMapApp';
+import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet, Zap, FileJson, Brain } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'canonizar';
+type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'canonizar' | 'mapa';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -106,6 +107,17 @@ export function AppWithTabs() {
                             <FileJson size={16} />
                             JSON Canónico
                         </button>
+
+                        <button
+                            onClick={() => handleTabChange('mapa')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'mapa'
+                                ? 'bg-indigo-900 text-white shadow-lg shadow-indigo-200'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                        >
+                            <Brain size={16} />
+                            Mapa Mental
+                        </button>
                     </div>
                 </div>
             </div>
@@ -130,6 +142,10 @@ export function AppWithTabs() {
 
                 <div style={{ display: activeTab === 'canonizar' ? 'block' : 'none' }}>
                     <CanonicalGeneratorApp />
+                </div>
+
+                <div style={{ display: activeTab === 'mapa' ? 'block' : 'none' }}>
+                    <MentalMapApp />
                 </div>
             </div>
         </div>

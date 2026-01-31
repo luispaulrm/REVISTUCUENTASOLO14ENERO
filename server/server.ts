@@ -1,9 +1,9 @@
-console.log("DEBUG: Loading server.ts...");
+import fs from 'fs';
+import path from 'path';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import multer from 'multer';
-import path from 'path';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GeminiService } from './services/gemini.service.js';
@@ -172,6 +172,20 @@ app.get('/api/contract-count', async (req, res) => {
     try {
         const { getContractCount } = await import('./services/contractLearning.service.js');
         res.json({ count: getContractCount() });
+    } catch (err: any) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/mental-model', async (req, res) => {
+    try {
+        const mentalModelPath = path.resolve('./mental_model.json');
+        if (fs.existsSync(mentalModelPath)) {
+            const data = fs.readFileSync(mentalModelPath, 'utf-8');
+            res.json(JSON.parse(data));
+        } else {
+            res.status(404).json({ error: 'Mental model not generated yet' });
+        }
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }
