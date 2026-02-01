@@ -427,15 +427,23 @@ export default function CanonicalGeneratorApp() {
                                     </div>
                                 </div>
                                 <div className="flex-grow overflow-hidden relative bg-slate-50">
-                                    {viewMode === 'json' ? (
+                                    {/* Fix: Do not pass raw canonicalResult as initialData because it lacks 'root' structure. 
+                                        Let MentalMapApp fetch the official mental model or handle its logic. 
+                                        If we want to show the map of the UPLOADED contract, we would need a backend transformation first.
+                                    */}
+                                    {viewMode === 'map' ? (
+                                        <div className="absolute inset-0 flex flex-col">
+                                            {/* We rely on the internal fetch of the default mental model for now, 
+                                                or we could trigger a specific generation endpoint here.
+                                                Passing raw canonicalResult causes a crash.
+                                             */}
+                                            <MentalMapApp isActive={true} />
+                                        </div>
+                                    ) : (
                                         <div className="absolute inset-0 p-6 overflow-auto custom-scrollbar">
                                             <pre className="font-mono text-xs text-slate-700 whitespace-pre-wrap">
                                                 {JSON.stringify(canonicalResult, null, 2)}
                                             </pre>
-                                        </div>
-                                    ) : (
-                                        <div className="absolute inset-0 flex flex-col">
-                                            <MentalMapApp isActive={true} initialData={canonicalResult} />
                                         </div>
                                     )}
                                 </div>

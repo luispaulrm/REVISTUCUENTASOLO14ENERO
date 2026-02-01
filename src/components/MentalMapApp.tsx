@@ -55,6 +55,24 @@ export default function MentalMapApp({ isActive, initialData }: { isActive: bool
 
     if (!model) return <div className="p-10 text-slate-400">No se pudo cargar la Guía Maestra</div>;
 
+    // Safety Guard: Prevent Crash if data format is incorrect
+    if (!model.root) {
+        return (
+            <div className="p-10 flex flex-col items-center justify-center text-rose-500 gap-4">
+                <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center border border-rose-100">
+                    <Brain size={32} />
+                </div>
+                <div className="text-center">
+                    <h3 className="font-bold text-lg">Error de Formato en Mapa Mental</h3>
+                    <p className="text-sm text-slate-500 max-w-md">
+                        Los datos recibidos no tienen la estructura jerárquica esperada (falta 'root').
+                        Es posible que el "JSON Canónico" no haya sido transformado a "Modelo Mental" todavía.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     const renderNode = (node: NodeData, path: string, depth: number = 0) => {
         const isExpanded = expandedPaths.has(path);
         const hasChildren = node.children && node.children.length > 0;
