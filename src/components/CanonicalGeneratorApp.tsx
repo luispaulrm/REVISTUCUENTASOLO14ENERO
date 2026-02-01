@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, Loader2, FileText, Trash2, Terminal, Timer, X, Zap, FileJson, Copy, Check, ShieldCheck, Brain, LayoutTemplate } from 'lucide-react';
+import { Upload, Loader2, FileText, Trash2, Terminal, Timer, X, Zap, FileJson, Copy, Check, ShieldCheck, Brain, LayoutTemplate, Download } from 'lucide-react';
 import { AppStatus, UsageMetrics } from '../types';
 import MentalMapApp from './MentalMapApp';
 
@@ -169,6 +169,17 @@ export default function CanonicalGeneratorApp() {
         navigator.clipboard.writeText(JSON.stringify(canonicalResult, null, 2));
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const downloadJson = () => {
+        if (!canonicalResult) return;
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(canonicalResult, null, 2));
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.setAttribute("href", dataStr);
+        downloadAnchorNode.setAttribute("download", `canonical_${fileName.replace(/\.[^/.]+$/, "")}.json`);
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
     };
 
     const handleLearn = async () => {
@@ -390,10 +401,17 @@ export default function CanonicalGeneratorApp() {
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={copyToClipboard}
-                                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold hover:bg-slate-100 transition-all"
+                                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold hover:bg-slate-100 transition-all text-slate-700"
                                         >
                                             {copied ? <Check size={14} className="text-emerald-500" /> : <Copy size={14} />}
                                             {copied ? 'COPIADO' : 'COPIAR'}
+                                        </button>
+                                        <button
+                                            onClick={downloadJson}
+                                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white border border-indigo-700 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-all shadow-sm"
+                                        >
+                                            <Download size={14} />
+                                            DESCARGAR
                                         </button>
                                         <button
                                             onClick={handleLearn}
