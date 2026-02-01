@@ -7,1027 +7,1042 @@
     "titulo": "Contrato de Salud – Prestaciones y Coberturas",
     "children": [
       {
-        "titulo": "MAYOR AMBULATORIA",
+        "titulo": "HOSPITALARIO Y CIRUGÍA MAYOR AMBULATORIA",
         "children": [
           {
-            "titulo": "Oferta Preferente",
+            "titulo": "MAYOR AMBULATORIA",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | VARIABLE",
+                "detalle": "Porcentaje heredado del contrato. Fuente: p.2 f.43"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.43"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | VARIABLE",
-            "detalle": "Porcentaje heredado del contrato. Fuente: p.2 f.43"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.43"
-          }
-        ]
-      },
-      {
-        "titulo": "DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "DIA CAMA: CIRUGIA, PEDIATRIA, GINECO-OBSTETRICIA, MEDICINA",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | VARIABLE",
+                "detalle": "Porcentaje heredado del contrato. Fuente: p.2 f.44"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "4 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.44"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | VARIABLE",
-            "detalle": "Porcentaje heredado del contrato. Fuente: p.2 f.44"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "4 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.44"
-          }
-        ]
-      },
-      {
-        "titulo": "DIA CAMA: SALA CUNA",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "DIA CAMA: SALA CUNA",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | VARIABLE",
+                "detalle": "Porcentaje heredado del contrato. Fuente: p.2 f.45"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.45"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | VARIABLE",
-            "detalle": "Porcentaje heredado del contrato. Fuente: p.2 f.45"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.45"
-          }
-        ]
-      },
-      {
-        "titulo": "DIA CAMA CUIDADOS INTENSIVOS O CORONARIOS",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "DIA CAMA CUIDADOS INTENSIVOS O CORONARIOS",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | UF 7",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.46"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.46"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 7",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.46"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.46"
-          }
-        ]
-      },
-      {
-        "titulo": "DERECHO DE PABELLÓN",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "DERECHO DE PABELLÓN",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.47"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.47"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.47"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.47"
-          }
-        ]
-      },
-      {
-        "titulo": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "DIA CAMA: INCUBADORA, INTERMEDIO, OBSERVACIÓN",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.48"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "90 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.48"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.48"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "90 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.48"
-          }
-        ]
-      },
-      {
-        "titulo": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.49"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "90 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.49"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.49"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "90 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.49"
-          }
-        ]
-      },
-      {
-        "titulo": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "IMAGENOLOGÍA (RESONANCIA, SCANNER)",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,2 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.50"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "90 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.50"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,2 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.50"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "90 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.50"
-          }
-        ]
-      },
-      {
-        "titulo": "PROCEDIMIENTOS",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "PROCEDIMIENTOS",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,2 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.51"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.51"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,2 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.51"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.51"
-          }
-        ]
-      },
-      {
-        "titulo": "KINESIOLOGÍA y FISIOTERAPIA",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "KINESIOLOGÍA y FISIOTERAPIA",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,2 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.52"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "5 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.52"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,2 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.52"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "5 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.52"
-          }
-        ]
-      },
-      {
-        "titulo": "EXÁMENES LABORATORIO",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "EXÁMENES LABORATORIO",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.53"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.53"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.53"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.53"
-          }
-        ]
-      },
-      {
-        "titulo": "HONORARIOS MÉDICOS QUIRÚRGICOS",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "HONORARIOS MÉDICOS QUIRÚRGICOS",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,2 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.54"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.54"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,2 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.54"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.54"
-          }
-        ]
-      },
-      {
-        "titulo": "VISITA POR MÉDICO INTERCONSULTOR",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "VISITA POR MÉDICO INTERCONSULTOR",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | UF 0,6",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.55"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.55"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 0,6",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.55"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.55"
-          }
-        ]
-      },
-      {
-        "titulo": "VISITA POR MÉDICO TRATANTE",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "VISITA POR MÉDICO TRATANTE",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_1_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_1_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.43"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_2_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_3_R0",
+                    "cobertura": "90% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_2_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA CLÍNICA TABANCURA. Condiciones: Modalidad Institucional. Fuente: p.2 f.46"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | UF 0,5",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.56"
               },
               {
-                "titulo": "Path: PREF_BLK_3_R0",
-                "cobertura": "90% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA. Condiciones: Habitación Individual, Modalidad Institucional. Fuente: p.2 f.51"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.56"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 0,5",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.56"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.56"
-          }
-        ]
-      },
-      {
-        "titulo": "MEDICAMENTOS HOSPITALARIOS (2)",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 30",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.57"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "60 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.57"
-          }
-        ]
-      },
-      {
-        "titulo": "MATERIALES CLÍNICOS (2)",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 20",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.58"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "40 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.58"
-          }
-        ]
-      },
-      {
-        "titulo": "TRASLADOS MÉDICOS",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.59"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.59"
-          }
-        ]
-      },
-      {
-        "titulo": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.60"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "0,5 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.60"
-          }
-        ]
-      },
-      {
-        "titulo": "QUIMIOTERAPIA (8)",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 4,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.61"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "80 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.61"
-          }
-        ]
-      },
-      {
-        "titulo": "CONSULTAS MÉDICAS",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "MEDICAMENTOS HOSPITALARIOS (2)",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | UF 30",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.57"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "60 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.57"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 0,5",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.63"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.63"
-          }
-        ]
-      },
-      {
-        "titulo": "EXÁMENES LABORATORIO",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "MATERIALES CLÍNICOS (2)",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | UF 20",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.58"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "40 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.58"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.64"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.64"
-          }
-        ]
-      },
-      {
-        "titulo": "PROCEDIMIENTOS",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "TRASLADOS MÉDICOS",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.59"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.59"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.65"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.65"
-          }
-        ]
-      },
-      {
-        "titulo": "PABELLÓN AMBULATORIO",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "PRÓTESIS, ÓRTESIS Y ELEMENTOS DE OSTEOSÍNTESIS",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.60"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "0,5 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.60"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.66"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "5 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.66"
-          }
-        ]
-      },
-      {
-        "titulo": "HONORARIOS MÉDICOS QUIRÚRGICOS",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "QUIMIOTERAPIA (8)",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 4,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.61"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "80 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.61"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
-          },
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.67"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "5 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.67"
+            ]
           }
         ]
       },
       {
-        "titulo": "BOX AMBULATORIO",
+        "titulo": "PRESTACIONES AMBULATORIAS",
         "children": [
           {
-            "titulo": "Oferta Preferente",
+            "titulo": "CONSULTAS MÉDICAS",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | UF 0,5",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.63"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.63"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.68"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "5 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.68"
-          }
-        ]
-      },
-      {
-        "titulo": "KINESIOLOGÍA y FISIOTERAPIA",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "EXÁMENES LABORATORIO",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.64"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.64"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 1,2 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.69"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "5 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.69"
-          }
-        ]
-      },
-      {
-        "titulo": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "PROCEDIMIENTOS",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.65"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.65"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.70"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "1 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.70"
-          }
-        ]
-      },
-      {
-        "titulo": "[Nota] 0,8 veces AC2",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "PABELLÓN AMBULATORIO",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "[Descriptor Contractual] Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "[Descriptor Contractual] Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.66"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "5 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.66"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] [Descriptor Contractual] Fuente: p.2 f.71"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "80 UF",
-            "detalle": "[Descriptor Contractual] Razón: No especificada. Fuente: p.2 f.71"
-          }
-        ]
-      },
-      {
-        "titulo": "RADIOTERAPIA",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "HONORARIOS MÉDICOS QUIRÚRGICOS",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.67"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "5 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.67"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 1,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.72"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.72"
-          }
-        ]
-      },
-      {
-        "titulo": "FONOAUDIOLOGÍA",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
+            "titulo": "BOX AMBULATORIO",
             "children": [
               {
-                "titulo": "Path: PREF_BLK_6_R0",
-                "cobertura": "70% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
               },
               {
-                "titulo": "Path: PREF_BLK_7_R0",
-                "cobertura": "80% | Tope: VARIABLE",
-                "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.68"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "5 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.68"
               }
-            ],
-            "cobertura": "Múltiples opciones (expandir)"
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.73"
+            "titulo": "KINESIOLOGÍA y FISIOTERAPIA",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 1,2 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.69"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "5 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.69"
+              }
+            ]
           },
           {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "3,5 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.73"
+            "titulo": "IMAGENOLOGÍA (RAYOS, ECOTOMOGRAFÍA)",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.70"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "1 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.70"
+              }
+            ]
+          },
+          {
+            "titulo": "[Nota] 0,8 veces AC2",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "[Descriptor Contractual] Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "[Descriptor Contractual] Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] [Descriptor Contractual] Fuente: p.2 f.71"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "80 UF",
+                "detalle": "[Descriptor Contractual] Razón: No especificada. Fuente: p.2 f.71"
+              }
+            ]
+          },
+          {
+            "titulo": "RADIOTERAPIA",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 1,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.72"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.72"
+              }
+            ]
+          },
+          {
+            "titulo": "FONOAUDIOLOGÍA",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [
+                  {
+                    "titulo": "Path: PREF_BLK_6_R0",
+                    "cobertura": "70% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, CLÍNICA TABANCURA, RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.63"
+                  },
+                  {
+                    "titulo": "Path: PREF_BLK_7_R0",
+                    "cobertura": "80% | VARIABLE",
+                    "detalle": "Prestadores: CLÍNICA AVANSALUD, CLÍNICA BICENTENARIO, CLÍNICA DÁVILA, INTEGRAMÉDICA. Condiciones: Ninguna. Fuente: p.2 f.68"
+                  }
+                ],
+                "cobertura": "Múltiples opciones (expandir)"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.73"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "3,5 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.73"
+              }
+            ]
+          },
+          {
+            "titulo": "QUIMIOTERAPIA (8)",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 4,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.74"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "80 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.74"
+              }
+            ]
+          },
+          {
+            "titulo": "PRÓTESIS Y ÓRTESIS",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 1,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.75"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.75"
+              }
+            ]
+          },
+          {
+            "titulo": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.76"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "80 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.76"
+              }
+            ]
+          },
+          {
+            "titulo": "ATENCIÓN INTEGRAL DE NUTRICIONISTA",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 1,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.77"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "1,5 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.77"
+              }
+            ]
           }
         ]
       },
       {
-        "titulo": "QUIMIOTERAPIA (8)",
+        "titulo": "PRESTACIONES RESTRINGIDAS",
         "children": [
           {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 4,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.74"
+            "titulo": "CIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "80% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.80"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.80"
+              }
+            ]
           },
           {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "80 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.74"
-          }
-        ]
-      },
-      {
-        "titulo": "PRÓTESIS Y ÓRTESIS",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 1,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.75"
+            "titulo": "HOSPITALIZACIÓN PSIQUIATRICA (3)",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "70% | 1,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.82"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "6,7 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.82"
+              }
+            ]
           },
           {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.75"
-          }
-        ]
-      },
-      {
-        "titulo": "ATENCIONES INTEGRALES DE ENFERMERÍA (4) (5)",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.76"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "80 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.76"
-          }
-        ]
-      },
-      {
-        "titulo": "ATENCIÓN INTEGRAL DE NUTRICIONISTA",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 1,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.77"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "1,5 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.77"
-          }
-        ]
-      },
-      {
-        "titulo": "CIRUGÍA BARIATRICA, CIRUGÍA RINOPLÁSTICA Y TRATAMIENTO DE",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "80% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.80"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.80"
-          }
-        ]
-      },
-      {
-        "titulo": "HOSPITALIZACIÓN PSIQUIATRICA (3)",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "70% | 1,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.82"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "6,7 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.82"
-          }
-        ]
-      },
-      {
-        "titulo": "CONSULTA / TRATAMIENTO PSIQUIATRÍA",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "70% | 1,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.83"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "4 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.83"
+            "titulo": "CONSULTA / TRATAMIENTO PSIQUIATRÍA",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "70% | 1,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.83"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "4 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.83"
+              }
+            ]
           }
         ]
       },
@@ -1035,207 +1050,217 @@
         "titulo": "OTRAS COBERTURAS",
         "children": [
           {
-            "titulo": "Libre Elección",
-            "cobertura": "70% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.84"
+            "titulo": "OTRAS COBERTURAS",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "70% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.84"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "1,8 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.84"
+              }
+            ]
           },
           {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "1,8 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.84"
+            "titulo": "MARCOS Y CRISTALES ÓPTICOS (11)",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | UF 1,8",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.85"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "2,5 UF",
+                "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.85"
+              }
+            ]
+          },
+          {
+            "titulo": "COBERTURA INTERNACIONAL (F)",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.86"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "1,8 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.86"
+              }
+            ]
+          },
+          {
+            "titulo": "TRASLADOS MEDICOS",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,0 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.87"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.87"
+              }
+            ]
+          },
+          {
+            "titulo": "Exámenes, Imágenes, Procedimientos y Pabellón.",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [],
+                "cobertura": "90% | SIN_TOPE",
+                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.87"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.90"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.90"
+              }
+            ]
+          },
+          {
+            "titulo": "PRESTADORES DERIVADOS",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [],
+                "cobertura": "90% | SIN_TOPE",
+                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.87"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.91"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.91"
+              }
+            ]
+          },
+          {
+            "titulo": "ATENCIÓN",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [],
+                "cobertura": "Múltiples opciones (expandir)"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.92"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "2,9 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.92"
+              }
+            ]
           }
         ]
       },
       {
-        "titulo": "MARCOS Y CRISTALES ÓPTICOS (11)",
+        "titulo": "Universo ATENCIÓN DE URGENCIA",
         "children": [
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 1,8",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.85"
+            "titulo": "Cláusulas y Prestadores de Urgencia",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [],
+                "cobertura": "90% | SIN_TOPE",
+                "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.87"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | 2,5 veces AC2",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.89"
+              },
+              {
+                "titulo": "Tope Anual / NFE",
+                "cobertura": "Sin tope expreso",
+                "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.89"
+              }
+            ]
           },
           {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "2,5 UF",
-            "detalle": "Razón: NFE_PROPIO. Fuente: p.2 f.85"
-          }
-        ]
-      },
-      {
-        "titulo": "COBERTURA INTERNACIONAL (F)",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.86"
+            "titulo": "DE URGENCIA (D) (L) (N)",
+            "children": [
+              {
+                "titulo": "Oferta Preferente",
+                "children": [],
+                "cobertura": "Múltiples opciones (expandir)"
+              },
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | Copago Fijo: 2,5 veces",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.93"
+              },
+              {
+                "titulo": "Copago Fijo (Compleja):",
+                "cobertura": "2,9 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.93"
+              }
+            ]
           },
           {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "1,8 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.86"
-          }
-        ]
-      },
-      {
-        "titulo": "TRASLADOS MEDICOS",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,0 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.87"
+            "titulo": "URGENCIA NORMAL",
+            "children": [
+              {
+                "titulo": "Libre Elección",
+                "cobertura": "90% | Copago Fijo: 2,5 veces",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.94"
+              },
+              {
+                "titulo": "Copago Fijo (Compleja):",
+                "cobertura": "2,9 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.94"
+              }
+            ]
           },
           {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.87"
-          }
-        ]
-      },
-      {
-        "titulo": "ATENCIÓN DE URGENCIA",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
-            "children": [],
-            "cobertura": "90% | Tope: SIN_TOPE",
-            "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.87"
+            "titulo": "Urgencia Adulto",
+            "children": [
+              {
+                "titulo": "Copago Fijo (Urgencia Normal)",
+                "cobertura": "90% | Copago Fijo: 1 UF",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.95"
+              },
+              {
+                "titulo": "Copago Fijo (Urgencia Compleja)",
+                "cobertura": "2,9 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.95"
+              }
+            ]
           },
           {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.89"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.89"
-          }
-        ]
-      },
-      {
-        "titulo": "Exámenes, Imágenes, Procedimientos y Pabellón.",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
-            "children": [],
-            "cobertura": "90% | Tope: SIN_TOPE",
-            "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.87"
-          },
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.90"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.90"
-          }
-        ]
-      },
-      {
-        "titulo": "PRESTADORES DERIVADOS",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
-            "children": [],
-            "cobertura": "90% | Tope: SIN_TOPE",
-            "detalle": "Prestadores: CLÍNICA INDISA, CLÍNICA SANTA MARÍA, HOSPITAL CLÍNICO DE LA RED DE SALUD UC CHRISTUS. Condiciones: Ninguna. Fuente: p.2 f.87"
-          },
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.91"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "Sin tope expreso",
-            "detalle": "Razón: SIN_TOPE_EXPRESO. Fuente: p.2 f.91"
-          }
-        ]
-      },
-      {
-        "titulo": "ATENCIÓN",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
-            "children": [],
-            "cobertura": "Múltiples opciones (expandir)"
-          },
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.92"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "2,9 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.92"
-          }
-        ]
-      },
-      {
-        "titulo": "DE URGENCIA (D) (L) (N)",
-        "children": [
-          {
-            "titulo": "Oferta Preferente",
-            "children": [],
-            "cobertura": "Múltiples opciones (expandir)"
-          },
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.93"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "2,9 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.93"
-          }
-        ]
-      },
-      {
-        "titulo": "URGENCIA NORMAL",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | 2,5 veces AC2",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.94"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "2,9 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.94"
-          }
-        ]
-      },
-      {
-        "titulo": "URGENCIA ADULTO",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 1",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.95"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "2,9 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.95"
-          }
-        ]
-      },
-      {
-        "titulo": "URGENCIA PEDIÁTRICA",
-        "children": [
-          {
-            "titulo": "Libre Elección",
-            "cobertura": "90% | UF 1,7",
-            "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.96"
-          },
-          {
-            "titulo": "Tope Anual / NFE",
-            "cobertura": "2,9 UF",
-            "detalle": "Razón: No especificada. Fuente: p.2 f.96"
+            "titulo": "Urgencia Pediátrica",
+            "children": [
+              {
+                "titulo": "Copago Fijo (Normal / Compleja)",
+                "cobertura": "90% | Copago Fijo: 1,7 UF",
+                "detalle": "[Alerta ROF: Normalización técnica (reconstrucción)] Fuente: p.2 f.96"
+              },
+              {
+                "titulo": "Copago Fijo (Urgencia Compleja Referencia)",
+                "cobertura": "2,9 UF",
+                "detalle": "Razón: No especificada. Fuente: p.2 f.96"
+              }
+            ]
           }
         ]
       }
