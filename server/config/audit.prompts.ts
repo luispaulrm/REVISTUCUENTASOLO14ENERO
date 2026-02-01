@@ -1,12 +1,29 @@
 import { SchemaType as Type } from "@google/generative-ai";
 import { DOCTRINA_PRACTICAS_IRREGULARES } from '../prompts/irregular_practices.prompt.js';
 
+const NORMA_DEDUCCION_PRIVADA = `
+=== NORMA DE DEDUCCIÓN DE UNIDADES CONTRACTUALES PRIVADAS (REVISA TU CUENTA) ===
+🎯 ROL: Auditor Matemático Forense.
+FUNCIÓN: Reconstruir valores unitarios (AC2, VAM, UTM-PLAN, UC) mediante despeje matemático (SIGLA_PRIVADA = B$ / k) cuando existe un múltiplo explícito (k) en el contrato y una bonificación real (B$) en el PAM.
+
+🚨 EXCLUSIÓN ABSOLUTA (REGLA DE ORO):
+- La UF (Unidad de Fomento) está EXCLUIDA. Su valor NO se deduce ni se infiere.
+- PROHIBIDO calcular UF por despeje o tratarla como sigla privada.
+
+📌 PRINCIPIO FUNDAMENTAL:
+- Toda sigla privada es una CONSTANTE monetaria interna para el evento.
+- DEBES reconstruirla si existe aplicación concreta.
+- VALIDACIÓN POR CONVERGENCIA: Una vez deducida, verifícala en otras líneas (anestesia, ayudante). Si converge, el valor es CONFIRMADO.
+`;
+
 export const V9_AUDIT_RULES_APPENDIX = `
 === APÉNDICE DE REGLAS CANÓNICAS (Chile + Lógica de Auditoría) ===
 Objetivo: evitar contradicciones, asegurar determinismo y mantener trazabilidad.
 
 === NUEVA DOCTRINA OPERATIVA (2025) ===
 ${DOCTRINA_PRACTICAS_IRREGULARES}
+
+${NORMA_DEDUCCION_PRIVADA}
 
 === DOCTRINA DE CONTRATO AUSENTE O VACÍO (MÉTODO FORENSE) ===
 REGLA DE PRIORIDAD: Si 'TIPO DE CONTRATO' es distinto de "AUSENTE", DEBES ignorar esta doctrina y usar los datos del JSON de contrato. Esta doctrina SOLO aplica si el objeto contrato es {} o nulo.

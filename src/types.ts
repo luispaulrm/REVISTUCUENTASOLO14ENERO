@@ -77,6 +77,7 @@ export interface ExtractedAccount {
   discrepancy: number;
   currency: string;
   usage?: UsageMetrics;
+  valorUnidadReferencia?: string; // New field for forensic unit display
 }
 
 export interface ContractRegla {
@@ -163,6 +164,7 @@ export interface AnalisisFinanciero {
   tope_cumplido: boolean;
   equipo_quirurgico_completo?: boolean;
   valor_unidad_inferido?: number;
+  valor_unitario_plan?: number; // Normalized field for unit value
   unit_type?: string;
   metodo_validacion: 'FACTOR_ESTANDAR' | 'INFERENCIA_BAM' | 'MANUAL';
   glosa_tope?: string; // e.g., "70% tope 2.2 VAM"

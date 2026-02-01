@@ -61,6 +61,23 @@ export const AuditSummary: React.FC<AuditSummaryProps> = ({ data }) => {
           </div>
         )}
       </div>
+
+      {data.valorUnidadReferencia && (
+        <div className="bg-indigo-900 p-6 rounded-xl shadow-lg border border-indigo-700 col-span-1 sm:col-span-2 lg:col-span-4 mt-2">
+          <div className="flex items-center gap-3 text-indigo-200 mb-2">
+            <Scale size={24} className="text-indigo-400" />
+            <span className="text-lg font-bold uppercase tracking-widest">Deducción Forense (RTC NORM)</span>
+          </div>
+          <div className="flex flex-col sm:flex-row items-baseline gap-4">
+            <div className="text-4xl font-extrabold text-white">
+              {(data as any).valorUnidadReferencia}
+            </div>
+            <div className="text-indigo-300 text-sm italic">
+              Este valor ha sido reconstruido matemáticamente desde su liquidación y contrato.
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -222,7 +222,15 @@ export async function preProcessEventos(pamJson: any, contratoJson: any = {}): P
     // Dynamic triangulation using real contract data
     // Use the first item's date as a reference or today if empty
     const referenceDate = rawItems.length > 0 ? (parseFecha(rawItems[0].fecha) || new Date()) : new Date();
-    const isapreName = contratoJson?.diseno_ux?.nombre_isapre || "";
+
+    // Fix: Extract Isapre from PAM if not in Contract (Critical for Unit Type Inference)
+    const isapreName =
+        contratoJson?.diseno_ux?.nombre_isapre ||
+        pamJson?.isapre ||
+        pamJson?.encabezado?.prevision ||
+        pamJson?.global?.isapre ||
+        "";
+
     const unidadReferencia = await inferUnidadReferencia(contratoJson, pamJson, isapreName, referenceDate);
 
     // 3. Group into Episodes

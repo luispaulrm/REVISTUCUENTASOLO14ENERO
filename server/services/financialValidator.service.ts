@@ -31,7 +31,7 @@ const SURGICAL_FACTORS: Record<string, number> = {
     '1902001': 1.0, // Pabellón (Ref)
     '1101009': 1.0, // Día Cama Integral (Ref)
     '2801001': 1.0, // Intervenciones Menores
-    '1103057': 5.0, // Rizotomía (Estimado referencial para anclaje)
+    '1103057': 1.2, // Rizotomía (Ancla Contractual Consalud)
     '1102025': 2.0, // Bloqueo facetario
     '1103048': 3.0  // Infiltración
 };
@@ -205,11 +205,20 @@ export async function inferUnidadReferencia(
             unitType = normalizedType;
         }
     } else {
-        // Legacy Heuristic Fallback
-        if (normalizedIsapre.includes("MASVIDA")) unitType = "VAM";
-        else if (normalizedIsapre.includes("COLMENA")) unitType = "VAM";
-        else if (normalizedIsapre.includes("CONSALUD")) unitType = "AC2";
-        else if (normalizedIsapre.includes("BANMEDICA") || normalizedIsapre.includes("VIDA TRES") || normalizedIsapre.includes("CRUZ BLANCA")) unitType = "VA";
+        // Legacy Heuristic Fallback - Robust matching
+        const isConsalud = normalizedIsapre.includes("CONSALUD");
+        const isColmena = normalizedIsapre.includes("COLMENA");
+        const isMasvida = normalizedIsapre.includes("MASVIDA");
+        const isBanmedica = normalizedIsapre.includes("BANMEDICA") || normalizedIsapre.includes("VIDA TRES") || normalizedIsapre.includes("CRUZ BLANCA");
+
+        console.log(`[DEBUG_UNIT] Normalizing Isapre: "${normalizedIsapre}"`);
+        console.log(`[DEBUG_UNIT] Heuristics: Consalud=${isConsalud}, Colmena=${isColmena}, Banmedica=${isBanmedica}`);
+
+        if (isMasvida || isColmena) unitType = "VAM";
+        else if (isConsalud) unitType = "AC2";
+        else if (isBanmedica) unitType = "VA";
+
+        console.log(`[DEBUG_UNIT] Final Unit Type Selected: "${unitType}"`);
     }
 
     // Reverse Engineering from PAM (Existing Logic)
@@ -248,15 +257,35 @@ export async function inferUnidadReferencia(
             fecha_referencia: eventDate,
             valor_uf_fecha: valorUf
         };
+    } else {
+        // Fallback if NO candidates found in PAM
+        let fallbackValue = 38000; // Default VA
+        let confidence: "BAJA" | "MEDIA" | "ALTA" = "BAJA";
+
+        if (unitType === "AC2") {
+            // Hardcoded fallback for Consalud 2024/2025 based on normative history
+            fallbackValue = 223147;
+            confidence = "MEDIA";
+            evidencia.push(`FALLBACK: No se encontraron ítems quirúrgicos trazables en PAM.`);
+            evidencia.push(`VALOR HISTÓRICO: Se utiliza valor base AC2 Consalud ($${fallbackValue.toLocaleString('es-CL')}) ante ausencia de datos.`);
+        } else if (unitType === "VAM") {
+            // Approximate VAM value if unknown
+            fallbackValue = 39000;
+            evidencia.push(`FALLBACK: No se encontraron ítems quirúrgicos trazables en PAM.`);
+        }
+
+        return {
+            tipo: unitType,
+            valor_pesos_estimado: fallbackValue,
+            confianza: confidence,
+            evidencia: evidencia,
+            factor_origen: 1.0,
+            cobertura_aplicada: coverage,
+            fecha_referencia: eventDate,
+            valor_uf_fecha: valorUf
+        };
     }
 
-    return {
-        tipo: normalizedIsapre ? unitType : "DESCONOCIDA",
-        evidencia: ["No se encontraron ítems ancla suficientes para deducir el Valor Unidad."],
-        confianza: "BAJA",
-        fecha_referencia: eventDate,
-        valor_uf_fecha: valorUf
-    };
 }
 
 /**

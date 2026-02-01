@@ -69,7 +69,6 @@ function parseAmountCLP(val: any): number {
 // TYPES: Resolution Engine (V5)
 // ============================================================================
 type Cat = "A" | "OK" | "Z" | "B";
-
 export interface DecisionResult {
     estado: string;
     confianza: number;
@@ -78,6 +77,7 @@ export interface DecisionResult {
     invariantsOk: boolean;
     errors: string[];
     score?: number;
+    valorUnidadReferencia?: string;
 }
 
 // ============================================================================
@@ -91,12 +91,13 @@ export function resolveDecision(params: {
     findings: Finding[];
     violations: { code?: string; severity: number }[]; // severity 0..1
     signals: Signal[];
+    eventos?: EventoHospitalario[];
 }): DecisionResult {
 
     const { totalCopagoInformado: T, findings, violations, signals } = params;
     const errors: string[] = [];
 
-    // 1) Normaliza montos y unifica categor�as
+    // 1) Normaliza montos y unifica categorías
     // En V6, unificamos K y Z en Z (Opacity). 
     // A = Confirmed, B = Controversy/Mapping, Z = Indeterminate/Opacity
     const norm = findings.map(f => ({
@@ -104,62 +105,83 @@ export function resolveDecision(params: {
         amount: Number.isFinite(f.amount) ? Math.max(0, Math.round(f.amount)) : 0
     }));
 
-    const A_items = norm.filter(f => f.category === "A");
-    const B_items = norm.filter(f => f.category === "B");
-    const Z_items = norm.filter(f => f.category === "Z" || f.category === "K");
+    const rawA = sum(norm.filter(f => f.category === "A").map(x => x.amount));
+    const rawB = sum(norm.filter(f => f.category === "B").map(x => x.amount));
+    const rawZ = sum(norm.filter(f => f.category === "Z" || f.category === "K").map(x => x.amount));
 
-    const finalA = sum(A_items.map(x => x.amount));
-    const finalB = sum(B_items.map(x => x.amount));
-    const finalZ = sum(Z_items.map(x => x.amount));
+    // 2) PRIORITIZATION & CONFLICT RESOLUTION (A > B > Z)
+    // Rule R-BAL-01: Honest accounting. If A+B+Z > T, shrink from least certain (Z) to most certain (A).
+    let resA = rawA;
+    let resB = rawB;
+    let resZ = rawZ;
 
-    // 2) ENSURE PARTITION (A + B + Z + OK = T)
-    // Rule R-BAL-01: Honest accounting. If A+B+Z > T, it's a conflict, not a cap.
-    if (finalA + finalB + finalZ > T + 10) {
-        errors.push(`CONFLICTO_DATOS: La suma de hallazgos ($${(finalA + finalB + finalZ).toLocaleString()}) excede el total del copago ($${T.toLocaleString()}). Posible duplicidad o error de extracci�n.`);
+    if (resA + resB + resZ > T + 10) {
+        errors.push(`CONFLICTO_DATOS: La suma de hallazgos ($${(resA + resB + resZ).toLocaleString()}) excede el total del copago ($${T.toLocaleString()}). Aplicando priorización forense.`);
+
+        // Step 1: Reduce Z (Opacity)
+        const diffZ = Math.min(resZ, (resA + resB + resZ) - T);
+        resZ -= diffZ;
+
+        // Step 2: Reduce B (Controversy)
+        const diffB = Math.min(resB, (resA + resB + resZ) - T);
+        resB -= diffB;
+
+        // Step 3: Reduce A (Confirmed) - Extremely rare, means confirmed errors > total bill
+        const diffA = Math.min(resA, (resA + resB + resZ) - T);
+        resA -= diffA;
     }
 
-    const finalOK = Math.max(0, T - (finalA + finalB + finalZ));
-    const effectiveZ = finalZ;
+    const resOK = Math.max(0, T - (resA + resB + resZ));
 
-    // 3) Invariants
-    const invariantsOk = Math.abs((finalA + finalB + effectiveZ + finalOK) - T) < 10;
+    // 3) Invariants (A+B+Z+OK must exactly equal T)
+    const finalTotal = resA + resB + resZ + resOK;
+    const invariantsOk = Math.abs(finalTotal - T) < 10;
     if (!invariantsOk) {
-        errors.push(`FALLO_CRITICO_INVARIANTE: A+B+Z+OK=${finalA + finalB + effectiveZ + finalOK} != T=${T}.`);
+        errors.push(`FALLO_CRITICO_INVARIANTE: A+B+Z+OK=${finalTotal} != T=${T}.`);
     }
 
-    // 4) Se�ales y Estado Global
+    // 4) Señales y Estado Global
     const V = Math.min(1, sum(violations.map(v => v.severity)) / Math.max(1, violations.length));
     const riskSignals = signals.filter(s => s.value > 0 && !s.id.includes("OK") && !s.id.includes("CUMPLIMIENTO"));
     const R = Math.min(1, riskSignals.length > 0 ? (sum(riskSignals.map(s => s.value)) / riskSignals.length) : 0);
 
-    const opacidad = effectiveZ / Math.max(1, T);
+    const opacidad = resZ / Math.max(1, T);
 
     let estado = "VALIDADO";
-    const hasConflict = (finalA + finalB + finalZ > T + 10);
+    const hasConflict = (rawA + rawB + rawZ > T + 10);
 
+    // Forensic Unit Extraction
+    const eventWithFinance = (params.eventos || []).find((e: any) => e.analisis_financiero && (e.analisis_financiero.valor_unidad_inferido || e.analisis_financiero.valor_unitario_plan));
+    let valorUnidadStr = "No calculado (N/A)";
+    if (eventWithFinance && eventWithFinance.analisis_financiero) {
+        const val = eventWithFinance.analisis_financiero.valor_unidad_inferido || eventWithFinance.analisis_financiero.valor_unitario_plan;
+        let unit = (eventWithFinance.analisis_financiero.unit_type || "VAM/AC2").toUpperCase();
+        if (unit === "UF") unit = "VAM/AC2"; // 🚫 UF fuera
+        valorUnidadStr = `$${val.toLocaleString('es-CL')} (Valor Unidad / ${unit} - RTC NORM)`;
+    }
+
+    // Global State Hierarchy
     if (hasConflict) {
         estado = "CONFLICTO_DE_EXTRACCION_O_DOBLE_CONTEO";
-    } else if (effectiveZ > 0 && finalA > 0) {
-        estado = "COPAGO_MIXTO_CONFIRMADO_Y_OPACO";
-    } else if (effectiveZ > 0) {
+    } else if (resA > 0) {
+        estado = resZ > 0 ? "COPAGO_MIXTO_CONFIRMADO_Y_OPACO" : "COPAGO_OBJETABLE_CONFIRMADO";
+    } else if (resZ > 0) {
         estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
-    } else if (finalA > 0) {
-        estado = "COPAGO_OBJETABLE_CONFIRMADO";
     }
 
     // 5) Resumen y Confianza
-    let confianza = 0.55 + 0.35 * Math.min(1, finalA / Math.max(1, T)) - 0.45 * opacidad;
+    let confianza = 0.55 + 0.35 * Math.min(1, resA / Math.max(1, T)) - 0.45 * opacidad;
     if (errors.length) confianza -= 0.15;
     confianza = Math.max(0.05, Math.min(0.95, confianza));
 
-    const scoreA = 0.55 * (finalA / Math.max(1, T));
+    const scoreA = 0.55 * (resA / Math.max(1, T));
     const scoreV = 0.25 * V;
     const scoreR = 0.20 * R;
     const scoreZ = 0.60 * opacidad;
     let score = 100 * (scoreA + scoreV + scoreR) - 100 * scoreZ;
 
     const fundamento =
-        `Balance: A=${finalA}, B=${finalB}, Z=${effectiveZ}, OK=${finalOK}, T=${T}. ` +
+        `Balance: A=$${resA.toLocaleString()} | B=$${resB.toLocaleString()} | Z=$${resZ.toLocaleString()} | OK=$${resOK.toLocaleString()} | T=$${T.toLocaleString()}. ` +
         `Opacidad=${(100 * opacidad).toFixed(1)}%. ` +
         (errors.length ? `Ajustes: ${errors.join(" | ")}.` : "");
 
@@ -167,10 +189,11 @@ export function resolveDecision(params: {
         estado,
         confianza: Number(confianza.toFixed(2)),
         fundamento,
-        balance: { A: finalA, OK: finalOK, B: finalB, K: 0, Z: effectiveZ, TOTAL: T },
+        balance: { A: resA, OK: resOK, B: resB, K: 0, Z: resZ, TOTAL: T },
         invariantsOk,
         errors,
-        score: Math.round(score)
+        score: Math.round(score),
+        valorUnidadReferencia: valorUnidadStr
     };
 }
 function classifyFinding(h: any): "A" | "B" {
@@ -339,24 +362,36 @@ function isOpacityFinding(f: Finding): boolean {
 // ============================================================================
 // HELPER: Ceiling Parser (Forensic Math)
 // ============================================================================
-function parseCeilingFactor(topeStr: string): { factor: number; unit: 'AC2' | 'VAM' | 'UF' | 'PESOS' | 'UNKNOWN'; raw: string } {
+function parseCeilingFactor(topeStr: string): { factor: number; unit: 'AC2' | 'VAM' | 'PESOS' | 'UNKNOWN'; raw: string } {
     if (!topeStr || topeStr === '-' || topeStr === '---') return { factor: 0, unit: 'UNKNOWN', raw: '' };
     const clean = topeStr.toUpperCase().replace(/,/g, '.').trim();
+
+    // 🚫 REGRA UF-00: Si aparece UF, NO se calcula. Se marca UNKNOWN (solo literal).
+    if (/\bUF\b/.test(clean) || /UNIDAD\s+DE\s+FOMENTO/.test(clean)) {
+        return { factor: 0, unit: 'UNKNOWN', raw: clean };
+    }
 
     // Pattern 1: Multipliers (e.g., "1.2 veces AC2", "1.2 AC2", "1.2 * Arancel")
     const arancelMatch = clean.match(/([\d\.]+)\s*(?:VECES|X|\*)?\s*(?:AC2|ARANCEL|VAM|BASE)/);
     if (arancelMatch) {
-        return { factor: parseFloat(arancelMatch[1]), unit: 'AC2', raw: clean };
+        // Nota: detectamos si contiene VAM explícitamente
+        const unit: 'AC2' | 'VAM' = clean.includes('VAM') ? 'VAM' : 'AC2';
+        return { factor: parseFloat(arancelMatch[1]), unit, raw: clean };
     }
 
     // Pattern 2: Percentages (e.g., "120% Arancel", "100%")
     const percentMatch = clean.match(/([\d\.]+)%\s*(?:DEL\s*)?(?:AC2|ARANCEL|VAM|BASE)?/);
     if (percentMatch) {
-        // If it's just "100%" without context, it often means 100% coverage, NOT 1.0 * Arancel limit (unless Arancel is specified)
-        // But for "Hon. Medicos", 1.2 AC2 is common.
-        if (clean.includes('ARANCEL') || clean.includes('AC2')) {
-            return { factor: parseFloat(percentMatch[1]) / 100, unit: 'AC2', raw: clean };
+        if (clean.includes('ARANCEL') || clean.includes('AC2') || clean.includes('VAM')) {
+            const unit: 'AC2' | 'VAM' = clean.includes('VAM') ? 'VAM' : 'AC2';
+            return { factor: parseFloat(percentMatch[1]) / 100, unit, raw: clean };
         }
+    }
+
+    // Si viene en pesos explícito
+    const pesosMatch = clean.match(/\$\s*([\d\.]+)/);
+    if (pesosMatch) {
+        return { factor: parseFloat(pesosMatch[1]), unit: 'PESOS', raw: clean };
     }
 
     return { factor: 0, unit: 'UNKNOWN', raw: clean };
@@ -387,16 +422,27 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
         // Only if we have the extracted rule available in the event context (often in 'regla_aplicada')
         if (e.analisis_financiero.regla_aplicada) {
             const ruleTope = e.analisis_financiero.regla_aplicada.tope_aplicado || e.analisis_financiero.regla_aplicada.tope || "";
+
+            // 🚫 UF Check: Literal only
+            if (/\bUF\b/i.test(ruleTope)) {
+                // Solo literal, no validated
+                f.contract_ceiling = ruleTope;
+                if (!f.rationale?.includes("TOPE_LITERAL")) {
+                    f.rationale = (f.rationale || "") + `\n[TOPE_LITERAL] Límite contractual en UF detectado, se conserva literal y no se usa para cálculo.`;
+                }
+                return false;
+            }
+
             const parsed = parseCeilingFactor(ruleTope);
 
-            if (parsed.unit === 'AC2' && parsed.factor > 0) {
+            if ((parsed.unit === 'AC2' || parsed.unit === 'VAM') && parsed.factor > 0) {
                 // If the finding amount is explicitly validated or reconstructed using this factor
                 // (This usually requires finding.amount <= Arancel * Factor)
                 // For now, we assume if the event exists and matches the procedure, checking the ceiling 
                 // is the responsibility of the reconstruction engine. 
                 // But we explicitely MARK it as captured.
                 if (!f.rationale?.includes("ALGORITMO DE TOPES")) {
-                    f.rationale = (f.rationale || "") + `\n[ALGORITMO DE TOPES] CAPTURADO: L�mite contractual '${ruleTope}' detectado. Factor ${parsed.factor}x${parsed.unit}.`;
+                    f.rationale = (f.rationale || "") + `\n[ALGORITMO DE TOPES] CAPTURADO: Límite contractual '${ruleTope}' detectado. Factor ${parsed.factor}x${parsed.unit}.`;
                 }
                 // Explicit UI Column Population
                 f.contract_ceiling = ruleTope;
@@ -441,7 +487,7 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
         const val = eventWithFinance.analisis_financiero.valor_unidad_inferido;
         const unit = eventWithFinance.analisis_financiero.unit_type || "VAM/AC2";
         if (!rationale.includes("VALOR REFERENCIAL ESTIMADO")) {
-            rationale += `\n[FORENSE] VALOR REFERENCIAL ESTIMADO (${unit}): $${val.toLocaleString('es-CL')}.`;
+            rationale += `\n[FORENSE] VALOR DE UNIDAD DEDUCIDO (${unit}): $${val.toLocaleString('es-CL')} (RTC NORM).`;
         }
     }
 
@@ -645,6 +691,7 @@ export function finalizeAuditCanonical(input: {
     resumenFinanciero: any;
     fundamentoText: string;
     contractCeilings?: any[];
+    valorUnidadReferencia?: string;
 } {
     const debug: string[] = [];
     const findings = input.findings || [];
@@ -726,7 +773,8 @@ export function finalizeAuditCanonical(input: {
         totalCopagoInformado: total,
         findings: processedFindings,
         violations: violations,
-        signals: signalArray
+        signals: signalArray,
+        eventos: eventos
     });
 
     const balance = resolved.balance;
@@ -748,14 +796,17 @@ export function finalizeAuditCanonical(input: {
     const fundamento: string[] = [];
     let unitLabel = "VAM/AC2";
     if (isCanonical) {
-        // Find most frequent unit in topes
-        const units = (input.contract?.topes || []).map((t: any) => t.unidad);
-        if (units.includes("UF")) unitLabel = "UF";
-        else if (units.includes("VAM")) unitLabel = "VAM";
+        const units = (input.contract?.topes || []).map((t: any) => (t.unidad || "").toUpperCase());
+
+        // 🚫 UF no se usa para etiqueta de cálculo; si es lo único, dejamos genérico.
+        if (units.includes("VAM")) unitLabel = "VAM";
+        else if (units.includes("AC2")) unitLabel = "AC2";
+        else unitLabel = "VAM/AC2";
     } else {
-        unitLabel = input.contract?.unitOfMeasure || "VAM/AC2";
+        const u = (input.contract?.unitOfMeasure || "VAM/AC2").toUpperCase();
+        unitLabel = (u === "UF") ? "VAM/AC2" : input.contract?.unitOfMeasure || "VAM/AC2";
     }
-    if (!canVerifyCeilings) fundamento.push(`No es posible verificar aplicaci�n de topes UF/${unitLabel} (ceiling verification unavailable).`);
+    if (!canVerifyCeilings) { fundamento.push('No es posible verificar aplicación de topes del plan (verificación de topes no disponible).'); }
     if (contratoVacio) fundamento.push("Violaci�n Regla C-01: Contrato sin cl�usulas de cobertura (coberturas vac�o).");
     if (pamOpaco) fundamento.push("Violaci�n Regla C-04: Opacidad estructural en PAM (agrupaci�n impide trazabilidad fina).");
     if (balance.A > 0) fundamento.push(`Hallazgos confirmados: cobros improcedentes exigibles identificados (A) por $${balance.A.toLocaleString("es-CL")}.`);
@@ -823,7 +874,8 @@ export function finalizeAuditCanonical(input: {
         debug,
         resumenFinanciero,
         fundamentoText: fundamento.join(" "),
-        contractCeilings // Added output
+        contractCeilings, // Added output
+        valorUnidadReferencia: resolved.valorUnidadReferencia
     };
 }
 
@@ -1216,13 +1268,13 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
 
     if (pamState === 'DETALLADO') {
         capabilityMatrix.enabled.push(
-            { capability: "CALCULO_TOPES_UF_VA_VAM", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 },
+            { capability: "CALCULO_TOPES_PLAN_VA_VAM_AC2", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 },
             { capability: "VALIDACION_PRECIOS_UNITARIOS", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 },
             { capability: "UNBUNDLING_IF319", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 }
         );
     } else {
         capabilityMatrix.blocked.push(
-            { capability: "CALCULO_TOPES_UF_VA_VAM", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 }
+            { capability: "CALCULO_TOPES_PLAN_VA_VAM_AC2", scope: { type: "GLOBAL" }, by: "AlphaFold", confidence: 1.0 }
         );
     }
 
@@ -2171,6 +2223,7 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                     confianza: finalDecision.confianza,
                     fundamento: finalDecision.fundamento
                 },
+                valorUnidadReferencia: (canonicalResult as any).valorUnidadReferencia,
                 legalContext: {
                     axioma_fundamental: "La inteligencia del auditor consiste en suplir las deficiencias estructurales del PAM mediante la aplicaci�n activa de literatura, normativa y contrato, y no en declarar indeterminaci�n ante la primera falta de desglose.",
                     analisis_capas: [
