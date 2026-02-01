@@ -237,7 +237,7 @@ export default function CanonicalGeneratorApp() {
                 </div>
             </header>
 
-            <main className="max-w-[1400px] mx-auto p-6">
+            <main className={`${viewMode === 'map' && status === AppStatus.SUCCESS ? 'max-w-full' : 'max-w-[1400px]'} mx-auto p-4 transition-all duration-500`}>
                 {status === AppStatus.IDLE && (
                     <div className="max-w-2xl mx-auto text-center py-20">
                         <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-indigo-600 mx-auto mb-8 border border-slate-200 shadow-xl">
@@ -361,7 +361,7 @@ export default function CanonicalGeneratorApp() {
                 {
                     status === AppStatus.SUCCESS && canonicalResult && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col h-[700px]">
+                            <div className={`bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col ${viewMode === 'map' ? 'h-[85vh]' : 'h-[700px]'} transition-all duration-500`}>
                                 <div className="px-6 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         <div className="flex items-center gap-2">
