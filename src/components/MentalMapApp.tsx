@@ -16,13 +16,20 @@ interface MentalModel {
     root: NodeData;
 }
 
-export default function MentalMapApp({ isActive }: { isActive: boolean }) {
-    const [model, setModel] = useState<MentalModel | null>(null);
-    const [loading, setLoading] = useState(true);
+export default function MentalMapApp({ isActive, initialData }: { isActive: boolean, initialData?: any }) {
+    const [model, setModel] = useState<MentalModel | null>(initialData || null);
+    const [loading, setLoading] = useState(!initialData);
     const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set(['root']));
 
     useEffect(() => {
         if (!isActive) return;
+
+        if (initialData) {
+            setModel(initialData);
+            setLoading(false);
+            return;
+        }
+
         setLoading(true);
         fetch('/api/mental-model')
             .then(res => res.json())
@@ -31,7 +38,7 @@ export default function MentalMapApp({ isActive }: { isActive: boolean }) {
                 setLoading(false);
             })
             .catch(() => setLoading(false));
-    }, [isActive]);
+    }, [isActive, initialData]);
 
     const toggleNode = (path: string) => {
         const newPaths = new Set(expandedPaths);
