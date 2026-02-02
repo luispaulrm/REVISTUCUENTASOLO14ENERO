@@ -27,6 +27,8 @@ import {
     SCHEMA_COBERTURAS,
     SCHEMA_RAW_CELLS, // New Cartesian Schema
     SCHEMA_CLASSIFIER,
+    PROMPT_MODULAR_JSON,
+    SCHEMA_MODULAR_JSON,
     CONTRACT_OCR_MAX_PAGES,
     CONTRACT_FAST_MODEL,
     CONTRACT_REASONING_MODEL,
@@ -629,82 +631,100 @@ export async function analyzeSingleContract(
         }
     }
 
-    // --- EXECUTE SINGLE PASS DYNAMIC EXTRACTION (v20.0 Visual Hierarchy) ---
-    log(`\n[ContractEngine] ⚡ Ejecutando Extracción Dinámica Visual (Single Pass)...`);
+    // --- DETERSMINISTIC PHASES CONFIGURATION ---
+    const PHASES = [
+        { id: "HOSP_P1", ambito: "HOSPITALARIO" as const, prompt: PROMPT_HOSP_P1 },
+        { id: "HOSP_P2", ambito: "HOSPITALARIO" as const, prompt: PROMPT_HOSP_P2 },
+        { id: "AMB_P1", ambito: "AMBULATORIO" as const, prompt: PROMPT_AMB_P1 },
+        { id: "AMB_P2", ambito: "AMBULATORIO" as const, prompt: PROMPT_AMB_P2 },
+        { id: "AMB_P3", ambito: "AMBULATORIO" as const, prompt: PROMPT_AMB_P3 },
+        { id: "AMB_P4", ambito: "AMBULATORIO" as const, prompt: PROMPT_AMB_P4 }
+    ];
 
-    // Use the PROMPT_PROYECCION_JSON which now includes the "Visual/Uppercase" rules
-    const { PROMPT_PROYECCION_JSON, SCHEMA_PROYECCION_JSON } = await import('./contractConstants.js');
-
-    // Execute a single robust pass
-    const fullJsonPhase = await extractSection("FULL_JSON", PROMPT_PROYECCION_JSON, SCHEMA_PROYECCION_JSON);
-
-    // --- TRANSFORM TO CANONICAL STRUCTURE ---
-    const coberturasHospRaw: any[] = [];
-    const coberturasAmbRaw: any[] = [];
-    let coberturasExtrasRaw: any[] = [];
-
-    if (fullJsonPhase.result && fullJsonPhase.result.coberturas_nacionales) {
-        log(`[ContractEngine] 🔄 Transformando estructura dinámica a canónica...`);
-
-        fullJsonPhase.result.coberturas_nacionales.forEach((item: any) => {
-            const categoria = item.seccion || "OTROS"; // This catches the UPPERCASE header
-            const nombreItem = item.item;
-
-            // Map Preferente
-            if (item.preferente) {
-                const cob = {
-                    categoria: categoria,
-                    item: nombreItem,
-                    modalidades: [{
-                        tipo: "PREFERENTE",
-                        porcentaje: item.preferente.porcentaje,
-                        tope: parseFloat(item.preferente.tope) || null, // Best effort parse, or use raw in copago
-                        unidadTope: (item.preferente.tope || "").includes("UF") ? "UF" : "PESOS", // Basic heuristic
-                        tipoTope: "POR_EVENTO",
-                        copago: item.preferente.tope // Store raw string for safety
-                    }]
-                };
-
-                // Rough bucket into Hosp/Amb for legacy downstream compatibility (optional)
-                if (categoria.includes("HOSP") || categoria.includes("CAMA") || categoria.includes("PABELLON")) {
-                    coberturasHospRaw.push(cob);
-                } else {
-                    coberturasAmbRaw.push(cob);
-                }
-            }
-
-            // Map Libre Elección
-            if (item.libre_eleccion) {
-                const cob = {
-                    categoria: categoria,
-                    item: nombreItem,
-                    modalidades: [{
-                        tipo: "LIBRE_ELECCION",
-                        porcentaje: item.libre_eleccion.porcentaje,
-                        tope: parseFloat(item.libre_eleccion.tope) || null,
-                        unidadTope: "UF",
-                        tipoTope: "POR_EVENTO",
-                        copago: item.libre_eleccion.tope
-                    }]
-                };
-                if (categoria.includes("HOSP") || categoria.includes("CAMA") || categoria.includes("PABELLON")) {
-                    coberturasHospRaw.push(cob);
-                } else {
-                    coberturasAmbRaw.push(cob);
-                }
-            }
-        });
-    } else {
-        log(`[ContractEngine] ⚠️ Warning: Single pass returned empty structure.`);
+    function isValidSectionHeader(text: string): boolean {
+        const t = (text || "").trim();
+        if (t.length < 4) return false;
+        if (/[0-9]+%|\$|[0-9]+[\.,][0-9]+|UF/i.test(t)) return false;
+        if (/^[0-9]{5,}/.test(t)) return false;
+        return t === t.toUpperCase() || t.length > 10;
     }
 
-    // Legacy variables to satisfy the rest of the function signatures
-    // We basically bypass the old 12 variables
-    const reglasP1Phase = { result: { reglas: [] } };
-    const reglasP2Phase = { result: { reglas: [] } };
-    const anexosP1Phase = { result: { reglas: [] } };
-    const anexosP2Phase = { result: { reglas: [] } };
-    const extrasPhase = { result: { coberturas: [] } };
+    const runModularPhase = async (phaseId: string, segmentPrompt: string, targetAmbito: "HOSPITALARIO" | "AMBULATORIO") => {
+        const enrichedPrompt = PROMPT_MODULAR_JSON.replace("{{SEGMENT}}", segmentPrompt);
+        const phase = await extractSection(phaseId, enrichedPrompt, SCHEMA_MODULAR_JSON);
+
+        let currentSectionHeader = "SIN_SECCION_VISUAL";
+        const processedItems: any[] = [];
+
+        (phase.result?.coberturas || []).forEach((item: any) => {
+            // Guardrail: Process Visual Headers
+            if (item.tipo === "seccion_visual") {
+                if (isValidSectionHeader(item.seccion_raw || item.item)) {
+                    currentSectionHeader = (item.seccion_raw || item.item || "").trim().toUpperCase();
+                    log(`[${phaseId}] 📑 Nuevo encabezado visual detectado: ${currentSectionHeader}`);
+                } else {
+                    // Demote rejected header
+                    item.tipo = "texto_no_prestacion";
+                }
+            }
+
+            // Skip non-prestacion text for actual coverage mapping
+            if (item.tipo !== "prestacion") return;
+
+            // ENFORCE INVARIANTS
+            const rowAmbito = targetAmbito;
+            const seccionRaw = item.seccion_raw || currentSectionHeader;
+
+            // Map Modalities
+            const modalities = [];
+            if (item.preferente) {
+                modalities.push({
+                    tipo: "PREFERENTE",
+                    porcentaje: item.preferente.porcentaje,
+                    tope: item.preferente.tope,
+                    unidadTope: (item.preferente.tope || "").includes("UF") ? "UF" : "PESOS",
+                    tipoTope: "POR_EVENTO",
+                    copago: item.preferente.tope
+                });
+            }
+            if (item.libre_eleccion) {
+                modalities.push({
+                    tipo: "LIBRE_ELECCION",
+                    porcentaje: item.libre_eleccion.porcentaje,
+                    tope: item.libre_eleccion.tope,
+                    unidadTope: (item.libre_eleccion.tope || "").includes("UF") ? "UF" : "PESOS",
+                    tipoTope: "POR_EVENTO",
+                    copago: item.libre_eleccion.tope
+                });
+            }
+
+            processedItems.push({
+                categoria: seccionRaw, // Map seccion_raw to categoria for UI
+                seccion_raw: seccionRaw,
+                item: item.item,
+                ambito: rowAmbito,
+                modalidades: modalities
+            });
+        });
+
+        return { items: processedItems, phase };
+    };
+
+    // Execute phases
+    const phaseResults = await Promise.all(
+        PHASES.map(p => runModularPhase(p.id, p.prompt, p.ambito))
+    );
+
+    const hospResults = phaseResults.filter((_, i) => PHASES[i].ambito === "HOSPITALARIO");
+    const coberturasHospRaw = hospResults.flatMap(r => r.items);
+    const ambResults = phaseResults.filter((_, i) => PHASES[i].ambito === "AMBULATORIO");
+    const coberturasAmbRaw = ambResults.flatMap(r => r.items);
+    let coberturasExtrasRaw: any[] = [];
+
+    // Legacy mapping support for metrics
+    const allModularPhases = phaseResults.map(r => r.phase);
+    const fullJsonPhase = { success: allModularPhases.every(p => p.success), result: null };
+
 
     // OCR Text is still useful for deterministic check
     const textExtractionPromise = extractTextFromPdf(file, CONTRACT_OCR_MAX_PAGES, log);
@@ -986,8 +1006,8 @@ export async function analyzeSingleContract(
         diseno_ux.nombre_isapre = fingerprintPhase.result.tipo_contrato.split('_')[0];
     }
 
-    // --- TOTAL METRICS (Single Pass) ---
-    const allPhases = [fingerprintPhase, fullJsonPhase];
+    // --- TOTAL METRICS (Modular Phases) ---
+    const allPhases = [fingerprintPhase, ...allModularPhases];
     const totalInput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensInput || 0), 0);
     const totalOutput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensOutput || 0), 0);
     const totalCost = allPhases.reduce((acc, p) => acc + (p.metrics?.cost || 0), 0);
@@ -1006,13 +1026,10 @@ export async function analyzeSingleContract(
                 total: totalInput + totalOutput,
                 costClp: totalCost,
                 totalPages: (ocrResult as any).totalPages || 0,
-                phaseSuccess: {
-                    CLASSIFIER: fingerprintPhase.success,
-                    FULL_JSON: fullJsonPhase.success
-                },
+                phaseSuccess: phaseResults.reduce((acc, r, i) => ({ ...acc, [PHASES[i].id]: r.phase.success }), { CLASSIFIER: fingerprintPhase.success }),
                 phases: [
                     { phase: "Clasificación", ...getMetrics(fingerprintPhase) },
-                    { phase: "Full_JSON_Dynamic", ...getMetrics(fullJsonPhase) }
+                    ...phaseResults.map((r, i) => ({ phase: PHASES[i].id, ...getMetrics(r.phase) }))
                 ]
             },
             extractionBreakdown: {

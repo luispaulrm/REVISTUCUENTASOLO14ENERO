@@ -238,76 +238,130 @@ const SHARED_MANDATE = `
   - Tu único trabajo es digitalizar la grilla 2D.
 `;
 
-export const PROMPT_HOSP_P1 = `
-  ${SHARED_MANDATE}
-  ** SEGMENTO ASIGNADO: DÍA CAMA, UTI Y PABELLÓN **
+export const PROMPT_MODULAR_JSON = `
+  ACT AS A HIGH-FIDELITY MEDICAL CONTRACT ANALYST (MODULAR MAPPING MODE).
 
-  Extrae exactamente las filas 1 a 24 del checklist Hospitalario:
-1 - 8: Día Cama(7 clínicas + LE)
-9 - 16: UTI / UCI(7 clínicas + LE)
-17 - 24: Pabellón(7 clínicas + LE)
+  GOAL:
+  Extract a specific segment of the health contract into structured JSON as literal evidence.
   
-  ⚠️ RESTRICCIÓN: Solo procesa estos 24 ítems.
+  ⚠️ RULE #6: VISUAL SECTION DETECTION (CRITICAL):
+  Detect visual section headers only when they look like "document headers", not item labels:
+  - CHARACTERISTICS: ALL CAPS (or mostly caps), high prominence (bold/spread), often a standalone line.
+  - EXAMPLES: "HOSPITALIZACIÓN", "PRESTACIONES RESTRINGIDAS", "ANEXO DE COBERTURA".
+  - EMISSION: Output them as objects with tipo="seccion_visual" and seccion_raw exactly as seen.
+
+  ⚠️ AMBITO INVARIANT:
+  - The first line of the phase segment defines your current AMBITO.
+  - Every item you output is restricted to that ambito by definition.
+  - DO NOT mention other scopes. DO NOT infer scope from context.
+
+  ⚠️ OUTPUT CONTRACT (STRICT):
+  - tipo="prestacion": Used for billable items with coverage data.
+  - tipo="seccion_visual": Used for detected uppercase headers.
+  - tipo="texto_no_prestacion": Used if unsure whether a line is a billable item vs explanatory text.
+
+  CHECKLIST SEGMENT TO EXTRACT:
+  {{SEGMENT}}
+`;
+
+export const SCHEMA_MODULAR_JSON = {
+  type: SchemaType.OBJECT,
+  properties: {
+    coberturas: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          tipo: {
+            type: SchemaType.STRING,
+            enum: ["prestacion", "seccion_visual", "texto_no_prestacion"],
+            description: "Category of the extracted line"
+          },
+          seccion_raw: {
+            type: SchemaType.STRING,
+            description: "The literal uppercase text if tipo is 'seccion_visual', or the nearest header otherwise."
+          },
+          item: { type: SchemaType.STRING, description: "The name of the prestacion or text found" },
+          preferente: {
+            type: SchemaType.OBJECT,
+            properties: {
+              porcentaje: { type: SchemaType.NUMBER, nullable: true },
+              tope: { type: SchemaType.STRING, nullable: true }
+            }
+          },
+          libre_eleccion: {
+            type: SchemaType.OBJECT,
+            properties: {
+              porcentaje: { type: SchemaType.NUMBER, nullable: true },
+              tope: { type: SchemaType.STRING, nullable: true }
+            }
+          }
+        },
+        required: ['tipo', 'item']
+      }
+    }
+  },
+  required: ['coberturas']
+} as any;
+
+export const PROMPT_HOSP_P1 = `
+  You are running the HOSPITALARIO phase. Every item you output is hospitalario by definition.
+  ** PHASE: HOSPITALARY 1 (BASIC CARE & SURGERY) **
+  Segment: Día Cama, UTI, Pabellón.
+  Items: 1 - 24.
   ${CHECKLIST_HOSP.substring(CHECKLIST_HOSP.indexOf("**SECCIÓN 1"), CHECKLIST_HOSP.indexOf("**SECCIÓN 4"))}
+  
+  ⚠️ NO CROSS-SCOPE: Do not mention ambulatorio. Do not output items that clearly belong to other sections outside the hospitalario portion.
 `;
 
 export const PROMPT_HOSP_P2 = `
-  ${SHARED_MANDATE}
-  ** SEGMENTO ASIGNADO: HONORARIOS, MEDICAMENTOS, INSUMOS Y ANESTESIA **
-
-  Extrae exactamente las filas 25 a 56 del checklist Hospitalario:
-25 - 32: Honorarios Médicos Quirúrgicos
-33 - 40: Medicamentos
-41 - 48: Materiales e Insumos
-49 - 56: Anestesia
-  
-  ⚠️ RESTRICCIÓN: Solo procesa estos 32 ítems.
+  You are running the HOSPITALARIO phase. Every item you output is hospitalario by definition.
+  ** PHASE: HOSPITALARY 2 (PROFESSIONAL & SUPPLIES) **
+  Segment: Honorarios, Medicamentos, Insumos, Anestesia.
+  Items: 25 - 56.
   ${CHECKLIST_HOSP.substring(CHECKLIST_HOSP.indexOf("**SECCIÓN 4"))}
+
+  ⚠️ NO CROSS-SCOPE: Do not mention ambulatorio.
 `;
 
 export const PROMPT_AMB_P1 = `
-  ${SHARED_MANDATE}
-  ** SEGMENTO ASIGNADO: CONSULTAS Y LABORATORIO **
-
-  Extrae exactamente las filas 1 a 18 del checklist Ambulatorio:
-1 - 4: Consultas
-5 - 18: Laboratorio(Hemograma, Perfil, etc.)
-  
-  ⚠️ RESTRICCIÓN: Solo procesa estos 18 ítems.
+  You are running the AMBULATORIO phase. Every item you output is ambulatorio by definition.
+  ** PHASE: AMBULATORY 1 (CONSULTATIONS & LAB) **
+  Segment: Consultas y Laboratorio.
+  Items: 1 - 18.
   ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 1"), CHECKLIST_AMB.indexOf("**SECCIÓN 3"))}
+
+  ⚠️ NO CROSS-SCOPE: Do not mention hospitalario.
 `;
 
 export const PROMPT_AMB_P2 = `
-  ${SHARED_MANDATE}
-  ** SEGMENTO ASIGNADO: IMAGENOLOGÍA **
-
-  Extrae exactamente las filas 19 a 34 del checklist Ambulatorio:
-  Rayos X, Ecotomografía, TAC, Resonancia, Mamografía, Densitometría, Doppler.
-  
-  ⚠️ RESTRICCIÓN: Solo procesa estos 16 ítems.
+  You are running the AMBULATORIO phase. Every item you output is ambulatorio by definition.
+  ** PHASE: AMBULATORY 2 (IMAGING) **
+  Segment: Imagenología.
+  Items: 19 - 34.
   ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 3"), CHECKLIST_AMB.indexOf("**SECCIÓN 4"))}
+
+  ⚠️ NO CROSS-SCOPE: Do not mention hospitalario.
 `;
 
 export const PROMPT_AMB_P3 = `
-  ${SHARED_MANDATE}
-  ** SEGMENTO ASIGNADO: PROCEDIMIENTOS Y TERAPIAS **
-
-  Extrae exactamente las filas 35 a 54 del checklist Ambulatorio:
-  Procedimientos Diagnósticos / Terapéuticos, Endoscopía, Colonoscopía, Biopsia, Electro, Kine, Fono, TO, Nutri.
-  
-  ⚠️ RESTRICCIÓN: Solo procesa estos 20 ítems.
+  You are running the AMBULATORIO phase. Every item you output is ambulatorio by definition.
+  ** PHASE: AMBULATORY 3 (PROCEDURES & THERAPIES) **
+  Segment: Procedimientos y Terapias.
+  Items: 35 - 54.
   ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 4"), CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
+
+  ⚠️ NO CROSS-SCOPE: Do not mention hospitalario.
 `;
 
 export const PROMPT_AMB_P4 = `
-  ${SHARED_MANDATE}
-  ** SEGMENTO ASIGNADO: URGENCIAS, SALUD MENTAL, DENTAL Y ÓPTICA **
-
-  Extrae exactamente las filas 55 a 70 del checklist Ambulatorio:
-Urgencias, Psiquiatría, Psicología, PAD Dental, Lentes, Audífonos, Prótesis.
-  
-  ⚠️ RESTRICCIÓN: Solo procesa estos 16 ítems.
+  You are running the AMBULATORIO phase. Every item you output is ambulatorio by definition.
+  ** PHASE: AMBULATORY 4 (URGENCY & SPECIALTIES) **
+  Segment: Urgencias, Salud Mental, Dental, Óptica.
+  Items: 55 - 70.
   ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
+
+  ⚠️ NO CROSS-SCOPE: Do not mention hospitalario.
 `;
 
 export const PROMPT_ANEXOS_P1 = `
@@ -513,6 +567,11 @@ export const SCHEMA_PROYECCION_JSON = {
         type: SchemaType.OBJECT,
         properties: {
           seccion: { type: SchemaType.STRING },
+          ambito: {
+            type: SchemaType.STRING,
+            enum: ["HOSPITALARIO", "AMBULATORIO"],
+            description: "Determine if this item is Inpatient (HOSPITALARIO) or Outpatient (AMBULATORIO)"
+          },
           item: { type: SchemaType.STRING },
           preferente: {
             type: SchemaType.OBJECT,
@@ -531,7 +590,7 @@ export const SCHEMA_PROYECCION_JSON = {
           },
           tope_anual_uf: { type: SchemaType.STRING, nullable: true }
         },
-        required: ['seccion', 'item']
+        required: ['seccion', 'ambito', 'item']
       }
     },
     coberturas_internacionales: {
@@ -601,6 +660,12 @@ export const PROMPT_PROYECCION_JSON = `
      - Examples: "PRESTACIONES HOSPITALARIAS", "PRESTACIONES RESTRINGIDAS", "ANEXO DE COBERTURA".
      - ** SUB-ITEMS **: Indented lines or normal case text below a header belong to that section.
      - ** ALWAYS ** use the exact UPPERCASE text as the 'seccion' or 'categoria' field in the JSON. Do not normalize or lower-case it. This determines the visual grouping in the UI.
+
+    7. ** AMBITO DETECTION (HOSPITALARIO vs AMBULATORIO) **:
+      - For EACH item, determine if it belongs to the HOSPITALARIO or AMBULATORIO scope.
+      - ** HOSPITALARIO **: Items under headers like "HOSPITALARIAS", "QUIRURGICAS", "MATERNIDAD", or if the item is inherently inpatient (e.g., "Día Cama", "Pabellón", "Insumos de Cirugía").
+      - ** AMBULATORIO **: Items under headers like "AMBULATORIAS", "CONSULTAS", "EXAMENES", "RADIOLOGIA", or inpatient-independent services.
+      - ** IMPORTANT **: If an item is in a generic section like "PRESTACIONES RESTRINGIDAS" or "ANEXOS", use the nature of the item or surrounding headers to decide. When in doubt for surgeries, use HOSPITALARIO.
 
   OUTPUT FORMAT: JSON Strict according to the provided schema.
 `;
