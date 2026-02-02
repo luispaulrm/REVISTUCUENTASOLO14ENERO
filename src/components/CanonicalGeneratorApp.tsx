@@ -294,10 +294,11 @@ export default function CanonicalGeneratorApp() {
             const data = await res.json();
             if (data.success) {
                 addLog(`[SISTEMA] 🗑️ Memoria borrada. ${data.deletedCount} registros eliminados.`);
-                localStorage.removeItem('canonical_contract_result'); // Fix: Explicitly remove persistent state
+                localStorage.removeItem('canonical_contract_result');
                 setStatus(AppStatus.IDLE);
-                setContractCount(0);
+                setContractCount(0); // This UI update should now match backend persistence
                 setCanonicalResult(null);
+                setLearned(false); // Reset learning indicator
             }
         } catch (err) {
             console.error('Error clearing cache:', err);

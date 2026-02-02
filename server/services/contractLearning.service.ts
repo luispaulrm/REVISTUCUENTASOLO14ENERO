@@ -118,3 +118,15 @@ export async function learnFromContract(result: any) { return loadDictionary(); 
 export async function registerProcessedContract(fingerprint: string) { return 0; }
 export function getContractCount() { return 0; }
 export function applySynonyms(term: string) { return term; }
+
+/**
+ * Resets the processed contracts counter (but keeps training examples).
+ */
+export function resetLearningMemory(): number {
+    const dict = loadDictionary();
+    dict.processedContracts = [];
+    dict.lastUpdated = new Date().toISOString();
+    fs.writeFileSync(DICTIONARY_PATH, JSON.stringify(dict, null, 2));
+    console.log('[LEARNING] Memory reset. Counter set to 0.');
+    return 0;
+}

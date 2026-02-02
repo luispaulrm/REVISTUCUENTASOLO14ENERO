@@ -189,7 +189,11 @@ app.post('/api/contracts/clear-cache', async (req, res) => {
     console.log('[CACHE] Clearing contract cache...');
     try {
         const { ContractCacheService } = await import('./services/contractCache.service.js');
+        const { resetLearningMemory } = await import('./services/contractLearning.service.js'); // New Import logic
+
         const count = await ContractCacheService.clearAll();
+        resetLearningMemory(); // Reset counter
+
         res.json({ success: true, deletedCount: count });
     } catch (err: any) {
         console.error('[CACHE] Error clearing cache:', err);
