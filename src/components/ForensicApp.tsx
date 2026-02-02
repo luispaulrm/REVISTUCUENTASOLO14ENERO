@@ -396,6 +396,7 @@ export default function ForensicApp() {
         localStorage.removeItem('clinic_audit_file_fingerprint');
         setHasBill(false);
         setAuditResult(null);
+        setPreCheckResult(null); // Fix: Clear pre-check result
         setStatus('IDLE');
         setLogs([]);
         addLog('[SISTEMA] 🗑️ Cuenta Clínica eliminada de caché. Resultado de auditoría invalidado.');
@@ -406,6 +407,7 @@ export default function ForensicApp() {
         localStorage.removeItem('pam_audit_file_fingerprint');
         setHasPam(false);
         setAuditResult(null);
+        setPreCheckResult(null); // Fix: Clear pre-check result
         setStatus('IDLE');
         setLogs([]);
         addLog('[SISTEMA] 🗑️ PAM eliminado de caché. Resultado de auditoría invalidado.');
@@ -416,6 +418,7 @@ export default function ForensicApp() {
         localStorage.removeItem('contract_audit_file_fingerprint');
         setHasContract(false);
         setAuditResult(null);
+        setPreCheckResult(null); // Fix: Clear pre-check result
         setStatus('IDLE');
         setLogs([]);
         addLog('[SISTEMA] 🗑️ Reglas de Contrato eliminadas de caché. Resultado de auditoría invalidado.');
@@ -425,6 +428,7 @@ export default function ForensicApp() {
         localStorage.removeItem('canonical_contract_result');
         setHasCanonical(false);
         setAuditResult(null);
+        setPreCheckResult(null); // Fix: Clear pre-check result
         setStatus('IDLE');
         setLogs([]);
         addLog('[SISTEMA] 🗑️ Contrato Canónico eliminado de caché. Resultado de auditoría invalidado.');
@@ -434,6 +438,7 @@ export default function ForensicApp() {
         localStorage.removeItem('html_projection_result');
         setHasHtml(false);
         setAuditResult(null);
+        setPreCheckResult(null); // Fix: Clear pre-check result
         setStatus('IDLE');
         setLogs([]);
         addLog('[SISTEMA] 🗑️ Proyección HTML eliminada de caché. Resultado de auditoría invalidado.');
@@ -463,6 +468,9 @@ export default function ForensicApp() {
         checkData();
         setShowHistory(false);
         addLog(`[SISTEMA] 🔄 Caso restaurado: ${c.patientName || 'Sin Nombre'}`);
+        // Reset results to force re-evaluation if needed, or just clear pre-check to be safe
+        setPreCheckResult(null);
+        setAuditResult(null); // Optional: clear previous result to force user to re-run audit on restored data
     };
 
     const createNewCase = () => {
@@ -475,6 +483,10 @@ export default function ForensicApp() {
         localStorage.removeItem('pam_audit_file_fingerprint');
         localStorage.removeItem('contract_audit_file_fingerprint');
         checkData();
+        setAuditResult(null);
+        setPreCheckResult(null);
+        setLogs([]);
+        setStatus('IDLE');
         addLog('[SISTEMA] 🆕 Iniciando nuevo caso vacío.');
     };
 
