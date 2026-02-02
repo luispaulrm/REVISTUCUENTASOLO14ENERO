@@ -669,7 +669,7 @@
     {
       "id": "P_dfb00a79_c6de828a_H_INCUMPLIMIENTO_CONTRACTUAL",
       "createdAt": "",
-      "updatedAt": "2026-02-01T19:23:20.973Z",
+      "updatedAt": "2026-02-02T00:13:55.223Z",
       "contractFingerprint": "dfb00a7925b943ba148bef73bc10d0ad495dcd2d",
       "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
       "decision": {
@@ -693,7 +693,7 @@
     {
       "id": "P_dfb00a79_b8314402_H_INCUMPLIMIENTO_CONTRACTUAL",
       "createdAt": "",
-      "updatedAt": "2026-02-01T19:23:21.072Z",
+      "updatedAt": "2026-02-02T00:13:55.346Z",
       "contractFingerprint": "dfb00a7925b943ba148bef73bc10d0ad495dcd2d",
       "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
       "decision": {
@@ -717,7 +717,7 @@
     {
       "id": "P_dfb00a79_fcf86a74_H_INCUMPLIMIENTO_CONTRACTUAL",
       "createdAt": "",
-      "updatedAt": "2026-02-01T19:23:20.978Z",
+      "updatedAt": "2026-02-02T00:13:55.232Z",
       "contractFingerprint": "dfb00a7925b943ba148bef73bc10d0ad495dcd2d",
       "factFingerprint": "fcf86a74b7673f1f948717bc212f7a375bef9b59",
       "decision": {
@@ -741,7 +741,7 @@
     {
       "id": "P_dfb00a79_b8314402_H_UNBUNDLING_IF319",
       "createdAt": "",
-      "updatedAt": "2026-02-01T19:23:21.025Z",
+      "updatedAt": "2026-02-02T00:13:55.309Z",
       "contractFingerprint": "dfb00a7925b943ba148bef73bc10d0ad495dcd2d",
       "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
       "decision": {
@@ -765,7 +765,7 @@
     {
       "id": "P_dfb00a79_0eceb786_H_PRACTICA_IRREGULAR",
       "createdAt": "",
-      "updatedAt": "2026-02-01T19:23:21.075Z",
+      "updatedAt": "2026-02-02T00:13:55.349Z",
       "contractFingerprint": "dfb00a7925b943ba148bef73bc10d0ad495dcd2d",
       "factFingerprint": "0eceb786136872c2302bbbd3ce4f3f7e869e41f4",
       "decision": {
@@ -774,7 +774,7 @@
         "recomendacion": "SOLICITAR_ACLARACION",
         "confidence": 0.85
       },
-      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona el cobro de una serie de ítems agrupados bajo la categoría 'NO ARANCELADOS' en la cuenta clínica y PAM, por un monto total de copago de $129.930.\n\n**II. Contexto clínico y administrativo**\nEstos cobros se generan en el contexto de una intervención quirúrgica (Rizotomía), donde la clínica factura por separado elementos de uso administrativo y clínico básico.\n\n**III. Norma contractual aplicable**\nLa normativa de salud y los principios generales de facturación clínica establecen que los gastos de administración (lápices, formularios) y los insumos básicos de pabellón (ropa estéril, bandejas reutilizables) están incluidos en los derechos de pabellón o en los gastos generales del prestador.\n\n**IV. Forma en que se materializa la controversia**\nSe observa **Unbundling** y **Cobro de Gastos Administrativos**. Ítems como 'LAPIZ NO ARANCELADO' ($4.790) y 'CUADRO CLINICO' ($3.820) son insumos de oficina, no prestaciones médicas. Ítems como 'PAQUETE ROPA' ($54.320) y 'BANDEJA' ($10.580) son componentes estructurales del servicio de pabellón ya cobrado.\n\n**V. Análisis técnico-contractual**\nLa imputación es improcedente. El paciente no debe financiar los útiles de escritorio del personal de salud ni la ropa estéril que es inherente al funcionamiento de un quirófano estéril. La Isapre aplicó bonificación $0, trasladando el 100% del costo al afiliado, lo cual valida la naturaleza 'no cobertura' pero no legitima el cobro por parte del prestador.\n\n**VI. Efecto económico concreto**\nEl afiliado asume un copago indebido de $129.930 por conceptos que no constituyen prestaciones de salud cobrables o que ya están pagados en otros códigos.\n\n**VII. Conclusión de la impugnación**\nSe impugna el 100% de estos cobros por carecer de causa médica legítima facturable al paciente.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen | Descripción Ítem | Cant | Total |\n| :--- | :--- | :---: | :---: |\n| NO ARANCELADOS | PAQUETE ROPA NO ARANCELADO | 1 | $54.320 |\n| NO ARANCELADOS | BANDEJA NO ARANCELADO | 1 | $10.580 |\n| NO ARANCELADOS | COMPRESA NO ARANCELADO | 1 | $10.580 |\n| NO ARANCELADOS | ESPONJA NO ARANCELADO | 1 | $8.020 |\n| NO ARANCELADOS | RIÑONERA NO ARANCELADO | 1 | $7.710 |\n| NO ARANCELADOS | CALCETA NO ARANCELADO | 1 | $7.490 |\n| NO ARANCELADOS | BOLSA NO ARANCELADO | 1 | $5.930 |\n| NO ARANCELADOS | LAPIZ NO ARANCELADO | 1 | $4.790 |\n| NO ARANCELADOS | CUADRO CLINICO NO ARANCELADO | 1 | $3.820 |\n| NO ARANCELADOS | MASCARILLA NO ARANCELADO | 1 | $3.730 |\n| NO ARANCELADOS | APOSITO NO ARANCELADO (x2) | 2 | $3.540 |\n| NO ARANCELADOS | SACHET NO ARANCELADO | 1 | $2.190 |\n| NO ARANCELADOS | ELECTRODO NO ARANCELADO | 1 | $1.830 |\n| NO ARANCELADOS | COPELA DESECHABLE | 1 | $1.510 |\n| NO ARANCELADOS | APOSITO NO ARANCELADO | 1 | $1.330 |\n| NO ARANCELADOS | APOSITO NO ARANCELADO | 1 | $680 |\n| NO ARANCELADOS | RIÑON NO ARANCELADO | 1 | $610 |\n| NO ARANCELADOS | ELECTRODO NO ARANCELADO | 1 | $610 |\n| NO ARANCELADOS | PARCHE CURITA NO ARANCELADO | 1 | $420 |\n| NO ARANCELADOS | AGUJA NO ARANCELADO | 1 | $180 |\n| NO ARANCELADOS | ALCOHOL NO ARANCELADO | 1 | $60 |\n| **TOTAL** | **SUMA EXACTA** | | **$129.930** |",
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona el cobro de múltiples ítems bajo la categoría 'NO ARANCELADOS' (Bandeja, Ropa, Esponja, Lápiz, etc.) por un monto total de $129.930, cargados íntegramente al copago del afiliado.\n\n**II. Contexto clínico y administrativo**\nEstos cobros se generan en el contexto de una intervención quirúrgica (Rizotomía) donde ya se ha facturado y pagado el ítem 'Derecho de Pabellón'.\n\n**III. Norma contractual aplicable**\nSegún la normativa técnica y la práctica contractual estándar (Circular IF/319), el 'Derecho de Pabellón' es una prestación integral que incluye el uso de instalaciones, equipamiento básico, ropa estéril, instrumental y fungibles generales necesarios para el acto quirúrgico.\n\n**IV. Forma en que se materializa la controversia**\nEl prestador ha incurrido en **Unbundling (Fragmentación)**, separando artificialmente elementos que son constitutivos del derecho de pabellón para cobrarlos aparte. Ítems como 'Lápiz', 'Paquete Ropa' o 'Esponja' son insumos de funcionamiento básico, no prestaciones individuales.\n\n**V. Análisis técnico-contractual**\nLa Isapre aplicó una bonificación de $0 a estos ítems, lo que indica que no los reconoce como prestaciones coberturables autónomas. Sin embargo, el costo fue traspasado al paciente, lo cual es improcedente ya que el paciente ya pagó por el servicio de pabellón que debe proveer estos insumos.\n\n**VI. Efecto económico concreto**\nEl afiliado asumió un copago indebido de $129.930.\n\n**VII. Conclusión de la impugnación**\nSe concluye que estos cobros son duplicados e improcedentes. Se solicita la anulación de estos cargos.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen | Cód | Ítem Individual | Cant | P. Unit | Total |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| NO ARANCELADOS | 8002001 | PAQUETE ROPA NO ARANCELADO | 1 | $54.320 | $54.320 |\n| NO ARANCELADOS | 8002001 | BANDEJA NO ARANCELADO | 1 | $10.580 | $10.580 |\n| NO ARANCELADOS | 8002001 | COMPRESA NO ARANCELADO | 1 | $10.580 | $10.580 |\n| NO ARANCELADOS | 8002001 | ESPONJA NO ARANCELADO | 1 | $8.020 | $8.020 |\n| NO ARANCELADOS | 8002001 | RIÑONERA NO ARANCELADO | 1 | $7.710 | $7.710 |\n| NO ARANCELADOS | 8002001 | CALCETA NO ARANCELADO | 1 | $7.490 | $7.490 |\n| NO ARANCELADOS | 8002001 | BOLSA NO ARANCELADO | 1 | $5.930 | $5.930 |\n| NO ARANCELADOS | 8002001 | LAPIZ NO ARANCELADO | 1 | $4.790 | $4.790 |\n| NO ARANCELADOS | 8002001 | CUADRO CLINICO NO ARANCELADO | 1 | $3.820 | $3.820 |\n| NO ARANCELADOS | 8002001 | MASCARILLA NO ARANCELADO | 1 | $3.730 | $3.730 |\n| NO ARANCELADOS | 8002001 | APOSITO NO ARANCELADO (x2) | 2 | $1.770 | $3.540 |\n| NO ARANCELADOS | 8002001 | SACHET NO ARANCELADO | 1 | $2.190 | $2.190 |\n| NO ARANCELADOS | 8002001 | ELECTRODO NO ARANCELADO | 1 | $1.830 | $1.830 |\n| NO ARANCELADOS | 8002001 | COPELA DESECHABLE | 1 | $1.510 | $1.510 |\n| NO ARANCELADOS | 8002001 | APOSITO NO ARANCELADO | 1 | $1.330 | $1.330 |\n| NO ARANCELADOS | 8002001 | APOSITO NO ARANCELADO | 1 | $680 | $680 |\n| NO ARANCELADOS | 8002001 | ELECTRODO NO ARANCELADO | 1 | $610 | $610 |\n| NO ARANCELADOS | 8002001 | RIÑON NO ARANCELADO | 1 | $610 | $610 |\n| NO ARANCELADOS | 8002001 | PARCHE CURITA NO ARANCELADO | 1 | $420 | $420 |\n| NO ARANCELADOS | 8002001 | AGUJA NO ARANCELADO | 1 | $180 | $180 |\n| NO ARANCELADOS | 8002001 | ALCOHOL NO ARANCELADO | 1 | $60 | $60 |\n| **TOTAL** | | **SUMA EXACTA** | | | **$129.930** |",
       "tags": [
         "H_PRACTICA_IRREGULAR"
       ],
@@ -789,7 +789,7 @@
     {
       "id": "P_dfb00a79_c6de828a_H_PRACTICA_IRREGULAR",
       "createdAt": "",
-      "updatedAt": "2026-02-01T19:05:33.135Z",
+      "updatedAt": "2026-02-02T00:13:55.353Z",
       "contractFingerprint": "dfb00a7925b943ba148bef73bc10d0ad495dcd2d",
       "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
       "decision": {
@@ -798,7 +798,309 @@
         "recomendacion": "SOLICITAR_ACLARACION",
         "confidence": 0.85
       },
-      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestionan los ítems de medicamentos hospitalarios asociados a los pabellones 9 y 7, que suman un copago de $13.946.\n\n**II. Contexto clínico y administrativo**\nCorresponden a fármacos suministrados durante la cirugía.\n\n**III. Norma contractual aplicable**\nLey 20.584 sobre transparencia en la cuenta.\n\n**IV. Forma en que se materializa la controversia**\n**Opacidad**. Al igual que los materiales, se presentan como montos globales sin detallar qué fármacos (nombre, dosis) fueron administrados. Esto impide verificar si se trata de fármacos incluidos en el derecho de pabellón (anestésicos básicos) o fármacos extras válidos.\n\n**V. Análisis técnico-contractual**\nSin el detalle, no se puede descartar la duplicidad de cobro con los honorarios del anestesista o el derecho de pabellón.\n\n**VI. Efecto económico concreto**\nCopago bajo controversia de **$13.946**.\n\n**VII. Conclusión de la impugnación**\nSe solicita desglose para validar la pertinencia del cobro.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen | Cód | Ítem Individual | Cant | P. Unit | Total |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| HOTELERIA | 9001009 | MEDICAMENTOS PABELLON 9 | 1 | $76.053 | $76.053 |\n| HOTELERIA | 9001007 | MEDICAMENTOS PABELLON 7 | 1 | $63.407 | $63.407 |\n| **TOTAL** | | **SUMA TOTAL** | | | **$139.460** |",
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestionan los cobros por 'MEDICAMENTOS POR HOSPITALIZACION' asociados a los pabellones 9 y 7, generando un copago sumado de $13.946.\n\n**II. Contexto clínico y administrativo**\nCorresponden a fármacos supuestamente suministrados durante la cirugía.\n\n**III. Norma contractual aplicable**\nDerecho a cuenta detallada (Ley 20.584).\n\n**IV. Forma en que se materializa la controversia**\nFalta de desglose. No se detallan los fármacos, dosis ni precios unitarios.\n\n**V. Análisis técnico-contractual**\nAunque la cobertura aplicada es alta (~90%), la falta de trazabilidad impide validar si estos medicamentos no están duplicados con el paquete de anestesia o pabellón.\n\n**VI. Efecto económico concreto**\nCopago bajo controversia: $13.946.\n\n**VII. Conclusión de la impugnación**\nSe solicita desglose para validación final.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen | Cód | Ítem Individual | Total |\n| :--- | :--- | :--- | :---: |\n| HOTELERIA | 9001009 | MEDICAMENTOS PABELLON 9 | $76.053 |\n| HOTELERIA | 9001007 | MEDICAMENTOS PABELLON 7 | $63.407 |\n| **TOTAL** | | **MONTO BASE** | **$139.460** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_8a19cf9f_COPAGO_POS",
+      "createdAt": "",
+      "updatedAt": "2026-02-02T00:23:17.166Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "8a19cf9fad0f0d56987af65ec03ccfd7aaec326d",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente autom�tico: MEDICAMENTOS POR HOSPITALIZACION PABELLON 7 ",
+      "tags": [
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "MED_OR_INS",
+        "ES_MED_HOSP",
+        "COV_EXPLICIT"
+      ],
+      "guards": {
+        "requires": [
+          "MED_OR_INS",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: SIN_CODIGO"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_fad87c86_COPAGO_POS",
+      "createdAt": "2026-02-02T00:23:17.174Z",
+      "updatedAt": "2026-02-02T00:23:17.174Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "fad87c8675ba2c89d1a8ecc719591ee0e57ab0db",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.9
+      },
+      "rationale": "Precedente autom�tico: DIA CAMA DE HOSPITALIZACION INTEGRAL DE OBSER ",
+      "tags": [
+        "COPAGO_POS",
+        "ES_HOTELERIA",
+        "HOTELERIA_INDIVIDUALIZADA",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS"
+      ],
+      "guards": {
+        "requires": [
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: SIN_CODIGO"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_58f0733a_COPAGO_POS",
+      "createdAt": "2026-02-02T00:23:17.188Z",
+      "updatedAt": "2026-02-02T00:23:17.188Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "58f0733aefac06f9947fee60e8d7341e3a461bb6",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente autom�tico: MATERIALES CLINICOS ",
+      "tags": [
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS",
+        "IC_BREACH"
+      ],
+      "guards": {
+        "requires": [
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: SIN_CODIGO"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_48df9d23_BONIF_0",
+      "createdAt": "",
+      "updatedAt": "2026-02-02T00:23:17.226Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "48df9d2338a6ccf04ef637e30a58f53143547d73",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.95
+      },
+      "rationale": "Precedente autom�tico: PAQUETE ROPA NO ARANCELADO ",
+      "tags": [
+        "BONIF_0",
+        "COPAGO_POS",
+        "INHERENTLY_INCLUDED",
+        "ES_HOTELERIA",
+        "HOTELERIA_INDIVIDUALIZADA"
+      ],
+      "guards": {
+        "requires": [
+          "BONIF_0",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: SIN_CODIGO"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_c6de828a_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-02-02T03:17:49.130Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_b8314402_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-02-02T03:17:49.475Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C05] Indeterminación real. Contrato, literatura y cuenta no permiten clasificar la prestación. Se aplica Ley 20.584 como norma de cierre (Cat Z).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_fcf86a74_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-02-02T03:17:49.166Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "fcf86a74b7673f1f948717bc212f7a375bef9b59",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_b8314402_H_UNBUNDLING_IF319",
+      "createdAt": "",
+      "updatedAt": "2026-02-02T03:17:49.375Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C02] Prestación inherente a un cargo principal ya bonificado (día cama/pabellón). Su cobro por separado constituye unbundling según circular IF/319 y literatura clínica (Cat A).",
+      "tags": [
+        "H_UNBUNDLING_IF319"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_0eceb786_H_PRACTICA_IRREGULAR",
+      "createdAt": "",
+      "updatedAt": "2026-02-02T03:17:49.493Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "0eceb786136872c2302bbbd3ce4f3f7e869e41f4",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona el cobro de 21 ítems rotulados como 'NO ARANCELADO' (Bandejas, Ropa, Lápices, Esponjas, etc.) por un total de $129.930, cargados íntegramente al copago del afiliado (Bonificación $0).\n\n**II. Contexto clínico y administrativo**\nEstos insumos fueron utilizados durante la cirugía de Rizotomía, evento por el cual ya se facturó y pagó el ítem 'Derecho de Pabellón' (cód. 1103057).\n\n**III. Norma contractual aplicable**\nLa normativa técnica de conformación del arancel (Fonasa/Isapre) establece que el 'Derecho de Pabellón' es una prestación integral que incluye el uso de instalaciones, ropa estéril, instrumental básico e insumos generales de enfermería.\n\n**IV. Forma en que se materializa la controversia**\nEl prestador ha incurrido en **Unbundling (Fragmentación)**, desagregando elementos constitutivos del pabellón para cobrarlos aparte. Al etiquetarlos como 'No Arancelado', evade la cobertura del plan y traslada el 100% del costo al paciente.\n\n**V. Análisis técnico-contractual**\nÍtems como 'Lápiz', 'Paquete Ropa', 'Riñonera' o 'Esponja' son insumos fungibles básicos inherentes al acto quirúrgico. No existe justificación técnica para su cobro individualizado fuera del paquete de pabellón.\n\n**VI. Efecto económico concreto**\nEl afiliado está pagando $129.930 adicionales de forma indebida por servicios ya cubiertos en el cobro principal.\n\n**VII. Conclusión de la impugnación**\nSe impugna el 100% de estos cobros por constituir duplicidad de cobro (Doble facturación de componentes del pabellón).\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen (Cuenta) | Cód | Ítem Individual (Detalle) | Cant | P. Unit | Total |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| RIZOTOMIA | 8002001 | PAQUETE ROPA NO ARANCELADO | 1 | $54.320 | $54.320 |\n| RIZOTOMIA | 8002001 | BANDEJA NO ARANCELADO | 1 | $10.580 | $10.580 |\n| RIZOTOMIA | 8002001 | COMPRESA NO ARANCELADO | 1 | $10.580 | $10.580 |\n| RIZOTOMIA | 8002001 | ESPONJA NO ARANCELADO | 1 | $8.020 | $8.020 |\n| RIZOTOMIA | 8002001 | RIÑONERA NO ARANCELADO | 1 | $7.710 | $7.710 |\n| RIZOTOMIA | 8002001 | CALCETA NO ARANCELADO | 1 | $7.490 | $7.490 |\n| RIZOTOMIA | 8002001 | BOLSA NO ARANCELADO | 1 | $5.930 | $5.930 |\n| RIZOTOMIA | 8002001 | LAPIZ NO ARANCELADO | 1 | $4.790 | $4.790 |\n| RIZOTOMIA | 8002001 | CUADRO CLINICO NO ARANCELADO | 1 | $3.820 | $3.820 |\n| RIZOTOMIA | 8002001 | MASCARILLA NO ARANCELADO | 1 | $3.730 | $3.730 |\n| RIZOTOMIA | 8002001 | APOSITO NO ARANCELADO (x2) | 2 | $1.770 | $3.540 |\n| RIZOTOMIA | 8002001 | SACHET NO ARANCELADO | 1 | $2.190 | $2.190 |\n| RIZOTOMIA | 8002001 | ELECTRODO NO ARANCELADO | 1 | $1.830 | $1.830 |\n| RIZOTOMIA | 8002001 | COPELA DESECHABLE NO ARANCELADO | 1 | $1.510 | $1.510 |\n| RIZOTOMIA | 8002001 | APOSITO NO ARANCELADO | 1 | $1.330 | $1.330 |\n| RIZOTOMIA | 8002001 | APOSITO NO ARANCELADO | 1 | $680 | $680 |\n| RIZOTOMIA | 8002001 | RIÑON NO ARANCELADO | 1 | $610 | $610 |\n| RIZOTOMIA | 8002001 | ELECTRODO NO ARANCELADO | 1 | $610 | $610 |\n| RIZOTOMIA | 8002001 | PARCHE CURITA NO ARANCELADO | 1 | $420 | $420 |\n| RIZOTOMIA | 8002001 | AGUJA NO ARANCELADO | 1 | $180 | $180 |\n| RIZOTOMIA | 8002001 | ALCOHOL NO ARANCELADO | 1 | $60 | $60 |\n| **TOTAL** | | **SUMA COBROS INDEBIDOS** | | | **$129.930** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_fcf86a74_H_PRACTICA_IRREGULAR",
+      "createdAt": "2026-02-02T01:03:15.165Z",
+      "updatedAt": "2026-02-02T01:03:15.165Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "fcf86a74b7673f1f948717bc212f7a375bef9b59",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona el ítem 'MATERIALES CLINICOS' facturado por un monto total de $2.695.110 (Cuenta) generando un copago de $1.124.427 (PAM).\n\n**II. Contexto clínico y administrativo**\nEste cobro representa el mayor costo de insumos del evento, pero se presenta en una línea única.\n\n**III. Norma contractual aplicable**\nLa Ley 20.584 (Derechos y Deberes del Paciente) exige que la cuenta sea detallada y comprensible. El contrato de salud cubre materiales, pero sujeto a topes y exclusiones que requieren identificación individual.\n\n**IV. Forma en que se materializa la controversia**\nExiste **OPACIDAD ESTRUCTURAL**. La agrupación de más de 2.6 millones de pesos en una sola línea impide verificar qué materiales específicos se usaron. No es posible descartar que aquí se escondan más insumos de pabellón (gasas, suturas) que deberían estar incluidos en el derecho de pabellón, o insumos no bonificables.\n\n**V. Análisis técnico-contractual**\nSin el detalle ítem por ítem (código, descripción, cantidad, precio unitario), el copago es **INDETERMINADO**. La Isapre ha aplicado una cobertura genérica, pero la auditoría no puede validar la legitimidad de la base de cálculo.\n\n**VI. Efecto económico concreto**\nEl afiliado enfrenta un copago de $1.124.427 sobre una 'caja negra'.\n\n**VII. Conclusión de la impugnación**\nSe solicita la suspensión del cobro de este copago hasta que se entregue el desglose detallado para auditoría.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen (Cuenta) | Cód | Descripción Ítem | Cant | P. Unit | Total |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| EXAMENES | 9201001 | MATERIALES CLINICOS | 1 | $2.695.110 | $2.695.110 |\n| **TOTAL** | | **COINCIDE CON PAM (Base)** | | | **$2.695.110** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_8adff1fd_c6de828a_H_PRACTICA_IRREGULAR",
+      "createdAt": "",
+      "updatedAt": "2026-02-02T02:47:23.237Z",
+      "contractFingerprint": "8adff1fdbf22a630353a44ec5f952e219ffe6e7a",
+      "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "### I. Identificación del ítem cuestionado\nSe cuestiona el cobro agrupado de 'MATERIALES CLINICOS' y 'MEDICAMENTOS POR HOSPITALIZACION' que suman un copago de $1.138.373.\n\n### II. Contexto clínico y administrativo\nEstos cargos aparecen en el PAM como líneas únicas de alto valor, asociadas a los pabellones 9 y 7, sin detalle de los productos específicos utilizados.\n\n### III. Norma contractual aplicable\nLa Ley 20.584 (Derechos y Deberes del Paciente) exige que la cuenta sea detallada y comprensible. El contrato de salud cubre materiales 'necesarios', lo cual requiere identificación para su validación.\n\n### IV. Forma en que se materializa la controversia\nExiste una **Opacidad Estructural**. El PAM presenta una 'Caja Negra' de más de 1 millón de pesos en copago. No es posible verificar si se están cobrando insumos de hotelería, si hay sobreprecios (Upcoding) o si se incluyen materiales no utilizados.\n\n### V. Análisis técnico-contractual\nLa falta de trazabilidad impide al auditor certificar la legitimidad de la deuda. Aunque la Isapre bonificó una parte, el copago remanente es incierto por naturaleza.\n\n### VI. Efecto económico concreto\nEl afiliado enfrenta un copago de $1.138.373 sobre una base no auditada.\n\n### VII. Conclusión de la impugnación\nEl monto se declara INDETERMINADO y NO EXIGIBLE hasta que se provea el desglose ítem por ítem.\n\n### VIII. Trazabilidad y Origen del Cobro\n| Folio PAM | Descripción PAM | Bonificación | Copago (Monto) |\n|-----------|-----------------|--------------|----------------|\n| 1986742 | MATERIALES CLINICOS | $1.570.683 | $1.124.427 |\n| 1986742 | MEDICAMENTOS POR HOSPITALIZACION PABELLON 9 | $68.448 | $7.605 |\n| 1986742 | MEDICAMENTOS POR HOSPITALIZACION PABELLON 7 | $57.066 | $6.341 |\n| **TOTAL** | **MONTO BAJO CONTROVERSIA** | | **$1.138.373** |",
       "tags": [
         "H_PRACTICA_IRREGULAR"
       ],
@@ -812,5 +1114,5 @@
     }
   ],
   "version": "1.0.0",
-  "lastUpdated": "2026-02-01T19:23:21.076Z"
+  "lastUpdated": "2026-02-02T03:17:49.493Z"
 }

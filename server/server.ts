@@ -1041,6 +1041,7 @@ app.post('/api/extract', async (req, res) => {
 
         // Re-calculate sum after potential fix
         // EXCLUDE informative sections (PAM) that should not be counted in total
+
         const finalSumOfSections = Array.from(sectionsMap.values())
             .filter((s: any) => {
                 const cat = s.category.toUpperCase();
@@ -1054,6 +1055,81 @@ app.post('/api/extract', async (req, res) => {
             })
             .reduce((acc: number, s: any) => acc + s.sectionTotal, 0);
 
+
+        // --- MANITUDE FIX 2.0 (Heuristic Validation) ---
+        // If final sum is massive (> 100M) and we have standard medical items in the >10M range, 
+        // it's extremely likely we have a 100x inflation (comma read as dot).
+        // Rizotomia is typically 2M, not 205M.
+        let detectedInflation = false;
+        if (finalSumOfSections > 100000000) { // > 100 Million
+            // Check average item price
+            let highValCount = 0;
+            let totalCount = 0;
+            for (const sec of sectionsMap.values()) {
+                for (const item of sec.items) {
+                    totalCount++;
+                    if (item.unitPrice > 10000000) { // > 10 Million
+                        highValCount++;
+                    }
+                }
+            }
+
+            if (totalCount > 0 && (highValCount / totalCount) > 0.1) {
+                detectedInflation = true;
+                console.warn(`[AUDIT] 🚨 DETECTED 100x INFLATION. Correcting values...`);
+
+                for (const sec of sectionsMap.values()) {
+                    for (const item of sec.items) {
+                        item.unitPrice = Math.round(item.unitPrice / 100);
+                        item.total = Math.round(item.total / 100);
+                        item.calculatedTotal = Math.round(item.calculatedTotal / 100);
+                        item.valorIsa = Math.round((item.valorIsa || 0) / 100);
+                        item.bonificacion = Math.round((item.bonificacion || 0) / 100);
+                        item.copago = Math.round((item.copago || 0) / 100);
+                        item.authoritativeTotal = Math.round((item.authoritativeTotal || 0) / 100);
+                    }
+                    sec.sectionTotal = Math.round(sec.sectionTotal / 100);
+                    sec.calculatedSectionTotal = Math.round(sec.calculatedSectionTotal / 100);
+                }
+            }
+        }
+
+
+        // --- NEW: CANONICAL AC2 INFERENCE (STRICT NORM) ---
+        // Rule: AC2 = Bonification / Factor
+        // Anchor: Rizotomia (1103057) -> Factor 1.2
+        let inferredAC2: string | undefined = undefined;
+        try {
+            for (const sec of sectionsMap.values()) {
+                for (const item of sec.items) {
+                    const desc = (item.description || "").toUpperCase();
+                    const code = (item.code || "").toUpperCase();
+
+                    // Check for RIZOTOMIA (1103057)
+                    if ((code === '1103057' || desc.includes('1103057') || desc.includes('RIZOTO')) && item.bonificacion > 0) {
+                        const factor = 1.2; // Canonical Factor for Rizotomia (per User Rule)
+                        const rawAC2 = item.bonificacion / factor;
+
+                        // Validation range (AC2 typical values ~20k - 300k)
+                        if (rawAC2 > 20000 && rawAC2 < 500000) {
+                            // No rounding to "pretty" numbers. Use Math.round to get closest integer peso.
+                            const ac2Value = Math.round(rawAC2);
+                            inferredAC2 = `$${ac2Value.toLocaleString('es-CL')}`;
+                            console.log(`[AUDIT] 🧮 DEDUCCIÓN AC2 (HECHO MATEMÁTICO):`);
+                            console.log(`[AUDIT]   Ancla: ${desc} (${code})`);
+                            console.log(`[AUDIT]   Análisis: Despeje desde aplicación observada del contrato.`);
+                            console.log(`[AUDIT]   Formula: Bonificación $${item.bonificacion.toLocaleString('es-CL')} / Factor ${factor}`);
+                            console.log(`[AUDIT]   Resultado: ${rawAC2.toFixed(4)} => ${inferredAC2}`);
+                        }
+                        break;
+                    }
+                }
+                if (inferredAC2) break;
+            }
+        } catch (e) {
+            console.error('[AUDIT] Error inferring AC2:', e);
+        }
+
         const auditData = {
             clinicName: clinicName,
             patientName: patientName,
@@ -1061,8 +1137,11 @@ app.post('/api/extract', async (req, res) => {
             date: billingDate,
             currency: "CLP",
             sections: Array.from(sectionsMap.values()),
-            clinicStatedTotal: clinicGrandTotalField || finalSumOfSections
+            clinicStatedTotal: detectedInflation ? Math.round((clinicGrandTotalField || finalSumOfSections) / 100) : (clinicGrandTotalField || finalSumOfSections),
+            // INJECT INFERRED AC2 (CANONICAL)
+            valorUnidadReferencia: inferredAC2
         };
+
 
         console.log(`[SUCCESS] Audit data prepared. Sections: ${sectionsMap.size}. Total: ${auditData.clinicStatedTotal}`);
 

@@ -33,7 +33,7 @@ export async function handlePreCheck(req: Request, res: Response) {
         if (eventosHospitalarios.length > 0 && eventosHospitalarios[0].analisis_financiero) {
             const fin = eventosHospitalarios[0].analisis_financiero;
             vd = {
-                tipo: "VA",
+                tipo: fin.unit_type || "VA",
                 valor: fin.valor_unidad_inferido || 0,
                 evidencia: [fin.glosa_tope],
                 cobertura: eventosHospitalarios[0].analisis_financiero.metodo_validacion === 'FACTOR_ESTANDAR' ? 0.7 : 0 // This needs to be better but for now works

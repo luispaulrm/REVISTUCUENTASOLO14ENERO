@@ -43,6 +43,45 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
         </div>
       </div>
 
+      {/* FORENSIC AC2 DISPLAY */}
+      {/* CANONICAL FORENSIC AC2 DISPLAY */}
+      {(() => {
+        const ac2 = data.valorUnidadReferencia || (data as any).valorUnidad;
+        if (!ac2) return null;
+
+        return (
+          <div className="bg-indigo-950 text-white p-5 rounded-2xl shadow-lg border-2 border-indigo-700 relative overflow-hidden group mb-6">
+            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+              <Info size={100} />
+            </div>
+            <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-indigo-600/30 text-indigo-300 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-widest border border-indigo-500/30">
+                    Unidad Privada Contractual Implícita
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-3">
+                  <h3 className="text-3xl font-black tracking-tight">{ac2}</h3>
+                  <span className="text-indigo-400 text-sm font-bold tracking-wider">AC2 (Despejado)</span>
+                </div>
+                <p className="text-indigo-300 text-xs font-medium mt-1 italic max-w-xl leading-relaxed">
+                  "SUPUESTO FORENSE: La bonificación PAM refleja el monto tope aplicado según contrato. Valor obtenido por despeje desde hecho matemático observado."
+                </p>
+              </div>
+              <div className="text-right hidden sm:block shrink-0">
+                <span className="text-[10px] uppercase tracking-widest text-indigo-500 font-bold block mb-1">Norma de Cálculo</span>
+                <p className="text-sm font-bold text-white bg-indigo-900/50 px-3 py-1 rounded border border-indigo-800">
+                  $PAM / 1.2 (Rizotomía)
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+
+
       <div className="space-y-4">
         {(data.sections || []).map((section, sIdx) => {
           const diff = section.sectionTotal - section.calculatedSectionTotal;

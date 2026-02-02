@@ -751,6 +751,22 @@ export default function ForensicApp() {
                                                 </div>
                                                 <p className="text-[8px] text-slate-400 mt-1 uppercase font-bold tracking-tighter">Gap Técnico / No Verificable</p>
                                             </div>
+
+                                            {/* VALOR UNIDAD REFERENCIA (AC2/VAM) */}
+                                            {auditResult.valorUnidadReferencia && (
+                                                <div className="bg-indigo-50 p-5 sm:p-6 rounded-2xl text-indigo-900 min-w-[220px] border border-indigo-200 shadow-sm relative overflow-hidden group">
+                                                    <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                                                        <Calculator size={40} className="text-indigo-500" />
+                                                    </div>
+                                                    <p className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                        <Calculator size={12} /> Deducción Forense (AC2)
+                                                    </p>
+                                                    <div className="text-xl sm:text-2xl font-black text-indigo-700">
+                                                        {auditResult.valorUnidadReferencia}
+                                                    </div>
+                                                    <p className="text-[8px] text-indigo-400 mt-1 uppercase font-bold tracking-tighter">Unidad de Referencia Inferida</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
 

@@ -33,9 +33,46 @@ export function AuditTablesSection(props: {
                 </div>
             )}
 
+
+            {props.audit.valorUnidadReferencia && (
+                <div style={{
+                    backgroundColor: "#e0e7ff",
+                    border: "1px solid #4f46e5",
+                    borderRadius: "8px",
+                    padding: "16px",
+                    marginBottom: "24px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px"
+                }}>
+                    <div style={{
+                        backgroundColor: "#4f46e5",
+                        color: "white",
+                        borderRadius: "50%",
+                        width: "32px",
+                        height: "32px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: "bold"
+                    }}>
+                        ⚖️
+                    </div>
+                    <div>
+                        <div style={{ fontSize: "12px", color: "#4338ca", fontWeight: "bold", textTransform: "uppercase" }}>
+                            Deducción Forense (RTC NORM)
+                        </div>
+                        <div style={{ fontSize: "20px", fontWeight: "bold", color: "#312e81" }}>
+                            {props.audit.valorUnidadReferencia}
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {(tables || []).map((t) => (
                 <TableView key={t.id} table={t} />
             ))}
         </div>
     );
 }
+

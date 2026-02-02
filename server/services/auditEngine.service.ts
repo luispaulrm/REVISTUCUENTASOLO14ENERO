@@ -105,6 +105,9 @@ export function resolveDecision(params: {
         amount: Number.isFinite(f.amount) ? Math.max(0, Math.round(f.amount)) : 0
     }));
 
+    // 1.5) FAMILY NETTING (Moved to finalizeAuditCanonical)
+    // The input 'findings' here are already netted by netFindingsFamilies.
+
     const rawA = sum(norm.filter(f => f.category === "A").map(x => x.amount));
     const rawB = sum(norm.filter(f => f.category === "B").map(x => x.amount));
     const rawZ = sum(norm.filter(f => f.category === "Z" || f.category === "K").map(x => x.amount));
@@ -134,11 +137,14 @@ export function resolveDecision(params: {
     const resOK = Math.max(0, T - (resA + resB + resZ));
 
     // 3) Invariants (A+B+Z+OK must exactly equal T)
-    const finalTotal = resA + resB + resZ + resOK;
+    const finalTotal = Math.round(resA + resB + resZ + resOK);
     const invariantsOk = Math.abs(finalTotal - T) < 10;
     if (!invariantsOk) {
         errors.push(`FALLO_CRITICO_INVARIANTE: A+B+Z+OK=${finalTotal} != T=${T}.`);
     }
+
+    const hasSignificantOverlap = (rawA + rawB + rawZ > T * 1.5); // Serious double counting warning
+    const hasConflict = (rawA + rawB + rawZ > T + 10);
 
     // 4) Señales y Estado Global
     const V = Math.min(1, sum(violations.map(v => v.severity)) / Math.max(1, violations.length));
@@ -148,7 +154,6 @@ export function resolveDecision(params: {
     const opacidad = resZ / Math.max(1, T);
 
     let estado = "VALIDADO";
-    const hasConflict = (rawA + rawB + rawZ > T + 10);
 
     // Forensic Unit Extraction
     const eventWithFinance = (params.eventos || []).find((e: any) => e.analisis_financiero && (e.analisis_financiero.valor_unidad_inferido || e.analisis_financiero.valor_unitario_plan));
@@ -160,13 +165,20 @@ export function resolveDecision(params: {
         valorUnidadStr = `$${val.toLocaleString('es-CL')} (Valor Unidad / ${unit} - RTC NORM)`;
     }
 
-    // Global State Hierarchy
-    if (hasConflict) {
-        estado = "CONFLICTO_DE_EXTRACCION_O_DOBLE_CONTEO";
-    } else if (resA > 0) {
+    // Global State Hierarchy (V6 - Force definitive answers when math is resolved)
+    if (resA > 0) {
+        // Even with conflict, if we have Cat A, we have a breach.
         estado = resZ > 0 ? "COPAGO_MIXTO_CONFIRMADO_Y_OPACO" : "COPAGO_OBJETABLE_CONFIRMADO";
     } else if (resZ > 0) {
         estado = "COPAGO_INDETERMINADO_POR_OPACIDAD";
+    } else if (hasConflict) {
+        estado = "CONFLICTO_DE_EXTRACCION_O_DOBLE_CONTEO";
+    }
+
+    // Forensic Prioritization Message in Fundamento
+    let conflictNote = "";
+    if (hasConflict) {
+        conflictNote = `[RECONCILIACIÓN FORENSE]: Se detectó solapamiento de hallazgos ($${(rawA + rawB + rawZ).toLocaleString()} vs Total $${T.toLocaleString()}). Se ha aplicado priorización técnica preservando los cobros improcedentes confirmados (Cat A) y ajustando la opacidad residual. `;
     }
 
     // 5) Resumen y Confianza
@@ -181,6 +193,8 @@ export function resolveDecision(params: {
     let score = 100 * (scoreA + scoreV + scoreR) - 100 * scoreZ;
 
     const fundamento =
+        conflictNote +
+        `Auditoría forense concluye estado ${estado}. ` +
         `Balance: A=$${resA.toLocaleString()} | B=$${resB.toLocaleString()} | Z=$${resZ.toLocaleString()} | OK=$${resOK.toLocaleString()} | T=$${T.toLocaleString()}. ` +
         `Opacidad=${(100 * opacidad).toFixed(1)}%. ` +
         (errors.length ? `Ajustes: ${errors.join(" | ")}.` : "");
@@ -672,7 +686,61 @@ function assertCanonicalClosure(findings: Finding[], balance: BalanceAlpha, debu
 }
 
 
+
+// Helper: Family Netting (A vs Z)
+function netFindingsFamilies(findings: Finding[]): Finding[] {
+    // Operations on a copy
+    const norm = findings.map(f => ({ ...f }));
+
+    const families = {
+        MAT_MED: /MEDICAMENTO|INSUMO|MATERIAL|FARMAC/i,
+        HOTELERIA: /HOTEL|CAMA|PENSION|ASEO/i,
+        QUIRURGICO: /PABELLON|EQUIPO|CIRU/i
+    };
+
+    for (const [famName, regex] of Object.entries(families)) {
+        // Broad match to catch both specific A and generic Z in the same family
+        const famFindings = norm.filter(f =>
+            regex.test(f.label || "") ||
+            regex.test((f as any).titulo || "") ||
+            regex.test(f.rationale || "")
+        );
+
+        // Sum of confirmed findings (A) in this family
+        const sumA = famFindings
+            .filter(f => f.category === 'A')
+            .reduce((acc, f) => acc + (f.amount || 0), 0);
+
+        // Target Z findings to reduce (Z or K)
+        const zFindings = famFindings.filter(f => f.category === 'Z' || f.category === 'K');
+
+        if (sumA > 0 && zFindings.length > 0) {
+            let deduction = sumA;
+            // Distribute deduction among Z findings
+            for (const zf of zFindings) {
+                if (deduction <= 0) break;
+                const original = zf.amount || 0;
+                const toDeduct = Math.min(original, deduction);
+
+                // Mutate the amount
+                zf.amount = original - toDeduct;
+
+                // Annotate rationale if not already annotated
+                if (toDeduct > 0 && !(zf.rationale || "").includes("[NETTING]")) {
+                    zf.rationale = (zf.rationale || "") + `\n[NETTING] Reducido por hallazgos A ($${toDeduct.toLocaleString("es-CL")}) de misma familia.`;
+                }
+
+                deduction -= toDeduct;
+            }
+        }
+    }
+
+    // Remove zero amounts (or near zero) to clean up output
+    return norm.filter(f => Math.abs(f.amount || 0) > 10);
+}
+
 export function finalizeAuditCanonical(input: {
+
     findings: Finding[];
     totalCopago: number;
     reconstructible: boolean;
@@ -752,6 +820,10 @@ export function finalizeAuditCanonical(input: {
         // RE-APPLY Subsumption after promotion to A to catch overlaps with pre-existing A findings
         processedFindings = applySubsumptionCanonical(processedFindings);
     }
+
+    // Step 2.2: Family Netting (Resolve Double Counting - Z vs A)
+    processedFindings = netFindingsFamilies(processedFindings);
+
 
     // Step 3: Balance
 
@@ -1015,7 +1087,10 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
                 items: prestador.items
                     ?.filter((item: any) => item.bonificacion > 0 || item.copago > 0)
                     ?.map((item: any) => ({
-                        codigo: item.codigo,
+                        codigo: item.codigo || item.codigoGC || item.gc || item.codigo_prestacion || '',
+                        codigoGC: item.codigoGC,
+                        gc: item.gc,
+                        codigo_prestacion: item.codigo_prestacion,
                         descripcion: item.descripcion,
                         bonificacion: item.bonificacion,
                         copago: item.copago
@@ -1324,18 +1399,33 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
                 desglose.forEach((prest: any, prestadorIdx: number) => {
                     const items = prest.items || [];
                     items.forEach((item: any, itemIdx: number) => {
-                        const descripcion = item.descripcion || item.glosa || item.bi_glosa || '';
+                        const descripcion = (item.descripcion || item.glosa || item.bi_glosa || '').toString();
                         const bonificacion = parseAmountCLP(item.bonificacion ?? item.bonif ?? 0);
                         const copago = parseAmountCLP(item.copago ?? item.monto_copago ?? 0);
 
-                        // FIX: Prioritize codigoGC and ensure strict string trimming
-                        let codigo = (item.codigoGC || item.codigo || item.gc || '').toString().trim();
+                        // Extract code prioritizing more specific/valid fields
+                        let codigo = (
+                            item.codigo_prestacion ||
+                            item.codigo_fonasa ||
+                            item.codigoGC ||
+                            item.codigo ||
+                            item.gc ||
+                            ''
+                        ).toString().trim();
 
-                        // Fallback: Try to extract 7-digit code from description if code is empty/generic
-                        if ((!codigo || codigo === '0' || codigo === 'SIN_CODIGO') && /\b(110\d{4})\b/.test(descripcion)) {
-                            const match = descripcion.match(/\b(110\d{4})\b/);
-                            if (match) codigo = match[1];
+                        // Fallback: Detect 7-digit patterns in description (1103057, etc.)
+                        // Support both 11.03.057 and 1103057 formats
+                        if (!codigo || codigo === '0' || codigo === 'SIN_CODIGO') {
+                            const codeMatch = descripcion.match(/\b(11\d{5})\b/) || descripcion.match(/\b(11[\.\s]\d{2}[\.\s]\d{3})\b/);
+                            if (codeMatch) {
+                                codigo = codeMatch[1].replace(/[\.\s]/g, '');
+                            }
                         }
+
+                        // If still empty or just '0', set to last resort
+                        if (!codigo || codigo === '0') codigo = 'SIN_CODIGO';
+
+                        console.log(`[DEBUG_EXTRACT] Item: "${descripcion.substring(0, Math.min(descripcion.length, 20))}..." -> Extracted Code: ${codigo}`);
 
                         // Build unique ID: folio_prestador_item_code_firstwords
                         const descWords = descripcion.split(/\s+/).slice(0, 3).join('_').substring(0, 20).replace(/[^a-zA-Z0-9_]/g, '');
@@ -1345,7 +1435,7 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
 
                         extractedPamLines.push({
                             uniqueId,
-                            codigo: codigo || 'SIN_CODIGO',
+                            codigo: codigo,
                             descripcion,
                             bonificacion,
                             copago,
@@ -2078,6 +2168,8 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
             accountContext: cleanedCuenta, // NEW: Pass account context for reconstruction
             eventos: eventosHospitalarios // NEW: Pass event context
         });
+
+        console.log(`[AUDIT_ENGINE] Canonical Result ValorUnidad: ${canonicalResult.valorUnidadReferencia}`);
 
         const finalFindings = canonicalResult.findings.map(f => {
             // FIX: Ensure UI Map aligns with Balance truth

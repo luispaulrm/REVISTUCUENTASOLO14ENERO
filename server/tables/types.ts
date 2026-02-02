@@ -46,7 +46,9 @@ export type AuditJSON = {
     hallazgos?: AuditHallazgo[];
     bitacoraAnalisis?: any[];
     antecedentes?: any;
+    valorUnidadReferencia?: string; // New: forensic unit display
 };
+
 
 export type PamItem = {
     descripcion: string;

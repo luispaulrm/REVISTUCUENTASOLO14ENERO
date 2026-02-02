@@ -38,6 +38,13 @@ Si el campo 'contrato' se encuentra vacío ({}) o no contiene la prestación ana
 4. **Validación Arancelaria (Arancel Fonasa 2025):** Si el PAM aplica códigos (ej: Rizotomía 1103057), estos deben cumplir con los valores y descripciones legales mínimas que el contrato está obligado a garantizar por ley.
 
 **REGLA DE REPORTE:** La falta de un documento PDF del contrato NO invalida la detección de vulneraciones. El auditor debe citar el estándar legal infringido como la base de la impugnación.
+
+=== DOCTRINA CONTRA EL ACTIVISMO INTERPRETATIVO (SOBERANÍA DEL TOPE) ===
+Para evitar el "sesgo de resultado" o "moralización del copago", el auditor debe seguir estas leyes lógicas:
+1. **Soberanía del Tope sobre el Porcentaje**: Matemticamente, \`Bonificación = min(Porcentaje * Valor, Tope)\`. Si se alcanza el tope, el porcentaje deja de gobernar el resultado. No existe "ruptura de proporcionalidad" si el resultado es igual al tope pactado.
+2. **Ratio Real vs. Porcentaje Contractual**: Prohibido argumentar que una bonificación es "anómala" solo porque el ratio real (Bonif/Total) es bajo (ej: 13%) cuando el contrato dice 80%. Esto es una consecuencia matemática de la saturación del tope, no una infracción.
+3. **Limitación del Art. 190 DFL 1/2005**: Esta norma (piso del 25%) no anula los topes contractuales explícitos en planes de salud. Prohibido usar el Art. 190 como excusa para ignorar un tope UF/VAM/AC2 pactado en Libre Elección.
+4. **Verificabilidad vs. Pedagogía**: La Circular IF/19 exige que el copago sea verificable. Si los datos permiten reconstruir la unidad (AC2/VAM) por convergencia y el cálculo cuadra, la obligación informativa está CUMPLIDA. No se requiere que el documento sea "auto-explicativo" para ojos no expertos.
 =======================================
 
 ==========================================================================
@@ -444,6 +451,7 @@ Si el auditor reporta un hallazgo donde \`TopeContratoUF\` existe Y \`Bonificaci
   3. SI la Isapre pagó exactamente ese tope -> EL COBRO ES CORRECTO.
   4. **ACCIÓN:** NO inventes argumentos de "inexistencia" o "desproporción". Si el contrato limita a 6 V.A. y eso se pagó, **SE RESPETA LA VERDAD FINANCIERA**.
   5. Solo objeta si la bonificación es INFERIOR al tope pactado sin justificación.
+  6. **VÁLVULA DE ESCAPE (REVISIÓN HUMANA)**: Si existe una contradicción irreconciliable entre la *literal* del contrato (ej: "Sin tope") y la *matemática* observada (ej: Isapre paga exactamente 1.2 AC2 de forma sistemática), DEBES marcar \`requiereRevisionHumana: true\` y explicar la divergencia. NO fuerces una conclusión de abuso.
 
 **REGLA FINAL:**
 Antes de escribir en \`hallazgos[]\`, revisa tu \`decision_logica\`. Si \`objetable\` es \`false\`, NO ESCRIBAS NADA en la lista de hallazgos.
@@ -718,7 +726,7 @@ export const REFLECTION_SCHEMA = {
 
 export const AUDIT_PROMPT = `
 ### 0. PRINCIPIO FUNDAMENTAL (AXIOMA DEL SISTEMA)
-**"La inteligencia del auditor consiste en suplir las deficiencias estructurales del PAM mediante la aplicación activa de literatura, normativa y contrato, y no en declarar indeterminación ante la primera falta de desglose."**
+**"La inteligencia del auditor consiste en suplir las deficiencias estructurales del PAM mediante la aplicación activa de literatura, normativa y contrato, priorizando la COHERENCIA CONTRACTUAL sobre juicios de valor sobre el monto del copago."**
 
 La bibliografía y la literatura no están para ser citadas: están para ser **APLICADAS** cuando el PAM es incompleto. Tu misión NO es detectar opacidad, es **RESOLVERLA** hasta donde la literatura lo permite.
 
@@ -726,8 +734,8 @@ La bibliografía y la literatura no están para ser citadas: están para ser **A
 Debes conjugar estas capas en orden de prioridad:
 
 1. **CAPA CONTRACTUAL (Obligación Primaria):**
-   - Cobertura explícita, exclusiones reales, topes UF/VAM. Esto define la obligación base.
-   - Si aquí hay incumplimiento -> Caso resuelto (Cat A). No depende del PAM.
+   - Cobertura explícita, exclusiones reales, topes UF/VAM/AC2. Esto define la obligación base.
+   - **REGLA DE NEUTRALIDAD**: Si el contrato define un tope (ej: 1.2 AC2) y la Isapre lo paga, el caso está CERRADO y es CORRECTO. Un copago alto (ej: 87%) en Libre Elección es una consecuencia matemática legítima, NO una irregularidad.
 
 2. **CAPA CLÍNICO-TÉCNICA (Naturaleza de la Prestación):**
    - Aplica activamente la bibliografía (IF-319, circulares, práctica clínica).
@@ -737,10 +745,11 @@ Debes conjugar estas capas en orden de prioridad:
 3. **CAPA DE RECONSTRUCCIÓN (Suplir deficiencias del PAM):**
    - Si el PAM agrupa o mezcla conceptos, debes intentar reconstruir su naturaleza.
    - Separa hotelería estimable, detecta unbundling e infiere duplicidades.
-   - **REGLA DE INFERENCIA ACTIVA**: Si el PAM no desagrega, infiere la naturaleza usando bibliografía normativa antes de declarar opacidad. Mientras haya literatura aplicable, NO hay indeterminación.
+   - **REGLA DE INFALIBILIDAD MATEMÁTICA**: Si el valor de la unidad (ej. AC2) se reconstruye aritméticamente y CONVERGE en múltiples líneas (anestesia, pabellón, cirujano), se declara **CERTEZA TÉCNICA**. En este caso, queda PROHIBIDA la declaración de opacidad o indeterminación. La matemática es la prueba de la verdad informativa.
 
 4. **CAPA DE OPACIDAD REAL (Residual, No Dominante):**
    - La opacidad (Ley 20.584) solo se declara cuando el contrato, la bibliografía y la cuenta no permiten clasificar la prestación ni determinar cobertura. Es la última instancia.
+   - **PROHIBICIÓN**: Prohibido usar Opacidad (Cat Z) para objetar resultados que son trazables matemáticamente al contrato. 
 
 
 
@@ -762,8 +771,10 @@ Tu misión es realizar una **AUDITORÍA FORENSE INTEGRAL**.
 No solo debes detectar errores, debes **CONCATENAR** cada hallazgo con la normativa legal y contractual vigente.
 
 
-**OBJETIVO: PRESUNCIÓN DE IRREGULARIDAD**
-TODO copago en el PAM se considera OBJETABLE hasta que se demuestre que tiene fundamento legal o contractual legítimo.
+**OBJETIVO: VERIFICACIÓN DE REGLAS (NO DE RESULTADOS)**
+Tu objetivo es verificar si se aplicaron las reglas pactadas.
+- En Prestador Preferente: el estándar de prueba de irregularidad es ALTO (Presunción de Irregularidad en cobros adicionales).
+- En Libre Elección: el estándar de pacto es el TOPE CONTRACTUAL. Si se cumple el tope, no hay abuso.
 
 **PROTOCOLO CRÍTICO: INTERPRETACIÓN DE NÚMEROS Y SEPARADORES (SMART PARSING)**
 El formato numérico de los documentos clínicos es CAÓTICO y varía por fila.
@@ -787,7 +798,7 @@ El formato numérico de los documentos clínicos es CAÓTICO y varía por fila.
   Para cada fila con montos, verifica la ecuación: \`Cantidad * Precio_Unitario ≈ Total\`.
   
   CASO A (Punto es Miles):
-  Si ves "3.000" en Cantidad y Precio "8.000" -> ¿3000 * 8000 = 24.000.000? Si el Total dice "24.000", entonces "3.000" NO es 3000, es 3.
+  Si ves "3.000" en Cantidad y Precio "8.000" -> ¿3000 * 8000 = 24.000.000? Si el Total dice "24.000", entonces "3.000" NO es 3.000, es 3.
   
   CASO B (Punto es Decimal/Unidad):
   Si ves "1.000" en Cantidad y Precio "239" y Total "239" -> Entiende que "1.000" es matemáticamente "1".
@@ -853,14 +864,11 @@ Tu cerebro opera en 2 fases separadas:
 - NO generar hallazgos con nivel_confianza: ALTA si el evento asociado tiene nivel_confianza: BAJA. (COHERENCIA).
 
 
-**PROTOCOLO DE TOLERANCIA CERO A LA OPACIDAD (OVERRIDE):**
-Si encuentras líneas con glosas como "VARIOS", "OTROS", "INSUMOS GENERALES", "AJUSTE", "DIFERENCIA TARIFARIA" o similares:
-1. **OBJECIÓN AUTOMÁTICA:** Estas glosas son ILEGALES PER SE bajo la Ley 20.584 (Indeterminación del precio).
-2. **INMUNIDAD A LA COBERTURA:** Aunque el contrato diga "Cobertura 100% en Insumos", si el ítem se llama "VARIOS", **NO ES LEGÍTIMO**. No puedes validar algo que no sabes qué es.
-3. **ACCIÓN:** Debes objetar el 100% del copago asociado a estas líneas y clasificarlas como "FALTA DE DESGLOSE / OPACIDAD".
-4. **NO ES GAP, ES HALLAZGO:** No sumes esto al "Gap". Es un Hallazgo específico y debe ir en la lista de hallazgos.
-   - "Podría haber activado CAEC" NO es un hallazgo, es una RECOMENDACIÓN ESTRATÉGICA.
-    - NUNCA pongas en la tabla de ahorros "Ahorro por CAEC" si el CAEC no está activo procesalmente.
+**PROTOCOLO DE OPACIDAD (RULE 860 - CORRECTO):**
+Si encuentras líneas con glosas genéricas como "VARIOS", "OTROS", "INSUMOS GENERALES", "AJUSTE", "DIFERENCIA TARIFARIA":
+1. **OBJECIÓN POR OPACIDAD:** Estas glosas vulneran la Ley 20.584.
+2. **ACCIÓN:** Debes clasificar como \`SOLICITAR_ACLARACION\` (Categoría B/Z). NO digas "cobro indebido" de forma definitiva si es solo falta de detalle.
+3. **EXCEPCIÓN LIBRE ELECCIÓN**: PROHIBIDO declarar opacidad en cobros que son trazables al contrato (ej: Honorarios que coinciden con tope AC2/VAM).
 
 **PROTOCOLO 'HYBRID' DE REPORTE (NUEVO ESTÁNDAR 2025):**
 Tu output debe ser JURÍDICAMENTE IMPECABLE.

@@ -122,35 +122,46 @@ export function computeBalanceWithHypotheses(
                 return isPAMLineRelated(h, line.key);
             });
 
-            let scopeObjetado = 0;
+            let scopeObjetadoA = 0;
+            let scopeObjetadoB = 0;
+            let scopeObjetadoK = 0;
+            let scopeObjetadoZ = 0;
 
             for (const h of hallazgosInScope) {
                 const cat = h.categoria_final || categorizeFinding(h);
                 const monto = h.montoObjetado || 0;
 
-                if (cat === 'A') {
-                    balance.categories.A += monto;
-                    scopeBalance.A += monto;
-                    balance.rationaleByCategory.A.push(`${h.titulo || 'Hallazgo'}: $${monto.toLocaleString()}`);
-                } else if (cat === 'B') {
-                    balance.categories.B += monto;
-                    scopeBalance.B += monto;
-                    balance.rationaleByCategory.B.push(`${h.titulo || 'Hallazgo'}: $${monto.toLocaleString()}`);
-                } else if (cat === 'K') {
-                    balance.categories.K += monto;
-                    scopeBalance.K += monto;
-                    balance.rationaleByCategory.K.push(`${h.titulo || 'Hallazgo'}: $${monto.toLocaleString()}`);
-                } else if (cat === 'Z') {
-                    balance.categories.Z += monto;
-                    scopeBalance.Z += monto;
-                    balance.rationaleByCategory.Z.push(`${h.titulo || 'Hallazgo'}: $${monto.toLocaleString()}`);
-                }
-
-                scopeObjetado += monto;
+                if (cat === 'A') scopeObjetadoA += monto;
+                else if (cat === 'B') scopeObjetadoB += monto;
+                else if (cat === 'K') scopeObjetadoK += monto;
+                else if (cat === 'Z') scopeObjetadoZ += monto;
             }
 
+            // 🚨 CAPPING RULE (V6): Sum of findings cannot exceed line copago
+            const totalRequested = scopeObjetadoA + scopeObjetadoB + scopeObjetadoK + scopeObjetadoZ;
+            if (totalRequested > line.copago && line.copago > 0) {
+                console.warn(`[Balance] 🛡️ Capping findings for '${line.desc}': $${totalRequested} → $${line.copago}`);
+                const ratio = line.copago / totalRequested;
+                scopeObjetadoA = Math.round(scopeObjetadoA * ratio);
+                scopeObjetadoB = Math.round(scopeObjetadoB * ratio);
+                scopeObjetadoK = Math.round(scopeObjetadoK * ratio);
+                scopeObjetadoZ = Math.round(scopeObjetadoZ * ratio);
+            }
+
+            balance.categories.A += scopeObjetadoA;
+            balance.categories.B += scopeObjetadoB;
+            balance.categories.K += scopeObjetadoK;
+            balance.categories.Z += scopeObjetadoZ;
+
+            scopeBalance.A = scopeObjetadoA;
+            scopeBalance.B = scopeObjetadoB;
+            scopeBalance.K = scopeObjetadoK;
+            scopeBalance.Z = scopeObjetadoZ;
+
+            const scopeObjetadoTotal = scopeObjetadoA + scopeObjetadoB + scopeObjetadoK + scopeObjetadoZ;
+
             // The rest is Cat OK (no findings)
-            let scopeOK = Math.max(0, line.copago - scopeObjetado);
+            let scopeOK = Math.max(0, line.copago - scopeObjetadoTotal);
 
             // 🚨 HARDENING RULE (Z-INFECTION): 
             // If there is ANY Opacity (Cat Z) or partial blocking in this scope, 

@@ -720,7 +720,10 @@ const App: React.FC = () => {
                     </div>
                   </div>
 
+
                   <AuditSummary data={result} />
+
+
 
                   {/* METRICAS DE TOKENS EN EL REPORTE (SOLO EN PDF) */}
                   {result.usage && (
