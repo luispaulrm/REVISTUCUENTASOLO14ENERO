@@ -204,6 +204,88 @@ export default function CanonicalGeneratorApp() {
         }
     };
 
+    // Helper to transform canonical JSON to Mental Model structure
+    const transformCanonicalToMentalModel = (canonical: any, filename: string) => {
+        if (!canonical) return null;
+
+        const dateStr = new Date().toISOString();
+
+        // Build hierarchy
+        const root: any = {
+            titulo: canonical.metadata?.fuente || filename,
+            cobertura: canonical.metadata?.tipo_contrato || 'Contrato',
+            detalle: canonical.metadata?.vigencia || 'Vigencia Desconocida',
+            children: []
+        };
+
+        // 1. Coberturas
+        if (canonical.coberturas && canonical.coberturas.length > 0) {
+            const coberturasNode: any = {
+                titulo: 'COBERTURAS',
+                detalle: `${canonical.coberturas.length} prestaciones`,
+                children: []
+            };
+
+            // Group by ambito if possible
+            const ambitos: Record<string, any[]> = {};
+            canonical.coberturas.forEach((c: any) => {
+                const ambito = c.ambito || 'OTROS';
+                if (!ambitos[ambito]) ambitos[ambito] = [];
+                ambitos[ambito].push(c);
+            });
+
+            Object.entries(ambitos).forEach(([ambito, items]) => {
+                coberturasNode.children.push({
+                    titulo: ambito.toUpperCase(),
+                    children: items.map((c: any) => ({
+                        titulo: c.descripcion_textual,
+                        cobertura: c.porcentaje ? `${c.porcentaje}%` : 'Monto Fijo',
+                        detalle: c.tipo_modalidad
+                    }))
+                });
+            });
+            root.children.push(coberturasNode);
+        }
+
+        // 2. Topes
+        if (canonical.topes && canonical.topes.length > 0) {
+            const topesNode: any = {
+                titulo: 'TOPES',
+                detalle: `${canonical.topes.length} límites`,
+                children: []
+            };
+            canonical.topes.forEach((t: any) => {
+                topesNode.children.push({
+                    titulo: t.fuente_textual?.split(':')[0].substring(0, 50) || 'Tope', // Truncate for UI
+                    cobertura: t.valor ? `${t.valor} ${t.unidad}` : 'SIN TOPE',
+                    detalle: t.tipo_modalidad
+                });
+            });
+            root.children.push(topesNode);
+        }
+
+        // 3. Reglas
+        if (canonical.reglas_aplicacion && canonical.reglas_aplicacion.length > 0) {
+            const reglasNode: any = {
+                titulo: 'REGLAS DE NEGOCIO',
+                detalle: 'Lógica condicional',
+                children: canonical.reglas_aplicacion.map((r: any) => ({
+                    titulo: r.condicion.substring(0, 60),
+                    detalle: r.efecto
+                }))
+            };
+            root.children.push(reglasNode);
+        }
+
+        return {
+            metadata: {
+                source_contract: filename,
+                generated_at: dateStr
+            },
+            root
+        };
+    };
+
     const handleClearCache = async () => {
         if (!confirm('¿Estás seguro de BORRAR LA MEMORIA del canonizador? Esto eliminará todos los análisis guardados.')) return;
 
@@ -212,6 +294,7 @@ export default function CanonicalGeneratorApp() {
             const data = await res.json();
             if (data.success) {
                 addLog(`[SISTEMA] 🗑️ Memoria borrada. ${data.deletedCount} registros eliminados.`);
+                localStorage.removeItem('canonical_contract_result'); // Fix: Explicitly remove persistent state
                 setStatus(AppStatus.IDLE);
                 setContractCount(0);
                 setCanonicalResult(null);
@@ -434,11 +517,11 @@ export default function CanonicalGeneratorApp() {
                                     */}
                                     {viewMode === 'map' ? (
                                         <div className="absolute inset-0 flex flex-col">
-                                            {/* We rely on the internal fetch of the default mental model for now, 
-                                                or we could trigger a specific generation endpoint here.
-                                                Passing raw canonicalResult causes a crash.
-                                             */}
-                                            <MentalMapApp isActive={true} />
+                                            {/* Fix: Pass live canonical result transformed to MentalMap structure */}
+                                            <MentalMapApp
+                                                isActive={true}
+                                                initialData={transformCanonicalToMentalModel(canonicalResult, fileName)}
+                                            />
                                         </div>
                                     ) : (
                                         <div className="absolute inset-0 p-6 overflow-auto custom-scrollbar">
