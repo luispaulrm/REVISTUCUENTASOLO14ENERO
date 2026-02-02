@@ -715,16 +715,9 @@ export async function analyzeSingleContract(
     // If successful, we can use these items directly or merge them.
     // For now, let's inject them into the raw streams.
 
+    // OCR parsing disabled in single-pass mode (data comes from fullJsonPhase)
     if ((ocrResult as any).text) {
-        log(`[ContractEngine] 🧠 Ejecutando Parser Determinístico en Markdown OCR...`);
-        const deterministicCoverages = parseContractMarkdown((ocrResult as any).text);
-        log(`[ContractEngine] 🧩 Items Determinísticos Encontrados: ${deterministicCoverages.length}`);
-
-        if (deterministicCoverages.length > 0) {
-            const groupedDeterministic = groupFlatCoverages(deterministicCoverages);
-            log(`[ContractEngine] 🧩 Items Agrupados (Nested): ${groupedDeterministic.length}`);
-            coberturasExtrasRaw = [...coberturasExtrasRaw, ...groupedDeterministic];
-        }
+        log(`[ContractEngine] 🧠 OCR Text extracted for reference (${(ocrResult as any).text.length} chars)`);
     }
 
     // ============================================================================
@@ -974,12 +967,18 @@ export async function analyzeSingleContract(
     const detectedIsapre = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('isapre'))?.split('isapre')?.[1]?.trim() || "Unknown";
     const detectedPlan = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('plan'))?.split('plan')?.[1]?.trim() || "Unknown";
 
-    const diseno_ux = reglasP1Phase.result?.diseno_ux || reglasP2Phase.result?.diseno_ux || hospP1Phase.result?.diseno_ux || ambP1Phase.result?.diseno_ux || extrasPhase.result?.diseno_ux || {
+    const diseno_ux = fullJsonPhase.result?.plan_info ? {
+        nombre_isapre: fullJsonPhase.result.plan_info.isapre || "Unknown",
+        titulo_plan: fullJsonPhase.result.plan_info.nombre_plan || "Unknown",
+        layout: "single_pass_dynamic",
+        funcionalidad: "visual_hierarchy_v20",
+        salida_json: "unified"
+    } : {
         nombre_isapre: detectedIsapre !== "Unknown" ? detectedIsapre : "Unknown",
         titulo_plan: detectedPlan !== "Unknown" ? detectedPlan : "Unknown",
         layout: "failed_extraction",
-        funcionalidad: "multi_pass_v4_universal",
-        salida_json: "merged"
+        funcionalidad: "visual_hierarchy_v20",
+        salida_json: "fallback"
     };
 
     // Simple fallback if everything is unknown but fingerprint has info
@@ -987,21 +986,15 @@ export async function analyzeSingleContract(
         diseno_ux.nombre_isapre = fingerprintPhase.result.tipo_contrato.split('_')[0];
     }
 
-    // --- TOTAL METRICS ---
-    const allPhases = [
-        fingerprintPhase, reglasP1Phase, reglasP2Phase,
-        anexosP1Phase, anexosP2Phase,
-        hospP1Phase, hospP2Phase,
-        ambP1Phase, ambP2Phase, ambP3Phase, ambP4Phase,
-        extrasPhase
-    ];
+    // --- TOTAL METRICS (Single Pass) ---
+    const allPhases = [fingerprintPhase, fullJsonPhase];
     const totalInput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensInput || 0), 0);
     const totalOutput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensOutput || 0), 0);
     const totalCost = allPhases.reduce((acc, p) => acc + (p.metrics?.cost || 0), 0);
 
     const result: ContractAnalysisResult = {
         fingerprint: fingerprintPhase.result || undefined,
-        reglas,
+        reglas: [], // Reglas extraction disabled in single-pass mode
         coberturas,
         diseno_ux,
         rawMarkdown: (ocrResult as any).text || '', // Include Markdown for Dual Verification
@@ -1015,37 +1008,17 @@ export async function analyzeSingleContract(
                 totalPages: (ocrResult as any).totalPages || 0,
                 phaseSuccess: {
                     CLASSIFIER: fingerprintPhase.success,
-                    REGLAS_P1: reglasP1Phase.success,
-                    REGLAS_P2: reglasP2Phase.success,
-                    ANEXOS_P1: anexosP1Phase.success,
-                    ANEXOS_P2: anexosP2Phase.success,
-                    HOSP_P1: hospP1Phase.success,
-                    HOSP_P2: hospP2Phase.success,
-                    AMB_P1: ambP1Phase.success,
-                    AMB_P2: ambP2Phase.success,
-                    AMB_P3: ambP3Phase.success,
-                    AMB_P4: ambP4Phase.success,
-                    EXTRAS: extrasPhase.success
+                    FULL_JSON: fullJsonPhase.success
                 },
                 phases: [
                     { phase: "Clasificación", ...getMetrics(fingerprintPhase) },
-                    { phase: "Reglas_P1", ...getMetrics(reglasP1Phase) },
-                    { phase: "Reglas_P2", ...getMetrics(reglasP2Phase) },
-                    { phase: "Anexos_P1", ...getMetrics(anexosP1Phase) },
-                    { phase: "Anexos_P2", ...getMetrics(anexosP2Phase) },
-                    { phase: "Hosp_P1", ...getMetrics(hospP1Phase) },
-                    { phase: "Hosp_P2", ...getMetrics(hospP2Phase) },
-                    { phase: "Amb_P1", ...getMetrics(ambP1Phase) },
-                    { phase: "Amb_P2", ...getMetrics(ambP2Phase) },
-                    { phase: "Amb_P3", ...getMetrics(ambP3Phase) },
-                    { phase: "Amb_P4", ...getMetrics(ambP4Phase) },
-                    { phase: "Extras", ...getMetrics(extrasPhase) }
+                    { phase: "Full_JSON_Dynamic", ...getMetrics(fullJsonPhase) }
                 ]
             },
             extractionBreakdown: {
-                totalReglas: reglas.length,
+                totalReglas: 0,
                 totalCoberturas: coberturas.length,
-                totalItems: reglas.length + coberturas.length
+                totalItems: coberturas.length
             }
         }
     };
