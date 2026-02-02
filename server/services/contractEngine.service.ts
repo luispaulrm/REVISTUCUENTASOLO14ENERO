@@ -629,115 +629,86 @@ export async function analyzeSingleContract(
         }
     }
 
-    // --- EXECUTE REMAINING PHASES IN PARALLEL (v10.0 Modular Rule Engine) ---
-    log(`\n[ContractEngine] ⚡ Ejecutando 11 fases restantes en paralelo para cobertura 100%...`);
+    // --- EXECUTE SINGLE PASS DYNAMIC EXTRACTION (v20.0 Visual Hierarchy) ---
+    log(`\n[ContractEngine] ⚡ Ejecutando Extracción Dinámica Visual (Single Pass)...`);
 
-    const phasePromises = [
-        extractSection("REGLAS_P1", PROMPT_REGLAS_P1, SCHEMA_REGLAS), // PHASE 2
-        extractSection("REGLAS_P2", PROMPT_REGLAS_P2, SCHEMA_REGLAS), // PHASE 3
-        extractSection("ANEXOS_P1", PROMPT_ANEXOS_P1, SCHEMA_REGLAS), // PHASE 4
-        extractSection("ANEXOS_P2", PROMPT_ANEXOS_P2, SCHEMA_REGLAS), // PHASE 5
+    // Use the PROMPT_PROYECCION_JSON which now includes the "Visual/Uppercase" rules
+    const { PROMPT_PROYECCION_JSON, SCHEMA_PROYECCION_JSON } = await import('./contractConstants.js');
 
-        // CARTESIAN PROJECTION PHASES (RawCell[])
-        extractSection("HOSP_P1", PROMPT_HOSP_P1, SCHEMA_RAW_CELLS),
-        extractSection("HOSP_P2", PROMPT_HOSP_P2, SCHEMA_RAW_CELLS),
-        extractSection("AMB_P1", PROMPT_AMB_P1, SCHEMA_RAW_CELLS),
-        extractSection("AMB_P2", PROMPT_AMB_P2, SCHEMA_RAW_CELLS),
-        extractSection("AMB_P3", PROMPT_AMB_P3, SCHEMA_RAW_CELLS),
-        extractSection("AMB_P4", PROMPT_AMB_P4, SCHEMA_RAW_CELLS),
+    // Execute a single robust pass
+    const fullJsonPhase = await extractSection("FULL_JSON", PROMPT_PROYECCION_JSON, SCHEMA_PROYECCION_JSON);
 
-        // EXTRAS usually has simpler structure, keeping COBERTURAS for now unless prompt changed
-        extractSection("EXTRAS", PROMPT_EXTRAS, SCHEMA_COBERTURAS)
-    ];
+    // --- TRANSFORM TO CANONICAL STRUCTURE ---
+    const coberturasHospRaw: any[] = [];
+    const coberturasAmbRaw: any[] = [];
+    let coberturasExtrasRaw: any[] = [];
 
-    // --- TEXT EXTRACTION PHASE (Dual Verification) ---
-    const textExtractionPromise = extractTextFromPdf(file, CONTRACT_OCR_MAX_PAGES, log);
+    if (fullJsonPhase.result && fullJsonPhase.result.coberturas_nacionales) {
+        log(`[ContractEngine] 🔄 Transformando estructura dinámica a canónica...`);
 
-    const [
-        reglasP1Phase,
-        reglasP2Phase,
-        anexosP1Phase,
-        anexosP2Phase,
-        hospP1Phase,
-        hospP2Phase,
-        ambP1Phase,
-        ambP2Phase,
-        ambP3Phase,
-        ambP4Phase,
-        extrasPhase,
-        ocrResult // New
-    ] = await Promise.all([...phasePromises, textExtractionPromise]);
+        fullJsonPhase.result.coberturas_nacionales.forEach((item: any) => {
+            const categoria = item.seccion || "OTROS"; // This catches the UPPERCASE header
+            const nombreItem = item.item;
 
-    log(`\n[ContractEngine] ✅ 12 Fases Modulares + OCR Completadas.`);
+            // Map Preferente
+            if (item.preferente) {
+                const cob = {
+                    categoria: categoria,
+                    item: nombreItem,
+                    modalidades: [{
+                        tipo: "PREFERENTE",
+                        porcentaje: item.preferente.porcentaje,
+                        tope: parseFloat(item.preferente.tope) || null, // Best effort parse, or use raw in copago
+                        unidadTope: (item.preferente.tope || "").includes("UF") ? "UF" : "PESOS", // Basic heuristic
+                        tipoTope: "POR_EVENTO",
+                        copago: item.preferente.tope // Store raw string for safety
+                    }]
+                };
 
-    if (fingerprintPhase.result) {
-        log(`\n[ContractEngine] 📍 Huella Digital:`);
-        log(`   Tipo: ${fingerprintPhase.result.tipo_contrato}`);
-        log(`   Confianza: ${fingerprintPhase.result.confianza}%`);
-    }
-
-    // --- MERGE ---
-    const rawReglas = [
-        ...(reglasP1Phase.result?.reglas || []),
-        ...(reglasP2Phase.result?.reglas || []),
-        ...(anexosP1Phase.result?.reglas || []),
-        ...(anexosP2Phase.result?.reglas || [])
-    ];
-
-    const reglas = rawReglas.map((r: any) => ({
-        ...r,
-        categoria_canonica: getCanonicalCategory(
-            (r['CÓDIGO/SECCIÓN'] || r['seccion'] || '') + ' ' + (r['VALOR EXTRACTO LITERAL DETALLADO'] || r['texto'] || ''),
-            r['SUBCATEGORÍA'] || r['categoria'] || ''
-        )
-    }));
-
-    // Combine coverage from all modular prompts
-    // v18.0: CARTESIAN DECODING (RawCell[] -> ContractCoverage[])
-    function groupFlatCoverages(flat: ContractCoverage[]): any[] {
-        const grouped: any[] = [];
-        const map = new Map<string, any>();
-
-        flat.forEach(d => {
-            const key = d.prestacion.toLowerCase().trim();
-            if (!map.has(key)) {
-                map.set(key, {
-                    item: d.prestacion,
-                    categoria: d.prestacion,
-                    modalidades: []
-                });
-                grouped.push(map.get(key));
+                // Rough bucket into Hosp/Amb for legacy downstream compatibility (optional)
+                if (categoria.includes("HOSP") || categoria.includes("CAMA") || categoria.includes("PABELLON")) {
+                    coberturasHospRaw.push(cob);
+                } else {
+                    coberturasAmbRaw.push(cob);
+                }
             }
 
-            const entry = map.get(key);
-            // Avoid duplicate modalities for the same item name
-            if (!entry.modalidades.find((m: any) => m.tipo === d.modalidad)) {
-                entry.modalidades.push({
-                    tipo: d.modalidad,
-                    porcentaje: d.porcentaje,
-                    tope: d.tope !== null ? d.tope : undefined,
-                    unidadTope: d.unidad,
-                    tipoTope: d.tipoTope
-                });
+            // Map Libre Elección
+            if (item.libre_eleccion) {
+                const cob = {
+                    categoria: categoria,
+                    item: nombreItem,
+                    modalidades: [{
+                        tipo: "LIBRE_ELECCION",
+                        porcentaje: item.libre_eleccion.porcentaje,
+                        tope: parseFloat(item.libre_eleccion.tope) || null,
+                        unidadTope: "UF",
+                        tipoTope: "POR_EVENTO",
+                        copago: item.libre_eleccion.tope
+                    }]
+                };
+                if (categoria.includes("HOSP") || categoria.includes("CAMA") || categoria.includes("PABELLON")) {
+                    coberturasHospRaw.push(cob);
+                } else {
+                    coberturasAmbRaw.push(cob);
+                }
             }
         });
-        return grouped;
+    } else {
+        log(`[ContractEngine] ⚠️ Warning: Single pass returned empty structure.`);
     }
 
-    const hospFlat = [
-        ...decodeCartesian(hospP1Phase.result as RawCell[] || [], "HOSPITALARIO"),
-        ...decodeCartesian(hospP2Phase.result as RawCell[] || [], "HOSPITALARIO")
-    ];
-    const ambFlat = [
-        ...decodeCartesian(ambP1Phase.result as RawCell[] || [], "AMBULATORIO"),
-        ...decodeCartesian(ambP2Phase.result as RawCell[] || [], "AMBULATORIO"),
-        ...decodeCartesian(ambP3Phase.result as RawCell[] || [], "AMBULATORIO"),
-        ...decodeCartesian(ambP4Phase.result as RawCell[] || [], "AMBULATORIO")
-    ];
+    // Legacy variables to satisfy the rest of the function signatures
+    // We basically bypass the old 12 variables
+    const reglasP1Phase = { result: { reglas: [] } };
+    const reglasP2Phase = { result: { reglas: [] } };
+    const anexosP1Phase = { result: { reglas: [] } };
+    const anexosP2Phase = { result: { reglas: [] } };
+    const extrasPhase = { result: { coberturas: [] } };
 
-    let coberturasHospRaw = groupFlatCoverages(hospFlat);
-    let coberturasAmbRaw = groupFlatCoverages(ambFlat);
-    let coberturasExtrasRaw = extrasPhase.result?.coberturas || [];
+    // OCR Text is still useful for deterministic check
+    const textExtractionPromise = extractTextFromPdf(file, CONTRACT_OCR_MAX_PAGES, log);
+    const [ocrResult] = await Promise.all([textExtractionPromise]);
 
     // --- INTEGRATION: DETERMINISTIC MARKDOWN PARSER ---
     // We attempt to parse the OCR markdown directly.

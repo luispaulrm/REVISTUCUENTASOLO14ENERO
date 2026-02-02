@@ -226,21 +226,24 @@ export default function CanonicalGeneratorApp() {
                 children: []
             };
 
-            // Group by ambito if possible
+            // Group by categoria (Document Headers) as requested by user
             const ambitos: Record<string, any[]> = {};
             canonical.coberturas.forEach((c: any) => {
-                const ambito = c.ambito || 'OTROS';
-                if (!ambitos[ambito]) ambitos[ambito] = [];
-                ambitos[ambito].push(c);
+                // Use 'categoria' or 'seccion' as the grouping key. 
+                // This preserves the Uppercase Headers from the document (e.g. "PRESTACIONES RESTRINGIDAS")
+                const key = c.categoria || c.seccion || c.ambito || 'OTROS';
+                if (!ambitos[key]) ambitos[key] = [];
+                ambitos[key].push(c);
             });
 
-            Object.entries(ambitos).forEach(([ambito, items]) => {
+            Object.entries(ambitos).forEach(([catName, items]) => {
                 coberturasNode.children.push({
-                    titulo: ambito.toUpperCase(),
+                    titulo: catName.toUpperCase(), // Ensure it's uppercase as user emphasized
                     children: items.map((c: any) => ({
-                        titulo: c.descripcion_textual,
-                        cobertura: c.porcentaje ? `${c.porcentaje}%` : 'Monto Fijo',
-                        detalle: c.tipo_modalidad
+                        titulo: c.item || c.descripcion_textual || 'Item',
+                        cobertura: ((c.modalidades && c.modalidades[0]?.porcentaje) || c.porcentaje) ?
+                            `${(c.modalidades && c.modalidades[0]?.porcentaje) || c.porcentaje}%` : 'Cobertura Fija',
+                        detalle: (c.modalidades && c.modalidades[0]?.tope) || c.tope || c.tipo_modalidad
                     }))
                 });
             });

@@ -596,6 +596,12 @@ export const PROMPT_PROYECCION_JSON = `
      - IF EXCLUDED: Set percentage to 0 or null, and explicitly note "EXCLUIDO" in the tope or description if possible. DO NOT default to 100%.
 
 
+   6. ** VISUAL SECTION & HIERARCHY DETECTION (UPPERCASE/BOLD RULES) **:
+     - ** SECTION HEADERS ("CATEGORIA") **: Look for lines that are fully UPPERCASE or BOLD. These define the "seccion" or "categoria".
+     - Examples: "PRESTACIONES HOSPITALARIAS", "PRESTACIONES RESTRINGIDAS", "ANEXO DE COBERTURA".
+     - ** SUB-ITEMS **: Indented lines or normal case text below a header belong to that section.
+     - ** ALWAYS ** use the exact UPPERCASE text as the 'seccion' or 'categoria' field in the JSON. Do not normalize or lower-case it. This determines the visual grouping in the UI.
+
   OUTPUT FORMAT: JSON Strict according to the provided schema.
 `;
 
