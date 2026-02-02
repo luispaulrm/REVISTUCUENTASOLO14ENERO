@@ -547,6 +547,7 @@ export default function ForensicApp() {
                                 setRealTimeUsage(null);
                                 setProgress(0);
                                 checkData();
+                                setPreCheckResult(null); // Fix: Clear pre-check result to force re-evaluation
                                 addLog('[SISTEMA] 🔄 Resultado de auditoría limpiado. Listo para re-iterar.');
                             }}
                             disabled={!auditResult}
