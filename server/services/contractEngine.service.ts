@@ -471,6 +471,42 @@ export async function analyzeSingleContract(
             return retryWithBackoff(
                 async () => {
                     const genAI = new GoogleGenerativeAI(currentKey);
+
+                    // --- LEARNING INJECTION (v20.0) ---
+                    // Retrieve relevant few-shot examples based on prompt context (phase name)
+                    // We map the phase name to tags, e.g., 'HOSP_P1' -> ['HOSPITALARIO']
+                    let enrichedPrompt = prompt;
+                    if (prompt.includes("{{FEW_SHOT_EXAMPLES}}")) {
+                        const { retrieveRelevantExamples } = await import('./contractLearning.service.js');
+                        // Use filename as context tag if available, or just generic
+                        const examples = await retrieveRelevantExamples(file.originalname);
+
+                        let exampleText = "";
+                        if (examples.length > 0) {
+                            exampleText = `
+                            \n\n================================================================================
+                            🧠 LECCIONES APRENDIDAS (CORRECCIONES HUMANAS PREVIAS)
+                            ================================================================================
+                            Presta atención a estos errores cometidos anteriormente en documentos similares:
+
+                            ${examples.map((ex, i) => `
+                            --- EJEMPLO ${i + 1} ---
+                            CONTEXTO VISUAL (OCR):
+                            "${ex.originalTextSnippet}"
+
+                            ERROR COMÚN: El sistema ignoró "Sin Cobertura" o "Excluido".
+                            CORRECCIÓN CORRECTA (JSON):
+                            ${JSON.stringify(ex.correctedJson, null, 2)}
+                            `).join('\n')}
+                            
+                            INSTRUCCIÓN: SI VES ALGO SIMILAR, APLICA LA LÓGICA DE LA CORRECCIÓN.
+                            ================================================================================\n\n
+                            `;
+                        }
+                        enrichedPrompt = prompt.replace("{{FEW_SHOT_EXAMPLES}}", exampleText);
+                    }
+
+
                     const model = genAI.getGenerativeModel({
                         model: modelName,
                         generationConfig: {
@@ -485,7 +521,7 @@ export async function analyzeSingleContract(
                     });
 
                     const stream = await model.generateContentStream([
-                        { text: prompt },
+                        { text: enrichedPrompt },
                         { inlineData: { data: base64Data, mimeType: mimeType } }
                     ]);
 

@@ -151,6 +151,16 @@ function extractValue(row: string[], cols: number[]): { raw: string } {
 
 function parsePercentage(raw: string): number | null {
     if (!raw) return null;
+
+    // --- ALGORITHMIC EXCLUSION DETECTION (User Request: "Visual Reading Comprehension") ---
+    const upper = raw.toUpperCase();
+    const exclusions = ["EXCLUIDO", "SIN COBERTURA", "NO CUBRE", "NO BONIFICA", "SIN BONIFICACION", "NC", "S/C"];
+
+    // Explicit 0% markers
+    if (exclusions.some(ex => upper.includes(ex)) || raw.trim() === "-" || raw.trim() === "—") {
+        return 0;
+    }
+
     const clean = raw.replace(/,/g, '.');
     // Look for a number immediately followed by %
     const match = clean.match(/(\d+)\s*%/);

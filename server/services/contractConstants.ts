@@ -566,6 +566,8 @@ export const PROMPT_PROYECCION_JSON = `
   GOAL:
   Extract a structured JSON representation of the provided health contract.
   
+  {{FEW_SHOT_EXAMPLES}}
+
   CRITICAL INSTRUCTIONS:
 1. ** COLUMN ALIGNMENT(CRITICAL) **:
 - Most Isapre contracts have 5 - 7 columns.
@@ -586,6 +588,12 @@ export const PROMPT_PROYECCION_JSON = `
      - ** STEP 2: VERIFICATION **: Double check the extracted 'tope' against the source image.Ensure it matches exactly.
      - ** STEP 3: OUTPUT **: If verified, provide the output.
      - Do not summarize.Transcribe every digit and symbol.
+
+   5. ** EXCLUSIONS & READING COMPREHENSION (STRICT) **:
+     - ** LOOK AT THE CELLS, NOT JUST THE LABELS **.
+     - Even if the label says "(Oferta Preferente)", if the specific cell for a provider (e.g., Clínica Alemana, Las Condes) says "Sin Cobertura", "Excluido", "-", "No Bonifica", or is blank where others have numbers, IT IS EXCLUDED.
+     - ** SPECIFIC CHECK **: For "Clínica Alemana", "Clínica Las Condes", "Clínica Nieves" (and similar premium providers), CHECK EXPLICITLY if they have a % or if they are excluded in the table. 
+     - IF EXCLUDED: Set percentage to 0 or null, and explicitly note "EXCLUIDO" in the tope or description if possible. DO NOT default to 100%.
 
 
   OUTPUT FORMAT: JSON Strict according to the provided schema.
