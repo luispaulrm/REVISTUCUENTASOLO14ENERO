@@ -278,28 +278,55 @@ export const AlphaFoldVisualizer: React.FC<AlphaFoldVisualizerProps> = ({ auditR
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     {[
-                        { id: 'S_VAL_HONORARIOS', label: 'Honorarios Médicos', desc: 'Arancel / VAM' },
-                        { id: 'S_VAL_PABELLON', label: 'Derecho Pabellón', desc: 'Recargos / Integral' },
-                        { id: 'S_VAL_MEDICAMENTOS', label: 'Medicamentos', desc: 'Tope Evento/Anual' },
-                        { id: 'S_VAL_MATERIALES', label: 'Materiales Clínicos', desc: 'Tope 20 UF' },
+                        { id: 'S_VAL_HONORARIOS', label: 'Honorarios Médicos', desc: 'Arancel / VAM', signal_group: 'HONORARIOS' },
+                        { id: 'S_VAL_PABELLON', label: 'Derecho Pabellón', desc: 'Recargos / Integral', signal_group: 'PABELLON' },
+                        { id: 'S_VAL_MEDICAMENTOS', label: 'Medicamentos', desc: 'Tope Evento/Anual', signal_group: 'MEDICAMENTOS' },
+                        { id: 'S_VAL_MATERIALES', label: 'Materiales Clínicos', desc: 'Tope 20 UF', signal_group: 'MATERIALES' },
                     ].map(tope => {
                         const val = signals?.find((s: any) => s.id === tope.id)?.value || 0;
                         const isValidated = val > 0.5;
 
+                        // Check specific failure modes
+                        const contractMissing = signals?.find((s: any) => s.id === 'S_CONTRATO_COBERTURAS_VACIAS')?.value > 0.5;
+                        const groupingSignal = tope.signal_group === 'MATERIALES' ? 'S_PAM_AGRUPADOR_MATERIALES' :
+                            tope.signal_group === 'MEDICAMENTOS' ? 'S_PAM_AGRUPADOR_MEDICAMENTOS' : null;
+                        const isOpaque = groupingSignal ? (signals?.find((s: any) => s.id === groupingSignal)?.value > 0.5) : false;
+
+                        // Granular Status Logic
+                        let statusText = "PENDIENTE";
+                        let statusColor = "text-slate-400";
+                        let explanation = tope.desc;
+                        let boxClass = "bg-gray-50 border-gray-200 opacity-80";
+
+                        if (isValidated) {
+                            statusText = "➤ VALIDADO";
+                            statusColor = "text-green-600";
+                            boxClass = "bg-green-50 border-green-200 shadow-sm";
+                        } else if (contractMissing) {
+                            statusText = "SIN CONTRATO";
+                            statusColor = "text-amber-500";
+                            explanation = "Falta cargarlo";
+                        } else if (isOpaque) {
+                            statusText = "BLOQUEADO (OPACIDAD)";
+                            statusColor = "text-red-500";
+                            explanation = "Tope contractual existe, pero cuenta agrupada impide cruce.";
+                            boxClass = "bg-red-50 border-red-200";
+                        }
+
                         return (
-                            <div key={tope.id} className={`p-4 border rounded-xl flex flex-col gap-2 transition-all duration-300 ${isValidated ? 'bg-green-50 border-green-200 shadow-sm' : 'bg-gray-50 border-gray-200 opacity-60'
-                                }`}>
+                            <div key={tope.id} className={`p-4 border rounded-xl flex flex-col gap-2 transition-all duration-300 ${boxClass}`}>
                                 <div className="flex justify-between items-start">
                                     <span className="font-bold text-sm text-slate-800">{tope.label}</span>
-                                    {isValidated ? (
-                                        <span className="text-green-600 font-black text-xs">➤ VALIDADO</span>
-                                    ) : (
-                                        <span className="text-slate-400 font-bold text-[10px] uppercase">Pendiente</span>
-                                    )}
+                                    <span className={`${statusColor} font-black text-[10px] uppercase text-right leading-tight max-w-[50%]`}>
+                                        {statusText}
+                                    </span>
                                 </div>
                                 <div className="flex items-center justify-between mt-auto">
-                                    <span className="text-[10px] text-slate-500">{tope.desc}</span>
+                                    <span className={`text-[10px] ${isOpaque ? "text-red-600 font-medium" : "text-slate-500"}`}>
+                                        {explanation}
+                                    </span>
                                     {isValidated && <CheckCircle2 size={14} className="text-green-600" />}
+                                    {isOpaque && <ShieldAlert size={14} className="text-red-500" />}
                                 </div>
                                 {isValidated && (
                                     <div className="h-1 bg-green-200 rounded-full overflow-hidden mt-1">

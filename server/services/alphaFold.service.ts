@@ -732,7 +732,11 @@ export class AlphaFoldService {
 
         const check = (i: any) => {
             const desc = (i.descripcion || "").toUpperCase();
-            if (desc.includes(category.toUpperCase())) {
+            // Fix: Broader detection for Honorarios (Roles, not just literal "HONORARIO")
+            const isHonorario = category === "HONORARIO" &&
+                (desc.includes("HONORARIO") || desc.includes("CIRUJANO") || desc.includes("ANESTESISTA") || desc.includes("MEDICO") || desc.includes("VISITA") || desc.includes("INTERCONSULTA"));
+
+            if (desc.includes(category.toUpperCase()) || isHonorario) {
                 count++;
                 if (GENERIC_CODES.includes(i.codigoGC)) genericCount++;
                 // Additional check: if copago is present but bonificacion is 0 
