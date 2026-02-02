@@ -91,6 +91,7 @@ export default function CanonicalGeneratorApp() {
         setReportMetrics(null);
         setFileName(file.name);
         setLogs([]);
+        localStorage.removeItem('canonical_contract_result'); // Fix: Force clear storage to prevent stale mix
         addLog(`[SISTEMA] Iniciando canonización de: ${file.name}`);
 
         const reader = new FileReader();
