@@ -824,38 +824,58 @@ export async function analyzeSingleContract(
     }
 
     /**
-     * R-MULTI-CLAUSE-01 & R-EXCEPTION-CLINICS-01 & R-TOPE-MIXTO-01
-     * Proyecta un tope compuesto (multi-cláusula) sin pérdida de datos.
+     * EVOLUCIONAL v1.7.0 (R1-R10)
+     * Proyecta un tope compuesto (multi-cláusula) determinístico.
      */
     function parseCompoundTope(evidencia: string): ExplorationTopeCompound[] {
         const compounds: ExplorationTopeCompound[] = [];
         const s = evidencia.toUpperCase();
 
-        // 1. Split Nacional vs Internacional (R-MULTI-CLAUSE-01)
+        // R1 — Split por “/” con preservación literal
         const parts = evidencia.split(/\s\/\s/);
 
         parts.forEach(part => {
             const upart = part.toUpperCase();
-            // Deterministic alcance detection
+
+            // R2 — Segmento “Internacional”
             let alcance: 'NACIONAL' | 'INTERNACIONAL' = 'NACIONAL';
             if (upart.includes('INTERNACIONAL') || upart.includes('INTERNAC')) alcance = 'INTERNACIONAL';
 
             const comp: ExplorationTopeCompound = { alcance };
+            comp.tipoTope = 'TOPE_EVENTO'; // Default R2
 
-            // Exceptions (R-EXCEPTION-CLINICS-01)
+            // R3 — Segmento “(Anual)”
+            if (upart.includes('(ANUAL)') || upart.includes('ANUAL')) {
+                comp.tipoTope = 'TOPE_ANUAL';
+            }
+
+            // R5 — Excepciones por prestador (Estructurado + Efecto)
             if (upart.includes('EXCEPTO')) {
                 const excMatch = part.match(/EXCEPTO\s+([^/]+)/i);
                 if (excMatch) {
-                    comp.excepciones = excMatch[1].split(/,| y /).map(e => e.trim()).filter(e => e.length > 3);
+                    const pctMatch = excMatch[1].match(/(\d+)%/);
+                    const pct = pctMatch ? parseInt(pctMatch[1]) : 0;
+                    const prestadores = excMatch[1].replace(/\d+%/g, '').replace(/ en /gi, '').split(/,| y /).map(e => e.trim()).filter(e => e.length > 3);
+
+                    // FIX #5: Inferir efecto de la excepción
+                    // Si pct < 100 es LIMITANTE (reduce cobertura)
+                    const efecto: 'CAMBIO_DOMINIO' | 'LIMITANTE' | 'INFORMATIVO' = pct < 100 ? 'LIMITANTE' : 'INFORMATIVO';
+
+                    comp.excepciones = prestadores.map(p => ({
+                        prestador: p,
+                        porcentaje: pct,
+                        efecto
+                    }));
                 }
             }
 
-            // Rules detection priority
+            // R4 — Segmento “SIN TOPE” vs CON_TOPE
             if (upart.includes('SIN TOPE') || upart.includes('ILIMITADO')) {
                 comp.regla = 'SIN_TOPE';
                 comp.unidad = 'SIN_TOPE';
                 comp.tope = null;
             } else {
+                // R7 — Normalización numérica (coma decimal) via normalizeTopeFactor
                 const norm = normalizeTopeFactor(part);
                 if (norm.factor) {
                     comp.tope = norm.factor;
@@ -867,14 +887,6 @@ export async function analyzeSingleContract(
             comp.descripcion = part.trim();
             compounds.push(comp);
         });
-
-        // 2. R-TOPE-MIXTO-01 (VAM + UF Techo)
-        // If evidence contains pattern like "3,55 VAM [Tope Máximo: 4,20 UF]"
-        if (s.includes('VAM') && s.includes('TOPE MÁXIMO') && s.includes('UF')) {
-            // This is already handled by the split if there's a slash, 
-            // but for bracketed topes we might need special logic.
-            // (v14.0 keeps it as one block for now if no slash)
-        }
 
         return compounds;
     }
@@ -1088,38 +1100,115 @@ export async function analyzeSingleContract(
     // 2. Enriched: Reasoned and Normalized
     const itemCollisionSet = new Set<string>();
     const coberturas_enriquecidas = coberturas_evidencia.filter(c => {
-        // R-DEDUP-01: (categoria + seccion_raw + item + tipo_modalidad + evidencia_literal)
-        // We use a simplified key for now but ensuring items aren't duplicated by content
+        // V2 — Duplicados exactos (Deduplicación determinista por clave)
         const firstMod = c.modalidades[0];
         const key = `${c.categoria}|${c.seccion_raw}|${c.item}|${firstMod?.tipo}|${firstMod?.evidencia_literal}`;
 
         if (itemCollisionSet.has(key)) return false;
         itemCollisionSet.add(key);
         return true;
-    }).map(c => {
+    }).map((c, idx) => {
         let enriched = { ...c };
 
         // AMBITO-CATEGORY CONSISTENCY
         if (enriched.ambito === 'HOSPITALARIO') enriched.categoria_canonica = 'HOSPITALARIO';
         else if (enriched.ambito === 'AMBULATORIO') enriched.categoria_canonica = 'AMBULATORIO';
 
-        // Normalized normalization (v1.6.0)
-        enriched.modalidades = enriched.modalidades.map(mod => {
+        // Normalized normalization (v1.7.0)
+        enriched.modalidades = enriched.modalidades.map((mod, mIdx) => {
             const norm = (mod.unidadTope === 'MIXTO')
                 ? { factor: null, unit: 'MIXTO', raw: mod.tope }
                 : normalizeTopeFactor(mod.tope as string, mod.unidadTope);
 
-            // R-MULTI-CLAUSE-01: Proyectar tope compuesto
+            // R1-R8: Proyectar tope compuesto
             const tope_compuesto = parseCompoundTope(mod.evidencia_literal);
+
+            // R6 — Tipificación de “MIXTO” (Evento + Anual)
+            let tipoTopeGlobal = mod.tipoTope;
+            const hasAnual = tope_compuesto.some(tc => tc.tipoTope === 'TOPE_ANUAL');
+            const hasEvento = tope_compuesto.some(tc => tc.tipoTope === 'TOPE_EVENTO');
+            if (hasAnual && hasEvento) tipoTopeGlobal = 'MIXTO_EVENTO_Y_ANUAL' as any;
+
+            // R9 — “Por evento durante la Hospitalización”
+            const upart = mod.evidencia_literal.toUpperCase();
+            const uitem = enriched.item.toUpperCase();
+            if (uitem.includes('POR EVENTO DURANTE LA HOSPITALIZACIÓN') || upart.includes('POR EVENTO DURANTE LA HOSPITALIZACIÓN')) {
+                tipoTopeGlobal = 'POR_EVENTO';
+            }
+
+            // R10 — “PAD dental”
+            let subdominio: any = 'GLOBAL';
+            if (uitem.includes('PAD') || uitem.includes('PA D')) subdominio = 'DENTAL_PAD';
+            if (uitem.includes('MEDICAMENTOS')) subdominio = 'MEDICAMENTOS';
+
+            // V1 — Unidad mal declarada (SIN TOPE + UF Internacional)
+            let unidadNormalizada: any = norm.unit;
+            if (upart.includes('SIN TOPE') && upart.includes('UF')) {
+                unidadNormalizada = 'COMPUESTO';
+            }
+
+            // FIX #3: Eliminar DESCONOCIDO - Colapsar tipoTope desde tope_compuesto
+            if (tipoTopeGlobal === 'DESCONOCIDO' && tope_compuesto.length > 0) {
+                const tipos = tope_compuesto.map(tc => tc.tipoTope).filter(Boolean);
+                if (tipos.includes('TOPE_ANUAL') && tipos.includes('TOPE_EVENTO')) {
+                    tipoTopeGlobal = 'MIXTO_EVENTO_Y_ANUAL' as any;
+                } else if (tipos.includes('TOPE_ANUAL')) {
+                    tipoTopeGlobal = 'ANUAL';
+                } else {
+                    tipoTopeGlobal = 'POR_EVENTO'; // Default para topes simples
+                }
+            }
+
+            // FIX #4: Inferir contexto_clinico desde item y ambito
+            let contexto_clinico: any = 'GLOBAL';
+            if (uitem.includes('QUIRÚRGIC') || uitem.includes('PABELLON') || uitem.includes('PABELLÓN') || uitem.includes('CIRUGÍA') || uitem.includes('HONORARIOS MÉDICOS QUIRÚRGICOS')) {
+                contexto_clinico = enriched.ambito === 'HOSPITALARIO' ? 'QUIRURGICO_HOSPITALARIO' : 'QUIRURGICO_AMBULATORIO';
+            } else if (uitem.includes('CONSULTA')) {
+                contexto_clinico = 'CONSULTA';
+            } else if (uitem.includes('EXÁMEN') || uitem.includes('EXAMEN') || uitem.includes('LABORATORIO') || uitem.includes('IMAGEN') || uitem.includes('TAC') || uitem.includes('SCANNER') || uitem.includes('RESONANCIA') || uitem.includes('ECOTOMO') || uitem.includes('RAYOS')) {
+                contexto_clinico = 'DIAGNOSTICO';
+            } else if (uitem.includes('KINESIOLOG') || uitem.includes('FONOAUDIO') || uitem.includes('TERAPIA') || uitem.includes('PSICOTERAP')) {
+                contexto_clinico = 'TERAPIA';
+            } else if (uitem.includes('MEDICAMENTOS') || uitem.includes('MATERIALES') || uitem.includes('INSUMOS') || uitem.includes('PRÓTESIS') || uitem.includes('PROTESIS') || uitem.includes('ÓRTESIS') || uitem.includes('ORTESIS')) {
+                contexto_clinico = 'INSUMOS';
+            }
+
+            // FIX #2: Recalibrar flag_inconsistencia_porcentaje
+            // Solo disparar si es REALMENTE inconsistente, no para items quirúrgicos conocidos
+            let flagInconsistencia = false;
+            const itemsQuirurgicosAmbulatorios100 = ['HONORARIOS MÉDICOS QUIRÚRGICOS', 'PABELLÓN', 'PABELLON', 'BOX AMBULATORIO', 'DERECHO DE PABELLÓN', 'DERECHO DE PABELLON'];
+            const esItemQuirurgicoAmb = itemsQuirurgicosAmbulatorios100.some(kw => uitem.includes(kw));
+
+            if (enriched.ambito === 'AMBULATORIO' && mod.porcentaje === 100 && !esItemQuirurgicoAmb) {
+                // Solo flaggear si NO es un item quirúrgico conocido
+                flagInconsistencia = true;
+            }
+
+            // V4 — Segmento “95% Nivel I, II...” (Nivel rules)
+            const reglas_por_nivel: any[] = [];
+            const nivelMatches = upart.match(/(\d+)%\s+NIVEL\s+(I|II|III)/g);
+            if (nivelMatches) {
+                nivelMatches.forEach(m => {
+                    const match = m.match(/(\d+)%\s+NIVEL\s+(I|II|III)/);
+                    if (match) reglas_por_nivel.push({ nivel: match[2], porcentaje: parseInt(match[1]) });
+                });
+            }
 
             return {
                 ...mod,
                 interpretacion_sugerida: `IA detectó ${mod.porcentaje}% con evidencia: ${mod.evidencia_literal}`,
                 tope_normalizado: norm.factor,
-                unidad_normalizada: norm.unit as any,
+                unidad_normalizada: unidadNormalizada,
                 tope_raw: norm.raw,
-                tope_compuesto
+                tope_compuesto,
+                tipoTope: tipoTopeGlobal,
+                reglas_por_nivel: reglas_por_nivel.length > 0 ? reglas_por_nivel : undefined,
+                subdominio,
+                contexto_clinico,
+                flag_inconsistencia_porcentaje: flagInconsistencia,
+                source_occurrence_id: `${enriched.ambito === 'HOSPITALARIO' ? 'HOSP' : 'AMB'}_ITEM_${idx}_M${mIdx}`
             };
+
         });
 
         return enriched;
@@ -1130,7 +1219,8 @@ export async function analyzeSingleContract(
         reglas: [],
         coberturas_evidencia,
         coberturas_enriquecidas,
-        coberturas: coberturas_enriquecidas, // UI fallback
+        // FIX #1: Eliminamos 'coberturas' duplicado. UI debe usar solo coberturas_enriquecidas.
+        coberturas: coberturas_enriquecidas, // DEPRECADO - UI fallback hasta refactor
         diseno_ux,
         rawMarkdown: (ocrResult as any).text || '',
         metrics: {

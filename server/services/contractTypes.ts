@@ -53,27 +53,39 @@ export interface ExplorationTopeCompound {
     regla?: 'SIN_TOPE' | 'CON_TOPE' | 'ARANCEL' | 'REEMBOLSO';
     tope?: number | null;
     unidad?: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'UNKNOWN';
-    excepciones?: string[];
+    tipoTope?: 'TOPE_EVENTO' | 'TOPE_ANUAL' | 'ILIMITADO' | 'DESCONOCIDO';
+    excepciones?: Array<{
+        prestador: string;
+        porcentaje: number;
+        efecto: 'CAMBIO_DOMINIO' | 'LIMITANTE' | 'INFORMATIVO';
+    }>;
     descripcion?: string;
 }
+
 
 export interface ExplorationModality {
     tipo: 'PREFERENTE' | 'LIBRE_ELECCION';
     porcentaje: number | string; // e.g., 100 or "80%"
     tope: string | number | null;
     unidadTope: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'UNKNOWN';
-    tipoTope: 'POR_EVENTO' | 'ANUAL' | 'ILIMITADO' | 'DESCONOCIDO';
+    tipoTope: 'POR_EVENTO' | 'ANUAL' | 'ILIMITADO' | 'MIXTO_EVENTO_Y_ANUAL' | 'DESCONOCIDO';
     copago: string | number | null;
     evidencia_literal: string;
     origen_extraccion?: string;
 
-    // Enrichment fields (v1.6.0+)
+    // Enrichment fields (v1.7.0+)
     interpretacion_sugerida?: string;
     tope_normalizado?: number | null;
-    unidad_normalizada?: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'UNKNOWN';
+    unidad_normalizada?: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'COMPUESTO' | 'UNKNOWN';
     tope_raw?: string | null;
     tope_compuesto?: ExplorationTopeCompound[];
+    reglas_por_nivel?: Array<{ nivel: 'I' | 'II' | 'III'; porcentaje: number }>;
+    subdominio?: 'DENTAL_PAD' | 'MEDICAMENTOS' | 'GLOBAL' | 'UNDETERMINED';
+    contexto_clinico?: 'QUIRURGICO_HOSPITALARIO' | 'QUIRURGICO_AMBULATORIO' | 'CONSULTA' | 'DIAGNOSTICO' | 'TERAPIA' | 'INSUMOS' | 'GLOBAL';
+    flag_inconsistencia_porcentaje?: boolean;
+    source_occurrence_id?: string;
 }
+
 
 // 🧪 EXPLORATION ITEM 
 export interface ExplorationItem {
