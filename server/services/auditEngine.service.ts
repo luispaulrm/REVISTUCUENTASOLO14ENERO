@@ -314,6 +314,14 @@ function isProtectedCatA(f: Finding, eventos: EventoHospitalario[] = []): boolea
         if (/(COBERTURA|BONIFICACION).*(100%|TOTAL|COMPLETA)/i.test(rationale)) {
             return true;
         }
+
+        // Hypothesis E: Clinical Materials & Supplies (should be 100% bundled or covered)
+        const isClinicalSupplies = /MATERIAL|INSUMO|OXIGENO|OXIGENOTERAPIA|PUNCION|SUTURA|GASAS|JERINGA|ANTISEPTICO/.test(label) ||
+            /MATERIAL|INSUMO|OXIGENO|PABELLON/.test(rationale);
+        const isPlanPleno = rationale.includes("PLAN PLENO") || rationale.includes("COBERTURA 100%") || rationale.includes("TOTAL");
+        if (isClinicalSupplies && isPlanPleno) {
+            return true;
+        }
     }
 
     // Level 2: Technical/Normative (Unbundling / Double Billing)
@@ -960,7 +968,8 @@ export async function performForensicAudit(
     htmlContext: string = '',
     contractMarkdown: string = '', // NEW: Dual Verification Context
     onUsageUpdate?: (usage: any) => void,
-    onProgressUpdate?: (progress: number) => void
+    onProgressUpdate?: (progress: number) => void,
+    isAgentMode: boolean = false // NEW: Agent-specific deep scan trigger
 ) {
     // AUDIT-SPECIFIC: Reasoner First (Pro), then Flash 3, then Fallback (2.5)
     const modelsToTry = [AI_MODELS.reasoner, AI_MODELS.primary, AI_MODELS.fallback];
@@ -1059,7 +1068,7 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
 
     const cleanedCuenta = hasStructuredCuenta ? {
         ...cuentaJson,
-        sections: cuentaJson.sections?.map((section: any) => ({
+        sections: (cuentaJson.sections || (cuentaJson.items ? [{ category: "GENERAL", items: cuentaJson.items }] : []))?.map((section: any) => ({
             category: section.category || section.name,
             sectionTotal: section.sectionTotal,
             items: section.items?.map((item: any) => ({
@@ -2157,6 +2166,59 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
                 }
             }
         }
+        // --- STEP: FORENSIC DEEP SCAN (V6.6+) ---
+        // Realiza una segunda pasada para capturar ítems bonificados parcialmente o no detectados
+        // que por su naturaleza clínica en un Plan Pleno deben ser Categoría A.
+        log('[AuditEngine] 🕵️ Bot de Búsqueda Forense: Escaneando ítems residuales...');
+        const pamItemsForScan = pamJson?.folios?.flatMap((f: any) =>
+            f.desglosePorPrestador?.flatMap((d: any) =>
+                d.items?.filter((i: any) => i.copago > 100) || []
+            ) || []
+        ) || [];
+
+        const isPlanPlenoContext = JSON.stringify(contratoJson).toLowerCase().includes('pleno') ||
+            JSON.stringify(contratoJson).includes('100%');
+
+        for (const item of pamItemsForScan) {
+            const alreadyFlagged = mergedFindings.some(f =>
+                (f.id === item.uniqueId) || (f.label === item.descripcion) ||
+                (f.evidenceRefs && f.evidenceRefs.some(ref => ref.includes(item.codigo)))
+            );
+
+            if (!alreadyFlagged) {
+                const desc = (item.descripcion || "").toUpperCase();
+                const isInsumoOculto = /OXIGENO|OXIGENOTER|MATERIAL|INSUMO|PUNCION|SUTURA|GASAS|CATETER|JERINGA|FONASA 1|DRENAJE|SONDA|GUANTES/.test(desc);
+                const isNursingOculto = /VIA VENOSA|FLEBOCLISIS|INSTALACION|CURACION|ENFERMERIA/.test(desc);
+
+                if ((isInsumoOculto || isNursingOculto) && isPlanPlenoContext) {
+                    log(`[AuditEngine] 🚨 Agente Forense detectó copago indebido: "${item.descripcion}" ($${item.copago})`);
+                    mergedFindings.push({
+                        id: item.uniqueId || `FORENSIC_${item.codigo}_${item.copago}`,
+                        category: 'A',
+                        label: `${item.descripcion} (Detector Forense)`,
+                        amount: item.copago,
+                        action: 'IMPUGNAR',
+                        evidenceRefs: [`PAM:${item.codigo}`],
+                        rationale: `El Agente de Búsqueda Forense (17 Pasos) identificó este cobro de ${isNursingOculto ? 'enfermería' : 'insumos/materiales'} ($${item.copago}) en un contexto de Plan Pleno. Bajo normativa IF/319 e IF/176, estos cargos están prohibidos por desagregación o deben cubrirse al 100%.`,
+                        hypothesisParent: "H_UNBUNDLING_IF319"
+                    });
+                } else if (isAgentMode && item.copago > 5000) {
+                    // In intensive agent mode, anything with high copay that isn't flagged gets a "Z" for investigation
+                    log(`[AuditEngine] 🕵️ Agente Forense marcó para investigación: "${item.descripcion}" ($${item.copago})`);
+                    mergedFindings.push({
+                        id: item.uniqueId || `FORENSIC_Z_${item.codigo}`,
+                        category: 'Z',
+                        label: `${item.descripcion} (Revisión Forense)`,
+                        amount: item.copago,
+                        action: 'SOLICITAR_ACLARACION',
+                        evidenceRefs: [`PAM:${item.codigo}`],
+                        rationale: `El Agente Forense detectó un copago residual significativo ($${item.copago}) no explicado por la auditoría estándar. Se requiere conciliación manual de la glosa contra el contrato.`,
+                        hypothesisParent: "H_OPACIDAD_ESTRUCTURAL"
+                    });
+                }
+            }
+        }
+
         const canonicalResult = finalizeAuditCanonical({
             findings: mergedFindings,
             totalCopago: totalCopagoReal,

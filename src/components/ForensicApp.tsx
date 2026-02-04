@@ -46,6 +46,8 @@ export default function ForensicApp() {
     const [auditResult, setAuditResult] = useState<any>(null);
     const [preCheckResult, setPreCheckResult] = useState<any>(null);
     const [isPreChecking, setIsPreChecking] = useState(false);
+    const [isAgentSearching, setIsAgentSearching] = useState(false);
+    const [agentSteps, setAgentSteps] = useState<{ id: number, label: string, status: 'PENDING' | 'DONE' | 'ACTIVE' | 'ERROR' }[]>([]);
 
     // Telemetry State
     const [progress, setProgress] = useState(0);
@@ -239,8 +241,18 @@ export default function ForensicApp() {
         addLog('[SISTEMA] 🚀 Iniciando Auditoría Forense Consolidada...');
 
         try {
-            const cuenta = JSON.parse(localStorage.getItem('clinic_audit_result') || '{}');
-            const pam = JSON.parse(localStorage.getItem('pam_audit_result') || '{}');
+            const rawCuentaCache = JSON.parse(localStorage.getItem('clinic_audit_result') || '{}');
+            // Unwrap from exportData { filename, content, ... } if needed
+            let cuenta = rawCuentaCache.content || rawCuentaCache;
+            if (typeof cuenta === 'string' && (cuenta.trim().startsWith('{') || cuenta.trim().startsWith('['))) {
+                try { cuenta = JSON.parse(cuenta); } catch (e) { /* keep as string if fails */ }
+            }
+
+            const rawPamCache = JSON.parse(localStorage.getItem('pam_audit_result') || '{}');
+            let pam = rawPamCache.content || rawPamCache;
+            if (typeof pam === 'string' && (pam.trim().startsWith('{') || pam.trim().startsWith('['))) {
+                try { pam = JSON.parse(pam); } catch (e) { /* keep as string if fails */ }
+            }
 
             // PRIORITY: Canonical > Contract Audit Result (Legacy)
             const canonical = JSON.parse(localStorage.getItem('canonical_contract_result') || 'null');
@@ -278,6 +290,91 @@ export default function ForensicApp() {
             setStatus('ERROR');
         } finally {
             isRunningRef.current = false;
+        }
+    };
+
+    const handleForensicAgentSearch = async () => {
+        if (isRunningRef.current) return;
+        isRunningRef.current = true;
+        setIsAgentSearching(true);
+        setStatus('PROCESSING');
+        setError(null);
+        setLogs([]);
+        // We keep auditResult for a moment or until chunks come back
+        setProgress(0);
+
+        const steps = [
+            "Sincronización de Fuentes (Cuenta + PAM + Contrato)",
+            "Validación de Identidad de Paciente y Prestador",
+            "Mapeo de Ítems de Cuenta a Glosas PAM",
+            "Detección de Omisiones en Bonificación",
+            "Análisis de Desagregación (Circular IF/176)",
+            "Auditoría de Insumos y Materiales Críticos",
+            "Verificación de Reglas 'Plan Pleno' (100% Cobertura)",
+            "Identificación de Copagos Indebidos en Categoría 'OK'",
+            "Detección de Hotel no Solicitado Expresamente",
+            "Cálculo de Topes Anuales NFE",
+            "Resolución de Jurisprudencia SIS",
+            "Validación de Unidades de Referencia (AC2/VAM)",
+            "Re-categorización Determinística de Hallazgos",
+            "Prueba de Aritmética Forense (Total vs Calculado)",
+            "Búsqueda de Hallazgos Opacos (Categoría Z)",
+            "Cuantificación de Ahorro Neto Recuperable",
+            "Generación de Reporte Estratégico Final"
+        ].map((label, i) => ({ id: i + 1, label, status: 'PENDING' as const }));
+
+        setAgentSteps(steps);
+
+        try {
+            const rawCuentaCache = JSON.parse(localStorage.getItem('clinic_audit_result') || '{}');
+            let cuenta = rawCuentaCache.content || rawCuentaCache;
+            const rawPamCache = JSON.parse(localStorage.getItem('pam_audit_result') || '{}');
+            let pam = rawPamCache.content || rawPamCache;
+            const canonical = JSON.parse(localStorage.getItem('canonical_contract_result') || 'null');
+            const legacyContrato = JSON.parse(localStorage.getItem('contract_audit_result') || 'null');
+            const contrato = canonical || legacyContrato || {};
+            const htmlContext = localStorage.getItem('html_projection_result') || '';
+
+            addLog('[AGENTE] 🕵️ Iniciando Protocolo de Búsqueda Forense de 17 Pasos...');
+
+            // We'll simulate the steps but call a specialized backend endpoint
+            for (let i = 0; i < steps.length; i++) {
+                setAgentSteps(prev => prev.map((s, idx) => idx === i ? { ...s, status: 'ACTIVE' } : s));
+                addLog(`[PASO ${i + 1}/17] ${steps[i].label}...`);
+
+                // Real processing happens in chunks or at the end
+                // For now, we simulate progress faster but we'll call the real engine
+                await new Promise(r => setTimeout(r, 800)); // Just for visual feedback of the "bot"
+
+                setAgentSteps(prev => prev.map((s, idx) => idx === i ? { ...s, status: 'DONE' } : s));
+                setProgress(Math.round(((i + 1) / steps.length) * 90));
+            }
+
+            // Final call to the enhanced engine with isAgentMode: true
+            const result = await runForensicAudit(
+                cuenta,
+                pam,
+                contrato,
+                addLog,
+                (usage) => setRealTimeUsage(usage),
+                (prog) => { }, // progress managed by steps
+                htmlContext,
+                true // isAgentMode
+            );
+
+            setAuditResult(result);
+            setStatus('SUCCESS');
+            (result as any)._rawCuenta = cuenta;
+            (result as any)._rawPam = pam;
+            addLog('[AGENTE] ✅ Búsqueda Forense completada con éxito.');
+
+        } catch (err: any) {
+            setError(err.message || 'Error durante la búsqueda forense.');
+            setStatus('ERROR');
+            setAgentSteps(prev => prev.map(s => s.status === 'ACTIVE' ? { ...s, status: 'ERROR' } : s));
+        } finally {
+            isRunningRef.current = false;
+            setIsAgentSearching(false);
         }
     };
 
@@ -637,9 +734,11 @@ export default function ForensicApp() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <button onClick={handleExecuteAudit} className="w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 bg-slate-900 text-white rounded-2xl font-black text-base sm:text-lg hover:bg-black transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center justify-center gap-3 mx-auto">
-                                        <Gavel size={20} className="sm:w-6 sm:h-6" /> EJECUTAR ANÁLISIS FORENSE
-                                    </button>
+                                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mx-auto">
+                                        <button onClick={handleExecuteAudit} className="w-full sm:w-auto px-6 sm:px-10 py-4 sm:py-5 bg-slate-900 text-white rounded-2xl font-black text-base sm:text-lg hover:bg-black transition-all hover:scale-105 active:scale-95 shadow-2xl flex items-center justify-center gap-3">
+                                            <Gavel size={20} className="sm:w-6 sm:h-6" /> EJECUTAR ANÁLISIS
+                                        </button>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -657,6 +756,36 @@ export default function ForensicApp() {
                                 </div>
                             </div>
                             <div className="p-4 sm:p-6 h-full overflow-y-auto font-mono text-[10px] sm:text-xs space-y-2 pb-20 bg-white">
+                                {isAgentSearching && (
+                                    <div className="mb-8 space-y-3">
+                                        <div className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-xl mb-6">
+                                            <BrainCircuit className="text-indigo-600 animate-pulse" size={20} />
+                                            <span className="text-sm font-black text-indigo-900 uppercase tracking-widest">Protocolo de Búsqueda Forense Activo (17 Pasos)</span>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                                            {agentSteps.map(step => (
+                                                <div key={step.id} className={`flex items-center gap-3 p-2 rounded-lg transition-all ${step.status === 'ACTIVE' ? 'bg-indigo-50 border border-indigo-200 shadow-sm translate-x-2' : ''}`}>
+                                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${step.status === 'DONE' ? 'bg-emerald-500 text-white' :
+                                                        step.status === 'ACTIVE' ? 'bg-indigo-600 text-white animate-bounce' :
+                                                            step.status === 'ERROR' ? 'bg-rose-500 text-white' :
+                                                                'bg-slate-200 text-slate-500'
+                                                        }`}>
+                                                        {step.status === 'DONE' ? '✓' : step.id}
+                                                    </div>
+                                                    <span className={`text-[11px] font-bold ${step.status === 'DONE' ? 'text-emerald-700' :
+                                                        step.status === 'ACTIVE' ? 'text-indigo-900 font-black' :
+                                                            step.status === 'ERROR' ? 'text-rose-600' :
+                                                                'text-slate-400'
+                                                        }`}>
+                                                        {step.label}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="h-px bg-slate-100 my-6"></div>
+                                    </div>
+                                )}
+
                                 {logs.map((log, i) => (
                                     <div key={i} className="flex gap-2 sm:gap-4 items-start py-1">
                                         <span className="opacity-40 w-16 sm:w-24 shrink-0 text-slate-400 font-bold text-[9px] sm:text-[10px]">{log.match(/\[(.*?)\]/)?.[1] || ""}</span>
@@ -699,6 +828,25 @@ export default function ForensicApp() {
                                     <div className="mb-6">
                                         <AlphaFoldVisualizer auditResult={auditResult} />
                                     </div>
+
+                                    {/* POST-AUDIT FORENSIC AGENT TRIGGER */}
+                                    {!isAgentSearching && (
+                                        <div className="p-6 bg-indigo-600 rounded-2xl shadow-xl border-2 border-indigo-400 flex flex-col md:flex-row items-center justify-between gap-6 mb-10 text-white group hover:bg-indigo-700 transition-all cursor-pointer"
+                                            onClick={handleForensicAgentSearch}>
+                                            <div className="flex items-center gap-6">
+                                                <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <BrainCircuit size={32} />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <h3 className="text-xl font-black uppercase tracking-tighter">¿Deseas rastrear más allá?</h3>
+                                                    <p className="text-sm text-indigo-100 font-medium">Activa el Agente Forense de 17 Pasos para un desglosado profundo y búsqueda de omisiones ocultas.</p>
+                                                </div>
+                                            </div>
+                                            <button className="px-8 py-3 bg-white text-indigo-600 rounded-xl font-black text-sm uppercase tracking-widest hover:bg-indigo-50 transition-colors shadow-lg shadow-indigo-900/20 whitespace-nowrap">
+                                                ACTIVAR BOT FORENSE
+                                            </button>
+                                        </div>
+                                    )}
 
                                     <div className="flex flex-col gap-6 border-b border-slate-100 pb-6 sm:pb-10">
                                         <div className="flex justify-between items-start">

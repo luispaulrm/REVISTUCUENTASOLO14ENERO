@@ -15,7 +15,7 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
     };
 
     try {
-        const { cuentaJson, pamJson, contratoJson, htmlContext } = req.body;
+        const { cuentaJson, pamJson, contratoJson, htmlContext, isAgentMode } = req.body;
 
         if ((!cuentaJson && !htmlContext) || !pamJson || !contratoJson) {
             sendUpdate({ type: 'error', message: 'Missing required data (Cuenta/HTML, PAM or Contrato)' });
@@ -29,7 +29,7 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
         }
 
         sendUpdate({ type: 'progress', progress: 5 });
-        sendUpdate({ type: 'log', message: '[AUDIT] Iniciando auditoría forense...' });
+        sendUpdate({ type: 'log', message: isAgentMode ? '[AGENT] Iniciando Protocolo de Búsqueda Forense (17 Pasos)...' : '[AUDIT] Iniciando auditoría forense...' });
 
         // Always use single pass
         const result = await performForensicAudit(
@@ -60,7 +60,8 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
                 });
             },
             // onProgressUpdate
-            (prog) => sendUpdate({ type: 'progress', progress: prog })
+            (prog) => sendUpdate({ type: 'progress', progress: prog }),
+            isAgentMode
         );
 
         sendUpdate({ type: 'progress', progress: 95 });

@@ -6,6 +6,59 @@ import { AI_MODELS, GENERATION_CONFIG } from "../config/ai.config.js";
 // ========================================
 export { PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER } from './contractConstants_classifier.js';
 
+// ========================================
+// SCHEMA & PROMPT FOR ACCOUNT/BILL PROJECTION (Módulo 7)
+// ========================================
+
+export const SCHEMA_CUENTA_JSON = {
+  type: SchemaType.OBJECT,
+  properties: {
+    paciente: {
+      type: SchemaType.OBJECT,
+      properties: {
+        nombre: { type: SchemaType.STRING },
+        rut: { type: SchemaType.STRING },
+        folio: { type: SchemaType.STRING },
+        total_cuenta: { type: SchemaType.NUMBER }
+      }
+    },
+    items: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          seccion: { type: SchemaType.STRING, description: "Literal uppercase section header, e.g. '3101 MEDICAMENTOS'" },
+          codigo: { type: SchemaType.STRING, nullable: true },
+          descripcion: { type: SchemaType.STRING },
+          cantidad: { type: SchemaType.NUMBER, nullable: true },
+          precioUnitario: { type: SchemaType.NUMBER, nullable: true },
+          total: { type: SchemaType.NUMBER },
+          index: { type: SchemaType.NUMBER, description: "Sequential line number from the original document" }
+        },
+        required: ['descripcion', 'total']
+      }
+    }
+  },
+  required: ['items']
+} as any;
+
+export const PROMPT_CUENTA_JSON = `
+  ACT AS A HIGH-FIDELITY MEDICAL BILL PROJECTOR (JSON MODE).
+
+  GOAL:
+  Extract every single line item from the clinical bill (Cuenta Médica) into structured JSON.
+  
+  CRITICAL INSTRUCTIONS:
+  1. **FIDELITY**: Capture every item, even if it seems low value.
+  2. **SECTIONS**: Maintain the visual grouping. If items are under a header like "3104 INSUMOS", every item in that block must have "seccion": "3104 INSUMOS".
+  3. **NUMBERS**: Ensure 'total' is a number (remove dots/commas if needed, e.g. "1.250" -> 1250).
+  4. **TRACEABILITY**: Set 'index' to the 1-based line number of the item in the document.
+  5. **NO SUMMARIES**: If a list has 200 items, you must output 200 items. DO NOT use ellipsis.
+  
+  OUTPUT FORMAT: JSON Strict according to the provided schema.
+`;
+
+
 /**
  * PROMPT EXCLUSIVO PARA REGLAS - PARTE 1 (MANDATO FIDELIDAD QUIRÚRGICA v11.3)
  */

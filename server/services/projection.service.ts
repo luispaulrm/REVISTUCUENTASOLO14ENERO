@@ -1,6 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AI_CONFIG } from '../config/ai.config.js';
-import { SCHEMA_PROYECCION_JSON, PROMPT_PROYECCION_JSON } from './contractConstants.js';
+import {
+    SCHEMA_PROYECCION_JSON, PROMPT_PROYECCION_JSON,
+    SCHEMA_CUENTA_JSON, PROMPT_CUENTA_JSON
+} from './contractConstants.js';
 
 
 export interface ProjectionChunk {
@@ -50,7 +53,7 @@ export class ProjectionService {
 
             const isBillOnly = mode === 'BILL_ONLY';
             const prompt = pass === 1 ? (
-                format === 'json' ? PROMPT_PROYECCION_JSON : `
+                format === 'json' ? (isBillOnly ? PROMPT_CUENTA_JSON : PROMPT_PROYECCION_JSON) : `
                 ACT AS A HIGH-FIDELITY DOCUMENT PROJECTOR (OCR CALCO MODE).
                 
                 GOAL:
@@ -173,7 +176,7 @@ export class ProjectionService {
                                     topP: 0.8,
                                     topK: 20,
                                     responseMimeType: format === 'json' ? "application/json" : "text/plain",
-                                    responseSchema: format === 'json' ? SCHEMA_PROYECCION_JSON : undefined
+                                    responseSchema: format === 'json' ? (isBillOnly ? SCHEMA_CUENTA_JSON : SCHEMA_PROYECCION_JSON) : undefined
                                 }
                             });
 
