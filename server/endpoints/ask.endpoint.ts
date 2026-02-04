@@ -3,6 +3,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { AI_CONFIG } from "../config/ai.config.js";
 import fs from 'fs/promises';
 import path from 'path';
+import { getRelevantKnowledge, extractCaseKeywords } from '../services/knowledgeFilter.service.js';
+import { PersistentMemoryService } from '../services/persistentMemory.service.js';
 
 import { fileURLToPath } from 'url';
 
@@ -43,19 +45,14 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
     const pamJson = context?.pamJson || null;
     const auditResult = context?.auditResult || null;
 
-    // --- LOADING KNOWLEDGE BASE ---
+    // --- LOADING KNOWLEDGE BASE (Filtered to prevent leakage) ---
     let extraLiterature = "";
     try {
-        const files = await fs.readdir(KNOWLEDGE_DIR);
+        const keywords = extractCaseKeywords(billJson, pamJson, contractJson, htmlContext);
+        const filteredKnowledge = await getRelevantKnowledge(keywords, 40000, (msg) => console.log(`[ASK-KNOWLEDGE] ${msg}`));
+        extraLiterature = filteredKnowledge.text;
 
-        for (const file of files) {
-            const ext = path.extname(file).toLowerCase();
-            if (ext === '.txt' || ext === '.md') {
-                const content = await fs.readFile(path.join(KNOWLEDGE_DIR, file), 'utf-8');
-                // Cap total literature to avoid excessive token usage, but JURISPRUDENCIA is a must.
-                extraLiterature += `\n\n--- DOCUMENTO LEGAL: ${file} ---\n${content.substring(0, 800000)}`;
-            }
-        }
+        console.log(`[ASK] Filtered knowledge loaded: ${filteredKnowledge.sources.join(', ')} (${filteredKnowledge.tokenEstimate} tokens)`);
     } catch (err) {
         console.error("[ASK] Error loading literature:", err);
     }

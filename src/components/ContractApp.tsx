@@ -110,6 +110,11 @@ export default function ContractApp() {
         setFileName(file.name);
         setLogs([]);
         setRealTimeUsage(null);
+
+        // --- STALE DATA PROTECTION (RFC-14) ---
+        localStorage.removeItem('canonical_contract_result');
+        localStorage.removeItem('mental_model_cache');
+
         addLog(`[SISTEMA] Contrato recibido: ${file.name}`);
 
         const reader = new FileReader();

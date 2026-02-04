@@ -380,30 +380,31 @@ export default function ForensicApp() {
     };
 
     const clearAllData = () => {
-        const confirmClear = window.confirm(
-            '⚠️ ¿Deseas reiniciar TODA la sesión?\n\n' +
-            'Aceptar: Borra TODOS los archivos y resultados.\n' +
-            'Cancelar: Solo limpia la pantalla (mantiene archivos).'
-        );
+        if (!confirm('¿Seguro que deseas limpiar TODA la sesión actual? Esta acción no se puede deshacer.')) return;
 
-        if (confirmClear) {
-            localStorage.removeItem('clinic_audit_result');
-            localStorage.removeItem('pam_audit_result');
-            localStorage.removeItem('contract_audit_result');
-            localStorage.removeItem('canonical_contract_result');
-            localStorage.removeItem('html_projection_result');
-            window.location.reload();
-        } else {
-            setStatus('IDLE');
-            setAuditResult(null);
-            setLogs([]);
-            setRealTimeUsage(null);
-            setProgress(0);
-            setError(null);
-            checkData();
-            addLog('[SISTEMA] 🧹 Pantalla limpia. Datos de origen preservados.');
-            setPreCheckResult(null);
-        }
+        localStorage.removeItem('clinic_audit_result'); // Changed from bill_audit_result to clinic_audit_result
+        localStorage.removeItem('pam_audit_result');
+        localStorage.removeItem('contract_audit_result');
+        localStorage.removeItem('canonical_contract_result');
+        localStorage.removeItem('html_projection_result'); // Changed from full_html_context to html_projection_result
+        localStorage.removeItem('forensic_active_case_id');
+        localStorage.removeItem('mental_model_cache');
+
+        // Assuming these state setters exist and correspond to the cached items
+        // setCachedBill(null);
+        // setCachedPam(null);
+        // setCachedContract(null);
+        // setCachedContractCanon(null);
+        // setCachedHtml(null);
+        setAuditResult(null);
+        setLogs([]);
+        setStatus('IDLE'); // Added to reset status
+        setRealTimeUsage(null); // Added to clear usage
+        setProgress(0); // Added to reset progress
+        setError(null); // Added to clear errors
+        setPreCheckResult(null); // Added to clear pre-check result
+        checkData(); // Re-run checkData to update hasBill, hasPam, etc.
+        addLog('[SISTEMA] 🧹 Memoria de sesión limpiada por completo.');
     };
 
     const performPreCheck = async () => {
@@ -453,6 +454,7 @@ export default function ForensicApp() {
             return () => clearTimeout(timer);
         }
     }, [hasBill, hasPam, hasContract, hasHtml, hasCanonical, preCheckResult, isPreChecking, status]);
+
 
     const handlePreview = (type: 'BILL' | 'PAM' | 'CONTRACT' | 'HTML' | 'CANONICAL') => {
         try {
@@ -1414,9 +1416,9 @@ function InterrogationZone({ auditResult, compactMode = false, responsiveHeight 
                     images: currentImages,
                     context: {
                         htmlContext: localStorage.getItem('html_projection_result') || '',
-                        billJson: JSON.parse(localStorage.getItem('clinic_audit_result') || '{}'),
-                        pamJson: JSON.parse(localStorage.getItem('pam_audit_result') || '{}'),
-                        contractJson: JSON.parse(localStorage.getItem('canonical_contract_result') || localStorage.getItem('contract_audit_result') || '{}'),
+                        billJson: auditResult?.billJson || JSON.parse(localStorage.getItem('clinic_audit_result') || '{}'),
+                        pamJson: auditResult?.pamJson || JSON.parse(localStorage.getItem('pam_audit_result') || '{}'),
+                        contractJson: auditResult?.contractJson || JSON.parse(localStorage.getItem('canonical_contract_result') || localStorage.getItem('contract_audit_result') || '{}'),
                         auditResult
                     }
                 })

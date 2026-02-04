@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { analyzeSingleContract } from '../services/contractEngine.service.js';
+import { PersistentMemoryService } from '../services/persistentMemory.service.js';
 
 // Helper para obtener env vars
 function envGet(k: string) {
