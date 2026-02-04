@@ -1,0 +1,334 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.18,
+          0.41,
+          0.21
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.18,
+          0.79,
+          0.21
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS_DIAGNOSTICOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.23,
+          0.41,
+          0.26
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS_DIAGNOSTICOS",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.23,
+          0.79,
+          0.26
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_TERAPIAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.28,
+          0.41,
+          0.31
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_TERAPIAS",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.28,
+          0.79,
+          0.31
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_HOSPITALIZACION",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.32,
+          0.41,
+          0.35
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_HOSPITALIZACION",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.32,
+          0.79,
+          0.35
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS_AMBULATORIOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.37,
+          0.41,
+          0.4
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS_AMBULATORIOS",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.37,
+          0.79,
+          0.4
+        ]
+      },
+      "value": "25%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_ATENCION_URGENCIA_AMBULATORIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.42,
+          0.41,
+          0.45
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_ATENCION_URGENCIA_AMBULATORIA",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.42,
+          0.79,
+          0.45
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_MATERNIDAD",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.46,
+          0.41,
+          0.49
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_MATERNIDAD",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.46,
+          0.79,
+          0.49
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_ODONTOLOGIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.51,
+          0.41,
+          0.54
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_ODONTOLOGIA",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.51,
+          0.79,
+          0.54
+        ]
+      },
+      "value": "25%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_OPTÍCA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.55,
+          0.41,
+          0.58
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_OPTÍCA",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.55,
+          0.79,
+          0.58
+        ]
+      },
+      "value": "25%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_PROGRAMAS_PREVENTIVOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.6,
+          0.41,
+          0.63
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_PROGRAMAS_PREVENTIVOS",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.6,
+          0.79,
+          0.63
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_GASTOS_MEDICOS_CATASTROFICOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.37,
+          0.64,
+          0.41,
+          0.67
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_GASTOS_MEDICOS_CATASTROFICOS",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.76,
+          0.64,
+          0.79,
+          0.67
+        ]
+      },
+      "value": "50%",
+      "unit": "%"
+    }
+  ]
+}

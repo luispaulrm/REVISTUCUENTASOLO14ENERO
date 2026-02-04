@@ -1,0 +1,137 @@
+{
+    "page_metadata": {
+        "page_number": 1,
+        "source": "VPRLU204B2",
+        "render_dimensions": {
+            "width": 1200,
+            "height": 2400
+        },
+        "unit": "normalized_0_1"
+    },
+    "columns": [
+        {
+            "column_id": "C1_PRESTACIONES",
+            "x_range": [
+                0.05,
+                0.35
+            ],
+            "label": "PRESTACIONES"
+        },
+        {
+            "column_id": "C2_PREF_PCT",
+            "x_range": [
+                0.36,
+                0.45
+            ],
+            "label": "PREF %"
+        },
+        {
+            "column_id": "C3_PREF_TOPE",
+            "x_range": [
+                0.46,
+                0.65
+            ],
+            "label": "PREF TOPE"
+        },
+        {
+            "column_id": "C4_PREF_ANNUAL",
+            "x_range": [
+                0.66,
+                0.75
+            ],
+            "label": "PREF ANNUAL"
+        },
+        {
+            "column_id": "C5_LE_PCT",
+            "x_range": [
+                0.76,
+                0.81
+            ],
+            "label": "LE %"
+        },
+        {
+            "column_id": "C6_LE_TOPE",
+            "x_range": [
+                0.82,
+                0.90
+            ],
+            "label": "LE TOPE"
+        },
+        {
+            "column_id": "C7_LE_ANNUAL",
+            "x_range": [
+                0.91,
+                0.98
+            ],
+            "label": "LE ANNUAL"
+        }
+    ],
+    "row_model": [
+        {
+            "row_id": "R_DIA_CAMA",
+            "y_range": [
+                0.21,
+                0.22
+            ],
+            "text": "Día Cama"
+        },
+        {
+            "row_id": "R_UTI_UCI",
+            "y_range": [
+                0.24,
+                0.25
+            ],
+            "text": "Día Cama Cuidados Intensivos..."
+        },
+        {
+            "row_id": "R_EXAMENES_LAB",
+            "y_range": [
+                0.27,
+                0.28
+            ],
+            "text": "Exámenes de Laboratorio"
+        },
+        {
+            "row_id": "R_HONORARIOS",
+            "y_range": [
+                0.32,
+                0.33
+            ],
+            "text": "Honorarios Médicos Quirúrgicos"
+        }
+    ],
+    "zones": [
+        {
+            "zone_id": "ZONE_VPRLU_70PCT_PREF",
+            "type": "RECT_FALL",
+            "geometric_scope": {
+                "x": [
+                    0.36,
+                    0.65
+                ],
+                "y": [
+                    0.21,
+                    0.30
+                ]
+            },
+            "contains_text": "70% Sin Tope Clínica Alemana, Clínica U. de los Andes, San Carlos de Apoquindo, Santa María, Hosp. Clínico UC",
+            "visual_role": "RULE_BLOCK"
+        },
+        {
+            "zone_id": "ZONE_VPRLU_60PCT_PREF",
+            "type": "RECT_FALL",
+            "geometric_scope": {
+                "x": [
+                    0.36,
+                    0.65
+                ],
+                "y": [
+                    0.31,
+                    0.35
+                ]
+            },
+            "contains_text": "60% Sin Tope Clínica Las Condes",
+            "visual_role": "RULE_BLOCK"
+        }
+    ]
+}

@@ -1,0 +1,765 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.22,
+          0.54,
+          0.24
+        ]
+      },
+      "value": "4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.46,
+          0.24,
+          0.49,
+          0.26
+        ]
+      },
+      "value": "40",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.24,
+          0.6,
+          0.26
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_INCUBADORA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.26,
+          0.54,
+          0.28
+        ]
+      },
+      "value": "4,3",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.29,
+          0.54,
+          0.31
+        ]
+      },
+      "value": "10,6",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.31,
+          0.54,
+          0.33
+        ]
+      },
+      "value": "4,3",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.34,
+          0.6,
+          0.36
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.46,
+          0.36,
+          0.48,
+          0.38
+        ]
+      },
+      "value": "5",
+      "unit": "0%"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.36,
+          0.6,
+          0.38
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.38,
+          0.53,
+          0.4
+        ]
+      },
+      "value": "5,5",
+      "unit": "V.A"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.46,
+          0.41,
+          0.48,
+          0.42
+        ]
+      },
+      "value": "90",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.47,
+          0.53,
+          0.49
+        ]
+      },
+      "value": "32",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.47,
+          0.6,
+          0.49
+        ]
+      },
+      "value": "1200",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MATERIALES_E_INSUMOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.49,
+          0.53,
+          0.51
+        ]
+      },
+      "value": "24",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MATERIALES_E_INSUMOS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.49,
+          0.6,
+          0.51
+        ]
+      },
+      "value": "48",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.52,
+          0.54,
+          0.54
+        ]
+      },
+      "value": "14",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.52,
+          0.6,
+          0.54
+        ]
+      },
+      "value": "140",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.54,
+          0.54,
+          0.56
+        ]
+      },
+      "value": "10",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.54,
+          0.59,
+          0.56
+        ]
+      },
+      "value": "20",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.54,
+          0.6,
+          0.57
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.57,
+          0.53,
+          0.59
+        ]
+      },
+      "value": "0,48",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.58,
+          0.6,
+          0.59
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.6,
+          0.53,
+          0.62
+        ]
+      },
+      "value": "1,4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.64,
+          0.53,
+          0.66
+        ]
+      },
+      "value": "0,4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.64,
+          0.59,
+          0.66
+        ]
+      },
+      "value": "4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.46,
+          0.67,
+          0.48,
+          0.68
+        ]
+      },
+      "value": "3",
+      "unit": "0%"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.67,
+          0.6,
+          0.69
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO_AMB",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.7,
+          0.6,
+          0.71
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.72,
+          0.6,
+          0.73
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON_AMB",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.74,
+          0.6,
+          0.76
+        ]
+      },
+      "value": "Sin Tope"
+    },
+    {
+      "row_id": "R_FONO_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.46,
+          0.82,
+          0.48,
+          0.84
+        ]
+      },
+      "value": "4",
+      "unit": "0%"
+    },
+    {
+      "row_id": "R_FONO_AMB",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.82,
+          0.54,
+          0.84
+        ]
+      },
+      "value": "3,45",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_FONO_AMB",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.74,
+          0.82,
+          0.77,
+          0.84
+        ]
+      },
+      "value": "2,3",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_KINESIO_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.46,
+          0.84,
+          0.48,
+          0.86
+        ]
+      },
+      "value": "70",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_KINESIO_AMB",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.84,
+          0.54,
+          0.86
+        ]
+      },
+      "value": "3,45",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_KINESIO_AMB",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.74,
+          0.84,
+          0.77,
+          0.86
+        ]
+      },
+      "value": "2,3",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PREST_DENTALES",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.87,
+          0.54,
+          0.89
+        ]
+      },
+      "value": "1,4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PREST_DENTALES",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.74,
+          0.87,
+          0.77,
+          0.89
+        ]
+      },
+      "value": "0,9",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_CLINICA_LACTANCIA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.89,
+          0.54,
+          0.91
+        ]
+      },
+      "value": "1,4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_CLINICA_LACTANCIA",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.74,
+          0.89,
+          0.77,
+          0.91
+        ]
+      },
+      "value": "0,9",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MAL_NUTRICION",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.91,
+          0.54,
+          0.93
+        ]
+      },
+      "value": "1,4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MAL_NUTRICION",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.74,
+          0.91,
+          0.77,
+          0.93
+        ]
+      },
+      "value": "0,9",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_FERTILIZACION_BAJA_HOMBRE",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.93,
+          0.54,
+          0.95
+        ]
+      },
+      "value": "1,4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_FERTILIZACION_BAJA_HOMBRE",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.74,
+          0.93,
+          0.77,
+          0.95
+        ]
+      },
+      "value": "0,9",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_FERTILIZACION_BAJA_MUJER",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.95,
+          0.54,
+          0.97
+        ]
+      },
+      "value": "1,4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_FERTILIZACION_BAJA_MUJER",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.74,
+          0.95,
+          0.77,
+          0.97
+        ]
+      },
+      "value": "0,9",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_FERTILIZACION_ALTA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.51,
+          0.97,
+          0.54,
+          0.99
+        ]
+      },
+      "value": "1,4",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_FERTILIZACION_ALTA",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.74,
+          0.97,
+          0.77,
+          0.99
+        ]
+      },
+      "value": "0,9",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA",
+      "col_header": "COL_PREF_PCT",
+      "value": "40%"
+    },
+    {
+      "row_id": "R_DIA_CAMA",
+      "col_header": "COL_LE_PCT",
+      "value": null
+    },
+    {
+      "row_id": "R_EXAMENES",
+      "col_header": "COL_PREF_PCT",
+      "value": "5 0%"
+    },
+    {
+      "row_id": "R_EXAMENES",
+      "col_header": "COL_LE_PCT",
+      "value": null
+    },
+    {
+      "row_id": "R_PABELLON",
+      "col_header": "COL_PREF_PCT",
+      "value": "90%"
+    },
+    {
+      "row_id": "R_PABELLON",
+      "col_header": "COL_LE_PCT",
+      "value": null
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS",
+      "col_header": "COL_PREF_PCT",
+      "value": null
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS",
+      "col_header": "COL_LE_PCT",
+      "value": null
+    },
+    {
+      "row_id": "R_UTI_UCI",
+      "col_header": "COL_PREF_PCT",
+      "value": null
+    },
+    {
+      "row_id": "R_UTI_UCI",
+      "col_header": "COL_LE_PCT",
+      "value": null
+    }
+  ]
+}

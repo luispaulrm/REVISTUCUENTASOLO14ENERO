@@ -15,21 +15,21 @@ export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
 
     // Clear session data on refresh (mount)
-    // Clear session data on refresh (mount) - DISABLED FOR PERSISTENCE
-    // React.useEffect(() => {
-    //     const hasData = localStorage.getItem('clinic_audit_result') ||
-    //         localStorage.getItem('pam_audit_result') ||
-    //         localStorage.getItem('contract_audit_result') ||
-    //         localStorage.getItem('html_projection_result');
+    // Clear session data on refresh (mount) to ensure a clean state as requested
+    React.useEffect(() => {
+        // We clear the "active" markers so the user starts fresh, 
+        // but the data remains in cacheManager history.
+        localStorage.removeItem('forensic_active_case_id');
+        localStorage.removeItem('clinic_audit_result');
+        localStorage.removeItem('pam_audit_result');
+        localStorage.removeItem('contract_audit_result');
+        localStorage.removeItem('html_projection_result');
+        localStorage.removeItem('clinic_audit_file_fingerprint');
+        localStorage.removeItem('pam_audit_file_fingerprint');
+        localStorage.removeItem('contract_audit_file_fingerprint');
 
-    //     if (hasData) {
-    //         console.log('[System] ℹ️ Sesión anterior detectada y preservada.');
-    //         // localStorage.removeItem('clinic_audit_result');
-    //         // localStorage.removeItem('pam_audit_result');
-    //         // localStorage.removeItem('contract_audit_result');
-    //         // localStorage.removeItem('html_projection_result');
-    //     }
-    // }, []);
+        console.log('[System] ℹ️ Sesión activa reseteada para inicio limpio. Historial preservado en Memoria Forense.');
+    }, []);
 
     const handleTabChange = (tab: DocumentType) => {
         setActiveTab(tab);

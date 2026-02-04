@@ -1,0 +1,215 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.02,
+        0.4
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.42,
+        0.52
+      ],
+      "label": "%"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.52,
+        0.59
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.59,
+        0.67
+      ],
+      "label": "Tope máx año\ncontrato por\nbeneficiario"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.67,
+        0.75
+      ],
+      "label": "%"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.75,
+        0.82
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.82,
+        0.98
+      ],
+      "label": "Tope máx año\ncontrato por\nbeneficiario"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.18,
+        0.22
+      ],
+      "raw_text": "Día Cama"
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "y_range": [
+        0.22,
+        0.26
+      ],
+      "raw_text": "Sala Cuna"
+    },
+    {
+      "row_id": "R_INCUBADORA",
+      "y_range": [
+        0.26,
+        0.3
+      ],
+      "raw_text": "Incubadora"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADO",
+      "y_range": [
+        0.3,
+        0.35
+      ],
+      "raw_text": "Día Cama Cuidado Intensivo, Intermedio o Coronario"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "y_range": [
+        0.35,
+        0.39
+      ],
+      "raw_text": "Día Cama Transitorio u Observación"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "y_range": [
+        0.41,
+        0.45
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.45,
+        0.49
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.49,
+        0.53
+      ],
+      "raw_text": "Derecho Pabellón"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.53,
+        0.58
+      ],
+      "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.58,
+        0.62
+      ],
+      "raw_text": "Medicamentos (1.4) (1.10)"
+    },
+    {
+      "row_id": "R_MATERIALES_INSUMOS",
+      "y_range": [
+        0.62,
+        0.66
+      ],
+      "raw_text": "Materiales e Insumos Clínicos (1.4) (1.10)"
+    },
+    {
+      "row_id": "R_PROTESIS_ORTESIS",
+      "y_range": [
+        0.66,
+        0.71
+      ],
+      "raw_text": "Prótesis, Órtesis y Elementos de Osteosíntesis (Solo con bonos)"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.71,
+        0.74
+      ],
+      "raw_text": "Quimioterapia (1.6)"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS",
+      "y_range": [
+        0.75,
+        0.78
+      ],
+      "raw_text": "Procedimientos"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS",
+      "y_range": [
+        0.78,
+        0.82
+      ],
+      "raw_text": "Honorarios Médicos Quirúrgicos (1.2)"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO_TRATANTE",
+      "y_range": [
+        0.84,
+        0.87
+      ],
+      "raw_text": "Visita por Médico Tratante y Médico Interconsultor"
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "y_range": [
+        0.87,
+        0.9
+      ],
+      "raw_text": "Traslados (5.4)"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.96,
+        0.99
+      ],
+      "raw_text": "Consulta Médica"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "y_range": [
+        0.99,
+        1.05
+      ],
+      "raw_text": "Consulta Médica de Telemedicina en Especialidades (1.14)**"
+    }
+  ],
+  "zones": []
+}

@@ -104,9 +104,19 @@ export async function retrieveRelevantExamples(text: string, tags: string[] = []
     if (candidates.length === 0) return [];
 
     // Filter by tags (Isapre)
+    // CRITICAL: Must be more selective to avoid injecting "massive" dump examples that don't truly match
     const relevant = candidates.filter(c => {
-        const tagMatch = c.tags.some(t => tags.includes(t) || text.toUpperCase().includes(t.toUpperCase()));
-        return tagMatch;
+        // Only match if at least one tag is present in the text and the example tags
+        const tagMatch = c.tags.some(t => {
+            const isKnownTag = tags.includes(t);
+            const isPresentInText = text.toUpperCase().includes(t.toUpperCase());
+            return isKnownTag && isPresentInText;
+        });
+
+        // Avoid "FULL_CONTRACT_CONTEXT" examples unless explicitly requested or very small
+        const isNotMassiveDump = c.originalTextSnippet !== "FULL_CONTRACT_CONTEXT_AUTOMATIC_LEARNING";
+
+        return tagMatch && isNotMassiveDump;
     });
 
     // Return top 2 recent examples to avoid overflowing context
@@ -124,9 +134,11 @@ export function applySynonyms(term: string) { return term; }
  */
 export function resetLearningMemory(): number {
     const dict = loadDictionary();
+    const exampleCount = dict.trainingExamples.length;
     dict.processedContracts = [];
+    dict.trainingExamples = []; // CRITICAL: Clear training examples to prevent data mixing
     dict.lastUpdated = new Date().toISOString();
     fs.writeFileSync(DICTIONARY_PATH, JSON.stringify(dict, null, 2));
-    console.log('[LEARNING] Memory reset. Counter set to 0.');
+    console.log(`[LEARNING] Memory reset. ${exampleCount} examples cleared.`);
     return 0;
 }

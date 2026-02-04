@@ -1,0 +1,231 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.061,
+        0.411
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.661,
+        0.711
+      ],
+      "label": "%"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.711,
+        0.771
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.811,
+        0.851
+      ],
+      "label": "%"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.851,
+        0.911
+      ],
+      "label": "Tope"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.259,
+        0.287
+      ],
+      "raw_text": "3,5   UF  Día Cama"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUAD_INTENS",
+      "y_range": [
+        0.287,
+        0.32
+      ],
+      "raw_text": "7   UF  Día Cama Cuidados Intensivos, Coronarios o Intermedios"
+    },
+    {
+      "row_id": "R_DIA_CAMA_SALA_CUNA",
+      "y_range": [
+        0.32,
+        0.348
+      ],
+      "raw_text": "1,5   UF  Día Cama Sala Cuna   -   Fototerapia    Clínica Bupa Santiago"
+    },
+    {
+      "row_id": "R_DIA_CAMA_OBSERVACION",
+      "y_range": [
+        0.348,
+        0.376
+      ],
+      "raw_text": "3,5   VA  Día Cama Observación   -   Recuperación"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.396,
+        0.423
+      ],
+      "raw_text": "2   VA  Derecho de Pabellón"
+    },
+    {
+      "row_id": "R_EXAMEN_LABORATORIO_HOSP",
+      "y_range": [
+        0.436,
+        0.463
+      ],
+      "raw_text": "1   VA  Exámenes de   Laboratorio"
+    },
+    {
+      "row_id": "R_EXAMEN_HISTOPATOLOGIA_HOSP",
+      "y_range": [
+        0.463,
+        0.49
+      ],
+      "raw_text": "1   VA  Exámenes de Histopatología"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_HOSP",
+      "y_range": [
+        0.49,
+        0.518
+      ],
+      "raw_text": "1   VA  Imagenología (Rayos; Scanner; Ecotomografía)"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_RNM_HOSP",
+      "y_range": [
+        0.518,
+        0.545
+      ],
+      "raw_text": "1   VA  Imagenología (Resonancia Nuclear Magnética)"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.545,
+        0.572
+      ],
+      "raw_text": "1,5   VA   10   UF  Kinesiología y fisioterapia"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.572,
+        0.599
+      ],
+      "raw_text": "15   UF  Materiales e insumos clínicos (2.g)(2.i)"
+    },
+    {
+      "row_id": "R_MATERIALES_INSUMOS",
+      "y_range": [
+        0.599,
+        0.626
+      ],
+      "raw_text": "1,5   VA  Procedimientos (1.a.2.3)(1.c)"
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "y_range": [
+        0.626,
+        0.653
+      ],
+      "raw_text": "1,5   VA  Honorarios médicos quirúrgicos (1.a.2.3)   Habitación Individual y Doble (1.a.2.1)"
+    },
+    {
+      "row_id": "R_VISITA_MEDICA",
+      "y_range": [
+        0.653,
+        0.68
+      ],
+      "raw_text": "0,5   UF  Visita por médico tratante o médico interconsultor (1.a.2.3)(1.b)"
+    },
+    {
+      "row_id": "R_PROTESIS_ORTESIS",
+      "y_range": [
+        0.68,
+        0.707
+      ],
+      "raw_text": "3,5   VA  Prótesis, órtesis y elementos de osteosíntesis"
+    },
+    {
+      "row_id": "R_TRASLADOS_MEDICOS",
+      "y_range": [
+        0.707,
+        0.734
+      ],
+      "raw_text": "2,5   VA  Traslados Médicos (1.i)"
+    },
+    {
+      "row_id": "R_DROGAS_BIOLOGICAS",
+      "y_range": [
+        0.734,
+        0.761
+      ],
+      "raw_text": "Drogas Biológicas (2.f)(2.i)    Sólo Cobertura Libre   Elección"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.761,
+        0.788
+      ],
+      "raw_text": "Quimioterapia (2.d)(2.i)"
+    },
+    {
+      "row_id": "R_INJERTOS_HEMATO",
+      "y_range": [
+        0.788,
+        0.815
+      ],
+      "raw_text": "1   VA    Injertos Hematopoyéticos"
+    },
+    {
+      "row_id": "R_FERTILIZACION_ASISTIDA",
+      "y_range": [
+        0.815,
+        0.842
+      ],
+      "raw_text": "1   VA  Fertilización asistida alta   complejidad (1.e)"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "y_range": [
+        0.868,
+        0.895
+      ],
+      "raw_text": "0,5   UF  Consulta telemedicina"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.895,
+        0.922
+      ],
+      "raw_text": "0,5   UF Consulta médica"
+    },
+    {
+      "row_id": "R_CONSULTA_OFTALMO",
+      "y_range": [
+        0.922,
+        0.949
+      ],
+      "raw_text": "0,5   UF  Consulta oftalmológica"
+    }
+  ],
+  "zones": []
+}

@@ -1,6 +1,10 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { GeminiService } from './gemini.service.js';
 import {
+    ExplorationJSON,
+    ExplorationItem,
+    ExplorationModality,
+    ExplorationTopeCompound,
     ContractAnalysisResult,
     ContractAnalysisOptions,
     UploadedFile,
@@ -312,7 +316,15 @@ async function repairJsonWithGemini(
 
 function parseTope(raw: string): { tope: number | null; unidad: "UF" | "AC2" | "SIN_TOPE"; tipoTope: "POR_EVENTO" | "ANUAL" | "ILIMITADO" } {
     const s = String(raw || "").trim();
-    if (!raw || s === "—" || s === "-" || /sin tope|ilimitado/i.test(s)) {
+
+    // DOCTRINA IMBATIBLE: Celda vacía != "Sin Tope"
+    // "—" o "-" son ausencia de dato, no cobertura infinita
+    if (!raw || s === "—" || s === "-" || s === "") {
+        return { tope: null, unidad: "SIN_TOPE" as any, tipoTope: "POR_EVENTO" as any }; // Mark as UNKNOWN in schema
+    }
+
+    // Solo texto explícito "sin tope" o "ilimitado" otorga cobertura infinita
+    if (/sin tope|ilimitado/i.test(s)) {
         return { tope: null, unidad: "SIN_TOPE", tipoTope: "ILIMITADO" };
     }
 
@@ -328,8 +340,8 @@ function parseTope(raw: string): { tope: number | null; unidad: "UF" | "AC2" | "
         return { tope: num, unidad: "AC2", tipoTope: "POR_EVENTO" };
     }
 
-    // Default fallback (soft fail or treat as pesos/unknown)
-    return { tope: num, unidad: "SIN_TOPE", tipoTope: "ILIMITADO" };
+    // Default fallback: if we have a number but no unit, mark as unknown
+    return { tope: num, unidad: "SIN_TOPE" as any, tipoTope: "POR_EVENTO" as any };
 }
 
 function rowToCoverages(row: string[]): ContractCoverage[] {
@@ -344,7 +356,9 @@ function rowToCoverages(row: string[]): ContractCoverage[] {
         const pVal = parseFloat(porcPref.replace("%", "").replace(",", "."));
         covers.push({
             prestacion: prestacion,
-            ambito: prestacion.toLowerCase().includes("hospital") ? "HOSPITALARIO" : "AMBULATORIO", // Simple heuristic for now
+            // DOCTRINA IMBATIBLE: No guessing. Este es un fallback legacy de markdown.
+            // Si se usa, debe marcar UNDETERMINED o recibir ambito inyectado.
+            ambito: "UNDETERMINED" as any,
             modalidad: "PREFERENTE",
             porcentaje: isNaN(pVal) ? null : pVal,
             ...parseTope(topePref),
@@ -357,7 +371,7 @@ function rowToCoverages(row: string[]): ContractCoverage[] {
         const pVal = parseFloat(porcLibre.replace("%", "").replace(",", "."));
         covers.push({
             prestacion: prestacion,
-            ambito: prestacion.toLowerCase().includes("hospital") ? "HOSPITALARIO" : "AMBULATORIO",
+            ambito: "UNDETERMINED" as any,
             modalidad: "LIBRE_ELECCION",
             porcentaje: isNaN(pVal) ? null : pVal,
             ...parseTope(topeLibre),
@@ -409,7 +423,7 @@ export async function analyzeSingleContract(
     apiKey: string,
     onLog?: (msg: string) => void,
     options: ContractAnalysisOptions = {}
-): Promise<ContractAnalysisResult> {
+): Promise<ExplorationJSON> {
     const startTime = Date.now();
     const { maxOutputTokens = 40000 } = options;
 
@@ -643,10 +657,10 @@ export async function analyzeSingleContract(
 
     function isValidSectionHeader(text: string): boolean {
         const t = (text || "").trim();
-        if (t.length < 4) return false;
-        if (/[0-9]+%|\$|[0-9]+[\.,][0-9]+|UF/i.test(t)) return false;
-        if (/^[0-9]{5,}/.test(t)) return false;
-        return t === t.toUpperCase() || t.length > 10;
+        if (t.length < 5) return false;
+        // DOCTRINA IMBATIBLE: Must be uppercase, no numbers, no symbols
+        // Prevents contamination from numeric values
+        return t === t.toUpperCase() && !/[0-9%$.,]/.test(t);
     }
 
     const runModularPhase = async (phaseId: string, segmentPrompt: string, targetAmbito: "HOSPITALARIO" | "AMBULATORIO") => {
@@ -677,26 +691,44 @@ export async function analyzeSingleContract(
 
             // Map Modalities
             const modalities = [];
-            if (item.preferente) {
-                modalities.push({
-                    tipo: "PREFERENTE",
-                    porcentaje: item.preferente.porcentaje,
-                    tope: item.preferente.tope,
-                    unidadTope: (item.preferente.tope || "").includes("UF") ? "UF" : "PESOS",
-                    tipoTope: "POR_EVENTO",
-                    copago: item.preferente.tope
-                });
-            }
-            if (item.libre_eleccion) {
-                modalities.push({
-                    tipo: "LIBRE_ELECCION",
-                    porcentaje: item.libre_eleccion.porcentaje,
-                    tope: item.libre_eleccion.tope,
-                    unidadTope: (item.libre_eleccion.tope || "").includes("UF") ? "UF" : "PESOS",
-                    tipoTope: "POR_EVENTO",
-                    copago: item.libre_eleccion.tope
-                });
-            }
+
+            const mapModality = (rawMod: any, tipo: "PREFERENTE" | "LIBRE_ELECCION") => {
+                if (!rawMod) return null;
+
+                const topeStr = String(rawMod.tope || "").toUpperCase();
+                let unit: "UF" | "AC2" | "VAM" | "PESOS" | "SIN_TOPE" | "DESCONOCIDO" | "MIXTO" = "DESCONOCIDO";
+
+                // DOCTRINA IMBATIBLE: Detectar MIXTO antes que unidades simples
+                const hasVAM = topeStr.includes("VAM");
+                const hasUF = topeStr.includes("UF");
+
+                if (hasVAM && hasUF) unit = "MIXTO";
+                else if (hasUF) unit = "UF";
+                else if (hasVAM) unit = "VAM";
+                else if (topeStr.includes("AC2") || topeStr.includes("VECES")) unit = "AC2";
+                else if (topeStr.includes("PESOS") || topeStr.includes("$")) unit = "PESOS";
+                else if (topeStr.includes("SIN TOPE") || topeStr.includes("ILIMITADO")) unit = "SIN_TOPE";
+
+                return {
+                    tipo,
+                    porcentaje: rawMod.porcentaje,
+                    tope: rawMod.tope,
+                    unidadTope: unit,
+                    tipoTope: "DESCONOCIDO" as const, // NO ASSUMING POR_EVENTO
+                    copago: rawMod.tope,
+                    // --- EXPLORATION DOCTRINE EVIDENCE ---
+                    evidencia_literal: rawMod.tope || item.item,
+                    incertidumbre: (rawMod.porcentaje === null || rawMod.tope === null) ? "Dato faltante o ambiguo en PDF" : undefined,
+                    origen_extraccion: 'VISUAL_MODULAR' as const
+                    // interpretacion_sugerida REMOVED from extraction phase (v1.6.0)
+                };
+            };
+
+            const modPref = mapModality(item.preferente, "PREFERENTE");
+            if (modPref) modalities.push(modPref);
+
+            const modLibre = mapModality(item.libre_eleccion, "LIBRE_ELECCION");
+            if (modLibre) modalities.push(modLibre);
 
             processedItems.push({
                 categoria: seccionRaw, // Map seccion_raw to categoria for UI
@@ -753,7 +785,7 @@ export async function analyzeSingleContract(
     // ============================================================================
     // HELPER: Ceiling Normalizer (Hybrid Parser)
     // ============================================================================
-    function normalizeTopeFactor(val: any, unitHint?: string): { factor: number | null; unit: 'UF' | 'AC2' | 'PESOS' | 'SIN_TOPE' | 'UNKNOWN', raw: string } {
+    function normalizeTopeFactor(val: any, unitHint?: string): { factor: number | null; unit: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'UNKNOWN', raw: string } {
         const raw = String(val || "").trim();
         const s = raw.toUpperCase();
 
@@ -761,76 +793,104 @@ export async function analyzeSingleContract(
             return { factor: null, unit: 'UNKNOWN', raw };
         }
 
+        // Detect MIXTO (UF and VAM)
+        if (s.includes('UF') && s.includes('VAM')) {
+            return { factor: null, unit: 'MIXTO', raw };
+        }
+
+        // R-UNIT-NORMALIZE-01: SIN_TOPE priority
+        // If it says "SIN TOPE", we don't care about numbers (likely percentages)
         if (s.includes('SIN TOPE') || s.includes('ILIMITADO') || s.includes('SIN LIMITE')) {
             return { factor: null, unit: 'SIN_TOPE', raw };
         }
 
-        // Try to parse number (handles 1.2, 1,2, 4.5, etc.)
-        const numMatch = s.match(/([\d\.,]+)/);
+        // Try to parse number
+        // R-TOPE-NORM-01: Ignore numbers followed by % (coverage, not tope)
+        const cleanForNum = s.replace(/\d+%/g, '').trim();
+        const numMatch = cleanForNum.match(/([\d\.,]+)/);
         let factor = numMatch ? parseFloat(numMatch[1].replace(',', '.')) : null;
 
-        let unit: 'UF' | 'AC2' | 'PESOS' | 'UNKNOWN' = 'UNKNOWN';
+        const hasNumbers = !!numMatch;
+        const hasKnownUnits = s.includes('UF') || s.includes('VAM') || s.includes('AC2') || s.includes('ARANCEL') || s.includes('$') || s.includes('PESOS');
 
-        if (s.includes('AC2') || s.includes('ARANCEL') || unitHint === 'AC2') unit = 'AC2';
-        else if (s.includes('UF') || unitHint === 'UF') unit = 'UF';
+        let unit: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'MIXTO' | 'UNKNOWN' = 'UNKNOWN';
+
+        if (s.includes('UF')) unit = 'UF';
+        else if (s.includes('VAM')) unit = 'VAM';
+        else if (s.includes('AC2') || s.includes('ARANCEL') || unitHint === 'AC2') unit = 'AC2';
         else if (s.includes('$') || s.includes('PESOS') || unitHint === 'PESOS') unit = 'PESOS';
 
-        // Fallback: If just a number < 50 likely UF or factor, if > 1000 likely Pesos. 
-        // But better to remain UNKNOWN if ambiguous.
-
         return { factor, unit, raw };
+    }
+
+    /**
+     * R-MULTI-CLAUSE-01 & R-EXCEPTION-CLINICS-01 & R-TOPE-MIXTO-01
+     * Proyecta un tope compuesto (multi-cláusula) sin pérdida de datos.
+     */
+    function parseCompoundTope(evidencia: string): ExplorationTopeCompound[] {
+        const compounds: ExplorationTopeCompound[] = [];
+        const s = evidencia.toUpperCase();
+
+        // 1. Split Nacional vs Internacional (R-MULTI-CLAUSE-01)
+        const parts = evidencia.split(/\s\/\s/);
+
+        parts.forEach(part => {
+            const upart = part.toUpperCase();
+            // Deterministic alcance detection
+            let alcance: 'NACIONAL' | 'INTERNACIONAL' = 'NACIONAL';
+            if (upart.includes('INTERNACIONAL') || upart.includes('INTERNAC')) alcance = 'INTERNACIONAL';
+
+            const comp: ExplorationTopeCompound = { alcance };
+
+            // Exceptions (R-EXCEPTION-CLINICS-01)
+            if (upart.includes('EXCEPTO')) {
+                const excMatch = part.match(/EXCEPTO\s+([^/]+)/i);
+                if (excMatch) {
+                    comp.excepciones = excMatch[1].split(/,| y /).map(e => e.trim()).filter(e => e.length > 3);
+                }
+            }
+
+            // Rules detection priority
+            if (upart.includes('SIN TOPE') || upart.includes('ILIMITADO')) {
+                comp.regla = 'SIN_TOPE';
+                comp.unidad = 'SIN_TOPE';
+                comp.tope = null;
+            } else {
+                const norm = normalizeTopeFactor(part);
+                if (norm.factor) {
+                    comp.tope = norm.factor;
+                    comp.unidad = norm.unit === 'UNKNOWN' ? 'UF' : norm.unit as any;
+                    comp.regla = 'CON_TOPE';
+                }
+            }
+
+            comp.descripcion = part.trim();
+            compounds.push(comp);
+        });
+
+        // 2. R-TOPE-MIXTO-01 (VAM + UF Techo)
+        // If evidence contains pattern like "3,55 VAM [Tope Máximo: 4,20 UF]"
+        if (s.includes('VAM') && s.includes('TOPE MÁXIMO') && s.includes('UF')) {
+            // This is already handled by the split if there's a slash, 
+            // but for bracketed topes we might need special logic.
+            // (v14.0 keeps it as one block for now if no slash)
+        }
+
+        return compounds;
     }
 
     const cleanAndCheck = (list: any[]) => list.map((cob: any) => {
         let cleaned = { ...cob };
 
-        // --- PHASE 1: STRUCTURAL INTEGRITY CHECK (v14.0 Strict) ---
+        // --- PHASE 1: STRUCTURAL INTEGRITY CHECK ---
         if (!cleaned.modalidades || !Array.isArray(cleaned.modalidades) || cleaned.modalidades.length === 0) {
-            // Force create modalities if missing but flat fields exist (Recovery)
-            if (cleaned.topePreferente || cleaned.topeLibre) {
-                cleaned.modalidades = [];
-                if (cleaned.topePreferente) cleaned.modalidades.push({ tipo: 'PREFERENTE', tope: cleaned.topePreferente, unitTope: 'UNKNOWN' });
-                if (cleaned.topeLibre) cleaned.modalidades.push({ tipo: 'LIBRE_ELECCION', tope: cleaned.topeLibre, unitTope: 'UNKNOWN' });
-            } else {
-                // Skip throwing here to allow recovery statistics, but filter out later if needed.
-                // For now, we tag it invalid.
-                cleaned.invalid = true;
-            }
+            cleaned.invalid = true;
         }
 
-        // --- PHASE 2: CANONICAL NORMALIZATION (v9.0) ---
-        cleaned.categoria_canonica = getCanonicalCategory(
-            cleaned.item || cleaned.prestacion || cleaned['PRESTACIÓN CLAVE'] || '',
-            cleaned.categoria || ''
-        );
+        // DOCTRINA DE SILENCIO
+        cleaned.nota_restriccion = cleaned.nota_restriccion ?? null;
 
-        if (!cleaned.nota_restriccion || cleaned.nota_restriccion === null) {
-            cleaned.nota_restriccion = "Sin restricciones adicionales especificadas. Sujeto a condiciones generales del plan.";
-        }
-
-        // --- PHASE 3: LOGICAL VALIDATION & NORMALIZATION (v12.0 - Deep Structure) ---
-        const itemName = String(cleaned.item || '').toLowerCase();
-
-        if (cleaned.modalidades) {
-            cleaned.modalidades = cleaned.modalidades.map((mod: any) => {
-                // Normalize Ceiling
-                const norm = normalizeTopeFactor(mod.tope, mod.unidadTope);
-
-                // Apply corrections
-                if (itemName.includes('medicamento') || itemName.includes('insumo') || itemName.includes('material')) {
-                    // Materials usually have numeric caps
-                }
-
-                return {
-                    ...mod,
-                    tope_normalizado: norm.factor,
-                    unidad_normalizada: norm.unit,
-                    tope_raw: norm.raw
-                };
-            });
-        }
-
-        // Sanity Check
+        // SANITY TRUNCATION
         const SANITY_LIMIT = 2000;
         ['item', 'nota_restriccion'].forEach(key => {
             if (cleaned[key] && typeof cleaned[key] === 'string' && cleaned[key].length > SANITY_LIMIT) {
@@ -838,6 +898,15 @@ export async function analyzeSingleContract(
                 cleaned[key] = cleaned[key].substring(0, 500) + "... [Truncado]";
             }
         });
+
+        // Semantic Correction (v1.6.0): Nullify copago if it mirrors tope/cobertura noise
+        if (cleaned.modalidades) {
+            cleaned.modalidades = cleaned.modalidades.map((m: any) => ({
+                ...m,
+                copago: null // SIS semantics: literal cell represents coverage/tope
+            }));
+        }
+
         return cleaned;
     }).filter((c: any) => !c.invalid);
 
@@ -882,7 +951,7 @@ export async function analyzeSingleContract(
             ---------------------
             
             EXTRAE TODAS LAS COBERTURAS, TOPES Y MODALIDADES QUE ENCUENTRES.
-            SI ENCUENTRAS TABLAS, RECONSTRÚYELAS LÓGICAMENTE.
+            SI ENCUENTRAS TABLAS, RECONSTRUYÉLAS LÓGICAMENTE.
             BUSCA ESPECIALMENTE: HÚMEDO/CLÍNICO, PABELLÓN, DÍA CAMA, MEDICAMENTOS, MATERIALES, HONORARIOS.
             
             RETORNA JSON SEGÚN SCHEMA.
@@ -984,27 +1053,21 @@ export async function analyzeSingleContract(
 
 
     // --- IDENTIFICATION BACKUP (v8.0) ---
-    const detectedIsapre = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('isapre'))?.split('isapre')?.[1]?.trim() || "Unknown";
-    const detectedPlan = fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('plan'))?.split('plan')?.[1]?.trim() || "Unknown";
+    // Try to find Isapre and Plan from classifier observations or phase text
+    const allText = (ocrResult as any).text || "";
+    const isapreMatch = allText.match(/(Banmédica|Colmena|Consalud|Cruz\s+Blanca|Nueva\s+Masvida|Vida\s+Tres|Fonasa)/i);
+    const planMatch = allText.match(/Plan\s+([\w\s\d]+)/i);
 
-    const diseno_ux = fullJsonPhase.result?.plan_info ? {
-        nombre_isapre: fullJsonPhase.result.plan_info.isapre || "Unknown",
-        titulo_plan: fullJsonPhase.result.plan_info.nombre_plan || "Unknown",
-        layout: "single_pass_dynamic",
+    const detectedIsapre = isapreMatch ? isapreMatch[0] : (fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('isapre'))?.split('isapre')?.[1]?.trim() || "Unknown");
+    const detectedPlan = planMatch ? planMatch[0] : (fingerprintPhase.result?.observaciones?.find(o => o.toLowerCase().includes('plan'))?.split('plan')?.[1]?.trim() || "Unknown");
+
+    const diseno_ux = {
+        nombre_isapre: detectedIsapre !== "Unknown" ? detectedIsapre : (fingerprintPhase.result?.tipo_contrato?.split('_')[0] || "Unknown"),
+        titulo_plan: detectedPlan !== "Unknown" ? detectedPlan : (file.originalname.replace('.pdf', '')),
+        layout: "modular_phased_v13",
         funcionalidad: "visual_hierarchy_v20",
         salida_json: "unified"
-    } : {
-        nombre_isapre: detectedIsapre !== "Unknown" ? detectedIsapre : "Unknown",
-        titulo_plan: detectedPlan !== "Unknown" ? detectedPlan : "Unknown",
-        layout: "failed_extraction",
-        funcionalidad: "visual_hierarchy_v20",
-        salida_json: "fallback"
     };
-
-    // Simple fallback if everything is unknown but fingerprint has info
-    if (diseno_ux.nombre_isapre === "Unknown" && fingerprintPhase.result?.tipo_contrato) {
-        diseno_ux.nombre_isapre = fingerprintPhase.result.tipo_contrato.split('_')[0];
-    }
 
     // --- TOTAL METRICS (Modular Phases) ---
     const allPhases = [fingerprintPhase, ...allModularPhases];
@@ -1012,12 +1075,64 @@ export async function analyzeSingleContract(
     const totalOutput = allPhases.reduce((acc, p) => acc + (p.metrics?.tokensOutput || 0), 0);
     const totalCost = allPhases.reduce((acc, p) => acc + (p.metrics?.cost || 0), 0);
 
-    const result: ContractAnalysisResult = {
+    // --- CANONICAL ENRICHMENT LAYER (v1.0) ---
+    // Rule: Evidence is frozen. Enrichment reasons and normalizes.
+    const hasPreferente = fingerprintPhase.result?.tiene_oferta_preferente !== false;
+
+    // 1. Evidence: Pure Literal from extraction
+    const coberturas_evidencia = coberturas.map(c => ({
+        ...c,
+        modalidades: c.modalidades.filter(m => hasPreferente || m.tipo !== 'PREFERENTE')
+    }));
+
+    // 2. Enriched: Reasoned and Normalized
+    const itemCollisionSet = new Set<string>();
+    const coberturas_enriquecidas = coberturas_evidencia.filter(c => {
+        // R-DEDUP-01: (categoria + seccion_raw + item + tipo_modalidad + evidencia_literal)
+        // We use a simplified key for now but ensuring items aren't duplicated by content
+        const firstMod = c.modalidades[0];
+        const key = `${c.categoria}|${c.seccion_raw}|${c.item}|${firstMod?.tipo}|${firstMod?.evidencia_literal}`;
+
+        if (itemCollisionSet.has(key)) return false;
+        itemCollisionSet.add(key);
+        return true;
+    }).map(c => {
+        let enriched = { ...c };
+
+        // AMBITO-CATEGORY CONSISTENCY
+        if (enriched.ambito === 'HOSPITALARIO') enriched.categoria_canonica = 'HOSPITALARIO';
+        else if (enriched.ambito === 'AMBULATORIO') enriched.categoria_canonica = 'AMBULATORIO';
+
+        // Normalized normalization (v1.6.0)
+        enriched.modalidades = enriched.modalidades.map(mod => {
+            const norm = (mod.unidadTope === 'MIXTO')
+                ? { factor: null, unit: 'MIXTO', raw: mod.tope }
+                : normalizeTopeFactor(mod.tope as string, mod.unidadTope);
+
+            // R-MULTI-CLAUSE-01: Proyectar tope compuesto
+            const tope_compuesto = parseCompoundTope(mod.evidencia_literal);
+
+            return {
+                ...mod,
+                interpretacion_sugerida: `IA detectó ${mod.porcentaje}% con evidencia: ${mod.evidencia_literal}`,
+                tope_normalizado: norm.factor,
+                unidad_normalizada: norm.unit as any,
+                tope_raw: norm.raw,
+                tope_compuesto
+            };
+        });
+
+        return enriched;
+    });
+
+    const result: ExplorationJSON = {
         fingerprint: fingerprintPhase.result || undefined,
-        reglas: [], // Reglas extraction disabled in single-pass mode
-        coberturas,
+        reglas: [],
+        coberturas_evidencia,
+        coberturas_enriquecidas,
+        coberturas: coberturas_enriquecidas, // UI fallback
         diseno_ux,
-        rawMarkdown: (ocrResult as any).text || '', // Include Markdown for Dual Verification
+        rawMarkdown: (ocrResult as any).text || '',
         metrics: {
             executionTimeMs: Date.now() - startTime,
             tokenUsage: {
@@ -1034,8 +1149,8 @@ export async function analyzeSingleContract(
             },
             extractionBreakdown: {
                 totalReglas: 0,
-                totalCoberturas: coberturas.length,
-                totalItems: coberturas.length
+                totalCoberturas: coberturas_enriquecidas.length,
+                totalItems: coberturas_evidencia.length
             }
         }
     };

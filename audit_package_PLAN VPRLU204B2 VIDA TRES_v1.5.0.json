@@ -1,0 +1,311 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "PLAN VPRLU204B2 VIDA TRES",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.953Z"
+  },
+  "spatial_map": {
+    "columns": [],
+    "rows": [
+      {
+        "row_id": "R_DIA_CAMA",
+        "y_range": [
+          0.31,
+          0.332
+        ],
+        "text_hash": "h_R_DIA_CAMA"
+      },
+      {
+        "row_id": "R_SALA_CUNA",
+        "y_range": [
+          0.332,
+          0.353
+        ],
+        "text_hash": "h_R_SALA_CUNA"
+      },
+      {
+        "row_id": "R_INCUBADORA",
+        "y_range": [
+          0.353,
+          0.374
+        ],
+        "text_hash": "h_R_INCUBADORA"
+      },
+      {
+        "row_id": "R_DIA_CAMA_CUIDADO",
+        "y_range": [
+          0.394,
+          0.416
+        ],
+        "text_hash": "h_R_DIA_CAMA_CUIDADO"
+      },
+      {
+        "row_id": "R_DIA_CAMA_TRANSITORIO",
+        "y_range": [
+          0.437,
+          0.458
+        ],
+        "text_hash": "h_R_DIA_CAMA_TRANSITORIO"
+      },
+      {
+        "row_id": "R_EXAMENES_LABORATORIO",
+        "y_range": [
+          0.458,
+          0.479
+        ],
+        "text_hash": "h_R_EXAMENES_LABORATORIO"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA",
+        "y_range": [
+          0.479,
+          0.5
+        ],
+        "text_hash": "h_R_IMAGENOLOGIA"
+      },
+      {
+        "row_id": "R_DERECHO_PABELLON",
+        "y_range": [
+          0.5,
+          0.521
+        ],
+        "text_hash": "h_R_DERECHO_PABELLON"
+      },
+      {
+        "row_id": "R_KINESIOLOGIA",
+        "y_range": [
+          0.521,
+          0.542
+        ],
+        "text_hash": "h_R_KINESIOLOGIA"
+      },
+      {
+        "row_id": "R_PROCEDIMIENTOS",
+        "y_range": [
+          0.542,
+          0.563
+        ],
+        "text_hash": "h_R_PROCEDIMIENTOS"
+      },
+      {
+        "row_id": "R_HONORARIOS",
+        "y_range": [
+          0.563,
+          0.584
+        ],
+        "text_hash": "h_R_HONORARIOS"
+      },
+      {
+        "row_id": "R_MEDICAMENTOS",
+        "y_range": [
+          0.605,
+          0.626
+        ],
+        "text_hash": "h_R_MEDICAMENTOS"
+      },
+      {
+        "row_id": "R_MATERIALES",
+        "y_range": [
+          0.626,
+          0.647
+        ],
+        "text_hash": "h_R_MATERIALES"
+      },
+      {
+        "row_id": "R_QUIMIOTERAPIA",
+        "y_range": [
+          0.647,
+          0.668
+        ],
+        "text_hash": "h_R_QUIMIOTERAPIA"
+      },
+      {
+        "row_id": "R_PROTESIS",
+        "y_range": [
+          0.668,
+          0.689
+        ],
+        "text_hash": "h_R_PROTESIS"
+      },
+      {
+        "row_id": "R_VISITA_MEDICO",
+        "y_range": [
+          0.689,
+          0.71
+        ],
+        "text_hash": "h_R_VISITA_MEDICO"
+      },
+      {
+        "row_id": "R_TRASLADOS",
+        "y_range": [
+          0.71,
+          0.731
+        ],
+        "text_hash": "h_R_TRASLADOS"
+      },
+      {
+        "row_id": "R_CONSULTA_MEDICA",
+        "y_range": [
+          0.752,
+          0.773
+        ],
+        "text_hash": "h_R_CONSULTA_MEDICA"
+      },
+      {
+        "row_id": "R_EXAMENES_LABORATORIO_AMB",
+        "y_range": [
+          0.773,
+          0.794
+        ],
+        "text_hash": "h_R_EXAMENES_LABORATORIO_AMB"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA_AMB",
+        "y_range": [
+          0.794,
+          0.815
+        ],
+        "text_hash": "h_R_IMAGENOLOGIA_AMB"
+      },
+      {
+        "row_id": "R_DERECHO_PABELLON_AMB",
+        "y_range": [
+          0.815,
+          0.836
+        ],
+        "text_hash": "h_R_DERECHO_PABELLON_AMB"
+      },
+      {
+        "row_id": "R_PROCEDIMIENTOS_AMB",
+        "y_range": [
+          0.836,
+          0.857
+        ],
+        "text_hash": "h_R_PROCEDIMIENTOS_AMB"
+      },
+      {
+        "row_id": "R_HONORARIOS_AMB",
+        "y_range": [
+          0.857,
+          0.878
+        ],
+        "text_hash": "h_R_HONORARIOS_AMB"
+      },
+      {
+        "row_id": "R_RADIOTERAPIA",
+        "y_range": [
+          0.878,
+          0.899
+        ],
+        "text_hash": "h_R_RADIOTERAPIA"
+      },
+      {
+        "row_id": "R_FONOAUDIOLOGIA",
+        "y_range": [
+          0.899,
+          0.92
+        ],
+        "text_hash": "h_R_FONOAUDIOLOGIA"
+      },
+      {
+        "row_id": "R_KINESIOLOGIA_AMB",
+        "y_range": [
+          0.92,
+          0.941
+        ],
+        "text_hash": "h_R_KINESIOLOGIA_AMB"
+      },
+      {
+        "row_id": "R_PRESTACIONES_DENTALES",
+        "y_range": [
+          0.941,
+          0.962
+        ],
+        "text_hash": "h_R_PRESTACIONES_DENTALES"
+      },
+      {
+        "row_id": "R_ATENCION_NUTRICIONISTA",
+        "y_range": [
+          0.962,
+          0.983
+        ],
+        "text_hash": "h_R_ATENCION_NUTRICIONISTA"
+      },
+      {
+        "row_id": "R_ATENCION_ENFERMERIA",
+        "y_range": [
+          0.983,
+          1.004
+        ],
+        "text_hash": "h_R_ATENCION_ENFERMERIA"
+      }
+    ],
+    "zones": [],
+    "row_groups": [],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [],
+  "warnings": [
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_QUIMIOTERAPIA\" requires zone but none applies.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_RADIOTERAPIA\" requires zone but none applies.",
+      "severity": "ERROR"
+    }
+  ],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "WARN",
+    "zone_application_completeness": "FAIL",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "PASS",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 2,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 0,
+    "require_rows_present": true,
+    "require_rows_justified_absence": false
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "NEEDS_REVIEW",
+    "avg_confidence": 0.49,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}

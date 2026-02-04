@@ -1,0 +1,223 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.07,
+        0.4
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.4,
+        0.52
+      ],
+      "label": "Paga desde"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.52,
+        0.65
+      ],
+      "label": "hasta"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.65,
+        0.93
+      ],
+      "label": "Paga un máximo de"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_HOSPITALARIAS",
+      "y_range": [
+        0.18,
+        0.21
+      ],
+      "raw_text": "PRESTACIONES HOSPITALARIAS"
+    },
+    {
+      "row_id": "R_AMBULATORIAS",
+      "y_range": [
+        0.18,
+        0.21
+      ],
+      "raw_text": "PRESTACIONES AMBULATORIAS"
+    },
+    {
+      "row_id": "R_CIRUGIAS",
+      "y_range": [
+        0.23,
+        0.26
+      ],
+      "raw_text": "Cirugías"
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "y_range": [
+        0.23,
+        0.26
+      ],
+      "raw_text": "Consultas"
+    },
+    {
+      "row_id": "R_URGENCIAS",
+      "y_range": [
+        0.23,
+        0.26
+      ],
+      "raw_text": "Urgencias"
+    },
+    {
+      "row_id": "R_EVENTOS",
+      "y_range": [
+        0.23,
+        0.26
+      ],
+      "raw_text": "Eventos de alto costo"
+    },
+    {
+      "row_id": "R_PAGA",
+      "y_range": [
+        0.28,
+        0.32
+      ],
+      "raw_text": "Paga $7.446*   (0,19 UF)"
+    },
+    {
+      "row_id": "R_PAGA2",
+      "y_range": [
+        0.28,
+        0.32
+      ],
+      "raw_text": "$105.816*   (2,7 UF)"
+    },
+    {
+      "row_id": "R_PAGA3",
+      "y_range": [
+        0.28,
+        0.32
+      ],
+      "raw_text": "$53.300*   (1,36 UF)"
+    },
+    {
+      "row_id": "R_PAGA4",
+      "y_range": [
+        0.33,
+        0.38
+      ],
+      "raw_text": "$1.849.815*   (47,2 UF)"
+    },
+    {
+      "row_id": "R_PAGA5",
+      "y_range": [
+        0.33,
+        0.38
+      ],
+      "raw_text": "$297.068*   (7,58 UF)"
+    },
+    {
+      "row_id": "R_PAGA6",
+      "y_range": [
+        0.33,
+        0.38
+      ],
+      "raw_text": "$4.938.066*   (126 UF)"
+    },
+    {
+      "row_id": "R_CONSULTAS_MEDICO",
+      "y_range": [
+        0.38,
+        0.45
+      ],
+      "raw_text": "En consultas de Médico General, Traumatología y Pediatría en prestadores indicados en el plan"
+    },
+    {
+      "row_id": "R_PRESTADORES_INDICADOS",
+      "y_range": [
+        0.45,
+        0.49
+      ],
+      "raw_text": "En los prestadores indicados en tu plan de salud para Urgencia Integral"
+    },
+    {
+      "row_id": "R_17_CIRUGIAS",
+      "y_range": [
+        0.45,
+        0.51
+      ],
+      "raw_text": "En las 17 cirugías más comunes, tales como: apendicectomía, meniscectomía, hernia, entre otras"
+    },
+    {
+      "row_id": "R_TELEMEDICINA",
+      "y_range": [
+        0.51,
+        0.54
+      ],
+      "raw_text": "Telemedicina"
+    },
+    {
+      "row_id": "R_SALUD_DENTAL",
+      "y_range": [
+        0.51,
+        0.54
+      ],
+      "raw_text": "Salud dental"
+    },
+    {
+      "row_id": "R_TRATAMIENTO_INTEGRAL",
+      "y_range": [
+        0.51,
+        0.54
+      ],
+      "raw_text": "Tratamiento integral (GES)"
+    },
+    {
+      "row_id": "R_COSTO_CERO",
+      "y_range": [
+        0.55,
+        0.58
+      ],
+      "raw_text": "Costo cero"
+    },
+    {
+      "row_id": "R_65_DESCUENTO",
+      "y_range": [
+        0.55,
+        0.61
+      ],
+      "raw_text": "65% de dcto. en RedSalud, costo $0 en diagnóstico, incluidos los medicamentos"
+    },
+    {
+      "row_id": "R_PAGA_20",
+      "y_range": [
+        0.55,
+        0.59
+      ],
+      "raw_text": "Paga el 20% del valor del tratamiento, controles preventivos y controles periódicos"
+    },
+    {
+      "row_id": "R_EN_PSICOLOGIA",
+      "y_range": [
+        0.61,
+        0.66
+      ],
+      "raw_text": "En Psicología, Medicina General, Pediatría y Nutriología en Redsalud"
+    },
+    {
+      "row_id": "R_ACTIVANDO_COBERTURA",
+      "y_range": [
+        0.61,
+        0.66
+      ],
+      "raw_text": "Activando tu cobertura GES en 87 problemas de salud"
+    }
+  ],
+  "zones": []
+}

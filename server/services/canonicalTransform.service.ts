@@ -69,9 +69,23 @@ export interface CanonicalContract {
  * defined in the 'canonizar-contrato-salud' skill.
  */
 export function transformToCanonical(result: ContractAnalysisResult): CanonicalContract {
+    console.log('[CANONICAL] transformToCanonical execution triggered. Result status:', !!result, 'DisenoUX:', !!result?.diseno_ux);
+
+    // Defensive check for result
+    if (!result) {
+        throw new Error('transformToCanonical received null/undefined result');
+    }
+
     // 0. Metadata Normalization
     let tipo_contrato: "ISAPRE" | "FONASA" | "COMPLEMENTARIO" | "DENTAL" | "DESCONOCIDO" = "DESCONOCIDO";
-    const tcRaw = (result.fingerprint?.tipo_contrato || result.diseno_ux.nombre_isapre || "").toUpperCase();
+
+    // REDUNDANT SAFETY: Even with ?., we ensure diseno_ux exists as an object
+    const diseno = result.diseno_ux || ({} as any);
+    const finger = result.fingerprint || ({} as any);
+    const meta = (result as any).metadata || {};
+
+    const tcRaw = (String(finger.tipo_contrato || diseno.nombre_isapre || meta.source_document || "")).toUpperCase();
+
     if (tcRaw.includes("ISAPRE")) tipo_contrato = "ISAPRE";
     else if (tcRaw.includes("FONASA")) tipo_contrato = "FONASA";
     else if (tcRaw.includes("COMPLEMENTARIO")) tipo_contrato = "COMPLEMENTARIO";
@@ -80,10 +94,12 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
     const canonical: CanonicalContract = {
         metadata: {
             origen: "contrato_pdf",
-            fuente: `${result.diseno_ux.nombre_isapre} - ${result.diseno_ux.titulo_plan}`,
-            vigencia: "No especificada",
+            fuente: diseno.nombre_isapre && diseno.nombre_isapre !== "Unknown"
+                ? `${diseno.nombre_isapre} - ${diseno.titulo_plan || "PLAN"}`
+                : (meta.source_document || result.fingerprint?.tipo_contrato || "CONTRATO RESCATADO"),
+            vigencia: meta.timestamp || "Vigencia no especificada",
             tipo_contrato,
-            codigo_arancel: result.diseno_ux.subtitulo_plan?.match(/(AC2|V20|V10)/i)?.[0] || undefined
+            codigo_arancel: diseno.subtitulo_plan?.match(/(AC2|V20|V10)/i)?.[0] || undefined
         },
         coberturas: [],
         topes: [],
@@ -96,7 +112,7 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
     };
 
     // 1. Process Coberturas & Topes
-    result.coberturas.forEach((cob, cobIdx) => {
+    (result.coberturas || []).forEach((cob, cobIdx) => {
         const itemName = cob.item || "Prestación desconocida";
         const categoria = cob.categoria?.toLowerCase() || "";
 
@@ -116,7 +132,7 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
             // Attempt to infer Red Specificity
             let red_especifica = "Todas";
             if (mod.tipo === "PREFERENTE") {
-                const clinicsMatch = result.diseno_ux.subtitulo_plan?.match(/Clínica\s+(\w+)/i);
+                const clinicsMatch = diseno.subtitulo_plan?.match(/Clínica\s+(\w+)/i);
                 red_especifica = clinicsMatch ? clinicsMatch[0] : "Red Preferente";
             } else if (mod.tipo === "LIBRE_ELECCION") {
                 red_especifica = "Libre Elección";
@@ -207,8 +223,65 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
         }
     });
 
+    // 1.5. Industrial Mapping (v1.5.0 Audit Package Bridge)
+    // If we have no coberturas but we do have assignments (Industrial Rescue)
+    if (canonical.coberturas.length === 0 && (result as any).assignments) {
+        const assignments = (result as any).assignments as any[];
+        assignments.forEach(asg => {
+            const rowLabel = asg.row_id?.replace('R_', '').replace(/_/g, ' ') || "Prestación";
+
+            // Extract from atoms (Industrial Format)
+            const atom = (asg.atoms && asg.atoms.length > 0) ? asg.atoms[0] : {};
+            const val = atom.value || asg.pointer?.raw_text || "";
+            const unit = atom.unit || "";
+
+            let tipo_modalidad: "preferente" | "libre_eleccion" | "desconocido" = "desconocido";
+            if (asg.column_id?.includes("PREF")) tipo_modalidad = "preferente";
+            else if (asg.column_id?.includes("LE_") || asg.column_id?.includes("LIBRE")) tipo_modalidad = "libre_eleccion";
+
+            // Add Cobertura
+            canonical.coberturas.push({
+                ambito: "mixto",
+                descripcion_textual: rowLabel,
+                porcentaje: unit === '%' ? parseFloat(val.replace(',', '.')) : null,
+                red_especifica: tipo_modalidad === "preferente" ? "Red Plan" : "Libre Elección",
+                tipo_modalidad,
+                fuente_textual: `[Rescate 1.5.0] Asignación: ${rowLabel}`
+            });
+
+            // Add Tope
+            if (unit !== '%' && val) {
+                let canonicalUnit: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
+                const uMatch = unit.toUpperCase();
+                if (uMatch.includes("UF")) canonicalUnit = "UF";
+                else if (uMatch.includes("AC2")) canonicalUnit = "AC2";
+                else if (uMatch.includes("VAM")) canonicalUnit = "VAM";
+                else if (uMatch.includes("$") || uMatch.includes("PESO")) canonicalUnit = "PESOS";
+
+                canonical.topes.push({
+                    ambito: "mixto",
+                    unidad: canonicalUnit,
+                    valor: parseFloat(val.replace(',', '.')) || null,
+                    aplicacion: "desconocido",
+                    tipo_modalidad,
+                    fuente_textual: `[Rescate 1.5.0] Tope para ${rowLabel}: ${val} ${unit}`
+                });
+            }
+        });
+    }
+
+    // 1.6. Row Metadata (Industrial Fallback for Visibility)
+    if (canonical.coberturas.length === 0 && (result as any).spatial_map?.rows) {
+        const rows = (result as any).spatial_map.rows as any[];
+        rows.forEach(r => {
+            if (r.raw_text && r.raw_text.length > 3) {
+                canonical.items_no_clasificados.push(r.raw_text);
+            }
+        });
+    }
+
     // 2. Process Reglas (Exclusions, Deducibles, etc.)
-    result.reglas.forEach(reg => {
+    (result.reglas || []).forEach(reg => {
         const category = (reg.SUBCATEGORÍA || "").toUpperCase();
         const text = reg['VALOR EXTRACTO LITERAL DETALLADO'] || "";
         const section = reg['CÓDIGO/SECCIÓN'] || "";
@@ -246,8 +319,8 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
     });
 
     // 3. Observations from design metadata
-    if (result.diseno_ux.funcionalidad) {
-        canonical.observaciones.push(`Funcionalidad: ${result.diseno_ux.funcionalidad}`);
+    if (diseno.funcionalidad) {
+        canonical.observaciones.push(`Funcionalidad: ${diseno.funcionalidad}`);
     }
 
     return canonical;

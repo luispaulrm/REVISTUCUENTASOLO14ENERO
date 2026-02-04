@@ -328,11 +328,18 @@ export default function CanonicalGeneratorApp() {
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
                         </div>
                     </div>
-                    {contractCount > 0 && (
-                        <button onClick={handleClearCache} title="Borrar Memoria (Cache)" className="text-slate-400 hover:text-rose-500 transition-colors">
-                            <Trash2 size={20} />
-                        </button>
-                    )}
+                    <button
+                        onClick={handleClearCache}
+                        disabled={contractCount === 0}
+                        title="Borrar Memoria (Cache)"
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${contractCount > 0
+                            ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-100 cursor-pointer'
+                            : 'bg-slate-50 text-slate-300 border border-slate-100 cursor-not-allowed opacity-50'
+                            }`}
+                    >
+                        <Trash2 size={16} />
+                        <span className="text-[10px] font-black uppercase tracking-tight">Borrar Memoria</span>
+                    </button>
                 </div>
             </header>
 

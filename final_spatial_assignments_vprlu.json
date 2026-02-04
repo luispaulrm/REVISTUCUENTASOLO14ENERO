@@ -1,0 +1,113 @@
+{
+    "system_metadata": {
+        "engine_version": "1.2.2-PURE",
+        "doctrine": "NON_INTERPRETATIVE_EXTRACTION",
+        "page_number": 1,
+        "source_document": "VPRLU204B2",
+        "timestamp": "2026-02-03T13:30:00Z"
+    },
+    "spatial_assignments": [
+        {
+            "assignment_id": "P1_R1_C2_C3",
+            "row_id": "DIA_CAMA",
+            "column_metadata": {
+                "column_id": "C2+C3",
+                "role": "PREF_COBERTURA"
+            },
+            "pointer": {
+                "type": "ZONE_REFERENCE",
+                "target_id": "ZONE_VPRLU_70PCT_PREF",
+                "raw_text": "70% Sin Tope Clínica Alemana..."
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "PCT",
+                    "value": 70
+                },
+                {
+                    "type": "RULE",
+                    "key": "TOPE",
+                    "value": "SIN_TOPE"
+                }
+            ],
+            "confidence": {
+                "row_confidence": 0.99,
+                "assignment_confidence": 0.99
+            }
+        },
+        {
+            "assignment_id": "P1_R7_C2_C3",
+            "row_id": "HONORARIOS",
+            "column_metadata": {
+                "column_id": "C2+C3",
+                "role": "PREF_COBERTURA"
+            },
+            "pointer": {
+                "type": "ZONE_REFERENCE",
+                "target_id": "ZONE_VPRLU_60PCT_PREF",
+                "raw_text": "60% Sin Tope Clínica Las Condes"
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "PCT",
+                    "value": 60
+                },
+                {
+                    "type": "RULE",
+                    "key": "TOPE",
+                    "value": "SIN_TOPE"
+                }
+            ],
+            "confidence": {
+                "row_confidence": 0.99,
+                "assignment_confidence": 0.99
+            },
+            "tags": [
+                "60_PCT_TRANSITION_DETECTED"
+            ]
+        },
+        {
+            "assignment_id": "P1_R7_C5_C6",
+            "row_id": "HONORARIOS",
+            "column_metadata": {
+                "column_id": "C5+C6",
+                "role": "LE_COBERTURA"
+            },
+            "pointer": {
+                "type": "TEXT_DIRECT",
+                "raw_text": "90% 8 V.A.",
+                "bbox": [
+                    0.76,
+                    0.32,
+                    0.90,
+                    0.33
+                ]
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "PCT",
+                    "value": 90
+                },
+                {
+                    "type": "RULE",
+                    "key": "TOPE",
+                    "value": 8,
+                    "unit": "V.A."
+                }
+            ],
+            "confidence": {
+                "row_confidence": 0.99,
+                "assignment_confidence": 0.98
+            }
+        }
+    ],
+    "quality_metrics": {
+        "interpretation_leak_check": "CLEAN",
+        "rect_fall_hits": 2,
+        "pure_literal_compliance": true,
+        "confidence_index": 0.99
+    }
+}

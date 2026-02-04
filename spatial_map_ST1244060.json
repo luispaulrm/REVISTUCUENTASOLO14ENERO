@@ -1,0 +1,247 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.033,
+        0.436
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.436,
+        0.504
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.504,
+        0.567
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.567,
+        0.62
+      ],
+      "label": "Máximo Beneficiario/Año"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.62,
+        0.686
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.686,
+        0.746
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.746,
+        0.815
+      ],
+      "label": "Máximo Beneficiario/Año"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.257,
+        0.284
+      ],
+      "raw_text": "Día Cama"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADOS_INTENSIVOS",
+      "y_range": [
+        0.284,
+        0.312
+      ],
+      "raw_text": "5 UF Día Cama Cuidados Intensivos, Coronarios o Intermedios"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "y_range": [
+        0.312,
+        0.338
+      ],
+      "raw_text": "4,5 UF Día Cama Transitorio y Observación"
+    },
+    {
+      "row_id": "R_DIA_CAMA_INCUBADORA",
+      "y_range": [
+        0.338,
+        0.365
+      ],
+      "raw_text": "Día Cama Cuidados Incubadora  2 UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_SALA_CUNA",
+      "y_range": [
+        0.365,
+        0.392
+      ],
+      "raw_text": "Día Cama Sala Cuna   1 UF"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.392,
+        0.419
+      ],
+      "raw_text": "2 AC Derecho Pabellón  50% sin tope en:   Hospital del Profesor."
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "y_range": [
+        0.419,
+        0.445
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO_2",
+      "y_range": [
+        0.445,
+        0.499
+      ],
+      "raw_text": "Sin Tope  40% sin tope en:   Clínica RedSalud Santiago, Imagenología 2 AC\nBUPA Santiago, Hospital Clínico Universidad de Sin Tope Procedimientos\nChile y Clínica Cordillera."
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.499,
+        0.526
+      ],
+      "raw_text": "Kinesiología, Fisioterapia o Terapia Ocupacional  40%"
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "y_range": [
+        0.526,
+        0.553
+      ],
+      "raw_text": "(Habitación Individual Estándar) Honorarios Médico Quirúrgicos 4 AC"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO_TRATANTE",
+      "y_range": [
+        0.553,
+        0.579
+      ],
+      "raw_text": "(Sólo con Médicos Staff en convenio) Visita por Médico Tratante"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO_INTERCONSULTOR",
+      "y_range": [
+        0.579,
+        0.606
+      ],
+      "raw_text": "0,24 UF por día\nVisita por Médico Interconsultor"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.606,
+        0.633
+      ],
+      "raw_text": "10 UF por Ciclo 200 UF 100 UF Quimioterapia"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.633,
+        0.66
+      ],
+      "raw_text": "200 UF Medicamentos  20 UF por Evento 50 UF"
+    },
+    {
+      "row_id": "R_MATERIALES_INSUMOS",
+      "y_range": [
+        0.66,
+        0.686
+      ],
+      "raw_text": "Materiales e Insumos Clínicos 20 UF por Evento 40 UF 200 UF"
+    },
+    {
+      "row_id": "R_PROTESIS_ORTESIS",
+      "y_range": [
+        0.686,
+        0.713
+      ],
+      "raw_text": "Prótesis, Órtesis y Elementos Osteosíntesis 4 AC 20 UF"
+    },
+    {
+      "row_id": "R_TRASLADOS_MEDICOS",
+      "y_range": [
+        0.713,
+        0.74
+      ],
+      "raw_text": "Sólo Cobertura Libre Elección Traslados Médicos 1 AC"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.766,
+        0.793
+      ],
+      "raw_text": "Consulta Médica, Psiquiátrica y/o Psicológica"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "y_range": [
+        0.793,
+        0.82
+      ],
+      "raw_text": "0,3 UF  60% sin tope en:   Centros Médicos RedSalud. Consulta Médica de Telemedicina en Especialidad(**)"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS_IMAGENOLOGIA",
+      "y_range": [
+        0.82,
+        0.873
+      ],
+      "raw_text": "Procedimientos (Incluye todos los Centros Médicos RedSalud del\nSin Tope Imagenología país, excepto Centro Médico RedSalud Arauco y\n1 AC Clínicas RedSalud)"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO_3",
+      "y_range": [
+        0.873,
+        0.899
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_PABELLON_AMBULATORIO",
+      "y_range": [
+        0.899,
+        0.926
+      ],
+      "raw_text": "Sin Tope\nPabellón Ambulatorio (Sólo con Médicos Staff en convenio)"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICO_QUIRURGICOS",
+      "y_range": [
+        0.926,
+        0.953
+      ],
+      "raw_text": "4 AC  Honorarios Médico Quirúrgicos  60%"
+    }
+  ],
+  "zones": []
+}

@@ -38,57 +38,83 @@ export interface ContractCoverage {
     fuente: "TABLA_CONTRATO";
 }
 
-export interface ContractAnalysisResult {
-    fileHash?: string; // Cache key
+// ============================================================================
+// DOCTRINA INDUSTRIAL: DIVISIÓN EXPLORATION vs LEGAL
+// ============================================================================
+
+/**
+ * 🧪 EXPLORATION JSON
+ * "Mapa exploratorio del documento. No tiene fuerza legal."
+ * Función: Descubrir, enumerar, mapear, medir incertidumbre.
+ * NUNCA usar para efectos legales directos sin pasar por el compilador.
+ */
+export interface ExplorationTopeCompound {
+    alcance: 'NACIONAL' | 'INTERNACIONAL' | 'TRANSITORIO' | 'REGIONAL';
+    regla?: 'SIN_TOPE' | 'CON_TOPE' | 'ARANCEL' | 'REEMBOLSO';
+    tope?: number | null;
+    unidad?: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'UNKNOWN';
+    excepciones?: string[];
+    descripcion?: string;
+}
+
+export interface ExplorationModality {
+    tipo: 'PREFERENTE' | 'LIBRE_ELECCION';
+    porcentaje: number | string; // e.g., 100 or "80%"
+    tope: string | number | null;
+    unidadTope: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'UNKNOWN';
+    tipoTope: 'POR_EVENTO' | 'ANUAL' | 'ILIMITADO' | 'DESCONOCIDO';
+    copago: string | number | null;
+    evidencia_literal: string;
+    origen_extraccion?: string;
+
+    // Enrichment fields (v1.6.0+)
+    interpretacion_sugerida?: string;
+    tope_normalizado?: number | null;
+    unidad_normalizada?: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'UNKNOWN';
+    tope_raw?: string | null;
+    tope_compuesto?: ExplorationTopeCompound[];
+}
+
+// 🧪 EXPLORATION ITEM 
+export interface ExplorationItem {
+    'categoria': string;
+    'item': string;
+    'ambito'?: "HOSPITALARIO" | "AMBULATORIO" | "ONCOLOGIA" | "OTRO" | "UNDETERMINED";
+    'modalidades': Array<ExplorationModality>;
+    'nota_restriccion'?: string | null;
+    'categoria_canonica'?: string;
+}
+
+/**
+ * 🧪 EXPLORATION JSON
+ */
+export interface ExplorationJSON {
+    fileHash?: string;
     metadata?: {
         tipo_contrato?: string;
         fuente?: string;
         vigencia?: string;
         [key: string]: any;
     };
-    cached?: boolean; // Indicates if the result came from cache
-    rawMarkdown?: string; // New field for Dual Verification
-    fingerprint?: ContractFingerprint; // Phase 0 - Universal Architecture
-    reglas: Array<{
-        'PÁGINA ORIGEN'?: string;
-        'CÓDIGO/SECCIÓN'?: string;
-        'SUBCATEGORÍA'?: string;
-        'VALOR EXTRACTO LITERAL DETALLADO'?: string;
-        'pagina'?: string; // Legacy compat
-        'seccion'?: string; // Legacy compat
-        'categoria'?: string; // Legacy compat
-        'texto'?: string; // Legacy compat
-        'categoria_canonica'?: string;
-    }>;
-    coberturas: Array<{
-        'categoria': string;
-        'item': string;
-        'modalidades': Array<{
-            'tipo': "PREFERENTE" | "LIBRE_ELECCION" | "BONIFICACION";
-            'porcentaje': number | null;
-            'tope': number | object | null; // Updated to allow object (nested tope)
-            'unidadTope': "UF" | "AC2" | "VAM" | "PESOS" | "SIN_TOPE" | "DESCONOCIDO";
-            'tipoTope': "POR_EVENTO" | "ANUAL" | "ILIMITADO" | "DIARIO";
-            'copago'?: string;
-            // -- CAMPOS DE VALORIZACIÓN (CAPA 2) --
-            'valor_clp'?: number | null;
-            'fecha_valorizacion'?: string | null;
-            'fuente_valorizacion'?: string | null;
-            'tope_nested'?: { // Explicit field for the strict join object if needed
-                unidad: string;
-                valor: number;
-            };
-        }>;
-        'nota_restriccion'?: string;
-        'categoria_canonica'?: string;
-    }>;
+    cached?: boolean;
+    rawMarkdown?: string;
+    fingerprint?: ContractFingerprint;
+    reglas: Array<any>;
+
+    // THE DOCTRINAL SPLIT (v1.6.0)
+    coberturas_evidencia: Array<ExplorationItem>;    // 100% Literal/Evidence
+    coberturas_enriquecidas: Array<ExplorationItem>; // Normalized/Inferred/Resolved
+
+    // Compatibility field (points to enriquecidas for UI)
+    coberturas: Array<ExplorationItem>;
+
     glosario_unidades?: Array<{
         sigla: string;
         descripcion_contrato: string;
         valor_referencia?: number;
         fuente_textual: string;
     }>;
-    // Legacy flat fields are REMOVED to force structural adoption
+
     diseno_ux: {
         nombre_isapre: string;
         titulo_plan: string;
@@ -111,13 +137,7 @@ export interface ContractAnalysisResult {
             costClp: number;
             totalPages?: number;
             phaseSuccess?: Record<string, boolean>;
-            phases?: Array<{
-                phase: string;
-                totalTokens: number;
-                promptTokens: number;
-                candidatesTokens: number;
-                estimatedCostCLP: number;
-            }>;
+            phases?: Array<any>;
         };
         extractionBreakdown?: {
             totalReglas: number;
@@ -126,3 +146,8 @@ export interface ContractAnalysisResult {
         };
     };
 }
+
+/**
+ * ⚖️ LEGAL AUDIT PACKAGE (Alias for external usage)
+ */
+export type ContractAnalysisResult = ExplorationJSON;

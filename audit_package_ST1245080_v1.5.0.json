@@ -1,0 +1,853 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "ST1245080",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.968Z"
+  },
+  "spatial_map": {
+    "columns": [
+      {
+        "column_id": "COL_PRESTACIONES",
+        "x_range": [
+          0.05,
+          0.4
+        ],
+        "label": "PRESTACIONES",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_PCT",
+        "x_range": [
+          0.41,
+          0.51
+        ],
+        "label": "Bonificación %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_EVENTO",
+        "x_range": [
+          0.51,
+          0.57
+        ],
+        "label": "Tope",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_PCT",
+        "x_range": [
+          0.58,
+          0.64
+        ],
+        "label": "Bonificación %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_EVENTO",
+        "x_range": [
+          0.64,
+          0.71
+        ],
+        "label": "Tope",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_ANUAL",
+        "x_range": [
+          0.71,
+          0.77
+        ],
+        "label": "Beneficiario/Año",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_ANUAL",
+        "x_range": [
+          0.77,
+          0.84
+        ],
+        "label": "Beneficiario/Año",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "R_DIA_CAMA",
+        "y_range": [
+          0.17,
+          0.2
+        ],
+        "raw_text": "Día Cama",
+        "text_hash": "h_R_DIA_CAMA"
+      },
+      {
+        "row_id": "R_DIA_CAMA_CUADADOS",
+        "y_range": [
+          0.21,
+          0.24
+        ],
+        "raw_text": "5 UF Día Cama Cuidados Intensivos, Coronarios o Intermedios",
+        "text_hash": "h_R_DIA_CAMA_CUADADOS"
+      },
+      {
+        "row_id": "R_DIA_CAMA_TRANSITORIO",
+        "y_range": [
+          0.24,
+          0.27
+        ],
+        "raw_text": "4,5 UF Día Cama Transitorio y Observación",
+        "text_hash": "h_R_DIA_CAMA_TRANSITORIO"
+      },
+      {
+        "row_id": "R_DIA_CAMA_INCUBADORA",
+        "y_range": [
+          0.27,
+          0.3
+        ],
+        "raw_text": "Día Cama Cuidados Incubadora 2 UF",
+        "text_hash": "h_R_DIA_CAMA_INCUBADORA"
+      },
+      {
+        "row_id": "R_DIA_CAMA_SALA_CUNA",
+        "y_range": [
+          0.3,
+          0.33
+        ],
+        "raw_text": "Día Cama Sala Cuna 1 UF",
+        "text_hash": "h_R_DIA_CAMA_SALA_CUNA"
+      },
+      {
+        "row_id": "R_DERECHO_PABELLON",
+        "y_range": [
+          0.33,
+          0.36
+        ],
+        "raw_text": "2 AC Derecho Pabellón 60% sin tope en: Hospital del Profesor.",
+        "text_hash": "h_R_DERECHO_PABELLON"
+      },
+      {
+        "row_id": "R_EXAMENES_LABORATORIO",
+        "y_range": [
+          0.36,
+          0.4
+        ],
+        "raw_text": "Exámenes de Laboratorio",
+        "text_hash": "h_R_EXAMENES_LABORATORIO"
+      },
+      {
+        "row_id": "R_HONORARIOS",
+        "y_range": [
+          0.43,
+          0.47
+        ],
+        "raw_text": "(Habitación Individual Estándar) Honorarios Médico Quirúrgicos 4 AC",
+        "text_hash": "h_R_HONORARIOS"
+      },
+      {
+        "row_id": "R_VISITA_MEDICO_TRATANTE",
+        "y_range": [
+          0.47,
+          0.5
+        ],
+        "raw_text": "(Sólo con Médicos Staff en convenio) Visita por Médico Tratante",
+        "text_hash": "h_R_VISITA_MEDICO_TRATANTE"
+      },
+      {
+        "row_id": "R_VISITA_MEDICO_INTERCONSULTOR",
+        "y_range": [
+          0.5,
+          0.53
+        ],
+        "raw_text": "Visita por Médico Interconsultor",
+        "text_hash": "h_R_VISITA_MEDICO_INTERCONSULTOR"
+      },
+      {
+        "row_id": "R_QUIMIOTERAPIA",
+        "y_range": [
+          0.53,
+          0.56
+        ],
+        "raw_text": "10 UF por Ciclo 200 UF 100 UF Quimioterapia",
+        "text_hash": "h_R_QUIMIOTERAPIA"
+      },
+      {
+        "row_id": "R_MEDICAMENTOS",
+        "y_range": [
+          0.56,
+          0.59
+        ],
+        "raw_text": "200 UF Medicamentos 20 UF por Evento 50 UF",
+        "text_hash": "h_R_MEDICAMENTOS"
+      },
+      {
+        "row_id": "R_MATERIALES_CLINICOS",
+        "y_range": [
+          0.59,
+          0.62
+        ],
+        "raw_text": "Materiales e Insumos Clínicos 20 UF por Evento 40 UF 200 UF",
+        "text_hash": "h_R_MATERIALES_CLINICOS"
+      },
+      {
+        "row_id": "R_PROTESIS",
+        "y_range": [
+          0.62,
+          0.65
+        ],
+        "raw_text": "Prótesis, Órtesis y Elementos Osteosíntesis 4 AC 20 UF",
+        "text_hash": "h_R_PROTESIS"
+      },
+      {
+        "row_id": "R_TRASLADOS",
+        "y_range": [
+          0.65,
+          0.69
+        ],
+        "raw_text": "Sólo Cobertura Libre Elección Traslados Médicos 1 AC 2,5 UF",
+        "text_hash": "h_R_TRASLADOS"
+      },
+      {
+        "row_id": "R_CONSULTA_MEDICA",
+        "y_range": [
+          0.72,
+          0.75
+        ],
+        "raw_text": "Consulta Médica, Psiquiátrica y/o Psicológica",
+        "text_hash": "h_R_CONSULTA_MEDICA"
+      },
+      {
+        "row_id": "R_CONSULTA_TELEMEDICINA",
+        "y_range": [
+          0.75,
+          0.79
+        ],
+        "raw_text": "0,3 UF 80% sin tope en: Centros Médicos RedSalud. Consulta Médica de Telemedicina en Especialidad(**)",
+        "text_hash": "h_R_CONSULTA_TELEMEDICINA"
+      },
+      {
+        "row_id": "R_PROCEDIMIENTOS",
+        "y_range": [
+          0.79,
+          0.83
+        ],
+        "raw_text": "Procedimientos (Incluye todos los Centros Médicos RedSalud del",
+        "text_hash": "h_R_PROCEDIMIENTOS"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA",
+        "y_range": [
+          0.82,
+          0.85
+        ],
+        "raw_text": "Sin Tope Imagenología país, excepto Centro Médico RedSalud Arauco y 1 AC Clínicas RedSalud) Exámenes de Laboratorio",
+        "text_hash": "h_R_IMAGENOLOGIA"
+      },
+      {
+        "row_id": "R_PABELLON_AMBULATORIO",
+        "y_range": [
+          0.85,
+          0.89
+        ],
+        "raw_text": "Pabellón Ambulatorio (Sólo con Médicos Staff en convenio)",
+        "text_hash": "h_R_PABELLON_AMBULATORIO"
+      },
+      {
+        "row_id": "R_HONORARIOS_MQ",
+        "y_range": [
+          0.88,
+          0.91
+        ],
+        "raw_text": "4 AC Honorarios Médico Quirúrgicos 70%",
+        "text_hash": "h_R_HONORARIOS_MQ"
+      }
+    ],
+    "zones": [],
+    "row_groups": [],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "assignment_id": "a_R_DIA_CAMA_COL_LE_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "2,5",
+        "bbox": [
+          0.66,
+          0.17,
+          0.69,
+          0.19
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "2,5",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_INCUBADORA_COL_LE_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA_INCUBADORA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "2",
+        "bbox": [
+          0.66,
+          0.28,
+          0.69,
+          0.3
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "2",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_SALA_CUNA_COL_LE_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA_SALA_CUNA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1",
+        "bbox": [
+          0.66,
+          0.31,
+          0.69,
+          0.32
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DERECHO_PABELLON_COL_PREF_PCT",
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "60",
+        "bbox": [
+          0.43,
+          0.34,
+          0.46,
+          0.35
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "60",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_COL_LE_TOPE_EVENTO",
+      "row_id": "R_HONORARIOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "4",
+        "bbox": [
+          0.67,
+          0.45,
+          0.69,
+          0.46
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "4",
+          "unit": "AC"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_VISITA_MEDICO_TRATANTE_COL_LE_TOPE_EVENTO",
+      "row_id": "R_VISITA_MEDICO_TRATANTE",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,24",
+        "bbox": [
+          0.66,
+          0.48,
+          0.69,
+          0.49
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,24",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_VISITA_MEDICO_INTERCONSULTOR_COL_LE_TOPE_ANUAL",
+      "row_id": "R_VISITA_MEDICO_INTERCONSULTOR",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "10",
+        "bbox": [
+          0.79,
+          0.51,
+          0.82,
+          0.53
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "10",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_QUIMIOTERAPIA_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "200",
+        "bbox": [
+          0.73,
+          0.54,
+          0.75,
+          0.55
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "200",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_QUIMIOTERAPIA_COL_LE_TOPE_ANUAL",
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "100",
+        "bbox": [
+          0.79,
+          0.54,
+          0.81,
+          0.55
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "100",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MEDICAMENTOS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "20",
+        "bbox": [
+          0.53,
+          0.57,
+          0.56,
+          0.58
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "20",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MEDICAMENTOS_COL_LE_TOPE_EVENTO",
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "50",
+        "bbox": [
+          0.66,
+          0.57,
+          0.69,
+          0.58
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "50",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MATERIALES_CLINICOS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_MATERIALES_CLINICOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "20",
+        "bbox": [
+          0.53,
+          0.6,
+          0.56,
+          0.61
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "20",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MATERIALES_CLINICOS_COL_LE_TOPE_EVENTO",
+      "row_id": "R_MATERIALES_CLINICOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "40",
+        "bbox": [
+          0.66,
+          0.6,
+          0.69,
+          0.61
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "40",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MATERIALES_CLINICOS_COL_LE_TOPE_ANUAL",
+      "row_id": "R_MATERIALES_CLINICOS",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "200",
+        "bbox": [
+          0.79,
+          0.6,
+          0.81,
+          0.61
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "200",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PROTESIS_COL_LE_TOPE_EVENTO",
+      "row_id": "R_PROTESIS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "20",
+        "bbox": [
+          0.66,
+          0.63,
+          0.69,
+          0.64
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "20",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_TRASLADOS_COL_LE_TOPE_EVENTO",
+      "row_id": "R_TRASLADOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "2,5",
+        "bbox": [
+          0.66,
+          0.67,
+          0.69,
+          0.68
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "2,5",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTA_TELEMEDICINA_COL_LE_PCT",
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "80",
+        "bbox": [
+          0.59,
+          0.76,
+          0.63,
+          0.77
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "80",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_MQ_COL_PREF_PCT",
+      "row_id": "R_HONORARIOS_MQ",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "70",
+        "bbox": [
+          0.43,
+          0.89,
+          0.46,
+          0.9
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "70",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_QUIMIOTERAPIA\" requires zone but none applies.",
+      "severity": "ERROR"
+    }
+  ],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "WARN",
+    "zone_application_completeness": "FAIL",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "PASS",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 1,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 0,
+    "require_rows_present": true,
+    "require_rows_justified_absence": false
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "NEEDS_REVIEW",
+    "avg_confidence": 0.985,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}

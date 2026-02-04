@@ -1,0 +1,124 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.33,
+          0.55,
+          0.35
+        ]
+      },
+      "value": "70",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.59,
+          0.33,
+          0.66,
+          0.35
+        ]
+      },
+      "value": "Sin tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.69,
+          0.33,
+          0.76,
+          0.35
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.78,
+          0.44,
+          0.84,
+          0.47
+        ]
+      },
+      "value": "Libre Elección",
+      "unit": null
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.68,
+          0.51,
+          0.71,
+          0.54
+        ]
+      },
+      "value": "800",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.59,
+          0.51,
+          0.63,
+          0.54
+        ]
+      },
+      "value": "150",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_RADIOTERAPIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.9,
+          0.55,
+          0.91
+        ]
+      },
+      "value": "50",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA_AMB",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.78,
+          0.93,
+          0.84,
+          0.95
+        ]
+      },
+      "value": "Libre Elección",
+      "unit": null
+    }
+  ]
+}

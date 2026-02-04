@@ -1,0 +1,274 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.17,
+          0.69,
+          0.19
+        ]
+      },
+      "value": "2,5",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_INCUBADORA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.28,
+          0.69,
+          0.3
+        ]
+      },
+      "value": "2",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_SALA_CUNA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.31,
+          0.69,
+          0.32
+        ]
+      },
+      "value": "1",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.43,
+          0.34,
+          0.46,
+          0.35
+        ]
+      },
+      "value": "60",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.67,
+          0.45,
+          0.69,
+          0.46
+        ]
+      },
+      "value": "4",
+      "unit": "AC"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO_TRATANTE",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.48,
+          0.69,
+          0.49
+        ]
+      },
+      "value": "0,24",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO_INTERCONSULTOR",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.79,
+          0.51,
+          0.82,
+          0.53
+        ]
+      },
+      "value": "10",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.73,
+          0.54,
+          0.75,
+          0.55
+        ]
+      },
+      "value": "200",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.79,
+          0.54,
+          0.81,
+          0.55
+        ]
+      },
+      "value": "100",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.53,
+          0.57,
+          0.56,
+          0.58
+        ]
+      },
+      "value": "20",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.57,
+          0.69,
+          0.58
+        ]
+      },
+      "value": "50",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MATERIALES_CLINICOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.53,
+          0.6,
+          0.56,
+          0.61
+        ]
+      },
+      "value": "20",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MATERIALES_CLINICOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.6,
+          0.69,
+          0.61
+        ]
+      },
+      "value": "40",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_MATERIALES_CLINICOS",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.79,
+          0.6,
+          0.81,
+          0.61
+        ]
+      },
+      "value": "200",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.63,
+          0.69,
+          0.64
+        ]
+      },
+      "value": "20",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.67,
+          0.69,
+          0.68
+        ]
+      },
+      "value": "2,5",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "column_id": "COL_LE_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.59,
+          0.76,
+          0.63,
+          0.77
+        ]
+      },
+      "value": "80",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_HONORARIOS_MQ",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.43,
+          0.89,
+          0.46,
+          0.9
+        ]
+      },
+      "value": "70",
+      "unit": "%"
+    }
+  ]
+}

@@ -1,0 +1,143 @@
+{
+    "system_metadata": {
+        "engine_version": "1.2.2-PURE",
+        "doctrine": "NON_INTERPRETATIVE_EXTRACTION",
+        "page_number": 1,
+        "source_document": "13-RSE500",
+        "timestamp": "2026-02-03T13:25:00Z"
+    },
+    "spatial_assignments": [
+        {
+            "assignment_id": "P1_R1_C2_C3",
+            "row_id": "DIA_CAMA",
+            "column_metadata": {
+                "column_id": "C2+C3",
+                "role": "PREF_COBERTURA"
+            },
+            "pointer": {
+                "type": "ZONE_REFERENCE",
+                "target_id": "ZONE_PREF_A1_HOSP",
+                "raw_text": "80% Sin Tope: Hospital Clínico... (A.1)"
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "PCT",
+                    "value": 80
+                },
+                {
+                    "type": "RULE",
+                    "key": "TOPE",
+                    "value": "SIN_TOPE"
+                },
+                {
+                    "type": "CONDITION",
+                    "key": "MODALIDAD",
+                    "value": "A.1",
+                    "detail": "Hosp. Clinico UC"
+                }
+            ],
+            "confidence": {
+                "row_confidence": 0.99,
+                "assignment_confidence": 0.99
+            }
+        },
+        {
+            "assignment_id": "P1_R3_C2_C3",
+            "row_id": "HONORARIOS",
+            "column_metadata": {
+                "column_id": "C2+C3",
+                "role": "PREF_COBERTURA"
+            },
+            "pointer": {
+                "type": "ZONE_REFERENCE",
+                "target_id": "ZONE_PREF_A2_90PCT",
+                "raw_text": "90% Sin Tope en: Hospital Clínico... (A.2)"
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "PCT",
+                    "value": 90
+                },
+                {
+                    "type": "RULE",
+                    "key": "TOPE",
+                    "value": "SIN_TOPE"
+                },
+                {
+                    "type": "CONDITION",
+                    "key": "MODALIDAD",
+                    "value": "A.2"
+                }
+            ],
+            "confidence": {
+                "row_confidence": 0.99,
+                "assignment_confidence": 0.99
+            }
+        },
+        {
+            "assignment_id": "P1_R4_C2_C3",
+            "row_id": "QUIMIO",
+            "column_metadata": {
+                "column_id": "C2+C3",
+                "role": "PREF_COBERTURA"
+            },
+            "pointer": {
+                "type": "ZONE_REFERENCE",
+                "target_id": "ZONE_LE_ONLY",
+                "raw_text": "Solo cobertura libre elección"
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "APLICA_PREFERENTE",
+                    "value": false
+                }
+            ],
+            "tags": [
+                "KILL_SWITCH_ACTIVE"
+            ],
+            "confidence": {
+                "row_confidence": 0.99,
+                "assignment_confidence": 1.0
+            }
+        },
+        {
+            "assignment_id": "P1_R4_C6",
+            "row_id": "QUIMIO",
+            "column_metadata": {
+                "column_id": "C6_ANNUAL_MAX",
+                "role": "TOPE_MAX_ANUAL"
+            },
+            "pointer": {
+                "type": "TEXT_DIRECT",
+                "raw_text": "60 UF",
+                "bbox": [
+                    0.86,
+                    0.25,
+                    0.95,
+                    0.26
+                ]
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "TOPE_MAX",
+                    "value": 60,
+                    "unit": "UF"
+                }
+            ],
+            "confidence": {
+                "row_confidence": 0.99,
+                "assignment_confidence": 0.98
+            }
+        }
+    ],
+    "quality_metrics": {
+        "interpretation_leak_check": "CLEAN",
+        "rect_fall_hits": 3,
+        "kill_switch_hits": 1,
+        "confidence_index": 0.99
+    }
+}

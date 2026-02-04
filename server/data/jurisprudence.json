@@ -1111,8 +1111,206 @@
           "label": "PAM line: UNKNOWN"
         }
       ]
+    },
+    {
+      "id": "P_7a1a89fe_d662add7_ES_HOTELERIA",
+      "createdAt": "2026-02-04T13:16:29.162Z",
+      "updatedAt": "2026-02-04T13:16:29.162Z",
+      "contractFingerprint": "7a1a89fe7051dd1fca0c826ba9e1fef2d536a43a",
+      "factFingerprint": "d662add743f32823f59e7893fa9f26f11f4bf28d",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.9
+      },
+      "rationale": "Precedente autom�tico: DIA CAMA DE HOSPITALIZACIÓN INTEGRAL CUIDADOS MEDI ",
+      "tags": [
+        "ES_HOTELERIA",
+        "HOTELERIA_INDIVIDUALIZADA",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS",
+        "OPACIDAD_ESTRUCTURAL"
+      ],
+      "guards": {
+        "requires": [
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 0201101"
+        }
+      ]
+    },
+    {
+      "id": "P_7a1a89fe_0056dfde_BONIF_0",
+      "createdAt": "2026-02-04T13:16:29.176Z",
+      "updatedAt": "2026-02-04T13:16:29.176Z",
+      "contractFingerprint": "7a1a89fe7051dd1fca0c826ba9e1fef2d536a43a",
+      "factFingerprint": "0056dfde90f0c857ebf8be4104e71c9ddeaebd41",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente autom�tico: MEDICAMENTOS CLINICOS EN HOSPITALIZACION ",
+      "tags": [
+        "BONIF_0",
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "MED_OR_INS",
+        "ES_MED_HOSP"
+      ],
+      "guards": {
+        "requires": [
+          "BONIF_0",
+          "MED_OR_INS",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 3101001"
+        }
+      ]
+    },
+    {
+      "id": "P_7a1a89fe_2e52984e_BONIF_0",
+      "createdAt": "2026-02-04T13:16:29.185Z",
+      "updatedAt": "2026-02-04T13:16:29.185Z",
+      "contractFingerprint": "7a1a89fe7051dd1fca0c826ba9e1fef2d536a43a",
+      "factFingerprint": "2e52984e9246e0a1016891a797e6f6587878bb80",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente autom�tico: MATERIALES CLINICOS EN HOSPITALIZACION ",
+      "tags": [
+        "BONIF_0",
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS"
+      ],
+      "guards": {
+        "requires": [
+          "BONIF_0",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 3101002"
+        }
+      ]
+    },
+    {
+      "id": "P_7a1a89fe_c6de828a_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "2026-02-04T13:18:06.868Z",
+      "updatedAt": "2026-02-04T13:18:06.868Z",
+      "contractFingerprint": "7a1a89fe7051dd1fca0c826ba9e1fef2d536a43a",
+      "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_7a1a89fe_fcf86a74_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "2026-02-04T13:18:06.876Z",
+      "updatedAt": "2026-02-04T13:18:06.876Z",
+      "contractFingerprint": "7a1a89fe7051dd1fca0c826ba9e1fef2d536a43a",
+      "factFingerprint": "fcf86a74b7673f1f948717bc212f7a375bef9b59",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_7a1a89fe_b8314402_H_PRACTICA_IRREGULAR",
+      "createdAt": "",
+      "updatedAt": "2026-02-04T13:18:06.901Z",
+      "contractFingerprint": "7a1a89fe7051dd1fca0c826ba9e1fef2d536a43a",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestionan los montos de copago agrupados bajo códigos genéricos 'Gastos No Cubiertos' y 'Medicamentos/Materiales' sin desglose, sumando $364.513.\n\n**II. Contexto clínico y administrativo**\nEl PAM presenta líneas con copagos significativos ($184.653, $134.100, etc.) que no tienen una contrapartida única y clara en la cuenta detallada, o corresponden a sumas de múltiples ítems rechazados.\n\n**III. Norma contractual aplicable**\nLey 20.584 (Derechos del Paciente) exige una cuenta detallada y comprensible. La Isapre debe transparentar qué ítems específicos componen el rechazo de cobertura.\n\n**IV. Forma en que se materializa la controversia**\nExiste **Opacidad Estructural**. No es posible auditar si el rechazo de cobertura es legítimo (por tope o exclusión) o si incluye más ítems improcedentes (como la hotelería detectada) porque la información está agregada.\n\n**V. Análisis técnico-contractual**\nLa falta de trazabilidad impide validar si se aplicaron correctamente los topes del plan 'PLENO'.\n\n**VI. Efecto económico concreto**\nIncertidumbre sobre la legitimidad de $364.513 de deuda.\n\n**VII. Conclusión de la impugnación**\nSe solicita desglose pormenorizado de los ítems que componen estos copagos para su auditoría.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Folio PAM | Código | Descripción | Copago (Monto) |\n|-----------|--------|-------------|----------------|\n| 7000355688 | 3101001| MEDICAMENTOS CLINICOS | $134.100 |\n| 7000355688 | 3101002| MATERIALES CLINICOS | $32.716 |\n| 7000355688 | 3201001| GASTOS NO CUBIERTOS | $184.653 |\n| 7000355688 | 3201001| GASTOS NO CUBIERTOS | $13.044 |\n| **TOTAL** | | **BAJO CONTROVERSIA** | **$364.513** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_7a1a89fe_0eceb786_H_PRACTICA_IRREGULAR",
+      "createdAt": "2026-02-04T13:18:06.893Z",
+      "updatedAt": "2026-02-04T13:18:06.893Z",
+      "contractFingerprint": "7a1a89fe7051dd1fca0c826ba9e1fef2d536a43a",
+      "factFingerprint": "0eceb786136872c2302bbbd3ce4f3f7e869e41f4",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestionan cobros por 'Set de Aseo', 'Termómetro Digital' y 'Calzón Clínico' por un total de $21.031.\n\n**II. Contexto clínico y administrativo**\nÍtems facturados en la sección de Insumos/Kardex durante la hospitalización.\n\n**III. Norma contractual aplicable**\nEl contrato de salud cubre prestaciones médicas. Los artículos de higiene personal y confort (hotelería) no constituyen prestaciones médicas a menos que exista prescripción específica y no existan alternativas estándar incluidas.\n\n**IV. Forma en que se materializa la controversia**\nSe trata de **Cobros Improcedentes por Hotelería**, donde se transfieren costos de insumos no médicos o activos fijos (termómetro) al paciente a precios de venta, sin consentimiento explícito de compra.\n\n**V. Análisis técnico-contractual**\nEl cobro de un termómetro ($8.605) es improcedente pues es un instrumento de trabajo del personal (activo de la clínica) o un insumo de bajo costo. El set de aseo ($10.785) es un cargo de confort opcional que suele cobrarse por defecto.\n\n**VI. Efecto económico concreto**\nCopago indebido de $21.031.\n\n**VII. Conclusión de la impugnación**\nSe solicita la devolución o anulación de estos cargos por no corresponder a prestaciones de salud bonificables.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen | Descripción Ítem | Cant | P. Unit | Total |\n| :--- | :--- | :---: | :---: | :---: |\n| INSUMOS | SET DE ASEO PERSONAL ADULTO | 1 | $10.785 | $10.785 |\n| INSUMOS KARDEX | TERMOMETRO DIGITAL CON LOGO | 1 | $8.605 | $8.605 |\n| INSUMOS | CALZON CLINICO | 1 | $1.641 | $1.641 |\n| **TOTAL** | **HALLAZGO HOTELERÍA** | | | **$21.031** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
     }
   ],
   "version": "1.0.0",
-  "lastUpdated": "2026-02-02T03:17:49.493Z"
+  "lastUpdated": "2026-02-04T13:18:06.902Z"
 }

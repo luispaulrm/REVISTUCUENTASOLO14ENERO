@@ -1,0 +1,22 @@
+{
+  "columns": [],
+  "rows": [
+    {
+      "row_id": "R_CIRUGIAS",
+      "y_range": [
+        0.25,
+        0.3
+      ],
+      "raw_text": "Cirugías de embellecimiento, insumos que no forman parte de la intervención en si, como por ejemplo:  ¿QUÉ NO CUBRE   MI PLAN? mascarillas, delantales, pañales, entre otros."
+    },
+    {
+      "row_id": "R_URGENCIAS",
+      "y_range": [
+        0.35,
+        0.45
+      ],
+      "raw_text": "Accede a una urgencia integral sólo cancelando el copago jo mencionado en tu plan dependiendo del Urgencia Integral tipo de urgencia. Este tipo de urgencia sólo aplica si está en tu plan de salud."
+    }
+  ],
+  "zones": []
+}

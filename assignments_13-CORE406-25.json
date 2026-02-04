@@ -1,0 +1,184 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_PAGA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.42,
+          0.28,
+          0.5,
+          0.32
+        ]
+      },
+      "value": "7.446",
+      "unit": "$"
+    },
+    {
+      "row_id": "R_PAGA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.53,
+          0.28,
+          0.56,
+          0.32
+        ]
+      },
+      "value": "0,19",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PAGA2",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.42,
+          0.28,
+          0.5,
+          0.32
+        ]
+      },
+      "value": "105.816",
+      "unit": "$"
+    },
+    {
+      "row_id": "R_PAGA2",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.54,
+          0.28,
+          0.57,
+          0.32
+        ]
+      },
+      "value": "2,7",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PAGA3",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.43,
+          0.28,
+          0.51,
+          0.32
+        ]
+      },
+      "value": "53.300",
+      "unit": "$"
+    },
+    {
+      "row_id": "R_PAGA3",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.54,
+          0.28,
+          0.59,
+          0.32
+        ]
+      },
+      "value": "1,36",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PAGA4",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.53,
+          0.33,
+          0.59,
+          0.38
+        ]
+      },
+      "value": "47,2",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PAGA4",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.67,
+          0.33,
+          0.85,
+          0.38
+        ]
+      },
+      "value": "1.849.815",
+      "unit": "$"
+    },
+    {
+      "row_id": "R_PAGA5",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.53,
+          0.33,
+          0.58,
+          0.38
+        ]
+      },
+      "value": "7,58",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PAGA5",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.67,
+          0.33,
+          0.82,
+          0.38
+        ]
+      },
+      "value": "297.068",
+      "unit": "$"
+    },
+    {
+      "row_id": "R_PAGA6",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.53,
+          0.33,
+          0.57,
+          0.38
+        ]
+      },
+      "value": "126",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_PAGA6",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.67,
+          0.33,
+          0.83,
+          0.38
+        ]
+      },
+      "value": "4.938.066",
+      "unit": "$"
+    }
+  ]
+}

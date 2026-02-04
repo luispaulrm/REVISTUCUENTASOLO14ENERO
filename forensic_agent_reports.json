@@ -1,0 +1,1542 @@
+[
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "13-CORE106-25",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_CONSULTAS",
+      "⚠ Missing 6 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES"
+    ],
+    "metrics": {
+      "total_rows": 8,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "13-CORE106-25",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "13-CORE106-25",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "13-CORE106-25",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "13-CORE206-25",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_CONSULTAS",
+      "⚠ Missing 6 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES"
+    ],
+    "metrics": {
+      "total_rows": 8,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "13-CORE206-25",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "13-CORE206-25",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "13-CORE206-25",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "13-CORE306-25",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_CONSULTAS",
+      "⚠ Missing 6 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES"
+    ],
+    "metrics": {
+      "total_rows": 7,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "13-CORE306-25",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "13-CORE306-25",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "13-CORE306-25",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "13-CORE406-25",
+    "status": "WARN",
+    "findings": [
+      "⚠ Missing 7 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 6,
+      "critical_found": 0,
+      "critical_missing": 7,
+      "coverage_completeness": "0.0%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "13-CORE406-25",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "13-CORE406-25",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "13-CORE406-25",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "13-EFS0510-24",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_CONSULTAS",
+      "⚠ Missing 6 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES"
+    ],
+    "metrics": {
+      "total_rows": 2,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "13-EFS0510-24",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "13-EFS0510-24",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "13-EFS0510-24",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "13-LFS409-24",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_CONSULTAS",
+      "⚠ Missing 6 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES"
+    ],
+    "metrics": {
+      "total_rows": 2,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "13-LFS409-24",
+    "status": "SUCCESS",
+    "findings": [
+      "🚀 \"Sin Tope\" Benefits: R_CIRUGIAS, R_CONSULTAS"
+    ],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 2,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "13-LFS409-24",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "13-LFS409-24",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "BCGL250300",
+    "status": "SUCCESS",
+    "findings": [
+      "✓ Found 4 critical service rows: R_DIA_CAMA, R_PABELLON, R_MEDICAMENTOS, R_EXAMENES",
+      "⚠ Missing 3 critical rows: R_HONORARIOS, R_MATERIALES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 32,
+      "critical_found": 4,
+      "critical_missing": 3,
+      "coverage_completeness": "57.1%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "BCGL250300",
+    "status": "SUCCESS",
+    "findings": [
+      "🚀 \"Sin Tope\" Benefits: R_SALA_CUNA, R_EXAMENES_LABORATORIO, R_IMAGENOLOGIA, R_PROTESIS, R_VISITA_MEDICO, R_CONSULTA_TELEMEDICINA, R_EXAMENES_LABORATORIO_AMB, R_IMAGENOLOGIA_AMB, R_DERECHO_PABELLON_AMB"
+    ],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 9,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "BCGL250300",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "BCGL250300",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "BCN250400",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 2 critical service rows: R_DIA_CAMA, R_MEDICAMENTOS",
+      "⚠ Missing 5 critical rows: R_HONORARIOS, R_PABELLON, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 18,
+      "critical_found": 2,
+      "critical_missing": 5,
+      "coverage_completeness": "28.6%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "BCN250400",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "BCN250400",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "BCN250400",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "BFDC241122",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_CONSULTAS",
+      "⚠ Missing 6 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES"
+    ],
+    "metrics": {
+      "total_rows": 5,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "BFDC241122",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "BFDC241122",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (3 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 3,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "BFDC241122",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "BPRU24111012",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 2 critical service rows: R_DIA_CAMA, R_MEDICAMENTOS",
+      "⚠ Missing 5 critical rows: R_HONORARIOS, R_PABELLON, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 13,
+      "critical_found": 2,
+      "critical_missing": 5,
+      "coverage_completeness": "28.6%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "BPRU24111012",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "BPRU24111012",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "BPRU24111012",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "CMBS090625",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_DIA_CAMA",
+      "⚠ Missing 6 critical rows: R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 2,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "CMBS090625",
+    "status": "SUCCESS",
+    "findings": [
+      "🚀 \"Sin Tope\" Benefits: R_DIA_CAMA, R_DIA_CAMA_CUAD_INTENS"
+    ],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 2,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "CMBS090625",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "CMBS090625",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "Contrato 13-RSE500-17-2 (5)",
+    "status": "WARN",
+    "findings": [
+      "⚠ Missing 7 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 0,
+      "critical_found": 0,
+      "critical_missing": 7,
+      "coverage_completeness": "0.0%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "Contrato 13-RSE500-17-2 (5)",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "Contrato 13-RSE500-17-2 (5)",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "Contrato 13-RSE500-17-2 (5)",
+    "status": "SUCCESS",
+    "findings": [
+      "⚠ No explicit arancel references found (UF-based contract)"
+    ],
+    "metrics": {
+      "aranceles_found": 0,
+      "types": []
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "E70700625",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_HONORARIOS",
+      "⚠ Missing 6 critical rows: R_DIA_CAMA, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 5,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "E70700625",
+    "status": "SUCCESS",
+    "findings": [
+      "🚀 \"Sin Tope\" Benefits: R_DERECHO_PABELLON, R_DERECHO_PABELLON"
+    ],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 2,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "E70700625",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "E70700625",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "EI80500625",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 2 critical service rows: R_DIA_CAMA, R_MEDICAMENTOS",
+      "⚠ Missing 5 critical rows: R_HONORARIOS, R_PABELLON, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 22,
+      "critical_found": 2,
+      "critical_missing": 5,
+      "coverage_completeness": "28.6%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "EI80500625",
+    "status": "SUCCESS",
+    "findings": [
+      "🚀 \"Sin Tope\" Benefits: R_DERECHO_PABELLON, R_IMAGENOLOGIA, R_EXAMENES_LAB, R_IMAGENOLOGIA, R_HONORARIOS_MEDICOS, R_CIRUGIA_BARIATRICA, R_CIRUGIA_BARIATRICA, R_ATENCION_URGENCIA"
+    ],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 8,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "EI80500625",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "EI80500625",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "MX2246050",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 2 critical service rows: R_HONORARIOS, R_MEDICAMENTOS",
+      "⚠ Missing 5 critical rows: R_DIA_CAMA, R_PABELLON, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 19,
+      "critical_found": 2,
+      "critical_missing": 5,
+      "coverage_completeness": "28.6%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "MX2246050",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "MX2246050",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "MX2246050",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "PLAN PLENO PLE847",
+    "status": "WARN",
+    "findings": [
+      "⚠ Missing 7 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 11,
+      "critical_found": 0,
+      "critical_missing": 7,
+      "coverage_completeness": "0.0%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "PLAN PLENO PLE847",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "PLAN PLENO PLE847",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (3 cols), Libre Elección (3 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 3,
+      "libre_eleccion_columns": 3
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "PLAN PLENO PLE847",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "PLAN VPRLU204B2 VIDA TRES",
+    "status": "WARN",
+    "findings": [
+      "⚠ Missing 7 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 0,
+      "critical_found": 0,
+      "critical_missing": 7,
+      "coverage_completeness": "0.0%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "PLAN VPRLU204B2 VIDA TRES",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "PLAN VPRLU204B2 VIDA TRES",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "PLAN VPRLU204B2 VIDA TRES",
+    "status": "SUCCESS",
+    "findings": [
+      "⚠ No explicit arancel references found (UF-based contract)"
+    ],
+    "metrics": {
+      "aranceles_found": 0,
+      "types": []
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "pleno 847",
+    "status": "WARN",
+    "findings": [
+      "⚠ Missing 7 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 0,
+      "critical_found": 0,
+      "critical_missing": 7,
+      "coverage_completeness": "0.0%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "pleno 847",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "pleno 847",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (3 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 3
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "pleno 847",
+    "status": "SUCCESS",
+    "findings": [
+      "⚠ No explicit arancel references found (UF-based contract)"
+    ],
+    "metrics": {
+      "aranceles_found": 0,
+      "types": []
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "PPS25140",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 2 critical service rows: R_DIA_CAMA, R_MEDICAMENTOS",
+      "⚠ Missing 5 critical rows: R_HONORARIOS, R_PABELLON, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 22,
+      "critical_found": 2,
+      "critical_missing": 5,
+      "coverage_completeness": "28.6%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "PPS25140",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "PPS25140",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "PPS25140",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "rse500",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 2 critical service rows: R_DIA_CAMA, R_HONORARIOS",
+      "⚠ Missing 5 critical rows: R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 3,
+      "critical_found": 2,
+      "critical_missing": 5,
+      "coverage_completeness": "28.6%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "rse500",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "rse500",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (2 cols), Libre Elección (2 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 2,
+      "libre_eleccion_columns": 2
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "rse500",
+    "status": "SUCCESS",
+    "findings": [
+      "⚠ No explicit arancel references found (UF-based contract)"
+    ],
+    "metrics": {
+      "aranceles_found": 0,
+      "types": []
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "SL2254545",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_DIA_CAMA",
+      "⚠ Missing 6 critical rows: R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 5,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "SL2254545",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "SL2254545",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "SL2254545",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "ST1244060",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 2 critical service rows: R_DIA_CAMA, R_MEDICAMENTOS",
+      "⚠ Missing 5 critical rows: R_HONORARIOS, R_PABELLON, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 15,
+      "critical_found": 2,
+      "critical_missing": 5,
+      "coverage_completeness": "28.6%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "ST1244060",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "ST1244060",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "ST1244060",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "ST1245080",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 3 critical service rows: R_DIA_CAMA, R_HONORARIOS, R_MEDICAMENTOS",
+      "⚠ Missing 4 critical rows: R_PABELLON, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 14,
+      "critical_found": 3,
+      "critical_missing": 4,
+      "coverage_completeness": "42.9%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "ST1245080",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "ST1245080",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "ST1245080",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "UC100700625",
+    "status": "WARN",
+    "findings": [
+      "⚠ Missing 7 critical rows: R_DIA_CAMA, R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 7,
+      "critical_found": 0,
+      "critical_missing": 7,
+      "coverage_completeness": "0.0%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "UC100700625",
+    "status": "SUCCESS",
+    "findings": [
+      "🚀 \"Sin Tope\" Benefits: R_DERECHO_PABELLON, R_IMAGENOLOGIA, R_HONORARIOS_MEDICOS_AMB"
+    ],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 3,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "UC100700625",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (3 cols), Libre Elección (3 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 3,
+      "libre_eleccion_columns": 3
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "UC100700625",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "VPGL250226",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 3 critical service rows: R_DIA_CAMA, R_HONORARIOS, R_MEDICAMENTOS",
+      "⚠ Missing 4 critical rows: R_PABELLON, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 15,
+      "critical_found": 3,
+      "critical_missing": 4,
+      "coverage_completeness": "42.9%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "VPGL250226",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "VPGL250226",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "VPGL250226",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "VPLU241143",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_DIA_CAMA",
+      "⚠ Missing 6 critical rows: R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 13,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "VPLU241143",
+    "status": "SUCCESS",
+    "findings": [
+      "🚀 \"Sin Tope\" Benefits: R_DIA_CAMA, R_EXAMENES_LABORATORIO, R_IMAGENOLOGIA, R_EXAMENES_LABORATORIO_AMB, R_EXAMENES_LABORATORIO_AMB, R_IMAGENOLOGIA_AMB, R_IMAGENOLOGIA_AMB, R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB"
+    ],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 8,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "VPLU241143",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "VPLU241143",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "vprlu",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 2 critical service rows: R_DIA_CAMA, R_HONORARIOS",
+      "⚠ Missing 5 critical rows: R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 2,
+      "critical_found": 2,
+      "critical_missing": 5,
+      "coverage_completeness": "28.6%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "vprlu",
+    "status": "SUCCESS",
+    "findings": [],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 0,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "vprlu",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (3 cols), Libre Elección (3 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 3,
+      "libre_eleccion_columns": 3
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "vprlu",
+    "status": "SUCCESS",
+    "findings": [
+      "⚠ No explicit arancel references found (UF-based contract)"
+    ],
+    "metrics": {
+      "aranceles_found": 0,
+      "types": []
+    }
+  },
+  {
+    "agent_name": "Doctor (Clinical Mapper)",
+    "contract_name": "VPTA241079",
+    "status": "WARN",
+    "findings": [
+      "✓ Found 1 critical service rows: R_DIA_CAMA",
+      "⚠ Missing 6 critical rows: R_HONORARIOS, R_PABELLON, R_MEDICAMENTOS, R_MATERIALES, R_EXAMENES, R_CONSULTAS"
+    ],
+    "metrics": {
+      "total_rows": 8,
+      "critical_found": 1,
+      "critical_missing": 6,
+      "coverage_completeness": "14.3%"
+    }
+  },
+  {
+    "agent_name": "Mathematician (Financial Calculator)",
+    "contract_name": "VPTA241079",
+    "status": "SUCCESS",
+    "findings": [
+      "🚀 \"Sin Tope\" Benefits: R_DIA_CAMA, R_EXAMENES_LABORATORIO, R_IMAGENOLOGIA, R_QUIMIOTERAPIA_AMB, R_PRESTACIONES_DENTALES, R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB"
+    ],
+    "metrics": {
+      "topes_uf": 0,
+      "topes_ac2": 0,
+      "sin_tope_count": 6,
+      "percentages_found": 0,
+      "max_coverage": "N/A"
+    }
+  },
+  {
+    "agent_name": "Geographer (Network Resolver)",
+    "contract_name": "VPTA241079",
+    "status": "SUCCESS",
+    "findings": [
+      "🏥 Modalities Detected: Preferente (0 cols), Libre Elección (0 cols)"
+    ],
+    "metrics": {
+      "networks_identified": 0,
+      "preferente_columns": 0,
+      "libre_eleccion_columns": 0
+    }
+  },
+  {
+    "agent_name": "Historian (Arancel Validator)",
+    "contract_name": "VPTA241079",
+    "status": "SUCCESS",
+    "findings": [
+      "📜 Aranceles Referenced: VA"
+    ],
+    "metrics": {
+      "aranceles_found": 1,
+      "types": [
+        "VA"
+      ]
+    }
+  }
+]

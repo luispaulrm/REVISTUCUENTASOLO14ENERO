@@ -1,0 +1,46 @@
+{
+  "columns": [],
+  "rows": [
+    {
+      "row_id": "R_CIRUGIAS",
+      "y_range": [
+        0.1,
+        0.2
+      ],
+      "raw_text": "Cobertura Hospitalaria de hasta 100%   sin tope   Cobertura Ambulatoria de hasta 80%   sin tope"
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "y_range": [
+        0.2,
+        0.3
+      ],
+      "raw_text": "Corresponde a las atenciones que no requieren hospitalización."
+    },
+    {
+      "row_id": "R_URGENCIAS",
+      "y_range": [
+        0.3,
+        0.4
+      ],
+      "raw_text": "Accede a copagos fijos en urgencias adulto   y   pediátrica."
+    },
+    {
+      "row_id": "R_TELEMEDICINA",
+      "y_range": [
+        0.5,
+        0.6
+      ],
+      "raw_text": "Son Beneficios sin costo, adicionales a la cobertura de tu  Son coberturas adicionales que puedes contratar por un monto"
+    },
+    {
+      "row_id": "R_SALUD_DENTAL",
+      "y_range": [
+        0.6,
+        0.7
+      ],
+      "raw_text": "puedes contratar por un monto adicional a tu plan de salud, por ejemplo:"
+    }
+  ],
+  "zones": []
+}

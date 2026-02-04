@@ -1,0 +1,33 @@
+{
+    "golden_set_version": "1.0",
+    "created": "2026-02-03",
+    "entries": [
+        {
+            "id": "ple847_p2",
+            "source_document": "PLAN PLENO PLE847",
+            "page": 2,
+            "spatial_map_file": "ple847_p2_spatial_map.json",
+            "assignments_file": "ple847_p2_assignments.json",
+            "screenshot": "ple847_p2.png",
+            "notes": "Reference case for RECT_FALL with clinic exceptions (60%)"
+        },
+        {
+            "id": "rse500_p1",
+            "source_document": "13-RSE500-17-2",
+            "page": 1,
+            "spatial_map_file": "rse500_p1_spatial_map.json",
+            "assignments_file": "rse500_p1_assignments.json",
+            "screenshot": "rse500_p2.png",
+            "notes": "Kill-switch case (Solo cobertura libre elección) for oncology"
+        },
+        {
+            "id": "vprlu_p1",
+            "source_document": "VPRLU204B2",
+            "page": 1,
+            "spatial_map_file": "vprlu_p1_spatial_map.json",
+            "assignments_file": "vprlu_p1_assignments.json",
+            "screenshot": "vprlu_p1.png",
+            "notes": "Sub-zone split case (70% → 60% transition inside merged block)"
+        }
+    ]
+}

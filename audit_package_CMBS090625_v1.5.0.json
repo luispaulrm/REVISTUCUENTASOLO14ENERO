@@ -1,0 +1,455 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "CMBS090625",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.938Z"
+  },
+  "spatial_map": {
+    "columns": [
+      {
+        "column_id": "COL_PRESTACIONES",
+        "x_range": [
+          0.061,
+          0.411
+        ],
+        "label": "PRESTACIONES",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_PCT",
+        "x_range": [
+          0.661,
+          0.711
+        ],
+        "label": "%",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_EVENTO",
+        "x_range": [
+          0.711,
+          0.771
+        ],
+        "label": "Tope",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_PCT",
+        "x_range": [
+          0.811,
+          0.851
+        ],
+        "label": "%",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_EVENTO",
+        "x_range": [
+          0.851,
+          0.911
+        ],
+        "label": "Tope",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "R_DIA_CAMA",
+        "y_range": [
+          0.259,
+          0.287
+        ],
+        "raw_text": "3,5   UF  Día Cama",
+        "text_hash": "h_R_DIA_CAMA"
+      },
+      {
+        "row_id": "R_DIA_CAMA_CUAD_INTENS",
+        "y_range": [
+          0.287,
+          0.32
+        ],
+        "raw_text": "7   UF  Día Cama Cuidados Intensivos, Coronarios o Intermedios",
+        "text_hash": "h_R_DIA_CAMA_CUAD_INTENS"
+      },
+      {
+        "row_id": "R_DIA_CAMA_SALA_CUNA",
+        "y_range": [
+          0.32,
+          0.348
+        ],
+        "raw_text": "1,5   UF  Día Cama Sala Cuna   -   Fototerapia    Clínica Bupa Santiago",
+        "text_hash": "h_R_DIA_CAMA_SALA_CUNA"
+      },
+      {
+        "row_id": "R_DIA_CAMA_OBSERVACION",
+        "y_range": [
+          0.348,
+          0.376
+        ],
+        "raw_text": "3,5   VA  Día Cama Observación   -   Recuperación",
+        "text_hash": "h_R_DIA_CAMA_OBSERVACION"
+      },
+      {
+        "row_id": "R_DERECHO_PABELLON",
+        "y_range": [
+          0.396,
+          0.423
+        ],
+        "raw_text": "2   VA  Derecho de Pabellón",
+        "text_hash": "h_R_DERECHO_PABELLON"
+      },
+      {
+        "row_id": "R_EXAMEN_LABORATORIO_HOSP",
+        "y_range": [
+          0.436,
+          0.463
+        ],
+        "raw_text": "1   VA  Exámenes de   Laboratorio",
+        "text_hash": "h_R_EXAMEN_LABORATORIO_HOSP"
+      },
+      {
+        "row_id": "R_EXAMEN_HISTOPATOLOGIA_HOSP",
+        "y_range": [
+          0.463,
+          0.49
+        ],
+        "raw_text": "1   VA  Exámenes de Histopatología",
+        "text_hash": "h_R_EXAMEN_HISTOPATOLOGIA_HOSP"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA_HOSP",
+        "y_range": [
+          0.49,
+          0.518
+        ],
+        "raw_text": "1   VA  Imagenología (Rayos; Scanner; Ecotomografía)",
+        "text_hash": "h_R_IMAGENOLOGIA_HOSP"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA_RNM_HOSP",
+        "y_range": [
+          0.518,
+          0.545
+        ],
+        "raw_text": "1   VA  Imagenología (Resonancia Nuclear Magnética)",
+        "text_hash": "h_R_IMAGENOLOGIA_RNM_HOSP"
+      },
+      {
+        "row_id": "R_KINESIOLOGIA",
+        "y_range": [
+          0.545,
+          0.572
+        ],
+        "raw_text": "1,5   VA   10   UF  Kinesiología y fisioterapia",
+        "text_hash": "h_R_KINESIOLOGIA"
+      },
+      {
+        "row_id": "R_MEDICAMENTOS",
+        "y_range": [
+          0.572,
+          0.599
+        ],
+        "raw_text": "15   UF  Materiales e insumos clínicos (2.g)(2.i)",
+        "text_hash": "h_R_MEDICAMENTOS"
+      },
+      {
+        "row_id": "R_MATERIALES_INSUMOS",
+        "y_range": [
+          0.599,
+          0.626
+        ],
+        "raw_text": "1,5   VA  Procedimientos (1.a.2.3)(1.c)",
+        "text_hash": "h_R_MATERIALES_INSUMOS"
+      },
+      {
+        "row_id": "R_HONORARIOS",
+        "y_range": [
+          0.626,
+          0.653
+        ],
+        "raw_text": "1,5   VA  Honorarios médicos quirúrgicos (1.a.2.3)   Habitación Individual y Doble (1.a.2.1)",
+        "text_hash": "h_R_HONORARIOS"
+      },
+      {
+        "row_id": "R_VISITA_MEDICA",
+        "y_range": [
+          0.653,
+          0.68
+        ],
+        "raw_text": "0,5   UF  Visita por médico tratante o médico interconsultor (1.a.2.3)(1.b)",
+        "text_hash": "h_R_VISITA_MEDICA"
+      },
+      {
+        "row_id": "R_PROTESIS_ORTESIS",
+        "y_range": [
+          0.68,
+          0.707
+        ],
+        "raw_text": "3,5   VA  Prótesis, órtesis y elementos de osteosíntesis",
+        "text_hash": "h_R_PROTESIS_ORTESIS"
+      },
+      {
+        "row_id": "R_TRASLADOS_MEDICOS",
+        "y_range": [
+          0.707,
+          0.734
+        ],
+        "raw_text": "2,5   VA  Traslados Médicos (1.i)",
+        "text_hash": "h_R_TRASLADOS_MEDICOS"
+      },
+      {
+        "row_id": "R_DROGAS_BIOLOGICAS",
+        "y_range": [
+          0.734,
+          0.761
+        ],
+        "raw_text": "Drogas Biológicas (2.f)(2.i)    Sólo Cobertura Libre   Elección",
+        "text_hash": "h_R_DROGAS_BIOLOGICAS"
+      },
+      {
+        "row_id": "R_QUIMIOTERAPIA",
+        "y_range": [
+          0.761,
+          0.788
+        ],
+        "raw_text": "Quimioterapia (2.d)(2.i)",
+        "text_hash": "h_R_QUIMIOTERAPIA"
+      },
+      {
+        "row_id": "R_INJERTOS_HEMATO",
+        "y_range": [
+          0.788,
+          0.815
+        ],
+        "raw_text": "1   VA    Injertos Hematopoyéticos",
+        "text_hash": "h_R_INJERTOS_HEMATO"
+      },
+      {
+        "row_id": "R_FERTILIZACION_ASISTIDA",
+        "y_range": [
+          0.815,
+          0.842
+        ],
+        "raw_text": "1   VA  Fertilización asistida alta   complejidad (1.e)",
+        "text_hash": "h_R_FERTILIZACION_ASISTIDA"
+      },
+      {
+        "row_id": "R_CONSULTA_TELEMEDICINA",
+        "y_range": [
+          0.868,
+          0.895
+        ],
+        "raw_text": "0,5   UF  Consulta telemedicina",
+        "text_hash": "h_R_CONSULTA_TELEMEDICINA"
+      },
+      {
+        "row_id": "R_CONSULTA_MEDICA",
+        "y_range": [
+          0.895,
+          0.922
+        ],
+        "raw_text": "0,5   UF Consulta médica",
+        "text_hash": "h_R_CONSULTA_MEDICA"
+      },
+      {
+        "row_id": "R_CONSULTA_OFTALMO",
+        "y_range": [
+          0.922,
+          0.949
+        ],
+        "raw_text": "0,5   UF  Consulta oftalmológica",
+        "text_hash": "h_R_CONSULTA_OFTALMO"
+      }
+    ],
+    "zones": [],
+    "row_groups": [],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "assignment_id": "a_R_DIA_CAMA_COL_PREF_PCT",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "80%",
+        "bbox": [
+          0.668,
+          0.301,
+          0.702,
+          0.315
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "80%",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.733,
+          0.301,
+          0.792,
+          0.315
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_CUAD_INTENS_COL_PREF_PCT",
+      "row_id": "R_DIA_CAMA_CUAD_INTENS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "80%",
+        "bbox": [
+          0.668,
+          0.318,
+          0.702,
+          0.332
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "80%",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_CUAD_INTENS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA_CUAD_INTENS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.733,
+          0.318,
+          0.792,
+          0.332
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_QUIMIOTERAPIA\" requires zone but none applies.",
+      "severity": "ERROR"
+    }
+  ],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "WARN",
+    "zone_application_completeness": "FAIL",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "PASS",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 1,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 0,
+    "require_rows_present": true,
+    "require_rows_justified_absence": false
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "NEEDS_REVIEW",
+    "avg_confidence": 0.985,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}

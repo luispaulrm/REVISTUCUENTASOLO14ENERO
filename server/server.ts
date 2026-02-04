@@ -164,8 +164,9 @@ app.post('/api/learn-contract', LearnContractEndpoint);
 
 app.get('/api/contract-count', async (req, res) => {
     try {
-        const { getContractCount } = await import('./services/contractLearning.service.js');
-        res.json({ count: getContractCount() });
+        const { ContractCacheService } = await import('./services/contractCache.service.js');
+        const count = await ContractCacheService.getCount();
+        res.json({ count });
     } catch (err: any) {
         res.status(500).json({ error: err.message });
     }

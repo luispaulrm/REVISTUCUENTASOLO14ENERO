@@ -1,0 +1,215 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.04,
+        0.52
+      ],
+      "label": "Prestaciones"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.52,
+        0.59
+      ],
+      "label": "% Bonificación"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.59,
+        0.68
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.68,
+        0.78
+      ],
+      "label": "Tope máx. año beneficiario"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.78,
+        0.84
+      ],
+      "label": "%"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.84,
+        0.92
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.92,
+        0.99
+      ],
+      "label": "Tope máx. año beneficiario"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.26,
+        0.33
+      ],
+      "raw_text": "Día cama"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.33,
+        0.36
+      ],
+      "raw_text": "Derecho a pabellón"
+    },
+    {
+      "row_id": "R_EXAMENES_LAB",
+      "y_range": [
+        0.36,
+        0.39
+      ],
+      "raw_text": "Exámenes de laboratorio e histopatología"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.39,
+        0.44
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "y_range": [
+        0.44,
+        0.48
+      ],
+      "raw_text": "Honorarios médicos quirúrgicos y prestadores en convenio definidos en el anexo (I.1)"
+    },
+    {
+      "row_id": "R_VISITA_MEDICA",
+      "y_range": [
+        0.48,
+        0.51
+      ],
+      "raw_text": "Visita médico tratante e interconsultor"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.51,
+        0.54
+      ],
+      "raw_text": "Kinesiología y Fisioterapia"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.54,
+        0.57
+      ],
+      "raw_text": "Medicamentos, materiales e insumos médicos"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.57,
+        0.6
+      ],
+      "raw_text": "Quimioterapia (Cobertura en habitación individual estándar)"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "y_range": [
+        0.6,
+        0.63
+      ],
+      "raw_text": "Prótesis, órtesis y elementos de osteosíntesis"
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "y_range": [
+        0.63,
+        0.66
+      ],
+      "raw_text": "Traslados médicos"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.7,
+        0.74
+      ],
+      "raw_text": "Consulta médica y/o telemedicina"
+    },
+    {
+      "row_id": "R_EXAMENES_LAB_AMB",
+      "y_range": [
+        0.74,
+        0.77
+      ],
+      "raw_text": "Exámenes de laboratorio e histopatología"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "y_range": [
+        0.77,
+        0.8
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS_AMB",
+      "y_range": [
+        0.8,
+        0.83
+      ],
+      "raw_text": "Procedimientos ambulatorios"
+    },
+    {
+      "row_id": "R_HONORARIOS_AMB",
+      "y_range": [
+        0.83,
+        0.86
+      ],
+      "raw_text": "Honorarios médicos quirúrgicos"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON_AMB",
+      "y_range": [
+        0.86,
+        0.88
+      ],
+      "raw_text": "Derecho a pabellón"
+    },
+    {
+      "row_id": "R_RADIOTERAPIA",
+      "y_range": [
+        0.89,
+        0.92
+      ],
+      "raw_text": "Radioterapia"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA_AMB",
+      "y_range": [
+        0.92,
+        0.95
+      ],
+      "raw_text": "Kinesiología, fisioterapia y fonoaudiología"
+    }
+  ],
+  "zones": []
+}

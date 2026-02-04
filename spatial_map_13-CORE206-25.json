@@ -1,0 +1,143 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.06,
+        0.4
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.4,
+        0.52
+      ],
+      "label": "Paga desde"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.52,
+        0.61
+      ],
+      "label": "Paga desde"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.76,
+        0.93
+      ],
+      "label": "Paga un máximo de"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_HOSPITALARIAS",
+      "y_range": [
+        0.18,
+        0.23
+      ],
+      "raw_text": "PRESTACIONES HOSPITALARIAS"
+    },
+    {
+      "row_id": "R_AMBULATORIAS",
+      "y_range": [
+        0.18,
+        0.23
+      ],
+      "raw_text": "PRESTACIONES AMBULATORIAS"
+    },
+    {
+      "row_id": "R_CIRUGIAS",
+      "y_range": [
+        0.23,
+        0.26
+      ],
+      "raw_text": "Cirugías"
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "y_range": [
+        0.23,
+        0.26
+      ],
+      "raw_text": "Consultas"
+    },
+    {
+      "row_id": "R_URGENCIAS",
+      "y_range": [
+        0.23,
+        0.26
+      ],
+      "raw_text": "Urgencias"
+    },
+    {
+      "row_id": "R_EVENTOS_ALTO_COSTO",
+      "y_range": [
+        0.23,
+        0.28
+      ],
+      "raw_text": "Eventos de alto costo"
+    },
+    {
+      "row_id": "R_MEDICO_GENERAL",
+      "y_range": [
+        0.35,
+        0.41
+      ],
+      "raw_text": "En consultas de Médico General, Traumatología y Pediatría en prestadores indicados en el plan"
+    },
+    {
+      "row_id": "R_URGENCIA_INTEGRAL",
+      "y_range": [
+        0.41,
+        0.47
+      ],
+      "raw_text": "En los prestadores indicados en tu plan de salud para Urgencia Integral"
+    },
+    {
+      "row_id": "R_CIRUGIAS_COMUNES",
+      "y_range": [
+        0.47,
+        0.53
+      ],
+      "raw_text": "En las 17 cirugías más comunes, tales como: apendicectomía, meniscectomía, hernia, entre otras"
+    },
+    {
+      "row_id": "R_TELEMEDICINA",
+      "y_range": [
+        0.56,
+        0.6
+      ],
+      "raw_text": "Telemedicina"
+    },
+    {
+      "row_id": "R_SALUD_DENTAL",
+      "y_range": [
+        0.56,
+        0.6
+      ],
+      "raw_text": "Salud dental"
+    },
+    {
+      "row_id": "R_TRATAMIENTO_INTEGRAL",
+      "y_range": [
+        0.56,
+        0.62
+      ],
+      "raw_text": "Tratamiento integral (GES)"
+    },
+    {
+      "row_id": "R_PSICOLOGIA",
+      "y_range": [
+        0.66,
+        0.72
+      ],
+      "raw_text": "En Psicología, Medicina General, Pediatría y Nutriología en Redsalud"
+    }
+  ],
+  "zones": []
+}

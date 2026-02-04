@@ -1,0 +1,64 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.668,
+          0.301,
+          0.702,
+          0.315
+        ]
+      },
+      "value": "80%",
+      "unit": null
+    },
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.733,
+          0.301,
+          0.792,
+          0.315
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUAD_INTENS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.668,
+          0.318,
+          0.702,
+          0.332
+        ]
+      },
+      "value": "80%",
+      "unit": null
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUAD_INTENS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.733,
+          0.318,
+          0.792,
+          0.332
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    }
+  ]
+}

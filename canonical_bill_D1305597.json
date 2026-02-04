@@ -1,0 +1,82 @@
+{
+    "metadata": {
+        "account_id": "D1305597",
+        "patient_id": "P-9982",
+        "admission_date": "2025-06-15",
+        "discharge_date": "2025-06-18",
+        "total_amount": 4500000,
+        "isapre": "Banmedica"
+    },
+    "sections": [
+        {
+            "category": "PABELLON",
+            "items": [
+                {
+                    "index": 101,
+                    "code": "3201001",
+                    "description": "DERECHO DE PABELLON QUIRURGICO (PACK)",
+                    "quantity": 1,
+                    "unit_price": 850000,
+                    "total": 850000,
+                    "copago": 170000
+                },
+                {
+                    "index": 102,
+                    "code": "GEN-INS",
+                    "description": "INSUMOS Y MATERIALES DE PABELLON",
+                    "quantity": 1,
+                    "unit_price": 420000,
+                    "total": 420000,
+                    "copago": 84000
+                }
+            ]
+        },
+        {
+            "category": "HOSPITALIZACION",
+            "items": [
+                {
+                    "index": 201,
+                    "code": "0202001",
+                    "description": "DIA CAMA INDIVIDUAL",
+                    "quantity": 3,
+                    "unit_price": 250000,
+                    "total": 750000,
+                    "copago": 150000
+                },
+                {
+                    "index": 202,
+                    "code": "GEN-ENF",
+                    "description": "PROCEDIMIENTOS DE ENFERMERIA Y CONTROL",
+                    "quantity": 3,
+                    "unit_price": 60000,
+                    "total": 180000,
+                    "copago": 36000
+                }
+            ]
+        },
+        {
+            "category": "FARMACIA",
+            "items": [
+                {
+                    "index": 301,
+                    "code": "MED-GEN",
+                    "description": "MEDICAMENTOS GENERALES",
+                    "quantity": 1,
+                    "unit_price": 1200000,
+                    "total": 1200000,
+                    "copago": 240000
+                },
+                {
+                    "index": 302,
+                    "code": "MED-QX",
+                    "description": "GASES CLINICOS Y ANESTESIA",
+                    "quantity": 1,
+                    "unit_price": 350000,
+                    "total": 350000,
+                    "copago": 70000
+                }
+            ]
+        }
+    ],
+    "findings": []
+}

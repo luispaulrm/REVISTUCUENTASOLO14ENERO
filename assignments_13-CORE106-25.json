@@ -1,0 +1,169 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.45,
+          0.3,
+          0.5,
+          0.35
+        ]
+      },
+      "value": "$105.816*",
+      "unit": null
+    },
+    {
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.67,
+          0.3,
+          0.73,
+          0.34
+        ]
+      },
+      "value": "$1.849.815*",
+      "unit": null
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.48,
+          0.3,
+          0.5,
+          0.35
+        ]
+      },
+      "value": "$7.446*",
+      "unit": null
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.67,
+          0.3,
+          0.74,
+          0.35
+        ]
+      },
+      "value": "$297.068*",
+      "unit": null
+    },
+    {
+      "row_id": "R_URGENCIAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.47,
+          0.3,
+          0.5,
+          0.34
+        ]
+      },
+      "value": "$53.300*",
+      "unit": null
+    },
+    {
+      "row_id": "R_URGENCIAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.83,
+          0.3,
+          0.88,
+          0.35
+        ]
+      },
+      "value": "$4.938.066*",
+      "unit": null
+    },
+    {
+      "row_id": "R_TELEMEDICINA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.47,
+          0.6,
+          0.5,
+          0.62
+        ]
+      },
+      "value": "Costo cero",
+      "unit": null
+    },
+    {
+      "row_id": "R_SALUD_DENTAL",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.43,
+          0.6,
+          0.46,
+          0.62
+        ]
+      },
+      "value": "65%",
+      "unit": "dcto."
+    },
+    {
+      "row_id": "R_TRATAMIENTO_GES",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.43,
+          0.6,
+          0.45,
+          0.62
+        ]
+      },
+      "value": "20%",
+      "unit": null
+    },
+    {
+      "row_id": "R_EXAMENES_PREVENTIVOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.47,
+          0.73,
+          0.5,
+          0.75
+        ]
+      },
+      "value": "costo $0",
+      "unit": null
+    },
+    {
+      "row_id": "R_PROGRAMAS_ACOMPANAMIENTO",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.47,
+          0.73,
+          0.5,
+          0.75
+        ]
+      },
+      "value": "Costo $0",
+      "unit": null
+    }
+  ]
+}

@@ -1,0 +1,259 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.04,
+        0.33
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.33,
+        0.46
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.46,
+        0.57
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.57,
+        0.68
+      ],
+      "label": "Tope Beneficiario/Año"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.68,
+        0.78
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.78,
+        0.88
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.88,
+        0.99
+      ],
+      "label": "Tope Beneficiario/Año"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.23,
+        0.26
+      ],
+      "raw_text": "Día Cama"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CU",
+      "y_range": [
+        0.26,
+        0.32
+      ],
+      "raw_text": "5 UF Día Cama Cuidados Intensivos, Coronarios o Intermedios"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "y_range": [
+        0.32,
+        0.35
+      ],
+      "raw_text": "4,5 UF Día Cama Transitorio y Observación"
+    },
+    {
+      "row_id": "R_DIA_CAMA_INCUBADORA",
+      "y_range": [
+        0.35,
+        0.38
+      ],
+      "raw_text": "Día Cama Cuidados Incubadora  2 UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_SALA_CUNA",
+      "y_range": [
+        0.38,
+        0.41
+      ],
+      "raw_text": "Día Cama Sala Cuna   1 UF"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "y_range": [
+        0.44,
+        0.47
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.47,
+        0.49
+      ],
+      "raw_text": "Sin Tope Imagenología"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS",
+      "y_range": [
+        0.5,
+        0.56
+      ],
+      "raw_text": "Procedimientos RedSalud Providencia, RedSalud Santiago y\nKinesiología, Fisioterapia o Terapia Ocupacional"
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "y_range": [
+        0.56,
+        0.59
+      ],
+      "raw_text": "Honorarios Médico Quirúrgicos"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO_TRATANTE",
+      "y_range": [
+        0.61,
+        0.64
+      ],
+      "raw_text": "(Habitación Individual Estándar) Visita por Médico Tratante"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO_INTERCONSULTOR",
+      "y_range": [
+        0.64,
+        0.67
+      ],
+      "raw_text": "Visita por Médico Interconsultor"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.67,
+        0.7
+      ],
+      "raw_text": "Quimioterapia"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.7,
+        0.72
+      ],
+      "raw_text": "Medicamentos"
+    },
+    {
+      "row_id": "R_MATERIALES_INSUMOS",
+      "y_range": [
+        0.73,
+        0.75
+      ],
+      "raw_text": "Materiales e Insumos Clínicos"
+    },
+    {
+      "row_id": "R_PROTESIS_ORTESIS",
+      "y_range": [
+        0.76,
+        0.79
+      ],
+      "raw_text": "Prótesis, Órtesis y Elementos Osteosíntesis"
+    },
+    {
+      "row_id": "R_TRASLADOS_MEDICOS",
+      "y_range": [
+        0.8,
+        0.82
+      ],
+      "raw_text": "Sólo Cobertura Libre Elección Traslados Médicos"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.86,
+        0.89
+      ],
+      "raw_text": "Consulta Médica, Psiquiátrica y/o Psicológica"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "y_range": [
+        0.9,
+        0.92
+      ],
+      "raw_text": "Consulta Médica de Telemedicina en Especialidad(***)"
+    }
+  ],
+  "zones": [
+    {
+      "zone_id": "ZONE_01",
+      "zone_type": "ZONE_GRAPHIC_RULE",
+      "scope_mode": "RECT_FALL",
+      "contains_text": "65% sin tope en Clínicas:   Hospital del \nProfesor, Clínica Cordillera.",
+      "geometric_scope": {
+        "x": [
+          0.33,
+          0.67
+        ],
+        "y": [
+          0.39,
+          0.43
+        ]
+      },
+      "has_conditions": true
+    },
+    {
+      "zone_id": "ZONE_02",
+      "zone_type": "ZONE_GRAPHIC_RULE",
+      "scope_mode": "RECT_FALL",
+      "contains_text": "45% sin tope en Clínicas:   Dávila Recoleta,\nSin Tope Imagenología 2 AC\nDávila Vespucio, Indisa (Maipú), BUPA Santiago,",
+      "geometric_scope": {
+        "x": [
+          0.33,
+          0.67
+        ],
+        "y": [
+          0.46,
+          0.5
+        ]
+      },
+      "has_conditions": true
+    },
+    {
+      "zone_id": "ZONE_03",
+      "zone_type": "ZONE_GRAPHIC_RULE",
+      "scope_mode": "RECT_FALL",
+      "contains_text": "Hospital del Profesor,\nClínica Cordillera.",
+      "geometric_scope": {
+        "x": [
+          0.33,
+          0.67
+        ],
+        "y": [
+          0.88,
+          0.91
+        ]
+      },
+      "has_conditions": true
+    }
+  ]
+}

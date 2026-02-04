@@ -1,0 +1,223 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.08,
+        0.34
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.44,
+        0.48
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.51,
+        0.56
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.57,
+        0.61
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.64,
+        0.69
+      ],
+      "label": "Tope"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.27,
+        0.3
+      ],
+      "raw_text": "Día Cama"
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "y_range": [
+        0.3,
+        0.33
+      ],
+      "raw_text": "Sala Cuna"
+    },
+    {
+      "row_id": "R_INCUBADORA",
+      "y_range": [
+        0.33,
+        0.36
+      ],
+      "raw_text": "Incubadora"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+      "y_range": [
+        0.36,
+        0.39
+      ],
+      "raw_text": "Día Cama Cuidado Intensivo, Intermedio o Coronario"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "y_range": [
+        0.39,
+        0.42
+      ],
+      "raw_text": "Día Cama Transitorio u Observación"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "y_range": [
+        0.42,
+        0.45
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.45,
+        0.48
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.48,
+        0.5
+      ],
+      "raw_text": "Derecho Pabellón"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.5,
+        0.53
+      ],
+      "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS",
+      "y_range": [
+        0.53,
+        0.57
+      ],
+      "raw_text": "Honorarios Médicos Quirúrgicos (1.2)"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.57,
+        0.6
+      ],
+      "raw_text": "Medicamentos (1.4) (1.10)"
+    },
+    {
+      "row_id": "R_MATERIALES_E_INSUMOS_CLINICOS",
+      "y_range": [
+        0.6,
+        0.64
+      ],
+      "raw_text": "Materiales e Insumos Clínicos (1.4) (1.10)"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.64,
+        0.67
+      ],
+      "raw_text": "Quimioterapia (1.6)"
+    },
+    {
+      "row_id": "R_PROTESIS_ORTESIS",
+      "y_range": [
+        0.67,
+        0.7
+      ],
+      "raw_text": "Prótesis, Órtesis y Elementos de Osteosíntesis"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO_TRATANTE",
+      "y_range": [
+        0.7,
+        0.73
+      ],
+      "raw_text": "Visita por Médico Tratante y Médico Interconsultor"
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "y_range": [
+        0.73,
+        0.76
+      ],
+      "raw_text": "Traslados (5.4)"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.79,
+        0.82
+      ],
+      "raw_text": "Consulta Médica"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "y_range": [
+        0.82,
+        0.84
+      ],
+      "raw_text": "Consulta Médica de Telemedicina en Especialidades (1.14)**"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO_AMB",
+      "y_range": [
+        0.84,
+        0.87
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "y_range": [
+        0.87,
+        0.9
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON_AMB",
+      "y_range": [
+        0.9,
+        0.93
+      ],
+      "raw_text": "Derecho Pabellón Ambulatorio"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB",
+      "y_range": [
+        0.95,
+        0.98
+      ],
+      "raw_text": "Honorarios Médicos Quirúrgicos (1.2)"
+    }
+  ],
+  "zones": []
+}

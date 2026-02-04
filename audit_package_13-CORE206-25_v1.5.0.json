@@ -1,0 +1,660 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "13-CORE206-25",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.912Z"
+  },
+  "spatial_map": {
+    "columns": [
+      {
+        "column_id": "COL_PRESTACIONES",
+        "x_range": [
+          0.06,
+          0.4
+        ],
+        "label": "PRESTACIONES",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_PCT",
+        "x_range": [
+          0.4,
+          0.52
+        ],
+        "label": "Paga desde",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_EVENTO",
+        "x_range": [
+          0.52,
+          0.61
+        ],
+        "label": "Paga desde",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_ANUAL",
+        "x_range": [
+          0.76,
+          0.93
+        ],
+        "label": "Paga un máximo de",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "R_HOSPITALARIAS",
+        "y_range": [
+          0.18,
+          0.23
+        ],
+        "raw_text": "PRESTACIONES HOSPITALARIAS",
+        "text_hash": "h_R_HOSPITALARIAS"
+      },
+      {
+        "row_id": "R_AMBULATORIAS",
+        "y_range": [
+          0.18,
+          0.23
+        ],
+        "raw_text": "PRESTACIONES AMBULATORIAS",
+        "text_hash": "h_R_AMBULATORIAS"
+      },
+      {
+        "row_id": "R_CIRUGIAS",
+        "y_range": [
+          0.23,
+          0.26
+        ],
+        "raw_text": "Cirugías",
+        "text_hash": "h_R_CIRUGIAS"
+      },
+      {
+        "row_id": "R_CONSULTAS",
+        "y_range": [
+          0.23,
+          0.26
+        ],
+        "raw_text": "Consultas",
+        "text_hash": "h_R_CONSULTAS"
+      },
+      {
+        "row_id": "R_URGENCIAS",
+        "y_range": [
+          0.23,
+          0.26
+        ],
+        "raw_text": "Urgencias",
+        "text_hash": "h_R_URGENCIAS"
+      },
+      {
+        "row_id": "R_EVENTOS_ALTO_COSTO",
+        "y_range": [
+          0.23,
+          0.28
+        ],
+        "raw_text": "Eventos de alto costo",
+        "text_hash": "h_R_EVENTOS_ALTO_COSTO"
+      },
+      {
+        "row_id": "R_MEDICO_GENERAL",
+        "y_range": [
+          0.35,
+          0.41
+        ],
+        "raw_text": "En consultas de Médico General, Traumatología y Pediatría en prestadores indicados en el plan",
+        "text_hash": "h_R_MEDICO_GENERAL"
+      },
+      {
+        "row_id": "R_URGENCIA_INTEGRAL",
+        "y_range": [
+          0.41,
+          0.47
+        ],
+        "raw_text": "En los prestadores indicados en tu plan de salud para Urgencia Integral",
+        "text_hash": "h_R_URGENCIA_INTEGRAL"
+      },
+      {
+        "row_id": "R_CIRUGIAS_COMUNES",
+        "y_range": [
+          0.47,
+          0.53
+        ],
+        "raw_text": "En las 17 cirugías más comunes, tales como: apendicectomía, meniscectomía, hernia, entre otras",
+        "text_hash": "h_R_CIRUGIAS_COMUNES"
+      },
+      {
+        "row_id": "R_TELEMEDICINA",
+        "y_range": [
+          0.56,
+          0.6
+        ],
+        "raw_text": "Telemedicina",
+        "text_hash": "h_R_TELEMEDICINA"
+      },
+      {
+        "row_id": "R_SALUD_DENTAL",
+        "y_range": [
+          0.56,
+          0.6
+        ],
+        "raw_text": "Salud dental",
+        "text_hash": "h_R_SALUD_DENTAL"
+      },
+      {
+        "row_id": "R_TRATAMIENTO_INTEGRAL",
+        "y_range": [
+          0.56,
+          0.62
+        ],
+        "raw_text": "Tratamiento integral (GES)",
+        "text_hash": "h_R_TRATAMIENTO_INTEGRAL"
+      },
+      {
+        "row_id": "R_PSICOLOGIA",
+        "y_range": [
+          0.66,
+          0.72
+        ],
+        "raw_text": "En Psicología, Medicina General, Pediatría y Nutriología en Redsalud",
+        "text_hash": "h_R_PSICOLOGIA"
+      }
+    ],
+    "zones": [],
+    "row_groups": [
+      {
+        "group_id": "G_R_HOSPITALARIAS",
+        "y_range": [
+          0.23,
+          1
+        ],
+        "source": "HEADER_RECT"
+      },
+      {
+        "group_id": "G_R_AMBULATORIAS",
+        "y_range": [
+          0.23,
+          1
+        ],
+        "source": "HEADER_RECT"
+      }
+    ],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "assignment_id": "a_R_CIRUGIAS_COL_PREF_PCT",
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "$105.816*",
+        "bbox": [
+          0.42,
+          0.28,
+          0.49,
+          0.32
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "$105.816*",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTAS_COL_PREF_PCT",
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "$7.446*",
+        "bbox": [
+          0.42,
+          0.28,
+          0.49,
+          0.32
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "$7.446*",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MEDICO_GENERAL_COL_PREF_PCT",
+      "row_id": "R_MEDICO_GENERAL",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0",
+        "bbox": [
+          0.44,
+          0.35,
+          0.48,
+          0.38
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_TELEMEDICINA_COL_PREF_PCT",
+      "row_id": "R_TELEMEDICINA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Costo",
+        "bbox": [
+          0.42,
+          0.56,
+          0.46,
+          0.58
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Costo",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_SALUD_DENTAL_COL_PREF_PCT",
+      "row_id": "R_SALUD_DENTAL",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "65%",
+        "bbox": [
+          0.47,
+          0.56,
+          0.5,
+          0.58
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "65%",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_TRATAMIENTO_INTEGRAL_COL_PREF_PCT",
+      "row_id": "R_TRATAMIENTO_INTEGRAL",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "20%",
+        "bbox": [
+          0.41,
+          0.59,
+          0.43,
+          0.61
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "20%",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_URGENCIAS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_URGENCIAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "$53.300*",
+        "bbox": [
+          0.53,
+          0.3,
+          0.58,
+          0.33
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "$53.300*",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTAS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "(0,19",
+        "bbox": [
+          0.54,
+          0.28,
+          0.59,
+          0.32
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "(0,19",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_URGENCIAS_COL_PREF_TOPE_EVENTO_2",
+      "row_id": "R_URGENCIAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "UF)",
+        "bbox": [
+          0.54,
+          0.3,
+          0.59,
+          0.34
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "UF)",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CIRUGIAS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "(2,7",
+        "bbox": [
+          0.53,
+          0.33,
+          0.57,
+          0.35
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "(2,7",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_URGENCIAS_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_URGENCIAS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "$297.068*",
+        "bbox": [
+          0.8,
+          0.3,
+          0.87,
+          0.34
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "$297.068*",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_EVENTOS_ALTO_COSTO_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_EVENTOS_ALTO_COSTO",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "$4.938.066*",
+        "bbox": [
+          0.78,
+          0.31,
+          0.84,
+          0.34
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "$4.938.066*",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_URGENCIAS_COL_PREF_TOPE_ANUAL_2",
+      "row_id": "R_URGENCIAS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "(7,58",
+        "bbox": [
+          0.85,
+          0.33,
+          0.9,
+          0.35
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "(7,58",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_EVENTOS_ALTO_COSTO_COL_PREF_TOPE_ANUAL_2",
+      "row_id": "R_EVENTOS_ALTO_COSTO",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "(126",
+        "bbox": [
+          0.87,
+          0.33,
+          0.91,
+          0.35
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "(126",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_URGENCIAS::COL_PREF_TOPE_EVENTO has 2 active assignments: a_R_URGENCIAS_COL_PREF_TOPE_EVENTO, a_R_URGENCIAS_COL_PREF_TOPE_EVENTO_2.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_URGENCIAS::COL_PREF_TOPE_ANUAL has 2 active assignments: a_R_URGENCIAS_COL_PREF_TOPE_ANUAL, a_R_URGENCIAS_COL_PREF_TOPE_ANUAL_2.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_EVENTOS_ALTO_COSTO::COL_PREF_TOPE_ANUAL has 2 active assignments: a_R_EVENTOS_ALTO_COSTO_COL_PREF_TOPE_ANUAL, a_R_EVENTOS_ALTO_COSTO_COL_PREF_TOPE_ANUAL_2.",
+      "severity": "ERROR"
+    }
+  ],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "PASS",
+    "zone_application_completeness": "PASS",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "FAIL",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 0,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 1,
+    "require_rows_present": false,
+    "require_rows_justified_absence": true
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "NEEDS_REVIEW",
+    "avg_confidence": 0.9850000000000001,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}

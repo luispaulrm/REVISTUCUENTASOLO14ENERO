@@ -1,0 +1,30 @@
+{
+  "columns": [],
+  "rows": [
+    {
+      "row_id": "R_CIRUGIAS",
+      "y_range": [
+        0.1,
+        0.2
+      ],
+      "raw_text": "Cobertura Hospitalaria de hasta 100%   sin tope   Cobertura Ambulatoria de hasta 80%   sin tope"
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "y_range": [
+        0.1,
+        0.2
+      ],
+      "raw_text": "Cobertura Hospitalaria de hasta 100%   sin tope   Cobertura Ambulatoria de hasta 80%   sin tope"
+    },
+    {
+      "row_id": "R_URGENCIAS",
+      "y_range": [
+        0.3,
+        0.4
+      ],
+      "raw_text": "Urgencia integral • Accede a copagos fijos en urgencias adulto   y   pediátrica."
+    }
+  ],
+  "zones": []
+}

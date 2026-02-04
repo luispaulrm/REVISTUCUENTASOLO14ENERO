@@ -1,0 +1,403 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "BFDC241122",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.933Z"
+  },
+  "spatial_map": {
+    "columns": [
+      {
+        "column_id": "COL_PRESTACIONES",
+        "x_range": [
+          0.02,
+          0.49
+        ],
+        "label": "Prestaciones",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_PCT",
+        "x_range": [
+          0.49,
+          0.67
+        ],
+        "label": "Preferente %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_EVENTO",
+        "x_range": [
+          0.67,
+          0.84
+        ],
+        "label": "Preferente Tope Evento",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_ANUAL",
+        "x_range": [
+          0.84,
+          0.98
+        ],
+        "label": "Preferente Tope Anual",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "R_URGENCIA_ADULTO",
+        "y_range": [
+          0.42,
+          0.47
+        ],
+        "raw_text": "Urgencia Adulto",
+        "text_hash": "h_R_URGENCIA_ADULTO"
+      },
+      {
+        "row_id": "R_URGENCIA_PEDIATRICA",
+        "y_range": [
+          0.47,
+          0.52
+        ],
+        "raw_text": "Urgencia Pediátrica",
+        "text_hash": "h_R_URGENCIA_PEDIATRICA"
+      },
+      {
+        "row_id": "R_URGENCIA_MATERNIDAD",
+        "y_range": [
+          0.52,
+          0.58
+        ],
+        "raw_text": "Urgencia Maternidad",
+        "text_hash": "h_R_URGENCIA_MATERNIDAD"
+      },
+      {
+        "row_id": "R_CIRUGIAS",
+        "y_range": [
+          0.5,
+          0.7
+        ],
+        "raw_text": "Cobertura Hospitalaria  Cobertura Ambulatoria \nde cobertura de cobertura \nsin tope 60%    sin tope  70%",
+        "text_hash": "h_R_CIRUGIAS"
+      },
+      {
+        "row_id": "R_CONSULTAS",
+        "y_range": [
+          0.5,
+          0.7
+        ],
+        "raw_text": "Cobertura Hospitalaria  Cobertura Ambulatoria \nde cobertura de cobertura \nsin tope 60%    sin tope  70%",
+        "text_hash": "h_R_CONSULTAS"
+      },
+      {
+        "row_id": "R_URGENCIAS",
+        "y_range": [
+          0.8,
+          0.9
+        ],
+        "raw_text": "URGENCIA URGENCIA \nSIMPLE COMPLEJA",
+        "text_hash": "h_R_URGENCIAS"
+      },
+      {
+        "row_id": "R_TELEMEDICINA",
+        "y_range": [
+          0.2,
+          0.3
+        ],
+        "raw_text": "Obtén cobertura   cerrada   en Clínica Dávila, Clínica Dávila Vespucio   y \nCentros Médicos Dávila de la   R egión Metropolitana",
+        "text_hash": "h_R_TELEMEDICINA"
+      },
+      {
+        "row_id": "R_SALUD_DENTAL",
+        "y_range": [
+          0.2,
+          0.3
+        ],
+        "raw_text": "Obtén cobertura   cerrada   en Clínica Dávila, Clínica Dávila Vespucio   y \nCentros Médicos Dávila de la   R egión Metropolitana",
+        "text_hash": "h_R_SALUD_DENTAL"
+      }
+    ],
+    "zones": [],
+    "row_groups": [
+      {
+        "group_id": "G_R_CIRUGIAS",
+        "y_range": [
+          0.7,
+          1
+        ],
+        "source": "HEADER_RECT"
+      },
+      {
+        "group_id": "G_R_CONSULTAS",
+        "y_range": [
+          0.7,
+          1
+        ],
+        "source": "HEADER_RECT"
+      }
+    ],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "assignment_id": "a_R_URGENCIA_ADULTO_COL_PREF_PCT",
+      "row_id": "R_URGENCIA_ADULTO",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "60",
+        "bbox": [
+          0.57,
+          0.43,
+          0.64,
+          0.46
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "60",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_URGENCIA_ADULTO_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_URGENCIA_ADULTO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,3",
+        "bbox": [
+          0.68,
+          0.43,
+          0.72,
+          0.46
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,3",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_URGENCIA_PEDIATRICA_COL_PREF_PCT",
+      "row_id": "R_URGENCIA_PEDIATRICA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "70",
+        "bbox": [
+          0.57,
+          0.48,
+          0.64,
+          0.51
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "70",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_URGENCIA_PEDIATRICA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_URGENCIA_PEDIATRICA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,0",
+        "bbox": [
+          0.68,
+          0.48,
+          0.72,
+          0.51
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,0",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_URGENCIA_MATERNIDAD_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_URGENCIA_MATERNIDAD",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,5",
+        "bbox": [
+          0.68,
+          0.53,
+          0.72,
+          0.56
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,5",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CIRUGIAS_COL_PREF_PCT",
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "60",
+        "bbox": [
+          0.5,
+          0.6,
+          0.6,
+          0.7
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "60",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTAS_COL_PREF_PCT",
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "70",
+        "bbox": [
+          0.5,
+          0.6,
+          0.6,
+          0.7
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "70",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    }
+  ],
+  "warnings": [],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "PASS",
+    "zone_application_completeness": "PASS",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "PASS",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 0,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 1,
+    "require_rows_present": false,
+    "require_rows_justified_absence": true
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "PASS",
+    "avg_confidence": 0.9850000000000001,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}

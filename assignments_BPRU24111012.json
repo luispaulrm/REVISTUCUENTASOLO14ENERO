@@ -1,0 +1,379 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.47,
+          0.29,
+          0.53,
+          0.32
+        ]
+      },
+      "value": "100",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.56,
+          0.29,
+          0.6,
+          0.32
+        ]
+      },
+      "value": "Sin",
+      "unit": null
+    },
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.6,
+          0.29,
+          0.63,
+          0.32
+        ]
+      },
+      "value": "Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.54,
+          0.32,
+          0.57,
+          0.35
+        ]
+      },
+      "value": "3,2",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_INCUBADORA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.54,
+          0.35,
+          0.57,
+          0.37
+        ]
+      },
+      "value": "6,1",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.54,
+          0.42,
+          0.59,
+          0.45
+        ]
+      },
+      "value": "13,5",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.54,
+          0.46,
+          0.57,
+          0.49
+        ]
+      },
+      "value": "6,1",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.56,
+          0.54,
+          0.6,
+          0.57
+        ]
+      },
+      "value": "Sin",
+      "unit": null
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.6,
+          0.54,
+          0.63,
+          0.57
+        ]
+      },
+      "value": "Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.56,
+          0.57,
+          0.6,
+          0.6
+        ]
+      },
+      "value": "Sin",
+      "unit": null
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.6,
+          0.57,
+          0.63,
+          0.6
+        ]
+      },
+      "value": "Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.48,
+          0.6,
+          0.51,
+          0.64
+        ]
+      },
+      "value": "85",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.56,
+          0.6,
+          0.6,
+          0.63
+        ]
+      },
+      "value": "Sin",
+      "unit": null
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.6,
+          0.6,
+          0.63,
+          0.63
+        ]
+      },
+      "value": "Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.47,
+          0.64,
+          0.5,
+          0.67
+        ]
+      },
+      "value": "90",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.47,
+          0.77,
+          0.5,
+          0.8
+        ]
+      },
+      "value": "60",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.55,
+          0.77,
+          0.58,
+          0.8
+        ]
+      },
+      "value": "Sin",
+      "unit": null
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.58,
+          0.77,
+          0.61,
+          0.8
+        ]
+      },
+      "value": "Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.47,
+          0.84,
+          0.5,
+          0.87
+        ]
+      },
+      "value": "60",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.55,
+          0.84,
+          0.58,
+          0.87
+        ]
+      },
+      "value": "Sin",
+      "unit": null
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.58,
+          0.84,
+          0.61,
+          0.87
+        ]
+      },
+      "value": "Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_VISITA_MEDICO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.56,
+          0.92,
+          0.6,
+          0.95
+        ]
+      },
+      "value": "Sin",
+      "unit": null
+    },
+    {
+      "row_id": "R_VISITA_MEDICO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.6,
+          0.92,
+          0.63,
+          0.95
+        ]
+      },
+      "value": "Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.56,
+          0.95,
+          0.6,
+          0.98
+        ]
+      },
+      "value": "Sin",
+      "unit": null
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.6,
+          0.95,
+          0.63,
+          0.98
+        ]
+      },
+      "value": "Tope",
+      "unit": null
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.5,
+          0.1,
+          0.6,
+          0.15
+        ]
+      },
+      "value": "100",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.6,
+          0.1,
+          0.7,
+          0.15
+        ]
+      },
+      "value": "sin tope",
+      "unit": "TEXT"
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.5,
+          0.1,
+          0.6,
+          0.15
+        ]
+      },
+      "value": "80",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.6,
+          0.1,
+          0.7,
+          0.15
+        ]
+      },
+      "value": "sin tope",
+      "unit": "TEXT"
+    }
+  ]
+}

@@ -121,11 +121,14 @@ export default function ForensicApp() {
 
     const checkData = () => {
         try {
-            setHasBill(!!localStorage.getItem('clinic_audit_result'));
-            setHasPam(!!localStorage.getItem('pam_audit_result'));
-            setHasContract(!!localStorage.getItem('contract_audit_result'));
-            setHasCanonical(!!localStorage.getItem('canonical_contract_result'));
-            setHasHtml(!!localStorage.getItem('html_projection_result'));
+            const activeCaseId = localStorage.getItem('forensic_active_case_id');
+            const hasActiveCase = !!activeCaseId;
+
+            setHasBill(hasActiveCase && !!localStorage.getItem('clinic_audit_result'));
+            setHasPam(hasActiveCase && !!localStorage.getItem('pam_audit_result'));
+            setHasContract(hasActiveCase && !!localStorage.getItem('contract_audit_result'));
+            setHasCanonical(hasActiveCase && !!localStorage.getItem('canonical_contract_result'));
+            setHasHtml(hasActiveCase && !!localStorage.getItem('html_projection_result'));
         } catch (e) {
             console.warn('LocalStorage access blocked:', e);
             setHasBill(false);

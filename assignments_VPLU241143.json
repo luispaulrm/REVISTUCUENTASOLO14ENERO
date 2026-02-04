@@ -1,0 +1,304 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.44,
+          0.26,
+          0.47,
+          0.3
+        ]
+      },
+      "value": "80",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.26,
+          0.55,
+          0.3
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.65,
+          0.26,
+          0.68,
+          0.3
+        ]
+      },
+      "value": "4,5",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.29,
+          0.68,
+          0.33
+        ]
+      },
+      "value": "2",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_INCUBADORA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.32,
+          0.68,
+          0.36
+        ]
+      },
+      "value": "4,5",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.35,
+          0.69,
+          0.39
+        ]
+      },
+      "value": "11",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.39,
+          0.68,
+          0.42
+        ]
+      },
+      "value": "4,5",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.44,
+          0.42,
+          0.47,
+          0.45
+        ]
+      },
+      "value": "50",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.42,
+          0.55,
+          0.45
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.44,
+          0.45,
+          0.47,
+          0.48
+        ]
+      },
+      "value": "50",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.45,
+          0.55,
+          0.48
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.54,
+          0.69,
+          0.57
+        ]
+      },
+      "value": "6 00",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.64,
+          0.68,
+          0.67
+        ]
+      },
+      "value": "12",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.66,
+          0.79,
+          0.68,
+          0.82
+        ]
+      },
+      "value": "0,6",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.84,
+          0.55,
+          0.87
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO_AMB",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.65,
+          0.84,
+          0.68,
+          0.87
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.87,
+          0.55,
+          0.9
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.65,
+          0.87,
+          0.68,
+          0.9
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.44,
+          0.95,
+          0.47,
+          0.98
+        ]
+      },
+      "value": "80",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.52,
+          0.95,
+          0.55,
+          0.98
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    }
+  ]
+}

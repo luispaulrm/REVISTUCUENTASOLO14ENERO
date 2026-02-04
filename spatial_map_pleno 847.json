@@ -1,0 +1,103 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0,
+        0.4
+      ],
+      "label": "Prestaciones"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.4,
+        0.6
+      ],
+      "label": "Libre Elección %"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.6,
+        0.8
+      ],
+      "label": "Libre Elección Tope Evento"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.8,
+        1
+      ],
+      "label": "Libre Elección Tope Anual"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_PLAN",
+      "y_range": [
+        0.13,
+        0.17
+      ],
+      "raw_text": "Plan   PLENO"
+    },
+    {
+      "row_id": "R_PLAN_2",
+      "y_range": [
+        0.2,
+        0.24
+      ],
+      "raw_text": "PLE 847"
+    },
+    {
+      "row_id": "R_PLAN_3",
+      "y_range": [
+        0.24,
+        0.28
+      ],
+      "raw_text": "Plan de Salud"
+    },
+    {
+      "row_id": "R_PLAN_4",
+      "y_range": [
+        0.28,
+        0.32
+      ],
+      "raw_text": "Complementario con"
+    },
+    {
+      "row_id": "R_PLAN_5",
+      "y_range": [
+        0.32,
+        0.36
+      ],
+      "raw_text": "Modalidad Libre Elección"
+    },
+    {
+      "row_id": "R_PLAN_6",
+      "y_range": [
+        0.36,
+        0.4
+      ],
+      "raw_text": "Plan con cobertura reducida"
+    },
+    {
+      "row_id": "R_PLAN_7",
+      "y_range": [
+        0.4,
+        0.44
+      ],
+      "raw_text": "En prestaciones obstétricas y de neonatología"
+    },
+    {
+      "row_id": "R_PLAN_8",
+      "y_range": [
+        0.44,
+        0.48
+      ],
+      "raw_text": "PLENO"
+    }
+  ],
+  "zones": []
+}

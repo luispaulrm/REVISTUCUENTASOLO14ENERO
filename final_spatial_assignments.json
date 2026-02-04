@@ -1,0 +1,93 @@
+{
+    "system_metadata": {
+        "engine_version": "1.2.2-PURE",
+        "doctrine": "NON_INTERPRETATIVE_EXTRACTION",
+        "page_number": 2,
+        "source_document": "PLAN PLENO PLE 847",
+        "timestamp": "2026-02-03T13:20:00Z"
+    },
+    "spatial_assignments": [
+        {
+            "assignment_id": "P2_R4_C3",
+            "row_id": "EXAMENES_LAB",
+            "column_metadata": {
+                "column_id": "C3_TOPE_1",
+                "x_range": [
+                    0.51,
+                    0.61
+                ],
+                "semantic_role_candidate": "TOPE_EVENTO"
+            },
+            "pointer": {
+                "type": "ZONE_REFERENCE",
+                "target_id": "ZONE_EXCEPCION_CLINICAS",
+                "raw_text": "SIN TOPE Excepto 60% en Clínica Las Condes, Alemana y Las Nieves de Santiago",
+                "bbox": [
+                    0.51,
+                    0.17,
+                    0.61,
+                    0.25
+                ]
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "TOPE",
+                    "value": "SIN_TOPE"
+                },
+                {
+                    "type": "CONDITION",
+                    "key": "EXCEPTION",
+                    "value": "60%",
+                    "detail": "Clínica Las Condes, Alemana, Las Nieves"
+                }
+            ],
+            "confidence": {
+                "row_confidence": 0.98,
+                "assignment_confidence": 0.99
+            },
+            "tags": [
+                "RECT_FALL_WINNER"
+            ]
+        },
+        {
+            "assignment_id": "P2_R10_C3",
+            "row_id": "HONORARIOS_MED_QUIR",
+            "column_metadata": {
+                "column_id": "C3_TOPE_1",
+                "x_range": [
+                    0.51,
+                    0.61
+                ],
+                "semantic_role_candidate": "TOPE_EVENTO"
+            },
+            "pointer": {
+                "type": "TEXT_DIRECT",
+                "raw_text": "13,26 VAM",
+                "bbox": [
+                    0.55,
+                    0.25,
+                    0.60,
+                    0.27
+                ]
+            },
+            "atoms": [
+                {
+                    "type": "RULE",
+                    "key": "TOPE",
+                    "value": 13.26,
+                    "unit": "VAM"
+                }
+            ],
+            "confidence": {
+                "row_confidence": 0.99,
+                "assignment_confidence": 0.99
+            }
+        }
+    ],
+    "forensic_summary": {
+        "interpretation_leak_check": "CLEAN",
+        "unit_normalization_deferred": true,
+        "visual_traceability": "COMPLETE"
+    }
+}

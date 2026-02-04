@@ -1,0 +1,223 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.08,
+        0.42
+      ],
+      "label": "Prestaciones"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.41,
+        0.5
+      ],
+      "label": "Preferente %"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.5,
+        0.62
+      ],
+      "label": "Preferente Tope Evento"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.62,
+        0.72
+      ],
+      "label": "Preferente Tope Anual"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.72,
+        0.77
+      ],
+      "label": "Libre Elección %"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.77,
+        0.88
+      ],
+      "label": "Libre Elección Tope Evento"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.87,
+        0.99
+      ],
+      "label": "Libre Elección Tope Anual"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.28,
+        0.34
+      ],
+      "raw_text": "Día cama"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.35,
+        0.38
+      ],
+      "raw_text": "Derecho a pabellón"
+    },
+    {
+      "row_id": "R_EXAMENES_LAB",
+      "y_range": [
+        0.39,
+        0.42
+      ],
+      "raw_text": "Exámenes de laboratorio e histopatología"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.42,
+        0.46
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS",
+      "y_range": [
+        0.48,
+        0.51
+      ],
+      "raw_text": "Honorarios médicos quirúrgicos Libre Elección"
+    },
+    {
+      "row_id": "R_VISITA_MEDICA",
+      "y_range": [
+        0.51,
+        0.54
+      ],
+      "raw_text": "Visita médico tratante e interconsultor"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.54,
+        0.58
+      ],
+      "raw_text": "Kinesiología y Fisioterapia"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.58,
+        0.61
+      ],
+      "raw_text": "Medicamentos, materiales e insumos médicos"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.61,
+        0.64
+      ],
+      "raw_text": "Quimioterapia"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "y_range": [
+        0.64,
+        0.67
+      ],
+      "raw_text": "Prótesis, órtesis y elementos de osteosíntesis"
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "y_range": [
+        0.67,
+        0.7
+      ],
+      "raw_text": "Traslados médicos"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.73,
+        0.76
+      ],
+      "raw_text": "Consulta médica y/o telemedicina"
+    },
+    {
+      "row_id": "R_EXAMENES_LAB_AMB",
+      "y_range": [
+        0.76,
+        0.79
+      ],
+      "raw_text": "Exámenes de laboratorio e histopatología"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "y_range": [
+        0.79,
+        0.83
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS_AMB",
+      "y_range": [
+        0.83,
+        0.86
+      ],
+      "raw_text": "Procedimientos ambulatorios"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_AMB",
+      "y_range": [
+        0.86,
+        0.89
+      ],
+      "raw_text": "Honorarios médicos quirúrgicos"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON_AMB",
+      "y_range": [
+        0.89,
+        0.92
+      ],
+      "raw_text": "Derecho a pabellón"
+    },
+    {
+      "row_id": "R_RADIOTERAPIA",
+      "y_range": [
+        0.92,
+        0.95
+      ],
+      "raw_text": "Radioterapia"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA_AMB",
+      "y_range": [
+        0.95,
+        0.98
+      ],
+      "raw_text": "Kinesiología, fisioterapia y fonoaudiología Libre Elección"
+    },
+    {
+      "row_id": "R_ATENCION_ENF_NUT",
+      "y_range": [
+        0.98,
+        1.01
+      ],
+      "raw_text": "Atención integral de enfermería y nutricionista"
+    }
+  ],
+  "zones": []
+}

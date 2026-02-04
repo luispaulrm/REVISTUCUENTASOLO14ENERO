@@ -1,0 +1,2212 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "BCGL250300",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.928Z"
+  },
+  "spatial_map": {
+    "columns": [
+      {
+        "column_id": "COL_PRESTACIONES",
+        "x_range": [
+          0.07,
+          0.34
+        ],
+        "label": "PRESTACIONES",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_PCT",
+        "x_range": [
+          0.46,
+          0.49
+        ],
+        "label": "Bonificación %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_EVENTO",
+        "x_range": [
+          0.51,
+          0.55
+        ],
+        "label": "Tope contrato por bene fi ciario",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_ANUAL",
+        "x_range": [
+          0.56,
+          0.61
+        ],
+        "label": "Tope máx. año por contrato bene fi ciario",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_PCT",
+        "x_range": [
+          0.64,
+          0.68
+        ],
+        "label": "Bonificación %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_EVENTO",
+        "x_range": [
+          0.69,
+          0.73
+        ],
+        "label": "Tope",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_ANUAL",
+        "x_range": [
+          0.74,
+          0.8
+        ],
+        "label": "Tope máx. año",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "R_DIA_CAMA",
+        "y_range": [
+          0.22,
+          0.24
+        ],
+        "raw_text": "Día Cama",
+        "text_hash": "h_R_DIA_CAMA"
+      },
+      {
+        "row_id": "R_SALA_CUNA",
+        "y_range": [
+          0.24,
+          0.26
+        ],
+        "raw_text": "Sala Cuna",
+        "text_hash": "h_R_SALA_CUNA"
+      },
+      {
+        "row_id": "R_INCUBADORA",
+        "y_range": [
+          0.26,
+          0.28
+        ],
+        "raw_text": "Incubadora",
+        "text_hash": "h_R_INCUBADORA"
+      },
+      {
+        "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+        "y_range": [
+          0.29,
+          0.31
+        ],
+        "raw_text": "Día Cama Cuidado Intensivo, Intermedio o Coronario",
+        "text_hash": "h_R_DIA_CAMA_CUIDADO_INTENSIVO"
+      },
+      {
+        "row_id": "R_DIA_CAMA_TRANSITORIO",
+        "y_range": [
+          0.31,
+          0.34
+        ],
+        "raw_text": "Día Cama Transitorio u Observación",
+        "text_hash": "h_R_DIA_CAMA_TRANSITORIO"
+      },
+      {
+        "row_id": "R_EXAMENES_LABORATORIO",
+        "y_range": [
+          0.34,
+          0.36
+        ],
+        "raw_text": "Exámenes de Laboratorio",
+        "text_hash": "h_R_EXAMENES_LABORATORIO"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA",
+        "y_range": [
+          0.36,
+          0.38
+        ],
+        "raw_text": "Imagenología",
+        "text_hash": "h_R_IMAGENOLOGIA"
+      },
+      {
+        "row_id": "R_DERECHO_PABELLON",
+        "y_range": [
+          0.38,
+          0.4
+        ],
+        "raw_text": "Derecho Pabellón",
+        "text_hash": "h_R_DERECHO_PABELLON"
+      },
+      {
+        "row_id": "R_KINESIOLOGIA",
+        "y_range": [
+          0.4,
+          0.43
+        ],
+        "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional",
+        "text_hash": "h_R_KINESIOLOGIA"
+      },
+      {
+        "row_id": "R_HONORARIOS",
+        "y_range": [
+          0.45,
+          0.47
+        ],
+        "raw_text": "Honorarios Médicos Quirúrgicos (1.2)",
+        "text_hash": "h_R_HONORARIOS"
+      },
+      {
+        "row_id": "R_MEDICAMENTOS",
+        "y_range": [
+          0.47,
+          0.49
+        ],
+        "raw_text": "Medicamentos (1.4) (1.10)",
+        "text_hash": "h_R_MEDICAMENTOS"
+      },
+      {
+        "row_id": "R_MATERIALES_E_INSUMOS",
+        "y_range": [
+          0.49,
+          0.52
+        ],
+        "raw_text": "Materiales e Insumos Clínicos (1.4) (1.10)",
+        "text_hash": "h_R_MATERIALES_E_INSUMOS"
+      },
+      {
+        "row_id": "R_QUIMIOTERAPIA",
+        "y_range": [
+          0.52,
+          0.54
+        ],
+        "raw_text": "Quimioterapia (1.6)",
+        "text_hash": "h_R_QUIMIOTERAPIA"
+      },
+      {
+        "row_id": "R_PROTESIS",
+        "y_range": [
+          0.54,
+          0.57
+        ],
+        "raw_text": "Prótesis, Órtesis y Elementos de Osteosíntesis",
+        "text_hash": "h_R_PROTESIS"
+      },
+      {
+        "row_id": "R_VISITA_MEDICO",
+        "y_range": [
+          0.57,
+          0.6
+        ],
+        "raw_text": "Visita por Médico Tratante y Médico Interconsultor",
+        "text_hash": "h_R_VISITA_MEDICO"
+      },
+      {
+        "row_id": "R_TRASLADOS",
+        "y_range": [
+          0.6,
+          0.62
+        ],
+        "raw_text": "Traslados (5.4)",
+        "text_hash": "h_R_TRASLADOS"
+      },
+      {
+        "row_id": "R_CONSULTA_MEDICA",
+        "y_range": [
+          0.64,
+          0.66
+        ],
+        "raw_text": "Consulta Médica",
+        "text_hash": "h_R_CONSULTA_MEDICA"
+      },
+      {
+        "row_id": "R_CONSULTA_TELEMEDICINA",
+        "y_range": [
+          0.66,
+          0.69
+        ],
+        "raw_text": "Consulta Médica de Telemedicina en Especialidades (1.14)**",
+        "text_hash": "h_R_CONSULTA_TELEMEDICINA"
+      },
+      {
+        "row_id": "R_EXAMENES_LABORATORIO_AMB",
+        "y_range": [
+          0.69,
+          0.71
+        ],
+        "raw_text": "Exámenes de Laboratorio",
+        "text_hash": "h_R_EXAMENES_LABORATORIO_AMB"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA_AMB",
+        "y_range": [
+          0.71,
+          0.74
+        ],
+        "raw_text": "Imagenología",
+        "text_hash": "h_R_IMAGENOLOGIA_AMB"
+      },
+      {
+        "row_id": "R_DERECHO_PABELLON_AMB",
+        "y_range": [
+          0.74,
+          0.76
+        ],
+        "raw_text": "Derecho Pabellón Ambulatorio",
+        "text_hash": "h_R_DERECHO_PABELLON_AMB"
+      },
+      {
+        "row_id": "R_PROCEDIMIENTOS",
+        "y_range": [
+          0.76,
+          0.78
+        ],
+        "raw_text": "Procedimientos",
+        "text_hash": "h_R_PROCEDIMIENTOS"
+      },
+      {
+        "row_id": "R_HONORARIOS_AMB",
+        "y_range": [
+          0.78,
+          0.8
+        ],
+        "raw_text": "Honorarios Médicos Quirúrgicos (1.2)",
+        "text_hash": "h_R_HONORARIOS_AMB"
+      },
+      {
+        "row_id": "R_RADIOTERAPIA",
+        "y_range": [
+          0.8,
+          0.82
+        ],
+        "raw_text": "Radioterapia",
+        "text_hash": "h_R_RADIOTERAPIA"
+      },
+      {
+        "row_id": "R_FONO_AMB",
+        "y_range": [
+          0.82,
+          0.84
+        ],
+        "raw_text": "Fonoaudiología",
+        "text_hash": "h_R_FONO_AMB"
+      },
+      {
+        "row_id": "R_KINESIO_AMB",
+        "y_range": [
+          0.84,
+          0.86
+        ],
+        "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional",
+        "text_hash": "h_R_KINESIO_AMB"
+      },
+      {
+        "row_id": "R_PREST_DENTALES",
+        "y_range": [
+          0.87,
+          0.89
+        ],
+        "raw_text": "Prestaciones Dentales (PAD) (1.13)",
+        "text_hash": "h_R_PREST_DENTALES"
+      },
+      {
+        "row_id": "R_CLINICA_LACTANCIA",
+        "y_range": [
+          0.89,
+          0.91
+        ],
+        "raw_text": "Clínica de Lactancia (0 a 6 meses de edad) (PAD) (1.13)",
+        "text_hash": "h_R_CLINICA_LACTANCIA"
+      },
+      {
+        "row_id": "R_MAL_NUTRICION",
+        "y_range": [
+          0.91,
+          0.93
+        ],
+        "raw_text": "Mal Nutrición Infantil (7 a 72 meses de edad) (PAD) (1.13)",
+        "text_hash": "h_R_MAL_NUTRICION"
+      },
+      {
+        "row_id": "R_FERTILIZACION_BAJA_HOMBRE",
+        "y_range": [
+          0.93,
+          0.95
+        ],
+        "raw_text": "Tratamiento de fertilización asistida baja complejidad hombre (PAD) ( 1.13)",
+        "text_hash": "h_R_FERTILIZACION_BAJA_HOMBRE"
+      },
+      {
+        "row_id": "R_FERTILIZACION_BAJA_MUJER",
+        "y_range": [
+          0.95,
+          0.97
+        ],
+        "raw_text": "Tratamiento de fertilización asistida baja complejidad mujer (PAD) (1.13)",
+        "text_hash": "h_R_FERTILIZACION_BAJA_MUJER"
+      },
+      {
+        "row_id": "R_FERTILIZACION_ALTA",
+        "y_range": [
+          0.97,
+          0.99
+        ],
+        "raw_text": "Tratamiento de fertilización asistida alta complejidad (PAD) (1.13)",
+        "text_hash": "h_R_FERTILIZACION_ALTA"
+      },
+      {
+        "y1": 299,
+        "text": "Exámenes de Laboratorio",
+        "row_id": "R_EXAMENES",
+        "text_hash": "h_R_EXAMENES"
+      },
+      {
+        "y1": 315,
+        "text": "Derecho Pabellón",
+        "row_id": "R_PABELLON",
+        "text_hash": "h_R_PABELLON"
+      },
+      {
+        "y1": 330,
+        "text": "Honorarios Médicos Quirúrgicos",
+        "row_id": "R_HONORARIOS_MEDICOS",
+        "text_hash": "h_R_HONORARIOS_MEDICOS"
+      },
+      {
+        "y1": 270,
+        "text": "Día Cama Cuidado Intensivo, Intermedio o Coronario",
+        "row_id": "R_UTI_UCI",
+        "text_hash": "h_R_UTI_UCI"
+      }
+    ],
+    "zones": [
+      {
+        "zone_id": "ZONE_PROMOTED_HEADER_R_DIA_CAMA_UNKNOWN_COL",
+        "zone_type": "ZONE_GRAPHIC_RULE",
+        "scope_mode": "ROW_BAND",
+        "origin": "TEXT_ECHO_HEADER_PROMOTION",
+        "geometric_scope": {
+          "x": [
+            0.4,
+            0.6
+          ],
+          "y": [
+            0.22,
+            0.24
+          ]
+        },
+        "contains_text": "40%",
+        "confidence": {
+          "geometry": 0.96,
+          "text": 0.97,
+          "scope": 0.95
+        },
+        "applies_to_columns": [
+          "UNKNOWN_COL"
+        ],
+        "synthetic_geometry": false
+      },
+      {
+        "zone_id": "ZONE_PROMOTED_HEADER_R_EXAMENES_UNKNOWN_COL",
+        "zone_type": "ZONE_GRAPHIC_RULE",
+        "scope_mode": "ROW_BAND",
+        "origin": "TEXT_ECHO_HEADER_PROMOTION",
+        "geometric_scope": {
+          "x": [
+            0.4,
+            0.6
+          ]
+        },
+        "contains_text": "5 0%",
+        "confidence": {
+          "geometry": 0.96,
+          "text": 0.97,
+          "scope": 0.95
+        },
+        "applies_to_columns": [
+          "UNKNOWN_COL"
+        ],
+        "synthetic_geometry": false
+      },
+      {
+        "zone_id": "ZONE_PROMOTED_HEADER_R_PABELLON_UNKNOWN_COL",
+        "zone_type": "ZONE_GRAPHIC_RULE",
+        "scope_mode": "ROW_BAND",
+        "origin": "TEXT_ECHO_HEADER_PROMOTION",
+        "geometric_scope": {
+          "x": [
+            0.4,
+            0.6
+          ]
+        },
+        "contains_text": "90%",
+        "confidence": {
+          "geometry": 0.96,
+          "text": 0.97,
+          "scope": 0.95
+        },
+        "applies_to_columns": [
+          "UNKNOWN_COL"
+        ],
+        "synthetic_geometry": false
+      },
+      {
+        "zone_id": "ZONE_PROMOTED_HEADER_R_HONORARIOS_MEDICOS_UNKNOWN_COL",
+        "zone_type": "ZONE_GRAPHIC_RULE",
+        "scope_mode": "ROW_BAND",
+        "origin": "TEXT_ECHO_HEADER_PROMOTION",
+        "geometric_scope": {
+          "x": [
+            0.4,
+            0.6
+          ]
+        },
+        "contains_text": "",
+        "confidence": {
+          "geometry": 0.96,
+          "text": 0.97,
+          "scope": 0.95
+        },
+        "applies_to_columns": [
+          "UNKNOWN_COL"
+        ],
+        "synthetic_geometry": false
+      },
+      {
+        "zone_id": "ZONE_PROMOTED_HEADER_R_UTI_UCI_UNKNOWN_COL",
+        "zone_type": "ZONE_GRAPHIC_RULE",
+        "scope_mode": "ROW_BAND",
+        "origin": "TEXT_ECHO_HEADER_PROMOTION",
+        "geometric_scope": {
+          "x": [
+            0.4,
+            0.6
+          ]
+        },
+        "contains_text": "",
+        "confidence": {
+          "geometry": 0.96,
+          "text": 0.97,
+          "scope": 0.95
+        },
+        "applies_to_columns": [
+          "UNKNOWN_COL"
+        ],
+        "synthetic_geometry": false
+      }
+    ],
+    "row_groups": [],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "assignment_id": "a_R_DIA_CAMA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "4",
+        "bbox": [
+          0.52,
+          0.22,
+          0.54,
+          0.24
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_SALA_CUNA_COL_PREF_PCT",
+      "row_id": "R_SALA_CUNA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "40",
+        "bbox": [
+          0.46,
+          0.24,
+          0.49,
+          0.26
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "40",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_SALA_CUNA_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_SALA_CUNA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.24,
+          0.6,
+          0.26
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_INCUBADORA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_INCUBADORA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "4,3",
+        "bbox": [
+          0.51,
+          0.26,
+          0.54,
+          0.28
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "4,3",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_CUIDADO_INTENSIVO_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "10,6",
+        "bbox": [
+          0.51,
+          0.29,
+          0.54,
+          0.31
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "10,6",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_TRANSITORIO_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "4,3",
+        "bbox": [
+          0.51,
+          0.31,
+          0.54,
+          0.33
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "4,3",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_EXAMENES_LABORATORIO_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.34,
+          0.6,
+          0.36
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_IMAGENOLOGIA_COL_PREF_PCT",
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "5",
+        "bbox": [
+          0.46,
+          0.36,
+          0.48,
+          0.38
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "5",
+          "unit": "0%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_IMAGENOLOGIA_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.36,
+          0.6,
+          0.38
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DERECHO_PABELLON_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_DERECHO_PABELLON",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "5,5",
+        "bbox": [
+          0.51,
+          0.38,
+          0.53,
+          0.4
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "5,5",
+          "unit": "V.A"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_KINESIOLOGIA_COL_PREF_PCT",
+      "row_id": "R_KINESIOLOGIA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "90",
+        "bbox": [
+          0.46,
+          0.41,
+          0.48,
+          0.42
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "90",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MEDICAMENTOS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "32",
+        "bbox": [
+          0.51,
+          0.47,
+          0.53,
+          0.49
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "32",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MEDICAMENTOS_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_MEDICAMENTOS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1200",
+        "bbox": [
+          0.57,
+          0.47,
+          0.6,
+          0.49
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1200",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MATERIALES_E_INSUMOS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_MATERIALES_E_INSUMOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "24",
+        "bbox": [
+          0.51,
+          0.49,
+          0.53,
+          0.51
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "24",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MATERIALES_E_INSUMOS_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_MATERIALES_E_INSUMOS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "48",
+        "bbox": [
+          0.57,
+          0.49,
+          0.6,
+          0.51
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "48",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_QUIMIOTERAPIA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "14",
+        "bbox": [
+          0.51,
+          0.52,
+          0.54,
+          0.54
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "14",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_QUIMIOTERAPIA_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_QUIMIOTERAPIA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "140",
+        "bbox": [
+          0.57,
+          0.52,
+          0.6,
+          0.54
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "140",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PROTESIS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_PROTESIS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "10",
+        "bbox": [
+          0.51,
+          0.54,
+          0.54,
+          0.56
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "10",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PROTESIS_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_PROTESIS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "20",
+        "bbox": [
+          0.57,
+          0.54,
+          0.59,
+          0.56
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "20",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PROTESIS_COL_PREF_TOPE_ANUAL_2",
+      "row_id": "R_PROTESIS",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.54,
+          0.6,
+          0.57
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_VISITA_MEDICO_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_VISITA_MEDICO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,48",
+        "bbox": [
+          0.51,
+          0.57,
+          0.53,
+          0.59
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,48",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_VISITA_MEDICO_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_VISITA_MEDICO",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.58,
+          0.6,
+          0.59
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_TRASLADOS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_TRASLADOS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,4",
+        "bbox": [
+          0.51,
+          0.6,
+          0.53,
+          0.62
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTA_MEDICA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_CONSULTA_MEDICA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,4",
+        "bbox": [
+          0.51,
+          0.64,
+          0.53,
+          0.66
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTA_MEDICA_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_CONSULTA_MEDICA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "4",
+        "bbox": [
+          0.57,
+          0.64,
+          0.59,
+          0.66
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTA_TELEMEDICINA_COL_PREF_PCT",
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "3",
+        "bbox": [
+          0.46,
+          0.67,
+          0.48,
+          0.68
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "3",
+          "unit": "0%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTA_TELEMEDICINA_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.67,
+          0.6,
+          0.69
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_EXAMENES_LABORATORIO_AMB_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_EXAMENES_LABORATORIO_AMB",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.7,
+          0.6,
+          0.71
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_IMAGENOLOGIA_AMB_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.72,
+          0.6,
+          0.73
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DERECHO_PABELLON_AMB_COL_PREF_TOPE_ANUAL",
+      "row_id": "R_DERECHO_PABELLON_AMB",
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.57,
+          0.74,
+          0.6,
+          0.76
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FONO_AMB_COL_PREF_PCT",
+      "row_id": "R_FONO_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "4",
+        "bbox": [
+          0.46,
+          0.82,
+          0.48,
+          0.84
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "4",
+          "unit": "0%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FONO_AMB_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_FONO_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "3,45",
+        "bbox": [
+          0.51,
+          0.82,
+          0.54,
+          0.84
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "3,45",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FONO_AMB_COL_LE_TOPE_ANUAL",
+      "row_id": "R_FONO_AMB",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "2,3",
+        "bbox": [
+          0.74,
+          0.82,
+          0.77,
+          0.84
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "2,3",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_KINESIO_AMB_COL_PREF_PCT",
+      "row_id": "R_KINESIO_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "70",
+        "bbox": [
+          0.46,
+          0.84,
+          0.48,
+          0.86
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "70",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_KINESIO_AMB_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_KINESIO_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "3,45",
+        "bbox": [
+          0.51,
+          0.84,
+          0.54,
+          0.86
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "3,45",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_KINESIO_AMB_COL_LE_TOPE_ANUAL",
+      "row_id": "R_KINESIO_AMB",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "2,3",
+        "bbox": [
+          0.74,
+          0.84,
+          0.77,
+          0.86
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "2,3",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PREST_DENTALES_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_PREST_DENTALES",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,4",
+        "bbox": [
+          0.51,
+          0.87,
+          0.54,
+          0.89
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PREST_DENTALES_COL_LE_TOPE_ANUAL",
+      "row_id": "R_PREST_DENTALES",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,9",
+        "bbox": [
+          0.74,
+          0.87,
+          0.77,
+          0.89
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,9",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CLINICA_LACTANCIA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_CLINICA_LACTANCIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,4",
+        "bbox": [
+          0.51,
+          0.89,
+          0.54,
+          0.91
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CLINICA_LACTANCIA_COL_LE_TOPE_ANUAL",
+      "row_id": "R_CLINICA_LACTANCIA",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,9",
+        "bbox": [
+          0.74,
+          0.89,
+          0.77,
+          0.91
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,9",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MAL_NUTRICION_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_MAL_NUTRICION",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,4",
+        "bbox": [
+          0.51,
+          0.91,
+          0.54,
+          0.93
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_MAL_NUTRICION_COL_LE_TOPE_ANUAL",
+      "row_id": "R_MAL_NUTRICION",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,9",
+        "bbox": [
+          0.74,
+          0.91,
+          0.77,
+          0.93
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,9",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FERTILIZACION_BAJA_HOMBRE_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_FERTILIZACION_BAJA_HOMBRE",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,4",
+        "bbox": [
+          0.51,
+          0.93,
+          0.54,
+          0.95
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FERTILIZACION_BAJA_HOMBRE_COL_LE_TOPE_ANUAL",
+      "row_id": "R_FERTILIZACION_BAJA_HOMBRE",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,9",
+        "bbox": [
+          0.74,
+          0.93,
+          0.77,
+          0.95
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,9",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FERTILIZACION_BAJA_MUJER_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_FERTILIZACION_BAJA_MUJER",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,4",
+        "bbox": [
+          0.51,
+          0.95,
+          0.54,
+          0.97
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FERTILIZACION_BAJA_MUJER_COL_LE_TOPE_ANUAL",
+      "row_id": "R_FERTILIZACION_BAJA_MUJER",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,9",
+        "bbox": [
+          0.74,
+          0.95,
+          0.77,
+          0.97
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,9",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FERTILIZACION_ALTA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_FERTILIZACION_ALTA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "1,4",
+        "bbox": [
+          0.51,
+          0.97,
+          0.54,
+          0.99
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "1,4",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_FERTILIZACION_ALTA_COL_LE_TOPE_ANUAL",
+      "row_id": "R_FERTILIZACION_ALTA",
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "0,9",
+        "bbox": [
+          0.74,
+          0.97,
+          0.77,
+          0.99
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "0,9",
+          "unit": "UF"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_UNKNOWN_COL",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_DIA_CAMA_UNKNOWN_COL",
+        "raw_text": "40%"
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "40%"
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_UNKNOWN_COL_2",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_DIA_CAMA_UNKNOWN_COL",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": null
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_EXAMENES_UNKNOWN_COL",
+      "row_id": "R_EXAMENES",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_EXAMENES_UNKNOWN_COL",
+        "raw_text": "5 0%"
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "5 0%"
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_EXAMENES_UNKNOWN_COL_2",
+      "row_id": "R_EXAMENES",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_EXAMENES_UNKNOWN_COL",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": null
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_PABELLON_UNKNOWN_COL",
+      "row_id": "R_PABELLON",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_PABELLON_UNKNOWN_COL",
+        "raw_text": "90%"
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "90%"
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_PABELLON_UNKNOWN_COL_2",
+      "row_id": "R_PABELLON",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_PABELLON_UNKNOWN_COL",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": null
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_MEDICOS_UNKNOWN_COL",
+      "row_id": "R_HONORARIOS_MEDICOS",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_HONORARIOS_MEDICOS_UNKNOWN_COL",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": null
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_MEDICOS_UNKNOWN_COL_2",
+      "row_id": "R_HONORARIOS_MEDICOS",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_HONORARIOS_MEDICOS_UNKNOWN_COL",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": null
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_UTI_UCI_UNKNOWN_COL",
+      "row_id": "R_UTI_UCI",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_UTI_UCI_UNKNOWN_COL",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": null
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    },
+    {
+      "assignment_id": "a_R_UTI_UCI_UNKNOWN_COL_2",
+      "row_id": "R_UTI_UCI",
+      "column_id": "UNKNOWN_COL",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "target_id": "ZONE_PROMOTED_HEADER_R_UTI_UCI_UNKNOWN_COL",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": null
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "ZONE_FROM_ECHO_PROMOTION"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_QUIMIOTERAPIA\" requires zone but none applies.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_RADIOTERAPIA\" requires zone but none applies.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_PROTESIS::COL_PREF_TOPE_ANUAL has 2 active assignments: a_R_PROTESIS_COL_PREF_TOPE_ANUAL, a_R_PROTESIS_COL_PREF_TOPE_ANUAL_2.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_DIA_CAMA::UNKNOWN_COL has 2 active assignments: a_R_DIA_CAMA_UNKNOWN_COL, a_R_DIA_CAMA_UNKNOWN_COL_2.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_EXAMENES::UNKNOWN_COL has 2 active assignments: a_R_EXAMENES_UNKNOWN_COL, a_R_EXAMENES_UNKNOWN_COL_2.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_PABELLON::UNKNOWN_COL has 2 active assignments: a_R_PABELLON_UNKNOWN_COL, a_R_PABELLON_UNKNOWN_COL_2.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_HONORARIOS_MEDICOS::UNKNOWN_COL has 2 active assignments: a_R_HONORARIOS_MEDICOS_UNKNOWN_COL, a_R_HONORARIOS_MEDICOS_UNKNOWN_COL_2.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "UNRESOLVED_OVERLAP",
+      "message": "Cell R_UTI_UCI::UNKNOWN_COL has 2 active assignments: a_R_UTI_UCI_UNKNOWN_COL, a_R_UTI_UCI_UNKNOWN_COL_2.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "HIGH_ECHO_DENSITY",
+      "message": "10 promoted echo assignments exceeds threshold of 5.",
+      "severity": "WARNING"
+    }
+  ],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "WARN",
+    "zone_application_completeness": "FAIL",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "FAIL",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "WARN",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 2,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 0,
+    "require_rows_present": true,
+    "require_rows_justified_absence": false
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "NEEDS_REVIEW",
+    "avg_confidence": 0.9850000000000003,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 10,
+    "promoted_zone_count": 5
+  }
+}

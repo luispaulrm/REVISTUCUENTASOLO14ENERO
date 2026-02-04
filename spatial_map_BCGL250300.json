@@ -1,0 +1,339 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.07,
+        0.34
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.46,
+        0.49
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.51,
+        0.55
+      ],
+      "label": "Tope contrato por bene fi ciario"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.56,
+        0.61
+      ],
+      "label": "Tope máx. año por contrato bene fi ciario"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.64,
+        0.68
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.69,
+        0.73
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.74,
+        0.8
+      ],
+      "label": "Tope máx. año"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.22,
+        0.24
+      ],
+      "raw_text": "Día Cama"
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "y_range": [
+        0.24,
+        0.26
+      ],
+      "raw_text": "Sala Cuna"
+    },
+    {
+      "row_id": "R_INCUBADORA",
+      "y_range": [
+        0.26,
+        0.28
+      ],
+      "raw_text": "Incubadora"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+      "y_range": [
+        0.29,
+        0.31
+      ],
+      "raw_text": "Día Cama Cuidado Intensivo, Intermedio o Coronario"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "y_range": [
+        0.31,
+        0.34
+      ],
+      "raw_text": "Día Cama Transitorio u Observación"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "y_range": [
+        0.34,
+        0.36
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.36,
+        0.38
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.38,
+        0.4
+      ],
+      "raw_text": "Derecho Pabellón"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.4,
+        0.43
+      ],
+      "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional"
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "y_range": [
+        0.45,
+        0.47
+      ],
+      "raw_text": "Honorarios Médicos Quirúrgicos (1.2)"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.47,
+        0.49
+      ],
+      "raw_text": "Medicamentos (1.4) (1.10)"
+    },
+    {
+      "row_id": "R_MATERIALES_E_INSUMOS",
+      "y_range": [
+        0.49,
+        0.52
+      ],
+      "raw_text": "Materiales e Insumos Clínicos (1.4) (1.10)"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.52,
+        0.54
+      ],
+      "raw_text": "Quimioterapia (1.6)"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "y_range": [
+        0.54,
+        0.57
+      ],
+      "raw_text": "Prótesis, Órtesis y Elementos de Osteosíntesis"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO",
+      "y_range": [
+        0.57,
+        0.6
+      ],
+      "raw_text": "Visita por Médico Tratante y Médico Interconsultor"
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "y_range": [
+        0.6,
+        0.62
+      ],
+      "raw_text": "Traslados (5.4)"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.64,
+        0.66
+      ],
+      "raw_text": "Consulta Médica"
+    },
+    {
+      "row_id": "R_CONSULTA_TELEMEDICINA",
+      "y_range": [
+        0.66,
+        0.69
+      ],
+      "raw_text": "Consulta Médica de Telemedicina en Especialidades (1.14)**"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO_AMB",
+      "y_range": [
+        0.69,
+        0.71
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "y_range": [
+        0.71,
+        0.74
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON_AMB",
+      "y_range": [
+        0.74,
+        0.76
+      ],
+      "raw_text": "Derecho Pabellón Ambulatorio"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS",
+      "y_range": [
+        0.76,
+        0.78
+      ],
+      "raw_text": "Procedimientos"
+    },
+    {
+      "row_id": "R_HONORARIOS_AMB",
+      "y_range": [
+        0.78,
+        0.8
+      ],
+      "raw_text": "Honorarios Médicos Quirúrgicos (1.2)"
+    },
+    {
+      "row_id": "R_RADIOTERAPIA",
+      "y_range": [
+        0.8,
+        0.82
+      ],
+      "raw_text": "Radioterapia"
+    },
+    {
+      "row_id": "R_FONO_AMB",
+      "y_range": [
+        0.82,
+        0.84
+      ],
+      "raw_text": "Fonoaudiología"
+    },
+    {
+      "row_id": "R_KINESIO_AMB",
+      "y_range": [
+        0.84,
+        0.86
+      ],
+      "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional"
+    },
+    {
+      "row_id": "R_PREST_DENTALES",
+      "y_range": [
+        0.87,
+        0.89
+      ],
+      "raw_text": "Prestaciones Dentales (PAD) (1.13)"
+    },
+    {
+      "row_id": "R_CLINICA_LACTANCIA",
+      "y_range": [
+        0.89,
+        0.91
+      ],
+      "raw_text": "Clínica de Lactancia (0 a 6 meses de edad) (PAD) (1.13)"
+    },
+    {
+      "row_id": "R_MAL_NUTRICION",
+      "y_range": [
+        0.91,
+        0.93
+      ],
+      "raw_text": "Mal Nutrición Infantil (7 a 72 meses de edad) (PAD) (1.13)"
+    },
+    {
+      "row_id": "R_FERTILIZACION_BAJA_HOMBRE",
+      "y_range": [
+        0.93,
+        0.95
+      ],
+      "raw_text": "Tratamiento de fertilización asistida baja complejidad hombre (PAD) ( 1.13)"
+    },
+    {
+      "row_id": "R_FERTILIZACION_BAJA_MUJER",
+      "y_range": [
+        0.95,
+        0.97
+      ],
+      "raw_text": "Tratamiento de fertilización asistida baja complejidad mujer (PAD) (1.13)"
+    },
+    {
+      "row_id": "R_FERTILIZACION_ALTA",
+      "y_range": [
+        0.97,
+        0.99
+      ],
+      "raw_text": "Tratamiento de fertilización asistida alta complejidad (PAD) (1.13)"
+    },
+    {
+      "y1": 299,
+      "text": "Exámenes de Laboratorio",
+      "row_id": "R_EXAMENES"
+    },
+    {
+      "y1": 315,
+      "text": "Derecho Pabellón",
+      "row_id": "R_PABELLON"
+    },
+    {
+      "y1": 330,
+      "text": "Honorarios Médicos Quirúrgicos",
+      "row_id": "R_HONORARIOS_MEDICOS"
+    },
+    {
+      "y1": 270,
+      "text": "Día Cama Cuidado Intensivo, Intermedio o Coronario",
+      "row_id": "R_UTI_UCI"
+    }
+  ],
+  "zones": []
+}

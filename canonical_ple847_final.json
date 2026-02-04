@@ -1,0 +1,78 @@
+{
+    "contrato": {
+        "metadata": {
+            "fuente": "PLAN PLENO PLE 847",
+            "codigo": "5507",
+            "tipo": "salud_isapre",
+            "fecha_procesamiento": "2026-02-03T13:00:00.000Z",
+            "especificacion": "v1.2.1-INDUSTRIAL"
+        },
+        "tabla_prestaciones": {
+            "ambito": "Hospitalarias y Cirugía Mayor Ambulatoria",
+            "lineas": [
+                {
+                    "nombre": "HONORARIOS MÉDICOS QUIRÚRGICOS",
+                    "id_logica": "R_HONORARIOS",
+                    "preferente": {
+                        "aplica": true,
+                        "porcentaje": 100,
+                        "tope": {
+                            "tipo": "VECES_ARANCEL",
+                            "valor": 13.26,
+                            "sigla": "VAM",
+                            "detalle": "VECES ARANCEL MASVIDA"
+                        }
+                    },
+                    "libre_eleccion": {
+                        "aplica": true,
+                        "porcentaje": 80,
+                        "tope": {
+                            "tipo": "VARIABLE"
+                        }
+                    }
+                },
+                {
+                    "nombre": "DERECHO DE PABELLÓN",
+                    "id_logica": "R_PABELLON",
+                    "preferente": {
+                        "aplica": true,
+                        "porcentaje": 100,
+                        "tope": {
+                            "tipo": "SIN_TOPE",
+                            "excepciones": [
+                                {
+                                    "prestador": "CLINICA ALEMANA",
+                                    "porcentaje": 60
+                                },
+                                {
+                                    "prestador": "CLINICA LAS CONDES",
+                                    "porcentaje": 60
+                                },
+                                {
+                                    "prestador": "CLINICA LAS NIEVES",
+                                    "porcentaje": 60
+                                }
+                            ],
+                            "origen_espacial": "RECT_FALL_ZONE_EXCEPCION_CLINICAS"
+                        }
+                    }
+                },
+                {
+                    "nombre": "TRASLADOS MÉDICOS",
+                    "id_logica": "R_TRASLADOS",
+                    "nfe": {
+                        "aplica": true,
+                        "valor": 3.96,
+                        "unidad": "UF",
+                        "razon": "TOPE MÁXIMO ANUAL (2)"
+                    }
+                }
+            ]
+        }
+    },
+    "audit_metrics": {
+        "spatial_certainty": 0.99,
+        "law_conformance": "STRICT_1.2.1",
+        "rect_fall_resolution": "DETERMINISTIC"
+    }
+}

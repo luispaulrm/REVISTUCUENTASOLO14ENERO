@@ -1,0 +1,256 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "13-LFS409-24",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.925Z"
+  },
+  "spatial_map": {
+    "columns": [],
+    "rows": [
+      {
+        "row_id": "R_CIRUGIAS",
+        "y_range": [
+          0.1,
+          0.2
+        ],
+        "raw_text": "Cobertura Hospitalaria de hasta 100%   sin tope   Cobertura Ambulatoria de hasta 80%   sin tope",
+        "text_hash": "h_R_CIRUGIAS"
+      },
+      {
+        "row_id": "R_CONSULTAS",
+        "y_range": [
+          0.2,
+          0.3
+        ],
+        "raw_text": "Corresponde a las atenciones que no requieren hospitalización.",
+        "text_hash": "h_R_CONSULTAS"
+      },
+      {
+        "row_id": "R_URGENCIAS",
+        "y_range": [
+          0.3,
+          0.4
+        ],
+        "raw_text": "Accede a copagos fijos en urgencias adulto   y   pediátrica.",
+        "text_hash": "h_R_URGENCIAS"
+      },
+      {
+        "row_id": "R_TELEMEDICINA",
+        "y_range": [
+          0.5,
+          0.6
+        ],
+        "raw_text": "Son Beneficios sin costo, adicionales a la cobertura de tu  Son coberturas adicionales que puedes contratar por un monto",
+        "text_hash": "h_R_TELEMEDICINA"
+      },
+      {
+        "row_id": "R_SALUD_DENTAL",
+        "y_range": [
+          0.6,
+          0.7
+        ],
+        "raw_text": "puedes contratar por un monto adicional a tu plan de salud, por ejemplo:",
+        "text_hash": "h_R_SALUD_DENTAL"
+      }
+    ],
+    "zones": [],
+    "row_groups": [
+      {
+        "group_id": "G_R_CIRUGIAS",
+        "y_range": [
+          0.2,
+          1
+        ],
+        "source": "HEADER_RECT"
+      }
+    ],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "assignment_id": "a_R_CIRUGIAS_COL_PREF_PCT",
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "100",
+        "bbox": [
+          0.5,
+          0.1,
+          0.6,
+          0.15
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "100",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CIRUGIAS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "sin tope",
+        "bbox": [
+          0.6,
+          0.1,
+          0.7,
+          0.15
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "sin tope",
+          "unit": "TEXT"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTAS_COL_PREF_PCT",
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "80",
+        "bbox": [
+          0.5,
+          0.1,
+          0.6,
+          0.15
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "80",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_CONSULTAS_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "sin tope",
+        "bbox": [
+          0.6,
+          0.1,
+          0.7,
+          0.15
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "sin tope",
+          "unit": "TEXT"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "type": "COLUMN_BBOX_MISMATCH",
+      "message": "Assignment \"a_R_CIRUGIAS_COL_PREF_PCT\" points to COL_PREF_PCT but BBox falls in UNKNOWN.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "COLUMN_BBOX_MISMATCH",
+      "message": "Assignment \"a_R_CIRUGIAS_COL_PREF_TOPE_EVENTO\" points to COL_PREF_TOPE_EVENTO but BBox falls in UNKNOWN.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "COLUMN_BBOX_MISMATCH",
+      "message": "Assignment \"a_R_CONSULTAS_COL_PREF_PCT\" points to COL_PREF_PCT but BBox falls in UNKNOWN.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "COLUMN_BBOX_MISMATCH",
+      "message": "Assignment \"a_R_CONSULTAS_COL_PREF_TOPE_EVENTO\" points to COL_PREF_TOPE_EVENTO but BBox falls in UNKNOWN.",
+      "severity": "ERROR"
+    }
+  ],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "PASS",
+    "zone_application_completeness": "PASS",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "PASS",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "FAIL"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 0,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 1,
+    "require_rows_present": false,
+    "require_rows_justified_absence": true
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "NEEDS_REVIEW",
+    "avg_confidence": 0.985,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}

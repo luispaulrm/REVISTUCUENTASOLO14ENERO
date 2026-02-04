@@ -27,38 +27,7 @@
     ]
   },
   "patterns": [],
-  "trainingExamples": [
-    {
-      "id": "mock-alemana-exclusion-001",
-      "tags": [
-        "MASVIDA",
-        "PLENO"
-      ],
-      "originalTextSnippet": "PRESTACIONES | % PREFERENTE | TOPE | % LIBRE ELECCION | TOPE\nCLINICA ALEMANA | (Oferta Preferente) - | - | 50% | 1.8 UF\nCLINICA LAS CONDES | (Oferta Preferente) Sin Cobertura | - | 50% | 1.8 UF\nCLINICA INDISA | 100% | SIN TOPE | 80% | 4.5 UF",
-      "correctedJson": {
-        "coberturas_nacionales": [
-          {
-            "seccion": "HOSPITALARIO",
-            "item": "Día Cama",
-            "preferente": {
-              "porcentaje": 0,
-              "tope": "EXCLUIDO",
-              "clinicas": [
-                "Clínica Alemana",
-                "Clínica Las Condes"
-              ]
-            },
-            "libre_eleccion": {
-              "porcentaje": 50,
-              "tope": "1.8 UF"
-            }
-          }
-        ]
-      },
-      "reason": "Exclusion: Provider is explicitly excluded (dash or Sin Cobertura) despite 'Preferente' header.",
-      "timestamp": "2024-05-23T10:00:00.000Z"
-    }
-  ],
+  "trainingExamples": [],
   "processedContracts": [],
-  "lastUpdated": "2024-05-23T10:00:00.000Z"
+  "lastUpdated": "2026-02-04T13:30:59.234Z"
 }

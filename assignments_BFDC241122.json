@@ -1,0 +1,109 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_URGENCIA_ADULTO",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.43,
+          0.64,
+          0.46
+        ]
+      },
+      "value": "60",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_URGENCIA_ADULTO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.68,
+          0.43,
+          0.72,
+          0.46
+        ]
+      },
+      "value": "1,3",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_URGENCIA_PEDIATRICA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.57,
+          0.48,
+          0.64,
+          0.51
+        ]
+      },
+      "value": "70",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_URGENCIA_PEDIATRICA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.68,
+          0.48,
+          0.72,
+          0.51
+        ]
+      },
+      "value": "1,0",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_URGENCIA_MATERNIDAD",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.68,
+          0.53,
+          0.72,
+          0.56
+        ]
+      },
+      "value": "1,5",
+      "unit": "UF"
+    },
+    {
+      "row_id": "R_CIRUGIAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.5,
+          0.6,
+          0.6,
+          0.7
+        ]
+      },
+      "value": "60",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_CONSULTAS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.5,
+          0.6,
+          0.6,
+          0.7
+        ]
+      },
+      "value": "70",
+      "unit": "%"
+    }
+  ]
+}

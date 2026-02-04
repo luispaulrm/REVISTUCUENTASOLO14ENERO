@@ -1,0 +1,332 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "VPRLU",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.978Z"
+  },
+  "spatial_map": {
+    "page_metadata": {
+      "page_number": 1,
+      "source": "VPRLU204B2",
+      "render_dimensions": {
+        "width": 1200,
+        "height": 2400
+      },
+      "unit": "normalized_0_1"
+    },
+    "columns": [
+      {
+        "column_id": "COL_PRESTACIONES",
+        "x_range": [
+          0.05,
+          0.35
+        ],
+        "label": "PRESTACIONES",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_PCT",
+        "x_range": [
+          0.36,
+          0.45
+        ],
+        "label": "PREF %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_EVENTO",
+        "x_range": [
+          0.46,
+          0.65
+        ],
+        "label": "PREF TOPE",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_ANUAL",
+        "x_range": [
+          0.66,
+          0.75
+        ],
+        "label": "PREF ANNUAL",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_PCT",
+        "x_range": [
+          0.76,
+          0.81
+        ],
+        "label": "LE %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_EVENTO",
+        "x_range": [
+          0.82,
+          0.9
+        ],
+        "label": "LE TOPE",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_ANUAL",
+        "x_range": [
+          0.91,
+          0.98
+        ],
+        "label": "LE ANNUAL",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      }
+    ],
+    "zones": [
+      {
+        "zone_id": "ZONE_VPRLU_70PCT_PREF",
+        "geometric_scope": {
+          "x": [
+            0.36,
+            0.65
+          ],
+          "y": [
+            0.21,
+            0.3
+          ]
+        },
+        "contains_text": "70% Sin Tope Clínica Alemana, Clínica U. de los Andes, San Carlos de Apoquindo, Santa María, Hosp. Clínico UC",
+        "visual_role": "RULE_BLOCK",
+        "zone_type": "ZONE_GRAPHIC_RULE",
+        "scope_mode": "RECT_FALL",
+        "confidence": {
+          "geometry": 0.99,
+          "text": 0.98,
+          "scope": 0.97
+        },
+        "applies_to_columns": [],
+        "has_conditions": true
+      },
+      {
+        "zone_id": "ZONE_VPRLU_60PCT_PREF",
+        "geometric_scope": {
+          "x": [
+            0.36,
+            0.65
+          ],
+          "y": [
+            0.31,
+            0.35
+          ]
+        },
+        "contains_text": "60% Sin Tope Clínica Las Condes",
+        "visual_role": "RULE_BLOCK",
+        "zone_type": "ZONE_GRAPHIC_RULE",
+        "scope_mode": "RECT_FALL",
+        "confidence": {
+          "geometry": 0.99,
+          "text": 0.98,
+          "scope": 0.97
+        },
+        "applies_to_columns": []
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "R_DIA_CAMA",
+        "y_range": [
+          0.21,
+          0.22
+        ],
+        "raw_text": "Día Cama",
+        "text_hash": "h_R_DIA_CAMA",
+        "confidence": {
+          "geometry": 0.95,
+          "text": 0.94
+        }
+      },
+      {
+        "row_id": "R_UTI_UCI",
+        "y_range": [
+          0.24,
+          0.25
+        ],
+        "raw_text": "Día Cama Cuidados Intensivos...",
+        "text_hash": "h_R_UTI_UCI",
+        "confidence": {
+          "geometry": 0.95,
+          "text": 0.94
+        }
+      },
+      {
+        "row_id": "R_EXAMENES_LAB",
+        "y_range": [
+          0.27,
+          0.28
+        ],
+        "raw_text": "Exámenes de Laboratorio",
+        "text_hash": "h_R_EXAMENES_LAB",
+        "confidence": {
+          "geometry": 0.95,
+          "text": 0.94
+        }
+      },
+      {
+        "row_id": "R_HONORARIOS",
+        "y_range": [
+          0.32,
+          0.33
+        ],
+        "raw_text": "Honorarios Médicos Quirúrgicos",
+        "text_hash": "h_R_HONORARIOS",
+        "confidence": {
+          "geometry": 0.95,
+          "text": 0.94
+        }
+      }
+    ],
+    "row_groups": [],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "assignment_id": "a_R_DIA_CAMA_COL_PREF_PCT",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "ZONE_ASSIGNED"
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_COL_PREF_PCT",
+      "row_id": "R_HONORARIOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "ZONE_REFERENCE",
+        "raw_text": ""
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "ZONE_ASSIGNED"
+        }
+      ],
+      "status": "ACTIVE",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      },
+      "tags": [
+        "60_PCT_TRANSITION_DETECTED"
+      ]
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_COL_LE_TOPE_EVENTO",
+      "row_id": "R_HONORARIOS",
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "",
+        "bbox": [
+          0.76,
+          0.32,
+          0.9,
+          0.33
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    }
+  ],
+  "warnings": [],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "WARN",
+    "zone_application_completeness": "PASS",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "PASS",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 0,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 1,
+    "require_rows_present": false,
+    "require_rows_justified_absence": true
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "WARN",
+    "avg_confidence": 0.9849999999999999,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}

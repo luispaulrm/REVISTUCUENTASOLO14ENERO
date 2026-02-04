@@ -1,0 +1,319 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.04,
+        0.33
+      ],
+      "label": "Prestaciones"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.33,
+        0.39
+      ],
+      "label": "Bonificación %"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.39,
+        0.46
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.46,
+        0.54
+      ],
+      "label": "Tope máx. año por beneficiario"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.54,
+        0.6
+      ],
+      "label": "%"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.6,
+        0.67
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.67,
+        0.76
+      ],
+      "label": "Tope máx. año por beneficiario"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.24,
+        0.27
+      ],
+      "raw_text": "Día cama"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.29,
+        0.31
+      ],
+      "raw_text": "Derecho a pabellón"
+    },
+    {
+      "row_id": "R_EXAMENES_LAB",
+      "y_range": [
+        0.32,
+        0.34
+      ],
+      "raw_text": "Exámenes de laboratorio e histopatología"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.35,
+        0.39
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS",
+      "y_range": [
+        0.42,
+        0.45
+      ],
+      "raw_text": "Honorarios médicos quirúrgicos"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO",
+      "y_range": [
+        0.45,
+        0.47
+      ],
+      "raw_text": "Visita médico tratante e interconsultor"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.48,
+        0.5
+      ],
+      "raw_text": "Kinesiología y Fisioterapia"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.5,
+        0.53
+      ],
+      "raw_text": "Medicamentos, materiales e insumos médicos"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.53,
+        0.55
+      ],
+      "raw_text": "Quimioterapia"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "y_range": [
+        0.56,
+        0.58
+      ],
+      "raw_text": "Prótesis, órtesis y elementos de osteosíntesis"
+    },
+    {
+      "row_id": "R_TRASLADOS_MEDICOS",
+      "y_range": [
+        0.58,
+        0.61
+      ],
+      "raw_text": "Traslados médicos"
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.64,
+        0.66
+      ],
+      "raw_text": "Consulta médica y/o telemedicina"
+    },
+    {
+      "row_id": "R_EXAMENES_LAB",
+      "y_range": [
+        0.66,
+        0.68
+      ],
+      "raw_text": "Exámenes de laboratorio e histopatología"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.69,
+        0.72
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS_AMB",
+      "y_range": [
+        0.73,
+        0.75
+      ],
+      "raw_text": "Procedimientos ambulatorios"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS",
+      "y_range": [
+        0.75,
+        0.77
+      ],
+      "raw_text": "Honorarios médicos quirúrgicos"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.77,
+        0.79
+      ],
+      "raw_text": "Derecho a pabellón"
+    },
+    {
+      "row_id": "R_RADIOTERAPIA",
+      "y_range": [
+        0.8,
+        0.82
+      ],
+      "raw_text": "Radioterapia"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.82,
+        0.84
+      ],
+      "raw_text": "Kinesiología, fisioterapia y fonoaudiología"
+    },
+    {
+      "row_id": "R_ATENCION_ENFERMERIA",
+      "y_range": [
+        0.85,
+        0.87
+      ],
+      "raw_text": "Atención integral de enfermería y nutricionista"
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "y_range": [
+        0.87,
+        0.89
+      ],
+      "raw_text": "Prótesis y órtesis"
+    },
+    {
+      "row_id": "R_PRESTACIONES_DENTALES",
+      "y_range": [
+        0.89,
+        0.91
+      ],
+      "raw_text": "Prestaciones dentales (PAD)"
+    },
+    {
+      "row_id": "R_CLINICA_LACTANCIA",
+      "y_range": [
+        0.91,
+        0.93
+      ],
+      "raw_text": "Clínica de la lactancia (0 a 6 meses de edad) (PAD)"
+    },
+    {
+      "row_id": "R_MALNUTRICION_INFANTIL",
+      "y_range": [
+        0.93,
+        0.95
+      ],
+      "raw_text": "Mal nutrición infantil (7 a 72 meses de edad) (PAD)"
+    },
+    {
+      "row_id": "R_FERTILIZACION_BAJA",
+      "y_range": [
+        0.95,
+        0.97
+      ],
+      "raw_text": "Tratamiento de fertilización asistida baja complejidad (PAD)"
+    },
+    {
+      "row_id": "R_FERTILIZACION_ALTA",
+      "y_range": [
+        0.97,
+        0.99
+      ],
+      "raw_text": "Tratamiento de fertilización asistida alta complejidad (PAD)"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.99,
+        1.01
+      ],
+      "raw_text": "Quimioterapia"
+    },
+    {
+      "row_id": "R_CIRUGIA_BARIATRICA",
+      "y_range": [
+        1.03,
+        1.05
+      ],
+      "raw_text": "Cirugía bariátrica y metabólica"
+    },
+    {
+      "row_id": "R_MARCOS_CRISTALES",
+      "y_range": [
+        1.09,
+        1.11
+      ],
+      "raw_text": "Marcos y cristales ópticos"
+    },
+    {
+      "row_id": "R_COBERTURA_INTERNACIONAL",
+      "y_range": [
+        1.11,
+        1.14
+      ],
+      "raw_text": "Cobertura internacional"
+    },
+    {
+      "row_id": "R_ATENCION_URGENCIA",
+      "y_range": [
+        1.22,
+        1.26
+      ],
+      "raw_text": "Consulta médica de urgencia, imagenología, exámenes,"
+    },
+    {
+      "row_id": "R_INSUMOS_URGENCIA",
+      "y_range": [
+        1.29,
+        1.31
+      ],
+      "raw_text": "Insumos y medicamentos en servicio de urgencia"
+    }
+  ],
+  "zones": []
+}

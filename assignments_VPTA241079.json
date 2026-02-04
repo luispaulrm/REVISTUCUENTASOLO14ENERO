@@ -1,0 +1,199 @@
+{
+  "assignments": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.716,
+          0.227,
+          0.741,
+          0.251
+        ]
+      },
+      "value": "70%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.745,
+          0.227,
+          0.781,
+          0.251
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.716,
+          0.341,
+          0.747,
+          0.362
+        ]
+      },
+      "value": "100%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.745,
+          0.341,
+          0.781,
+          0.362
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.745,
+          0.36,
+          0.781,
+          0.377
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.716,
+          0.413,
+          0.741,
+          0.436
+        ]
+      },
+      "value": "60",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_PROTESIS_ORTESIS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.716,
+          0.86,
+          0.741,
+          0.878
+        ]
+      },
+      "value": "90%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.716,
+          0.877,
+          0.741,
+          0.891
+        ]
+      },
+      "value": "90%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.745,
+          0.877,
+          0.781,
+          0.891
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_PRESTACIONES_DENTALES",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.716,
+          0.721,
+          0.741,
+          0.738
+        ]
+      },
+      "value": "80%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_PRESTACIONES_DENTALES",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.745,
+          0.721,
+          0.781,
+          0.738
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.716,
+          0.653,
+          0.741,
+          0.67
+        ]
+      },
+      "value": "70%",
+      "unit": "%"
+    },
+    {
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "bbox": [
+          0.745,
+          0.653,
+          0.781,
+          0.67
+        ]
+      },
+      "value": "Sin Tope",
+      "unit": null
+    }
+  ]
+}

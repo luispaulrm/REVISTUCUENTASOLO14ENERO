@@ -43,165 +43,57 @@ export const PROMPT_REGLAS_P2 = `
 
 
 const CHECKLIST_HOSP = `
-  **SECCIÓN 1: DÍA CAMA (14 filas obligatorias)**
-  1. Día Cama - Clínica Alemana (Oferta Preferente)
-  2. Día Cama - Clínica Universidad de los Andes (Oferta Preferente)
-  3. Día Cama - Clínica San Carlos de Apoquindo (Oferta Preferente)
-  4. Día Cama - Clínica Santa María (Oferta Preferente)
-  5. Día Cama - Hospital Clínico UC (Oferta Preferente)
-  6. Día Cama - Clínica Las Condes (Oferta Preferente)
-  7. Día Cama - Clínica Indisa (Oferta Preferente)
-  8. Día Cama (Libre Elección)
-  
-  **SECCIÓN 2: DÍA CAMA UTI/UCI (8 filas obligatorias)**
-  9. Día Cama UTI/UCI - Clínica Alemana (Oferta Preferente)
-  10. Día Cama UTI/UCI - Clínica Universidad de los Andes (Oferta Preferente)
-  11. Día Cama UTI/UCI - Clínica San Carlos de Apoquindo (Oferta Preferente)
-  12. Día Cama UTI/UCI - Clínica Santa María (Oferta Preferente)
-  13. Día Cama UTI/UCI - Hospital Clínico UC (Oferta Preferente)
-  14. Día Cama UTI/UCI - Clínica Las Condes (Oferta Preferente)
-  15. Día Cama UTI/UCI - Clínica Indisa (Oferta Preferente)
-  16. Día Cama UTI/UCI (Libre Elección)
-  
-  **SECCIÓN 3: DERECHO PABELLÓN (8 filas obligatorias)**
-  17. Derecho Pabellón - Clínica Alemana (Oferta Preferente)
-  18. Derecho Pabellón - Clínica Universidad de los Andes (Oferta Preferente)
-  19. Derecho Pabellón - Clínica San Carlos de Apoquindo (Oferta Preferente)
-  20. Derecho Pabellón - Clínica Santa María (Oferta Preferente)
-  21. Derecho Pabellón - Hospital Clínico UC (Oferta Preferente)
-  22. Derecho Pabellón - Clínica Las Condes (Oferta Preferente)
-  23. Derecho Pabellón - Clínica Indisa (Oferta Preferente)
-  24. Derecho Pabellón (Libre Elección)
-  
-  **SECCIÓN 4: HONORARIOS MÉDICOS QUIRÚRGICOS (8 filas obligatorias)**
-  25. Honorarios Médicos Quirúrgicos - Clínica Alemana (Oferta Preferente)
-  26. Honorarios Médicos Quirúrgicos - Clínica Universidad de los Andes (Oferta Preferente)
-  27. Honorarios Médicos Quirúrgicos - Clínica San Carlos de Apoquindo (Oferta Preferente)
-  28. Honorarios Médicos Quirúrgicos - Clínica Santa María (Oferta Preferente)
-  29. Honorarios Médicos Quirúrgicos - Hospital Clínico UC (Oferta Preferente)
-  30. Honorarios Médicos Quirúrgicos - Clínica Las Condes (Oferta Preferente)
-  31. Honorarios Médicos Quirúrgicos - Clínica Indisa (Oferta Preferente)
-  32. Honorarios Médicos Quirúrgicos (Libre Elección)
-  
-  **SECCIÓN 5: MEDICAMENTOS (8 filas obligatorias)**
-  33. Medicamentos - Clínica Alemana (Oferta Preferente)
-  34. Medicamentos - Clínica Universidad de los Andes (Oferta Preferente)
-  35. Medicamentos - Clínica San Carlos de Apoquindo (Oferta Preferente)
-  36. Medicamentos - Clínica Santa María (Oferta Preferente)
-  37. Medicamentos - Hospital Clínico UC (Oferta Preferente)
-  38. Medicamentos - Clínica Las Condes (Oferta Preferente)
-  39. Medicamentos - Clínica Indisa (Oferta Preferente)
-  40. Medicamentos (Libre Elección)
-  
-  **SECCIÓN 6: MATERIALES E INSUMOS (8 filas obligatorias)**
-  41. Materiales e Insumos Clínicos - Clínica Alemana (Oferta Preferente)
-  42. Materiales e Insumos Clínicos - Clínica Universidad de los Andes (Oferta Preferente)
-  43. Materiales e Insumos Clínicos - Clínica San Carlos de Apoquindo (Oferta Preferente)
-  44. Materiales e Insumos Clínicos - Clínica Santa María (Oferta Preferente)
-  45. Materiales e Insumos Clínicos - Hospital Clínico UC (Oferta Preferente)
-  46. Materiales e Insumos Clínicos - Clínica Las Condes (Oferta Preferente)
-  47. Materiales e Insumos Clínicos - Clínica Indisa (Oferta Preferente)
-  48. Materiales e Insumos Clínicos (Libre Elección)
-  
-  **SECCIÓN 7: ANESTESIA (8 filas obligatorias)**
-  49. Anestesia - Clínica Alemana (Oferta Preferente)
-  50. Anestesia - Clínica Universidad de los Andes (Oferta Preferente)
-  51. Anestesia - Clínica San Carlos de Apoquindo (Oferta Preferente)
-  52. Anestesia - Clínica Santa María (Oferta Preferente)
-  53. Anestesia - Hospital Clínico UC (Oferta Preferente)
-  54. Anestesia - Clínica Las Condes (Oferta Preferente)
-  55. Anestesia - Clínica Indisa (Oferta Preferente)
-  56. Anestesia (Libre Elección)
+  **SECCIÓN 1: DÍA CAMA**
+  - Día Cama General / Diferenciado
+  - Cuidados Intensivos / Coronianos (UCI)
+  - Cuidados Intermedios (UTI)
+  - Otros tipos de Día Cama
+
+  **SECCIÓN 2: DERECHO PABELLÓN**
+  - Derecho de Pabellón
+  - Sala de Recuperación
+
+  **SECCIÓN 3: HONORARIOS MÉDICOS QUIRÚRGICOS**
+  - Honorarios Médicos Quirúrgicos
+  - Visita por Médico Tratante / Interconsultor
+
+  **SECCIÓN 4: MEDICAMENTOS E INSUMOS**
+  - Medicamentos (Hospitalización)
+  - Materiales e Insumos Clínicos (Hospitalización)
+
+  **SECCIÓN 5: OTROS HOSPITALARIOS**
+  - Anestesia
+  - Quimioterapia / Radioterapia
+  - Traslados Médicos
+  - Prótesis y Ortesis
 `;
 
 const CHECKLIST_AMB = `
-  **SECCIÓN 1: CONSULTAS (4 filas)**
-  1. Consulta Médica General (Oferta Preferente)
-  2. Consulta Médica General (Libre Elección)
-  3. Consulta Pediatría (Oferta Preferente)
-  4. Consulta Pediatría (Libre Elección)
-  
-  **SECCIÓN 2: LABORATORIO (14 filas)**
-  5. Exámenes de Laboratorio (Oferta Preferente)
-  6. Exámenes de Laboratorio (Libre Elección)
-  7. Hemograma (Oferta Preferente)
-  8. Hemograma (Libre Elección)
-  9. Perfil Bioquímico (Oferta Preferente)
-  10. Perfil Bioquímico (Libre Elección)
-  11. Orina Completa (Oferta Preferente)
-  12. Orina Completa (Libre Elección)
-  13. Cultivos (Oferta Preferente)
-  14. Cultivos (Libre Elección)
-  15. Glucosa en Sangre (Oferta Preferente)
-  16. Glucosa en Sangre (Libre Elección)
-  17. Perfil Lipídico (Oferta Preferente)
-  18. Perfil Lipídico (Libre Elección)
-  
-  **SECCIÓN 3: IMAGENOLOGÍA (16 filas)**
-  19. Imagenología (Oferta Preferente)
-  20. Imagenología (Libre Elección)
-  21. Rayos X (Oferta Preferente)
-  22. Rayos X (Libre Elección)
-  23. Ecotomografía (Oferta Preferente)
-  24. Ecotomografía (Libre Elección)
-  25. TAC/Scanner (Oferta Preferente)
-  26. TAC/Scanner (Libre Elección)
-  27. Resonancia Magnética (Oferta Preferente)
-  28. Resonancia Magnética (Libre Elección)
-  29. Mamografía (Oferta Preferente)
-  30. Mamografía (Libre Elección)
-  31. Densitometría Ósea (Oferta Preferente)
-  32. Densitometría Ósea (Libre Elección)
-  33. Ecografía Doppler (Oferta Preferente)
-  34. Ecografía Doppler (Libre Elección)
-  
-  **SECCIÓN 4: PROCEDIMIENTOS (12 filas)**
-  35. Procedimientos Diagnósticos (Oferta Preferente)
-  36. Procedimientos Diagnósticos (Libre Elección)
-  37. Procedimientos Terapéuticos (Oferta Preferente)
-  38. Procedimientos Terapéuticos (Libre Elección)
-  39. Endoscopía Digestiva (Oferta Preferente)
-  40. Endoscopía Digestiva (Libre Elección)
-  41. Colonoscopía (Oferta Preferente)
-  42. Colonoscopía (Libre Elección)
-  43. Biopsia (Oferta Preferente)
-  44. Biopsia (Libre Elección)
-  45. Electrocardiograma (Oferta Preferente)
-  46. Electrocardiograma (Libre Elección)
-  
-  **SECCIÓN 5: TERAPIAS (8 filas)**
-  47. Kinesiología (Oferta Preferente)
-  48. Kinesiología (Libre Elección)
-  49. Fonoaudiología (Oferta Preferente)
-  50. Fonoaudiología (Libre Elección)
-  51. Terapia Ocupacional (Oferta Preferente)
-  52. Terapia Ocupacional (Libre Elección)
-  53. Nutricionista (Oferta Preferente)
-  54. Nutricionista (Libre Elección)
-  
-  **SECCIÓN 6: URGENCIAS (4 filas)**
-  55. Urgencia Simple Adulto (Oferta Preferente)
-  56. Urgencia Simple Adulto (Libre Elección)
-  57. Urgencia Compleja Adulto (Oferta Preferente)
-  58. Urgencia Compleja Adulto (Libre Elección)
-  
-  **SECCIÓN 7: SALUD MENTAL (4 filas)**
-  59. Consulta Psiquiatría (Oferta Preferente)
-  60. Consulta Psiquiatría (Libre Elección)
-  61. Consulta Psicología (Oferta Preferente)
-  62. Consulta Psicología (Libre Elección)
-  
-  **SECCIÓN 8: DENTAL (4 filas)**
-  63. PAD Dental (Oferta Preferente)
-  64. PAD Dental (Libre Elección)
-  65. Tratamiento Dental General (Oferta Preferente)
-  66. Tratamiento Dental General (Libre Elección)
-  
-  **SECCIÓN 9: ÓPTICA Y PRÓTESIS (4 filas)**
-  67. Lentes Ópticos (Libre Elección)
-  68. Lentes de Contacto (Libre Elección)
-  69. Audífonos (Libre Elección)
-  70. Prótesis y Órtesis (Libre Elección)
+  **SECCIÓN 1: CONSULTAS**
+  - Consulta Médica General / Especialidad
+  - Consulta Psiquiatría / Psicología
+
+  **SECCIÓN 2: LABORATORIO Y EXÁMENES**
+  - Exámenes de Laboratorio
+  - Hemograma, Perfil Bioquímico, etc.
+
+  **SECCIÓN 3: IMAGENOLOGÍA**
+  - Rayos X, Ecotomografía
+  - TAC / Scanner
+  - Resonancia Magnética
+  - Mamografía, Densitometría
+
+  **SECCIÓN 4: PROCEDIMIENTOS Y TERAPIAS**
+  - Procedimientos Diagnósticos / Terapéuticos
+  - Endoscopía, Colonoscopía
+  - Kinesiología, Fonoaudiología
+  - Terapia Ocupacional, Nutricionista
+
+  **SECCIÓN 5: OTROS AMBULATORIOS**
+  - Urgencia Simple / Compleja
+  - PAD Dental / Tratamiento Dental
+  - Lentes, Audífonos
+  - Prótesis y Órtesis Ambulatorias
 `;
 
 // --- PHASE 3: MODULAR MICRO-PROMPTS (v10.0) ---
@@ -216,11 +108,16 @@ const SHARED_MANDATE = `
   - NO interpretes (no conviertas "UF 1.2" a 1.2).
   - NO limpies el texto. Copia lo que ves pixel por pixel (OCR Estructurado).
 
-  ** INSTRUCCIONES DE COORDENADAS: **
+  ** INSTRUCCIONES DE COORDENADAS (STRICT): **
   1. Imagina una grilla sobre la imagen (Matrix Matrix).
   2. Asigna un índice de Fila (fila_index) y Columna (col_index) a cada celda visible.
   3. Si una celda ocupa varias columnas visualmente (merged), repite el texto en cada coordenada lógica o usa la primera.
-
+  
+  ⚠️ PROHIBIDO (DOCTRINA INDUSTRIAL):
+  - NO inventes geometría si no ves bordes de tabla o bandas de color.
+  - Si no detectas una grilla clara, usa 'tipo: texto_lineal' (Extensión pend.).
+  - El uso de 'synthetic_geometry: true' será penalizado en QC Gates.
+  
   ** FORMATO DE SALIDA (SCHEMA RAW_CELL): **
   Genera una lista plana de celdas "dispersas" (Sparse Matrix):
   \`\`\`json
@@ -255,10 +152,16 @@ export const PROMPT_MODULAR_JSON = `
   - Every item you output is restricted to that ambito by definition.
   - DO NOT mention other scopes. DO NOT infer scope from context.
 
-  ⚠️ OUTPUT CONTRACT (STRICT):
-  - tipo="prestacion": Used for billable items with coverage data.
-  - tipo="seccion_visual": Used for detected uppercase headers.
-  - tipo="texto_no_prestacion": Used if unsure whether a line is a billable item vs explanatory text.
+   ⚠️ DOCTRINA DE COMPOSICIÓN (COBERTURA COMPUESTA):
+   - Si el contrato tiene columnas separadas para "Tope Nacional" e "Internacional", debes unir ambos valores en el campo 'tope' usando el separador ' / '.
+   - Ejemplo: "100% SIN TOPE / 16,00 UF (Internacional)".
+   - No omitas ninguna cláusula de límite presente en la fila.
+
+   ⚠️ DOCTRINA DE SILENCIO (ANTI-HALLUCINATION):
+   - PROHIBIDO inventar frases de relleno como "Sin restricciones adicionales" o "Sujeto a condiciones generales".
+   - Si una celda está vacía, el valor debe ser null. 
+   - Si un ítem no tiene tope explícito, NO asumas "Sin Tope" a menos que lo veas escrito.
+   - Tu output debe ser una digitalización SECA del contrato.
 
   CHECKLIST SEGMENT TO EXTRACT:
   {{SEGMENT}}
@@ -349,7 +252,7 @@ export const PROMPT_AMB_P3 = `
   ** PHASE: AMBULATORY 3 (PROCEDURES & THERAPIES) **
   Segment: Procedimientos y Terapias.
   Items: 35 - 54.
-  ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 4"), CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
+  ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 4"), CHECKLIST_AMB.indexOf("**SECCIÓN 5"))}
 
   ⚠️ NO CROSS-SCOPE: Do not mention hospitalario.
 `;
@@ -359,7 +262,7 @@ export const PROMPT_AMB_P4 = `
   ** PHASE: AMBULATORY 4 (URGENCY & SPECIALTIES) **
   Segment: Urgencias, Salud Mental, Dental, Óptica.
   Items: 55 - 70.
-  ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 6"))}
+  ${CHECKLIST_AMB.substring(CHECKLIST_AMB.indexOf("**SECCIÓN 5"))}
 
   ⚠️ NO CROSS-SCOPE: Do not mention hospitalario.
 `;
@@ -515,7 +418,16 @@ export const SCHEMA_COBERTURAS = {
                   },
                   nullable: true
                 },
-                'copago': { type: SchemaType.STRING, nullable: true } // Legacy text hook if needed
+                'copago': { type: SchemaType.STRING, nullable: true },
+                // --- EXPLORATION DOCTRINE EVIDENCE ---
+                'evidencia_literal': { type: SchemaType.STRING, description: "Literal text from cell/row" },
+                'incertidumbre': { type: SchemaType.STRING, description: "Reason for uncertainty if any (e.g. 'valor legible pero unidad ambigua')" },
+                'fuente_geometria': { type: SchemaType.STRING, description: "If provided via Cartesian flow, the cell ID" },
+                'origen_extraccion': {
+                  type: SchemaType.STRING,
+                  enum: ["VISUAL_MODULAR", "OCR_DETERMINISTICO", "TEXTO_FALLBACK", "IMAGEN_FALLBACK"],
+                  description: "Forensic source hierarchy"
+                }
               },
               required: ['tipo', 'unidadTope', 'tipoTope']
             }
@@ -663,9 +575,13 @@ export const PROMPT_PROYECCION_JSON = `
 
     7. ** AMBITO DETECTION (HOSPITALARIO vs AMBULATORIO) **:
       - For EACH item, determine if it belongs to the HOSPITALARIO or AMBULATORIO scope.
-      - ** HOSPITALARIO **: Items under headers like "HOSPITALARIAS", "QUIRURGICAS", "MATERNIDAD", or if the item is inherently inpatient (e.g., "Día Cama", "Pabellón", "Insumos de Cirugía").
-      - ** AMBULATORIO **: Items under headers like "AMBULATORIAS", "CONSULTAS", "EXAMENES", "RADIOLOGIA", or inpatient-independent services.
-      - ** IMPORTANT **: If an item is in a generic section like "PRESTACIONES RESTRINGIDAS" or "ANEXOS", use the nature of the item or surrounding headers to decide. When in doubt for surgeries, use HOSPITALARIO.
+      - ** HOSPITALARIO **: Inpatient services.
+      - ** AMBULATORIO **: Outpatient services.
+      - ** UNDETERMINED **: If the document is purely a list of prices or codes without a header context, use "UNDETERMINED".
+      
+    8. ** ANTI-FILLER MANDATE **:
+      - NEVER use placeholder text like "Standard conditions apply".
+      - If data is missing, use null or leave empty.
 
   OUTPUT FORMAT: JSON Strict according to the provided schema.
 `;

@@ -213,5 +213,15 @@ Si encuentras siglas como **AC2, VA, VAM**:
     - Mueve las diferencias (porcentaje, tope, red) al array `modalidades`.
     - **Resultado esperado**: Una lista limpia de prestaciones únicas, donde cada una contiene todas sus variantes de cobertura. NO REPETIR la misma prestación 3 veces.
 
+### 11. REGLA DE AISLAMIENTO TOTAL (OBLIGATORIO)
+
+**Propósito:** Evitar la contaminación de datos (data leakage) entre contratos de diferentes Isapres o planes.
+
+- **AISLAMIENTO ESTRICTO**: Cada análisis de contrato es un evento único y aislado. 
+- **PROHIBICIÓN DE MEMORIA CRUZADA**: No se deben utilizar conocimientos específicos (prestadores, porcentajes, topes) de contratos procesados en la misma sesión o sesiones previas, a menos que sean parte explícita del documento actual.
+- **RESETEO DE CONTEXTO**: Si el agente detecta que está "recordando" datos de una clínica que no aparece en el texto actual (ej: "Santa María" en un contrato de "Consalud"), debe detenerse y purgar el contexto antes de continuar.
+
+---
+
 ## Output
 Retorna SOLO el objeto JSON válido. Sin markdown de código, sin explicaciones.

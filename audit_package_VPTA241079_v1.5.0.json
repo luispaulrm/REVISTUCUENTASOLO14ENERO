@@ -1,0 +1,870 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "VPTA241079",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.981Z"
+  },
+  "spatial_map": {
+    "columns": [
+      {
+        "column_id": "COL_PRESTACIONES",
+        "x_range": [
+          0.471,
+          0.717
+        ],
+        "label": "PRESTACIONES",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_PCT",
+        "x_range": [
+          0.717,
+          0.746
+        ],
+        "label": "Bonificación %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_PREF_TOPE_EVENTO",
+        "x_range": [
+          0.746,
+          0.787
+        ],
+        "label": "Tope",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_PCT",
+        "x_range": [
+          0.787,
+          0.821
+        ],
+        "label": "Bonificación %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_EVENTO",
+        "x_range": [
+          0.821,
+          0.861
+        ],
+        "label": "Tope",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "R_DIA_CAMA",
+        "y_range": [
+          0.236,
+          0.254
+        ],
+        "raw_text": "11 UF  Día Cama",
+        "text_hash": "h_R_DIA_CAMA"
+      },
+      {
+        "row_id": "R_SALA_CUNA",
+        "y_range": [
+          0.254,
+          0.27
+        ],
+        "raw_text": "4,6 UF  Sala Cuna",
+        "text_hash": "h_R_SALA_CUNA"
+      },
+      {
+        "row_id": "R_INCUBADORA",
+        "y_range": [
+          0.27,
+          0.287
+        ],
+        "raw_text": "7,9 UF  Incubadora",
+        "text_hash": "h_R_INCUBADORA"
+      },
+      {
+        "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+        "y_range": [
+          0.287,
+          0.308
+        ],
+        "raw_text": "16,4 UF Día Cama Cuidado Intensivo, Intermedio o Coronario",
+        "text_hash": "h_R_DIA_CAMA_CUIDADO_INTENSIVO"
+      },
+      {
+        "row_id": "R_DIA_CAMA_TRANSITORIO",
+        "y_range": [
+          0.308,
+          0.325
+        ],
+        "raw_text": "7,9 UF Día Cama Transitorio u Observación",
+        "text_hash": "h_R_DIA_CAMA_TRANSITORIO"
+      },
+      {
+        "row_id": "R_EXAMENES_LABORATORIO",
+        "y_range": [
+          0.349,
+          0.366
+        ],
+        "raw_text": "Exámenes de Laboratorio",
+        "text_hash": "h_R_EXAMENES_LABORATORIO"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA",
+        "y_range": [
+          0.366,
+          0.383
+        ],
+        "raw_text": "Imagenología",
+        "text_hash": "h_R_IMAGENOLOGIA"
+      },
+      {
+        "row_id": "R_DERECHO_PABELLON",
+        "y_range": [
+          0.383,
+          0.4
+        ],
+        "raw_text": "Derecho Pabellón",
+        "text_hash": "h_R_DERECHO_PABELLON"
+      },
+      {
+        "row_id": "R_KINESIOLOGIA",
+        "y_range": [
+          0.4,
+          0.421
+        ],
+        "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional",
+        "text_hash": "h_R_KINESIOLOGIA"
+      },
+      {
+        "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS",
+        "y_range": [
+          0.421,
+          0.438
+        ],
+        "raw_text": "Honorarios Médicos Quirúrgicos (1.2)",
+        "text_hash": "h_R_HONORARIOS_MEDICOS_QUIRURGICOS"
+      },
+      {
+        "row_id": "R_MEDICAMENTOS",
+        "y_range": [
+          0.438,
+          0.455
+        ],
+        "raw_text": "Medicamentos (1.4) (1.10)",
+        "text_hash": "h_R_MEDICAMENTOS"
+      },
+      {
+        "row_id": "R_MATERIALES_E_INSUMOS_CLINICOS",
+        "y_range": [
+          0.455,
+          0.472
+        ],
+        "raw_text": "Materiales e Insumos Clínicos (1.4) (1.10)",
+        "text_hash": "h_R_MATERIALES_E_INSUMOS_CLINICOS"
+      },
+      {
+        "row_id": "R_QUIMIOTERAPIA",
+        "y_range": [
+          0.472,
+          0.489
+        ],
+        "raw_text": "Quimioterapia (1.6) (Sólo con Médicos Staff)",
+        "text_hash": "h_R_QUIMIOTERAPIA"
+      },
+      {
+        "row_id": "R_PROTESIS_ORTESIS_ELEMENTOS",
+        "y_range": [
+          0.489,
+          0.506
+        ],
+        "raw_text": "Prótesis, Órtesis y Elementos de Osteosíntesis",
+        "text_hash": "h_R_PROTESIS_ORTESIS_ELEMENTOS"
+      },
+      {
+        "row_id": "R_VISITA_MEDICO_TRATANTE",
+        "y_range": [
+          0.506,
+          0.523
+        ],
+        "raw_text": "Visita por Médico Tratante y Médico Interconsultor",
+        "text_hash": "h_R_VISITA_MEDICO_TRATANTE"
+      },
+      {
+        "row_id": "R_TRASLADOS",
+        "y_range": [
+          0.523,
+          0.54
+        ],
+        "raw_text": "Traslados (5.4)",
+        "text_hash": "h_R_TRASLADOS"
+      },
+      {
+        "row_id": "R_CONSULTA_MEDICA",
+        "y_range": [
+          0.564,
+          0.581
+        ],
+        "raw_text": "Consulta Médica",
+        "text_hash": "h_R_CONSULTA_MEDICA"
+      },
+      {
+        "row_id": "R_CONSULTA_MEDICA_TELEMEDICINA",
+        "y_range": [
+          0.581,
+          0.6
+        ],
+        "raw_text": "Consulta Médica de Telemedicina en Especialidades (1.14)**",
+        "text_hash": "h_R_CONSULTA_MEDICA_TELEMEDICINA"
+      },
+      {
+        "row_id": "R_EXAMENES_LABORATORIO_AMB",
+        "y_range": [
+          0.602,
+          0.619
+        ],
+        "raw_text": "Exámenes de Laboratorio",
+        "text_hash": "h_R_EXAMENES_LABORATORIO_AMB"
+      },
+      {
+        "row_id": "R_IMAGENOLOGIA_AMB",
+        "y_range": [
+          0.619,
+          0.636
+        ],
+        "raw_text": "Imagenología",
+        "text_hash": "h_R_IMAGENOLOGIA_AMB"
+      },
+      {
+        "row_id": "R_DERECHO_PABELLON_AMB",
+        "y_range": [
+          0.636,
+          0.653
+        ],
+        "raw_text": "Derecho Pabellón Ambulatorio",
+        "text_hash": "h_R_DERECHO_PABELLON_AMB"
+      },
+      {
+        "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB",
+        "y_range": [
+          0.653,
+          0.67
+        ],
+        "raw_text": "Honorarios Médicos Quirúrgicos (1.2)",
+        "text_hash": "h_R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB"
+      },
+      {
+        "row_id": "R_RADIOTERAPIA",
+        "y_range": [
+          0.67,
+          0.687
+        ],
+        "raw_text": "Radioterapia",
+        "text_hash": "h_R_RADIOTERAPIA"
+      },
+      {
+        "row_id": "R_FONOADIOLOGIA",
+        "y_range": [
+          0.687,
+          0.704
+        ],
+        "raw_text": "Fonoaudiología",
+        "text_hash": "h_R_FONOADIOLOGIA"
+      },
+      {
+        "row_id": "R_KINESIOLOGIA_AMB",
+        "y_range": [
+          0.704,
+          0.721
+        ],
+        "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional",
+        "text_hash": "h_R_KINESIOLOGIA_AMB"
+      },
+      {
+        "row_id": "R_PRESTACIONES_DENTALES",
+        "y_range": [
+          0.721,
+          0.738
+        ],
+        "raw_text": "Prestaciones Dentales (PAD) (1.13)",
+        "text_hash": "h_R_PRESTACIONES_DENTALES"
+      },
+      {
+        "row_id": "R_CLINICA_LACTANCIA",
+        "y_range": [
+          0.738,
+          0.755
+        ],
+        "raw_text": "Clínica de Lactancia (0 a 6 meses de edad) (PAD) (1.13)",
+        "text_hash": "h_R_CLINICA_LACTANCIA"
+      },
+      {
+        "row_id": "R_MAL_NUTRICION_INFANTIL",
+        "y_range": [
+          0.755,
+          0.772
+        ],
+        "raw_text": "Mal Nutrición Infantil (7 a 72 meses de edad) (PAD) (1.13)",
+        "text_hash": "h_R_MAL_NUTRICION_INFANTIL"
+      },
+      {
+        "row_id": "R_TRATAMIENTO_FERTILIZACION_BAJA_COMPLEJIDAD_HOMBRE",
+        "y_range": [
+          0.772,
+          0.789
+        ],
+        "raw_text": "Tratamiento de fertilización asistida baja complejidad hombre (PAD) ( 1.13)",
+        "text_hash": "h_R_TRATAMIENTO_FERTILIZACION_BAJA_COMPLEJIDAD_HOMBRE"
+      },
+      {
+        "row_id": "R_TRATAMIENTO_FERTILIZACION_BAJA_COMPLEJIDAD_MUJER",
+        "y_range": [
+          0.789,
+          0.806
+        ],
+        "raw_text": "Tratamiento de fertilización asistida baja complejidad mujer (PAD) (1.13)",
+        "text_hash": "h_R_TRATAMIENTO_FERTILIZACION_BAJA_COMPLEJIDAD_MUJER"
+      },
+      {
+        "row_id": "R_TRATAMIENTO_FERTILIZACION_ALTA_COMPLEJIDAD",
+        "y_range": [
+          0.806,
+          0.823
+        ],
+        "raw_text": "Tratamiento de fertilización asistida alta complejidad (PAD) (1.13)",
+        "text_hash": "h_R_TRATAMIENTO_FERTILIZACION_ALTA_COMPLEJIDAD"
+      },
+      {
+        "row_id": "R_CONSULTA_ATENCION_NUTRICIONISTA",
+        "y_range": [
+          0.823,
+          0.84
+        ],
+        "raw_text": "Consulta y Atención Integral de Nutricionista",
+        "text_hash": "h_R_CONSULTA_ATENCION_NUTRICIONISTA"
+      },
+      {
+        "row_id": "R_ATENCION_INTEGRAL_ENFERMERIA",
+        "y_range": [
+          0.84,
+          0.857
+        ],
+        "raw_text": "Atención Integral de Enfermería",
+        "text_hash": "h_R_ATENCION_INTEGRAL_ENFERMERIA"
+      },
+      {
+        "row_id": "R_PROTESIS_ORTESIS",
+        "y_range": [
+          0.857,
+          0.874
+        ],
+        "raw_text": "Prótesis y Órtesis (1.5)",
+        "text_hash": "h_R_PROTESIS_ORTESIS"
+      },
+      {
+        "row_id": "R_QUIMIOTERAPIA_AMB",
+        "y_range": [
+          0.874,
+          0.891
+        ],
+        "raw_text": "Quimioterapia (1.6)",
+        "text_hash": "h_R_QUIMIOTERAPIA_AMB"
+      },
+      {
+        "row_id": "R_COPA_FIJO_URGENCIA_SIMPLE",
+        "y_range": [
+          0.915,
+          0.932
+        ],
+        "raw_text": "Copago Fijo Urgencia Simple",
+        "text_hash": "h_R_COPA_FIJO_URGENCIA_SIMPLE"
+      },
+      {
+        "row_id": "R_COPA_FIJO_URGENCIA_COMPLEJA",
+        "y_range": [
+          0.915,
+          0.932
+        ],
+        "raw_text": "Copago Fijo Urgencia Compleja",
+        "text_hash": "h_R_COPA_FIJO_URGENCIA_COMPLEJA"
+      },
+      {
+        "row_id": "R_URGENCIA_ADULTO",
+        "y_range": [
+          0.932,
+          0.949
+        ],
+        "raw_text": "Urgencia Adulto",
+        "text_hash": "h_R_URGENCIA_ADULTO"
+      },
+      {
+        "row_id": "R_URGENCIA_PEDIATRICA",
+        "y_range": [
+          0.949,
+          0.966
+        ],
+        "raw_text": "Urgencia Pediátrica",
+        "text_hash": "h_R_URGENCIA_PEDIATRICA"
+      },
+      {
+        "row_id": "R_URGENCIA_MATERNIDAD",
+        "y_range": [
+          0.966,
+          0.983
+        ],
+        "raw_text": "Urgencia Maternidad",
+        "text_hash": "h_R_URGENCIA_MATERNIDAD"
+      }
+    ],
+    "zones": [],
+    "row_groups": [],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [
+    {
+      "assignment_id": "a_R_DIA_CAMA_COL_PREF_PCT",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "70%",
+        "bbox": [
+          0.716,
+          0.227,
+          0.741,
+          0.251
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "70%",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_DIA_CAMA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_DIA_CAMA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.745,
+          0.227,
+          0.781,
+          0.251
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_EXAMENES_LABORATORIO_COL_PREF_PCT",
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "100%",
+        "bbox": [
+          0.716,
+          0.341,
+          0.747,
+          0.362
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "100%",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_EXAMENES_LABORATORIO_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.745,
+          0.341,
+          0.781,
+          0.362
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_IMAGENOLOGIA_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_IMAGENOLOGIA",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.745,
+          0.36,
+          0.781,
+          0.377
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_MEDICOS_QUIRURGICOS_COL_PREF_PCT",
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "60",
+        "bbox": [
+          0.716,
+          0.413,
+          0.741,
+          0.436
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "60",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PROTESIS_ORTESIS_COL_PREF_PCT",
+      "row_id": "R_PROTESIS_ORTESIS",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "90%",
+        "bbox": [
+          0.716,
+          0.86,
+          0.741,
+          0.878
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "90%",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_QUIMIOTERAPIA_AMB_COL_PREF_PCT",
+      "row_id": "R_QUIMIOTERAPIA_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "90%",
+        "bbox": [
+          0.716,
+          0.877,
+          0.741,
+          0.891
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "90%",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_QUIMIOTERAPIA_AMB_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_QUIMIOTERAPIA_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.745,
+          0.877,
+          0.781,
+          0.891
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PRESTACIONES_DENTALES_COL_PREF_PCT",
+      "row_id": "R_PRESTACIONES_DENTALES",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "80%",
+        "bbox": [
+          0.716,
+          0.721,
+          0.741,
+          0.738
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "80%",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_PRESTACIONES_DENTALES_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_PRESTACIONES_DENTALES",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.745,
+          0.721,
+          0.781,
+          0.738
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB_COL_PREF_PCT",
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB",
+      "column_id": "COL_PREF_PCT",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "70%",
+        "bbox": [
+          0.716,
+          0.653,
+          0.741,
+          0.67
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "70%",
+          "unit": "%"
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    },
+    {
+      "assignment_id": "a_R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB_COL_PREF_TOPE_EVENTO",
+      "row_id": "R_HONORARIOS_MEDICOS_QUIRURGICOS_AMB",
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "pointer": {
+        "type": "TEXT_DIRECT_CELL",
+        "raw_text": "Sin Tope",
+        "bbox": [
+          0.745,
+          0.653,
+          0.781,
+          0.67
+        ]
+      },
+      "atoms": [
+        {
+          "type": "RULE",
+          "key": "TEXT_DIRECT",
+          "value": "Sin Tope",
+          "unit": null
+        }
+      ],
+      "status": "ACTIVE_TEXT_DIRECT",
+      "confidence": {
+        "row_confidence": 0.99,
+        "assignment_confidence": 0.99
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_QUIMIOTERAPIA\" requires zone but none applies.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_RADIOTERAPIA\" requires zone but none applies.",
+      "severity": "ERROR"
+    },
+    {
+      "type": "MISSING_REQUIRED_ZONE",
+      "message": "Row \"R_QUIMIOTERAPIA_AMB\" requires zone but none applies.",
+      "severity": "ERROR"
+    }
+  ],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "WARN",
+    "zone_application_completeness": "FAIL",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "PASS",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 3,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 0,
+    "require_rows_present": true,
+    "require_rows_justified_absence": false
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "NEEDS_REVIEW",
+    "avg_confidence": 0.9850000000000001,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}

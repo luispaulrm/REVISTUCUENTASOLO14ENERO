@@ -1,0 +1,199 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.09,
+        0.32
+      ],
+      "label": "PRESTACIONES"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.48,
+        0.53
+      ],
+      "label": "%"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.54,
+        0.61
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.62,
+        0.68
+      ],
+      "label": "máx. año"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.69,
+        0.74
+      ],
+      "label": "%"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.75,
+        0.83
+      ],
+      "label": "Tope"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.84,
+        0.91
+      ],
+      "label": "máx. año"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.29,
+        0.32
+      ],
+      "raw_text": "Día Cama"
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "y_range": [
+        0.32,
+        0.35
+      ],
+      "raw_text": "Sala Cuna"
+    },
+    {
+      "row_id": "R_INCUBADORA",
+      "y_range": [
+        0.35,
+        0.38
+      ],
+      "raw_text": "Incubadora"
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADO_INTENSIVO",
+      "y_range": [
+        0.42,
+        0.46
+      ],
+      "raw_text": "Día Cama Cuidado Intensivo, Intermedio o Coronario"
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "y_range": [
+        0.46,
+        0.5
+      ],
+      "raw_text": "Día Cama Transitorio u Observación"
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "y_range": [
+        0.54,
+        0.57
+      ],
+      "raw_text": "Exámenes de Laboratorio"
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.57,
+        0.6
+      ],
+      "raw_text": "Imagenología"
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.6,
+        0.64
+      ],
+      "raw_text": "Derecho Pabellón"
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.64,
+        0.67
+      ],
+      "raw_text": "Kinesiología, Fisioterapia y Terapia Ocupacional"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS",
+      "y_range": [
+        0.69,
+        0.72
+      ],
+      "raw_text": "Procedimientos"
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "y_range": [
+        0.72,
+        0.76
+      ],
+      "raw_text": "Honorarios Médicos Quirúrgicos (1.2)"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.77,
+        0.8
+      ],
+      "raw_text": "Medicamentos (1.4) (1.10)"
+    },
+    {
+      "row_id": "R_MATERIALES_INSUMOS",
+      "y_range": [
+        0.8,
+        0.84
+      ],
+      "raw_text": "Materiales e Insumos Clínicos (1.4) (1.10)"
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.84,
+        0.87
+      ],
+      "raw_text": "Quimioterapia (1.6)"
+    },
+    {
+      "row_id": "R_PROTESIS_ORTESIS",
+      "y_range": [
+        0.87,
+        0.92
+      ],
+      "raw_text": "Prótesis, Órtesis y Elementos de Osteosíntesis"
+    },
+    {
+      "row_id": "R_VISITA_MEDICO",
+      "y_range": [
+        0.92,
+        0.95
+      ],
+      "raw_text": "Visita por Médico Tratante y Médico Interconsultor"
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "y_range": [
+        0.95,
+        0.98
+      ],
+      "raw_text": "Traslados (5.4)"
+    }
+  ],
+  "zones": []
+}

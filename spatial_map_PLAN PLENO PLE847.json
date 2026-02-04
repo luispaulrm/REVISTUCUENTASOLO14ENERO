@@ -1,0 +1,151 @@
+{
+  "columns": [
+    {
+      "column_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.03,
+        0.33
+      ],
+      "label": "Prestaciones"
+    },
+    {
+      "column_id": "COL_PREF_PCT",
+      "x_range": [
+        0.33,
+        0.45
+      ],
+      "label": "% Preferente"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.45,
+        0.59
+      ],
+      "label": "Tope Evento Preferente"
+    },
+    {
+      "column_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.59,
+        0.73
+      ],
+      "label": "Tope Anual Preferente"
+    },
+    {
+      "column_id": "COL_LE_PCT",
+      "x_range": [
+        0.73,
+        0.84
+      ],
+      "label": "% Libre Elección"
+    },
+    {
+      "column_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.84,
+        0.92
+      ],
+      "label": "Tope Evento Libre Elección"
+    },
+    {
+      "column_id": "COL_LE_TOPE_ANUAL",
+      "x_range": [
+        0.92,
+        0.99
+      ],
+      "label": "Tope Anual Libre Elección"
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.18,
+        0.22
+      ],
+      "raw_text": "CONSULTA MÉDICA"
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS_DIAGNOSTICOS",
+      "y_range": [
+        0.23,
+        0.28
+      ],
+      "raw_text": "PROCEDIMIENTOS DIAGNÓSTICOS"
+    },
+    {
+      "row_id": "R_TERAPIAS",
+      "y_range": [
+        0.28,
+        0.32
+      ],
+      "raw_text": "TERAPIAS"
+    },
+    {
+      "row_id": "R_HOSPITALIZACION",
+      "y_range": [
+        0.32,
+        0.36
+      ],
+      "raw_text": "HOSPITALIZACIÓN"
+    },
+    {
+      "row_id": "R_MEDICAMENTOS_AMBULATORIOS",
+      "y_range": [
+        0.37,
+        0.41
+      ],
+      "raw_text": "MEDICAMENTOS AMBULATORIOS"
+    },
+    {
+      "row_id": "R_ATENCION_URGENCIA_AMBULATORIA",
+      "y_range": [
+        0.42,
+        0.46
+      ],
+      "raw_text": "ATENCIÓN URGENCIA AMBULATORIA"
+    },
+    {
+      "row_id": "R_MATERNIDAD",
+      "y_range": [
+        0.46,
+        0.5
+      ],
+      "raw_text": "MATERNIDAD"
+    },
+    {
+      "row_id": "R_ODONTOLOGIA",
+      "y_range": [
+        0.51,
+        0.55
+      ],
+      "raw_text": "ODONTOLOGÍA"
+    },
+    {
+      "row_id": "R_OPTÍCA",
+      "y_range": [
+        0.55,
+        0.59
+      ],
+      "raw_text": "OPTÍCA"
+    },
+    {
+      "row_id": "R_PROGRAMAS_PREVENTIVOS",
+      "y_range": [
+        0.6,
+        0.64
+      ],
+      "raw_text": "PROGRAMAS PREVENTIVOS"
+    },
+    {
+      "row_id": "R_GASTOS_MEDICOS_CATASTROFICOS",
+      "y_range": [
+        0.64,
+        0.68
+      ],
+      "raw_text": "GASTOS MÉDICOS CATASTRÓFICOS"
+    }
+  ],
+  "zones": []
+}

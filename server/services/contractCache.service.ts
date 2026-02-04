@@ -57,4 +57,14 @@ export class ContractCacheService {
             throw new Error(`Failed to clear cache: ${err.message}`);
         }
     }
+
+    static async getCount(): Promise<number> {
+        await this.ensureCacheDir();
+        try {
+            const files = await fs.readdir(CACHE_DIR);
+            return files.filter(f => f.endsWith('.json')).length;
+        } catch (err) {
+            return 0;
+        }
+    }
 }

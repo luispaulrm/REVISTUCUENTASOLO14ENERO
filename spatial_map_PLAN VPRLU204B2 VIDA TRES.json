@@ -1,0 +1,280 @@
+{
+  "columns": [
+    {
+      "col_id": "COL_PRESTACIONES",
+      "x_range": [
+        0.083,
+        0.277
+      ]
+    },
+    {
+      "col_id": "COL_PREF_PCT",
+      "x_range": [
+        0.277,
+        0.321
+      ]
+    },
+    {
+      "col_id": "COL_PREF_TOPE_EVENTO",
+      "x_range": [
+        0.321,
+        0.398
+      ]
+    },
+    {
+      "col_id": "COL_LE_PCT",
+      "x_range": [
+        0.398,
+        0.438
+      ]
+    },
+    {
+      "col_id": "COL_LE_TOPE_EVENTO",
+      "x_range": [
+        0.438,
+        0.517
+      ]
+    },
+    {
+      "col_id": "COL_PREF_PCT_2",
+      "x_range": [
+        0.517,
+        0.556
+      ]
+    },
+    {
+      "col_id": "COL_PREF_TOPE_ANUAL",
+      "x_range": [
+        0.556,
+        0.637
+      ]
+    },
+    {
+      "col_id": "COL_PRESTACIONES_2",
+      "x_range": [
+        0.637,
+        0.801
+      ]
+    },
+    {
+      "col_id": "COL_PREF_PCT_3",
+      "x_range": [
+        0.801,
+        0.843
+      ]
+    },
+    {
+      "col_id": "COL_PREF_TOPE_EVENTO_2",
+      "x_range": [
+        0.843,
+        0.916
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "row_id": "R_DIA_CAMA",
+      "y_range": [
+        0.31,
+        0.332
+      ]
+    },
+    {
+      "row_id": "R_SALA_CUNA",
+      "y_range": [
+        0.332,
+        0.353
+      ]
+    },
+    {
+      "row_id": "R_INCUBADORA",
+      "y_range": [
+        0.353,
+        0.374
+      ]
+    },
+    {
+      "row_id": "R_DIA_CAMA_CUIDADO",
+      "y_range": [
+        0.394,
+        0.416
+      ]
+    },
+    {
+      "row_id": "R_DIA_CAMA_TRANSITORIO",
+      "y_range": [
+        0.437,
+        0.458
+      ]
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO",
+      "y_range": [
+        0.458,
+        0.479
+      ]
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA",
+      "y_range": [
+        0.479,
+        0.5
+      ]
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON",
+      "y_range": [
+        0.5,
+        0.521
+      ]
+    },
+    {
+      "row_id": "R_KINESIOLOGIA",
+      "y_range": [
+        0.521,
+        0.542
+      ]
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS",
+      "y_range": [
+        0.542,
+        0.563
+      ]
+    },
+    {
+      "row_id": "R_HONORARIOS",
+      "y_range": [
+        0.563,
+        0.584
+      ]
+    },
+    {
+      "row_id": "R_MEDICAMENTOS",
+      "y_range": [
+        0.605,
+        0.626
+      ]
+    },
+    {
+      "row_id": "R_MATERIALES",
+      "y_range": [
+        0.626,
+        0.647
+      ]
+    },
+    {
+      "row_id": "R_QUIMIOTERAPIA",
+      "y_range": [
+        0.647,
+        0.668
+      ]
+    },
+    {
+      "row_id": "R_PROTESIS",
+      "y_range": [
+        0.668,
+        0.689
+      ]
+    },
+    {
+      "row_id": "R_VISITA_MEDICO",
+      "y_range": [
+        0.689,
+        0.71
+      ]
+    },
+    {
+      "row_id": "R_TRASLADOS",
+      "y_range": [
+        0.71,
+        0.731
+      ]
+    },
+    {
+      "row_id": "R_CONSULTA_MEDICA",
+      "y_range": [
+        0.752,
+        0.773
+      ]
+    },
+    {
+      "row_id": "R_EXAMENES_LABORATORIO_AMB",
+      "y_range": [
+        0.773,
+        0.794
+      ]
+    },
+    {
+      "row_id": "R_IMAGENOLOGIA_AMB",
+      "y_range": [
+        0.794,
+        0.815
+      ]
+    },
+    {
+      "row_id": "R_DERECHO_PABELLON_AMB",
+      "y_range": [
+        0.815,
+        0.836
+      ]
+    },
+    {
+      "row_id": "R_PROCEDIMIENTOS_AMB",
+      "y_range": [
+        0.836,
+        0.857
+      ]
+    },
+    {
+      "row_id": "R_HONORARIOS_AMB",
+      "y_range": [
+        0.857,
+        0.878
+      ]
+    },
+    {
+      "row_id": "R_RADIOTERAPIA",
+      "y_range": [
+        0.878,
+        0.899
+      ]
+    },
+    {
+      "row_id": "R_FONOAUDIOLOGIA",
+      "y_range": [
+        0.899,
+        0.92
+      ]
+    },
+    {
+      "row_id": "R_KINESIOLOGIA_AMB",
+      "y_range": [
+        0.92,
+        0.941
+      ]
+    },
+    {
+      "row_id": "R_PRESTACIONES_DENTALES",
+      "y_range": [
+        0.941,
+        0.962
+      ]
+    },
+    {
+      "row_id": "R_ATENCION_NUTRICIONISTA",
+      "y_range": [
+        0.962,
+        0.983
+      ]
+    },
+    {
+      "row_id": "R_ATENCION_ENFERMERIA",
+      "y_range": [
+        0.983,
+        1.004
+      ]
+    }
+  ],
+  "zones": []
+}

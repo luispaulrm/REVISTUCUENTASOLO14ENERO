@@ -1,0 +1,189 @@
+{
+  "metadata": {
+    "pipeline_version": "1.5.0",
+    "spec_version": "v1.5.0-INDUSTRIAL-STRICT",
+    "source_document": "PLENO 847",
+    "page": 1,
+    "timestamp": "2026-02-04T04:36:33.955Z"
+  },
+  "spatial_map": {
+    "columns": [
+      {
+        "column_id": "COL_PRESTACIONES",
+        "x_range": [
+          0,
+          0.4
+        ],
+        "label": "Prestaciones",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_PCT",
+        "x_range": [
+          0.4,
+          0.6
+        ],
+        "label": "Libre Elección %",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_EVENTO",
+        "x_range": [
+          0.6,
+          0.8
+        ],
+        "label": "Libre Elección Tope Evento",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      },
+      {
+        "column_id": "COL_LE_TOPE_ANUAL",
+        "x_range": [
+          0.8,
+          1
+        ],
+        "label": "Libre Elección Tope Anual",
+        "confidence": {
+          "geometry": 0.98,
+          "text": 0.97
+        }
+      }
+    ],
+    "rows": [
+      {
+        "row_id": "R_PLAN",
+        "y_range": [
+          0.13,
+          0.17
+        ],
+        "raw_text": "Plan   PLENO",
+        "text_hash": "h_R_PLAN"
+      },
+      {
+        "row_id": "R_PLAN_2",
+        "y_range": [
+          0.2,
+          0.24
+        ],
+        "raw_text": "PLE 847",
+        "text_hash": "h_R_PLAN_2"
+      },
+      {
+        "row_id": "R_PLAN_3",
+        "y_range": [
+          0.24,
+          0.28
+        ],
+        "raw_text": "Plan de Salud",
+        "text_hash": "h_R_PLAN_3"
+      },
+      {
+        "row_id": "R_PLAN_4",
+        "y_range": [
+          0.28,
+          0.32
+        ],
+        "raw_text": "Complementario con",
+        "text_hash": "h_R_PLAN_4"
+      },
+      {
+        "row_id": "R_PLAN_5",
+        "y_range": [
+          0.32,
+          0.36
+        ],
+        "raw_text": "Modalidad Libre Elección",
+        "text_hash": "h_R_PLAN_5"
+      },
+      {
+        "row_id": "R_PLAN_6",
+        "y_range": [
+          0.36,
+          0.4
+        ],
+        "raw_text": "Plan con cobertura reducida",
+        "text_hash": "h_R_PLAN_6"
+      },
+      {
+        "row_id": "R_PLAN_7",
+        "y_range": [
+          0.4,
+          0.44
+        ],
+        "raw_text": "En prestaciones obstétricas y de neonatología",
+        "text_hash": "h_R_PLAN_7"
+      },
+      {
+        "row_id": "R_PLAN_8",
+        "y_range": [
+          0.44,
+          0.48
+        ],
+        "raw_text": "PLENO",
+        "text_hash": "h_R_PLAN_8"
+      }
+    ],
+    "zones": [],
+    "row_groups": [],
+    "row_zone_policy": {
+      "default": "ALLOW",
+      "rules": [
+        {
+          "match": {
+            "row_id": "R_DIA_CAMA|R_UTI_UCI|R_PABELLON|R_EXAMENES|R_HONORARIOS"
+          },
+          "policy": "ALLOW"
+        },
+        {
+          "match": {
+            "row_id": "R_QUIMIO|R_RADIOTERAPIA|R_MATERIAL_CLINICO"
+          },
+          "policy": "REQUIRE"
+        }
+      ]
+    }
+  },
+  "assignments": [],
+  "warnings": [],
+  "qc_gates": {
+    "atomic_columns": "PASS",
+    "zone_type_validity": "PASS",
+    "min_confidence": "PASS",
+    "row_groups_present": "WARN",
+    "zone_application_completeness": "PASS",
+    "condition_flag_consistency": "PASS",
+    "unresolved_overlaps": "PASS",
+    "condition_atoms_present": "PASS",
+    "no_ghost_rules": "PASS",
+    "no_echo_as_final_pointer": "PASS",
+    "promoted_echo_density": "PASS",
+    "duplicate_assignment_ids": "PASS",
+    "row_id_integrity": "PASS",
+    "column_bbox_consistency": "PASS"
+  },
+  "zone_coverage_metrics": {
+    "expected_rows": 0,
+    "covered_expected_rows": 0,
+    "unexpected_zone_hits": 0,
+    "coverage_rate": 1,
+    "require_rows_present": false,
+    "require_rows_justified_absence": true
+  },
+  "quality_metrics": {
+    "laws_applied": "EXCLUSION > ACTIVE_TEXT_DIRECT > ZONE_GRAPHIC_RULE(ROW_BAND) > ZONE_GRAPHIC_RULE(RECT_FALL)",
+    "overall_status": "WARN",
+    "avg_confidence": 0.49,
+    "undetermined_count": 0,
+    "conditional_count": 0,
+    "promoted_echo_count": 0,
+    "promoted_zone_count": 0
+  }
+}
