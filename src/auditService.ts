@@ -6,16 +6,17 @@ export async function runForensicAudit(
     onUsageUpdate?: (usage: any) => void,
     onProgress?: (progress: number) => void,
     htmlContext?: string,
-    isAgentMode: boolean = false
+    isAgentMode: boolean = false,
+    previousAuditResult: any = null
 ) {
-    onLog?.(isAgentMode ? '[AuditService] 🕵️ Activando Agente de Búsqueda Forense...' : '[AuditService] 🚀 Iniciando flujo de auditoría forense...');
+    onLog?.(isAgentMode ? '[AuditService] 🕵️ Activando Agente de Búsqueda Forense (Modo Enriquecimiento)...' : '[AuditService] 🚀 Iniciando flujo de auditoría forense...');
     onProgress?.(5);
 
     try {
         const response = await fetch('/api/audit/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cuentaJson, pamJson, contratoJson, htmlContext, isAgentMode })
+            body: JSON.stringify({ cuentaJson, pamJson, contratoJson, htmlContext, isAgentMode, previousAuditResult })
         });
 
         if (!response.ok) {

@@ -37,6 +37,7 @@ export const BILL_PROMPT = `
     1. Al principio, extrae estos metadatos si están visibles (si no, usa "N/A"):
        CLINIC: [Nombre de la Clínica/Institución]
        PATIENT: [Nombre del Paciente]
+       EMAIL: [Email del Paciente/Contacto]
        INVOICE: [Número de Cuenta/Folio/Factura]
        DATE: [Fecha de la Cuenta]
        GRAND_TOTAL_BRUTO: [Valor Total Final de la Cuenta CON IVA/ISA/Impuestos - El número más alto]

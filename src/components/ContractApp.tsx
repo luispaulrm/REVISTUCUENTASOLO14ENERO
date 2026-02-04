@@ -40,6 +40,15 @@ export default function ContractApp() {
     }, [logs]);
 
     useEffect(() => {
+        const active = cacheManager.getActiveCase();
+        if (active && active.contract) {
+            setContractResult(active.contract);
+            setStatus(AppStatus.SUCCESS);
+            addLog('[SISTEMA] 📄 Contrato recuperado de memoria activa.');
+        }
+    }, []);
+
+    useEffect(() => {
         if (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) {
             if (!timerRef.current) {
                 setSeconds(0);

@@ -85,6 +85,15 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    const active = cacheManager.getActiveCase();
+    if (active && active.bill) {
+      setResult(active.bill);
+      setStatus(AppStatus.SUCCESS);
+      addLog('[SISTEMA] 📄 Cuenta recuperada de memoria activa.');
+    }
+  }, []);
+
+  useEffect(() => {
     if (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) {
       if (!timerRef.current) {
         setSeconds(0);
@@ -709,128 +718,131 @@ const App: React.FC = () => {
                 <div ref={reportRef} className="bg-white p-4 md:p-8 rounded-3xl border border-slate-200 shadow-sm print:border-none print:shadow-none">
                   <div className="border-b-2 border-slate-900 pb-6 mb-8">
                     <div className="flex justify-between items-end">
-                      <div>
-                        <h1 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter">Reporte de Auditoría Clínica</h1>
-                        <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Verificación Matemática ClinicAudit Engine</p>
-                      </div>
-                      <div className="text-right hidden sm:block">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase">Fecha de Emisión</p>
-                        <p className="text-xs font-bold text-slate-900">{new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</p>
-                      </div>
+                      <h1 className="text-2xl md:text-3xl font-black text-slate-900 uppercase tracking-tighter">Reporte de Auditoría Clínica</h1>
+                      <p className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Verificación Matemática ClinicAudit Engine</p>
+                      {result.patientEmail && result.patientEmail !== 'N/A' && (
+                        <p className="text-[10px] font-bold text-indigo-500 mt-1 uppercase tracking-widest flex items-center gap-1">
+                          <ShieldCheck size={10} /> Contacto: {result.patientEmail}
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right hidden sm:block">
+                      <p className="text-[10px] font-bold text-slate-400 uppercase">Fecha de Emisión</p>
+                      <p className="text-xs font-bold text-slate-900">{new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</p>
                     </div>
                   </div>
-
-
-                  <AuditSummary data={result} />
-
-
-
-                  {/* METRICAS DE TOKENS EN EL REPORTE (SOLO EN PDF) */}
-                  {result.usage && (
-                    <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl hidden print:block">
-                      <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Métricas de Consumo IA</h4>
-                      <div className="grid grid-cols-4 gap-4">
-                        <div>
-                          <p className="text-[8px] font-bold text-slate-400 uppercase">Input</p>
-                          <p className="text-xs font-mono font-bold text-slate-700">{result.usage.promptTokens}</p>
-                        </div>
-                        <div>
-                          <p className="text-[8px] font-bold text-slate-400 uppercase">Output</p>
-                          <p className="text-xs font-mono font-bold text-slate-700">{result.usage.candidatesTokens}</p>
-                        </div>
-                        <div>
-                          <p className="text-[8px] font-bold text-slate-400 uppercase">Total</p>
-                          <p className="text-xs font-mono font-bold text-indigo-600">{result.usage.totalTokens}</p>
-                        </div>
-                        <div>
-                          <p className="text-[8px] font-bold text-slate-400 uppercase">Costo Est.</p>
-                          <p className="text-xs font-mono font-bold text-emerald-600">
-                            ${result.usage.estimatedCostCLP} CLP <span className="text-[9px] text-slate-400">(${result.usage.estimatedCost.toFixed(4)} USD)</span>
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <ExtractionResults data={result} />
                 </div>
-              </div>
 
-              <aside className="w-full lg:w-80 space-y-6 print:hidden">
-                {/* PANEL DE METRICAS DE TOKENS (DARK MODE) */}
+
+                <AuditSummary data={result} />
+
+
+
+                {/* METRICAS DE TOKENS EN EL REPORTE (SOLO EN PDF) */}
                 {result.usage && (
-                  <div className="bg-slate-950 border border-slate-800 p-6 rounded-3xl shadow-xl">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="p-1.5 bg-slate-900 text-white rounded-lg border border-slate-800">
-                        <Zap size={14} />
+                  <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl hidden print:block">
+                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Métricas de Consumo IA</h4>
+                    <div className="grid grid-cols-4 gap-4">
+                      <div>
+                        <p className="text-[8px] font-bold text-slate-400 uppercase">Input</p>
+                        <p className="text-xs font-mono font-bold text-slate-700">{result.usage.promptTokens}</p>
                       </div>
-                      <h4 className="font-bold text-xs uppercase tracking-widest text-slate-400">Audit IA Info</h4>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 flex items-center gap-1.5"><ArrowDownLeft size={12} /> Entrada</span>
-                        <span className="font-mono font-bold text-slate-300">{result.usage.promptTokens} <span className="text-[9px] text-slate-600">TK</span></span>
+                      <div>
+                        <p className="text-[8px] font-bold text-slate-400 uppercase">Output</p>
+                        <p className="text-xs font-mono font-bold text-slate-700">{result.usage.candidatesTokens}</p>
                       </div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 flex items-center gap-1.5"><ArrowUpRight size={12} /> Salida</span>
-                        <span className="font-mono font-bold text-slate-300">{result.usage.candidatesTokens} <span className="text-[9px] text-slate-600">TK</span></span>
+                      <div>
+                        <p className="text-[8px] font-bold text-slate-400 uppercase">Total</p>
+                        <p className="text-xs font-mono font-bold text-indigo-600">{result.usage.totalTokens}</p>
                       </div>
-                      <div className="h-px bg-slate-900"></div>
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 font-bold uppercase tracking-tighter">Total Tokens</span>
-                        <span className="font-mono font-black text-white">{result.usage.totalTokens}</span>
-                      </div>
-                      <div className="mt-4 p-3 bg-black border border-slate-900 rounded-xl flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Coins size={14} className="text-slate-400" />
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Costo Análisis</span>
-                        </div>
-                        <div className="text-right">
-                          <span className="font-mono font-bold text-white text-sm block">${result.usage.estimatedCostCLP} CLP</span>
-                          <span className="font-mono text-[9px] text-slate-600 block">${result.usage.estimatedCost.toFixed(4)} USD</span>
-                        </div>
+                      <div>
+                        <p className="text-[8px] font-bold text-slate-400 uppercase">Costo Est.</p>
+                        <p className="text-xs font-mono font-bold text-emerald-600">
+                          ${result.usage.estimatedCostCLP} CLP <span className="text-[9px] text-slate-400">(${result.usage.estimatedCost.toFixed(4)} USD)</span>
+                        </p>
                       </div>
                     </div>
                   </div>
                 )}
 
-                <div className="bg-black text-white p-6 rounded-3xl shadow-xl border border-slate-900">
-                  <h4 className="font-bold text-sm uppercase tracking-widest mb-4 text-slate-400">Exportar Resultados</h4>
-                  <div className="space-y-3">
-                    <button
-                      onClick={downloadPdf}
-                      disabled={isExporting}
-                      className="w-full flex items-center justify-center gap-3 py-3 bg-white hover:bg-slate-200 text-black rounded-xl text-sm font-bold transition-all disabled:opacity-50"
-                    >
-                      {isExporting ? <Loader2 size={18} className="animate-spin" /> : <FileDown size={18} />}
-                      {isExporting ? 'DESCARGAR PDF' : 'DESCARGAR PDF'}
-                    </button>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button onClick={() => downloadFormat('json')} className="flex items-center justify-center gap-2 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-bold transition-colors border border-slate-800">
-                        <FileJson size={14} /> JSON
-                      </button>
-                      <button onClick={() => downloadFormat('md')} className="flex items-center justify-center gap-2 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-bold transition-colors border border-slate-800">
-                        <FileType size={14} /> MD
-                      </button>
+                <ExtractionResults data={result} />
+              </div>
+            </div>
+
+            <aside className="w-full lg:w-80 space-y-6 print:hidden">
+              {/* PANEL DE METRICAS DE TOKENS (DARK MODE) */}
+              {result.usage && (
+                <div className="bg-slate-950 border border-slate-800 p-6 rounded-3xl shadow-xl">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="p-1.5 bg-slate-900 text-white rounded-lg border border-slate-800">
+                      <Zap size={14} />
+                    </div>
+                    <h4 className="font-bold text-xs uppercase tracking-widest text-slate-400">Audit IA Info</h4>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-500 flex items-center gap-1.5"><ArrowDownLeft size={12} /> Entrada</span>
+                      <span className="font-mono font-bold text-slate-300">{result.usage.promptTokens} <span className="text-[9px] text-slate-600">TK</span></span>
+                    </div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-500 flex items-center gap-1.5"><ArrowUpRight size={12} /> Salida</span>
+                      <span className="font-mono font-bold text-slate-300">{result.usage.candidatesTokens} <span className="text-[9px] text-slate-600">TK</span></span>
+                    </div>
+                    <div className="h-px bg-slate-900"></div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-500 font-bold uppercase tracking-tighter">Total Tokens</span>
+                      <span className="font-mono font-black text-white">{result.usage.totalTokens}</span>
+                    </div>
+                    <div className="mt-4 p-3 bg-black border border-slate-900 rounded-xl flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Coins size={14} className="text-slate-400" />
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Costo Análisis</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-mono font-bold text-white text-sm block">${result.usage.estimatedCostCLP} CLP</span>
+                        <span className="font-mono text-[9px] text-slate-600 block">${result.usage.estimatedCost.toFixed(4)} USD</span>
+                      </div>
                     </div>
                   </div>
                 </div>
+              )}
 
-                <div className="bg-slate-50 p-4 rounded-3xl border border-slate-200">
-                  <h4 className="font-bold text-xs uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
-                    <FileText size={14} /> Documento Original
-                  </h4>
-                  <div className="aspect-[3/4] rounded-2xl bg-white overflow-hidden border border-slate-200 flex items-center justify-center group relative cursor-zoom-in">
-                    {filePreview ? (
-                      <img src={filePreview} alt="Original" className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform" />
-                    ) : (
-                      <span className="text-slate-300 text-xs italic">Sin vista previa</span>
-                    )}
+              <div className="bg-black text-white p-6 rounded-3xl shadow-xl border border-slate-900">
+                <h4 className="font-bold text-sm uppercase tracking-widest mb-4 text-slate-400">Exportar Resultados</h4>
+                <div className="space-y-3">
+                  <button
+                    onClick={downloadPdf}
+                    disabled={isExporting}
+                    className="w-full flex items-center justify-center gap-3 py-3 bg-white hover:bg-slate-200 text-black rounded-xl text-sm font-bold transition-all disabled:opacity-50"
+                  >
+                    {isExporting ? <Loader2 size={18} className="animate-spin" /> : <FileDown size={18} />}
+                    {isExporting ? 'DESCARGAR PDF' : 'DESCARGAR PDF'}
+                  </button>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={() => downloadFormat('json')} className="flex items-center justify-center gap-2 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-bold transition-colors border border-slate-800">
+                      <FileJson size={14} /> JSON
+                    </button>
+                    <button onClick={() => downloadFormat('md')} className="flex items-center justify-center gap-2 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-xl text-[10px] font-bold transition-colors border border-slate-800">
+                      <FileType size={14} /> MD
+                    </button>
                   </div>
                 </div>
-              </aside>
-            </div>
+              </div>
+
+              <div className="bg-slate-50 p-4 rounded-3xl border border-slate-200">
+                <h4 className="font-bold text-xs uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-2">
+                  <FileText size={14} /> Documento Original
+                </h4>
+                <div className="aspect-[3/4] rounded-2xl bg-white overflow-hidden border border-slate-200 flex items-center justify-center group relative cursor-zoom-in">
+                  {filePreview ? (
+                    <img src={filePreview} alt="Original" className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform" />
+                  ) : (
+                    <span className="text-slate-300 text-xs italic">Sin vista previa</span>
+                  )}
+                </div>
+              </div>
+            </aside>
           </div>
         )}
       </main>

@@ -7,7 +7,7 @@ import multer from 'multer';
 import { fileURLToPath } from 'url';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GeminiService } from './services/gemini.service.js';
-import { performForensicAudit, finalizeAudit, reconcileNutritionCharges } from './services/auditEngine.service.js';
+import { performForensicAudit } from './services/auditEngine.service.js';
 import { classifyBillingModel } from './services/billingModelClassifier.service.js';
 import { ParserService } from "./services/parser.service.js";
 import { AI_CONFIG, GENERATION_CONFIG } from "./config/ai.config.js";
@@ -109,6 +109,7 @@ const billingSchema = {
     properties: {
         clinicName: { type: "string" },
         patientName: { type: "string" },
+        patientEmail: { type: "string" },
         invoiceNumber: { type: "string" },
         date: { type: "string" },
         currency: { type: "string", description: "Currency symbol or code, e.g., CLP" },
@@ -444,6 +445,7 @@ app.post('/api/extract', async (req, res) => {
         let clinicGrandTotalField = 0;
         let clinicName = "CLINICA INDISA";
         let patientName = "PACIENTE AUDITORIA";
+        let patientEmail = "N/A";
         let invoiceNumber = "000000";
         let billingDate = new Date().toLocaleDateString('es-CL');
 
@@ -547,6 +549,10 @@ app.post('/api/extract', async (req, res) => {
             }
             if (line.startsWith('PATIENT:')) {
                 patientName = line.replace('PATIENT:', '').trim();
+                continue;
+            }
+            if (line.startsWith('EMAIL:')) {
+                patientEmail = line.replace('EMAIL:', '').trim();
                 continue;
             }
             if (line.startsWith('INVOICE:')) {
@@ -1132,6 +1138,7 @@ app.post('/api/extract', async (req, res) => {
         const auditData = {
             clinicName: clinicName,
             patientName: patientName,
+            patientEmail: patientEmail,
             invoiceNumber: invoiceNumber,
             date: billingDate,
             currency: "CLP",

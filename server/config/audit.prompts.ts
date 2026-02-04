@@ -687,7 +687,7 @@ export const FORENSIC_AUDIT_SCHEMA = {
     },
     auditoriaFinalMarkdown: {
       type: Type.STRING,
-      description: "Informe de auditoría final (Estilo Jurídico-Forense Hybrid). ESTRUCTURA OBLIGATORIA:\n1. Resumen Ejecutivo (Narrativa dura sobre Opacidad y Ley 20.584, sin prometer montos inciertos).\n2. Hallazgo Principal Estructural (Foco en imposibilidad de validación PAM).\n3. Hallazgos Específicos (Solo si Cat A o B sólido).\n4. Tablas de Trazabilidad (Markdown Table para Materiales/Meds mostrando la discrepancia de detalle).\n5. Conclusión (Impugnación parcial o solicitud de desglose)."
+      description: "Informe de auditoría final (Estilo Jurídico-Forense Hybrid). ESTRUCTURA OBLIGATORIA:\n1. 🔍 Detalle 'Para Abajo' (Rubro por Rubro): Resumen técnico con montos agrupados por categoría (I. Fragmentación, II. Insumos Recuperados, III. Incumplimiento Contractual, IV. Otros/Urgencia) y la suma total.\n2. Resumen Ejecutivo (Narrativa dura sobre Opacidad y Ley 20.584, sin prometer montos inciertos).\n3. Hallazgo Principal Estructural (Foco en imposibilidad de validación PAM).\n4. Hallazgos Específicos (Solo si Cat A o B sólido).\n5. Tablas de Trazabilidad (Markdown Table para Materiales/Meds mostrando la discrepancia de detalle).\n6. Conclusión (Impugnación parcial o solicitud de desglose)."
     }
   },
   required: ['decisionGlobal', 'resumenEjecutivo', 'resumenFinanciero', 'eventos_hospitalarios', 'bitacoraAnalisis', 'hallazgos', 'totalAhorroDetectado', 'valorUnidadReferencia', 'antecedentes', 'requiereRevisionHumana', 'auditoriaFinalMarkdown'],

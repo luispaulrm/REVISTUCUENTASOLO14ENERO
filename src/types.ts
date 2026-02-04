@@ -67,6 +67,7 @@ export interface UsageMetrics {
 export interface ExtractedAccount {
   clinicName: string;
   patientName: string;
+  patientEmail?: string;
   invoiceNumber: string;
   date: string;
   sections: BillingSection[];

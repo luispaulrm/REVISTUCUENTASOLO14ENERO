@@ -15,7 +15,7 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
     };
 
     try {
-        const { cuentaJson, pamJson, contratoJson, htmlContext, isAgentMode } = req.body;
+        const { cuentaJson, pamJson, contratoJson, htmlContext, isAgentMode, previousAuditResult } = req.body;
 
         if ((!cuentaJson && !htmlContext) || !pamJson || !contratoJson) {
             sendUpdate({ type: 'error', message: 'Missing required data (Cuenta/HTML, PAM or Contrato)' });
@@ -61,7 +61,8 @@ export async function handleAuditAnalysis(req: Request, res: Response) {
             },
             // onProgressUpdate
             (prog) => sendUpdate({ type: 'progress', progress: prog }),
-            isAgentMode
+            isAgentMode,
+            previousAuditResult
         );
 
         sendUpdate({ type: 'progress', progress: 95 });

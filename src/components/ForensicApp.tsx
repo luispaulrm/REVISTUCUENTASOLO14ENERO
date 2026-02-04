@@ -304,23 +304,23 @@ export default function ForensicApp() {
         setProgress(0);
 
         const steps = [
-            "Sincronización de Fuentes (Cuenta + PAM + Contrato)",
-            "Validación de Identidad de Paciente y Prestador",
-            "Mapeo de Ítems de Cuenta a Glosas PAM",
-            "Detección de Omisiones en Bonificación",
-            "Análisis de Desagregación (Circular IF/176)",
-            "Auditoría de Insumos y Materiales Críticos",
-            "Verificación de Reglas 'Plan Pleno' (100% Cobertura)",
-            "Identificación de Copagos Indebidos en Categoría 'OK'",
-            "Detección de Hotel no Solicitado Expresamente",
-            "Cálculo de Topes Anuales NFE",
-            "Resolución de Jurisprudencia SIS",
-            "Validación de Unidades de Referencia (AC2/VAM)",
-            "Re-categorización Determinística de Hallazgos",
-            "Prueba de Aritmética Forense (Total vs Calculado)",
-            "Búsqueda de Hallazgos Opacos (Categoría Z)",
-            "Cuantificación de Ahorro Neto Recuperable",
-            "Generación de Reporte Estratégico Final"
+            "Buscando el desglose detallado de los ítems residuales en los reportes forenses.",
+            "Leyendo el paquete de auditoría del Plan Pleno para extraer el desglose de ítems OK.",
+            "Buscando en los reportes del agente forense para identificar la composición del saldo OK.",
+            "Buscando reportes específicos del contrato PLE847 en los informes forenses.",
+            "Extrayendo la información financiera del contrato PLE847.",
+            "Buscando el contrato 'PLAN PLENO' en los reportes forenses.",
+            "Revisando los resultados de la prueba de auditoría para identificar los ítems OK.",
+            "Revisa el resultado canónico específico para PLE847.",
+            "Intentando leer el archivo de auditoría forense descargado por el usuario.",
+            "Escaneando las secciones de la cuenta clínica para encontrar ítems con copago residual.",
+            "Buscando el bloque de datos del PAM dentro del JSON para verificar los montos de cada línea.",
+            "Buscando códigos específicos del PAM para localizar el desglose de prestaciones aseguradas.",
+            "Buscando la clave 'PAM_1_0_26' para encontrar el objeto de datos del PAM.",
+            "Lee la sección final del archivo JSON para encontrar el desglose completo de la auditoría.",
+            "Extrae todos los ítems de la cuenta con copago para identificar el 100% de los cargos.",
+            "Buscando coincidencias de montos para el saldo de $30.881 en la cuenta clínica.",
+            "Actualizando el informe para incluir el desglose del saldo residual como impugnable."
         ].map((label, i) => ({ id: i + 1, label, status: 'PENDING' as const }));
 
         setAgentSteps(steps);
@@ -350,7 +350,7 @@ export default function ForensicApp() {
                 setProgress(Math.round(((i + 1) / steps.length) * 90));
             }
 
-            // Final call to the enhanced engine with isAgentMode: true
+            // Final call to the enhanced engine with isAgentMode: true and previous result
             const result = await runForensicAudit(
                 cuenta,
                 pam,
@@ -359,7 +359,8 @@ export default function ForensicApp() {
                 (usage) => setRealTimeUsage(usage),
                 (prog) => { }, // progress managed by steps
                 htmlContext,
-                true // isAgentMode
+                true, // isAgentMode
+                auditResult // previous audit result for enrichment
             );
 
             setAuditResult(result);

@@ -55,10 +55,17 @@ export default function PAMApp() {
                 setStatus(AppStatus.ERROR);
             }
         };
-
         window.addEventListener('error', handleError);
         return () => window.removeEventListener('error', handleError);
-        return () => window.removeEventListener('error', handleError);
+    }, []);
+
+    useEffect(() => {
+        const active = cacheManager.getActiveCase();
+        if (active && active.pam) {
+            setPamResult(active.pam);
+            setStatus(AppStatus.SUCCESS);
+            addLog('[SISTEMA] 📄 PAM recuperado de memoria activa.');
+        }
     }, []);
 
     useEffect(() => {
@@ -75,8 +82,6 @@ export default function PAMApp() {
             logEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [logs]);
-
-
 
     useEffect(() => {
         if (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) {

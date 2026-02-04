@@ -15,56 +15,66 @@ export interface ForensicCase {
     }
 }
 
-const CACHE_KEY = 'forensic_cases_history';
+const CACHE_KEY = 'forensic_active_case';
 
 export const cacheManager = {
-    getAllCases(): ForensicCase[] {
+    getActiveCase(): ForensicCase | null {
         try {
             const data = localStorage.getItem(CACHE_KEY);
-            return data ? JSON.parse(data) : [];
+            return data ? JSON.parse(data) : null;
         } catch (e) {
-            console.error('Failed to get cases from cache', e);
-            return [];
+            console.error('Failed to get active case from cache', e);
+            return null;
         }
+    },
+
+    getAllCases(): ForensicCase[] {
+        const active = this.getActiveCase();
+        return active ? [active] : [];
     },
 
     saveCase(forensicCase: Partial<ForensicCase>) {
-        const cases = this.getAllCases();
-        const existingIndex = cases.findIndex(c => c.id === forensicCase.id);
+        try {
+            const current = this.getActiveCase();
 
-        const newCase: ForensicCase = {
-            id: forensicCase.id || crypto.randomUUID(),
-            timestamp: Date.now(),
-            fingerprints: {},
-            ...((existingIndex >= 0) ? cases[existingIndex] : {}),
-            ...forensicCase
-        };
+            const newCase: ForensicCase = {
+                ...(current || {}),
+                id: forensicCase.id || (current ? current.id : crypto.randomUUID()),
+                timestamp: Date.now(),
+                ...forensicCase,
+                fingerprints: {
+                    ...(current ? current.fingerprints : {}),
+                    ...(forensicCase.fingerprints || {})
+                }
+            };
 
-        if (existingIndex >= 0) {
-            cases[existingIndex] = newCase;
-        } else {
-            cases.unshift(newCase);
+            localStorage.setItem(CACHE_KEY, JSON.stringify(newCase));
+        } catch (e) {
+            console.error('Failed to save case to cache', e);
         }
-
-        // Keep last 10 cases to avoid localStorage limit issues
-        const limitedCases = cases.slice(0, 10);
-        localStorage.setItem(CACHE_KEY, JSON.stringify(limitedCases));
     },
 
     getCaseByFingerprint(type: 'bill' | 'pam' | 'contract', name: string, size: number): ForensicCase | null {
-        const cases = this.getAllCases();
-        return cases.find(c => {
-            const fp = c.fingerprints[type];
-            return fp && fp.name === name && fp.size === size;
-        }) || null;
+        const active = this.getActiveCase();
+        if (!active) return null;
+
+        const fp = active.fingerprints[type];
+        if (fp && fp.name === name && fp.size === size) {
+            return active;
+        }
+        return null;
     },
 
     deleteCase(id: string) {
-        const cases = this.getAllCases().filter(c => c.id !== id);
-        localStorage.setItem(CACHE_KEY, JSON.stringify(cases));
+        localStorage.removeItem(CACHE_KEY);
     },
 
     clearAll() {
         localStorage.removeItem(CACHE_KEY);
+        localStorage.removeItem('clinic_audit_result');
+        localStorage.removeItem('clinic_audit_file_fingerprint');
+        localStorage.removeItem('pam_audit_result');
+        localStorage.removeItem('contract_audit_result');
+        localStorage.removeItem('forensic_active_case_id');
     }
 };

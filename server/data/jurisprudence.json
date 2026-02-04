@@ -1309,8 +1309,278 @@
           "label": "PAM line: UNKNOWN"
         }
       ]
+    },
+    {
+      "id": "P_04427cd4_d662add7_ES_HOTELERIA",
+      "createdAt": "2026-02-04T18:33:27.765Z",
+      "updatedAt": "2026-02-04T18:33:27.765Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "d662add743f32823f59e7893fa9f26f11f4bf28d",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.9
+      },
+      "rationale": "Precedente autom�tico: DIA CAMA DE HOSPITALIZACIÓN INTEGRAL CUIDADOS MEDI ",
+      "tags": [
+        "ES_HOTELERIA",
+        "HOTELERIA_INDIVIDUALIZADA",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS",
+        "OPACIDAD_ESTRUCTURAL"
+      ],
+      "guards": {
+        "requires": [
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 0201101"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_0056dfde_BONIF_0",
+      "createdAt": "2026-02-04T18:33:27.776Z",
+      "updatedAt": "2026-02-04T18:33:27.776Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "0056dfde90f0c857ebf8be4104e71c9ddeaebd41",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente autom�tico: MEDICAMENTOS CLINICOS EN HOSPITALIZACION ",
+      "tags": [
+        "BONIF_0",
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "MED_OR_INS",
+        "ES_MED_HOSP"
+      ],
+      "guards": {
+        "requires": [
+          "BONIF_0",
+          "MED_OR_INS",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 3101001"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_2e52984e_BONIF_0",
+      "createdAt": "2026-02-04T18:33:27.785Z",
+      "updatedAt": "2026-02-04T18:33:27.785Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "2e52984e9246e0a1016891a797e6f6587878bb80",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente autom�tico: MATERIALES CLINICOS EN HOSPITALIZACION ",
+      "tags": [
+        "BONIF_0",
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS"
+      ],
+      "guards": {
+        "requires": [
+          "BONIF_0",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 3101002"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_c6de828a_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-02-04T19:57:03.204Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_fcf86a74_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-02-04T19:57:03.209Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "fcf86a74b7673f1f948717bc212f7a375bef9b59",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_b8314402_H_PRACTICA_IRREGULAR",
+      "createdAt": "",
+      "updatedAt": "2026-02-04T19:54:19.030Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona el cobro separado de 'Instalación de Vía Venosa' y 'Fleboclisis' por un monto total de $66.942, cargados íntegramente al copago del afiliado.\n\n**II. Contexto clínico y administrativo**\nEstos cobros se generan durante una hospitalización donde ya se ha facturado el 'Día Cama de Hospitalización Integral' (Código 0201101).\n\n**III. Norma contractual aplicable**\nLa definición de 'Día Cama' en la normativa Fonasa/Isapre (MLE) incluye los cuidados básicos de enfermería, la administración de medicamentos y la instalación de vías venosas periféricas como parte integral de la prestación de hotelería clínica.\n\n**IV. Forma en que se materializa la controversia**\nEl prestador ha incurrido en **UNBUNDLING (FRAGMENTACIÓN)**, desagregando prestaciones que son componentes constitutivos del Día Cama para cobrarlas adicionalmente.\n\n**V. Análisis técnico-contractual**\nLa Isapre rechazó correctamente la bonificación de estos ítems (Bonificación $0 en PAM), reconociendo implícitamente que no corresponde su pago adicional. Sin embargo, el costo fue traspasado indebidamente al afiliado como 'Gasto No Cubierto' o 'Prestación No Arancelada'.\n\n**VI. Efecto económico concreto**\nEl afiliado enfrenta un copago improcedente de $66.942.\n\n**VII. Conclusión de la impugnación**\nEl cobro es improcedente por duplicidad. El prestador debe anular estos cargos ya que están pagados dentro del valor del Día Cama.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen (Cuenta) | Cód | Descripción Ítem | Cant | P. Unit | Total |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| OTROS PROC.DIAG. | 99-00-028 | INSTALACION DE VIA VENOSA | 1 | $23.985 | $23.985 |\n| OTROS PROC.DIAG. | 99-00-045 | FLEBOCLISIS | 1 | $42.957 | $42.957 |\n| **TOTAL** | | **MONTO OBJETADO** | | | **$66.942** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_0eceb786_H_PRACTICA_IRREGULAR",
+      "createdAt": "",
+      "updatedAt": "2026-02-04T18:58:48.299Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "0eceb786136872c2302bbbd3ce4f3f7e869e41f4",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestionan cobros por insumos de hotelería y confort personal facturados en la cuenta clínica por un monto de $29.636.\n\n**II. Contexto clínico y administrativo**\nEstos ítems aparecen en la sección de 'Insumos' y 'Kardex' de la cuenta clínica.\n\n**III. Norma contractual aplicable**\nEl contrato de salud cubre prestaciones médicas. Los artículos de aseo personal y confort no constituyen prestaciones médicas y, salvo solicitud expresa del paciente, se entienden incluidos en el costo hotelero del día cama.\n\n**IV. Forma en que se materializa la controversia**\nSe están cobrando termómetros digitales (que son equipamiento reutilizable o de bajo costo incluido), set de aseo y ropa interior clínica. Estos cobros carecen de fundamento clínico directo.\n\n**V. Análisis técnico-contractual**\nEl cobro de 'Termómetro Digital' ($8.605 c/u) es especialmente irregular, ya que la medición de temperatura es parte de los signos vitales (enfermería) y el equipo es activo fijo de la clínica, no un insumo vendible al paciente por evento.\n\n**VI. Efecto económico concreto**\nEl paciente paga $29.636 por ítems que no son prestaciones de salud.\n\n**VII. Conclusión de la impugnación**\nCobro improcedente por corresponder a hotelería no clínica o equipamiento propio del prestador.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen (Cuenta) | Cód | Descripción Ítem | Cant | P. Unit | Total |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| INSUMOS | 22120024 | SET DE ASEO PERSONAL ADULTO | 1 | $10.785 | $10.785 |\n| INSUMOS | 22100039 | CALZON CLINICO | 1 | $1.641 | $1.641 |\n| INSUMOS KARDEX | 22100235 | TERMOMETRO DIGITAL CON LOGO | 2 | $8.605 | $17.210 |\n| **TOTAL** | | **MONTO OBJETADO** | | | **$29.636** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_c6de828a_H_PRACTICA_IRREGULAR",
+      "createdAt": "",
+      "updatedAt": "2026-02-04T19:54:19.034Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestionan los copagos generados en las líneas de 'Medicamentos Clínicos' ($134.100) y 'Materiales Clínicos' ($32.716).\n\n**II. Contexto clínico y administrativo**\nEl paciente cuenta con un plan de salud que otorga **100% de cobertura** para Medicamentos y Materiales por evento durante la hospitalización.\n\n**III. Norma contractual aplicable**\nEl contrato establece cobertura preferente del 100% sin tope explícito visible en el PAM para estos ítems en modalidad hospitalaria.\n\n**IV. Forma en que se materializa la controversia**\nExiste una **OPACIDAD ESTRUCTURAL**. El PAM muestra montos rechazados (Bonificación $0) sin explicar la causa (tope, exclusión, etc.) y sin desglosar qué ítems específicos fueron rechazados.\n\n**V. Análisis técnico-contractual**\nAl no existir desglose, es imposible verificar si el rechazo se debe a un tope legítimo o a un error de liquidación. Además, la cuenta clínica contiene ítems de alto valor (ej: Sugammadex $240.713, Sevoflurane $177.680) que podrían estar siendo parcialmente cubiertos o rechazados arbitrariamente.\n\n**VI. Efecto económico concreto**\nCopago bajo controversia de $166.816.\n\n**VII. Conclusión de la impugnación**\nSe solicita aclaración detallada del motivo del copago frente a la cobertura del 100% contractual.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Folio PAM | Código | Descripción | Bonif Isapre | Copago (Monto) |\n|-----------|--------|-------------|--------------|----------------|\n| 7000355688 | 3101001 | MEDICAMENTOS CLINICOS | $0 | $134.100 |\n| 7000355688 | 3101002 | MATERIALES CLINICOS | $0 | $32.716 |\n| **TOTAL** | | **BAJO CONTROVERSIA** | | **$166.816** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_b8314402_H_UNBUNDLING_IF319",
+      "createdAt": "",
+      "updatedAt": "2026-02-04T19:57:03.211Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona el cobro separado de 'Instalación de Vía Venosa' y 'Fleboclisis' por un monto total de $66.942, cargados íntegramente al copago del afiliado.\n\n**II. Contexto clínico y administrativo**\nEstos cobros se generan durante una hospitalización donde ya se ha facturado el 'Día Cama de Hospitalización Integral' (Código 0201101).\n\n**III. Norma contractual aplicable**\nLa definición de 'Día Cama' en la normativa Fonasa/Isapre (MLE) incluye los cuidados básicos de enfermería, la administración de medicamentos y la instalación de vías venosas periféricas como parte integral de la prestación de hotelería clínica.\n\n**IV. Forma en que se materializa la controversia**\nEl prestador ha incurrido en **UNBUNDLING (FRAGMENTACIÓN)**, desagregando prestaciones que son componentes constitutivos del Día Cama para cobrarlas adicionalmente.\n\n**V. Análisis técnico-contractual**\nLa Isapre rechazó correctamente la bonificación de estos ítems (Bonificación $0 en PAM), reconociendo implícitamente que no corresponde su pago adicional. Sin embargo, el costo fue traspasado indebidamente al afiliado como 'Gasto No Cubierto' o 'Prestación No Arancelada'.\n\n**VI. Efecto económico concreto**\nEl afiliado enfrenta un copago improcedente de $66.942.\n\n**VII. Conclusión de la impugnación**\nEl cobro es improcedente por duplicidad. El prestador debe anular estos cargos ya que están pagados dentro del valor del Día Cama.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen (Cuenta) | Cód | Descripción Ítem | Cant | P. Unit | Total |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| OTROS PROC.DIAG. | 99-00-028 | INSTALACION DE VIA VENOSA | 1 | $23.985 | $23.985 |\n| OTROS PROC.DIAG. | 99-00-045 | FLEBOCLISIS | 1 | $42.957 | $42.957 |\n| **TOTAL** | | **MONTO OBJETADO** | | | **$66.942** |\n[FORENSE] VALOR DE UNIDAD DEDUCIDO (VA): $38.000 (RTC NORM).\n[FORENSE] VALOR DE UNIDAD DEDUCIDO (VA): $38.000 (RTC NORM).",
+      "tags": [
+        "H_UNBUNDLING_IF319"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_04427cd4_b8314402_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "2026-02-04T19:57:03.216Z",
+      "updatedAt": "2026-02-04T19:57:03.216Z",
+      "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona el ítem 'Gastos No Cubiertos' por un monto de $197.697.\n\n**II. Contexto clínico y administrativo**\nEste ítem agrupa cargos rechazados por la Isapre sin identificación clara en el PAM.\n\n**III. Norma contractual aplicable**\nLas exclusiones deben ser explícitas y taxativas.\n\n**IV. Forma en que se materializa la controversia**\nLa cuenta clínica revela la existencia de ítems de **HOTELERÍA Y CONFORT** (Set de Aseo, Calzón Clínico, Termómetros) por un valor aprox. de $30.000, que no constituyen prestaciones médicas. Es altamente probable que estos ítems estén ocultos dentro de este cobro genérico, junto con otros insumos no detallados.\n\n**V. Análisis técnico-contractual**\nEl cobro de elementos de confort personal sin consentimiento explícito y su mezcla con insumos clínicos en una glosa genérica vulnera el derecho a la información y transparencia.\n\n**VI. Efecto económico concreto**\nCopago de $197.697 sin respaldo técnico verificable.\n\n**VII. Conclusión de la impugnación**\nSe impugna el total por falta de desglose y presencia confirmada de cobros improcedentes (hotelería) en la cuenta origen.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen (Cuenta) | Descripción Ítem (Ejemplos Contaminantes) | Cant | Total |\n| :--- | :--- | :---: | :---: |\n| INSUMOS | SET DE ASEO PERSONAL ADULTO | 1 | $10.785 |\n| INSUMOS | CALZON CLINICO | 1 | $1.641 |\n| INSUMOS KARDEX | TERMOMETRO DIGITAL | 1 | $8.605 |\n| PAM (GENÉRICO) | GASTOS NO CUBIERTOS (TOTAL) | 1 | $197.697 |\n| **TOTAL** | **MONTO OBJETADO (TOTAL PAM)** | | **$197.697** |\n[FORENSE] VALOR DE UNIDAD DEDUCIDO (VA): $38.000 (RTC NORM).\n\n### RECONSTRUCCIÓN FORENSE (CIERRE MATEMÁTICO EXACTO)\nEl monto clasificado como 'GASTOS NO CUBIERTOS (CONTAMINACIÓN CON HOTELERÍA)' se explica matemáticamente por la agregación de ítems de la cuenta clínica. CIERRE MATEMÁTICO EXACTO (MONTO BRUTO): Se identificaron 13 ítems cuyo valor total suma exactamente $197.697. Status: COBRO_ENCUBIERTO_IDENTIFICADO.\n\n**Explicación para el paciente:** Detectamos que este cargo coincide con materiales e insumos de su hospitalización que carecen de detalle. Esto sugiere cobros redundantes o falta de transparencia.\n\n| Zona | Familia | Item Detalle | Monto | Norma Aplicable |\n| :--- | :--- | :--- | :--- | :--- |\n| OTROS | INSUMOS_MATERIALES | HISTOQUIMICA 08-01-005-01 | $70.780 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| OTROS | MEDICAMENTOS | CEFTRIAXONA 1G (ACANTEX) 11010004 | $51.294 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| OTROS | INSUMOS_MATERIALES | PARACETAMOL 1G/100ML 11090449 | $31.148 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| OTROS | MEDICAMENTOS | KETOPROFENO 100MG EV 11010052 | $20.268 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| OTROS | MEDICAMENTOS | METRONIDAZOL 500 MG. INYECTABLE 11030006 | $9.174 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| OTROS | INSUMOS_MATERIALES | AQUAPACK 340 C/ADAP HUMIDIFICADOR 22100284 | $5.495 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| OTROS | INSUMOS_MATERIALES | BIGOTERA ADULTO 22070018 | $4.034 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| URGENCIA | INSUMOS_MATERIALES | ESPONJA CON JABON NEUTRO 22100115 | $2.105 | PRÁCTICA IRREGULAR #4: Cobro de hotelería no clínica como si fuera atención médica.\n• PERSPECTIVA CLÍNICA: Artículos de aseo personal, ropa de cama adicional o entretenimiento no constituyen prestaciones de salud para la recuperación.\n• PERSPECTIVA LEGAL: Criterio SIS/Superintendencia: Insumos de confort personal deben ser informados como opcionales y no se bonifican como gasto médico.\n• PERSPECTIVA FINANCIERA: Facturar estos ítems bajo códigos médicos 'camufla' gastos personales como costos de salud, vulnerando la transparencia debida al paciente. |\n| OTROS | INSUMOS_MATERIALES | BRANULA VIALON 20GX1.16 22040918 | $872 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| PABELLON | INSUMOS_MATERIALES | EQUIPO FLEBOCLISIS REF 22040113 | $729 | PRÁCTICA IRREGULAR #5: Cobro de enfermería básica ya incluida en el Día Cama.\n• PERSPECTIVA CLÍNICA: Procedimientos como instalación de vías y control de signos vitales son inherentes al cuidado continuo de enfermería.\n• PERSPECTIVA LEGAL: Circular IF-319 y aranceles institucionales establecen que estas prestaciones forman parte del valor integral del Día Cama.\n• PERSPECTIVA FINANCIERA: La fragmentación genera un doble cobro duplicado, trasladando al paciente un costo que ya ha sido cubierto por el beneficio de hospitalización. |\n| OTROS | INSUMOS_MATERIALES | BANDEJA ALUSA ESTERIL 22200082 | $633 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| OTROS | INSUMOS_MATERIALES | LIGADURA LIBRE DE LATEX 22100325 | $614 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n| OTROS | INSUMOS_MATERIALES | JERINGA 10 cc. LUER LOCK 22040406 | $551 | PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa. |\n\n\n**Conclusión:** Se impugna por haber identificado los ítems exactos que componen el cobro opaco, confirmando que se trata de cobros redundantes o no detallados ante la Isapre.\n[FORENSE] VALOR DE UNIDAD DEDUCIDO (VA): $38.000 (RTC NORM).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
     }
   ],
   "version": "1.0.0",
-  "lastUpdated": "2026-02-04T13:18:06.902Z"
+  "lastUpdated": "2026-02-04T19:57:03.216Z"
 }
