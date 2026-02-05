@@ -1,33 +1,33 @@
-﻿import { CANONICAL_MANDATE_TEXT } from '../data/canonical_contract_mandate.js';
+﻿import { CANONICAL_MANDATE_TEXT } from '../data/canonical_contract_mandate.ts';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GeminiService } from './gemini.service.js';
-import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.js';
-import { AI_MODELS, GENERATION_CONFIG } from '../config/ai.config.js';
+import { GeminiService } from './gemini.service.ts';
+import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.ts';
+import { AI_MODELS, GENERATION_CONFIG } from '../config/ai.config.ts';
 import {
     extractCaseKeywords,
     getRelevantKnowledge,
     loadHoteleriaRules,
     getKnowledgeFilterInfo
-} from './knowledgeFilter.service.js';
-import { preProcessEventos } from './eventProcessor.service.js';
-import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEngine.service.js';
+} from './knowledgeFilter.service.ts';
+import { preProcessEventos } from './eventProcessor.service.ts';
+import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEngine.service.ts';
 // NEW: Import Hypothesis Router (V5 Architecture)
-import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRouter.service.js';
+import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRouter.service.ts';
 // NEW: Import Balance Calculator (V5 Hypothesis-Aware)
-import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.service.js';
-import { AlphaFoldService } from './alphaFold.service.js';
+import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.service.ts';
+import { AlphaFoldService } from './alphaFold.service.ts';
 // NEW: Contract Reconstructibility Service (CRC)
-import { ContractReconstructibilityService } from './contractReconstructibility.service.js';
-import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation, ExtractedAccount, EventoHospitalario } from '../../src/types.js';
-import { UnidadReferencia } from './financialValidator.service.js';
+import { ContractReconstructibilityService } from './contractReconstructibility.service.ts';
+import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation, ExtractedAccount, EventoHospitalario } from '../../src/types.ts';
+import { UnidadReferencia } from './financialValidator.service.ts';
 
 // NEW: Import Jurisprudence Layer (Precedent-First Decision System)
-import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAudit } from './jurisprudence/index.js';
+import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAudit } from './jurisprudence/index.ts';
 // NEW: Import C-NC Rules (Opacity Non-Collapse)
-import { generateNonCollapseText, RULE_C_NC_01, RULE_C_NC_02, RULE_C_NC_03, CANONICAL_NON_COLLAPSE_TEXT, findMatchingDoctrine } from './jurisprudence/jurisprudence.doctrine.js';
-import { reconstructAllOpaque } from './reconstruction.service.js';
+import { generateNonCollapseText, RULE_C_NC_01, RULE_C_NC_02, RULE_C_NC_03, CANONICAL_NON_COLLAPSE_TEXT, findMatchingDoctrine } from './jurisprudence/jurisprudence.doctrine.ts';
+import { reconstructAllOpaque } from './reconstruction.service.ts';
 import { resolveFonasaCode, resolveByDescription } from './codeResolver.service.ts';
-import { ITERATIVE_FORENSIC_MANDATE, FORENSIC_PATCH_SCHEMA } from '../config/iterative_agent.prompt.js';
+import { ITERATIVE_FORENSIC_MANDATE, FORENSIC_PATCH_SCHEMA } from '../config/iterative_agent.prompt.ts';
 
 // ============================================================================
 // TYPES: Deterministic Classification Model
@@ -109,17 +109,40 @@ function unidadVerificableParaFinding(
     return { ok: true };
 }
 
-export type PromotionEvidence = {
-    pattern_repetition_count: number; // >=2
+// --- Expert Refinement V6.2: Unit Dependency Model ---
+type UnitDependency = "REQUIERE" | "NO_REQUIERE";
+
+function getUnitDependency(f: Finding): UnitDependency {
+    const label = (f.label || "").toUpperCase();
+    const rationale = (f.rationale || "").toUpperCase();
+
+    // REQUIERE: Tope, techo, UF, VAM, AC2, prorrateo, valorización
+    const isMathDependent = /TOPE|TECHO|UF|VAM|AC2|PRORRATEO|VALORIZACION/i.test(label + rationale);
+
+    // NO_REQUIERE: Unbundling (Basado en coexistencia e itemización, no en unidad valor)
+    const isUnbundling = /UNBUNDLING|FRAGMENTACION|FRAGMENTADO|INCOMPATIBILIDAD/i.test(label + rationale);
+
+    if (isMathDependent && !isUnbundling) return "REQUIERE";
+    return "NO_REQUIERE";
+}
+
+export interface PromotionEvidence {
+    pattern_repetition_count: number;
+    pattern_scope: "MISMO_EVENTO" | "MULTI_EVENTO";
     contract_clause_support: boolean;
     jurisprudence_support: boolean;
-    cross_event_confirmation?: boolean;
-};
+}
 
 function canPromoteBtoA(ev: PromotionEvidence): boolean {
     if (ev.pattern_repetition_count < 2) return false;
-    if (!(ev.contract_clause_support || ev.jurisprudence_support)) return false;
-    return true;
+
+    if (ev.pattern_scope === "MISMO_EVENTO") {
+        // Strict: Repetition in a single event needs jurisprudence anchor
+        return ev.jurisprudence_support === true;
+    } else {
+        // Multi-event pattern is stronger: clause OR jurisprudence is enough
+        return ev.contract_clause_support || ev.jurisprudence_support;
+    }
 }
 
 // ============================================================================
@@ -557,10 +580,9 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
     const isIndeterminateText = /INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584/i.test(upperRationale);
     const isOpacity = isOpacityFinding(f);
 
-    // V6.1: Unit Verifiability Guard (Forzar Z if depends on unit but unit is not verifiable)
-    // Rule: tope, valorización, prorrateo depend on unit.
-    const dependsOnUnit = /TOPE|VALORIZACION|PRORRATEO|VAM|AC2/i.test(upperRationale) || /TOPE|VALORIZACION|PRORRATEO/i.test((f.label || "").toUpperCase());
-    if (dependsOnUnit && !/MAPPING|REGLA_C_NC/i.test(upperRationale)) {
+    // V6.1/V6.2: Unit Verifiability Guard (Forzar Z if depends on unit but unit is not verifiable)
+    const dependency = getUnitDependency(f);
+    if (dependency === "REQUIERE") {
         const eventWithFinance = eventos.find(e => e.analisis_financiero);
         // Proxy check using the first usable event
         const unidadProxy: any = eventWithFinance?.analisis_financiero ? {
@@ -587,10 +609,11 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
     if (f.category === "A" && amount > 0) return { ...f, action: "IMPUGNAR", rationale };
     if (isProtected && amount > 0) return { ...f, category: "A", action: "IMPUGNAR", rationale };
 
-    // V6.1: Evidence Promotion Gate (B -> A)
+    // V6.1/V6.2: Evidence Promotion Gate (B -> A)
     if (f.category === "B" && amount > 0) {
         const ev: PromotionEvidence = {
             pattern_repetition_count: (f as any).patternCount || 0,
+            pattern_scope: (f as any).patternScope || "MISMO_EVENTO",
             contract_clause_support: /INCUMPLIMIENTO|DERECHO|DOCTRINA/i.test(rationale),
             jurisprudence_support: /PRECEDENTE|CORRECCIÓN|JURISPRUDENCIA/i.test(rationale)
         };
@@ -864,17 +887,23 @@ export function finalizeAuditCanonical(input: {
     // Step 1: Deterministic Categorization (A, B, Z, OK)
     const eventos = input.eventos || [];
 
-    // V6.1: Pattern Count Calculation (Anti-Abuse Gate)
+    // V6.1/V6.2: Pattern & Scope Calculation (Anti-Abuse Gate)
     const labelCounts = new Map<string, number>();
+    const labelToEventIds = new Map<string, Set<string>>();
     findings.forEach(f => {
         const label = (f.label || "").toUpperCase();
         labelCounts.set(label, (labelCounts.get(label) || 0) + 1);
+        if (!labelToEventIds.has(label)) labelToEventIds.set(label, new Set());
+        const evId = (f as any).event_id || (f as any).eventId || "";
+        if (evId) labelToEventIds.get(label)!.add(String(evId));
     });
 
     let processedFindings = findings.map(f => {
-        // Inject patternCount into finding object
+        // Inject patternCount and scope into finding object
         const label = (f.label || "").toUpperCase();
         (f as any).patternCount = labelCounts.get(label) || 1;
+        const eventIds = labelToEventIds.get(label);
+        (f as any).patternScope = (eventIds && eventIds.size > 1) ? "MULTI_EVENTO" : "MISMO_EVENTO";
 
         const catFinding = canonicalCategorizeFinding(f, input.reconstructible, eventos);
 
@@ -1799,7 +1828,36 @@ ${canonicalOutput.fundamento.map(f => `- ${f}`).join('\n')}
 `;
 
     // AGENT MODE: Use specialized Iterative Mandate if isAgentMode is true and we have previous results
-    const basePrompt = (isAgentMode && previousAuditResult) ? ITERATIVE_FORENSIC_MANDATE : AUDIT_PROMPT;
+    let basePrompt = (isAgentMode && previousAuditResult) ? ITERATIVE_FORENSIC_MANDATE : AUDIT_PROMPT;
+
+    // V6.2: INJECT DETERMINISTIC BALANCE SHEET
+    if (isAgentMode && previousAuditResult) {
+        const totalCopay = parseAmountCLP(pamJson?.global?.totalCopago || pamJson?.resumenTotal?.totalCopago || 0);
+        const rf = previousAuditResult.resumenFinanciero || previousAuditResult.resumen_financiero || {};
+        const legit = parseAmountCLP(rf.totalCopagoLegitimo || 0);
+        const sumA = (previousAuditResult.hallazgos || []).filter((h: any) => h.categoria_final === 'A').reduce((s: number, h: any) => s + (h.montoObjetado || 0), 0);
+        const sumB = (previousAuditResult.hallazgos || []).filter((h: any) => h.categoria_final === 'B').reduce((s: number, h: any) => s + (h.montoObjetado || 0), 0);
+        const sumZ = (previousAuditResult.hallazgos || []).filter((h: any) => h.categoria_final === 'Z').reduce((s: number, h: any) => s + (h.montoObjetado || 0), 0);
+        const gap = parseAmountCLP(rf.gap || 0);
+
+        const balanceSheet = `
+==========================================================================
+📊 BALANCE MATEMÁTICO INYECTADO (MANDATORIO PARA REPORTE RALLY)
+==========================================================================
+- TOTAL COPAGO EN PAM: $${totalCopay.toLocaleString('es-CL')}
+- (+) COPAGO LEGÍTIMO SEGÚN CONTRATO: $${legit.toLocaleString('es-CL')}
+- (+) HALLAZGOS CATEGORÍA A (IMPUGNABLES): $${sumA.toLocaleString('es-CL')}
+- (+) HALLAZGOS CATEGORÍA B (POR REGLA): $${sumB.toLocaleString('es-CL')}
+- (+) HALLAZGOS CATEGORÍA Z (OPACOS): $${sumZ.toLocaleString('es-CL')}
+- (+) GAP RESIDUAL (A INVESTIGAR): $${gap.toLocaleString('es-CL')}
+- TOTAL RECONCILIADO: $${(legit + sumA + sumB + sumZ + gap).toLocaleString('es-CL')}
+
+⚠️ INSTRUCCIÓN RALLY: Distribuye estos montos EXACTOS en los 4 rubros del reporte consolidado. 
+NO inventories montos nuevos. La suma de los 4 rubros (Rubros I + II + III + IV) DEBE ser $${totalCopay.toLocaleString('es-CL')}.
+==========================================================================
+`;
+        basePrompt = basePrompt + "\n" + balanceSheet;
+    }
     const priorAuditContext = previousAuditResult ? `
 ==========================================================================
 🕒 PRIOR_AUDIT.JSON (HISTORIAL INMUTABLE)
@@ -1842,6 +1900,8 @@ ${JSON.stringify(previousAuditResult, null, 2)}
     const geminiService = new GeminiService(apiKeys);
     log(`[AuditEngine] 🔑 GeminiService initialized with ${apiKeys.length} API key(s)`);
 
+    let mathFailurePrompt = "";
+
     for (const modelName of modelsToTry) {
         if (!modelName) continue;
 
@@ -1849,92 +1909,128 @@ ${JSON.stringify(previousAuditResult, null, 2)}
             const currentKey = apiKeys[keyIdx];
             const keyMask = currentKey.substring(0, 4) + '...';
 
-            try {
-                log(`[AuditEngine] 🛡️ Strategy: Intentando con modelo ${modelName} (Key ${keyIdx + 1}/${apiKeys.length}: ${keyMask})...`);
-                onProgressUpdate?.(40);
+            for (let attempt = 1; attempt <= 2; attempt++) {
+                try {
+                    const strategyMsg = attempt > 1 ? `Re-intentando corrección matemática (Intento ${attempt})` : `Strategy: Intentando con modelo ${modelName} (Key ${keyIdx + 1}/${apiKeys.length}: ${keyMask})`;
+                    log(`[AuditEngine] 🛡️ ${strategyMsg}...`);
+                    onProgressUpdate?.(40);
 
-                const timeoutMs = 120000;
-                let fullText = '';
-                let usage: any = null;
+                    const timeoutMs = 120000;
+                    let fullText = '';
+                    let usage: any = null;
 
-                const genAI = new GoogleGenerativeAI(currentKey);
-                const model = genAI.getGenerativeModel({
-                    model: modelName,
-                    generationConfig: {
-                        ...GENERATION_CONFIG,
-                        responseMimeType: "application/json",
-                        responseSchema: (isAgentMode && previousAuditResult) ? (FORENSIC_PATCH_SCHEMA as any) : (FORENSIC_AUDIT_SCHEMA as any),
-                        maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
-                        temperature: GENERATION_CONFIG.temperature,
-                        topP: GENERATION_CONFIG.topP,
-                        topK: GENERATION_CONFIG.topK
+                    const genAI = new GoogleGenerativeAI(currentKey);
+                    const model = genAI.getGenerativeModel({
+                        model: modelName,
+                        generationConfig: {
+                            ...GENERATION_CONFIG,
+                            responseMimeType: "application/json",
+                            responseSchema: (isAgentMode && previousAuditResult) ? (FORENSIC_PATCH_SCHEMA as any) : (FORENSIC_AUDIT_SCHEMA as any),
+                            maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
+                            temperature: attempt > 1 ? 0.3 : GENERATION_CONFIG.temperature,
+                            topP: GENERATION_CONFIG.topP,
+                            topK: GENERATION_CONFIG.topK
+                        }
+                    });
+
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error(`Timeout: La API no respondió en ${timeoutMs / 1000} segundos`)), timeoutMs);
+                    });
+
+                    const finalPrompt = prompt + (attempt > 1 ? mathFailurePrompt : "");
+                    log(`[AuditEngine] 📡 Enviando consulta a Gemini (Streaming... Intento ${attempt})...`);
+                    const streamResult = await Promise.race([
+                        model.generateContentStream(finalPrompt),
+                        timeoutPromise
+                    ]) as any;
+
+                    log('[AuditEngine] 📥 Recibiendo respuesta en tiempo real...');
+                    for await (const chunk of streamResult.stream) {
+                        const chunkText = chunk.text();
+                        fullText += chunkText;
+
+                        if (chunk.usageMetadata) {
+                            usage = chunk.usageMetadata;
+                            onUsageUpdate?.(usage);
+                        }
+
+                        if (fullText.length % 500 < chunkText.length) {
+                            const kbReceived = Math.floor(fullText.length / 1024);
+                            log(`[AuditEngine] 📊 Procesando... ${kbReceived}KB recibidos`);
+                            const estimatedTokens = fullText.length / 4;
+                            const simulatedProgress = Math.min(90, 40 + (estimatedTokens / ESTIMATED_TOTAL_TOKENS) * 50);
+                            onProgressUpdate?.(simulatedProgress);
+                        }
                     }
-                });
 
-                const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error(`Timeout: La API no respondió en ${timeoutMs / 1000} segundos`)), timeoutMs);
-                });
-
-                log('[AuditEngine] 📡 Enviando consulta a Gemini (Streaming)...');
-                const streamResult = await Promise.race([
-                    model.generateContentStream(prompt),
-                    timeoutPromise
-                ]) as any;
-
-                log('[AuditEngine] 📥 Recibiendo respuesta en tiempo real...');
-                for await (const chunk of streamResult.stream) {
-                    const chunkText = chunk.text();
-                    fullText += chunkText;
-
-                    if (chunk.usageMetadata) {
-                        usage = chunk.usageMetadata;
-                        onUsageUpdate?.(usage);
+                    // V6.2: VALIDATE RALLY SUM INVARIANT
+                    let parsed: any = null;
+                    try {
+                        const cleaned = fullText.replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+                        parsed = JSON.parse(cleaned);
+                    } catch (e) {
+                        log(`[AuditEngine] ⚠️ Error de parsing JSON.`);
+                        throw e;
                     }
 
-                    if (fullText.length % 500 < chunkText.length) {
-                        const kbReceived = Math.floor(fullText.length / 1024);
-                        log(`[AuditEngine] 📊 Procesando... ${kbReceived}KB recibidos`);
-                        // Fix 1.5: Simulated Progress Heuristic (Chars / 4 = Tokens approx)
-                        const estimatedTokens = fullText.length / 4;
-                        const simulatedProgress = Math.min(90, 40 + (estimatedTokens / ESTIMATED_TOTAL_TOKENS) * 50);
-                        onProgressUpdate?.(simulatedProgress);
+                    if (isAgentMode && previousAuditResult && parsed?.rally) {
+                        const expectedTotal = parseAmountCLP(pamJson?.global?.totalCopago || pamJson?.resumenTotal?.totalCopago || 0);
+                        const actualTotal = parsed.rally.total_rubros_sum || parsed.rally.total_copago_input || 0;
+                        const delta = Math.abs(actualTotal - expectedTotal);
+
+                        if (delta > 1000) {
+                            log(`[AuditEngine] 🚨 DISCREPANCIA RALLY: Rubros sumaron $${actualTotal.toLocaleString('es-CL')}, esperado $${expectedTotal.toLocaleString('es-CL')}.`);
+                            if (attempt < 2) {
+                                mathFailurePrompt = `
+\n\n🚨 ERROR DE CONTRATO MATEMÁTICO:
+- La suma de los rubros en tu reporte 'rally' ($${actualTotal.toLocaleString('es-CL')}) NO coincide con el Copago Total del PAM ($${expectedTotal.toLocaleString('es-CL')}).
+- ACCIÓN: Recalcula los montos de los rubros I, II, III y IV para que sumen EXACTAMENTE $${expectedTotal.toLocaleString('es-CL')}.
+- Asegúrate de que 'total_rubros_sum' y 'total_copago_input' sean $${expectedTotal}.
+- Re-genera el JSON completo con los montos corregidos.
+`;
+                                continue;
+                            } else {
+                                log(`[AuditEngine] ⚠️ Agotados intentos de corrección. Continuando con discrepancia.`);
+                            }
+                        }
                     }
-                }
 
-                result = {
-                    response: {
-                        text: () => fullText,
-                        usageMetadata: usage
+                    result = {
+                        response: {
+                            text: () => fullText,
+                            usageMetadata: usage
+                        }
+                    };
+
+                    log(`[AuditEngine] ✅ Éxito con modelo ${modelName} y Key ${keyIdx + 1}`);
+                    break;
+
+                } catch (error: any) {
+                    lastError = error;
+                    const errStr = (error?.toString() || "") + (error?.message || "");
+                    const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || error?.status === 429 || error?.status === 503;
+                    const isTimeout = errStr.includes('Timeout');
+
+                    if (isTimeout) {
+                        log(`[AuditEngine] ⏱️ Timeout en ${modelName} con Key ${keyIdx + 1}.`);
+                        // Try next key
+                        continue;
+                    } else if (isQuota) {
+                        log(`[AuditEngine] ⚠️ Fallo en ${modelName} con Key ${keyIdx + 1} por Quota/Server. Probando siguiente clave...`);
+                        // Small backoff
+                        await new Promise(r => setTimeout(r, 2000));
+                        continue;
+                    } else {
+                        log(`[AuditEngine] ❌ Error no recuperable en ${modelName} / Key ${keyIdx + 1}: ${error.message}`);
+                        // Depending on error, we might want to try next key or bail
+                        // If it's 400 (Bad Request), trying next key won't help.
+                        // But for robustness, let's try at least one more key or switch model.
+                        if (errStr.includes('400')) throw error;
+                        continue;
                     }
-                };
-
-                log(`[AuditEngine] ✅ Éxito con modelo ${modelName} y Key ${keyIdx + 1}`);
-                break; // Exit key loop on success
-
-            } catch (error: any) {
-                lastError = error;
-                const errStr = (error?.toString() || "") + (error?.message || "");
-                const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || error?.status === 429 || error?.status === 503;
-                const isTimeout = errStr.includes('Timeout');
-
-                if (isTimeout) {
-                    log(`[AuditEngine] ⏱️ Timeout en ${modelName} con Key ${keyIdx + 1}.`);
-                    // Try next key
-                    continue;
-                } else if (isQuota) {
-                    log(`[AuditEngine] ⚠️ Fallo en ${modelName} con Key ${keyIdx + 1} por Quota/Server. Probando siguiente clave...`);
-                    // Small backoff
-                    await new Promise(r => setTimeout(r, 2000));
-                    continue;
-                } else {
-                    log(`[AuditEngine] ❌ Error no recuperable en ${modelName} / Key ${keyIdx + 1}: ${error.message}`);
-                    // Depending on error, we might want to try next key or bail
-                    // If it's 400 (Bad Request), trying next key won't help.
-                    // But for robustness, let's try at least one more key or switch model.
-                    if (errStr.includes('400')) throw error;
-                    continue;
                 }
             }
+            if (result) break; // Exit key loop on success
         }
         if (result) break; // Exit model loop on success
     }

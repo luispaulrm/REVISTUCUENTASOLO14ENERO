@@ -21,6 +21,8 @@ export interface UnidadReferencia {
         source: "CONTRATO" | "PAM";
         detalle: string;      // ej: "Tope 2.5 AC2 en prestación X"
         evidencia: string;    // trace/debug
+        impliedValue?: number;
+        unitType?: string;
     }>;
 }
 
@@ -79,6 +81,54 @@ function parseMonto(val: string | number | undefined): number {
     }
 
     return parseFloat(sanitized) || 0;
+}
+
+/**
+ * Expert Refinement V6.2: Deterministic Contradiction Detection
+ */
+function detectAnchorContradictions(anchors: UnidadReferencia["anchors"]): { contradictory: boolean; reason?: string } {
+    if (anchors.length < 2) return { contradictory: false };
+
+    // 1. Group by unitType to check for Intra-Unit consistency
+    const types = Array.from(new Set(anchors.map(a => a.unitType).filter(t => !!t)));
+
+    for (const type of types) {
+        const typeAnchors = anchors.filter(a => a.unitType === type && a.impliedValue !== undefined);
+        if (typeAnchors.length >= 2) {
+            const values = typeAnchors.map(a => a.impliedValue!);
+            const avg = values.reduce((a, b) => a + b, 0) / values.length;
+            for (const val of values) {
+                // Tolerance 5% (Expert Standard)
+                if (Math.abs(val - avg) / avg > 0.05) {
+                    return {
+                        contradictory: true,
+                        reason: `Inconsistencia en ${type}: $${val.toLocaleString('es-CL')} se desvía >5% del promedio ($${Math.round(avg).toLocaleString('es-CL')})`
+                    };
+                }
+            }
+        }
+    }
+
+    // 2. Unit Type Clash (e.g. Contract says AC2, PAM shows VAM values)
+    // This happens if more than one type is present with High Confidence anchors
+    const activeTypes = Array.from(new Set(anchors.filter(a => a.impliedValue && a.impliedValue > 0).map(a => a.unitType)));
+    if (activeTypes.length > 1) {
+        return {
+            contradictory: true,
+            reason: `Conflicto estructural de unidades: Detectados múltiples tipos (${activeTypes.join(", ")}) sin precedencia clara.`
+        };
+    }
+
+    // 3. Invalid Anchors (Missing unit)
+    const invalid = anchors.find(a => a.source === "CONTRATO" && !a.unitType);
+    if (invalid) {
+        return {
+            contradictory: true,
+            reason: `Anchor inválido detectado: ${invalid.detalle} no especifica unidad (UF/VAM/AC2).`
+        };
+    }
+
+    return { contradictory: false };
 }
 
 /**
@@ -205,7 +255,6 @@ export async function inferUnidadReferencia(
     const allFolios = pam?.folios || [];
     const allItems = allFolios.flatMap((f: any) => f.desglosePorPrestador?.flatMap((d: any) => d.items) || []);
 
-    // Rule: Detect aggregated lines (no code or generic description with high value)
     const aggregatedItems = allItems.filter((i: any) =>
         (!i.codigoGC && !i.codigo) ||
         /VARIOS|INSUMOS|MEDICAMENTOS|PAQUETE|AJUSTE/i.test(i.descripcion || "")
@@ -213,14 +262,12 @@ export async function inferUnidadReferencia(
 
     const totalItems = Math.max(1, allItems.length);
     const opacidadRatio = aggregatedItems.length / totalItems;
-
-    // Forensic Block Check: If any single opaque item is > $200.000, it's a structural gap
     const hasLargeOpaqueBlock = aggregatedItems.some((i: any) => parseMonto(i.valorTotal) > 200000);
 
     let estado: UnidadEstado = "VERIFICABLE";
-    let vam_confidence_score = 0.5; // Initial baseline
+    let vam_confidence_score = 0.5;
 
-    // Priorización: Opacidad > Contrato
+    // Expert Refinement V6.2: Precedencia Fija (Opacidad > Contrato)
     if (opacidadRatio > 0.35 || hasLargeOpaqueBlock) {
         estado = "NO_VERIFICABLE_POR_OPACIDAD";
         vam_confidence_score = Math.max(0.1, 0.5 - opacidadRatio);
@@ -228,36 +275,28 @@ export async function inferUnidadReferencia(
         if (hasLargeOpaqueBlock) evidencia.push("ALERTA: Se detectaron bloques opacos de alto valor (> $200k).");
     }
 
-    // --- ANCHOR CODES & UNIT TYPE ---
-    let unitType: UnidadReferencia["tipo"] = "VA";
-    const VALID_ANCHORS = ['1103057', '1802081', '1801001'];
+    // --- ANCHOR COLLECTION ---
+    let unitType: UnidadReferencia["tipo"] = null;
 
-    // 1. UNIT TYPE DETECTION (Heuristic & Glossary)
-    if (contrato?.glosario_unidades && Array.isArray(contrato.glosario_unidades) && contrato.glosario_unidades.length > 0) {
-        const def = contrato.glosario_unidades.find((u: any) => ["AC2", "VAM", "AC", "VA"].includes(u.sigla));
-        if (def) {
-            evidencia.push(`GLOSARIO: Detectado ${def.sigla} ("${def.descripcion_contrato}")`);
-            anchors.push({
-                source: "CONTRATO",
-                detalle: `Glosario: ${def.sigla}`,
-                evidencia: `Valor ref: ${def.valor_referencia || 'N/A'}`
-            });
-            if (def.valor_referencia) {
-                return {
-                    tipo: def.sigla as any,
-                    valor_pesos_estimado: def.valor_referencia,
-                    confianza: "ALTA",
-                    evidencia,
-                    fecha_referencia: eventDate,
-                    cobertura_aplicada: coverage,
-                    estado: "VERIFICABLE",
-                    vam_confidence_score: 1.0,
-                    anchors
-                };
+    // 1. GLOSSARY ANCHORS
+    if (contrato?.glosario_unidades && Array.isArray(contrato.glosario_unidades)) {
+        contrato.glosario_unidades.forEach((u: any) => {
+            if (["AC2", "VAM", "AC", "VA"].includes(u.sigla)) {
+                const val = parseMonto(u.valor_referencia);
+                anchors.push({
+                    source: "CONTRATO",
+                    detalle: `Glosario: ${u.sigla}`,
+                    evidencia: `Valor ref: ${u.valor_referencia || 'N/A'}`,
+                    impliedValue: val > 0 ? val : undefined,
+                    unitType: u.sigla
+                });
+                if (!unitType) unitType = u.sigla as any;
             }
-            unitType = def.sigla as any;
-        }
-    } else {
+        });
+    }
+
+    // Isapre-based fallback for unitType if not found in glossary
+    if (!unitType) {
         const isConsalud = normalizedIsapre.includes("CONSALUD");
         const isColmena = normalizedIsapre.includes("COLMENA");
         const isMasvida = normalizedIsapre.includes("MASVIDA");
@@ -268,73 +307,76 @@ export async function inferUnidadReferencia(
         else if (isBanmedica) unitType = "VA";
     }
 
-    // 2. STRICT FORENSIC DEDUCTION (PAM Anchors)
+    // 2. PAM ANCHORS (Forensic Triangulation)
+    const VALID_ANCHOR_CODES = ['1103057', '1802081', '1801001'];
     const candidates = allItems.filter((item: any) =>
-        item.codigoGC && VALID_ANCHORS.includes(item.codigoGC) &&
+        item.codigoGC && VALID_ANCHOR_CODES.includes(item.codigoGC) &&
         parseMonto(item.bonificacion) > 0
     );
 
-    if (candidates.length > 0) {
-        const sortedCandidates = [...candidates].sort((a, b) =>
-            (SURGICAL_FACTORS[b.codigoGC!] || 0) - (SURGICAL_FACTORS[a.codigoGC!] || 0)
-        );
-        const primaryCandidate = sortedCandidates[0];
+    candidates.forEach(c => {
+        const factor = SURGICAL_FACTORS[c.codigoGC!];
+        const bonif = parseMonto(c.bonificacion);
+        const implied = Math.round(bonif / factor);
 
-        if (primaryCandidate.codigoGC === '1103057') unitType = 'AC2';
+        // Map code to expected unit type for clash detection
+        let cType = unitType;
+        if (c.codigoGC === '1103057') cType = 'AC2';
 
-        const factor = SURGICAL_FACTORS[primaryCandidate.codigoGC!];
-        const bonif = parseMonto(primaryCandidate.bonificacion);
-        const impliedUnitValue = Math.round(bonif / factor);
-
-        if (normalizedIsapre.includes("CONSALUD")) unitType = "AC2";
-
-        const independentAnchors = new Set(candidates.map(c => c.codigoGC)).size;
-
-        // Final Confidence & Result
-        vam_confidence_score = independentAnchors >= 2 ? 0.95 : 0.75;
-        if (estado === "VERIFICABLE" && independentAnchors >= 2) {
-            vam_confidence_score = 1.0;
-        }
-
-        candidates.forEach(c => {
-            anchors.push({
-                source: "PAM",
-                detalle: `Ancla ${c.codigoGC}`,
-                evidencia: `Bonif: $${parseMonto(c.bonificacion)} / Factor: ${SURGICAL_FACTORS[c.codigoGC!]}`
-            });
+        anchors.push({
+            source: "PAM",
+            detalle: `Anclaje PAM ${c.codigoGC}`,
+            evidencia: `Bonif: $${bonif} / Factor: ${factor}`,
+            impliedValue: implied,
+            unitType: cType as string
         });
+    });
 
-        evidencia.push(`DEDUCCIÓN EXPLICITA: Unidad ${unitType} calculada usando ${primaryCandidate.codigoGC}.`);
-
-        return {
-            tipo: unitType,
-            valor_pesos_estimado: impliedUnitValue,
-            confianza: independentAnchors >= 2 ? "ALTA" : "MEDIA",
-            evidencia,
-            factor_origen: factor,
-            fecha_referencia: eventDate,
-            cobertura_aplicada: coverage,
-            estado,
-            vam_confidence_score,
-            anchors
-        };
+    // 3. DETECT CONTRADICTIONS (V6.2 Polish)
+    const contradiction = detectAnchorContradictions(anchors);
+    if (contradiction.contradictory) {
+        if (estado === "VERIFICABLE") { // Precedence: Opacity > Contrato
+            estado = "NO_VERIFICABLE_POR_CONTRATO";
+            vam_confidence_score = 0.2;
+            evidencia.push(`CONTRADICCIÓN DETERMINÍSTICA: ${contradiction.reason}`);
+        }
     }
 
-    // 3. FALLBACK & NO_VERIFICABLE_POR_CONTRATO
-    if (estado === "VERIFICABLE") {
-        estado = "NO_VERIFICABLE_POR_CONTRATO";
-        vam_confidence_score = 0.3;
-        evidencia.push("FALLO_CONTRACTUAL: No se encontraron puntos de anclaje ni glosario explícito.");
-    }
+    // --- FINAL DECISION ---
+    const pamAnchors = anchors.filter(a => a.source === "PAM");
+    const contractAnchors = anchors.filter(a => a.source === "CONTRATO" && a.impliedValue);
 
-    let fallbackValue = 38000;
-    if (unitType === "AC2") fallbackValue = 223147;
-    else if (unitType === "VAM") fallbackValue = 39000;
+    let finalValue = 0;
+    let confidence: "ALTA" | "MEDIA" | "BAJA" = "BAJA";
+
+    if (contractAnchors.length > 0 && !contradiction.contradictory) {
+        finalValue = contractAnchors[0].impliedValue!;
+        confidence = "ALTA";
+        unitType = contractAnchors[0].unitType as any;
+    } else if (pamAnchors.length > 0 && !contradiction.contradictory) {
+        const values = pamAnchors.map(a => a.impliedValue!).filter(v => !!v);
+        finalValue = Math.round(values.reduce((a, b) => a + b, 0) / values.length);
+        const independentCount = new Set(pamAnchors.map(a => a.detalle)).size;
+        confidence = independentCount >= 2 ? "ALTA" : "MEDIA";
+        if (estado === "VERIFICABLE") {
+            vam_confidence_score = independentCount >= 2 ? 1.0 : 0.75;
+        }
+    } else {
+        // Fallback
+        if (unitType === "AC2") finalValue = 223147;
+        else if (unitType === "VAM") finalValue = 39000;
+        else finalValue = 38000;
+        confidence = "BAJA";
+        if (estado === "VERIFICABLE") {
+            estado = "NO_VERIFICABLE_POR_CONTRATO";
+            vam_confidence_score = 0.3;
+        }
+    }
 
     return {
         tipo: unitType,
-        valor_pesos_estimado: fallbackValue,
-        confianza: "BAJA",
+        valor_pesos_estimado: finalValue,
+        confianza: confidence,
         evidencia,
         factor_origen: 1.0,
         fecha_referencia: eventDate,
