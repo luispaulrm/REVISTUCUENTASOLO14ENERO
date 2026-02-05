@@ -2,14 +2,26 @@
 import { PAMItem, PamDocument } from '../../src/pamService';
 import { ContractRegla } from '../../src/types';
 
+export type UnidadEstado =
+    | "VERIFICABLE"
+    | "NO_VERIFICABLE_POR_OPACIDAD"
+    | "NO_VERIFICABLE_POR_CONTRATO";
+
 export interface UnidadReferencia {
-    tipo: "UF" | "VA" | "UV" | "BAM" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDA";
+    tipo: "UF" | "VA" | "UV" | "BAM" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDA" | null;
     valor_pesos_estimado?: number;
     evidencia: string[];
     confianza: "ALTA" | "MEDIA" | "BAJA";
     factor_origen?: number;
     cobertura_aplicada?: number;
     fecha_referencia?: Date;
+    estado: UnidadEstado;
+    vam_confidence_score: number;
+    anchors: Array<{
+        source: "CONTRATO" | "PAM";
+        detalle: string;      // ej: "Tope 2.5 AC2 en prestación X"
+        evidencia: string;    // trace/debug
+    }>;
 }
 
 export interface TopeValidationResult {
@@ -39,32 +51,34 @@ function parseMonto(val: string | number | undefined): number {
     if (typeof val === 'number') return val;
     if (!val) return 0;
 
+    // Strip currency symbols and whitespaces
+    const sanitized = val.toString().replace(/[\$\s]/g, '');
+
     // 1. Handle Chilean format with comma as decimal (e.g. "1.234,56")
-    if (val.includes(',')) {
-        const clean = val.replace(/\./g, '').replace(',', '.');
+    if (sanitized.includes(',')) {
+        const clean = sanitized.replace(/\./g, '').replace(',', '.');
         return parseFloat(clean) || 0;
     }
 
     // 2. Handle strings with dots only
-    const dots = (val.match(/\./g) || []).length;
+    const dots = (sanitized.match(/\./g) || []).length;
     if (dots > 1) {
         // Multiple dots -> Thousand separators (e.g. "1.267.808")
-        return parseFloat(val.replace(/\./g, '')) || 0;
+        return parseFloat(sanitized.replace(/\./g, '')) || 0;
     }
 
     if (dots === 1) {
-        const parts = val.split('.');
+        const parts = sanitized.split('.');
         // Common heuristic: 3 digits after dot -> Thousand separator (e.g. "267.808")
-        // Note: This matches CLP (Chilean Peso) which has no cents.
         if (parts[1].length === 3) {
-            return parseFloat(val.replace(/\./g, '')) || 0;
+            return parseFloat(sanitized.replace(/\./g, '')) || 0;
         } else {
             // Otherwise treat as decimal (e.g. "3.5", "1.0", "1.25")
-            return parseFloat(val) || 0;
+            return parseFloat(sanitized) || 0;
         }
     }
 
-    return parseFloat(val) || 0;
+    return parseFloat(sanitized) || 0;
 }
 
 /**
@@ -176,7 +190,7 @@ function findCoverageFactor(contrato: any, prestador?: string): number {
  * Deduce NOTHING via hardcode; everything is triangulated.
  */
 export async function inferUnidadReferencia(
-    contrato: { coberturas?: any[], reglas?: ContractRegla[], diseno_ux?: any } | any,
+    contrato: { coberturas?: any[], reglas?: ContractRegla[], diseno_ux?: any, glosario_unidades?: any[] } | any,
     pam: PamDocument | any,
     isapreName?: string,
     eventDate: Date = new Date()
@@ -185,15 +199,37 @@ export async function inferUnidadReferencia(
     const evidencia: string[] = [];
     const normalizedIsapre = (isapreName || contrato?.diseno_ux?.nombre_isapre || "").toUpperCase();
     const coverage = findCoverageFactor(contrato, pam?.prestadorPrincipal || (pam?.folios && pam.folios[0]?.prestadorPrincipal));
+    const anchors: UnidadReferencia["anchors"] = [];
 
-    // Initialize unit type default
+    // --- DETECCIÓN DE OPACIDAD (PAM SUCIO) ---
+    const allFolios = pam?.folios || [];
+    const allItems = allFolios.flatMap((f: any) => f.desglosePorPrestador?.flatMap((d: any) => d.items) || []);
+
+    // Rule: Detect aggregated lines (no code or generic description with high value)
+    const aggregatedItems = allItems.filter((i: any) =>
+        (!i.codigoGC && !i.codigo) ||
+        /VARIOS|INSUMOS|MEDICAMENTOS|PAQUETE|AJUSTE/i.test(i.descripcion || "")
+    );
+
+    const totalItems = Math.max(1, allItems.length);
+    const opacidadRatio = aggregatedItems.length / totalItems;
+
+    // Forensic Block Check: If any single opaque item is > $200.000, it's a structural gap
+    const hasLargeOpaqueBlock = aggregatedItems.some((i: any) => parseMonto(i.valorTotal) > 200000);
+
+    let estado: UnidadEstado = "VERIFICABLE";
+    let vam_confidence_score = 0.5; // Initial baseline
+
+    // Priorización: Opacidad > Contrato
+    if (opacidadRatio > 0.35 || hasLargeOpaqueBlock) {
+        estado = "NO_VERIFICABLE_POR_OPACIDAD";
+        vam_confidence_score = Math.max(0.1, 0.5 - opacidadRatio);
+        evidencia.push(`OPACIDAD DETECTADA: PAM altamente agregado (${(opacidadRatio * 100).toFixed(1)}%).`);
+        if (hasLargeOpaqueBlock) evidencia.push("ALERTA: Se detectaron bloques opacos de alto valor (> $200k).");
+    }
+
+    // --- ANCHOR CODES & UNIT TYPE ---
     let unitType: UnidadReferencia["tipo"] = "VA";
-    // ANCHOR CODES: Specific codes that reliably define the unit value (e.g. AC2)
-    // 1103057: Rizotomía (Factor 1.2 typically)
-    // 1802081: Colecistectomía (Factor 6.0 typically)
-    // 1801001: Apendicectomía (Factor 3.0 typically)
-    // ANCHOR CODES: Specific codes that reliably define the unit value (e.g. AC2)
-    // TODO: Update mechanisms to allow secondary anchors with lower confidence.
     const VALID_ANCHORS = ['1103057', '1802081', '1801001'];
 
     // 1. UNIT TYPE DETECTION (Heuristic & Glossary)
@@ -201,6 +237,11 @@ export async function inferUnidadReferencia(
         const def = contrato.glosario_unidades.find((u: any) => ["AC2", "VAM", "AC", "VA"].includes(u.sigla));
         if (def) {
             evidencia.push(`GLOSARIO: Detectado ${def.sigla} ("${def.descripcion_contrato}")`);
+            anchors.push({
+                source: "CONTRATO",
+                detalle: `Glosario: ${def.sigla}`,
+                evidencia: `Valor ref: ${def.valor_referencia || 'N/A'}`
+            });
             if (def.valor_referencia) {
                 return {
                     tipo: def.sigla as any,
@@ -208,7 +249,10 @@ export async function inferUnidadReferencia(
                     confianza: "ALTA",
                     evidencia,
                     fecha_referencia: eventDate,
-                    cobertura_aplicada: coverage
+                    cobertura_aplicada: coverage,
+                    estado: "VERIFICABLE",
+                    vam_confidence_score: 1.0,
+                    anchors
                 };
             }
             unitType = def.sigla as any;
@@ -224,81 +268,80 @@ export async function inferUnidadReferencia(
         else if (isBanmedica) unitType = "VA";
     }
 
-    // 2. STRICT FORENSIC DEDUCTION (Anchors Only)
-    const items = pam.folios?.flatMap((f: any) => f.desglosePorPrestador?.flatMap((d: any) => d.items)) || [];
-
-    const candidates = items.filter((item: PAMItem) =>
+    // 2. STRICT FORENSIC DEDUCTION (PAM Anchors)
+    const candidates = allItems.filter((item: any) =>
         item.codigoGC && VALID_ANCHORS.includes(item.codigoGC) &&
         parseMonto(item.bonificacion) > 0
     );
 
     if (candidates.length > 0) {
-        // Sort by factor magnitude to pick the most representative (e.g. highest complexity often hits limit)
         const sortedCandidates = [...candidates].sort((a, b) =>
             (SURGICAL_FACTORS[b.codigoGC!] || 0) - (SURGICAL_FACTORS[a.codigoGC!] || 0)
         );
         const primaryCandidate = sortedCandidates[0];
 
-        // REFINEMENT: Trust the anchor for unit type naming
-        // Rizotomía is historically the AC2 definition key.
         if (primaryCandidate.codigoGC === '1103057') unitType = 'AC2';
 
         const factor = SURGICAL_FACTORS[primaryCandidate.codigoGC!];
         const bonif = parseMonto(primaryCandidate.bonificacion);
-
-        // FORMULA CRÍTICA: UnitValue = Bonif / Factor.
         const impliedUnitValue = Math.round(bonif / factor);
 
-        // FINAL OVERRIDE: If we are here and Isapre is Consalud, it MUST be AC2.
         if (normalizedIsapre.includes("CONSALUD")) unitType = "AC2";
 
-        // CONFIDENCE GRADIENT (User Request): ALTA requires >= 2 independent anchors.
         const independentAnchors = new Set(candidates.map(c => c.codigoGC)).size;
-        const finalConfidence: "ALTA" | "MEDIA" = independentAnchors >= 2 ? "ALTA" : "MEDIA";
+
+        // Final Confidence & Result
+        vam_confidence_score = independentAnchors >= 2 ? 0.95 : 0.75;
+        if (estado === "VERIFICABLE" && independentAnchors >= 2) {
+            vam_confidence_score = 1.0;
+        }
+
+        candidates.forEach(c => {
+            anchors.push({
+                source: "PAM",
+                detalle: `Ancla ${c.codigoGC}`,
+                evidencia: `Bonif: $${parseMonto(c.bonificacion)} / Factor: ${SURGICAL_FACTORS[c.codigoGC!]}`
+            });
+        });
 
         evidencia.push(`DEDUCCIÓN EXPLICITA: Unidad ${unitType} calculada usando ${primaryCandidate.codigoGC}.`);
-        if (independentAnchors < 2) {
-            evidencia.push(`ALERTA CONFIANZA: Se detectó solo 1 ancla (${primaryCandidate.codigoGC}). Se requiere convergencia en 2+ para confianza ALTA.`);
-        } else {
-            evidencia.push(`CONVERGENCIA DETECTADA: Se validó contra ${independentAnchors} puntos de anclaje independientes.`);
-        }
-        evidencia.push(`MÉTODO: Despeje directo (Bonificación $${bonif} / Factor ${factor}).`);
-        evidencia.push("SUPUESTO FORENSE: Bonificación PAM refleja el tope por unidad del procedimiento.");
 
         return {
-            tipo: unitType, // AC2, VAM, etc.
+            tipo: unitType,
             valor_pesos_estimado: impliedUnitValue,
-            confianza: finalConfidence,
-            evidencia: evidencia,
+            confianza: independentAnchors >= 2 ? "ALTA" : "MEDIA",
+            evidencia,
             factor_origen: factor,
             fecha_referencia: eventDate,
-            cobertura_aplicada: coverage
+            cobertura_aplicada: coverage,
+            estado,
+            vam_confidence_score,
+            anchors
         };
     }
 
-    // 3. FALLBACK (Legacy / Default)
-    // If no anchors found, return estimate with MEDIA/BAJA confidence.
-    let fallbackValue = 38000;
-    let confidence: "BAJA" | "MEDIA" = "BAJA";
-
-    if (unitType === "AC2") {
-        fallbackValue = 223147;
-        confidence = "MEDIA";
-        evidencia.push(`FALLBACK: No se encontraron códigos ancla (1103057, etc) en PAM.`);
-        evidencia.push(`VALOR HISTÓRICO: Se usa base Consalud ($${fallbackValue}) por defecto.`);
-    } else if (unitType === "VAM") {
-        fallbackValue = 39000;
-        evidencia.push(`FALLBACK: Valor VAM referencial.`);
+    // 3. FALLBACK & NO_VERIFICABLE_POR_CONTRATO
+    if (estado === "VERIFICABLE") {
+        estado = "NO_VERIFICABLE_POR_CONTRATO";
+        vam_confidence_score = 0.3;
+        evidencia.push("FALLO_CONTRACTUAL: No se encontraron puntos de anclaje ni glosario explícito.");
     }
+
+    let fallbackValue = 38000;
+    if (unitType === "AC2") fallbackValue = 223147;
+    else if (unitType === "VAM") fallbackValue = 39000;
 
     return {
         tipo: unitType,
         valor_pesos_estimado: fallbackValue,
-        confianza: confidence,
-        evidencia: evidencia,
+        confianza: "BAJA",
+        evidencia,
         factor_origen: 1.0,
         fecha_referencia: eventDate,
-        cobertura_aplicada: coverage
+        cobertura_aplicada: coverage,
+        estado,
+        vam_confidence_score,
+        anchors
     };
 }
 

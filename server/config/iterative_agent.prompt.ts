@@ -52,10 +52,26 @@ El campo 'compiled_report_markdown' DEBE seguir esta estructura estrictamente:
 
 ---
 
+### RONDA D: DETECCIÓN DE OMISIONES (INVISIBLE DELTAS)
+- Identifica "Vacíos de Prestación": Cargos globales or de servicios base (ej. Pabellón) que carecen de desglose mínimo esperado.
+- **Tipificación Obligatoria** (OmissionDeltaType):
+    - \`OMISION_DESGLOSE_MINIMO\`: Falta detalle general exigible por transparencia.
+    - \`OMISION_INSUMOS_INHERENTES\`: No se listan insumos críticos de la cirugía (ej. suturas, gases).
+    - \`OMISION_ENFERMERIA_BASICA\`: Servicios de enfermería omitidos pero sospechosos de estar en "paquete".
+    - \`OMISION_MEDICAMENTOS_ESTANDAR\`: Fármacos de pabellón/recuperación no desglosados.
+- **Formato de Hallazgo por Omisión**:
+    - \`expected_items[]\`: Qué se esperaba encontrar.
+    - \`why_expected\`: Justificación (Contrato, Doctrina SIS, o Práctica Médica).
+    - \`indirect_evidence[]\`: Señales que sugieren la omisión (montos elevados, códigos base).
+    - \`request_to_provider\`: Acción específica solicitada al prestador.
+
+---
+
 ### REGLAS DE SALIDA (ANTI-DESTRUCCIÓN)
 - El resultado debe seguir estrictamente el esquema de 'Forensic Patch'.
 - Prohibido reordenar IDs previos.
 - Prohibido reemplazar campos 'null' previos con suposiciones; usa evidencia dura.
+- Los hallazgos de omisión deben declararse como 'is_rectification: false' pero con glosas de advertencia legal.
 `;
 
 export const FORENSIC_PATCH_SCHEMA = {

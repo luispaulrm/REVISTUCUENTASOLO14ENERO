@@ -282,6 +282,17 @@ export default function ForensicApp() {
             setAuditResult(result);
             setStatus('SUCCESS');
 
+            // Save to Cache History
+            cacheManager.saveCase({
+                bill: cuenta,
+                pam,
+                contract: contrato,
+                htmlContext,
+                auditResult: result, // Save the analysis result!
+                patientName: (result as any).patientName || 'Paciente Identificado',
+                invoiceNumber: (result as any).invoiceNumber || 'N/A'
+            });
+
             // Store raw data for table builders
             (result as any)._rawCuenta = cuenta;
             (result as any)._rawPam = pam;
@@ -367,6 +378,18 @@ export default function ForensicApp() {
             setStatus('SUCCESS');
             (result as any)._rawCuenta = cuenta;
             (result as any)._rawPam = pam;
+
+            // Updated Cache History after Agente
+            cacheManager.saveCase({
+                bill: cuenta,
+                pam,
+                contract: contrato,
+                htmlContext,
+                auditResult: result, // Save the enriched analysis result!
+                patientName: (result as any).patientName || 'Paciente Identificado',
+                invoiceNumber: (result as any).invoiceNumber || 'N/A'
+            });
+
             addLog('[AGENTE] ✅ Búsqueda Forense completada con éxito.');
 
         } catch (err: any) {
@@ -382,20 +405,8 @@ export default function ForensicApp() {
     const clearAllData = () => {
         if (!confirm('¿Seguro que deseas limpiar TODA la sesión actual? Esta acción no se puede deshacer.')) return;
 
-        localStorage.removeItem('clinic_audit_result'); // Changed from bill_audit_result to clinic_audit_result
-        localStorage.removeItem('pam_audit_result');
-        localStorage.removeItem('contract_audit_result');
-        localStorage.removeItem('canonical_contract_result');
-        localStorage.removeItem('html_projection_result'); // Changed from full_html_context to html_projection_result
-        localStorage.removeItem('forensic_active_case_id');
-        localStorage.removeItem('mental_model_cache');
+        cacheManager.clearAll();
 
-        // Assuming these state setters exist and correspond to the cached items
-        // setCachedBill(null);
-        // setCachedPam(null);
-        // setCachedContract(null);
-        // setCachedContractCanon(null);
-        // setCachedHtml(null);
         setAuditResult(null);
         setLogs([]);
         setStatus('IDLE'); // Added to reset status
@@ -497,6 +508,7 @@ export default function ForensicApp() {
     const clearBill = () => {
         localStorage.removeItem('clinic_audit_result');
         localStorage.removeItem('clinic_audit_file_fingerprint');
+        cacheManager.saveCase({ bill: null, fingerprints: { bill: undefined } });
         setHasBill(false);
         setAuditResult(null);
         setPreCheckResult(null); // Fix: Clear pre-check result
@@ -508,6 +520,7 @@ export default function ForensicApp() {
     const clearPam = () => {
         localStorage.removeItem('pam_audit_result');
         localStorage.removeItem('pam_audit_file_fingerprint');
+        cacheManager.saveCase({ pam: null, fingerprints: { pam: undefined } });
         setHasPam(false);
         setAuditResult(null);
         setPreCheckResult(null); // Fix: Clear pre-check result
@@ -519,6 +532,7 @@ export default function ForensicApp() {
     const clearContract = () => {
         localStorage.removeItem('contract_audit_result');
         localStorage.removeItem('contract_audit_file_fingerprint');
+        cacheManager.saveCase({ contract: null, fingerprints: { contract: undefined } });
         setHasContract(false);
         setAuditResult(null);
         setPreCheckResult(null); // Fix: Clear pre-check result

@@ -14,11 +14,9 @@ type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'can
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
 
-    // Clear session data on refresh (mount)
-    // Clear session data on refresh (mount) to ensure a clean state as requested
+    // Clear active session data on refresh (mount) to ensure a clean state
+    // as requested by the user. Historical data remains in cacheManager.
     React.useEffect(() => {
-        // We clear the "active" markers so the user starts fresh, 
-        // but the data remains in cacheManager history.
         localStorage.removeItem('forensic_active_case_id');
         localStorage.removeItem('clinic_audit_result');
         localStorage.removeItem('pam_audit_result');
@@ -28,7 +26,7 @@ export function AppWithTabs() {
         localStorage.removeItem('pam_audit_file_fingerprint');
         localStorage.removeItem('contract_audit_file_fingerprint');
 
-        console.log('[System] ℹ️ Sesión activa reseteada para inicio limpio. Historial preservado en Memoria Forense.');
+        console.log('[System] ℹ️ Sesión activa resetada para inicio limpio. Historial preservado en Memoria Forense.');
     }, []);
 
     const handleTabChange = (tab: DocumentType) => {

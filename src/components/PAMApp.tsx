@@ -149,29 +149,39 @@ export default function PAMApp() {
             })
         );
 
-        // Smart Cache Check
+        // Smart Cache Check (History-aware)
         const queueToProcess = await Promise.all(queue.map(async (item) => {
-            // Check if this specific file result is already cached to avoid re-processing
-            if (hasCache) {
-                try {
-                    const cached = JSON.parse(localStorage.getItem('pam_audit_result') || 'null');
-                    const cachedFingerprint = localStorage.getItem('pam_audit_file_fingerprint'); // { name, size }
+            try {
+                const existingCase = cacheManager.getCaseByFingerprint('pam', item.file.name, item.file.size);
 
-                    if (cached && cachedFingerprint) {
-                        const fingerprint = JSON.parse(cachedFingerprint);
-                        // Strict check: Name + Size must match
-                        if (fingerprint.name === item.file.name && fingerprint.size === item.file.size && !processingLockRef.current) {
-                            addLog(`[SISTEMA] ⚡ Archivo PAM '${item.file.name}' ya encontrado en memoria. Carga instantánea.`);
+                if (existingCase && existingCase.pam) {
+                    addLog(`[SISTEMA] ⚡ Archivo PAM '${item.file.name}' reconocido en Memoria Forense. Carga instantánea.`);
 
-                            // If it's a match, we update the state immediately
-                            setPamResult(cached);
-                            setHasCache(true);
-                            setStatus(AppStatus.SUCCESS);
+                    // Restore PAM data
+                    setPamResult(existingCase.pam);
+                    setHasCache(true);
+                    setStatus(AppStatus.SUCCESS);
 
-                            return { ...item, status: 'done' as const, result: cached };
-                        }
+                    // If there's a completed audit result, restore it too!
+                    if (existingCase.auditResult) {
+                        localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.auditResult));
+                        addLog(`[SISTEMA] ⚡ Análisis previo asociado recuperado automáticamente.`);
                     }
-                } catch (e) { }
+
+                    // RFC-INSTANT: Restore full context of the recognized case
+                    if (existingCase.bill) localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.bill));
+                    if (existingCase.contract) localStorage.setItem('contract_audit_result', JSON.stringify(existingCase.contract));
+
+                    if (existingCase.fingerprints.bill) localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.bill));
+                    if (existingCase.fingerprints.contract) localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.contract));
+
+                    localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify({ name: item.file.name, size: item.file.size }));
+                    localStorage.setItem('forensic_active_case_id', existingCase.id);
+
+                    return { ...item, status: 'done' as const, result: existingCase.pam };
+                }
+            } catch (e) {
+                console.warn('PAM history check failed', e);
             }
             return item;
         }));

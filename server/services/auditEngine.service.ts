@@ -19,6 +19,8 @@ import { AlphaFoldService } from './alphaFold.service.js';
 // NEW: Contract Reconstructibility Service (CRC)
 import { ContractReconstructibilityService } from './contractReconstructibility.service.js';
 import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation, ExtractedAccount, EventoHospitalario } from '../../src/types.js';
+import { UnidadReferencia } from './financialValidator.service.js';
+
 // NEW: Import Jurisprudence Layer (Precedent-First Decision System)
 import { JurisprudenceStore, JurisprudenceEngine, extractFeatureSet, learnFromAudit } from './jurisprudence/index.js';
 // NEW: Import C-NC Rules (Opacity Non-Collapse)
@@ -79,6 +81,45 @@ export interface DecisionResult {
     errors: string[];
     score?: number;
     valorUnidadReferencia?: string;
+}
+
+// ============================================================================
+// V6.1: FORENSIC BLUEPRINT (Thresholds & Promotion Gate)
+// ============================================================================
+
+const THRESHOLDS: Record<string, number> = {
+    TOPE_EXPLICITO: 0.7,
+    TOPE_POR_EVENTO: 0.6,
+    DEDUCCION_POR_RESIDUO: 0.5,
+    INFERENCIA_POR_PATRON: 0.8,
+};
+
+function unidadVerificableParaFinding(
+    unidad: UnidadReferencia | undefined,
+    findingType: string
+): { ok: boolean; reason?: string } {
+    if (!unidad) return { ok: false, reason: "Unidad no definida" };
+    if (unidad.estado !== "VERIFICABLE") {
+        return { ok: false, reason: `Unidad no verificable (${unidad.estado})` };
+    }
+    const threshold = THRESHOLDS[findingType] ?? 0.8;
+    if (unidad.vam_confidence_score < threshold) {
+        return { ok: false, reason: `Score insuficiente (${unidad.vam_confidence_score} < ${threshold})` };
+    }
+    return { ok: true };
+}
+
+export type PromotionEvidence = {
+    pattern_repetition_count: number; // >=2
+    contract_clause_support: boolean;
+    jurisprudence_support: boolean;
+    cross_event_confirmation?: boolean;
+};
+
+function canPromoteBtoA(ev: PromotionEvidence): boolean {
+    if (ev.pattern_repetition_count < 2) return false;
+    if (!(ev.contract_clause_support || ev.jurisprudence_support)) return false;
+    return true;
 }
 
 // ============================================================================
@@ -432,8 +473,27 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
     if (!isSpecificFinance) return false;
 
     // 2. Enhanced Verification Logic (Algorithm of Ceilings)
-    const event = eventos.find(e => {
-        if (!e.analisis_financiero) return false;
+    // Find matching event with financial analysis
+    for (const e of eventos) {
+        if (!e.analisis_financiero) continue;
+
+        // V6.1: Check if unit is verifiable for this specific finding type
+        const findingType = (f.category === "B" || /OPACIDAD/i.test(label)) ? "INFERENCIA_POR_PATRON" : "TOPE_EXPLICITO";
+
+        // Construct a pseudo-UnidadReferencia from event analysis if not fully available
+        const unidadProxy: any = {
+            estado: e.analisis_financiero.tope_cumplido ? "VERIFICABLE" : "NO_VERIFICABLE_POR_OPACIDAD", // Basic proxy
+            vam_confidence_score: e.nivel_confianza === "ALTA" ? 1.0 : 0.6,
+            tipo: e.analisis_financiero.unit_type
+        };
+
+        const check = unidadVerificableParaFinding(unidadProxy, findingType);
+        if (!check.ok) {
+            if (!f.rationale?.includes("[V6.1 BLOQUEO]")) {
+                f.rationale = (f.rationale || "") + `\n[V6.1 BLOQUEO] ${check.reason}. No se puede validar matemáticamente.`;
+            }
+            continue;
+        }
 
         // A. Standard Check (Event Processor success)
         if ((e.analisis_financiero.tope_cumplido || e.analisis_financiero.equipo_quirurgico_completo) && e.nivel_confianza === "ALTA") {
@@ -441,14 +501,10 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
         }
 
         // B. Forensic Multiplier Check (New "1.2 AC2" logic)
-        // Check if we have a parsed ceiling in the event analysis matching the "1.2" factor
-        // Only if we have the extracted rule available in the event context (often in 'regla_aplicada')
         if (e.analisis_financiero.regla_aplicada) {
             const ruleTope = e.analisis_financiero.regla_aplicada.tope_aplicado || e.analisis_financiero.regla_aplicada.tope || "";
 
-            // 🚫 UF Check: Literal only
             if (/\bUF\b/i.test(ruleTope)) {
-                // Solo literal, no validated
                 f.contract_ceiling = ruleTope;
                 if (!f.rationale?.includes("TOPE_LITERAL")) {
                     f.rationale = (f.rationale || "") + `\n[TOPE_LITERAL] Límite contractual en UF detectado, se conserva literal y no se usa para cálculo.`;
@@ -459,30 +515,13 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
             const parsed = parseCeilingFactor(ruleTope);
 
             if ((parsed.unit === 'AC2' || parsed.unit === 'VAM') && parsed.factor > 0) {
-                // If the finding amount is explicitly validated or reconstructed using this factor
-                // (This usually requires finding.amount <= Arancel * Factor)
-                // For now, we assume if the event exists and matches the procedure, checking the ceiling 
-                // is the responsibility of the reconstruction engine. 
-                // But we explicitely MARK it as captured.
                 if (!f.rationale?.includes("ALGORITMO DE TOPES")) {
                     f.rationale = (f.rationale || "") + `\n[ALGORITMO DE TOPES] CAPTURADO: Límite contractual '${ruleTope}' detectado. Factor ${parsed.factor}x${parsed.unit}.`;
                 }
-                // Explicit UI Column Population
                 f.contract_ceiling = ruleTope;
-
-                return true; // We consider it validated because the rule IS captured.
+                return true;
             }
         }
-
-        return false;
-    });
-
-    if (event) return true;
-
-    // Fallback: Log failure if it's an honorario but no ceiling captured
-    if (isSpecificFinance && !f.rationale?.includes("[ALGORITMO DE TOPES]")) {
-        // Only add negative log if we really expected a match but failed
-        // f.rationale = (f.rationale || "") + "\n[ALGORITMO DE TOPES] NO CAPTURADO: Falta definici�n contractual expl�cita.";
     }
 
     return false;
@@ -518,29 +557,76 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
     const isIndeterminateText = /INDETERMINACION|NO PERMITE CLASIFICAR|NO SE PUEDE VERIFICAR|LEY 20.?584/i.test(upperRationale);
     const isOpacity = isOpacityFinding(f);
 
+    // V6.1: Unit Verifiability Guard (Forzar Z if depends on unit but unit is not verifiable)
+    // Rule: tope, valorización, prorrateo depend on unit.
+    const dependsOnUnit = /TOPE|VALORIZACION|PRORRATEO|VAM|AC2/i.test(upperRationale) || /TOPE|VALORIZACION|PRORRATEO/i.test((f.label || "").toUpperCase());
+    if (dependsOnUnit && !/MAPPING|REGLA_C_NC/i.test(upperRationale)) {
+        const eventWithFinance = eventos.find(e => e.analisis_financiero);
+        // Proxy check using the first usable event
+        const unidadProxy: any = eventWithFinance?.analisis_financiero ? {
+            estado: eventWithFinance.analisis_financiero.tope_cumplido ? "VERIFICABLE" : "NO_VERIFICABLE_POR_OPACIDAD",
+            vam_confidence_score: eventWithFinance.nivel_confianza === "ALTA" ? 1.0 : 0.6,
+            tipo: eventWithFinance.analisis_financiero.unit_type
+        } : null;
+
+        const findingType = f.category === "B" ? "INFERENCIA_POR_PATRON" : "TOPE_EXPLICITO";
+        const check = unidadVerificableParaFinding(unidadProxy, findingType);
+
+        if (!check.ok) {
+            return {
+                ...f,
+                category: "Z",
+                action: "SOLICITAR_ACLARACION",
+                rationale: rationale + `\n[V6.1 BLOQUEO] ${check.reason}. Inferencia financiera no permitida por estado de unidad.`
+            };
+        }
+    }
+
     // 2. HIGHEST PRIORITY: Confirm Irregularities (Category A)
     // If it's a confirmed breach (Unbundling, Medical Irregularity), it stays A regardless of math success.
     if (f.category === "A" && amount > 0) return { ...f, action: "IMPUGNAR", rationale };
     if (isProtected && amount > 0) return { ...f, category: "A", action: "IMPUGNAR", rationale };
 
+    // V6.1: Evidence Promotion Gate (B -> A)
+    if (f.category === "B" && amount > 0) {
+        const ev: PromotionEvidence = {
+            pattern_repetition_count: (f as any).patternCount || 0,
+            contract_clause_support: /INCUMPLIMIENTO|DERECHO|DOCTRINA/i.test(rationale),
+            jurisprudence_support: /PRECEDENTE|CORRECCIÓN|JURISPRUDENCIA/i.test(rationale)
+        };
+
+        if (canPromoteBtoA(ev)) {
+            return {
+                ...f,
+                category: "A",
+                action: "IMPUGNAR",
+                rationale: rationale + `\n[PROMOCIÓN V6.1] Promovido a Cat A por patrón repetitivo (x${ev.pattern_repetition_count}) y anclaje normativo/contractual.`
+            };
+        }
+    }
+
     // 3. PRAGMATIC OVERRIDE: Mathematical Fidelity (Category OK)
     // Rule C-FIN-01: If math matches perfectly, promote to OK even if it was technically opaque.
     if ((isOpacity || isIndeterminateText) && isValidatedFinancial(f, eventos)) {
+        const updatedRationale = f.rationale || "";
         const unit = eventWithFinance?.analisis_financiero?.unit_type || "VA/AC2/BAM";
         return {
             ...f,
             category: "OK",
             action: "ACEPTAR",
-            rationale: rationale + `\n[PRAGMATISMO] Consistencia matem�tica confirmada (Tope ${unit} verificado). El pago es correcto seg�n el contrato y la elecci�n del paciente.`
+            rationale: updatedRationale + `\n[PRAGMATISMO] Consistencia matemática confirmada (Tope ${unit} verificado). El pago es correcto según el contrato y la elección del paciente.`
         };
     }
+
+    // Sync rationale in case isValidatedFinancial added a BLOCK log even if it returned false
+    rationale = f.rationale || "";
 
     // 4. LOWER PRIORITY: Forced Indeterminacy (Category Z)
     if (isIndeterminateText) {
         return { ...f, category: "Z", action: "SOLICITAR_ACLARACION", rationale };
     }
 
-    // 5. MEDICAMENTOS / MATERIALES (Categorizaci�n Can�nica)
+    // 5. MEDICAMENTOS / MATERIALES (Categorización Canónica)
     const isMedMat = /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(f.label || "") || /MEDICAMENTO|MATERIAL|INSUMO|FARMACO/i.test(upperRationale);
 
     if (isOpacity || (isMedMat && !isProtected)) {
@@ -777,7 +863,19 @@ export function finalizeAuditCanonical(input: {
 
     // Step 1: Deterministic Categorization (A, B, Z, OK)
     const eventos = input.eventos || [];
+
+    // V6.1: Pattern Count Calculation (Anti-Abuse Gate)
+    const labelCounts = new Map<string, number>();
+    findings.forEach(f => {
+        const label = (f.label || "").toUpperCase();
+        labelCounts.set(label, (labelCounts.get(label) || 0) + 1);
+    });
+
     let processedFindings = findings.map(f => {
+        // Inject patternCount into finding object
+        const label = (f.label || "").toUpperCase();
+        (f as any).patternCount = labelCounts.get(label) || 1;
+
         const catFinding = canonicalCategorizeFinding(f, input.reconstructible, eventos);
 
         // Fix: Hypothesis Parent Correction

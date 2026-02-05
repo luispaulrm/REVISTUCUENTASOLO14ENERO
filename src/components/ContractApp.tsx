@@ -80,28 +80,40 @@ export default function ContractApp() {
         const file = event.target.files?.[0];
         if (!file) return;
 
-        // Smart Cache Check
+        // Smart Cache Check (History-aware)
         try {
-            const cached = JSON.parse(localStorage.getItem('contract_audit_result') || 'null');
-            const cachedFingerprint = localStorage.getItem('contract_audit_file_fingerprint'); // { name, size }
+            const existingCase = cacheManager.getCaseByFingerprint('contract', file.name, file.size);
 
-            if (cached && cachedFingerprint) {
-                const fingerprint = JSON.parse(cachedFingerprint);
-                if (fingerprint.name === file.name && fingerprint.size === file.size) {
-                    addLog(`[SISTEMA] ⚡ Contrato '${file.name}' ya encontrado en memoria. Carga instantánea.`);
-                    setContractResult(cached);
-                    setFileName(file.name);
-                    setStatus(AppStatus.SUCCESS);
+            if (existingCase && existingCase.contract) {
+                addLog(`[SISTEMA] ⚡ Contrato '${file.name}' reconocido en Memoria Forense. Carga instantánea.`);
+                setContractResult(existingCase.contract);
+                setFileName(file.name);
+                setStatus(AppStatus.SUCCESS);
 
-                    // Asegurar métricas visuales si existen en caché
-                    if (cached.usage) {
-                        setRealTimeUsage(cached.usage);
-                    }
-                    return;
+                // If there's a completed audit result, restore it too!
+                if (existingCase.auditResult) {
+                    localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.auditResult));
+                    addLog(`[SISTEMA] ⚡ Análisis previo asociado recuperado automáticamente.`);
                 }
+
+                // RFC-INSTANT: Restore full context of the recognized case
+                if (existingCase.bill) localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.bill));
+                if (existingCase.pam) localStorage.setItem('pam_audit_result', JSON.stringify(existingCase.pam));
+
+                if (existingCase.fingerprints.bill) localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.bill));
+                if (existingCase.fingerprints.pam) localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.pam));
+
+                localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify({ name: file.name, size: file.size }));
+                localStorage.setItem('forensic_active_case_id', existingCase.id);
+
+                // Ensure visual metrics if they exist
+                if (existingCase.contract.usage) {
+                    setRealTimeUsage(existingCase.contract.usage);
+                }
+                return;
             }
         } catch (e) {
-            console.warn('Cache check failed', e);
+            console.warn('Contract history check failed', e);
         }
 
         setStatus(AppStatus.UPLOADING);

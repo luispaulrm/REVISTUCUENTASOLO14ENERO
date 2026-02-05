@@ -161,31 +161,35 @@ const App: React.FC = () => {
     setFileQueue(queue);
     setStatus(AppStatus.UPLOADING);
 
-    // Start processing queue (checking cache first)
-    // Start processing queue (checking cache first)
+    // Start processing queue (checking cache history first)
     const queueToProcess = await Promise.all(queue.map(async (item) => {
-      // Check if this specific file result is already cached to avoid re-processing
-      if (hasCache) {
-        try {
-          const cached = JSON.parse(localStorage.getItem('clinic_audit_result') || 'null');
-          const cachedFingerprint = localStorage.getItem('clinic_audit_file_fingerprint'); // { name, size }
+      // Use cacheManager to find if this file exists in ANY previous case
+      try {
+        const existingCase = cacheManager.getCaseByFingerprint('bill', item.file.name, item.file.size);
 
-          if (cached && cachedFingerprint) {
-            const fingerprint = JSON.parse(cachedFingerprint);
-            // Check if file matches fingerprint AND we are not currently processing something else
-            if (fingerprint.name === item.file.name && fingerprint.size === item.file.size && !processingLockRef.current) {
-              addLog(`[SISTEMA] ⚡ Archivo '${item.file.name}' ya encontrado en memoria. Carga instantánea.`);
-              setResult(cached);
-              setHasCache(true);
-              setStatus(AppStatus.SUCCESS);
+        if (existingCase && existingCase.bill) {
+          addLog(`[SISTEMA] ⚡ Archivo '${item.file.name}' reconocido en Memoria Forense. Carga instantánea.`);
 
-              // Mark as done in queue visibly
-              return { ...item, status: 'done' as const, result: cached };
-            }
-          }
-        } catch (e) {
-          console.warn('Cache check failed', e);
+          // Restore the bill data
+          setResult(existingCase.bill);
+          setHasCache(true);
+          setStatus(AppStatus.SUCCESS);
+
+          // RFC-INSTANT: Restore full context of the recognized case
+          if (existingCase.pam) localStorage.setItem('pam_audit_result', JSON.stringify(existingCase.pam));
+          if (existingCase.contract) localStorage.setItem('contract_audit_result', JSON.stringify(existingCase.contract));
+
+          if (existingCase.fingerprints.pam) localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.pam));
+          if (existingCase.fingerprints.contract) localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.contract));
+
+          localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify({ name: item.file.name, size: item.file.size }));
+          localStorage.setItem('forensic_active_case_id', existingCase.id);
+
+          // Mark as done in queue visibly
+          return { ...item, status: 'done' as const, result: existingCase.bill };
         }
+      } catch (e) {
+        console.warn('Cache history check failed', e);
       }
       return item;
     }));
