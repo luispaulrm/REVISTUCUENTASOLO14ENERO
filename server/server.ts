@@ -1214,10 +1214,10 @@ import { handleAuditOrchestration } from './endpoints/audit.endpoint.js';
 app.post('/api/cuenta/taxonomy-phase1', handleTaxonomyPhase1);
 app.post('/api/audit/run', handleAuditOrchestration);
 
-// import { handleAuditAnalysis } from './endpoints/audit.endpoint.js'; 
+import { handleAuditAnalysis } from './endpoints/audit.endpoint.js';
 app.post('/api/extract-pam', handlePamExtraction);
 app.post('/api/extract-contract', handleContractExtraction);
-// app.post('/api/audit/analyze', handleAuditAnalysis);
+app.post('/api/audit/analyze', handleAuditAnalysis);
 app.post('/api/project', handleProjection);
 
 // Servir archivos estáticos del frontend

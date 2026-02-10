@@ -40,3 +40,49 @@ export async function handleAuditOrchestration(req: Request, res: Response) {
         res.status(500).json({ error: error.message || "Internal Server Error" });
     }
 }
+
+// RESTORED: Full Forensic Audit Endpoint (Legacy/Main Flow)
+import { performForensicAudit } from '../services/auditEngine.service.js';
+
+export async function handleAuditAnalysis(req: Request, res: Response) {
+    // 1. Setup headers for NDJSON streaming
+    res.setHeader('Content-Type', 'application/x-ndjson');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    try {
+        const { cuentaJson, pamJson, contratoJson, htmlContext, isAgentMode } = req.body;
+        const apiKey = process.env.GEMINI_API_KEY || "";
+
+        if (!cuentaJson) {
+            res.write(JSON.stringify({ type: 'error', message: 'Falta cuentaJson' }) + '\n');
+            res.end();
+            return;
+        }
+
+        console.log(`[POST /api/audit/analyze] Starting Full Forensic Audit (AgentMode: ${isAgentMode})...`);
+
+        // 2. Call the Engine
+        const result = await performForensicAudit(
+            cuentaJson,
+            pamJson,
+            contratoJson,
+            apiKey,
+            (msg) => res.write(JSON.stringify({ type: 'log', message: msg }) + '\n'),
+            htmlContext,
+            "", // contractMarkdown (New param)
+            (usage) => res.write(JSON.stringify({ type: 'usage', usage }) + '\n'),
+            (progress) => res.write(JSON.stringify({ type: 'progress', progress }) + '\n'),
+            isAgentMode
+        );
+
+        // 3. Send Final Result
+        res.write(JSON.stringify({ type: 'final', data: result }) + '\n');
+        res.end();
+
+    } catch (error: any) {
+        console.error("Error in handleAuditAnalysis:", error);
+        res.write(JSON.stringify({ type: 'error', message: error.message || "Internal Server Error" }) + '\n');
+        res.end();
+    }
+}
