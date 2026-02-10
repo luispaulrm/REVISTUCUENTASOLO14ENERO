@@ -1,6 +1,9 @@
 ﻿import { CANONICAL_MANDATE_TEXT } from '../data/canonical_contract_mandate.ts';
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { GeminiService } from './gemini.service.ts';
+import { GeminiService } from "./gemini.service.js"; // Ensure this import exists
+import { TaxonomyPhase1Service } from "./taxonomyPhase1.service.js";
+import { SkeletonService } from "./skeleton.service.js";
+import { AlphaFoldService } from "./alphaFold.service.js";
 import { AUDIT_PROMPT, FORENSIC_AUDIT_SCHEMA } from '../config/audit.prompts.ts';
 import { AI_MODELS, GENERATION_CONFIG } from '../config/ai.config.ts';
 import {
@@ -15,7 +18,6 @@ import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEn
 import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRouter.service.ts';
 // NEW: Import Balance Calculator (V5 Hypothesis-Aware)
 import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.service.ts';
-import { AlphaFoldService } from './alphaFold.service.ts';
 // NEW: Contract Reconstructibility Service (CRC)
 import { ContractReconstructibilityService } from './contractReconstructibility.service.ts';
 import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation, ExtractedAccount, EventoHospitalario } from '../../src/types.ts';
@@ -100,11 +102,11 @@ function unidadVerificableParaFinding(
 ): { ok: boolean; reason?: string } {
     if (!unidad) return { ok: false, reason: "Unidad no definida" };
     if (unidad.estado !== "VERIFICABLE") {
-        return { ok: false, reason: `Unidad no verificable (${unidad.estado})` };
+        return { ok: false, reason: `Unidad no verificable(${unidad.estado})` };
     }
     const threshold = THRESHOLDS[findingType] ?? 0.8;
     if (unidad.vam_confidence_score < threshold) {
-        return { ok: false, reason: `Score insuficiente (${unidad.vam_confidence_score} < ${threshold})` };
+        return { ok: false, reason: `Score insuficiente(${unidad.vam_confidence_score} < ${threshold})` };
     }
     return { ok: true };
 }
@@ -184,7 +186,7 @@ export function resolveDecision(params: {
     let resZ = rawZ;
 
     if (resA + resB + resZ > T + 10) {
-        errors.push(`CONFLICTO_DATOS: La suma de hallazgos ($${(resA + resB + resZ).toLocaleString()}) excede el total del copago ($${T.toLocaleString()}). Aplicando priorización forense.`);
+        errors.push(`CONFLICTO_DATOS: La suma de hallazgos($${(resA + resB + resZ).toLocaleString()}) excede el total del copago($${T.toLocaleString()}).Aplicando priorización forense.`);
 
         // Step 1: Reduce Z (Opacity)
         const diffZ = Math.min(resZ, (resA + resB + resZ) - T);
@@ -205,7 +207,7 @@ export function resolveDecision(params: {
     const finalTotal = Math.round(resA + resB + resZ + resOK);
     const invariantsOk = Math.abs(finalTotal - T) < 10;
     if (!invariantsOk) {
-        errors.push(`FALLO_CRITICO_INVARIANTE: A+B+Z+OK=${finalTotal} != T=${T}.`);
+        errors.push(`FALLO_CRITICO_INVARIANTE: A + B + Z + OK=${finalTotal} != T=${T}.`);
     }
 
     const hasSignificantOverlap = (rawA + rawB + rawZ > T * 1.5); // Serious double counting warning
@@ -243,7 +245,7 @@ export function resolveDecision(params: {
     // Forensic Prioritization Message in Fundamento
     let conflictNote = "";
     if (hasConflict) {
-        conflictNote = `[RECONCILIACIÓN FORENSE]: Se detectó solapamiento de hallazgos ($${(rawA + rawB + rawZ).toLocaleString()} vs Total $${T.toLocaleString()}). Se ha aplicado priorización técnica preservando los cobros improcedentes confirmados (Cat A) y ajustando la opacidad residual. `;
+        conflictNote = `[RECONCILIACIÓN FORENSE]: Se detectó solapamiento de hallazgos($${(rawA + rawB + rawZ).toLocaleString()} vs Total $${T.toLocaleString()}).Se ha aplicado priorización técnica preservando los cobros improcedentes confirmados(Cat A) y ajustando la opacidad residual. `;
     }
 
     // 5) Resumen y Confianza
@@ -259,9 +261,9 @@ export function resolveDecision(params: {
 
     const fundamento =
         conflictNote +
-        `Auditoría forense concluye estado ${estado}. ` +
-        `Balance: A=$${resA.toLocaleString()} | B=$${resB.toLocaleString()} | Z=$${resZ.toLocaleString()} | OK=$${resOK.toLocaleString()} | T=$${T.toLocaleString()}. ` +
-        `Opacidad=${(100 * opacidad).toFixed(1)}%. ` +
+        `Auditoría forense concluye estado ${estado}.` +
+        `Balance: A = $${resA.toLocaleString()} | B=$${resB.toLocaleString()} | Z=$${resZ.toLocaleString()} | OK=$${resOK.toLocaleString()} | T=$${T.toLocaleString()}.` +
+        `Opacidad = ${(100 * opacidad).toFixed(1)}%. ` +
         (errors.length ? `Ajustes: ${errors.join(" | ")}.` : "");
 
     return {
@@ -539,7 +541,7 @@ function isValidatedFinancial(f: Finding, eventos: EventoHospitalario[]): boolea
 
             if ((parsed.unit === 'AC2' || parsed.unit === 'VAM') && parsed.factor > 0) {
                 if (!f.rationale?.includes("ALGORITMO DE TOPES")) {
-                    f.rationale = (f.rationale || "") + `\n[ALGORITMO DE TOPES] CAPTURADO: Límite contractual '${ruleTope}' detectado. Factor ${parsed.factor}x${parsed.unit}.`;
+                    f.rationale = (f.rationale || "") + `\n[ALGORITMO DE TOPES]CAPTURADO: Límite contractual '${ruleTope}' detectado.Factor ${parsed.factor}x${parsed.unit}.`;
                 }
                 f.contract_ceiling = ruleTope;
                 return true;
@@ -572,7 +574,7 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
         const val = eventWithFinance.analisis_financiero.valor_unidad_inferido;
         const unit = eventWithFinance.analisis_financiero.unit_type || "VAM/AC2";
         if (!rationale.includes("VALOR REFERENCIAL ESTIMADO")) {
-            rationale += `\n[FORENSE] VALOR DE UNIDAD DEDUCIDO (${unit}): $${val.toLocaleString('es-CL')} (RTC NORM).`;
+            rationale += `\n[FORENSE] VALOR DE UNIDAD DEDUCIDO(${unit}): $${val.toLocaleString('es-CL')} (RTC NORM).`;
         }
     }
 
@@ -623,7 +625,7 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
                 ...f,
                 category: "A",
                 action: "IMPUGNAR",
-                rationale: rationale + `\n[PROMOCIÓN V6.1] Promovido a Cat A por patrón repetitivo (x${ev.pattern_repetition_count}) y anclaje normativo/contractual.`
+                rationale: rationale + `\n[PROMOCIÓN V6.1] Promovido a Cat A por patrón repetitivo(x${ev.pattern_repetition_count}) y anclaje normativo / contractual.`
             };
         }
     }
@@ -637,7 +639,7 @@ function canonicalCategorizeFinding(f: Finding, crcReconstructible: boolean, eve
             ...f,
             category: "OK",
             action: "ACEPTAR",
-            rationale: updatedRationale + `\n[PRAGMATISMO] Consistencia matemática confirmada (Tope ${unit} verificado). El pago es correcto según el contrato y la elección del paciente.`
+            rationale: updatedRationale + `\n[PRAGMATISMO] Consistencia matemática confirmada(Tope ${unit} verificado).El pago es correcto según el contrato y la elección del paciente.`
         };
     }
 
@@ -789,7 +791,7 @@ function assertCanonicalClosure(findings: Finding[], balance: BalanceAlpha, debu
     const protectedA = findings.filter(h => isProtectedCatA(h, eventos) && h.category === "A" && h.amount > 0);
 
     if (protectedA.length > 0 && balance.A <= 0) {
-        const msg = `C-CLOSE-01 VIOLATION: existen ${protectedA.length} hallazgos Cat A protegidos pero balance.A=0`;
+        const msg = `C - CLOSE-01 VIOLATION: existen ${protectedA.length} hallazgos Cat A protegidos pero balance.A = 0`;
         debug.push(msg);
         console.error(msg);
         // We won't throw in prod to avoid crashing, but we'll log it heavily.
@@ -797,7 +799,7 @@ function assertCanonicalClosure(findings: Finding[], balance: BalanceAlpha, debu
 
     const leaked = findings.filter(h => isProtectedCatA(h, eventos) && h.amount > 0 && h.category !== "A");
     if (leaked.length > 0) {
-        const msg = `C-A-01 VIOLATION: ${leaked.length} hallazgo(s) protegido(s) no quedaron en Cat A`;
+        const msg = `C - A-01 VIOLATION: ${leaked.length} hallazgo(s) protegido(s) no quedaron en Cat A`;
         debug.push(msg);
         console.error(msg);
     }
@@ -845,7 +847,7 @@ function netFindingsFamilies(findings: Finding[]): Finding[] {
 
                 // Annotate rationale if not already annotated
                 if (toDeduct > 0 && !(zf.rationale || "").includes("[NETTING]")) {
-                    zf.rationale = (zf.rationale || "") + `\n[NETTING] Reducido por hallazgos A ($${toDeduct.toLocaleString("es-CL")}) de misma familia.`;
+                    zf.rationale = (zf.rationale || "") + `\n[NETTING] Reducido por hallazgos A($${toDeduct.toLocaleString("es-CL")}) de misma familia.`;
                 }
 
                 deduction -= toDeduct;
@@ -1017,8 +1019,8 @@ export function finalizeAuditCanonical(input: {
     if (!canVerifyCeilings) { fundamento.push('No es posible verificar aplicación de topes del plan (verificación de topes no disponible).'); }
     if (contratoVacio) fundamento.push("Violaci�n Regla C-01: Contrato sin cl�usulas de cobertura (coberturas vac�o).");
     if (pamOpaco) fundamento.push("Violaci�n Regla C-04: Opacidad estructural en PAM (agrupaci�n impide trazabilidad fina).");
-    if (balance.A > 0) fundamento.push(`Hallazgos confirmados: cobros improcedentes exigibles identificados (A) por $${balance.A.toLocaleString("es-CL")}.`);
-    if (balance.Z > 0) fundamento.push(`Monto bajo controversia por opacidad (Z/Indeterminado): $${balance.Z.toLocaleString("es-CL")} (requiere desglose/reliquidaci�n).`);
+    if (balance.A > 0) fundamento.push(`Hallazgos confirmados: cobros improcedentes exigibles identificados(A) por $${balance.A.toLocaleString("es-CL")}.`);
+    if (balance.Z > 0) fundamento.push(`Monto bajo controversia por opacidad(Z / Indeterminado): $${balance.Z.toLocaleString("es-CL")} (requiere desglose / reliquidaci�n).`);
 
     fundamento.push(resolved.fundamento);
 
@@ -1443,10 +1445,48 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
     traceAnalysis.split('\n').forEach(line => log(`[AuditEngine]   ${line} `));
 
     // ============================================================================
-    // ALPHA FOLD ENGINE (V6 - Deterministic Signal Processing)
+    // ALPHA FOLD ENGINE (V6 - Deterministic Signals)
     // ============================================================================
     log('[AuditEngine] ?? Activating AlphaFold Engine (V6 - Deterministic Signals)...');
     onProgressUpdate?.(37);
+
+    // --- NEW: ACCOUNT SKELETON (PHASE 1.5) ---
+    // Moved from server.ts to ensure it runs during the audit process
+    let skeleton = null;
+    try {
+        const allItemsForSkeleton: any[] = [];
+
+        // Extract items from cleanedCuenta
+        if (cleanedCuenta.sections) {
+            cleanedCuenta.sections.forEach((sec: any) => {
+                if (sec.items) allItemsForSkeleton.push(...sec.items);
+            });
+        }
+
+        if (allItemsForSkeleton.length > 0) {
+            log(`📊 Generando estructura jerárquica de la cuenta (${allItemsForSkeleton.length} ítems)...`);
+            // Use the same API key that is working for the audit
+            const geminiForTaxonomy = new GeminiService(apiKey);
+            const taxonomyService = new TaxonomyPhase1Service(geminiForTaxonomy);
+            const skeletonService = new SkeletonService();
+
+            const rawItems = allItemsForSkeleton.map((it, idx) => ({
+                id: it.id || `item-${idx}`,
+                text: it.description || it.text || "Item sin descripción",
+                sourceRef: it.code || ""
+            }));
+
+            // Run classification
+            const taxonomyResults = await taxonomyService.classifyItems(rawItems);
+            skeleton = skeletonService.generateSkeleton(taxonomyResults);
+            log(`✅ Esqueleto generado: ${skeleton.children?.length || 0} ramas detectadas.`);
+        } else {
+            log(`[SKELETON] No items found to generate skeleton.`);
+        }
+    } catch (skError: any) {
+        console.error('[SKELETON] Error generating account skeleton:', skError);
+        log(`[WARN] Falló la generación del esqueleto: ${skError.message}`);
+    }
 
     // 1. Extract Signals
     const alphaSignals = AlphaFoldService.extractSignals({
@@ -2621,6 +2661,7 @@ ${JSON.stringify(previousAuditResult, null, 2)}
         return {
             data: {
                 ...finalResult,
+                skeleton: skeleton, // Phase 1.5: Account Skeleton
                 // --- AlphaFold-Juridic: Final Integrated Output ---
                 pamState: pamState,
                 signals: alphaSignals,

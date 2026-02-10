@@ -4,66 +4,36 @@ import crypto from 'crypto';
 
 // --- PROMPT MAESTRO (STRICT VERSION) ---
 const TAXONOMY_SYSTEM_PROMPT = `
-ERES UN ANALISTA FORENSE DE CUENTAS CLÍNICAS (MÓDULO DE TAXONOMÍA).
-TU ÚNICA MISIÓN ES CLASIFICAR ÍTEMS CLÍNICOS EN UNA ESTRUCTURA CANÓNICA ESTRICTA.
-NO DEBES EMITIR JUICIOS DE VALOR NI AUDITORÍA. SOLO RESPONDE "QUÉ ES".
+ERES UN CLASIFICADOR FORENSE STRICT-JSON. TU INPUT SON ÍTEMS CLÍNICOS.
+TU OUTPUT ES SU CLASIFICACIÓN EN UNA TAXONOMÍA CANÓNICA.
 
-PARA CADA ÍTEM, ASIGNA:
-1. GRUPO (Enum: HOTELERA, PABELLON, INSUMOS, HONORARIOS)
-   - HOTELERA: Días cama, alimentación, servicios básicos, hostelería.
-   - PABELLON: Derecho de pabellón, tiempo de quirófano, recuperación.
-   - INSUMOS: Todo material, fármaco, insumo, dispositivo médico.
-   - HONORARIOS: Pagos a personas (cirujanos, equipos médicos, visitas).
+TAXONOMÍA:
+1. GRUPO: HOTELERA, PABELLON, INSUMOS, HONORARIOS.
+2. SUB_FAMILIA: FARMACOS, MATERIALES, LABORATORIO, IMAGENOLOGIA, ADMINISTRATIVO, N_A.
 
-2. SUB_FAMILIA (Enum: FARMACOS, MATERIALES, LABORATORIO, IMAGENOLOGIA, ADMINISTRATIVO, N_A)
-   - FARMACOS: Medicamentos, drogas, soluciones.
-   - MATERIALES: Jeringas, guantes, suturas, catéteres.
-   - LABORATORIO: Exámenes de sangre, cultivos.
-   - IMAGENOLOGIA: Rayos, TAC, Resonancia.
-   - ADMINISTRATIVO: Cargos administrativos, recargos.
-   - N_A: Si no aplica (ej: Días cama es N_A).
+ATRIBUTOS (boolean):
+- es_cargo_fijo: Cobro por estructura/tiempo, no consumo unitario.
+- es_recuperable: Bien físico que el paciente se lleva o consume.
+- requiere_respaldo_medico: Necesita receta/orden.
+- potencial_inherente_dia_cama: Incluido en día cama (ej. insumos básicos, enfermería).
+- potencial_inherente_pabellon: Incluido en derecho pabellón (ej. ropa, aseo).
+- potencial_no_clinico: Administrativo/Recargo.
+- potencial_parte_de_paquete: Parte de un kit.
 
-3. ATRIBUTOS (Booleanos. SIEMPRE true/false):
-   - es_cargo_fijo: Se cobra por estructura, no por consumo unitario variable?
-   - es_recuperable: ¿El ítem es un bien físico que el paciente se lleva o consume totalmente?
-   - requiere_respaldo_medico: ¿Necesita receta u orden médica explícita?
-   - potencial_inherente_dia_cama: (Flag) ¿Es algo que típicamente está incluido en el valor del día cama? (Ej: Jeringa básica, Tórula, Guante, Toma de signos vitales, Enfermería).
-   - potencial_inherente_pabellon: (Flag) ¿Es algo incluido en el derecho de pabellón? (Ej: Sutura básica, Ropa estéril, Aseo quirófano).
-   - potencial_no_clinico: (Flag) ¿Es un cargo administrativo o no sanitario?
-   - potencial_parte_de_paquete: (Flag) ¿Parece ser parte de un kit o paquete?
-
-OUTPUT FORMAT:
-DEBES RESPONDER EXCLUSIVAMENTE UN JSON VÁLIDO.
-UN ARRAY DE OBJETOS "TaxonomyResult".
-EL ORDEN DE SALIDA DEBE SER EXACTAMENTE EL MISMO QUE EL DE ENTRADA.
-LA CANTIDAD DE ITEMS DEBE SER LA MISMA.
-
-SCHEMA RESULTADO (TypeScript):
+OUTPUT FORMAT (STRICT JSON OBJECT):
 {
   "results": [
     {
-      "id": "string (mismo que input)",
+      "id": "string",
       "item_original": "string",
-      "grupo": "HOTELERA" | "PABELLON" | "INSUMOS" | "HONORARIOS",
-      "sub_familia": "FARMACOS" | "MATERIALES" | "LABORATORIO" | "IMAGENOLOGIA" | "ADMINISTRATIVO" | "N_A",
-      "atributos": {
-          "es_cargo_fijo": boolean,
-          "es_recuperable": boolean,
-          "requiere_respaldo_medico": boolean,
-          "potencial_inherente_dia_cama": boolean,
-          "potencial_inherente_pabellon": boolean,
-          "potencial_no_clinico": boolean,
-          "potencial_parte_de_paquete": boolean
-      },
-      "confidence": number (0.1 a 1.0),
-      "rationale_short": "string (max 10 words)"
+      "grupo": "ENUM",
+      "sub_familia": "ENUM",
+      "atributos": { ... },
+      "confidence": 0.0-1.0
     }
   ]
 }
-
-NO INVENTES CAMPOS. NO AGREGUES MARKDOWN (\`\`\`json). SOLO EL JSON PURO.
-SI TIENES DUDAS, CLASIFICA LO MEJOR POSIBLE Y BAJA EL CONFIDENCE.
-`;
+NO MARKDOWN. ONLY JSON.`;
 
 export class TaxonomyPhase1Service {
     private gemini: GeminiService;
@@ -190,11 +160,16 @@ export class TaxonomyPhase1Service {
 
             const parsed = JSON.parse(cleanJson);
 
-            if (!parsed.results || !Array.isArray(parsed.results)) {
-                throw new Error("Invalid structure: missing 'results' array");
+            let resultsArray: any[] = [];
+            if (Array.isArray(parsed)) {
+                resultsArray = parsed;
+            } else if (parsed && Array.isArray(parsed.results)) {
+                resultsArray = parsed.results;
+            } else {
+                throw new Error("Invalid structure: missing 'results' array or root array");
             }
 
-            return parsed.results;
+            return resultsArray;
 
         } catch (e: any) {
             if (attempt < 3) {

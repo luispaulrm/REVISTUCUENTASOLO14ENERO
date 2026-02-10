@@ -23,6 +23,7 @@ export class SkeletonService {
         ];
 
         console.log(`[SkeletonService] Generating skeleton for ${results.length} items.`);
+        const handledIds = new Set<string>();
 
         // 2. Build the tree
         for (const cat of categories) {
@@ -32,17 +33,20 @@ export class SkeletonService {
                 children: []
             };
 
-            // Filter items for this category
+            // Filter items for this category (that haven't been handled yet for strictness)
             const items = results.filter(r => {
-                if (cat.grupos && cat.grupos.includes(r.grupo)) return true;
-                if (cat.subfamilias && cat.subfamilias.includes(r.sub_familia as any)) return true;
-                return false;
+                if (handledIds.has(r.id)) return false;
+                let match = false;
+                if (cat.grupos && cat.grupos.includes(r.grupo)) match = true;
+                if (cat.subfamilias && cat.subfamilias.includes(r.sub_familia as any)) match = true;
+                return match;
             });
 
             if (items.length > 0) {
                 catNode.total_count = items.length;
+                items.forEach(it => handledIds.add(it.id));
 
-                // Group by Sub-Family within category if relevant
+                // Group by Sub-Family within category
                 const subFamilies = [...new Set(items.map(i => i.sub_familia))];
                 for (const sf of subFamilies) {
                     const sfItems = items.filter(i => i.sub_familia === sf);
@@ -57,13 +61,10 @@ export class SkeletonService {
         }
 
         // 3. Add "Otros" for remaining items
-        const handledIds = new Set(root.children!.flatMap(c => c.children || []).flatMap(() => [])); // Simplified
-        // Real check:
-        const handledItemsCount = root.children!.reduce((acc, c) => acc + c.total_count, 0);
-        if (handledItemsCount < results.length) {
+        if (handledIds.size < results.length) {
             root.children!.push({
                 name: "Otros / No Clasificados",
-                total_count: results.length - handledItemsCount
+                total_count: results.length - handledIds.size
             });
         }
 

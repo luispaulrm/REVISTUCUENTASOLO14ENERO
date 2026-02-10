@@ -37,7 +37,22 @@ export async function extractBillingData(
   try {
     while (true) {
       const { done, value } = await reader.read();
-      if (done) break;
+      if (done) {
+        // Handle any remaining data in the buffer
+        if (partialBuffer.trim()) {
+          try {
+            const update = JSON.parse(partialBuffer);
+            if (update.type === 'final') {
+              resultData = update.data;
+            } else if (update.type === 'usage' && onUsageUpdate) {
+              onUsageUpdate(update.usage);
+            }
+          } catch (e) {
+            console.error("Error parsing residual NDJSON:", e);
+          }
+        }
+        break;
+      }
 
       partialBuffer += decoder.decode(value, { stream: true });
       const lines = partialBuffer.split('\n');
