@@ -13,7 +13,7 @@ import { ParserService } from "./services/parser.service.js";
 import { AI_CONFIG, GENERATION_CONFIG } from "./config/ai.config.js";
 import { handlePamExtraction } from './endpoints/pam.endpoint.js';
 import { handleContractExtraction } from './endpoints/contract.endpoint.js';
-import { handleAuditAnalysis } from './endpoints/audit.endpoint.js';
+// No unnecessary imports
 import { handleProjection } from './endpoints/projection.endpoint.js';
 import { handleAskAuditor } from './endpoints/ask.endpoint.js';
 import { handlePreCheck } from './endpoints/precheck.endpoint.js';
@@ -22,6 +22,8 @@ import { handleCanonicalExtraction } from './endpoints/canonical.endpoint.js';
 import { LearnContractEndpoint } from './endpoints/learn-contract.endpoint.js';
 import { learnFromContract } from './services/contractLearning.service.js';
 import { BILL_PROMPT } from './prompts/bill.prompt.js';
+import { TaxonomyPhase1Service } from './services/taxonomyPhase1.service.js';
+import { SkeletonService } from './services/skeleton.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -162,6 +164,9 @@ app.post('/api/audit/pre-check', handlePreCheck);
 app.post('/api/generate-pdf', handleGeneratePdf);
 app.post('/api/extract-canonical', handleCanonicalExtraction);
 app.post('/api/learn-contract', LearnContractEndpoint);
+
+// import { handleTaxonomyClassification } from './endpoints/taxonomy.endpoint.js';
+// app.post('/api/audit/taxonomy', handleTaxonomyClassification);
 
 app.get('/api/contract-count', async (req, res) => {
     try {
@@ -1135,6 +1140,39 @@ app.post('/api/extract', async (req, res) => {
             console.error('[AUDIT] Error inferring AC2:', e);
         }
 
+        // --- NEW: ACCOUNT SKELETON (PHASE 1.5) ---
+        let skeleton = null;
+        try {
+            const allItemsForSkeleton: any[] = [];
+            for (const sec of sectionsMap.values()) {
+                allItemsForSkeleton.push(...sec.items);
+            }
+
+            if (allItemsForSkeleton.length > 0) {
+                forensicLog(`📊 Generando estructura jerárquica de la cuenta (${allItemsForSkeleton.length} ítems)...`);
+                // Use the same API key that worked for extraction
+                const geminiForTaxonomy = new GeminiService(activeApiKey);
+                const taxonomyService = new TaxonomyPhase1Service(geminiForTaxonomy);
+                const skeletonService = new SkeletonService();
+
+                const rawItems = allItemsForSkeleton.map((it, idx) => ({
+                    id: it.id || `item-${idx}`,
+                    text: it.description || "",
+                    sourceRef: it.code || ""
+                }));
+
+                const taxonomyResults = await taxonomyService.classifyItems(rawItems);
+                skeleton = skeletonService.generateSkeleton(taxonomyResults);
+                forensicLog(`✅ Esqueleto generado: ${skeleton.children?.length || 0} ramas detectadas.`);
+            } else {
+                console.log(`[SKELETON] No items found to generate skeleton.`);
+            }
+        } catch (skError) {
+            console.error('[SKELETON] Error generating account skeleton:', skError);
+        }
+
+        console.log(`[SUCCESS] Audit data prepared. Skeleton present: ${!!skeleton}`);
+
         const auditData = {
             clinicName: clinicName,
             patientName: patientName,
@@ -1145,7 +1183,9 @@ app.post('/api/extract', async (req, res) => {
             sections: Array.from(sectionsMap.values()),
             clinicStatedTotal: detectedInflation ? Math.round((clinicGrandTotalField || finalSumOfSections) / 100) : (clinicGrandTotalField || finalSumOfSections),
             // INJECT INFERRED AC2 (CANONICAL)
-            valorUnidadReferencia: inferredAC2
+            valorUnidadReferencia: inferredAC2,
+            // INJECT SKELETON
+            skeleton: skeleton
         };
 
 
@@ -1168,10 +1208,16 @@ app.post('/api/extract', async (req, res) => {
 });
 
 // ========== PAM ENDPOINT (NEW) ==========
-// Endpoint para análisis de documentos PAM
+import { handleTaxonomyPhase1 } from './endpoints/taxonomy.endpoint.js';
+import { handleAuditOrchestration } from './endpoints/audit.endpoint.js';
+
+app.post('/api/cuenta/taxonomy-phase1', handleTaxonomyPhase1);
+app.post('/api/audit/run', handleAuditOrchestration);
+
+// import { handleAuditAnalysis } from './endpoints/audit.endpoint.js'; 
 app.post('/api/extract-pam', handlePamExtraction);
 app.post('/api/extract-contract', handleContractExtraction);
-app.post('/api/audit/analyze', handleAuditAnalysis);
+// app.post('/api/audit/analyze', handleAuditAnalysis);
 app.post('/api/project', handleProjection);
 
 // Servir archivos estáticos del frontend

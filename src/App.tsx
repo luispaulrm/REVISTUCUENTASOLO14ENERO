@@ -769,6 +769,11 @@ const App: React.FC = () => {
                   </div>
                 )}
 
+                {/* DEBUG: TEMPORARY SKELETON CHECK */}
+                <div className="mb-4 p-2 bg-yellow-100 border border-yellow-300 text-yellow-800 text-[10px] uppercase font-bold rounded text-center">
+                  DEBUG STATE: Skeleton is {result.skeleton ? "PRESENT ✅" : "MISSING ❌"} | Branches: {result.skeleton?.children?.length || 0}
+                </div>
+
                 <ExtractionResults data={result} />
               </div>
             </div>

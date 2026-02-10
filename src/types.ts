@@ -64,6 +64,12 @@ export interface UsageMetrics {
   phases?: PhaseUsage[];
 }
 
+export interface TaxonomySkeleton {
+  name: string;
+  total_count: number;
+  children?: TaxonomySkeleton[];
+}
+
 export interface ExtractedAccount {
   clinicName: string;
   patientName: string;
@@ -79,6 +85,7 @@ export interface ExtractedAccount {
   currency: string;
   usage?: UsageMetrics;
   valorUnidadReferencia?: string; // New field for forensic unit display
+  skeleton?: TaxonomySkeleton; // New skeleton field
 }
 
 export interface ContractRegla {

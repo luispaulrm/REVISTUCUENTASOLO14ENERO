@@ -92,30 +92,9 @@ export const FORENSIC_PATCH_SCHEMA = {
                 required: ["id", "codigos", "glosa", "hallazgo", "montoObjetado", "tipo_monto", "categoria_final", "rubro_rally"]
             }
         },
-        rally: {
-            type: Type.OBJECT,
-            properties: {
-                rubros: {
-                    type: Type.ARRAY,
-                    items: {
-                        type: Type.OBJECT,
-                        properties: {
-                            id: { type: Type.STRING, enum: ["I", "II", "III", "IV"] },
-                            titulo: { type: Type.STRING },
-                            monto: { type: Type.NUMBER },
-                            lineas: { type: Type.ARRAY, items: { type: Type.STRING } }
-                        },
-                        required: ["id", "titulo", "monto"]
-                    }
-                },
-                total_copago_input: { type: Type.NUMBER },
-                total_rubros_sum: { type: Type.NUMBER },
-                delta: { type: Type.NUMBER }
-            },
-            required: ["rubros", "total_copago_input", "total_rubros_sum", "delta"]
-        },
+
         compiled_report_markdown: { type: Type.STRING },
         open_questions: { type: Type.ARRAY, items: { type: Type.STRING } }
     },
-    required: ["base_audit_id", "delta_findings", "rally", "compiled_report_markdown"]
+    required: ["base_audit_id", "delta_findings", "compiled_report_markdown"]
 };

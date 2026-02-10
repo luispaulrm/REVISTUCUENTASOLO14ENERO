@@ -2,6 +2,7 @@
 import React from 'react';
 import { ChevronDown, ChevronRight, AlertTriangle, Info, EyeOff } from 'lucide-react';
 import { ExtractedAccount } from '../types';
+import { SkeletonTreeView } from './SkeletonTreeView';
 
 interface ExtractionResultsProps {
   data: ExtractedAccount;
@@ -42,6 +43,9 @@ export const ExtractionResults: React.FC<ExtractionResultsProps> = ({ data }) =>
           <p className="text-slate-700 font-bold bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 inline-block">{data.date || 'N/A'}</p>
         </div>
       </div>
+
+      {/* SKELETON VIEW (Phase 1.5) */}
+      {data.skeleton && <SkeletonTreeView skeleton={data.skeleton} />}
 
       {/* FORENSIC AC2 DISPLAY */}
       {/* CANONICAL FORENSIC AC2 DISPLAY */}

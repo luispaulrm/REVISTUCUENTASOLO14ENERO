@@ -1206,6 +1206,8 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
                 quantity: item.quantity,
                 unitPrice: item.unitPrice,
                 total: item.total,
+                copago: item.copago, // REQUIRED FOR RALLY BUILDER
+                bonificacion: item.bonificacion,
                 index: item.index, // CRITICAL: Preserve index for traceability
                 // NEW: Expose Billing Model to LLM
                 model: item.billingModel,
@@ -1963,7 +1965,8 @@ ${JSON.stringify(previousAuditResult, null, 2)}
                         }
                     }
 
-                    // V6.2: VALIDATE RALLY SUM INVARIANT
+
+                    // V6.2: VALIDATE RALLY SUM INVARIANT (SKIPPED - handled by deterministic builder)
                     let parsed: any = null;
                     try {
                         const cleaned = fullText.replace(/^\s*```(?:json)?\s*/i, '').replace(/\s*```\s*$/i, '').trim();
@@ -1973,27 +1976,8 @@ ${JSON.stringify(previousAuditResult, null, 2)}
                         throw e;
                     }
 
-                    if (isAgentMode && previousAuditResult && parsed?.rally) {
-                        const expectedTotal = parseAmountCLP(pamJson?.global?.totalCopago || pamJson?.resumenTotal?.totalCopago || 0);
-                        const actualTotal = parsed.rally.total_rubros_sum || parsed.rally.total_copago_input || 0;
-                        const delta = Math.abs(actualTotal - expectedTotal);
-
-                        if (delta > 1000) {
-                            log(`[AuditEngine] 🚨 DISCREPANCIA RALLY: Rubros sumaron $${actualTotal.toLocaleString('es-CL')}, esperado $${expectedTotal.toLocaleString('es-CL')}.`);
-                            if (attempt < 2) {
-                                mathFailurePrompt = `
-\n\n🚨 ERROR DE CONTRATO MATEMÁTICO:
-- La suma de los rubros en tu reporte 'rally' ($${actualTotal.toLocaleString('es-CL')}) NO coincide con el Copago Total del PAM ($${expectedTotal.toLocaleString('es-CL')}).
-- ACCIÓN: Recalcula los montos de los rubros I, II, III y IV para que sumen EXACTAMENTE $${expectedTotal.toLocaleString('es-CL')}.
-- Asegúrate de que 'total_rubros_sum' y 'total_copago_input' sean $${expectedTotal}.
-- Re-genera el JSON completo con los montos corregidos.
-`;
-                                continue;
-                            } else {
-                                log(`[AuditEngine] ⚠️ Agotados intentos de corrección. Continuando con discrepancia.`);
-                            }
-                        }
-                    }
+                    // (The logic that checked parsed.rally vs expectedTotal is removed because 
+                    // we overwrite .rally later with the deterministic builder anyway)
 
                     result = {
                         response: {
@@ -2079,19 +2063,39 @@ ${JSON.stringify(previousAuditResult, null, 2)}
                 }
 
                 // 4. Update executive report markdown
-                if (auditResult.compiled_report_markdown) {
-                    log(`[AuditEngine] 📝 Usando REPORTE CONSOLIDADO (Estilo Rally) proporcionado por el agente.`);
-                    mergedResult.auditoriaFinalMarkdown = auditResult.compiled_report_markdown;
-                } else if (auditResult.delta_findings.length > 0) {
-                    log(`[AuditEngine] 📝 Generando reporte por anexión (Fallback).`);
-                    mergedResult.auditoriaFinalMarkdown = (mergedResult.auditoriaFinalMarkdown || "") +
-                        "\n\n## ENRIQUECIMIENTO FORENSE (Nuevos Hallazgos)\n" +
-                        auditResult.delta_findings.map((f: any) => `### ${f.glosa}\n${f.hallazgo}`).join("\n\n");
+
+                // V6.2: DETERMINISTIC RALLY BUILDER
+                // Replace LLM hallucination with deterministic construction
+                try {
+                    // V6.4: Pass PAM data to allow direct reconciliation
+                    const { buildRally, renderRallyMarkdown, generateExecutiveSummary, generateFinancialSummary } = await import('./rallyBuilder.service.js');
+                    const pamTotalCopago = parseAmountCLP(pamJson?.global?.totalCopagoDeclarado || pamJson?.resumenTotal?.totalCopago || 0);
+
+                    log(`[AuditEngine] 🏗️ Construyendo reporte Rally determinista para Copago: $${pamTotalCopago}`);
+
+                    // Pass cleanedPam for strict reconciliation
+                    const rally = buildRally(cleanedCuenta, pamTotalCopago, cleanedPam);
+
+                    // Override LLM markdown with rigid template
+                    mergedResult.rally = rally;
+                    mergedResult.auditoriaFinalMarkdown = renderRallyMarkdown(rally);
+
+                    // V6.3 UNIFICATION: Force Executive & Financial Summary to match Rally
+                    mergedResult.resumenEjecutivo = generateExecutiveSummary(rally);
+                    mergedResult.resumenFinanciero = generateFinancialSummary(rally);
+
+                    log(`[AuditEngine] ✅ Rally construido. Delta: ${rally.delta}. Rubros: [${rally.rubros.map(r => r.monto).join(', ')}]`);
+
+                    if (rally.delta !== 0) {
+                        log(`[AuditEngine] ⚠️ Advertencia: Rally tiene delta de $${rally.delta}`);
+                    }
+                } catch (rallyError) {
+                    log(`[AuditEngine] ❌ Error building Rally: ${rallyError}`);
                 }
 
-                // Swap result
+                // Swap result (CRITICAL RESTORATION)
                 auditResult = mergedResult;
-            }
+            } // Closing if (isAgentMode...)
 
             // Fix 1: Variable Normalization (Immediately after parse)
             if (auditResult.resumen_financiero && !auditResult.resumenFinanciero) {
