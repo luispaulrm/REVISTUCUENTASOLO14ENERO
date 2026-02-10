@@ -86,25 +86,28 @@ export default function ContractApp() {
 
             if (existingCase && existingCase.contract) {
                 addLog(`[SISTEMA] ⚡ Contrato '${file.name}' reconocido en Memoria Forense. Carga instantánea.`);
+                addLog(`[SISTEMA] ⚡ Contrato reconocido en Memoria Forense local.`);
+                addLog(`[SISTEMA] ℹ️ Restaurando análisis previo (ID: ${existingCase.id.substring(0, 8)}...).`);
                 setContractResult(existingCase.contract);
-                setFileName(file.name);
                 setStatus(AppStatus.SUCCESS);
 
-                // If there's a completed audit result, restore it too!
-                if (existingCase.auditResult) {
-                    localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.auditResult));
-                    addLog(`[SISTEMA] ⚡ Análisis previo asociado recuperado automáticamente.`);
+                // RFC-15: Restore relevant context but warn user
+                if (existingCase.bill) {
+                    localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.bill));
+                    addLog('[SISTEMA] ⚡ Cuenta asociada restaurada automáticamente.');
                 }
-
-                // RFC-INSTANT: Restore full context of the recognized case
-                if (existingCase.bill) localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.bill));
-                if (existingCase.pam) localStorage.setItem('pam_audit_result', JSON.stringify(existingCase.pam));
+                if (existingCase.pam) {
+                    localStorage.setItem('pam_audit_result', JSON.stringify(existingCase.pam));
+                    addLog('[SISTEMA] ⚡ PAM asociado restaurado automáticamente.');
+                }
 
                 if (existingCase.fingerprints.bill) localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.bill));
                 if (existingCase.fingerprints.pam) localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.pam));
 
                 localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify({ name: file.name, size: file.size }));
                 localStorage.setItem('forensic_active_case_id', existingCase.id);
+
+                addLog('[SISTEMA] 💡 Si desea forzar un nuevo análisis, use "Limpiar Sesión" primero.');
 
                 // Ensure visual metrics if they exist
                 if (existingCase.contract.usage) {
@@ -231,7 +234,9 @@ export default function ContractApp() {
         reader.readAsDataURL(file);
     };
 
-    const clearSession = () => {
+    const clearSession = async () => {
+        if (!confirm('¿Desea limpiar toda la sesión y la memoria de este contrato?')) return;
+
         setStatus(AppStatus.IDLE);
         setContractResult(null);
         setError(null);
@@ -239,6 +244,8 @@ export default function ContractApp() {
         setSeconds(0);
         setProgress(0);
         setRealTimeUsage(null);
+
+        await cacheManager.clearAll();
     };
 
     return (

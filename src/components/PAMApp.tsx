@@ -155,28 +155,31 @@ export default function PAMApp() {
                 const existingCase = cacheManager.getCaseByFingerprint('pam', item.file.name, item.file.size);
 
                 if (existingCase && existingCase.pam) {
-                    addLog(`[SISTEMA] ⚡ Archivo PAM '${item.file.name}' reconocido en Memoria Forense. Carga instantánea.`);
+                    addLog(`[SISTEMA] ⚡ Archivo PAM reconocido en Memoria Forense local.`);
+                    addLog(`[SISTEMA] ℹ️ Restaurando análisis previo (ID: ${existingCase.id.substring(0, 8)}...).`);
 
                     // Restore PAM data
                     setPamResult(existingCase.pam);
                     setHasCache(true);
                     setStatus(AppStatus.SUCCESS);
 
-                    // If there's a completed audit result, restore it too!
-                    if (existingCase.auditResult) {
-                        localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.auditResult));
-                        addLog(`[SISTEMA] ⚡ Análisis previo asociado recuperado automáticamente.`);
+                    // RFC-15: Restore relevant context but warn user
+                    if (existingCase.bill) {
+                        localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.bill));
+                        addLog('[SISTEMA] ⚡ Cuenta asociada restaurada automáticamente.');
                     }
-
-                    // RFC-INSTANT: Restore full context of the recognized case
-                    if (existingCase.bill) localStorage.setItem('clinic_audit_result', JSON.stringify(existingCase.bill));
-                    if (existingCase.contract) localStorage.setItem('contract_audit_result', JSON.stringify(existingCase.contract));
+                    if (existingCase.contract) {
+                        localStorage.setItem('contract_audit_result', JSON.stringify(existingCase.contract));
+                        addLog('[SISTEMA] ⚡ Contrato asociado restaurado automáticamente.');
+                    }
 
                     if (existingCase.fingerprints.bill) localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.bill));
                     if (existingCase.fingerprints.contract) localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.contract));
 
                     localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify({ name: item.file.name, size: item.file.size }));
                     localStorage.setItem('forensic_active_case_id', existingCase.id);
+
+                    addLog('[SISTEMA] 💡 Si desea forzar un nuevo análisis, use "Nueva Auditoría" primero.');
 
                     return { ...item, status: 'done' as const, result: existingCase.pam };
                 }
@@ -443,10 +446,13 @@ export default function PAMApp() {
         }
     };
 
-    const clearSession = () => {
+    const clearSession = async () => {
+        if (!confirm('¿Desea limpiar toda la sesión y la memoria de este PAM?')) return;
+
         try {
-            localStorage.removeItem('pam_audit_result');
+            await cacheManager.clearAll();
         } catch (e) { }
+
         setStatus(AppStatus.IDLE);
         setPamResult(null);
         setError(null);
@@ -454,6 +460,9 @@ export default function PAMApp() {
         setSeconds(0);
         setProgress(0);
         setRealTimeUsage(null);
+        setFileQueue([]);
+        setResultsHistory([]);
+        setCurrentFileIndex(0);
     };
 
     return (

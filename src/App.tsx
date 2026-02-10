@@ -168,22 +168,31 @@ const App: React.FC = () => {
         const existingCase = cacheManager.getCaseByFingerprint('bill', item.file.name, item.file.size);
 
         if (existingCase && existingCase.bill) {
-          addLog(`[SISTEMA] ⚡ Archivo '${item.file.name}' reconocido en Memoria Forense. Carga instantánea.`);
+          addLog(`[SISTEMA] ⚡ Cuenta reconocida en Memoria Forense local.`);
+          addLog(`[SISTEMA] ℹ️ Restaurando análisis previo (ID: ${existingCase.id.substring(0, 8)}...).`);
 
           // Restore the bill data
           setResult(existingCase.bill);
           setHasCache(true);
           setStatus(AppStatus.SUCCESS);
 
-          // RFC-INSTANT: Restore full context of the recognized case
-          if (existingCase.pam) localStorage.setItem('pam_audit_result', JSON.stringify(existingCase.pam));
-          if (existingCase.contract) localStorage.setItem('contract_audit_result', JSON.stringify(existingCase.contract));
+          // RFC-15: Restore relevant context but warn user
+          if (existingCase.pam) {
+            localStorage.setItem('pam_audit_result', JSON.stringify(existingCase.pam));
+            addLog('[SISTEMA] ⚡ PAM asociado restaurado automáticamente.');
+          }
+          if (existingCase.contract) {
+            localStorage.setItem('contract_audit_result', JSON.stringify(existingCase.contract));
+            addLog('[SISTEMA] ⚡ Contrato asociado restaurado automáticamente.');
+          }
 
           if (existingCase.fingerprints.pam) localStorage.setItem('pam_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.pam));
           if (existingCase.fingerprints.contract) localStorage.setItem('contract_audit_file_fingerprint', JSON.stringify(existingCase.fingerprints.contract));
 
           localStorage.setItem('clinic_audit_file_fingerprint', JSON.stringify({ name: item.file.name, size: item.file.size }));
           localStorage.setItem('forensic_active_case_id', existingCase.id);
+
+          addLog('[SISTEMA] 💡 Si desea forzar un nuevo análisis, use "Limpiar Sesión" primero.');
 
           // Mark as done in queue visibly
           return { ...item, status: 'done' as const, result: existingCase.bill };

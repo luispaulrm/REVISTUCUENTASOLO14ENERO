@@ -104,7 +104,7 @@ export const cacheManager = {
         }
     },
 
-    clearAll() {
+    async clearAll() {
         localStorage.removeItem(HISTORY_KEY);
         localStorage.removeItem(ACTIVE_ID_KEY);
         localStorage.removeItem('clinic_audit_result');
@@ -114,5 +114,13 @@ export const cacheManager = {
         localStorage.removeItem('canonical_contract_result');
         localStorage.removeItem('html_projection_result');
         localStorage.removeItem('mental_model_cache');
+
+        // RFC-15: Also clear backend cache
+        try {
+            await fetch('/api/contracts/clear-cache', { method: 'POST' });
+            console.log('[CACHE] Backend contract cache cleared.');
+        } catch (e) {
+            console.error('[CACHE] Failed to clear backend cache', e);
+        }
     }
 };

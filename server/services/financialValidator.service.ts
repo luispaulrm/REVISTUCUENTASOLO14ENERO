@@ -302,9 +302,18 @@ export async function inferUnidadReferencia(
         const isMasvida = normalizedIsapre.includes("MASVIDA");
         const isBanmedica = normalizedIsapre.includes("BANMEDICA") || normalizedIsapre.includes("VIDA TRES") || normalizedIsapre.includes("CRUZ BLANCA");
 
-        if (isMasvida || isColmena) unitType = "VAM";
-        else if (isConsalud) unitType = "AC2";
-        else if (isBanmedica) unitType = "VA";
+        if (isMasvida || isColmena) {
+            unitType = "VAM";
+            evidencia.push(`Inferencia ISAPRE: ${normalizedIsapre} -> Tipo Unidad: VAM`);
+        } else if (isConsalud) {
+            unitType = "AC2";
+            evidencia.push(`Inferencia ISAPRE: ${normalizedIsapre} -> Tipo Unidad: AC2`);
+        } else if (isBanmedica) {
+            unitType = "VA";
+            evidencia.push(`Inferencia ISAPRE: ${normalizedIsapre} -> Tipo Unidad: VA`);
+        } else {
+            evidencia.push(`Inferencia ISAPRE: No se reconoció ${normalizedIsapre}. Usando default: ${unitType}`);
+        }
     }
 
     // 2. PAM ANCHORS (Forensic Triangulation)
@@ -322,6 +331,8 @@ export async function inferUnidadReferencia(
         // Map code to expected unit type for clash detection
         let cType = unitType;
         if (c.codigoGC === '1103057') cType = 'AC2';
+
+        evidencia.push(`Anclaje PAM: Código ${c.codigoGC} -> Valor Implicado: $${implied} (${cType})`);
 
         anchors.push({
             source: "PAM",
@@ -363,9 +374,16 @@ export async function inferUnidadReferencia(
         }
     } else {
         // Fallback
-        if (unitType === "AC2") finalValue = 223147;
-        else if (unitType === "VAM") finalValue = 39000;
-        else finalValue = 38000;
+        if (unitType === "AC2") {
+            finalValue = 223500; // 2024-2025 Ref
+            evidencia.push("FALLBACK: Usando valor referencial AC2 2024 ($223.500)");
+        } else if (unitType === "VAM") {
+            finalValue = 42500; // 2024-2025 Ref
+            evidencia.push("FALLBACK: Usando valor referencial VAM 2024 ($42.500)");
+        } else {
+            finalValue = 40500; // VA Fallback
+            evidencia.push("FALLBACK: Usando valor referencial VA 2024 ($40.500)");
+        }
         confidence = "BAJA";
         if (estado === "VERIFICABLE") {
             estado = "NO_VERIFICABLE_POR_CONTRATO";

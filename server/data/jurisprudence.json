@@ -1675,8 +1675,252 @@
           "label": "PAM line: UNKNOWN"
         }
       ]
+    },
+    {
+      "id": "P_12812cf7_8266f2d2_COPAGO_POS",
+      "createdAt": "2026-02-10T12:47:14.516Z",
+      "updatedAt": "2026-02-10T12:47:14.516Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "8266f2d289b6dc026ff55aaa35cdabe80461bd3a",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.9
+      },
+      "rationale": "Precedente autom�tico: DIA CAMA DE HOSPITALIZACION INTEGRAL CUIDADOS BASI ",
+      "tags": [
+        "COPAGO_POS",
+        "ES_HOTELERIA",
+        "HOTELERIA_INDIVIDUALIZADA",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS"
+      ],
+      "guards": {
+        "requires": [
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 201001"
+        }
+      ]
+    },
+    {
+      "id": "P_12812cf7_93097b39_COPAGO_POS",
+      "createdAt": "2026-02-10T12:47:14.528Z",
+      "updatedAt": "2026-02-10T12:47:14.528Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "93097b3956d854643d019c0fb0e2334ebf16b63a",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente autom�tico: MATERIALES CLINICOS QUIRURGICOS ",
+      "tags": [
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "COV_EXPLICIT",
+        "TOPES_NO_ALCANZADOS",
+        "IC_BREACH"
+      ],
+      "guards": {
+        "requires": [
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 3101304"
+        }
+      ]
+    },
+    {
+      "id": "P_12812cf7_43518ad8_COPAGO_POS",
+      "createdAt": "2026-02-10T12:47:14.540Z",
+      "updatedAt": "2026-02-10T12:47:14.540Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "43518ad887dd8051ae19e834f49d9e3fe2e1adad",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 1
+      },
+      "rationale": "Precedente autom�tico: MEDICAMENTOS HOSPITALIZADOS ",
+      "tags": [
+        "COPAGO_POS",
+        "GENERIC_PAM_LINE",
+        "MED_OR_INS",
+        "ES_MED_HOSP",
+        "COV_EXPLICIT"
+      ],
+      "guards": {
+        "requires": [
+          "MED_OR_INS",
+          "COV_EXPLICIT"
+        ]
+      },
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: 3101302"
+        }
+      ]
+    },
+    {
+      "id": "P_12812cf7_b8314402_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-02-10T12:52:49.705Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "Hallazgo detectado por motor de jurisprudencia (�rbol de Decisi�n del Auditor).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_12812cf7_fcf86a74_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-02-10T12:52:49.691Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "fcf86a74b7673f1f948717bc212f7a375bef9b59",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_12812cf7_c6de828a_H_INCUMPLIMIENTO_CONTRACTUAL",
+      "createdAt": "",
+      "updatedAt": "2026-02-10T12:52:49.699Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COBRO_IMPROCEDENTE",
+        "recomendacion": "IMPUGNAR",
+        "confidence": 0.85
+      },
+      "rationale": "[C01] El contrato otorga cobertura explícita (100% o definida) y no se han alcanzado los topes. El cobro es improcedente por definición contractual, independiente de la opacidad (Cat A).",
+      "tags": [
+        "H_INCUMPLIMIENTO_CONTRACTUAL"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_12812cf7_b8314402_H_PRACTICA_IRREGULAR",
+      "createdAt": "2026-02-10T12:49:07.167Z",
+      "updatedAt": "2026-02-10T12:49:07.167Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona el cobro correspondiente a 'Ajustes Hospitalización' y 'Ajustes Diagnósticos', facturados bajo códigos internos 0299999 y 0499999, por un monto de copago total de $109.804.\n\n**II. Contexto clínico y administrativo**\nDicho cobro aparece en la sección 'VARIOS EXENTO' y 'VARIOS LTDA 2' de la cuenta clínica, sin vinculación a ningún procedimiento médico, examen o insumo específico.\n\n**III. Norma contractual aplicable**\nLa Ley 20.584 (Derechos y Deberes del Paciente) exige que todo cobro corresponda a una prestación efectivamente otorgada e identificable. El contrato de salud cubre prestaciones de salud, no ajustes contables del prestador.\n\n**IV. Forma en que se materializa la controversia**\nSe trata de un COBRO IMPROCEDENTE (Categoría A). La glosa 'Ajuste' sugiere una corrección financiera interna de la clínica para cuadrar inventarios o tarifas, costo que está siendo traspasado indebidamente al copago del paciente.\n\n**V. Análisis técnico-contractual**\nDesde un punto de vista técnico, no existe la prestación clínica 'Ajuste'. Al no haber contraprestación sanitaria, el cobro carece de causa lícita en el marco del contrato de salud.\n\n**VI. Efecto económico concreto**\nEl afiliado enfrenta un sobrecosto directo de $109.804 que no corresponde a su tratamiento.\n\n**VII. Conclusión de la impugnación**\nSe debe eliminar este cobro de la cuenta y del cálculo del copago final.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen (Cuenta) | Cód | Descripción Ítem | Cant | P. Unit | Copago (Monto) |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| 9994 VARIOS EXENTO | 0299999 | AJUSTES HOSPITALIZACION | 1 | $129.096 | $109.802 |\n| 9100 VARIOS LTDA 2 | 0499999 | AJUSTES DIAGNOSTICOS | 1 | $2 | $2 |\n| **TOTAL** | | **MONTO OBJETADO** | | | **$109.804** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_12812cf7_c6de828a_H_PRACTICA_IRREGULAR",
+      "createdAt": "",
+      "updatedAt": "2026-02-10T12:52:49.721Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestiona la agrupación de cobros bajo los códigos genéricos 3101304 (Materiales) y 3101302 (Medicamentos) en el PAM, que suman un copago de $240.776.\n\n**II. Contexto clínico y administrativo**\nCorresponde a los insumos y fármacos utilizados durante la cirugía y hospitalización. La cuenta clínica detalla cientos de ítems, pero el PAM los resume en dos líneas.\n\n**III. Norma contractual aplicable**\nLa Circular IF/319 prohíbe el 'Unbundling' o cobro separado de insumos que son parte del derecho de pabellón (ej: jeringas, agujas, suturas básicas).\n\n**IV. Forma en que se materializa la controversia**\nSe configura una **OPACIDAD ESTRUCTURAL (Categoría B)**. Al revisar el detalle de la cuenta, se observan ítems como 'JERINGA DESC', 'AGUJA DES.', y 'KIT BASICO DE COLECISTECTOMIA' ($104.016). Al estar todo agrupado en el PAM, es imposible verificar si la Isapre bonificó estos ítems o si el copago del paciente incluye estos cobros que deberían estar cubiertos por el Derecho de Pabellón.\n\n**V. Análisis técnico-contractual**\n- La cuenta incluye 'Jeringas' y 'Agujas' por separado.\n- Estos insumos son inherentes al pabellón (ya pagado por $2.199.344).\n- La agrupación en el PAM impide depurar estos cobros duplicados.\n\n**VI. Efecto económico concreto**\nEl copago de $240.776 es indeterminado y potencialmente inflado por doble facturación de insumos básicos.\n\n**VII. Conclusión de la impugnación**\nSe solicita aclaración y desglose del PAM para auditar la exclusión de insumos de pabellón.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Folio PAM | Código | Descripción | Bonif Isapre | Copago (Monto) |\n|-----------|--------|-------------|--------------|----------------|\n| 328131070 | 3101304| MATERIALES CLINICOS QUIRURGICOS | $369.366 | $158.299 |\n| 328131071 | 3101302| MEDICAMENTOS HOSPITALIZADOS | $192.447 | $82.477 |\n| **TOTAL** | | **MONTO BAJO CONTROVERSIA** | | **$240.776** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
+    },
+    {
+      "id": "P_12812cf7_73446cc1_H_PRACTICA_IRREGULAR",
+      "createdAt": "2026-02-10T12:52:49.713Z",
+      "updatedAt": "2026-02-10T12:52:49.713Z",
+      "contractFingerprint": "12812cf7eb0660f6536ebfb4f889afab153af343",
+      "factFingerprint": "73446cc17017862d0e8157a46cd1ef74e808ad96",
+      "decision": {
+        "categoria_final": "A",
+        "tipo_monto": "COPAGO_OPACO",
+        "recomendacion": "SOLICITAR_ACLARACION",
+        "confidence": 0.85
+      },
+      "rationale": "**I. Identificación del ítem cuestionado**\nSe cuestionan los cobros facturados bajo las glosas 'AJUSTES HOSPITALIZACION' y 'VARIOS' en la sección '9994 VARIOS EXENTO' de la cuenta clínica, por un monto total facturado de $366.004, generando un copago directo de $109.802.\n\n**II. Contexto clínico y administrativo**\nEstos cargos aparecen en el contexto de una hospitalización por Colecistectomía, pero carecen de vinculación con un acto médico, procedimiento o insumo específico.\n\n**III. Norma contractual aplicable**\nLa Ley 20.584 (Derechos y Deberes del Paciente) exige que la cuenta sea detallada y comprensible. El contrato de salud cubre prestaciones médicas, no ajustes administrativos o contables del prestador.\n\n**IV. Forma en que se materializa la controversia**\nSe trata de un **COBRO IMPROCEDENTE (Categoría A)**. Las glosas son genéricas y no permiten identificar la contraprestación recibida por el paciente. Además, estos montos no tienen reflejo explícito en el detalle de bonificación del PAM, lo que sugiere que son cargos adicionales no cubiertos por la Isapre.\n\n**V. Análisis técnico-contractual**\nDesde un punto de vista técnico:\n- No existe prestación clínica llamada 'Ajustes'.\n- Si corresponde a diferencias de arancel, deben estar prorrateadas en cada prestación.\n- Si corresponde a insumos no bonificables, deben detallarse.\n- La falta de trazabilidad impide su exigibilidad.\n\n**VI. Efecto económico concreto**\nEl afiliado está asumiendo un copago de **$109.802** por un concepto ciego y sin respaldo contractual.\n\n**VII. Conclusión de la impugnación**\nEl cobro es improcedente por falta de causa y objeto lícito definido en la cuenta.\n\n**VIII. Trazabilidad y Origen del Cobro**\n| Sección Origen (Cuenta) | Cód | Descripción Ítem | Cant | P. Unit | Copago |\n| :--- | :--- | :--- | :---: | :---: | :---: |\n| 9994 VARIOS EXENTO | 0299999 | AJUSTES HOSPITALIZACION | 1 | $129.096 | $109.802 |\n| 9994 VARIOS EXENTO | 149995 | VARIOS | 1 | $236.908 | $0 |\n| **TOTAL** | | **MONTO OBJETADO (COPAGO)** | | | **$109.802** |",
+      "tags": [
+        "H_PRACTICA_IRREGULAR"
+      ],
+      "evidenceTemplate": [
+        {
+          "kind": "PAM",
+          "path": "folios[].desglosePorPrestador[].items[]",
+          "label": "PAM line: UNKNOWN"
+        }
+      ]
     }
   ],
   "version": "1.0.0",
-  "lastUpdated": "2026-02-06T00:01:46.308Z"
+  "lastUpdated": "2026-02-10T12:52:49.721Z"
 }
