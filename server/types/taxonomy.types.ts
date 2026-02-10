@@ -30,12 +30,15 @@ export interface RawCuentaItem {
 export interface TaxonomyResult {
     id: string;
     item_original: string;
+    // Alias for compatibility with new service code using 'text'
+    text?: string;
     grupo: GrupoCanonico;
     sub_familia: SubFamilia;
-    atributos: AtributosPhase1;
+    atributos: AtributosPhase1 & { section?: string }; // Added section for Phase 1.5 context
     confidence: number;        // 0..1
     rationale_short: string;   // 1 línea, para debugging humano
     sourceRef?: string;
+    etiologia?: EtiologiaResult;
 }
 
 // Result Wrapper for API
@@ -49,4 +52,72 @@ export interface TaxonomySkeleton {
     name: string;
     total_count: number;
     children?: TaxonomySkeleton[];
+}
+
+// --- PHASE 1.5: ETIOLOGY & FORENSIC CONTEXT ---
+
+export type EtiologiaTipo =
+    | "CODIGO_INEXISTENTE"     // Tipo A: No existe en arancel (ej: "Instalación de vía")
+    | "ACTO_NO_AUTONOMO"       // Tipo A/B: Es parte de otro acto (ej: "Sutura" en "Pabellón")
+    | "DESCLASIFICACION_CLINICA" // Tipo B: Insumo clínico movido a otra sección (ej: "Propofol" en "Insumos")
+    | "DESCLASIFICACION_ADMINISTRATIVA" // Tipo C: Ítem de confort/hotelería rechazado por dominio (ej: "Calcetín", "Set Aseo")
+    | "CORRECTO";              // Bonificable
+
+export type AbsorcionClinica =
+    | "PABELLON"
+    | "DIA_CAMA"
+    | "EVENTO_UNICO"
+    | "ATENCION_HOSPITALARIA"
+    | "NO_APLICA" // Para Tipo C (no se absorbe, se expulsa)
+    | null;
+
+export type MotivoRechazoPrevisible =
+    | "CODIGO_NO_RECONOCIDO"
+    | "ACTO_INCLUIDO_EN_PAQUETE"
+    | "ITEM_MAL_IMPUTADO"
+    | "SIN_CAUSAL_PREVISIBLE";
+
+export type ImpactoPrevisional =
+    | "REBOTE_ISAPRE_PREVISIBLE"
+    | "NO_BONIFICABLE_POR_NORMA"
+    | "BONIFICABLE";
+
+export interface EtiologiaResult {
+    tipo: EtiologiaTipo;
+    absorcion_clinica: AbsorcionClinica;
+    codigo_fonasa_valido: boolean;
+    motivo_rechazo_previsible: MotivoRechazoPrevisible;
+    impacto_previsional: ImpactoPrevisional;
+    // recomendado para auditoría defendible
+    rationale_short?: string;
+    confidence?: number; // 0..1
+    evidence?: {
+        anchors?: string[]; // ej: ["EXISTE_PABELLON", "EXISTE_DIA_CAMA"]
+        rules?: string[];   // ej: ["RULE_ABSORCION_ANESTESIA_PABELLON"]
+        matches?: string[]; // ej: ["regex:/(instalaci[oó]n).*(v[ií]a venosa)/i"]
+    };
+}
+
+export interface TaxonomyContextAnchors {
+    hasPabellon: boolean;
+    hasDayBed: boolean;
+    hasUrgencia: boolean;
+    // opcional si lo tienes: evidencia de “evento único” (PAD / paquete / etc.)
+    hasEventoUnicoHint?: boolean;
+    // raw: nombres de secciones detectadas, para explicar decisiones
+    sectionNames?: string[];
+}
+
+// Update TaxonomyResult to include Etiology
+export interface TaxonomyResult {
+    id: string;
+    item_original: string; // Keep legacy name for now or refactor to 'text' if needed, sticking to existing type
+    text?: string; // Adding optional text align with user code
+    grupo: GrupoCanonico;
+    sub_familia: SubFamilia;
+    atributos: AtributosPhase1 & { section?: string }; // Modified to include section context
+    confidence: number;        // 0..1
+    rationale_short: string;   // 1 línea, para debugging humano
+    sourceRef?: string;
+    etiologia?: EtiologiaResult;
 }

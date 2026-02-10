@@ -2665,8 +2665,8 @@ ${JSON.stringify(previousAuditResult, null, 2)}
                 // --- AlphaFold-Juridic: Final Integrated Output ---
                 pamState: pamState,
                 signals: alphaSignals,
-                hypothesisRanking: ranking,
-                activeHypotheses: activeContexts,
+                hypothesisRanking: hypothesisScores,
+                activeHypotheses: activeHypotheses,
 
                 findings: finalFindings,
                 balance: {

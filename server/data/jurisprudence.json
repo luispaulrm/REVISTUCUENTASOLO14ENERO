@@ -1415,7 +1415,7 @@
     {
       "id": "P_04427cd4_c6de828a_H_INCUMPLIMIENTO_CONTRACTUAL",
       "createdAt": "",
-      "updatedAt": "2026-02-06T00:01:46.272Z",
+      "updatedAt": "2026-02-10T13:22:53.181Z",
       "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
       "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
       "decision": {
@@ -1439,7 +1439,7 @@
     {
       "id": "P_04427cd4_fcf86a74_H_INCUMPLIMIENTO_CONTRACTUAL",
       "createdAt": "",
-      "updatedAt": "2026-02-06T00:01:46.277Z",
+      "updatedAt": "2026-02-10T13:22:53.185Z",
       "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
       "factFingerprint": "fcf86a74b7673f1f948717bc212f7a375bef9b59",
       "decision": {
@@ -1463,7 +1463,7 @@
     {
       "id": "P_04427cd4_b8314402_H_PRACTICA_IRREGULAR",
       "createdAt": "",
-      "updatedAt": "2026-02-06T00:01:46.303Z",
+      "updatedAt": "2026-02-10T13:22:53.193Z",
       "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
       "factFingerprint": "b831440297af96096a8e17344e64fcb38ff0f910",
       "decision": {
@@ -1472,7 +1472,7 @@
         "recomendacion": "SOLICITAR_ACLARACION",
         "confidence": 0.85
       },
-      "rationale": "[AUDITORÍA FORENSE - PROFUNDIZACIÓN]\nEl Plan Pleno estipula cobertura al 100% en modalidad institucional. Se aplicó erróneamente un tope o copago porcentual no correspondiente a la glosa contractual.",
+      "rationale": "I. Identificación del ítem cuestionado\nSe objetan cobros por conceptos de hotelería, confort y equipamiento básico facturados como insumos clínicos, por un total de $64.404.\n\nII. Contexto clínico y administrativo\nDurante la hospitalización, se cargaron a la cuenta elementos como termómetros, medias, ropa interior y kits de aseo.\n\nIII. Norma contractual aplicable\nEl plan de salud cubre prestaciones médicas. Los artículos de higiene personal y confort no constituyen prestaciones médicas, y el equipamiento básico (termómetros) es parte del activo fijo de la clínica incluido en el día cama.\n\nIV. Forma en que se materializa la controversia\nSe observa el cobro de 'Termómetro Digital' (dos veces), 'Medias Antiembolicas', 'Set de Aseo' y 'Calzón Clínico'. Estos ítems suelen ser de cargo del paciente solo si se solicitan opcionalmente, pero aquí se presentan mezclados con insumos clínicos.\n\nV. Análisis técnico-contractual\nEl cobro de un termómetro es improcedente (es herramienta de trabajo de la enfermera). Las medias y útiles de aseo son gastos de bolsillo no bonificables que no deberían estar en la cuenta clínica principal si no tienen cobertura.\n\nVI. Efecto económico concreto\nCopago indebido de $64.404.\n\nVII. Conclusión de la impugnación\nSe solicita la devolución o anulación de estos cargos por no corresponder a prestaciones médicas bonificables o ser insumos duplicados del día cama.\n\nVIII. Trazabilidad y Origen del Cobro\n| Sección Origen | Descripción Ítem | Cant | Total |\n| :--- | :--- | :---: | :---: |\n| INSUMOS | SET DE ASEO PERSONAL | 1 | $10.785 |\n| INSUMOS | CALZON CLINICO | 1 | $1.641 |\n| INSUMOS KARDEX | TERMOMETRO DIGITAL (x2) | 2 | $17.210 |\n| INSUMOS KARDEX | MEDIAS ANTIEMBOLICAS | 1 | $34.768 |\n| **TOTAL** | **HOTELERIA DETECTADA** | | **$64.404** |",
       "tags": [
         "H_PRACTICA_IRREGULAR"
       ],
@@ -1511,7 +1511,7 @@
     {
       "id": "P_04427cd4_c6de828a_H_PRACTICA_IRREGULAR",
       "createdAt": "",
-      "updatedAt": "2026-02-05T22:52:13.798Z",
+      "updatedAt": "2026-02-10T13:22:53.196Z",
       "contractFingerprint": "04427cd4fae5d96be71d23e0d9320334f9054ecf",
       "factFingerprint": "c6de828ab36b7a5cb8ca4d932a0488105ad55843",
       "decision": {
@@ -1520,7 +1520,7 @@
         "recomendacion": "SOLICITAR_ACLARACION",
         "confidence": 0.85
       },
-      "rationale": "[AUDITORÍA FORENSE - PROFUNDIZACIÓN]\nIncumplimiento de cobertura contractual Plan Pleno (100%). Se aplicaron topes o bonificaciones parciales a medicamentos y días cama que debieron ser cubiertos integralmente según la garantía de 'Cero Copago' en red preferente.",
+      "rationale": "I. Identificación del ítem cuestionado\nSe cuestiona el copago generado en las líneas de 'Medicamentos Clínicos' ($134.100) y 'Materiales Clínicos' ($32.716), además de 'Gastos No Cubiertos' remanentes ($133.293), sumando $300.109 bajo controversia.\n\nII. Contexto clínico y administrativo\nEl PAM muestra bonificación parcial o nula en estas líneas específicas, a pesar de que el contrato 'Plan PLENO' estipula 100% de cobertura en hospitalización.\n\nIII. Norma contractual aplicable\nContrato de Salud: 'Medicamentos (Por evento durante la Hospitalización): 100%'. 'Materiales e Insumos Clínicos: 100%'.\n\nIV. Forma en que se materializa la controversia\nExiste una contradicción directa entre el contrato (100%) y la liquidación del PAM (que aplica copagos). Al no existir desglose en el PAM de qué ítems específicos fueron rechazados, se configura una Opacidad Estructural.\n\nV. Análisis técnico-contractual\nNo es posible validar si el rechazo se debe a topes, exclusiones legítimas o errores de procesamiento. Sin embargo, dado el mandato de cobertura al 100%, se presume que estos cobros son improcedentes o requieren reliquidación.\n\nVI. Efecto económico concreto\nEl paciente enfrenta un copago de $300.109 sin justificación contractual clara.\n\nVII. Conclusión de la impugnación\nSe declara el monto como INDETERMINADO y se solicita aclaración detallada y reliquidación conforme al 100% pactado.\n\nVIII. Trazabilidad y Origen del Cobro\n| Folio PAM | Código | Descripción | Copago (Monto) |\n|-----------|--------|-------------|----------------|\n| 7000355688 | 3101001 | MEDICAMENTOS CLINICOS (Rechazo) | $134.100 |\n| 7000355688 | 3101002 | MATERIALES CLINICOS (Rechazo) | $32.716 |\n| 7000355688 | 3201001 | GASTOS NO CUBIERTOS (Remanente) | $133.293 |\n| **TOTAL** | | **BAJO CONTROVERSIA** | **$300.109** |",
       "tags": [
         "H_PRACTICA_IRREGULAR"
       ],
@@ -1922,5 +1922,5 @@
     }
   ],
   "version": "1.0.0",
-  "lastUpdated": "2026-02-10T12:52:49.721Z"
+  "lastUpdated": "2026-02-10T13:22:53.196Z"
 }

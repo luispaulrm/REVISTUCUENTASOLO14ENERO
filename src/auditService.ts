@@ -7,7 +7,8 @@ export async function runForensicAudit(
     onProgress?: (progress: number) => void,
     htmlContext?: string,
     isAgentMode: boolean = false,
-    previousAuditResult: any = null
+    previousAuditResult: any = null,
+    enableEtiology: boolean = true // Default to true for Phase 1.5
 ) {
     onLog?.(isAgentMode ? '[AuditService] 🕵️ Activando Agente de Búsqueda Forense (Modo Enriquecimiento)...' : '[AuditService] 🚀 Iniciando flujo de auditoría forense...');
     onProgress?.(5);
@@ -16,7 +17,7 @@ export async function runForensicAudit(
         const response = await fetch('/api/audit/analyze', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cuentaJson, pamJson, contratoJson, htmlContext, isAgentMode, previousAuditResult })
+            body: JSON.stringify({ cuentaJson, pamJson, contratoJson, htmlContext, isAgentMode, previousAuditResult, enableEtiology })
         });
 
         if (!response.ok) {

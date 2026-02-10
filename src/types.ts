@@ -86,6 +86,30 @@ export interface ExtractedAccount {
   usage?: UsageMetrics;
   valorUnidadReferencia?: string; // New field for forensic unit display
   skeleton?: TaxonomySkeleton; // New skeleton field
+  analisis_taxonomico_forense?: ForensicAnalysis; // SEMANTIC FIREWALL: Parallel forensic layer
+}
+
+export interface ForensicItem {
+  index: number;
+  description: string;
+  diagnostico_forense: {
+    index: number;
+    clasificacion: string;
+    dominio_funcional: string;
+    regla_aplicada: string;
+    motivo_rechazo_previsible: string;
+    tipo_unbundling: number; // 0 | 1 | 2 | 3
+    rationale?: string;
+  };
+}
+
+export interface ForensicAnalysis {
+  resumen: {
+    total_items: number;
+    items_con_absorcion_normativa: number;
+    monto_expuesto_indebidamente: number;
+  };
+  items: ForensicItem[];
 }
 
 export interface ContractRegla {

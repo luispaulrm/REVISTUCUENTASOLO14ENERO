@@ -37,7 +37,9 @@ import { AlphaFoldVisualizer } from './AlphaFoldVisualizer';
 import { runForensicAudit } from '../auditService';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from '../version';
 import { cacheManager, ForensicCase } from '../utils/cacheManager';
-import { History, LayoutGrid, Clock, User } from 'lucide-react';
+import { History, LayoutGrid, Clock, User, Eye, Table } from 'lucide-react';
+import { SkeletonTreeView } from './SkeletonTreeView';
+import { EtiologyViewer } from './EtiologyViewer';
 
 export default function ForensicApp() {
     const [status, setStatus] = useState<'IDLE' | 'PROCESSING' | 'SUCCESS' | 'ERROR'>('IDLE');
@@ -56,6 +58,7 @@ export default function ForensicApp() {
 
     // Preview State
     const [previewData, setPreviewData] = useState<{ title: string, content: string } | null>(null);
+    const [viewMode, setViewMode] = useState<'STANDARD' | 'ETIOLOGY'>('ETIOLOGY'); // Default to Etiology for Phase 1.5 visibility
 
     // Persisted Data State
     const [hasBill, setHasBill] = useState(false);
@@ -279,7 +282,8 @@ export default function ForensicApp() {
                 htmlContext
             );
 
-            setAuditResult(result);
+            const resultData = result.data || result;
+            setAuditResult(resultData);
             setStatus('SUCCESS');
 
             // Save to Cache History
@@ -288,14 +292,14 @@ export default function ForensicApp() {
                 pam,
                 contract: contrato,
                 htmlContext,
-                auditResult: result, // Save the analysis result!
-                patientName: (result as any).patientName || 'Paciente Identificado',
-                invoiceNumber: (result as any).invoiceNumber || 'N/A'
+                auditResult: resultData, // Save the flattened result!
+                patientName: (resultData as any).patientName || 'Paciente Identificado',
+                invoiceNumber: (resultData as any).invoiceNumber || 'N/A'
             });
 
             // Store raw data for table builders
-            (result as any)._rawCuenta = cuenta;
-            (result as any)._rawPam = pam;
+            (resultData as any)._rawCuenta = cuenta;
+            (resultData as any)._rawPam = pam;
         } catch (err: any) {
             setError(err.message || 'Error durante la auditoría forense.');
             setStatus('ERROR');
@@ -374,10 +378,11 @@ export default function ForensicApp() {
                 auditResult // previous audit result for enrichment
             );
 
-            setAuditResult(result);
+            const resultData = result.data || result;
+            setAuditResult(resultData);
             setStatus('SUCCESS');
-            (result as any)._rawCuenta = cuenta;
-            (result as any)._rawPam = pam;
+            (resultData as any)._rawCuenta = cuenta;
+            (resultData as any)._rawPam = pam;
 
             // Updated Cache History after Agente
             cacheManager.saveCase({
@@ -385,9 +390,9 @@ export default function ForensicApp() {
                 pam,
                 contract: contrato,
                 htmlContext,
-                auditResult: result, // Save the enriched analysis result!
-                patientName: (result as any).patientName || 'Paciente Identificado',
-                invoiceNumber: (result as any).invoiceNumber || 'N/A'
+                auditResult: resultData, // Save the enriched analysis result!
+                patientName: (resultData as any).patientName || 'Paciente Identificado',
+                invoiceNumber: (resultData as any).invoiceNumber || 'N/A'
             });
 
             addLog('[AGENTE] ✅ Búsqueda Forense completada con éxito.');
@@ -841,10 +846,39 @@ export default function ForensicApp() {
                                         <CanonicalDecisionCard output={auditResult.canonical_rules_output} />
                                     )}
 
+                                    {/* ETIOLOGY TOGGLE */}
+                                    {auditResult.phase === "1.5" && (
+                                        <div className="flex justify-end pt-2 pb-4 print:hidden">
+                                            <div className="bg-slate-100 p-1 rounded-lg flex gap-1">
+                                                <button
+                                                    onClick={() => setViewMode('STANDARD')}
+                                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'STANDARD' ? 'bg-white shadow text-slate-800' : 'text-slate-500 hover:text-slate-700'}`}
+                                                >
+                                                    <Table size={14} /> ESTÁNDAR
+                                                </button>
+                                                <button
+                                                    onClick={() => setViewMode('ETIOLOGY')}
+                                                    className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'ETIOLOGY' ? 'bg-white shadow text-indigo-700 ring-1 ring-indigo-200' : 'text-slate-500 hover:text-slate-700'}`}
+                                                >
+                                                    <Eye size={14} /> VISIÓN FORENSE (1.5)
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* ETIOLOGY VIEWER (PHASE 1.5) */}
+                                    {viewMode === 'ETIOLOGY' && auditResult.phase === "1.5" ? (
+                                        <div className="mb-6 -mx-4 sm:-mx-0">
+                                            <EtiologyViewer items={auditResult.results} anchors={auditResult.anchors} />
+                                        </div>
+                                    ) : null}
+
                                     {/* ALPHAFOLD VISUALIZATION (PHASE 4) */}
-                                    <div className="mb-6">
-                                        <AlphaFoldVisualizer auditResult={auditResult} />
-                                    </div>
+                                    {viewMode === 'STANDARD' && (
+                                        <div className="mb-6">
+                                            <AlphaFoldVisualizer auditResult={auditResult} />
+                                        </div>
+                                    )}
 
                                     {/* POST-AUDIT FORENSIC AGENT TRIGGER */}
                                     {!isAgentSearching && (

@@ -23,6 +23,7 @@ import { LearnContractEndpoint } from './endpoints/learn-contract.endpoint.js';
 import { learnFromContract } from './services/contractLearning.service.js';
 import { BILL_PROMPT } from './prompts/bill.prompt.js';
 import { TaxonomyPhase1Service } from './services/taxonomyPhase1.service.js';
+import { TaxonomyPhase1_5Service } from './services/taxonomyPhase1_5.service.js';
 import { SkeletonService } from './services/skeleton.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -1170,7 +1171,104 @@ app.post('/api/extract', async (req, res) => {
         } catch (skError) {
             console.error('[SKELETON] Error generating account skeleton:', skError);
         }
+        // --- TAXONOMY & ETIOLOGY PHASE (MOTOR 1.5) ---
+        // Integramos la clasificación taxonómica y etiológica (MEP) directamente en el flujo de extracción
+        try {
+            const allItems: any[] = [];
+            for (const sec of sectionsMap.values()) {
+                allItems.push(...sec.items);
+            }
 
+            if (allItems.length > 0) {
+                forensicLog(`🧠 Ejecutando Motor Taxonómico (Fase 1.5) para ${allItems.length} ítems...`);
+
+                // 1. Taxonomy Phase 1 (Basic Classification)
+                // We reuse the existing service instance if possible, or create new one
+                const taxonomyService = new TaxonomyPhase1Service(new GeminiService(activeApiKey || getApiKey()));
+                const phase1Results = await taxonomyService.classifyItems(allItems);
+
+                // 2. Taxonomy Phase 1.5 (MEP / Etiology)
+                const mepService = new TaxonomyPhase1_5Service(new GeminiService(activeApiKey || getApiKey()), {
+                    enableLLM: false, // Use deterministic regex only for speed during extraction
+                    cache: new Map()
+                });
+
+                // Build anchors for MEP context
+                const sectionNames = Array.from(sectionsMap.keys());
+                const anchors = {
+                    hasPabellon: sectionNames.some(n => /(^|\b)pabell/i.test(n) || /farmacia.*pabell/i.test(n)),
+                    hasDayBed: sectionNames.some(n => /d[ií]as?\s*cama/i.test(n)),
+                    hasUrgencia: sectionNames.some(n => /urgenc/i.test(n) || /consulta.*urgenc/i.test(n)),
+                    hasEventoUnicoHint: false,
+                    sectionNames: sectionNames
+                };
+
+                const mepResults = await mepService.run(phase1Results, anchors);
+
+                // 3. Merge back into sectionsMap
+                // We create a map of processed items by index/description to update the original objects
+                // Note: The original items in sectionsMap are references, so updating them *might* work if we preserved objects.
+                // But `classifyItems` might have returned new objects. Let's map back carefully.
+
+                // Optimization: The `phase1Results`/`mepResults` should be in same order if we passed `allItems`.
+                // Let's assume order is preserved or use strict object reference if possible. 
+                // TaxonomyService returns NEW objects usually.
+                // We will map by Index if available, or just iterate since it's sequential.
+
+                let itemsWithAbsorption = 0;
+                let totalExposedAmount = 0;
+                const forensicItems: any[] = [];
+
+                // mepResults corresponds to allItems array order
+                for (let i = 0; i < allItems.length; i++) {
+                    const original = allItems[i];
+                    const enriched = mepResults[i];
+
+                    if (enriched) {
+                        const isAbsorption = enriched.etiologia?.tipo === 'ACTO_NO_AUTONOMO' || enriched.etiologia?.tipo === 'DESCLASIFICACION_CLINICA';
+
+                        if (isAbsorption) {
+                            itemsWithAbsorption++;
+                            totalExposedAmount += original.total || 0;
+                        }
+
+                        // Create parallel forensic item
+                        forensicItems.push({
+                            index: original.index, // Reference by Index
+                            description: original.description, // Reference by Description (Safety)
+                            // Forensic Analysis Object
+                            diagnostico_forense: {
+                                index: original.index,
+                                clasificacion: enriched.etiologia?.tipo || "CORRECTO",
+                                dominio_funcional: enriched.etiologia?.absorcion_clinica || "CLINICO_GENERAL",
+                                regla_aplicada: enriched.etiologia?.evidence?.rules?.[0] || "ARANCEL_FONASA",
+                                motivo_rechazo_previsible: enriched.etiologia?.motivo_rechazo_previsible || "SIN_RECHAZO",
+                                tipo_unbundling: isAbsorption ? 1 : 0,
+                                rationale: enriched.rationale_short
+                            }
+                        });
+                    }
+                }
+
+                // Store analysis in a temporary global to be picked up by final JSON construction
+                // (Quick fix to avoid rewriting the whole function flow)
+                (global as any).forensicAnalysisBuffer = {
+                    resumen: {
+                        total_items: allItems.length,
+                        items_con_absorcion_normativa: itemsWithAbsorption,
+                        monto_expuesto_indebidamente: totalExposedAmount
+                    },
+                    items: forensicItems
+                };
+
+                forensicLog(`✅ Análisis Forense generado: ${itemsWithAbsorption} ítems observados.`);
+            }
+
+        } catch (taxError) {
+            console.error("Error en Fase Taxonómica:", taxError);
+            forensicLog(`⚠️ Error en Motor Taxonómico: ${taxError instanceof Error ? taxError.message : String(taxError)} (Continuando extracción base)`);
+        }
+        // --- END TAXONOMY PHASE ---
         console.log(`[SUCCESS] Audit data prepared. Skeleton present: ${!!skeleton}`);
 
         const auditData = {
@@ -1185,7 +1283,9 @@ app.post('/api/extract', async (req, res) => {
             // INJECT INFERRED AC2 (CANONICAL)
             valorUnidadReferencia: inferredAC2,
             // INJECT SKELETON
-            skeleton: skeleton
+            skeleton: skeleton,
+            // INJECT PARALLEL FORENSIC ANALYSIS (SEMANTIC FIREWALL)
+            analisis_taxonomico_forense: (global as any).forensicAnalysisBuffer
         };
 
 
