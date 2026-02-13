@@ -119,6 +119,11 @@ const CHECKLIST_HOSP = `
   - Quimioterapia / Radioterapia
   - Traslados Médicos
   - Prótesis y Ortesis
+
+  **SECCIÓN 6: APOYO DIAGNÓSTICO (HOSPITALARIO)**
+  - Exámenes de Laboratorio (Perfil, Cultivos, etc.)
+  - Imagenología (Rayos, Scanner, Eco)
+  - Kinesiología Motor / Respiratoria
 `;
 
 const CHECKLIST_AMB = `
@@ -272,10 +277,15 @@ export const PROMPT_HOSP_P1 = `
 
 export const PROMPT_HOSP_P2 = `
   You are running the HOSPITALARIO phase. Every item you output is hospitalario by definition.
-  ** PHASE: HOSPITALARY 2 (PROFESSIONAL & SUPPLIES) **
-  Segment: Honorarios, Medicamentos, Insumos, Anestesia.
-  Items: 25 - 56.
+  ** PHASE: HOSPITALARY 2 (PROFESSIONAL & SUPPLIES & SUPPORT) **
+  Segment: Honorarios, Medicamentos, Insumos, Anestesia, Exámenes, Imagenología.
+  Items: 25 - End of Section.
   ${CHECKLIST_HOSP.substring(CHECKLIST_HOSP.indexOf("**SECCIÓN 4"))}
+
+  ⚠️ PHYSICAL PRESENCE RULE: 
+  - If "Exámenes de Laboratorio" or "Imagenología" appear visually under the "HOSPITALARIO" section in the document, **EXTRACT THEM HERE**.
+  - Do NOT skip them thinking they are "ambulatory". If they are in the hospitalary table, they belong here.
+  - ** OUTPUT EVERY SINGLE LINE ** you see in this section.
 
   ⚠️ NO CROSS-SCOPE: Do not mention ambulatorio.
 `;
