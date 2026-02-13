@@ -45,7 +45,10 @@ export class TaxonomyPhase1Service {
     }
 
     // --- UTILS ---
-    private normalizeText(text: string): string {
+    private normalizeText(text: any): string {
+        if (!text || typeof text !== 'string') {
+            return "";
+        }
         return text.trim().toUpperCase()
             .replace(/\s+/g, ' ') // Collapse spaces
             .replace(/[.,;:]/g, ''); // Remove punctuation broadly
@@ -62,7 +65,21 @@ export class TaxonomyPhase1Service {
         const itemsToProcessPayload: any[] = [];
 
         // 1. Check Cache
+        console.log(`[TaxonomyPhase1] classifyItems called with ${items.length} items.`);
         items.forEach((item, index) => {
+            if (!item) {
+                console.error(`[TaxonomyPhase1] ❌ Item at index ${index} is UNDEFINED!`);
+                return;
+            }
+            try {
+                const norm = this.normalizeText(item.text);
+                const hash = this.generateHash(norm);
+                // ... rest of log ...
+            } catch (err: any) {
+                console.error(`[TaxonomyPhase1] ❌ Error processing item at index ${index}:`, item);
+                throw err;
+            }
+
             const norm = this.normalizeText(item.text);
             const hash = this.generateHash(norm);
 
@@ -156,7 +173,7 @@ export class TaxonomyPhase1Service {
             const responseText = await this.gemini.extractText(prompt, { temperature: 0.1 });
 
             // Clean Markdown wrapper if present
-            const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+            const cleanJson = (responseText || "").replace(/```json/g, '').replace(/```/g, '').trim();
 
             const parsed = JSON.parse(cleanJson);
 

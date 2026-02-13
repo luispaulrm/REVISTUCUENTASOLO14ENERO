@@ -83,17 +83,17 @@ function absorcionPorNaturaleza(n: Naturaleza, anchors: TaxonomyContextAnchors):
 function buildDeterministicEtiology(item: TaxonomyResult, anchors: TaxonomyContextAnchors): EtiologiaResult | null {
     const text = item.text || item.item_original; // Fallback for stability
 
-    // 1) Acto no autónomo (tu ejemplo clásico)
+    // 1) Mecanismo 1 (M1): Acto no autónomo o fraude técnico
     if (isActoNoAutonomo(text)) {
         return {
-            tipo: "ACTO_NO_AUTONOMO",
+            tipo: "M1_FRAUDE_TECNICO",
             absorcion_clinica: anchors.hasDayBed ? "DIA_CAMA" : "ATENCION_HOSPITALARIA",
-            codigo_fonasa_valido: RX_FONASA_CODE.test(text), // suele venir como 99-00-xxx-xx, pero puede igual ser objetable
+            codigo_fonasa_valido: RX_FONASA_CODE.test(text),
             motivo_rechazo_previsible: "ACTO_INCLUIDO_EN_PAQUETE",
             impacto_previsional: "REBOTE_ISAPRE_PREVISIBLE",
-            rationale_short: "Acto accesorio frecuente absorbido por atención/hospitalización; alto riesgo de rechazo.",
-            confidence: 0.85,
-            evidence: { anchors: anchorFlags(anchors), rules: ["RULE_ACTO_NO_AUTONOMO"], matches: ["regex:ACTO_NO_AUTONOMO"] }
+            rationale_short: "M1: Acto accesorio no autónomo (duplicidad técnica probable).",
+            confidence: 0.95,
+            evidence: { anchors: anchorFlags(anchors), rules: ["RULE_M1_NON_AUTONOMOUS"], matches: ["regex:ACTO_NO_AUTONOMO"] }
         };
     }
 
@@ -110,17 +110,17 @@ function buildDeterministicEtiology(item: TaxonomyResult, anchors: TaxonomyConte
     else if (DOMINIO_REGEX.INSUMO_ESTANDAR.test(text)) dominioFuncional = "INSUMO_ESTANDAR";
     else if (DOMINIO_REGEX.MATERIAL_CLINICO_ESPECIFICO.test(text)) dominioFuncional = "MATERIAL_CLINICO_ESPECIFICO";
 
-    // CAPA 3: ABSORCIÓN NORMATIVA (REGLA DE ORO)
+    // CAPA 3: MECANISMO 3 (M3) - ABSORCIÓN NORMATIVA (REGLA DE ORO)
     if (dominioFuncional === "HOTELERIA") {
         return {
-            tipo: "DESCLASIFICACION_ADMINISTRATIVA",
+            tipo: "M3_ABSORCION_NORMATIVA",
             absorcion_clinica: "NO_APLICA",
             codigo_fonasa_valido: false,
             motivo_rechazo_previsible: "ITEM_MAL_IMPUTADO",
             impacto_previsional: "NO_BONIFICABLE_POR_NORMA",
-            rationale_short: "MEP: Hotelería/Confort expulsado de cobertura (Dominio Administrativo)",
+            rationale_short: "M3: Naturaleza administrativa/hotelería (no bonificable por norma).",
             confidence: 0.99,
-            evidence: { matches: ["dominio:HOTELERIA", "regla:RECHAZO_DIRECTO"] }
+            evidence: { matches: ["dominio:HOTELERIA", "regla:M3_RECHAZO_ADMINISTRATIVO"] }
         };
     }
 
@@ -128,13 +128,12 @@ function buildDeterministicEtiology(item: TaxonomyResult, anchors: TaxonomyConte
         // En pabellón o sala, el insumo estándar se asume incluido
         if (anchors.hasPabellon || anchors.hasDayBed) {
             return {
-                tipo: "DESCLASIFICACION_ADMINISTRATIVA",
-                absorcion_clinica: "NO_APLICA", // Or "PABELLON" if we want to imply it was absorbed there, but user prefers "Administrative Rejection" for these.
-                // Let's stick to "Administrative Unbundling" as agreed
+                tipo: "M2_UNBUNDLING_CLINICO",
+                absorcion_clinica: anchors.hasPabellon ? "PABELLON" : "DIA_CAMA",
                 codigo_fonasa_valido: false,
                 motivo_rechazo_previsible: "ACTO_INCLUIDO_EN_PAQUETE",
                 impacto_previsional: "NO_BONIFICABLE_POR_NORMA",
-                rationale_short: `MEP: Insumo Estándar absorbido por derecho de ${anchors.hasPabellon ? 'Pabellón' : 'Sala'}`,
+                rationale_short: `M2: Insumo Estándar absorbido por derecho de ${anchors.hasPabellon ? 'Pabellón' : 'Sala'}`,
                 confidence: 0.90,
                 evidence: { matches: ["dominio:INSUMO_ESTANDAR", `contexto:${anchors.hasPabellon ? 'PABELLON' : 'SALA'}`] }
             };
@@ -172,14 +171,14 @@ function buildDeterministicEtiology(item: TaxonomyResult, anchors: TaxonomyConte
 
         if (absorcion === "PABELLON" && isOutsidePabellon) {
             return {
-                tipo: "DESCLASIFICACION_CLINICA",
+                tipo: "M2_UNBUNDLING_CLINICO",
                 absorcion_clinica: "PABELLON",
                 codigo_fonasa_valido: false,
                 motivo_rechazo_previsible: "ITEM_MAL_IMPUTADO",
                 impacto_previsional: "REBOTE_ISAPRE_PREVISIBLE",
-                rationale_short: "Ítem de naturaleza quirúrgica/anestésica fuera de Pabellón; probable rechazo por imputación.",
+                rationale_short: "M2: Ítem clínico quirúrgico fuera de Pabellón; probable desclasificación.",
                 confidence: 0.8,
-                evidence: { anchors: anchorFlags(anchors), rules: ["RULE_ABSORCION_PABELLON"], matches: [`nature:${nat}`] }
+                evidence: { anchors: anchorFlags(anchors), rules: ["RULE_M2_ABSORCION_CLINICA"], matches: [`nature:${nat}`] }
             };
         }
 
@@ -281,7 +280,7 @@ export class TaxonomyPhase1_5Service {
 
         try {
             const responseText = await this.geminiService.extractText(prompt, { temperature: 0.1 });
-            const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+            const cleanJson = (responseText || "").replace(/```json/g, '').replace(/```/g, '').trim();
             const json = JSON.parse(cleanJson);
             return clampEtiology(json);
         } catch (e) {
@@ -322,10 +321,10 @@ Eres un motor forense de "Etiología de Cobros Clínicos" (Chile).
 Tu tarea NO es auditar montos, sólo clasificar etiología probable.
 
 CONCEPTOS:
-- CODIGO_INEXISTENTE: el ítem se presenta como "prestación bonificable" pero su codificación es interna/no reconocible como arancel (o es inventada).
-- ACTO_NO_AUTONOMO: acto accesorio típicamente incluido en atención (p.ej. instalación vía venosa, fleboclisis) y suele ser rechazado por duplicidad/absorción.
-- DESCLASIFICACION_CLINICA: el ítem es real (insumo/medicamento), pero está imputado en un dominio incorrecto para maximizar cobro; se espera rechazo o rebote.
-- CORRECTO: no hay causal etiológica previsible con la info dada.
+- M1_FRAUDE_TECNICO: el ítem no tiene código arancelario válido, o es un acto no autónomo (ej: vía venosa, fleboclisis) que se cobra aparte fraudulentamente.
+- M2_UNBUNDLING_CLINICO: el ítem clínico es real, pero debería estar absorbido por un paquete (Pabellón, Día Cama) o se cobra como línea independiente duplicando costos.
+- M3_ABSORCION_NORMATIVA: el ítem es de naturaleza administrativa, hotelería o confort (Set Aseo, Calzón Clínico) y NUNCA ha sido una prestación bonificable.
+- CORRECTO: bonificable sin causal forense.
 
 DOMINIOS ACTIVOS (anclas):
 hasPabellon=${anchors.hasPabellon}
@@ -342,21 +341,20 @@ subfamilia=${JSON.stringify(item.sub_familia ?? null)}
 atributos=${JSON.stringify(item.atributos ?? {})}
 
 REGLAS:
-1) Si el texto sugiere "acto accesorio" (vía venosa/fleboclisis), prioriza ACTO_NO_AUTONOMO.
-2) Si es anestesia/quirúrgico y hasPabellon=true pero aparece fuera de Pabellón (si hay sección en atributos/sourceRef), DESCLASIFICACION_CLINICA con absorcion_clinica="PABELLON".
-3) Si parece "prestación" pero no tiene forma de código arancelario y se ve como inventado -> CODIGO_INEXISTENTE.
-4) Si no estás seguro, CORRECTO con motivo SIN_CAUSAL_PREVISIBLE.
+1) Si es acto accesorio (fleboclisis/vía), usa M1_FRAUDE_TECNICO.
+2) Si es insumo estándar en contexto de pabellón/habitación, usa M2_UNBUNDLING_CLINICO.
+3) Si es hotelería pura (set aseo, chata, medias antiembólicas), usa M3_ABSORCION_NORMATIVA.
+4) Si tiene código arancelario (99-xx-xxx o similar) y no hay anomalía, usa CORRECTO.
 
-DEVUELVE SOLO JSON ESTRICTO con este shape:
+DEVUELVE SOLO JSON:
 {
-  "tipo": "...",
+  "tipo": "M1_FRAUDE_TECNICO"|"M2_UNBUNDLING_CLINICO"|"M3_ABSORCION_NORMATIVA"|"CORRECTO",
   "absorcion_clinica": "PABELLON"|"DIA_CAMA"|"EVENTO_UNICO"|"ATENCION_HOSPITALARIA"|null,
-  "codigo_fonasa_valido": true|false,
+  "codigo_fonasa_valido": boolean,
   "motivo_rechazo_previsible": "...",
   "impacto_previsional": "...",
   "rationale_short": "string corto",
-  "confidence": 0.0-1.0,
-  "evidence": { "anchors": [], "rules": [], "matches": [] }
+  "confidence": 0.0-1.0
 }
 `.trim();
 }

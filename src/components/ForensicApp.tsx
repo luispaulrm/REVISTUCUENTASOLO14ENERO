@@ -60,6 +60,39 @@ export default function ForensicApp() {
     const [previewData, setPreviewData] = useState<{ title: string, content: string } | null>(null);
     const [viewMode, setViewMode] = useState<'STANDARD' | 'ETIOLOGY'>('ETIOLOGY'); // Default to Etiology for Phase 1.5 visibility
 
+    // Helper to map parallel forensic firewall to EtiologyViewer-compatible structure
+    const getEtiologyItems = () => {
+        if (!auditResult) return [];
+
+        // If we have the new parallel firewall structure
+        if (auditResult.analisis_taxonomico_forense?.items) {
+            return auditResult.analisis_taxonomico_forense.items.map((fi: any) => ({
+                id: `f-${fi.index}`,
+                item_original: fi.description,
+                text: fi.description,
+                grupo: (fi.diagnostico_forense.dominio_funcional === 'HONORARIOS' ? 'HONORARIOS' :
+                    fi.diagnostico_forense.dominio_funcional === 'PABELLON' ? 'PABELLON' : 'INSUMOS') as any,
+                sub_familia: 'MATERIALES' as any,
+                confidence: 1.0,
+                rationale_short: fi.diagnostico_forense.rationale,
+                etiologia: {
+                    tipo: fi.diagnostico_forense.clasificacion,
+                    absorcion_clinica: fi.diagnostico_forense.dominio_funcional,
+                    codigo_fonasa_valido: true,
+                    motivo_rechazo_previsible: fi.diagnostico_forense.motivo_rechazo_previsible,
+                    impacto_previsional: (fi.diagnostico_forense.tipo_unbundling > 0 ? 'NO_BONIFICABLE_POR_NORMA' : 'BONIFICABLE') as any,
+                    rationale_short: fi.diagnostico_forense.rationale
+                },
+                atributos: {
+                    section: fi.diagnostico_forense.dominio_funcional
+                }
+            }));
+        }
+
+        // Fallback to old structure
+        return auditResult.results || [];
+    };
+
     // Persisted Data State
     const [hasBill, setHasBill] = useState(false);
     const [hasPam, setHasPam] = useState(false);
@@ -847,7 +880,7 @@ export default function ForensicApp() {
                                     )}
 
                                     {/* ETIOLOGY TOGGLE */}
-                                    {auditResult.phase === "1.5" && (
+                                    {(auditResult.phase === "1.5" || auditResult.analisis_taxonomico_forense) && (
                                         <div className="flex justify-end pt-2 pb-4 print:hidden">
                                             <div className="bg-slate-100 p-1 rounded-lg flex gap-1">
                                                 <button
@@ -860,16 +893,36 @@ export default function ForensicApp() {
                                                     onClick={() => setViewMode('ETIOLOGY')}
                                                     className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${viewMode === 'ETIOLOGY' ? 'bg-white shadow text-indigo-700 ring-1 ring-indigo-200' : 'text-slate-500 hover:text-slate-700'}`}
                                                 >
-                                                    <Eye size={14} /> VISIÓN FORENSE (1.5)
+                                                    <Eye size={14} /> VISIÓN FORENSE (MEP)
                                                 </button>
                                             </div>
                                         </div>
                                     )}
 
-                                    {/* ETIOLOGY VIEWER (PHASE 1.5) */}
-                                    {viewMode === 'ETIOLOGY' && auditResult.phase === "1.5" ? (
+                                    {/* ETIOLOGY VIEWER (PHASE 1.5 or Motor 3 Firewall) */}
+                                    {viewMode === 'ETIOLOGY' && (auditResult.phase === "1.5" || auditResult.analisis_taxonomico_forense) ? (
                                         <div className="mb-6 -mx-4 sm:-mx-0">
-                                            <EtiologyViewer items={auditResult.results} anchors={auditResult.anchors} />
+                                            {auditResult.analisis_taxonomico_forense?.resumen && (
+                                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                                                    <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-3xl">
+                                                        <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1 text-left">Items Procesados</p>
+                                                        <p className="text-3xl font-black text-emerald-900 text-left">{auditResult.analisis_taxonomico_forense.resumen.total_items}</p>
+                                                    </div>
+                                                    <div className="bg-rose-50 border border-rose-200 p-6 rounded-3xl">
+                                                        <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1 text-left">M1+M2: Hallazgos Motor</p>
+                                                        <p className="text-3xl font-black text-rose-900 text-left">{auditResult.analisis_taxonomico_forense.resumen.items_con_absorcion_normativa}</p>
+                                                    </div>
+                                                    <div className="bg-indigo-50 border border-indigo-200 p-6 rounded-3xl">
+                                                        <p className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1 text-left">M3: Bolsón Opaco</p>
+                                                        <p className="text-3xl font-black text-indigo-900 text-left">${(auditResult.analisis_taxonomico_forense.resumen.bolson_opaco_m3 || 0).toLocaleString()}</p>
+                                                    </div>
+                                                    <div className="bg-slate-900 p-6 rounded-3xl shadow-xl flex flex-col justify-center">
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-center">Total Monto Expuesto</p>
+                                                        <p className="text-3xl font-black text-emerald-400 text-center">${auditResult.analisis_taxonomico_forense.resumen.monto_expuesto_indebidamente.toLocaleString()} <span className="text-xs">CLP</span></p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <EtiologyViewer items={getEtiologyItems()} anchors={auditResult.anchors} />
                                         </div>
                                     ) : null}
 

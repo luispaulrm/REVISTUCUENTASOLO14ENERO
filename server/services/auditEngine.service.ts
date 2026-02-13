@@ -13,6 +13,7 @@ import {
     getKnowledgeFilterInfo
 } from './knowledgeFilter.service.ts';
 import { preProcessEventos } from './eventProcessor.service.ts';
+import { TaxonomyPhase1_5Service } from './taxonomyPhase1_5.service.js';
 import { runCanonicalRules, generateExplainableOutput } from './canonicalRulesEngine.service.ts';
 // NEW: Import Hypothesis Router (V5 Architecture)
 import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRouter.service.ts';
@@ -2658,6 +2659,109 @@ ${JSON.stringify(previousAuditResult, null, 2)}
             log(`[AuditEngine] ?? Canonical Debug: ${canonicalResult.debug.join(' | ')}`);
         }
 
+        // --- FINAL SEMANTIC FIREWALL (M1-M3) ---
+        // Integramos la clasificación taxonómica y etiológica (MEP) consolidada
+        let forensicAnalysisResult: any | null = null;
+        try {
+            const allItems: any[] = [];
+            if (cleanedCuenta.sections) {
+                cleanedCuenta.sections.forEach((sec: any) => {
+                    const cat = (sec.category || "").toUpperCase();
+                    if (!(cat.includes('PAM') || cat.includes('DETALLE DE COBROS DUPLICADOS'))) {
+                        if (sec.items) allItems.push(...sec.items);
+                    }
+                });
+            }
+
+            if (allItems.length > 0) {
+                log(`📊 Finalizando Perfil Forense Consolidado (${allItems.length} ítems)...`);
+                const taxonomyServiceLocal = new TaxonomyPhase1Service(new GeminiService(apiKey));
+                const taxonomyInputLocal = allItems.map((it, idx) => ({
+                    id: it.id || `item-${idx}`,
+                    text: it.description || it.text || "",
+                    sourceRef: it.code || ""
+                }));
+
+                const phase1Results = await taxonomyServiceLocal.classifyItems(taxonomyInputLocal);
+                const mepService = new TaxonomyPhase1_5Service(new GeminiService(apiKey), {
+                    enableLLM: false, // Deterministic for final sync
+                    cache: new Map()
+                });
+
+                // Build anchors for MEP context
+                const sectionNamesExt = cleanedCuenta.sections?.map((s: any) => s.category) || [];
+                const mepAnchors = {
+                    hasPabellon: sectionNamesExt.some((n: any) => /(^|\b)pabell/i.test(n) || /farmacia.*pabell/i.test(n)),
+                    hasDayBed: sectionNamesExt.some((n: any) => /d[ií]as?\s*cama/i.test(n)),
+                    hasUrgencia: sectionNamesExt.some((n: any) => /urgenc/i.test(n) || /consulta.*urgenc/i.test(n)),
+                    sectionNames: sectionNamesExt
+                };
+
+                const mepResults = await mepService.run(phase1Results, mepAnchors);
+
+                // --- SYSTEMIC AGGREGATION ---
+                const finalSumOfSections = cleanedCuenta.sections?.reduce((sum: number, s: any) => sum + (s.sectionTotal || s.calculatedSectionTotal || 0), 0) || 0;
+                const clinicGrandTotal = cleanedCuenta.clinicStatedTotal || finalSumOfSections;
+                const residualDiscrepancy = Math.max(0, clinicGrandTotal - finalSumOfSections);
+
+                let itemsWithAbsorption = 0;
+                let totalExposedAmount = residualDiscrepancy; // Start with bolson opaco
+                const forensicItems: any[] = [];
+
+                if (residualDiscrepancy > 0) {
+                    log(`🟣 M3 DETECTADO: Sobrante no detallado de $${residualDiscrepancy.toLocaleString('es-CL')} (Bolsón Opaco).`);
+                }
+
+                for (let i = 0; i < allItems.length; i++) {
+                    const original = allItems[i];
+                    const enriched = mepResults[i];
+                    if (enriched) {
+                        const isObjectionable = enriched.etiologia?.tipo && enriched.etiologia?.tipo !== 'CORRECTO';
+                        if (isObjectionable) {
+                            itemsWithAbsorption++;
+                            totalExposedAmount += (original.total || original.unitPrice * original.quantity || 0);
+                        }
+                        forensicItems.push({
+                            index: original.index,
+                            description: original.description || original.text,
+                            diagnostico_forense: {
+                                clasificacion: enriched.etiologia?.tipo || "CORRECTO",
+                                dominio_funcional: enriched.etiologia?.absorcion_clinica || "CLINICO_GENERAL",
+                                rationale: enriched.rationale_short
+                            }
+                        });
+                    }
+                }
+
+                // EVENTO UNICO DISCOVERY
+                try {
+                    if (pamJson) {
+                        const events = await preProcessEventos(pamJson, {});
+                        const euViolations = events.filter((e: any) => e.metadata?.evento_unico_v6_detected);
+                        for (const ev of euViolations) {
+                            log(`🟣 EU DETECTADO: Evento de Urgencia debe integrarse.`);
+                            totalExposedAmount += ev.total_bonificacion;
+                            itemsWithAbsorption++;
+                        }
+                    }
+                } catch (euE) { }
+
+                forensicAnalysisResult = {
+                    resumen: {
+                        total_items: allItems.length,
+                        items_con_absorcion_normativa: itemsWithAbsorption,
+                        monto_expuesto_indebidamente: totalExposedAmount,
+                        bolson_opaco_m3: residualDiscrepancy
+                    },
+                    items: forensicItems,
+                    status: "SUCCESS"
+                };
+            }
+        } catch (mepErr) {
+            console.error("Error in Final M1-M3 Firewall:", mepErr);
+        }
+
+
         return {
             data: {
                 ...finalResult,
@@ -2696,6 +2800,7 @@ ${JSON.stringify(previousAuditResult, null, 2)}
                     disclaimer: "Este reporte constituye una pre-liquidaci�n forense reconstructiva. No reemplaza el juicio de un tribunal."
                 },
                 canonical_rules_output: (canonicalResult as any).debug,
+                analisis_taxonomico_forense: forensicAnalysisResult,
 
                 explicaciones: (() => {
                     const patientNameStr = (cuentaJson.patientName || pamJson.patientName || pamJson.patient || "el paciente").toUpperCase();

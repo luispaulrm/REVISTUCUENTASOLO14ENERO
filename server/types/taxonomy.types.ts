@@ -57,11 +57,10 @@ export interface TaxonomySkeleton {
 // --- PHASE 1.5: ETIOLOGY & FORENSIC CONTEXT ---
 
 export type EtiologiaTipo =
-    | "CODIGO_INEXISTENTE"     // Tipo A: No existe en arancel (ej: "Instalación de vía")
-    | "ACTO_NO_AUTONOMO"       // Tipo A/B: Es parte de otro acto (ej: "Sutura" en "Pabellón")
-    | "DESCLASIFICACION_CLINICA" // Tipo B: Insumo clínico movido a otra sección (ej: "Propofol" en "Insumos")
-    | "DESCLASIFICACION_ADMINISTRATIVA" // Tipo C: Ítem de confort/hotelería rechazado por dominio (ej: "Calcetín", "Set Aseo")
-    | "CORRECTO";              // Bonificable
+    | "M1_FRAUDE_TECNICO"          // Tipo A: No existe en arancel o es acto no autónomo
+    | "M2_UNBUNDLING_CLINICO"        // Tipo B: Insumo clínico que debiera estar absorbido
+    | "M3_ABSORCION_NORMATIVA"       // Tipo C: Ítem de confort/hotelería (naturaleza administrativa)
+    | "CORRECTO";                   // Bonificable
 
 export type AbsorcionClinica =
     | "PABELLON"

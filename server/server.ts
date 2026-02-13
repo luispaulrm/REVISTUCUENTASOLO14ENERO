@@ -25,6 +25,7 @@ import { BILL_PROMPT } from './prompts/bill.prompt.js';
 import { TaxonomyPhase1Service } from './services/taxonomyPhase1.service.js';
 import { TaxonomyPhase1_5Service } from './services/taxonomyPhase1_5.service.js';
 import { SkeletonService } from './services/skeleton.service.js';
+import { preProcessEventos } from './services/eventProcessor.service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -1171,11 +1172,22 @@ app.post('/api/extract', async (req, res) => {
         } catch (skError) {
             console.error('[SKELETON] Error generating account skeleton:', skError);
         }
+
         // --- TAXONOMY & ETIOLOGY PHASE (MOTOR 1.5) ---
         // Integramos la clasificación taxonómica y etiológica (MEP) directamente en el flujo de extracción
+
+        let forensicAnalysisResult: any | null = null; // Defined outside try/catch to be visible for injection
+
         try {
             const allItems: any[] = [];
-            for (const sec of sectionsMap.values()) {
+            const activeSections = Array.from(sectionsMap.values()).filter((s: any) => {
+                const cat = s.category.toUpperCase();
+                return !(cat.includes('PROGRAMA DE ATENCION MEDICA') ||
+                    cat.includes('PAM') ||
+                    cat.includes('DETALLE DE COBROS DUPLICADOS'));
+            });
+
+            for (const sec of activeSections) {
                 allItems.push(...sec.items);
             }
 
@@ -1183,9 +1195,16 @@ app.post('/api/extract', async (req, res) => {
                 forensicLog(`🧠 Ejecutando Motor Taxonómico (Fase 1.5) para ${allItems.length} ítems...`);
 
                 // 1. Taxonomy Phase 1 (Basic Classification)
-                // We reuse the existing service instance if possible, or create new one
                 const taxonomyService = new TaxonomyPhase1Service(new GeminiService(activeApiKey || getApiKey()));
-                const phase1Results = await taxonomyService.classifyItems(allItems);
+
+                // CRITICAL: Map BillingItems to the format TaxonomyService expects
+                const taxonomyInput = allItems.map((it, idx) => ({
+                    id: it.id || `item-${idx}`,
+                    text: it.description || "",
+                    sourceRef: it.code || ""
+                }));
+
+                const phase1Results = await taxonomyService.classifyItems(taxonomyInput);
 
                 // 2. Taxonomy Phase 1.5 (MEP / Etiology)
                 const mepService = new TaxonomyPhase1_5Service(new GeminiService(activeApiKey || getApiKey()), {
@@ -1203,21 +1222,23 @@ app.post('/api/extract', async (req, res) => {
                     sectionNames: sectionNames
                 };
 
+                // Run MEP (Phase 1.5)
                 const mepResults = await mepService.run(phase1Results, anchors);
 
-                // 3. Merge back into sectionsMap
-                // We create a map of processed items by index/description to update the original objects
-                // Note: The original items in sectionsMap are references, so updating them *might* work if we preserved objects.
-                // But `classifyItems` might have returned new objects. Let's map back carefully.
+                // --- SYSTEMIC AGGREGATION (M1-M3) ---
+                // M1: Fraude Técnico | M2: Unbundling Clínico | M3: Absorción Normativa
 
-                // Optimization: The `phase1Results`/`mepResults` should be in same order if we passed `allItems`.
-                // Let's assume order is preserved or use strict object reference if possible. 
-                // TaxonomyService returns NEW objects usually.
-                // We will map by Index if available, or just iterate since it's sequential.
+                // 1. Residual Discrepancy (M3: Camuflaje administrativo / Bolsón opaco)
+                // If Clinic Grand Total > Sum of items, the difference is an unjustified charge (M3)
+                const residualDiscrepancy = Math.max(0, (clinicGrandTotalField || finalSumOfSections) - finalSumOfSections);
 
                 let itemsWithAbsorption = 0;
-                let totalExposedAmount = 0;
+                let totalExposedAmount = residualDiscrepancy; // Start with the "bolsón opaco"
                 const forensicItems: any[] = [];
+
+                if (residualDiscrepancy > 0) {
+                    forensicLog(`🟣 M3 DETECTADO: Sobrante no detallado de $${residualDiscrepancy.toLocaleString('es-CL')} (Bolsón Opaco).`);
+                }
 
                 // mepResults corresponds to allItems array order
                 for (let i = 0; i < allItems.length; i++) {
@@ -1225,48 +1246,70 @@ app.post('/api/extract', async (req, res) => {
                     const enriched = mepResults[i];
 
                     if (enriched) {
-                        const isAbsorption = enriched.etiologia?.tipo === 'ACTO_NO_AUTONOMO' || enriched.etiologia?.tipo === 'DESCLASIFICACION_CLINICA';
+                        const isObjectionable = enriched.etiologia?.tipo && enriched.etiologia?.tipo !== 'CORRECTO';
 
-                        if (isAbsorption) {
+                        if (isObjectionable) {
                             itemsWithAbsorption++;
                             totalExposedAmount += original.total || 0;
                         }
 
                         // Create parallel forensic item
                         forensicItems.push({
-                            index: original.index, // Reference by Index
-                            description: original.description, // Reference by Description (Safety)
-                            // Forensic Analysis Object
+                            index: original.index,
+                            description: original.description,
                             diagnostico_forense: {
                                 index: original.index,
                                 clasificacion: enriched.etiologia?.tipo || "CORRECTO",
                                 dominio_funcional: enriched.etiologia?.absorcion_clinica || "CLINICO_GENERAL",
                                 regla_aplicada: enriched.etiologia?.evidence?.rules?.[0] || "ARANCEL_FONASA",
                                 motivo_rechazo_previsible: enriched.etiologia?.motivo_rechazo_previsible || "SIN_RECHAZO",
-                                tipo_unbundling: isAbsorption ? 1 : 0,
+                                tipo_unbundling: isObjectionable ? 1 : 0,
                                 rationale: enriched.rationale_short
                             }
                         });
                     }
                 }
 
-                // Store analysis in a temporary global to be picked up by final JSON construction
-                // (Quick fix to avoid rewriting the whole function flow)
-                (global as any).forensicAnalysisBuffer = {
+                // --- SYSTEMIC DISCOVERY: EVENTO ÚNICO ---
+                try {
+                    const pamJson = Array.from(sectionsMap.values()).find(s => s.category.toUpperCase().includes('PAM'))?.rawPamJson;
+                    if (pamJson) {
+                        const events = await preProcessEventos(pamJson, {});
+                        const euViolations = events.filter((e: any) => e.metadata?.evento_unico_v6_detected);
+
+                        for (const ev of euViolations) {
+                            forensicLog(`🟣 EU DETECTADO: Urgencia (${ev.id_evento}) debió integrarse a Hospitalización (${ev.metadata?.target_hosp_id}).`);
+                            totalExposedAmount += ev.total_bonificacion; // The entire urgency event is exposed if it should have been integrated
+                            itemsWithAbsorption++;
+                        }
+                    }
+                } catch (euError) {
+                    console.error("Error detecting Evento Único:", euError);
+                }
+
+                forensicAnalysisResult = {
                     resumen: {
                         total_items: allItems.length,
                         items_con_absorcion_normativa: itemsWithAbsorption,
-                        monto_expuesto_indebidamente: totalExposedAmount
+                        monto_expuesto_indebidamente: totalExposedAmount,
+                        bolson_opaco_m3: residualDiscrepancy
                     },
-                    items: forensicItems
+                    items: forensicItems,
+                    status: "SUCCESS"
                 };
 
-                forensicLog(`✅ Análisis Forense generado: ${itemsWithAbsorption} ítems observados.`);
+                forensicLog(`✅ Análisis Forense consolidado (M1+M2+M3): $${totalExposedAmount.toLocaleString('es-CL')} expuestos.`);
             }
 
         } catch (taxError) {
             console.error("Error en Fase Taxonómica:", taxError);
             forensicLog(`⚠️ Error en Motor Taxonómico: ${taxError instanceof Error ? taxError.message : String(taxError)} (Continuando extracción base)`);
+
+            forensicAnalysisResult = {
+                status: "ERROR",
+                error: taxError instanceof Error ? taxError.message : String(taxError),
+                items: []
+            };
         }
         // --- END TAXONOMY PHASE ---
         console.log(`[SUCCESS] Audit data prepared. Skeleton present: ${!!skeleton}`);
@@ -1284,8 +1327,10 @@ app.post('/api/extract', async (req, res) => {
             valorUnidadReferencia: inferredAC2,
             // INJECT SKELETON
             skeleton: skeleton,
+            // PHASE MARKER FOR FRONTEND
+            phase: "1.5",
             // INJECT PARALLEL FORENSIC ANALYSIS (SEMANTIC FIREWALL)
-            analisis_taxonomico_forense: (global as any).forensicAnalysisBuffer
+            analisis_taxonomico_forense: forensicAnalysisResult
         };
 
 

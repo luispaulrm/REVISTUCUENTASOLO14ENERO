@@ -25,7 +25,9 @@ import {
   Code2,
   Settings,
   Key,
-  Save
+  Save,
+  Gavel,
+  LayoutGrid
 } from 'lucide-react';
 import { AppStatus, ExtractedAccount, UsageMetrics } from './types';
 import { extractBillingData } from './geminiService';
@@ -33,6 +35,7 @@ import { extractPamData, PamDocument } from './pamService';
 import { AuditSummary } from './components/AuditSummary';
 import { ExtractionResults } from './components/ExtractionResults';
 import { PAMResults } from './components/PAMResults';
+import { EtiologyViewer } from './components/EtiologyViewer';
 import { VERSION, LAST_MODIFIED, AI_MODEL } from './version';
 import { cacheManager } from './utils/cacheManager';
 
@@ -55,6 +58,38 @@ const App: React.FC = () => {
   const [fileQueue, setFileQueue] = useState<Array<{ file: File, preview: string, status: 'pending' | 'processing' | 'done' | 'error', result?: ExtractedAccount, error?: string }>>([]);
   const [resultsHistory, setResultsHistory] = useState<Array<{ fileName: string, result: ExtractedAccount }>>([]);
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(0);
+  const [viewMode, setViewMode] = useState<'STANDARD' | 'ETIOLOGY'>('STANDARD');
+
+  const getEtiologyItems = () => {
+    if (!result) return [];
+
+    // If we have the new parallel forensic firewall structure
+    if (result.analisis_taxonomico_forense?.items) {
+      return result.analisis_taxonomico_forense.items.map((fi: any) => ({
+        id: `f-${fi.index}`,
+        item_original: fi.description,
+        text: fi.description,
+        grupo: (fi.diagnostico_forense.dominio_funcional === 'HONORARIOS' ? 'HONORARIOS' :
+          fi.diagnostico_forense.dominio_funcional === 'PABELLON' ? 'PABELLON' : 'INSUMOS') as any,
+        sub_familia: 'MATERIALES' as any,
+        confidence: 1.0,
+        rationale_short: fi.diagnostico_forense.rationale,
+        etiologia: {
+          tipo: fi.diagnostico_forense.clasificacion,
+          absorcion_clinica: fi.diagnostico_forense.dominio_funcional,
+          codigo_fonasa_valido: true,
+          motivo_rechazo_previsible: fi.diagnostico_forense.motivo_rechazo_previsible,
+          impacto_previsional: (fi.diagnostico_forense.tipo_unbundling > 0 ? 'NO_BONIFICABLE_POR_NORMA' : 'BONIFICABLE') as any,
+          rationale_short: fi.diagnostico_forense.rationale
+        },
+        atributos: {
+          section: fi.diagnostico_forense.dominio_funcional
+        }
+      }));
+    }
+
+    return [];
+  };
 
   const timerRef = useRef<number | null>(null);
   const progressRef = useRef<number | null>(null);
@@ -744,46 +779,86 @@ const App: React.FC = () => {
                       <p className="text-xs font-bold text-slate-900">{new Date().toLocaleDateString()} {new Date().toLocaleTimeString()}</p>
                     </div>
                   </div>
+
+                  {result.analisis_taxonomico_forense && (
+                    <div className="flex bg-slate-100 p-1 rounded-xl mb-6 inline-flex border border-slate-200 print:hidden">
+                      <button
+                        onClick={() => setViewMode('STANDARD')}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold transition-all ${viewMode === 'STANDARD' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                      >
+                        <LayoutGrid size={14} /> VISTA ESTÁNDAR
+                      </button>
+                      <button
+                        onClick={() => setViewMode('ETIOLOGY')}
+                        className={`flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold transition-all ${viewMode === 'ETIOLOGY' ? 'bg-slate-900 text-emerald-400 shadow-lg' : 'text-slate-500 hover:text-slate-700'}`}
+                      >
+                        <Gavel size={14} /> VISIÓN FORENSE (MEP)
+                      </button>
+                    </div>
+                  )}
                 </div>
 
 
-                <AuditSummary data={result} />
+                {viewMode === 'STANDARD' || !result.analisis_taxonomico_forense ? (
+                  <>
+                    <AuditSummary data={result} />
 
+                    {/* METRICAS DE TOKENS EN EL REPORTE (SOLO EN PDF) */}
+                    {result.usage && (
+                      <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl hidden print:block">
+                        <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Métricas de Consumo IA</h4>
+                        <div className="grid grid-cols-4 gap-4">
+                          <div>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase">Input</p>
+                            <p className="text-xs font-mono font-bold text-slate-700">{result.usage.promptTokens}</p>
+                          </div>
+                          <div>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase">Output</p>
+                            <p className="text-xs font-mono font-bold text-slate-700">{result.usage.candidatesTokens}</p>
+                          </div>
+                          <div>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase">Total</p>
+                            <p className="text-xs font-mono font-bold text-indigo-600">{result.usage.totalTokens}</p>
+                          </div>
+                          <div>
+                            <p className="text-[8px] font-bold text-slate-400 uppercase">Costo Est.</p>
+                            <p className="text-xs font-mono font-bold text-emerald-600">
+                              ${result.usage.estimatedCostCLP} CLP <span className="text-[9px] text-slate-400">(${result.usage.estimatedCost.toFixed(4)} USD)</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
 
-
-                {/* METRICAS DE TOKENS EN EL REPORTE (SOLO EN PDF) */}
-                {result.usage && (
-                  <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-2xl hidden print:block">
-                    <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Métricas de Consumo IA</h4>
-                    <div className="grid grid-cols-4 gap-4">
-                      <div>
-                        <p className="text-[8px] font-bold text-slate-400 uppercase">Input</p>
-                        <p className="text-xs font-mono font-bold text-slate-700">{result.usage.promptTokens}</p>
-                      </div>
-                      <div>
-                        <p className="text-[8px] font-bold text-slate-400 uppercase">Output</p>
-                        <p className="text-xs font-mono font-bold text-slate-700">{result.usage.candidatesTokens}</p>
-                      </div>
-                      <div>
-                        <p className="text-[8px] font-bold text-slate-400 uppercase">Total</p>
-                        <p className="text-xs font-mono font-bold text-indigo-600">{result.usage.totalTokens}</p>
-                      </div>
-                      <div>
-                        <p className="text-[8px] font-bold text-slate-400 uppercase">Costo Est.</p>
-                        <p className="text-xs font-mono font-bold text-emerald-600">
-                          ${result.usage.estimatedCostCLP} CLP <span className="text-[9px] text-slate-400">(${result.usage.estimatedCost.toFixed(4)} USD)</span>
-                        </p>
-                      </div>
+                    {/* DEBUG: TEMPORARY SKELETON CHECK */}
+                    <div className="mb-4 p-2 bg-yellow-100 border border-yellow-300 text-yellow-800 text-[10px] uppercase font-bold rounded text-center">
+                      DEBUG STATE: Skeleton is {result.skeleton ? "PRESENT ✅" : "MISSING ❌"} | Branches: {result.skeleton?.children?.length || 0}
                     </div>
+
+                    <ExtractionResults data={result} />
+                  </>
+                ) : (
+                  <div className="animate-in fade-in duration-500">
+                    {/* Forensic Summary Section */}
+                    {result.analisis_taxonomico_forense?.resumen && (
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                        <div className="bg-emerald-50 border border-emerald-200 p-6 rounded-3xl">
+                          <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-1">Items Procesados</p>
+                          <p className="text-3xl font-black text-emerald-900">{result.analisis_taxonomico_forense.resumen.total_items}</p>
+                        </div>
+                        <div className="bg-rose-50 border border-rose-200 p-6 rounded-3xl">
+                          <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-1">Hallazgos Normativos (Motor 3)</p>
+                          <p className="text-3xl font-black text-rose-900">{result.analisis_taxonomico_forense.resumen.items_con_absorcion_normativa}</p>
+                        </div>
+                        <div className="bg-slate-900 p-6 rounded-3xl shadow-xl">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 text-center">Monto Expuesto Indebidamente</p>
+                          <p className="text-3xl font-black text-emerald-400 text-center">${result.analisis_taxonomico_forense.resumen.monto_expuesto_indebidamente.toLocaleString()} CLP</p>
+                        </div>
+                      </div>
+                    )}
+                    <EtiologyViewer items={getEtiologyItems()} />
                   </div>
                 )}
-
-                {/* DEBUG: TEMPORARY SKELETON CHECK */}
-                <div className="mb-4 p-2 bg-yellow-100 border border-yellow-300 text-yellow-800 text-[10px] uppercase font-bold rounded text-center">
-                  DEBUG STATE: Skeleton is {result.skeleton ? "PRESENT ✅" : "MISSING ❌"} | Branches: {result.skeleton?.children?.length || 0}
-                </div>
-
-                <ExtractionResults data={result} />
               </div>
             </div>
 

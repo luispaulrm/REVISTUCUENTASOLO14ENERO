@@ -45,6 +45,7 @@ export interface BillingSection {
   hasSectionError: boolean;
   isTaxConfusion?: boolean; // detected when diff is ~19%
   isUnjustifiedCharge?: boolean; // detected when clinic total > item sum and not taxes
+  rawPamJson?: any; // For systemic forensic discovery (Evento Único)
 }
 
 export interface PhaseUsage {
@@ -108,6 +109,7 @@ export interface ForensicAnalysis {
     total_items: number;
     items_con_absorcion_normativa: number;
     monto_expuesto_indebidamente: number;
+    bolson_opaco_m3?: number;
   };
   items: ForensicItem[];
 }
@@ -223,6 +225,7 @@ export interface EventoHospitalario {
   recomendacion_accion: RecomendacionAccion;
   origen_probable: OrigenProbable;
   analisis_financiero?: AnalisisFinanciero;
+  metadata?: any;
 }
 
 // ============================================================================

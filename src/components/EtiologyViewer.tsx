@@ -30,21 +30,31 @@ const EtiologyBadge: React.FC<{ etiology: EtiologiaResult }> = ({ etiology }) =>
             color = "bg-emerald-50 text-emerald-700 border-emerald-200";
             Icon = CheckCircle2;
             break;
-        case "ACTO_NO_AUTONOMO":
-            color = "bg-amber-50 text-amber-700 border-amber-200";
-            Icon = AlertTriangle;
-            break;
-        case "DESCLASIFICACION_CLINICA":
+        case "M1_FRAUDE_TECNICO":
             color = "bg-rose-50 text-rose-700 border-rose-200";
             Icon = ShieldAlert;
             break;
-        case "DESCLASIFICACION_ADMINISTRATIVA":
-            color = "bg-slate-200 text-slate-700 border-slate-300"; // Gray for "Administrative/Glosa"
-            Icon = XCircle;
+        case "M2_UNBUNDLING_CLINICO":
+            color = "bg-amber-50 text-amber-700 border-amber-200";
+            Icon = AlertTriangle;
             break;
-        case "CODIGO_INEXISTENTE":
-            color = "bg-slate-800 text-slate-200 border-slate-700";
-            Icon = XCircle;
+        case "M3_ABSORCION_NORMATIVA":
+            color = "bg-indigo-50 text-indigo-700 border-indigo-200";
+            Icon = Info;
+            break;
+        default:
+            // support legacy or unknown
+            const typeStr = (etiology.tipo as any) as string;
+            if (typeStr && (typeStr.includes("ACTO_NO_AUTONOMO") || typeStr.includes("M1"))) {
+                color = "bg-rose-50 text-rose-700 border-rose-200";
+                Icon = ShieldAlert;
+            } else if (typeStr && (typeStr.includes("M2") || typeStr.includes("UNBUNDLING"))) {
+                color = "bg-amber-50 text-amber-700 border-amber-200";
+                Icon = AlertTriangle;
+            } else if (typeStr && (typeStr.includes("M3") || typeStr.includes("ADMINISTRATIVA"))) {
+                color = "bg-indigo-50 text-indigo-700 border-indigo-200";
+                Icon = Info;
+            }
             break;
     }
 
