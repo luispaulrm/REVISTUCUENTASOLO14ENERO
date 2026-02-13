@@ -5,11 +5,12 @@ import ContractApp from './ContractApp';
 import ForensicApp from './ForensicApp';
 import PdfProjector from './PdfProjector';
 
+import AuditorM10App from './AuditorM10App';
 import CanonicalGeneratorApp from './CanonicalGeneratorApp';
 import MentalMapApp from './MentalMapApp';
-import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet, Zap, FileJson, Brain } from 'lucide-react';
+import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet, Zap, FileJson, Brain, ListChecks } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'canonizar' | 'mapa';
+type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'canonizar' | 'mapa' | 'm10';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -106,6 +107,17 @@ export function AppWithTabs() {
                             JSON Canónico
                         </button>
 
+                        <button
+                            onClick={() => handleTabChange('m10')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'm10'
+                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                        >
+                            <Brain size={16} />
+                            M10 Auditor
+                        </button>
+
                     </div>
                 </div>
             </div>
@@ -130,6 +142,10 @@ export function AppWithTabs() {
 
                 <div style={{ display: activeTab === 'canonizar' ? 'block' : 'none' }}>
                     <CanonicalGeneratorApp />
+                </div>
+
+                <div style={{ display: activeTab === 'm10' ? 'block' : 'none' }}>
+                    <AuditorM10App />
                 </div>
 
             </div>

@@ -21,6 +21,8 @@ import { HypothesisRouterService, HypothesisRouterInput } from './hypothesisRout
 import { computeBalanceWithHypotheses, PAMLineInput } from './balanceCalculator.service.ts';
 // NEW: Contract Reconstructibility Service (CRC)
 import { ContractReconstructibilityService } from './contractReconstructibility.service.ts';
+// NEW: Deterministic PAM Opacity Detector
+import { detectOpacity, opacityToFindings, generateOpacitySummary, OpacityDeclaration } from './opacityDetector.service.ts';
 import { Balance, AuditResult, Finding, BalanceAlpha, PamState, Signal, HypothesisScore, ConstraintsViolation, ExtractedAccount, EventoHospitalario } from '../../src/types.ts';
 import { UnidadReferencia } from './financialValidator.service.ts';
 
@@ -1635,6 +1637,32 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
     log(`[AuditEngine] ?? Extracted ${extractedPamLines.length} PAM lines for jurisprudence processing.`);
 
     // ============================================================================
+    // STEP 1.5: DETERMINISTIC OPACITY DETECTION (Pre-LLM)
+    // Scans PAM lines for aggregator codes, generic charges, and fragmentation.
+    // Produces formal opacity declarations BEFORE the LLM audit runs.
+    // ============================================================================
+    const opacityDeclarations: OpacityDeclaration[] = detectOpacity(
+        extractedPamLines.map(pl => ({
+            uniqueId: pl.uniqueId,
+            codigo: pl.codigo,
+            descripcion: pl.descripcion,
+            bonificacion: pl.bonificacion,
+            copago: pl.copago,
+        }))
+    );
+
+    if (opacityDeclarations.length > 0) {
+        const opacitySummary = generateOpacitySummary(opacityDeclarations);
+        log(`[AuditEngine] \u{1F6A8} OPACITY DETECTED: ${opacityDeclarations.length} declarations`);
+        log(`[AuditEngine] ${opacitySummary.split('\n').slice(0, 3).join(' | ')}`);
+    } else {
+        log(`[AuditEngine] \u2705 No deterministic opacity detected in PAM.`);
+    }
+
+    // Convert opacity declarations to Finding[] for injection into the audit pipeline
+    const opacityFindings = opacityToFindings(opacityDeclarations);
+
+    // ============================================================================
     // STEP 2: Run jurisprudence engine on EACH PAM line (one decision per line)
     // ============================================================================
     const jurisprudenceDecisions: Map<string, {
@@ -2539,7 +2567,10 @@ ${JSON.stringify(previousAuditResult, null, 2)}
 
         console.log(`[AUDIT_ENGINE] Canonical Result ValorUnidad: ${canonicalResult.valorUnidadReferencia}`);
 
-        const finalFindings = canonicalResult.findings.map(f => {
+        // Inject deterministic opacity findings into canonical findings BEFORE final processing
+        const findingsWithOpacity = [...canonicalResult.findings, ...opacityFindings];
+
+        const finalFindings = findingsWithOpacity.map(f => {
             // FIX: Ensure UI Map aligns with Balance truth
             // If a finding relates to Meds/Mats and we are in a 100% coverage context (Level 1)
             // or if it expresses a technical violation (Level 2), promote category to match balance.
@@ -2825,7 +2856,21 @@ ${JSON.stringify(previousAuditResult, null, 2)}
                         .filter(([_, v]) => v.decision.source === 'DOCTRINA')
                         .map(([key, v]) => ({ pamLineKey: key, categoria: v.decision.categoria_final })),
                     totalDecisions: jurisprudenceStore ? jurisprudenceStore.stats().total : 0
-                }
+                },
+                // NEW: Deterministic Opacity Declarations (Pre-LLM)
+                opacityDeclarations: opacityDeclarations.map(d => ({
+                    tipo: d.tipo,
+                    tipoNumero: d.tipoNumero,
+                    codigoGC: d.codigoGC,
+                    descripcion: d.descripcion,
+                    montoAfectado: d.montoAfectado,
+                    copago: d.copago,
+                    bonificacion: d.bonificacion,
+                    declaracionFormal: d.declaracionFormal,
+                    fundamentosJuridicos: d.fundamentosJuridicos,
+                    requerimientosDesglose: d.requerimientosDesglose,
+                })),
+                opacitySummary: opacityDeclarations.length > 0 ? generateOpacitySummary(opacityDeclarations) : null
 
             },
             usage: usage ? {

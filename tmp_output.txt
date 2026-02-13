@@ -1,0 +1,52 @@
+﻿=== ALL ITEMS IN CUENTA ===
+
+=== SEARCHING FOR USER'S 12 ITEMS ===
+
+BRANULA matches:
+  Idx 5 | BRANULA VIALON 20GX1.16 22040918 | qty=1 | unit=872 | total=872 | section=Medicamentos y Materiales INSUMOS
+  Idx 6 | BRANULA VIALON 22GX1.00 22040919 | qty=1 | unit=872 | total=872 | section=Medicamentos y Materiales INSUMOS
+  Idx 80 | BRANULA VIALON 18GX1.25 22040916 | qty=1 | unit=872 | total=872 | section=Medicamentos y Materiales INSUMOS
+  BRANULA total across all: $2616
+
+JERINGA 10cc LUER LOCK:
+  Idx 8 | total=551 | section=Medicamentos y Materiales INSUMOS
+
+BIGOTERA:
+  Idx 10 | total=4034 | section=Medicamentos y Materiales INSUMOS
+
+AQUAPACK:
+  Idx 11 | total=5495 | section=Medicamentos y Materiales INSUMOS
+
+CHATA:
+  Idx 83 | total=1058 | section=Medicamentos y Materiales INSUMOS
+
+TUBO ENDOTRAQUEAL:
+  NOT FOUND. Searching TUBO with total ~510:
+  Items with total exactly 510:
+
+BANDEJA ALUSA:
+  Idx 2 | qty=1 | total=633 | section=Medicamentos y Materiales ESTERILIZACION INTERNO
+  Idx 77 | qty=2 | total=1266 | section=Medicamentos y Materiales ESTERILIZACION INTERNO
+  BANDEJA total: $1899
+
+TORULA:
+  Idx 79 | qty=4 | total=92 | section=Medicamentos y Materiales ESTERILIZACION INTERNO
+
+AGUJA:
+  Idx 24 | AGUJA DESECHABLE 18G 22040015 | total=261 | section=Farmacia En Pabellon INSUMOS
+  Idx 29 | MONOCRYL 4/0 AGUJA PS-2 22110250 | total=25687 | section=Farmacia En Pabellon INSUMOS
+  Idx 46 | CAJA CONTADORA DE AGUJAS 22150714 | total=8123 | section=Farmacia En Pabellon INSUMOS
+
+ADAPTADOR:
+  Idx 88 | ADAPTADOR BRAND LUER 22040295 | total=478 | section=Medicamentos y Materiales INSUMOS
+
+JERINGA INYECTORA MONOJECT:
+  Idx 97 | total=17525 | section=Medicamentos y Materiales INSUMOS
+
+Items with total exactly 210:
+
+=== RUNNING TOTAL (without Tubo Endo & with JSON Adaptador $478): $34009
+=== TARGET: $32716
+=== DELTA: $1293
+
+User's stated sum: $34251
