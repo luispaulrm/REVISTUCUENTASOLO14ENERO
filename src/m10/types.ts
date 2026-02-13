@@ -6,106 +6,79 @@ export type EvidenceRef =
     | { kind: "docref"; source: "BILL" | "PAM" | "CONTRACT"; page?: number; anchorText?: string; note?: string };
 
 export interface CanonicalBillItem {
-    id: string;                 // estable (hash o id de origen)
-    section?: string;           // Farmacia / Pabellón / Hospitalización / Exámenes / Honorarios etc.
+    id: string;
+    section?: string;
     description: string;
     qty?: number;
     unitPrice?: MoneyCLP;
     total: MoneyCLP;
-    codeInternal?: string;      // código prestador si existe
-    categoryHint?: string;      // opcional (si ya tienes taxonomía Phase1)
+    codeInternal?: string;
 }
 
 export interface CanonicalBill {
-    clinicName?: string;
-    patientName?: string;
-    invoiceNumber?: string;
-    date?: string; // ISO
     items: CanonicalBillItem[];
-    totals?: { total?: MoneyCLP };
 }
 
 export interface CanonicalPamLine {
-    id: string;                 // estable (folio+index)
+    id: string;
     folioPAM?: string;
-    prestador?: string;
     codigoGC: string;
     descripcion: string;
     cantidad?: number;
     valorTotal: MoneyCLP;
     bonificacion: MoneyCLP;
     copago: MoneyCLP;
-    // Raw additional fields if useful
-    raw?: any;
+    prestador?: string;
 }
 
 export interface CanonicalPAM {
     folios: Array<{
         folioPAM: string;
-        prestadorPrincipal?: string;
+        prestador?: string;
         items: CanonicalPamLine[];
     }>;
-    global?: { totalCopago?: MoneyCLP; totalBonif?: MoneyCLP; totalValor?: MoneyCLP };
+    global?: { totalCopago?: MoneyCLP };
 }
 
 export type ContractDomain =
-    | "HOSPITALIZACION"
-    | "PABELLON"
-    | "HONORARIOS"
-    | "MATERIALES_CLINICOS"
-    | "MEDICAMENTOS_HOSP"
-    | "EXAMENES"
-    | "OTROS";
+    | "HOSPITALIZACION" | "PABELLON" | "HONORARIOS" | "MATERIALES_CLINICOS"
+    | "MEDICAMENTOS_HOSP" | "EXAMENES" | "OTROS" | "PROTESIS_ORTESIS"
+    | "CONSULTA" | "KINESIOLOGIA" | "TRASLADOS";
 
 export interface CanonicalContractRule {
     id: string;
     domain: ContractDomain;
-    modalidad?: "PREFERENTE" | "LIBRE_ELECCION" | "AMBAS";
-    coberturaPct?: number | null; // null si no expresa
+    coberturaPct?: number | null;
     tope?: { kind: "UF" | "VAM" | "AC2" | "SIN_TOPE_EXPRESO" | "VARIABLE"; value?: number | null; currency?: string; };
-    exclusion?: boolean;
-    textLiteral: string;          // literal del contrato
-    refs: EvidenceRef[];
+    textLiteral: string;
 }
 
 export interface CanonicalContract {
-    planName?: string;
     rules: CanonicalContractRule[];
-    metadata?: Record<string, any>;
 }
 
 export interface SkillInput {
     bill: CanonicalBill;
     pam: CanonicalPAM;
     contract: CanonicalContract;
-    // opcionales
     config?: {
-        agrupadoresSospechosos?: string[]; // default: ["3101002","3201001","3101001","3201002"]
-        opacidadThresholdIOP?: number;     // default 60
-        allowMontoSubsetMatch?: boolean;   // default true (pero siempre con evidencia + familia)
+        opacidadThresholdIOP?: number; // default 60
     };
 }
 
-// 2) OUTPUT SCHEMA (TypeScript)
+// 2) OUTPUT SCHEMA
 export type TraceStatus = "OK" | "PARTIAL" | "FAIL";
-export type VerifState = "VERIFICABLE" | "NO_VERIFICABLE_POR_OPACIDAD" | "NO_VERIFICABLE_POR_CONTRATO";
+export type VerifState = "VERIFICABLE" | "NO_VERIFICABLE_POR_CONTRATO" | "POTENCIAL_INFRACCION";
 
 export type FindingLevel = "CORRECTO" | "DISCUSION_TECNICA" | "FRAGMENTACION_ESTRUCTURAL";
 
-export type Motor = "M1" | "M2" | "M3" | "M4" | "NA";
+export type Motor = "M1" | "M2" | "M3" | "NA";
 
 export interface TraceAttempt {
-    step:
-    | "CODE_MATCH"
-    | "GLOSA_FAMILIA_MATCH"
-    | "MONTO_1A1_MATCH"
-    | "MONTO_SUBSET_MATCH"
-    | "CONTRACT_ANCHOR_CHECK";
+    step: "CODE" | "GLOSA_FAMILIA" | "MONTO_1A1" | "MONTO_SUBSET" | "CONTRACT_ANCHOR";
     status: TraceStatus;
     details: string;
     refsBill?: EvidenceRef[];
-    refsPam?: EvidenceRef[];
-    refsContract?: EvidenceRef[];
 }
 
 export interface PamAuditRow {
@@ -114,44 +87,45 @@ export interface PamAuditRow {
     descripcion: string;
     montoCopago: MoneyCLP;
     bonificacion: MoneyCLP;
-    valorTotal: MoneyCLP;
     trace: {
         status: TraceStatus;
         attempts: TraceAttempt[];
         matchedBillItemIds: string[];
-        matchedBillMonto?: MoneyCLP;
     };
     contractCheck: {
         state: VerifState;
-        rulesUsed: string[]; // contract rule ids
+        rulesUsed: string[];
         notes: string;
     };
     fragmentacion: {
         level: FindingLevel;
         motor: Motor;
         rationale: string;
-        economicImpact: MoneyCLP; // típico = copago asociado
+        economicImpact: MoneyCLP;
     };
     opacidad: {
         applies: boolean;
-        iopScore: number; // 0-100
-        agotamiento: boolean; // true si completó attempts y falló
-        requiredDisclosures?: string[];
+        iopScore: number;
+        breakdown: { label: string; points: number }[];
+        agotamiento: boolean;
     };
-    evidence: EvidenceRef[];
 }
 
 export interface SkillOutput {
     summary: {
-        totalCopagoPAM?: MoneyCLP;
         totalCopagoAnalizado: MoneyCLP;
         totalImpactoFragmentacion: MoneyCLP;
-        opacidadGlobal: { applies: boolean; iopScore: number };
-        patternSystemic: boolean;
+        opacidadGlobal: { applies: boolean; maxIOP: number };
+        patternSystemic: {
+            m1Count: number;
+            m2Count: number;
+            m3CopagoPct: number;
+            isSystemic: boolean;
+        };
     };
     eventModel: {
         actoPrincipal?: string;
-        paquetesDetectados: string[]; // "DIA_CAMA", "PABELLON", "PROCEDIMIENTO", etc.
+        paquetesDetectados: string[];
         notes: string;
     };
     matrix: Array<{
@@ -160,13 +134,9 @@ export interface SkillOutput {
         motor: Motor;
         fundamento: string;
         impacto: MoneyCLP;
-        refs: EvidenceRef[];
+        iop?: number;
     }>;
     pamRows: PamAuditRow[];
-    reportText: string;   // informe forense
-    complaintText: string; // texto estándar listo para reclamo/reposición
-    debug: {
-        stopConditionTriggered?: string;
-        configUsed: Required<SkillInput["config"]>;
-    };
+    reportText: string;
+    complaintText: string;
 }
