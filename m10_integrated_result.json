@@ -1,0 +1,1667 @@
+{
+  "summary": {
+    "totalCopagoAnalizado": 452175,
+    "totalImpactoFragmentacion": 431455,
+    "opacidadGlobal": {
+      "applies": true,
+      "maxIOP": 75
+    },
+    "patternSystemic": {
+      "m1Count": 0,
+      "m2Count": 0,
+      "m3CopagoPct": 0.8061325814120639,
+      "isSystemic": true
+    }
+  },
+  "eventModel": {
+    "actoPrincipal": "HOSPITALIZACION_GENERAL",
+    "paquetesDetectados": [
+      "DIA_CAMA_INTEGRAL"
+    ],
+    "notes": "Inferido determinísticamente por glosas"
+  },
+  "matrix": [
+    {
+      "itemLabel": "3101001 - MEDICAMENTOS CLINICOS EN HOSPITALIZACION",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose [OPACIDAD IOP 55]",
+      "impacto": 134100,
+      "iop": 55
+    },
+    {
+      "itemLabel": "3101002 - MATERIALES CLINICOS EN HOSPITALIZACION",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose [OPACIDAD IOP 55]",
+      "impacto": 32716,
+      "iop": 55
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS POR EL PLAN",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose [OPACIDAD IOP 75]",
+      "impacto": 184653,
+      "iop": 75
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS POR EL PLAN",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose [OPACIDAD IOP 75]",
+      "impacto": 13044,
+      "iop": 75
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS POR EL PLAN",
+      "classification": "DISCUSION_TECNICA",
+      "motor": "M4",
+      "fundamento": "Item con cobertura contractual posible (Regla aplicada: Exámenes de Laboratorio) pero bonificado en $0 sin causal de exclusión expresa.",
+      "impacto": 23985,
+      "iop": 35
+    },
+    {
+      "itemLabel": "3201002 - PRESTACION NO CONTEMPLADA EN EL ARANCEL",
+      "classification": "DISCUSION_TECNICA",
+      "motor": "M4",
+      "fundamento": "Item con cobertura contractual posible (Regla aplicada: Exámenes de Laboratorio) pero bonificado en $0 sin causal de exclusión expresa.",
+      "impacto": 42957,
+      "iop": 15
+    }
+  ],
+  "pamRows": [
+    {
+      "pamLineId": "pam-0",
+      "codigoGC": "0101031",
+      "descripcion": "CONSULTA DE URGENCIA INSTITUCIONAL HORARIO INHABIL",
+      "montoCopago": 12106,
+      "bonificacion": 48425,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-131"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-0",
+      "codigoGC": "0201101",
+      "descripcion": "DÍA CAMA DE HOSPITALIZACIÓN INTEGRAL CUIDADOS MEDIOS (SALA 1 CAMA)",
+      "montoCopago": 0,
+      "bonificacion": 452075,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-0"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-0"
+        ],
+        "notes": "Regla aplicada: Día Cama - Clínica Alemana (Oferta Preferente)"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-1",
+      "codigoGC": "0301034",
+      "descripcion": "CLASIFICACIÓN SANGUÍNEA AB0 Y RHD",
+      "montoCopago": 0,
+      "bonificacion": 6286,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-110"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-2",
+      "codigoGC": "0301045",
+      "descripcion": "HEMOGRAMA (INCLUYE RECUENTOS DE LEUCOCITOS, ERITROCITOS, PLAQUETAS, HEMOGLOBINA, HEMATOCRITO, FÓRMULA LEUCOCITARIA, CARACTERÍ",
+      "montoCopago": 0,
+      "bonificacion": 7768,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-121"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-3",
+      "codigoGC": "0301085",
+      "descripcion": "TROMBOPLASTINA, TIEMPO PARCIAL DE (TTPA, TTPK O SIMILARES)",
+      "montoCopago": 0,
+      "bonificacion": 6021,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found (Total)"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-4",
+      "codigoGC": "0302004",
+      "descripcion": "LACTATO EN SANGRE",
+      "montoCopago": 0,
+      "bonificacion": 10264,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-114"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-5",
+      "codigoGC": "0302008",
+      "descripcion": "AMILASA, EN SANGRE",
+      "montoCopago": 0,
+      "bonificacion": 6021,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found (Total)"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-6",
+      "codigoGC": "0302023",
+      "descripcion": "CREATININA EN SANGRE",
+      "montoCopago": 0,
+      "bonificacion": 3369,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-113"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-7",
+      "codigoGC": "0302032",
+      "descripcion": "ELECTROLITOS PLASMÁTICOS (SODIO, POTASIO, CLORO) C/U",
+      "montoCopago": 0,
+      "bonificacion": 3244,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found (Total)"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-8",
+      "codigoGC": "0302032",
+      "descripcion": "ELECTROLITOS PLASMÁTICOS (SODIO, POTASIO, CLORO) C/U",
+      "montoCopago": 0,
+      "bonificacion": 3244,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found (Total)"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-9",
+      "codigoGC": "0302032",
+      "descripcion": "ELECTROLITOS PLASMÁTICOS (SODIO, POTASIO, CLORO) C/U",
+      "montoCopago": 0,
+      "bonificacion": 3244,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found (Total)"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-10",
+      "codigoGC": "0302034",
+      "descripcion": "PERFIL LIPÍDICO (INCLUYE MEDICIONES DE COLESTEROL TOTAL, HDL-COLESTEROL Y TRIGLICÉRIDOS CON ESTIMACIONES POR FÓRMULA DE LDL-C",
+      "montoCopago": 0,
+      "bonificacion": 15646,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-125"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-11",
+      "codigoGC": "0302047",
+      "descripcion": "GLUCOSA EN SANGRE",
+      "montoCopago": 0,
+      "bonificacion": 3152,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-120"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-12",
+      "codigoGC": "0302053",
+      "descripcion": "LIPASA EN SANGRE",
+      "montoCopago": 0,
+      "bonificacion": 6662,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-119"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-13",
+      "codigoGC": "0302057",
+      "descripcion": "NITRÓGENO UREICO Y/O UREA, EN SANGRE",
+      "montoCopago": 0,
+      "bonificacion": 3322,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-118"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-14",
+      "codigoGC": "0302076",
+      "descripcion": "PERFIL HEPÁTICO (INCLUYE TIEMPO DE PROTROMBINA, BILIRRUBINA TOTAL Y CONJUGADA, FOSFATASAS ALCALINAS TOTALES, GGT, TRANSAMINAS",
+      "montoCopago": 0,
+      "bonificacion": 25740,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-117"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-15",
+      "codigoGC": "0305031",
+      "descripcion": "PROTEÍNA C REACTIVA POR TÉCNICAS AUTOMATIZADAS",
+      "montoCopago": 0,
+      "bonificacion": 15303,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-124"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-16",
+      "codigoGC": "0306011",
+      "descripcion": "UROCULTIVO, RECUENTO DE COLONIAS Y ANTIBIOGRAMA (CUALQUIER TÉCNICA) (INCLUYE TOMA DE ORINA ASÉPTICA Y FRASCO RECOLECTOR)",
+      "montoCopago": 0,
+      "bonificacion": 9314,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-123"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-17",
+      "codigoGC": "0307011",
+      "descripcion": "VENOSA EN ADULTOS",
+      "montoCopago": 0,
+      "bonificacion": 2216,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-127"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-18",
+      "codigoGC": "0309022",
+      "descripcion": "ORINA COMPLETA, (INCLUYE CÓD. 03-09-023 Y 03-09-024)",
+      "montoCopago": 0,
+      "bonificacion": 4821,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-116"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-19",
+      "codigoGC": "0702207",
+      "descripcion": "DETECCIÓN DE ANTICUERPOS IRREGULARES ERITROCITARIOS",
+      "montoCopago": 2091,
+      "bonificacion": 4114,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-109"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-20",
+      "codigoGC": "3101001",
+      "descripcion": "MEDICAMENTOS CLINICOS EN HOSPITALIZACION",
+      "montoCopago": 0,
+      "bonificacion": 801747,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-11"
+        ],
+        "notes": "Regla aplicada: Medicamentos - Clínica Alemana (Oferta Preferente)"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-21",
+      "codigoGC": "3101001",
+      "descripcion": "MEDICAMENTOS CLINICOS EN HOSPITALIZACION",
+      "montoCopago": 134100,
+      "bonificacion": 0,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-11"
+        ],
+        "notes": "Regla aplicada: Medicamentos - Clínica Alemana (Oferta Preferente)"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose",
+        "economicImpact": 134100
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 55,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-22",
+      "codigoGC": "3101002",
+      "descripcion": "MATERIALES CLINICOS EN HOSPITALIZACION",
+      "montoCopago": 0,
+      "bonificacion": 1059145,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-26"
+        ],
+        "notes": "Regla aplicada: Radioterapia (Incluye Insumos)"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-23",
+      "codigoGC": "3101002",
+      "descripcion": "MATERIALES CLINICOS EN HOSPITALIZACION",
+      "montoCopago": 32716,
+      "bonificacion": 0,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-26"
+        ],
+        "notes": "Regla aplicada: Radioterapia (Incluye Insumos)"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose",
+        "economicImpact": 32716
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 55,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-24",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+      "montoCopago": 184653,
+      "bonificacion": 0,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose",
+        "economicImpact": 184653
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 75,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-25",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+      "montoCopago": 13044,
+      "bonificacion": 0,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose",
+        "economicImpact": 13044
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 75,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-26",
+      "codigoGC": "1802053 09",
+      "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+      "montoCopago": 0,
+      "bonificacion": 1914834,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-75"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-27",
+      "codigoGC": "0403020",
+      "descripcion": "TOMOGRAFÍA COMPUTARIZADA DE ABDOMEN Y PELVIS",
+      "montoCopago": 0,
+      "bonificacion": 408981,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-132"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-28",
+      "codigoGC": "0601103",
+      "descripcion": "ATENCIÓN KINESIOLÓGICA INTEGRAL EN PACIENTES HOSPITALIZADOS",
+      "montoCopago": 0,
+      "bonificacion": 37650,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-130"
+        ]
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'KINESIOLOGIA' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-29",
+      "codigoGC": "0801005",
+      "descripcion": "ESTUDIO HISTOPATOLÓGICO CON TÉCNICAS HISTOQUÍMICAS, NIVELES, DECALCIFICACIÓN (POR CADA LÁMINA)",
+      "montoCopago": 6523,
+      "bonificacion": 64257,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-129"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-30",
+      "codigoGC": "0801008",
+      "descripcion": "ESTUDIO HISTOPATOLÓGICO DE BIOPSIA DIFERIDA (POR CADA MUESTRA Y/O TEJIDO) (INCLUYE HASTA 3 LÁMINAS)",
+      "montoCopago": 0,
+      "bonificacion": 48740,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-128"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-31",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+      "montoCopago": 23985,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-133"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "DISCUSION_TECNICA",
+        "motor": "M4",
+        "rationale": "Item con cobertura contractual posible (Regla aplicada: Exámenes de Laboratorio) pero bonificado en $0 sin causal de exclusión expresa.",
+        "economicImpact": 23985
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 35,
+        "breakdown": [
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-32",
+      "codigoGC": "3201002",
+      "descripcion": "PRESTACION NO CONTEMPLADA EN EL ARANCEL",
+      "montoCopago": 42957,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-134"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "DISCUSION_TECNICA",
+        "motor": "M4",
+        "rationale": "Item con cobertura contractual posible (Regla aplicada: Exámenes de Laboratorio) pero bonificado en $0 sin causal de exclusión expresa.",
+        "economicImpact": 42957
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-33",
+      "codigoGC": "1802053 20",
+      "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+      "montoCopago": 0,
+      "bonificacion": 916725,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-34",
+      "codigoGC": "1802053 21",
+      "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+      "montoCopago": 0,
+      "bonificacion": 229181,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-138"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-35",
+      "codigoGC": "1802053 30",
+      "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+      "montoCopago": 0,
+      "bonificacion": 275018,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-135"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-36",
+      "codigoGC": "1802053 40",
+      "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+      "montoCopago": 0,
+      "bonificacion": 64171,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-136"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    }
+  ],
+  "reportText": "INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)\n--------------------------------------------------\nEVENTO DETECTADO: HOSPITALIZACION_GENERAL\nPAQUETES CLÍNICOS: DIA_CAMA_INTEGRAL\n\nRESUMEN EJECUTIVO:\n- Total Copago Analizado: $452.175\n- Impacto Hallazgos: $431.455\n- Estado Opacidad: CRÍTICO (IOP MAX 75)\n- Patrón Sistémico: SI (Mecanismo Repetitivo)\n\nDETALLE DE HALLAZGOS RELEVANTES:\n\n> [M3] 3101001 - MEDICAMENTOS CLINICOS EN HOSPITALIZACION\n  Copago Real: $134.100\n  Fundamento: Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose\n  ⚠️ OPACIDAD DETECTADA (IOP 55):\n    - Agrupador sin desglose (+25)\n  - Bonificación $0 (Copago Total) (+15)\n  - Fallo Trazabilidad Fase B (+15)\n\n\n> [M3] 3101002 - MATERIALES CLINICOS EN HOSPITALIZACION\n  Copago Real: $32.716\n  Fundamento: Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose\n  ⚠️ OPACIDAD DETECTADA (IOP 55):\n    - Agrupador sin desglose (+25)\n  - Bonificación $0 (Copago Total) (+15)\n  - Fallo Trazabilidad Fase B (+15)\n\n\n> [M3] 3201001 - GASTOS NO CUBIERTOS POR EL PLAN\n  Copago Real: $184.653\n  Fundamento: Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador sin desglose (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  - Fallo Trazabilidad Fase B (+15)\n\n\n> [M3] 3201001 - GASTOS NO CUBIERTOS POR EL PLAN\n  Copago Real: $13.044\n  Fundamento: Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador sin desglose (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  - Fallo Trazabilidad Fase B (+15)\n\n\n> [M4] 3201001 - GASTOS NO CUBIERTOS POR EL PLAN\n  Copago Real: $23.985\n  Fundamento: Item con cobertura contractual posible (Regla aplicada: Exámenes de Laboratorio) pero bonificado en $0 sin causal de exclusión expresa.\n  \n\n\n> [M4] 3201002 - PRESTACION NO CONTEMPLADA EN EL ARANCEL\n  Copago Real: $42.957\n  Fundamento: Item con cobertura contractual posible (Regla aplicada: Exámenes de Laboratorio) pero bonificado en $0 sin causal de exclusión expresa.\n  \n\n\nCONCLUSIÓN:\nLa cuenta presenta Opacidad Liquidatoria Mayor (IOP > 40). Se exige desglose detallado bajo sanción de tener por no escritas las cláusulas oscuras (Contra Proferentem).\n",
+  "complaintText": "SEÑORES ISAPRE / PRESTADOR:\n\nEn relación a la liquidación (PAM) analizada, se impugnan los siguientes cobros por vulnerar el deber de información (Opacidad Liquidatoria detectada, IOP > 40):\n\n- Ítem 3101001 \"MEDICAMENTOS CLINICOS EN HOSPITALIZACION\" | Copago: $134100 | IOP: 55\n- Ítem 3101002 \"MATERIALES CLINICOS EN HOSPITALIZACION\" | Copago: $32716 | IOP: 55\n- Ítem 3201001 \"GASTOS NO CUBIERTOS POR EL PLAN\" | Copago: $184653 | IOP: 75\n- Ítem 3201001 \"GASTOS NO CUBIERTOS POR EL PLAN\" | Copago: $13044 | IOP: 75\n\nFUNDAMENTOS DE RECLAMO:\n1. \"Agrupamiento Ciego\": Los ítems señalados consolidan montos sin desglose de sub-ítem verificable, impidiendo el ejercicio del derecho a defensa del afiliado.\n2. \"Copago sin Causa\": Se cobran montos significativos (Total: $364.513) bajo glosas genéricas (\"No Cubierto\", \"Insumos\") sin acreditar la prestación subyacente.\n3. Principio de Literalidad e Integridad: El contrato de salud es de adhesión; toda oscuridad debe interpretarse a favor del afiliado (Art. 1566 Código Civil).\n\nPETICIÓN:\nSírvase anular el cobro de los ítems opacos o bien refacturar con el desglose unitario completo que permita su trazabilidad con la Ficha Clínica."
+}

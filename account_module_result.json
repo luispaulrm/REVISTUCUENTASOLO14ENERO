@@ -1,0 +1,1261 @@
+{
+  "items": [
+    {
+      "descripcion": "DIA CAMA INDIVIDUAL S1",
+      "total": 452075,
+      "cantidad": 1,
+      "codigo": "02-02-104-01",
+      "index": 1,
+      "precioUnitario": 452075,
+      "seccion": "DIAS CAMA"
+    },
+    {
+      "descripcion": "BANDEJA ALUSA ESTERIL",
+      "total": 633,
+      "cantidad": 1,
+      "codigo": "22200082",
+      "index": 2,
+      "precioUnitario": 633,
+      "seccion": "MEDICAMENTOS Y MATERIALES ESTERILIZACION INTERNO"
+    },
+    {
+      "descripcion": "CALZON CLINICO",
+      "total": 1641,
+      "cantidad": 1,
+      "codigo": "22100039",
+      "index": 3,
+      "precioUnitario": 1641,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "SET DE ASEO PERSONAL A",
+      "total": 10785,
+      "cantidad": 1,
+      "codigo": "22120024",
+      "index": 4,
+      "precioUnitario": 10785,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "BRANULA VIALON 20GX1,",
+      "total": 872,
+      "cantidad": 1,
+      "codigo": "22040918",
+      "index": 5,
+      "precioUnitario": 872,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "BRANULA VIALON 22GX11",
+      "total": 872,
+      "cantidad": 1,
+      "codigo": "22040919",
+      "index": 6,
+      "precioUnitario": 872,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "LIGADURA LIBRE DE LATI",
+      "total": 614,
+      "cantidad": 1,
+      "codigo": "22100325",
+      "index": 7,
+      "precioUnitario": 614,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA 10 cc. LUER LOCK",
+      "total": 551,
+      "cantidad": 1,
+      "codigo": "22040406",
+      "index": 8,
+      "precioUnitario": 551,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "MASCARILLA MULTIVEN",
+      "total": 9132,
+      "cantidad": 1,
+      "codigo": "22070016",
+      "index": 9,
+      "precioUnitario": 9132,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "BIGOTERA ADULTO",
+      "total": 4034,
+      "cantidad": 1,
+      "codigo": "22070018",
+      "index": 10,
+      "precioUnitario": 4034,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "AQUAPACK 340 C/ADAP H:",
+      "total": 5495,
+      "cantidad": 1,
+      "codigo": "22100284",
+      "index": 11,
+      "precioUnitario": 5495,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "TERMOMETRO DIGITAL C",
+      "total": 8605,
+      "cantidad": 1,
+      "codigo": "22100235",
+      "index": 12,
+      "precioUnitario": 8605,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS KARDEX"
+    },
+    {
+      "descripcion": "REMOVEDOR DE ADHESIV",
+      "total": 638,
+      "cantidad": 2,
+      "codigo": "22020145",
+      "index": 13,
+      "precioUnitario": 319,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS KARDEX"
+    },
+    {
+      "descripcion": "CEFTRIAXONA 1G (ACANI",
+      "total": 102588,
+      "cantidad": 2,
+      "codigo": "11010004",
+      "index": 14,
+      "precioUnitario": 51294,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "METRONIDAZOL 500 MG. I",
+      "total": 9174,
+      "cantidad": 2,
+      "codigo": "11030006",
+      "index": 15,
+      "precioUnitario": 4587,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "PARACETAMOL 1G/100ML",
+      "total": 31148,
+      "cantidad": 2,
+      "codigo": "11090449",
+      "index": 16,
+      "precioUnitario": 15574,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "KETOPROFENO 100MG EV",
+      "total": 20268,
+      "cantidad": 3,
+      "codigo": "11010052",
+      "index": 17,
+      "precioUnitario": 6756,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "LEVOSULPIRIDE 25 MG (D:",
+      "total": 19635,
+      "cantidad": 3,
+      "codigo": "11090476",
+      "index": 18,
+      "precioUnitario": 6545,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO FISIOLOGICO 20 MI",
+      "total": 1208,
+      "cantidad": 1,
+      "codigo": "11010057",
+      "index": 19,
+      "precioUnitario": 1208,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "CEFTRIAXONA 1G (ACANI",
+      "total": 51294,
+      "cantidad": 1,
+      "codigo": "11010004",
+      "index": 20,
+      "precioUnitario": 51294,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "MANGA LAPAROSCOPICA",
+      "total": 1370,
+      "cantidad": 1,
+      "codigo": "22150204",
+      "index": 21,
+      "precioUnitario": 1370,
+      "seccion": "FARMACIA EN PABELLON ESTERILIZACION INTERNO"
+    },
+    {
+      "descripcion": "SABANA DE MESA QUIRUI",
+      "total": 7278,
+      "cantidad": 3,
+      "codigo": "22200146",
+      "index": 22,
+      "precioUnitario": 2426,
+      "seccion": "FARMACIA EN PABELLON ESTERILIZACION INTERNO"
+    },
+    {
+      "descripcion": "JERINGA 3 cc EMBUTIDA",
+      "total": 964,
+      "cantidad": 2,
+      "codigo": "22040001",
+      "index": 23,
+      "precioUnitario": 482,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "AGUJA DESECHABLE 18G",
+      "total": 261,
+      "cantidad": 1,
+      "codigo": "22040015",
+      "index": 24,
+      "precioUnitario": 261,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "EQUIPO FLEBOCLISIS REF",
+      "total": 729,
+      "cantidad": 1,
+      "codigo": "22040113",
+      "index": 25,
+      "precioUnitario": 729,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "ASPIRADOR ELEFANT/IRR",
+      "total": 211312,
+      "cantidad": 1,
+      "codigo": "22050532",
+      "index": 26,
+      "precioUnitario": 211312,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "ESTILETE DE INTUBACION",
+      "total": 21737,
+      "cantidad": 1,
+      "codigo": "22070006",
+      "index": 27,
+      "precioUnitario": 21737,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "ELECTRODO ADULTO ECC",
+      "total": 3213,
+      "cantidad": 3,
+      "codigo": "22090001",
+      "index": 28,
+      "precioUnitario": 1071,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "MONOCRYL 4/0 AGUJA PS",
+      "total": 25687,
+      "cantidad": 1,
+      "codigo": "22110250",
+      "index": 29,
+      "precioUnitario": 25687,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "PAQUETE CIRUG.UNIVERS",
+      "total": 56042,
+      "cantidad": 1,
+      "codigo": "22140026",
+      "index": 30,
+      "precioUnitario": 56042,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "DELANTAL ESTERIL TALI",
+      "total": 29686,
+      "cantidad": 2,
+      "codigo": "22150064",
+      "index": 31,
+      "precioUnitario": 14843,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "SURGITIE POLYSORB LOO",
+      "total": 127726,
+      "cantidad": 1,
+      "codigo": "22150428",
+      "index": 32,
+      "precioUnitario": 127726,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "CLIP HEMOLOCK L MORA",
+      "total": 103524,
+      "cantidad": 1,
+      "codigo": "22150453",
+      "index": 33,
+      "precioUnitario": 103524,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "TROCARES CON CLIPLER/",
+      "total": 263214,
+      "cantidad": 1,
+      "codigo": "22150475",
+      "index": 34,
+      "precioUnitario": 263214,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA 5 cc. EMBUTIDA",
+      "total": 752,
+      "cantidad": 2,
+      "codigo": "22040002",
+      "index": 35,
+      "precioUnitario": 376,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA 10 cc. EMBUTIDA",
+      "total": 2105,
+      "cantidad": 5,
+      "codigo": "22040003",
+      "index": 36,
+      "precioUnitario": 421,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA 20 cc. EMBUTIDA",
+      "total": 3714,
+      "cantidad": 6,
+      "codigo": "22040004",
+      "index": 37,
+      "precioUnitario": 619,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "CANULA MAYO 90MM GCI",
+      "total": 2054,
+      "cantidad": 1,
+      "codigo": "22050006",
+      "index": 38,
+      "precioUnitario": 2054,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "CANULA ENDOTRAQUEAL",
+      "total": 4929,
+      "cantidad": 1,
+      "codigo": "22050109",
+      "index": 39,
+      "precioUnitario": 4929,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "LIMPIA ELECTRODO",
+      "total": 3518,
+      "cantidad": 1,
+      "codigo": "22090035",
+      "index": 40,
+      "precioUnitario": 3518,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "VICRYL C/A 0 CT-2 334 H",
+      "total": 5683,
+      "cantidad": 1,
+      "codigo": "22110065",
+      "index": 41,
+      "precioUnitario": 5683,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "MEDIVAC 3000 ML. (CANI",
+      "total": 16494,
+      "cantidad": 2,
+      "codigo": "22150089",
+      "index": 42,
+      "precioUnitario": 8247,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "SPONGEN PACK(5)",
+      "total": 14865,
+      "cantidad": 3,
+      "codigo": "22150154",
+      "index": 43,
+      "precioUnitario": 4955,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "ENDO BAGS 3\"X6\" REF:D",
+      "total": 63470,
+      "cantidad": 1,
+      "codigo": "22150482",
+      "index": 44,
+      "precioUnitario": 63470,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "BOLSA ORDENADORA DE",
+      "total": 5960,
+      "cantidad": 4,
+      "codigo": "22150713",
+      "index": 45,
+      "precioUnitario": 1490,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "CAJA CONTADORA DE AG",
+      "total": 8123,
+      "cantidad": 1,
+      "codigo": "22150714",
+      "index": 46,
+      "precioUnitario": 8123,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "MANGAS TALLA S PARA C",
+      "total": 97862,
+      "cantidad": 1,
+      "codigo": "22150743",
+      "index": 47,
+      "precioUnitario": 97862,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "BOLSA ORGANIZADORA D",
+      "total": 9280,
+      "cantidad": 1,
+      "codigo": "22150752",
+      "index": 48,
+      "precioUnitario": 9280,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "HOJA LARINGOSCOPIO DE",
+      "total": 25003,
+      "cantidad": 1,
+      "codigo": "22151100",
+      "index": 49,
+      "precioUnitario": 25003,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "SONDA ASPIRACION N°16",
+      "total": 1094,
+      "cantidad": 1,
+      "codigo": "22470013",
+      "index": 50,
+      "precioUnitario": 1094,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "CIRCUITO ANESTESIA ADI",
+      "total": 15752,
+      "cantidad": 1,
+      "codigo": "22151160",
+      "index": 51,
+      "precioUnitario": 15752,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "HOJA VIDEOLARIN. DESEC",
+      "total": 21274,
+      "cantidad": 1,
+      "codigo": "22151169",
+      "index": 52,
+      "precioUnitario": 21274,
+      "seccion": "FARMACIA EN PABELLON INSUMOS"
+    },
+    {
+      "descripcion": "MEDIAS ANTIEMBOLICAS",
+      "total": 34768,
+      "cantidad": 1,
+      "codigo": "22030165",
+      "index": 53,
+      "precioUnitario": 34768,
+      "seccion": "FARMACIA EN PABELLON INSUMOS KARDEX"
+    },
+    {
+      "descripcion": "ALARGADOR VENOSO 100",
+      "total": 9113,
+      "cantidad": 1,
+      "codigo": "22040443",
+      "index": 54,
+      "precioUnitario": 9113,
+      "seccion": "FARMACIA EN PABELLON INSUMOS KARDEX"
+    },
+    {
+      "descripcion": "HOJA BISTURI # 11",
+      "total": 702,
+      "cantidad": 1,
+      "codigo": "22100014",
+      "index": 55,
+      "precioUnitario": 702,
+      "seccion": "FARMACIA EN PABELLON INSUMOS KARDEX"
+    },
+    {
+      "descripcion": "ATROPINA SULFATO 1 MG",
+      "total": 862,
+      "cantidad": 1,
+      "codigo": "11010007",
+      "index": 56,
+      "precioUnitario": 862,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "METAMIZOL 1G/2 ML.",
+      "total": 1800,
+      "cantidad": 2,
+      "codigo": "11010031",
+      "index": 57,
+      "precioUnitario": 900,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "EFEDRINA 60 MG/ML",
+      "total": 1885,
+      "cantidad": 1,
+      "codigo": "11010037",
+      "index": 58,
+      "precioUnitario": 1885,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "KETOPROFENO 100MG EV",
+      "total": 6756,
+      "cantidad": 1,
+      "codigo": "11010052",
+      "index": 59,
+      "precioUnitario": 6756,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "ROCURONIO 50MG/5 ML.",
+      "total": 33042,
+      "cantidad": 1,
+      "codigo": "11010138",
+      "index": 60,
+      "precioUnitario": 33042,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "ONDANSETRON 4 MG",
+      "total": 15716,
+      "cantidad": 1,
+      "codigo": "11010141",
+      "index": 61,
+      "precioUnitario": 15716,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "DEXAMETASONA 4 MG. 1",
+      "total": 1790,
+      "cantidad": 2,
+      "codigo": "11010162",
+      "index": 62,
+      "precioUnitario": 895,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO FISIOLOGICO 1000",
+      "total": 3589,
+      "cantidad": 1,
+      "codigo": "11020017",
+      "index": 63,
+      "precioUnitario": 3589,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO FISIOLOGICO 250 C",
+      "total": 2330,
+      "cantidad": 1,
+      "codigo": "11020021",
+      "index": 64,
+      "precioUnitario": 2330,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SEVOFLURANE QF",
+      "total": 177680,
+      "cantidad": 40,
+      "codigo": "11050003",
+      "index": 65,
+      "precioUnitario": 4442,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "LUBRICANTE OCULAR (TH",
+      "total": 668,
+      "cantidad": 1,
+      "codigo": "11170054",
+      "index": 66,
+      "precioUnitario": 668,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUCCINIL COLINA 100 MG",
+      "total": 4853,
+      "cantidad": 1,
+      "codigo": "11010056",
+      "index": 67,
+      "precioUnitario": 4853,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO FISIOLOGICO 20 MI",
+      "total": 6040,
+      "cantidad": 5,
+      "codigo": "11010057",
+      "index": 68,
+      "precioUnitario": 1208,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "PROPOFOL 200 MG.X 20 MI",
+      "total": 27168,
+      "cantidad": 1,
+      "codigo": "11010092",
+      "index": 69,
+      "precioUnitario": 27168,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "LIDOCAINA 2 % 10 ML.",
+      "total": 721,
+      "cantidad": 1,
+      "codigo": "11010168",
+      "index": 70,
+      "precioUnitario": 721,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "BUPIVACAINA 0.5%/10 ML",
+      "total": 15820,
+      "cantidad": 1,
+      "codigo": "11010180",
+      "index": 71,
+      "precioUnitario": 15820,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO RINGER LACTATO",
+      "total": 4800,
+      "cantidad": 2,
+      "codigo": "11020013",
+      "index": 72,
+      "precioUnitario": 2400,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUGAMMADEX 200 MG/2 N",
+      "total": 240713,
+      "cantidad": 1,
+      "codigo": "11090440",
+      "index": 73,
+      "precioUnitario": 240713,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "PARACETAMOL 1G/100ML",
+      "total": 15574,
+      "cantidad": 1,
+      "codigo": "11090449",
+      "index": 74,
+      "precioUnitario": 15574,
+      "seccion": "FARMACIA EN PABELLON MEDICAMENTOS"
+    },
+    {
+      "descripcion": "FENTANYL 10 ML (ESTUPE",
+      "total": 5293,
+      "cantidad": 1,
+      "codigo": "11120005",
+      "index": 75,
+      "precioUnitario": 5293,
+      "seccion": "FARMACIA EN PABELLON SICOTROPICOS Y ESTUPEFACIENTES"
+    },
+    {
+      "descripcion": "APENDICECTOMIA POR VI",
+      "total": 1914834,
+      "cantidad": 1,
+      "codigo": "18-02-053-02",
+      "index": 76,
+      "precioUnitario": 1914834,
+      "seccion": "PABELLON"
+    },
+    {
+      "descripcion": "RECUPERACION 0 A 3 HOR",
+      "total": 0,
+      "cantidad": 1,
+      "codigo": "93-00-001-00",
+      "index": 77,
+      "precioUnitario": 0,
+      "seccion": "RECUPERACION"
+    },
+    {
+      "descripcion": "BANDEJA ALUSA ESTERIL",
+      "total": 1266,
+      "cantidad": 2,
+      "codigo": "22200082",
+      "index": 78,
+      "precioUnitario": 633,
+      "seccion": "MEDICAMENTOS Y MATERIALES ESTERILIZACION INTERNO"
+    },
+    {
+      "descripcion": "APOSITO 10 X 10 ESTERIL",
+      "total": 548,
+      "cantidad": 2,
+      "codigo": "22020120",
+      "index": 79,
+      "precioUnitario": 274,
+      "seccion": "MEDICAMENTOS Y MATERIALES ESTERILIZACION INTERNO"
+    },
+    {
+      "descripcion": "TORULA ALGODON 0,5GR:",
+      "total": 92,
+      "cantidad": 4,
+      "codigo": "22020113",
+      "index": 80,
+      "precioUnitario": 23,
+      "seccion": "MEDICAMENTOS Y MATERIALES ESTERILIZACION INTERNO"
+    },
+    {
+      "descripcion": "BRANULA VIALON 18GX1,",
+      "total": 872,
+      "cantidad": 1,
+      "codigo": "22040916",
+      "index": 81,
+      "precioUnitario": 872,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "ESPONJA CON JABON NEU",
+      "total": 2105,
+      "cantidad": 1,
+      "codigo": "22100115",
+      "index": 82,
+      "precioUnitario": 2105,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "DELANTAL PACIENTE AZU",
+      "total": 2334,
+      "cantidad": 1,
+      "codigo": "22100162",
+      "index": 83,
+      "precioUnitario": 2334,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "CHATA HONDA DESECH.C",
+      "total": 1058,
+      "cantidad": 1,
+      "codigo": "22200142",
+      "index": 84,
+      "precioUnitario": 1058,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "FRASCOS ESTERILES 100 c",
+      "total": 434,
+      "cantidad": 1,
+      "codigo": "22400003",
+      "index": 85,
+      "precioUnitario": 434,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA 5 cc. EMBUTIDA",
+      "total": 376,
+      "cantidad": 1,
+      "codigo": "22040002",
+      "index": 86,
+      "precioUnitario": 376,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "EQUIPO FLEBOCLISIS REF",
+      "total": 729,
+      "cantidad": 1,
+      "codigo": "22040113",
+      "index": 87,
+      "precioUnitario": 729,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "TUBO ROJO 4,0 ML VACUE",
+      "total": 340,
+      "cantidad": 1,
+      "codigo": "22040291",
+      "index": 88,
+      "precioUnitario": 340,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "ADAPTADOR BRAND LUEI",
+      "total": 478,
+      "cantidad": 1,
+      "codigo": "22040295",
+      "index": 89,
+      "precioUnitario": 478,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "TUBO VERDE 4,0 ML/HEPA",
+      "total": 243,
+      "cantidad": 1,
+      "codigo": "22040756",
+      "index": 90,
+      "precioUnitario": 243,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA 10 cc. EMBUTIDA",
+      "total": 421,
+      "cantidad": 1,
+      "codigo": "22040003",
+      "index": 91,
+      "precioUnitario": 421,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA 10 cc. EMBUTIDA",
+      "total": 421,
+      "cantidad": 1,
+      "codigo": "22040003",
+      "index": 92,
+      "precioUnitario": 421,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "EQUIPO FLEBOCLISIS REF",
+      "total": 729,
+      "cantidad": 1,
+      "codigo": "22040113",
+      "index": 93,
+      "precioUnitario": 729,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "TUBO GRIS 4,0 ML VACUE",
+      "total": 367,
+      "cantidad": 1,
+      "codigo": "22040300",
+      "index": 94,
+      "precioUnitario": 367,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "TUBO CELESTE 2,7-3,0 ML.",
+      "total": 367,
+      "cantidad": 1,
+      "codigo": "22040304",
+      "index": 95,
+      "precioUnitario": 367,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "TUBO LILA 3,0 ML (454246",
+      "total": 680,
+      "cantidad": 2,
+      "codigo": "22040305",
+      "index": 96,
+      "precioUnitario": 340,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "LLAVE 3 PASOS C/ EXT. DI",
+      "total": 2455,
+      "cantidad": 1,
+      "codigo": "22040836",
+      "index": 97,
+      "precioUnitario": 2455,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA INYECTORA MOI",
+      "total": 17525,
+      "cantidad": 1,
+      "codigo": "22220099",
+      "index": 98,
+      "precioUnitario": 17525,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "JERINGA 20 cc. LUER LOCK",
+      "total": 864,
+      "cantidad": 1,
+      "codigo": "22040626",
+      "index": 99,
+      "precioUnitario": 864,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS"
+    },
+    {
+      "descripcion": "APOSITO TRANSP IV (7239)",
+      "total": 2451,
+      "cantidad": 1,
+      "codigo": "22060087",
+      "index": 100,
+      "precioUnitario": 2451,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS KARDEX"
+    },
+    {
+      "descripcion": "TERMOMETRO DIGITAL C",
+      "total": 8605,
+      "cantidad": 1,
+      "codigo": "22100235",
+      "index": 101,
+      "precioUnitario": 8605,
+      "seccion": "MEDICAMENTOS Y MATERIALES INSUMOS KARDEX"
+    },
+    {
+      "descripcion": "CEFTRIAXONA 1G (ACANI",
+      "total": 102588,
+      "cantidad": 2,
+      "codigo": "11010004",
+      "index": 102,
+      "precioUnitario": 51294,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "METRONIDAZOL 500 MG. I",
+      "total": 4587,
+      "cantidad": 1,
+      "codigo": "11030006",
+      "index": 103,
+      "precioUnitario": 4587,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO FISIOLOGICO 20 MI",
+      "total": 1208,
+      "cantidad": 1,
+      "codigo": "11010057",
+      "index": 104,
+      "precioUnitario": 1208,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "ONDANSETRON 4 MG",
+      "total": 15716,
+      "cantidad": 1,
+      "codigo": "11010141",
+      "index": 105,
+      "precioUnitario": 15716,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO FISIOLOGICO 500 C",
+      "total": 2344,
+      "cantidad": 1,
+      "codigo": "11020016",
+      "index": 106,
+      "precioUnitario": 2344,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO FISIOLOGICO 100 N",
+      "total": 3401,
+      "cantidad": 1,
+      "codigo": "11020033",
+      "index": 107,
+      "precioUnitario": 3401,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "SUERO FISIOLOGICO 20 MI",
+      "total": 1208,
+      "cantidad": 1,
+      "codigo": "11010057",
+      "index": 108,
+      "precioUnitario": 1208,
+      "seccion": "MEDICAMENTOS Y MATERIALES MEDICAMENTOS"
+    },
+    {
+      "descripcion": "FENTANYL 2 ML (ESTUPEF",
+      "total": 3048,
+      "cantidad": 1,
+      "codigo": "11120004",
+      "index": 109,
+      "precioUnitario": 3048,
+      "seccion": "MEDICAMENTOS Y MATERIALES SICOTROPICOS Y ESTUPEFACIENTES"
+    },
+    {
+      "descripcion": "COOMBS INDIRECTO, TES",
+      "total": 6205,
+      "cantidad": 1,
+      "codigo": "03-01-015-01",
+      "index": 110,
+      "precioUnitario": 6205,
+      "seccion": "EXA Y PROC BANCO DE SANGRE"
+    },
+    {
+      "descripcion": "CLASIFICACION SANGUIN",
+      "total": 6286,
+      "cantidad": 1,
+      "codigo": "03-01-034-01",
+      "index": 111,
+      "precioUnitario": 6286,
+      "seccion": "EXA Y PROC BANCO DE SANGRE"
+    },
+    {
+      "descripcion": "CLORO EN SANGRE",
+      "total": 3244,
+      "cantidad": 1,
+      "codigo": "03-02-032-03",
+      "index": 112,
+      "precioUnitario": 3244,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "SODIO",
+      "total": 3244,
+      "cantidad": 1,
+      "codigo": "03-02-032-02",
+      "index": 113,
+      "precioUnitario": 3244,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "CREATININA EN SANGRE",
+      "total": 3369,
+      "cantidad": 1,
+      "codigo": "03-02-023-01",
+      "index": 114,
+      "precioUnitario": 3369,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "LACTATO EN SANGRE",
+      "total": 10264,
+      "cantidad": 1,
+      "codigo": "03-02-004-01",
+      "index": 115,
+      "precioUnitario": 10264,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "AMILASA",
+      "total": 6021,
+      "cantidad": 1,
+      "codigo": "03-02-008-01",
+      "index": 116,
+      "precioUnitario": 6021,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "ORINA COMPLETA",
+      "total": 4821,
+      "cantidad": 1,
+      "codigo": "03-09-022-01",
+      "index": 117,
+      "precioUnitario": 4821,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "PERFIL HEPATICO",
+      "total": 25740,
+      "cantidad": 1,
+      "codigo": "03-02-076-01",
+      "index": 118,
+      "precioUnitario": 25740,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "NITROGENO UREICO O UR",
+      "total": 3322,
+      "cantidad": 1,
+      "codigo": "03-02-057-01",
+      "index": 119,
+      "precioUnitario": 3322,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "LIPASA EN SANGRE",
+      "total": 6662,
+      "cantidad": 1,
+      "codigo": "03-02-053-01",
+      "index": 120,
+      "precioUnitario": 6662,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "GLICEMIA",
+      "total": 3152,
+      "cantidad": 1,
+      "codigo": "03-02-047-01",
+      "index": 121,
+      "precioUnitario": 3152,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "HEMOGRAMA URGENCIA",
+      "total": 7768,
+      "cantidad": 1,
+      "codigo": "03-01-045-03",
+      "index": 122,
+      "precioUnitario": 7768,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "TTPK, TROMBOBLASTINA",
+      "total": 6021,
+      "cantidad": 1,
+      "codigo": "03-01-085-01",
+      "index": 123,
+      "precioUnitario": 6021,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "UROCULTIVO Y RECUENT",
+      "total": 9314,
+      "cantidad": 1,
+      "codigo": "03-06-011-01",
+      "index": 124,
+      "precioUnitario": 9314,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "PROTEINA C REACTIVA PC",
+      "total": 15303,
+      "cantidad": 1,
+      "codigo": "03-05-031-01",
+      "index": 125,
+      "precioUnitario": 15303,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "PERFIL LIPIDICO",
+      "total": 15646,
+      "cantidad": 1,
+      "codigo": "03-02-034-01",
+      "index": 126,
+      "precioUnitario": 15646,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "POTASIO",
+      "total": 3244,
+      "cantidad": 1,
+      "codigo": "03-02-032-05",
+      "index": 127,
+      "precioUnitario": 3244,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "TOMA DE MUESTRA VENC",
+      "total": 2216,
+      "cantidad": 1,
+      "codigo": "03-07-011-01",
+      "index": 128,
+      "precioUnitario": 2216,
+      "seccion": "EXA Y PROC LABORATORIO"
+    },
+    {
+      "descripcion": "ESTUDIO CORRIENTE DE I",
+      "total": 48740,
+      "cantidad": 1,
+      "codigo": "08-01-008-01",
+      "index": 129,
+      "precioUnitario": 48740,
+      "seccion": "EXA Y PROC HISTOPATOLOGIA"
+    },
+    {
+      "descripcion": "HISTOQUIMICA",
+      "total": 70780,
+      "cantidad": 1,
+      "codigo": "08-01-005-01",
+      "index": 130,
+      "precioUnitario": 70780,
+      "seccion": "EXA Y PROC HISTOPATOLOGIA"
+    },
+    {
+      "descripcion": "ATENCION KINESIOLOGIC",
+      "total": 37650,
+      "cantidad": 1,
+      "codigo": "06-01-103-01",
+      "index": 131,
+      "precioUnitario": 37650,
+      "seccion": "KINESIOLOGIA"
+    },
+    {
+      "descripcion": "CONSULTA URGENCIA INI",
+      "total": 60531,
+      "cantidad": 1,
+      "codigo": "99-00-093-01",
+      "index": 132,
+      "precioUnitario": 60531,
+      "seccion": "CONSULTAS MEDICAS"
+    },
+    {
+      "descripcion": "TAC DE ABDOMEN Y PELV",
+      "total": 408981,
+      "cantidad": 1,
+      "codigo": "04-03-020-01",
+      "index": 133,
+      "precioUnitario": 408981,
+      "seccion": "EXA Y PROC IMAGENOLOGIA"
+    },
+    {
+      "descripcion": "INSTALACION DE VIA VEN",
+      "total": 23985,
+      "cantidad": 1,
+      "codigo": "99-00-028-01",
+      "index": 134,
+      "precioUnitario": 23985,
+      "seccion": "OTROS PROC.DIAG.Y TERAPEUTICOS"
+    },
+    {
+      "descripcion": "FLEBOCLISIS",
+      "total": 42957,
+      "cantidad": 1,
+      "codigo": "99-00-045-01",
+      "index": 135,
+      "precioUnitario": 42957,
+      "seccion": "OTROS PROC.DIAG.Y TERAPEUTICOS"
+    },
+    {
+      "descripcion": "APENDICECTOMIA POR VI (ANESTESISTA)",
+      "total": 275018,
+      "cantidad": 1,
+      "codigo": "18-02-053-02",
+      "index": 136,
+      "precioUnitario": 275018,
+      "seccion": "EQUIPO MEDICO"
+    },
+    {
+      "descripcion": "APENDICECTOMIA POR VI (ARSENALERA)",
+      "total": 64171,
+      "cantidad": 1,
+      "codigo": "18-02-053-02",
+      "index": 137,
+      "precioUnitario": 64171,
+      "seccion": "EQUIPO MEDICO"
+    },
+    {
+      "descripcion": "APENDICECTOMIA POR VI (CIRUJANO)",
+      "total": 916726,
+      "cantidad": 1,
+      "codigo": "18-02-053-02",
+      "index": 138,
+      "precioUnitario": 916726,
+      "seccion": "EQUIPO MEDICO"
+    },
+    {
+      "descripcion": "APENDICECTOMIA POR VI (1° AYUDANTE)",
+      "total": 229181,
+      "cantidad": 1,
+      "codigo": "18-02-053-02",
+      "index": 139,
+      "precioUnitario": 229181,
+      "seccion": "EQUIPO MEDICO"
+    }
+  ],
+  "paciente": {
+    "folio": "862.271",
+    "nombre": "MUÑOZ VILUGRON DAYSI ESTER",
+    "rut": "15.625.601 - 3",
+    "total_cuenta": 6912876
+  }
+}

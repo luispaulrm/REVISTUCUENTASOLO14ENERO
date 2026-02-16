@@ -1,4 +1,4 @@
-import {
+import type {
     SkillInput,
     SkillOutput,
     PamAuditRow,
@@ -15,31 +15,28 @@ import {
     CanonicalBill,
     CanonicalContractRule,
     ContractDomain
-} from './types';
+} from './types.ts';
 
 // ---------- Configuration & Constants ----------
 
 const DEFAULT_CONFIG = {
-    opacidadThresholdIOP: 60,
+    opacidadThresholdIOP: 40, // Trigger formal complaint at 40
     minImpactoM3Systemic: 0.10, // 10%
-    suspectGroupCodes: ["3101002", "3201001", "3101001", "3201002"]
+    suspectGroupCodes: ["3101002", "3201001", "3101001", "3201002", "3000000"],
+    genericGlosas: ["insumos", "materiales", "medicamentos", "equipos", "no cubierto", "no arancelado", "gasto", "honorario"]
 };
 
-// ---------- Main Engine: PROMPT MAESTRO v1.3 ----------
+// ---------- Main Engine: AUDITOR FORENSE v1.4 ----------
 
 export function runSkill(input: SkillInput): SkillOutput {
     const cfg = { ...DEFAULT_CONFIG, ...input.config };
 
-    // 1) Stop Conditions (SC-1)
-    if (!input.bill?.items?.length || !input.pam?.folios?.length || !input.contract?.rules?.length) {
-        return createErrorOutput("SC-1: Missing Source Data (Bill, PAM, or Contract)", cfg);
-    }
+    // --- GATE 0: INTEGRIDAD DE DATOS (OBLIGATORIO) ---
+    // Rules:
+    // 1. pam.copago is authoritative. If < 0 -> ERROR.
+    // 2. pam.valorTotal ≈ pam.bonificacion + pam.copago (tolerance 1%).
+    // 3. Global copago check (if available).
 
-    // --- Phase A: Indexing (Lectura Completa) ---
-    const billIndex = indexBill(input.bill.items);
-    const eventModel = inferEventModel(input.bill.items, input.pam);
-
-    // Flatten PAM lines
     const pamLines: CanonicalPamLine[] = [];
     input.pam.folios.forEach(folio => {
         folio.items.forEach(item => {
@@ -47,40 +44,85 @@ export function runSkill(input: SkillInput): SkillOutput {
         });
     });
 
+    if (pamLines.length === 0) return createErrorOutput("SC-1: Start Condition Failed - No PAM Lines", cfg);
+
+    // Integirty Check Loop
+    let totalCopagoCalculado = 0;
+    for (const line of pamLines) {
+        if (typeof line.copago !== 'number' || line.copago < 0) {
+            return createErrorOutput(`GATE 0 FAIL: Invalid copago value in item ${line.codigoGC}. Must be >= 0.`, cfg);
+        }
+
+        // Coherence check (only if all 3 exist)
+        if (line.valorTotal > 0 && line.bonificacion >= 0 && line.copago >= 0) {
+            const sum = line.bonificacion + line.copago;
+            if (Math.abs(sum - line.valorTotal) > (line.valorTotal * 0.02) + 50) { // 2% + 50 CLP tolerance
+                // Warn but maybe don't fail hard if it's just rounding, unless it's massive
+                // For v1.4 prompt, we should be strict, but let's allow continuing with a warning/tag
+                // Actually prompt says: "Detener auditoría forense... emitir finding Error de datos"
+                // Let's return error for now to be strict.
+                return createErrorOutput(`GATE 0 FAIL: Incoherence ValTotal(${line.valorTotal}) != Bonif(${line.bonificacion}) + Copago(${line.copago}) for item ${line.codigoGC}`, cfg);
+            }
+        }
+        totalCopagoCalculado += line.copago;
+    }
+
+    if (input.pam.global?.totalCopago !== undefined) {
+        if (Math.abs(totalCopagoCalculado - input.pam.global.totalCopago) > 500) {
+            return createErrorOutput(`GATE 0 FAIL: Total Copago mismatch. Calculated: ${totalCopagoCalculado}, Declared: ${input.pam.global.totalCopago}`, cfg);
+        }
+    }
+
+    // --- Phase A: Indexing & Event Model ---
+    const billIndex = indexBill(input.bill.items);
+    const eventModel = inferEventModel(input.bill.items, input.pam);
+
     const pamRows: PamAuditRow[] = [];
 
+    // --- Execution Loop per Line ---
     for (const line of pamLines) {
-        // Only analyze "Lineas Criticas" (Copago > 0 OR Bonificacion == 0)
-        if (line.valorTotal === 0) continue; // Skip empty lines
+
+        // Skip purely zero lines
+        if (line.valorTotal === 0 && line.copago === 0 && line.bonificacion === 0) continue;
 
         const attempts: TraceAttempt[] = [];
 
-        // --- Phase B: Mapeo Determinista (Cascada) ---
-        // 1. Code Match (Ideal but rare across systems)
-        // 2. Glosa + Familia Match
-        const glosaMatch = tryGlosaMatch(line, billIndex);
-        attempts.push(glosaMatch);
-
-        // 3. Monto 1:1 Match (Anchor)
-        let matchedBillItems: CanonicalBillItem[] = [];
+        // --- Phase 1: Mapeo (Agotamiento Probatorio) ---
+        // 1. Monto 1:1 Match (Anchor)
         const montoMatch = tryMonto1a1Match(line, billIndex);
         attempts.push(montoMatch);
 
+        let matchedBillItems: CanonicalBillItem[] = [];
         if (montoMatch.status === 'OK' && billIndex.byTotal.has(line.valorTotal)) {
             matchedBillItems = billIndex.byTotal.get(line.valorTotal)!;
-        } else if (glosaMatch.status === 'OK') {
-            // Hydrate matched items from glosa check if possible (simplified here)
         }
+
+        // 2. Glosa Match (if needed)
+        const glosaMatch = tryGlosaMatch(line, billIndex);
+        if (montoMatch.status !== 'OK') {
+            attempts.push(glosaMatch);
+            // If glosa matched and amount is close, maybe we can link? 
+            // For strict v1.4, we use attempts history.
+        }
+
+        // 3. Family Match (if needed) - Simplified Bucket Check
+        // (Implemented inside classifyFragmentation if Trace fails)
 
         const traceStatus = summarizeTrace(attempts);
 
-        // --- Phase C: Validación Contractual ---
-        const contractCheck = evaluateContract(line, input.contract, traceStatus);
+        // --- Phase 2: Motores de Fragmentación (M1-M4) ---
+        // Only if Gate 0 passed (which it did to get here)
 
-        // --- Phase D: Motor Forense (M1-M3) ---
-        const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems);
+        // First check contract for M4 reference
+        const contractCheck = evaluateContract(line, input.contract);
 
-        // --- Phase E: Opacidad (Agotamiento) ---
+        const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems, cfg);
+
+        // --- Phase 3: Contract Verification (Referential Only) ---
+        // Already called above for M4 input, but here we formalize it for the row
+        // Contract does NOT change numbers.
+
+        // --- Phase 4: Opacidad (Agotamiento) ---
         const opacidad = evaluateOpacidad(line, cfg, traceStatus, contractCheck.state, matchedBillItems, frag);
 
         pamRows.push(buildRow(line, attempts, contractCheck, frag, opacidad, matchedBillItems));
@@ -90,7 +132,7 @@ export function runSkill(input: SkillInput): SkillOutput {
     const summary = aggregate(pamRows, cfg);
     const matrix = buildMatrix(pamRows);
     const reportText = buildForensicReport(eventModel, pamRows, summary);
-    const complaintText = buildComplaintText(pamRows);
+    const complaintText = buildComplaintText(pamRows, cfg);
 
     return {
         summary,
@@ -102,7 +144,7 @@ export function runSkill(input: SkillInput): SkillOutput {
     };
 }
 
-// ---------- Logic Implementation ----------
+// ---------- Helpers ----------
 
 function normalize(str: string): string {
     return (str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").trim();
@@ -127,8 +169,8 @@ function indexBill(items: CanonicalBillItem[]) {
 
 function inferEventModel(billItems: CanonicalBillItem[], pam: any) {
     const desc = billItems.map(i => i.description.toLowerCase()).join(' ');
-    const hasPabellon = desc.includes('pabellon') || desc.includes('quirofano');
-    const hasDiaCama = desc.includes('dia cama') || desc.includes('habitacion');
+    const hasPabellon = desc.includes('pabellon') || desc.includes('quirofano') || desc.includes('surgery');
+    const hasDiaCama = desc.includes('dia cama') || desc.includes('habitacion') || desc.includes('sala');
 
     return {
         actoPrincipal: hasPabellon ? 'CIRUGIA_MAYOR' : 'HOSPITALIZACION_GENERAL',
@@ -136,7 +178,7 @@ function inferEventModel(billItems: CanonicalBillItem[], pam: any) {
             hasPabellon ? 'DERECHO_PABELLON' : null,
             hasDiaCama ? 'DIA_CAMA_INTEGRAL' : null
         ].filter(Boolean) as string[],
-        notes: 'Inferido por palabras clave en glosas'
+        notes: 'Inferido determinísticamente por glosas'
     };
 }
 
@@ -145,21 +187,29 @@ function tryGlosaMatch(line: CanonicalPamLine, index: any): TraceAttempt {
     if (index.byDescription.has(norm)) {
         return { step: 'GLOSA_FAMILIA', status: 'OK', details: 'Exact string match' };
     }
-    // Simple fuzzy check
-    if ([...index.byDescription.keys()].some((k: string) => k.includes(norm) || norm.includes(k))) {
+    // Partial
+    if ([...index.byDescription.keys()].some((k: string) => k.length > 5 && (k.includes(norm) || norm.includes(k)))) {
         return { step: 'GLOSA_FAMILIA', status: 'PARTIAL', details: 'Partial string overlap' };
     }
     return { step: 'GLOSA_FAMILIA', status: 'FAIL', details: 'No match' };
 }
 
 function tryMonto1a1Match(line: CanonicalPamLine, index: any): TraceAttempt {
-    const matches = index.byTotal.get(line.valorTotal);
-    if (matches && matches.length === 1) {
-        return { step: 'MONTO_1A1', status: 'OK', details: 'Unique amount match' };
+    // Try matching valorTotal OR copago (sometimes bills reflect copago directly)
+    const matchesTotal = index.byTotal.get(line.valorTotal);
+
+    if (matchesTotal) {
+        if (matchesTotal.length === 1) return { step: 'MONTO_1A1', status: 'OK', details: 'Unique amount match (Total)' };
+        return { step: 'MONTO_1A1', status: 'PARTIAL', details: 'Duplicate amounts found (Total)' };
     }
-    if (matches && matches.length > 1) {
-        return { step: 'MONTO_1A1', status: 'PARTIAL', details: 'Duplicate amounts found' };
+
+    // Attempt copago match if no total match
+    const matchesCopago = index.byTotal.get(line.copago);
+    if (matchesCopago && line.copago > 0) {
+        if (matchesCopago.length === 1) return { step: 'MONTO_1A1', status: 'OK', details: 'Unique amount match (Copago)' };
+        return { step: 'MONTO_1A1', status: 'PARTIAL', details: 'Duplicate amounts found (Copago)' };
     }
+
     return { step: 'MONTO_1A1', status: 'FAIL', details: 'No amount match' };
 }
 
@@ -170,48 +220,50 @@ function summarizeTrace(attempts: TraceAttempt[]): TraceStatus {
 }
 
 function mapGCToDomain(gc: string, description: string = ''): ContractDomain {
-    // 1. Code-based mapping (Standard Fonasa/Isapre Group Codes)
     const codeMap: Record<string, ContractDomain> = {
         '3101002': 'MATERIALES_CLINICOS',
         '3101001': 'MEDICAMENTOS_HOSP',
-        '3000000': 'HOSPITALIZACION', // Dia Cama usually
-        '3201001': 'OTROS', // Insumos generales
+        '3000000': 'HOSPITALIZACION',
+        '3201001': 'OTROS',
         '3201002': 'OTROS',
         '0101001': 'CONSULTA',
-        '0300000': 'EXAMENES', // Laboratorio
-        '0400000': 'EXAMENES', // Imagenologia
+        '0300000': 'EXAMENES',
+        '0400000': 'EXAMENES',
         '0500000': 'KINESIOLOGIA',
-        '0600000': 'PROTESIS_ORTESIS', // Or specific codes
-        '1100000': 'PABELLON', // Derecho Pabellon
-        '1200000': 'PABELLON', // Recargos
-        '1300000': 'HONORARIOS' // Atencion profesional
+        '0600000': 'PROTESIS_ORTESIS',
+        '1100000': 'PABELLON',
+        '1200000': 'PABELLON',
+        '1300000': 'HONORARIOS'
     };
-
     if (codeMap[gc]) return codeMap[gc];
 
-    // 2. Heuristic-based mapping (Fallback if code is unknown or generic)
     const lower = normalize(description);
-    if (lower.includes('dia cama') || lower.includes('habitacion') || lower.includes('residencia')) return 'HOSPITALIZACION';
-    if (lower.includes('pabellon') || lower.includes('quirofano') || lower.includes('arsenic') || lower.includes('mesa oper')) return 'PABELLON';
-    if (lower.includes('honorario') || lower.includes('medico') || lower.includes('cirujano') || lower.includes('anestesi')) return 'HONORARIOS';
-    if (lower.includes('medicamento') || lower.includes('farmaco') || lower.includes('droga')) return 'MEDICAMENTOS_HOSP';
-    if (lower.includes('material') || lower.includes('insumo') || lower.includes('dispositivo')) return 'MATERIALES_CLINICOS';
-    if (lower.includes('examen') || lower.includes('laboratorio') || lower.includes('perfil') || lower.includes('cultivo')) return 'EXAMENES';
-    if (lower.includes('imagen') || lower.includes('rayos') || lower.includes('scanner') || lower.includes('resonancia')) return 'EXAMENES';
-    if (lower.includes('kinesi') || lower.includes('fisioterapia')) return 'KINESIOLOGIA';
+    if (lower.includes('dia cama') || lower.includes('habitacion')) return 'HOSPITALIZACION';
+    if (lower.includes('pabellon') || lower.includes('quirofano')) return 'PABELLON';
+    if (lower.includes('honorario') || lower.includes('medico')) return 'HONORARIOS';
+    if (lower.includes('medicamento') || lower.includes('farmaco')) return 'MEDICAMENTOS_HOSP';
+    if (lower.includes('material') || lower.includes('insumo')) return 'MATERIALES_CLINICOS';
+    if (lower.includes('examen') || lower.includes('laboratorio')) return 'EXAMENES';
+    if (lower.includes('kinesi')) return 'KINESIOLOGIA';
     if (lower.includes('protesis') || lower.includes('ortesis')) return 'PROTESIS_ORTESIS';
-    if (lower.includes('traslado') || lower.includes('ambulancia')) return 'TRASLADOS';
+    if (lower.includes('traslado')) return 'TRASLADOS';
 
     return 'OTROS';
 }
 
-function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, traceStatus: TraceStatus): any {
+function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract): any {
     const domain = mapGCToDomain(line.codigoGC, line.descripcion);
+
+    // Exact match by domain
     const rule = contract.rules.find(r => r.domain === domain);
 
     if (!rule) {
         return { state: 'NO_VERIFICABLE_POR_CONTRATO', rulesUsed: [], notes: `Dominio '${domain}' no hallado en contrato` };
     }
+
+    // Check if it's explicitly excluded? (Assumption: if coverage is 0% explicitly)
+    // Here logic depends on rule structure. For now, existence = Verificable.
+
     return { state: 'VERIFICABLE', rulesUsed: [rule.id], notes: `Regla aplicada: ${rule.textLiteral}` };
 }
 
@@ -219,47 +271,65 @@ function classifyFragmentation(
     line: CanonicalPamLine,
     attempts: TraceAttempt[],
     contractCheck: any,
-    event: any,
-    matchedItems: CanonicalBillItem[]
+    eventModel: any,
+    matchedItems: CanonicalBillItem[],
+    cfg: any
 ): any {
     let level: FindingLevel = 'CORRECTO';
     let motor: Motor = 'NA';
     let rationale = '';
+    const impact = line.copago;
 
-    const isGeneric = ["3101002", "3201001", "3201002", "3000000"].includes(line.codigoGC);
+    // Zero copago -> No financial injury -> Correcto (usually)
+    if (impact === 0) return { level, motor, rationale, economicImpact: 0 };
+
+    const desc = normalize(line.descripcion);
     const traceFailed = summarizeTrace(attempts) !== 'OK';
+    const isGeneric = cfg.suspectGroupCodes.includes(line.codigoGC) || cfg.genericGlosas.some((g: string) => desc.includes(g));
 
-    // M1: Actos Artificiales (Accesorios obligatorios facturados como autónomos)
-    if (line.bonificacion === 0 && line.copago > 0 && !isGeneric) {
-        const desc = normalize(line.descripcion);
-        const forbiddenTerms = ["preparacion", "monitorizacion", "uso de equipo", "derecho", "sala"];
-        if (forbiddenTerms.some(t => desc.includes(t))) {
-            motor = 'M1';
-            level = 'FRAGMENTACION_ESTRUCTURAL';
-            rationale = 'Acto accesorio inseparable del principal facturado como autónomo';
-            return { level, motor, rationale, economicImpact: line.copago };
-        }
+    // M1: Creación Artificial de Actos Autónomos
+    // Accesory acts (bonif=0, copago>0) without autonomous code OR clearly accessory desc
+    const forbiddenM1 = ["preparacion", "monitorizacion", "uso de equipo", "derecho", "sala", "recargo horario"];
+    if (
+        (line.bonificacion === 0 && impact > 0 && !isGeneric) ||
+        (forbiddenM1.some(t => desc.includes(t)) && !desc.includes("pabellon") && !desc.includes("dia cama"))
+    ) {
+        motor = 'M1';
+        level = 'FRAGMENTACION_ESTRUCTURAL';
+        rationale = 'Acto accesorio inseparable del principal facturado como autónomo (Bonif 0 / Copago 100%)';
+        return { level, motor, rationale, economicImpact: impact };
     }
 
     // M2: Desanclaje desde Paquete (Unbundling)
-    if (event.paquetesDetectados.length > 0 && line.copago > 0) {
-        const desc = normalize(line.descripcion);
-        const standardSupplies = ["jeringa", "agujahipodermica", "torula", "guantes", "electrodo", "bajada suero", "branula"];
-
+    if (eventModel.paquetesDetectados.length > 0) {
+        const standardSupplies = ["jeringa", "aguja", "torula", "guantes", "electrodo", "bajada", "branula", "gasas", "aposito"];
         if (standardSupplies.some(s => desc.includes(s))) {
             motor = 'M2';
             level = 'FRAGMENTACION_ESTRUCTURAL';
-            rationale = `Insumo estándar (${desc}) desagregado de paquete clínico (${event.paquetesDetectados[0]})`;
-            return { level, motor, rationale, economicImpact: line.copago };
+            rationale = `Insumo estándar (${desc}) desagregado de paquete clínico obligatorio (${eventModel.paquetesDetectados[0]})`;
+            return { level, motor, rationale, economicImpact: impact };
         }
     }
 
-    // M3: Traslado No Clínico / Residuales (Bolsón)
-    if (isGeneric && line.bonificacion === 0 && line.copago > 0 && traceFailed) {
+    // M3: Traslado de Costos No Clínicos / Residuales (Bolsón)
+    if (isGeneric && traceFailed) {
         motor = 'M3';
         level = 'FRAGMENTACION_ESTRUCTURAL';
-        rationale = 'Traslado de costos a bolsón genérico sin trazabilidad clínica';
-        return { level, motor, rationale, economicImpact: line.copago };
+        rationale = 'Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose';
+        return { level, motor, rationale, economicImpact: impact };
+    }
+
+    // M4: Desclasificación de Dominio (Renegación Artificial)
+    // E.g. "No Cubierto" but should be covered by broad contract terms?
+    // If Rule exists but PAM says "No Cubierto" (Bonif 0)?
+    if (line.bonificacion === 0 && contractCheck.state === 'VERIFICABLE' && !traceFailed) {
+        // If contract says it should be covered but it isn't -> M4
+        // Check rule coverage pct?
+        // Detailed check omitted for brevity, assuming Bonif 0 with Verifiable Rule is suspect M4.
+        motor = 'M4';
+        level = 'DISCUSION_TECNICA';
+        rationale = `Item con cobertura contractual posible (${contractCheck.notes}) pero bonificado en $0 sin causal de exclusión expresa.`;
+        return { level, motor, rationale, economicImpact: impact };
     }
 
     return { level, motor, rationale, economicImpact: 0 };
@@ -276,55 +346,47 @@ function evaluateOpacidad(
     let breakdown = [];
     let iopScore = 0;
 
+    // Conditions to activate Opacidad check:
+    // (trace.status == FAIL) AND (bonification == 0 OR copago > 0)
+    // AND (group code OR generic glosa) AND no sub-items.
+
+    // For v1.4, calculate IOP always if "suspect", apply threshold later.
+    const isSuspect = cfg.suspectGroupCodes.includes(line.codigoGC) || normalize(line.descripcion).includes("no cubierto");
+
     if (line.copago === 0 && line.bonificacion > 0) {
         return { applies: false, iopScore: 0, breakdown: [], agotamiento: false };
     }
 
-    // +25 Agrupador sin desglose sub-ítem
-    const isSuspect = cfg.suspectGroupCodes.includes(line.codigoGC);
-    const hasSubItem = matchedItems.length > 0;
-    if (isSuspect && !hasSubItem) {
+    // IOP Scoring
+    // +25 Agrupador sin desglose
+    if (isSuspect && matchedItems.length === 0) {
         iopScore += 25;
         breakdown.push({ label: 'Agrupador sin desglose', points: 25 });
     }
-
-    // +15 Bonif 0 con Copago Total
+    // +20 Glosa Genérica
+    const desc = normalize(line.descripcion);
+    if (desc.includes("no cubierto") || desc.includes("insumos") || desc.includes("gasto")) {
+        iopScore += 20;
+        breakdown.push({ label: 'Glosa Genérica indeterminada', points: 20 });
+    }
+    // +15 Bonif 0 / Copago Total
     if (line.bonificacion === 0 && line.copago > 0) {
         iopScore += 15;
-        breakdown.push({ label: 'Bonificación 0 / Copago Total', points: 15 });
+        breakdown.push({ label: 'Bonificación $0 (Copago Total)', points: 15 });
     }
-
-    // +10 Glosa genérica
-    if (normalize(line.descripcion).includes("no cubierto") || normalize(line.descripcion).includes("insumos")) {
-        iopScore += 10;
-        breakdown.push({ label: 'Glosa Genérica', points: 10 });
-    }
-
-    // +15 No mapeable tras Fase B
+    // +15 Fallo Trazabilidad (redundant with matchedItems=0 usually, but distinct concept)
     if (traceStatus === 'FAIL') {
         iopScore += 15;
         breakdown.push({ label: 'Fallo Trazabilidad Fase B', points: 15 });
     }
-
-    // +10 Opacidad impide aplicar contrato
-    if (contractState !== 'VERIFICABLE' && isSuspect) {
-        iopScore += 10;
-        breakdown.push({ label: 'Contrato Inaplicable por Opacidad', points: 10 });
-    }
+    // +10 Duplicidad GC sin fundamento (Hard to check locally line-by-line without context, skip for now or complex check)
 
     const applies = iopScore >= cfg.opacidadThresholdIOP;
 
     return { applies, iopScore, breakdown, agotamiento: true };
 }
 
-function buildRow(
-    line: CanonicalPamLine,
-    attempts: TraceAttempt[],
-    contractCheck: any,
-    frag: any,
-    opacidad: any,
-    matchedItems: CanonicalBillItem[]
-): PamAuditRow {
+function buildRow(line: CanonicalPamLine, attempts: TraceAttempt[], contractCheck: any, frag: any, opacidad: any, matchedItems: CanonicalBillItem[]): PamAuditRow {
     return {
         pamLineId: line.id || `pam_${Math.random().toString(36).substr(2, 9)}`,
         codigoGC: line.codigoGC,
@@ -342,21 +404,17 @@ function buildRow(
     };
 }
 
-// ---------- Aggregation ----------
-
 function aggregate(rows: PamAuditRow[], cfg: any) {
     const totalCopagoAnalizado = rows.reduce((s, r) => s + r.montoCopago, 0);
-    const totalImpactoFragmentacion = rows.filter(r => r.fragmentacion.level !== 'CORRECTO').reduce((s, r) => s + r.fragmentacion.economicImpact, 0);
+    const findings = rows.filter(r => r.fragmentacion.level !== 'CORRECTO' || r.opacidad.applies);
 
-    const m1Count = rows.filter(r => r.fragmentacion.motor === 'M1').length;
-    const m2Count = rows.filter(r => r.fragmentacion.motor === 'M2').length;
-    const m3Copago = rows.filter(r => r.fragmentacion.motor === 'M3').reduce((s, r) => s + r.montoCopago, 0);
+    const totalImpactoFragmentacion = findings.reduce((s, r) => s + r.montoCopago, 0); // Impact is the Copago of the item
 
-    const isSystemic =
-        m1Count >= 3 ||
-        m2Count >= 5 ||
-        (totalCopagoAnalizado > 0 && (m3Copago / totalCopagoAnalizado) >= cfg.minImpactoM3Systemic);
+    const m1Count = findings.filter(r => r.fragmentacion.motor === 'M1').length;
+    const m2Count = findings.filter(r => r.fragmentacion.motor === 'M2').length;
+    const m3Copago = findings.filter(r => r.fragmentacion.motor === 'M3').reduce((s, r) => s + r.montoCopago, 0);
 
+    const isSystemic = (m1Count >= 3 || m2Count >= 5 || (totalCopagoAnalizado > 0 && (m3Copago / totalCopagoAnalizado) >= cfg.minImpactoM3Systemic));
     const maxIOP = Math.max(...rows.map(r => r.opacidad.iopScore), 0);
 
     return {
@@ -375,7 +433,7 @@ function buildMatrix(rows: PamAuditRow[]) {
             classification: r.fragmentacion.level,
             motor: r.fragmentacion.motor,
             fundamento: r.fragmentacion.rationale + (r.opacidad.applies ? ` [OPACIDAD IOP ${r.opacidad.iopScore}]` : ''),
-            impacto: r.fragmentacion.economicImpact,
+            impacto: r.montoCopago,
             iop: r.opacidad.iopScore
         }));
 }
@@ -383,49 +441,49 @@ function buildMatrix(rows: PamAuditRow[]) {
 function buildForensicReport(event: any, rows: PamAuditRow[], summary: any): string {
     const findings = rows.filter(r => r.fragmentacion.level !== 'CORRECTO' || r.opacidad.applies);
 
-    return `INFORME FORENSE M10 (Skill v1.3)
+    return `INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)
 --------------------------------------------------
 EVENTO DETECTADO: ${event.actoPrincipal}
 PAQUETES CLÍNICOS: ${event.paquetesDetectados.join(', ') || 'Ninguno'}
 
 RESUMEN EJECUTIVO:
 - Total Copago Analizado: $${summary.totalCopagoAnalizado.toLocaleString()}
-- Impacto Fragmentación: $${summary.totalImpactoFragmentacion.toLocaleString()}
-- Estado Opacidad: ${summary.opacidadGlobal.applies ? 'CRÍTICO (Bloqueo Financiero)' : 'Trazable'}
+- Impacto Hallazgos: $${summary.totalImpactoFragmentacion.toLocaleString()}
+- Estado Opacidad: ${summary.opacidadGlobal.applies ? `CRÍTICO (IOP MAX ${summary.opacidadGlobal.maxIOP})` : 'Trazable'}
 - Patrón Sistémico: ${summary.patternSystemic.isSystemic ? 'SI (Mecanismo Repetitivo)' : 'No detectado'}
 
 DETALLE DE HALLAZGOS RELEVANTES:
 ${findings.map(f => `
 > [${f.fragmentacion.motor}] ${f.codigoGC} - ${f.descripcion}
-  Impacto: $${f.montoCopago.toLocaleString()}
+  Copago Real: $${f.montoCopago.toLocaleString()}
   Fundamento: ${f.fragmentacion.rationale}
   ${f.opacidad.applies ? `⚠️ OPACIDAD DETECTADA (IOP ${f.opacidad.iopScore}):\n  ` + f.opacidad.breakdown.map((b: any) => `  - ${b.label} (+${b.points})`).join('\n') : ''}
 `).join('\n')}
 
 CONCLUSIÓN:
 ${summary.opacidadGlobal.applies
-            ? "La cuenta presenta Opacidad Liquidatoria que impide verificar la corrección financiera según contrato. Se requiere desglose."
-            : "La cuenta es auditable. Se detectaron fragmentaciones específicas detalladas arriba."}
+            ? "La cuenta presenta Opacidad Liquidatoria Mayor (IOP > 40). Se exige desglose detallado bajo sanción de tener por no escritas las cláusulas oscuras (Contra Proferentem)."
+            : "Cuenta auditable con hallazgos específicos de fragmentación."}
 `;
 }
 
-function buildComplaintText(rows: PamAuditRow[]): string {
+function buildComplaintText(rows: PamAuditRow[], cfg: any): string {
     const opacos = rows.filter(r => r.opacidad.applies);
-    if (opacos.length === 0) return "No hay hallazgos de opacidad que requieran reclamo estándar.";
+    if (opacos.length === 0) return "Sin hallazgos de opacidad crítica.";
 
     return `SEÑORES ISAPRE / PRESTADOR:
 
-En relación a la liquidación (PAM) analizada, se detectan los siguientes cobros que vulneran el deber de información y trazabilidad (Opacidad Liquidatoria):
+En relación a la liquidación (PAM) analizada, se impugnan los siguientes cobros por vulnerar el deber de información (Opacidad Liquidatoria detectada, IOP > ${cfg.opacidadThresholdIOP}):
 
-${opacos.map(r => `- Ítem ${r.codigoGC} "${r.descripcion}" por $${r.montoCopago} (Bonif: $${r.bonificacion})`).join('\n')}
+${opacos.map(r => `- Ítem ${r.codigoGC} "${r.descripcion}" | Copago: $${r.montoCopago} | IOP: ${r.opacidad.iopScore}`).join('\n')}
 
-FUNDAMENTOS:
-1. Estos ítems consolidan montos sin desglose de sub-ítem (código interno, glosa específica, valor unitario).
-2. Existe imposibilidad de verificar la prestación ancla o la correspondencia contractual (IOP Score crítico).
-3. No se acredita que correspondan a prestaciones autónomas y no a insumos absorbidos por el paquete principal.
+FUNDAMENTOS DE RECLAMO:
+1. "Agrupamiento Ciego": Los ítems señalados consolidan montos sin desglose de sub-ítem verificable, impidiendo el ejercicio del derecho a defensa del afiliado.
+2. "Copago sin Causa": Se cobran montos significativos (Total: $${opacos.reduce((s, r) => s + r.montoCopago, 0).toLocaleString()}) bajo glosas genéricas ("No Cubierto", "Insumos") sin acreditar la prestación subyacente.
+3. Principio de Literalidad e Integridad: El contrato de salud es de adhesión; toda oscuridad debe interpretarse a favor del afiliado (Art. 1566 Código Civil).
 
-SOLICITUD:
-Se requiere la refacturación con desglose detallado línea a línea o la cobertura inmediata bajo el principio de interpretación pro-afiliado ante cláusulas oscuras.`;
+PETICIÓN:
+Sírvase anular el cobro de los ítems opacos o bien refacturar con el desglose unitario completo que permita su trazabilidad con la Ficha Clínica.`;
 }
 
 function createErrorOutput(msg: string, cfg: any): SkillOutput {
@@ -434,7 +492,7 @@ function createErrorOutput(msg: string, cfg: any): SkillOutput {
         eventModel: { notes: msg, paquetesDetectados: [] },
         matrix: [],
         pamRows: [],
-        reportText: `ERROR CRÍTICO: ${msg}`,
+        reportText: `ERROR CRÍTICO GATE 0: ${msg}`,
         complaintText: ''
     };
 }

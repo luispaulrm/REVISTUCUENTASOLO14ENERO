@@ -1,0 +1,323 @@
+{
+  "summary": {
+    "totalCopagoAnalizado": 315000,
+    "totalImpactoFragmentacion": 270000,
+    "opacidadGlobal": {
+      "applies": false,
+      "maxIOP": 35
+    },
+    "patternSystemic": {
+      "m1Count": 2,
+      "m2Count": 0,
+      "m3CopagoPct": 0,
+      "isSystemic": false
+    }
+  },
+  "eventModel": {
+    "actoPrincipal": "CIRUGIA_MAYOR",
+    "paquetesDetectados": [
+      "DERECHO_PABELLON",
+      "DIA_CAMA_INTEGRAL"
+    ],
+    "notes": "Inferido por palabras clave en glosas"
+  },
+  "matrix": [
+    {
+      "itemLabel": "1101004 - DERECHO DE SALA DE RECUPERACION",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M1",
+      "fundamento": "Acto accesorio inseparable del principal facturado como autónomo",
+      "impacto": 180000,
+      "iop": 15
+    },
+    {
+      "itemLabel": "1101011 - USO DE EQUIPO DE VIDEO LAPAROSCOPIA",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M1",
+      "fundamento": "Acto accesorio inseparable del principal facturado como autónomo",
+      "impacto": 90000,
+      "iop": 15
+    }
+  ],
+  "pamRows": [
+    {
+      "pamLineId": "I1",
+      "codigoGC": "1701001",
+      "descripcion": "APENDICECTOMIA (VIDEOLAPAROSCOPICA)",
+      "montoCopago": 0,
+      "bonificacion": 650000,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match"
+          }
+        ],
+        "matchedBillItemIds": [
+          "B1"
+        ]
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "I2",
+      "codigoGC": "1101001",
+      "descripcion": "DERECHO PABELLON QUIRURGICO",
+      "montoCopago": 0,
+      "bonificacion": 400000,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match"
+          }
+        ],
+        "matchedBillItemIds": [
+          "B2"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R1"
+        ],
+        "notes": "Regla aplicada: Derecho Pabellón 100% Tope 16.00 VAM"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "I3",
+      "codigoGC": "1201001",
+      "descripcion": "DIA CAMA DE HOSPITALIZACION MEDIO",
+      "montoCopago": 0,
+      "bonificacion": 250000,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match"
+          }
+        ],
+        "matchedBillItemIds": [
+          "B3"
+        ]
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'HOSPITALIZACION' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "I4",
+      "codigoGC": "1101004",
+      "descripcion": "DERECHO DE SALA DE RECUPERACION",
+      "montoCopago": 180000,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match"
+          }
+        ],
+        "matchedBillItemIds": [
+          "B4"
+        ]
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M1",
+        "rationale": "Acto accesorio inseparable del principal facturado como autónomo",
+        "economicImpact": 180000
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación 0 / Copago Total",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "I5",
+      "codigoGC": "1101011",
+      "descripcion": "USO DE EQUIPO DE VIDEO LAPAROSCOPIA",
+      "montoCopago": 90000,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match"
+          }
+        ],
+        "matchedBillItemIds": [
+          "B5"
+        ]
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M1",
+        "rationale": "Acto accesorio inseparable del principal facturado como autónomo",
+        "economicImpact": 90000
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación 0 / Copago Total",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "I6",
+      "codigoGC": "3101001",
+      "descripcion": "INSUMOS CLINICOS GENERALES",
+      "montoCopago": 45000,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match"
+          }
+        ],
+        "matchedBillItemIds": [
+          "B6"
+        ]
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'MEDICAMENTOS_HOSP' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 35,
+        "breakdown": [
+          {
+            "label": "Bonificación 0 / Copago Total",
+            "points": 15
+          },
+          {
+            "label": "Glosa Genérica",
+            "points": 10
+          },
+          {
+            "label": "Contrato Inaplicable por Opacidad",
+            "points": 10
+          }
+        ],
+        "agotamiento": true
+      }
+    }
+  ],
+  "reportText": "INFORME FORENSE M10 (Skill v1.3)\n--------------------------------------------------\nEVENTO DETECTADO: CIRUGIA_MAYOR\nPAQUETES CLÍNICOS: DERECHO_PABELLON, DIA_CAMA_INTEGRAL\n\nRESUMEN EJECUTIVO:\n- Total Copago Analizado: $315.000\n- Impacto Fragmentación: $270.000\n- Estado Opacidad: Trazable\n- Patrón Sistémico: No detectado\n\nDETALLE DE HALLAZGOS RELEVANTES:\n\n> [M1] 1101004 - DERECHO DE SALA DE RECUPERACION\n  Impacto: $180.000\n  Fundamento: Acto accesorio inseparable del principal facturado como autónomo\n  \n\n\n> [M1] 1101011 - USO DE EQUIPO DE VIDEO LAPAROSCOPIA\n  Impacto: $90.000\n  Fundamento: Acto accesorio inseparable del principal facturado como autónomo\n  \n\n\nCONCLUSIÓN:\nLa cuenta es auditable. Se detectaron fragmentaciones específicas detalladas arriba.\n",
+  "complaintText": "No hay hallazgos de opacidad que requieran reclamo estándar."
+}

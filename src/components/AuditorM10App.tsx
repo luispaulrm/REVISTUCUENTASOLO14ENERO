@@ -93,6 +93,61 @@ export default function AuditorM10App() {
         }, 500);
     };
 
+    const loadDemoData = () => {
+        // 1. Mock Contract (Mas Vida - Plan Pleno 847)
+        // Based on the user's request and the "Plan Pleno" file found
+        const mockContract = {
+            rules: [
+                { id: 'R1', domain: 'PABELLON', coberturaPct: 100, tope: { value: null, kind: 'SIN_TOPE_EXPRESO' }, textLiteral: 'Derecho Pabellón 100% Sin Tope' },
+                { id: 'R2', domain: 'MATERIALES_CLINICOS', coberturaPct: 100, tope: { value: 6000000, kind: 'TOPE_MONTO' }, textLiteral: 'Materiales e Insumos 100% Sin Tope (Simulado)' }, // Hight cap for testing
+                { id: 'R3', domain: 'HONORARIOS', coberturaPct: 100, tope: { value: 13.26, kind: 'VAM' }, textLiteral: 'Honorarios Médicos 100% Tope 13.26 VAM' },
+                { id: 'R4', domain: 'DIA_CAMA', coberturaPct: 100, tope: { value: null, kind: 'SIN_TOPE_EXPRESO' }, textLiteral: 'Día Cama 100% Sin Tope' }
+            ]
+        };
+
+        // 2. Mock PAM (Payment) - Appendicitis Case
+        // Simulating a standard Appendicitis PAM with some "Traps" for M10 to find
+        const mockPam = {
+            folios: [{
+                folioPAM: 'PAM-APENDICITIS-001',
+                items: [
+                    // HMQ: Apendicectomía (Correcto)
+                    { codigoGC: '1701001', descripcion: 'APENDICECTOMIA', valorTotal: 450000, bonificacion: 450000, copago: 0 },
+                    // Pavilion: Right
+                    { codigoGC: '1101001', descripcion: 'DERECHO PABELLON QUIRURGICO', valorTotal: 300000, bonificacion: 300000, copago: 0 },
+                    // Day Bed: Right
+                    { codigoGC: '1201001', descripcion: 'DIA CAMA DE HOSPITALIZACION', valorTotal: 200000, bonificacion: 200000, copago: 0 },
+
+                    // --- M10 v1.4 TRAPS ---
+                    // M3 Trap: "Insumos Generales" (Generic/Opaque) -> IOP High
+                    { codigoGC: '3101001', descripcion: 'INSUMOS GENERALES VARIOS', valorTotal: 25000, bonificacion: 0, copago: 25000 },
+                    // M4 Trap: "Alimentación Acompañante" (Should be Hotelery but sometimes argued) -> Discusión Técnica
+                    { codigoGC: '6001001', descripcion: 'ALIMENTACION ACOMPAÑANTE', valorTotal: 5000, bonificacion: 0, copago: 5000 }
+                ]
+            }]
+        };
+
+        // 3. Mock Bill (Charge)
+        const mockBill = {
+            items: [
+                { description: 'Honorario Medico Apendicectomia', total: 450000 },
+                { description: 'Pabellon Central', total: 300000 },
+                { description: 'Habitación Individual (2 dias)', total: 200000 },
+                { description: 'Sala Recuperacion Post-Op', total: 120000 },
+                { description: 'Sutura Vicryl', total: 15000 },
+                { description: 'Sutura Seda', total: 20000 }, // Total 35000 matches PAM
+                { description: 'Gasto Insumos Varios', total: 25000 },
+                { description: 'Caldos y Sopas', total: 5000 }
+            ]
+        };
+
+        localStorage.setItem('canonical_contract_result', JSON.stringify(mockContract));
+        localStorage.setItem('pam_audit_result', JSON.stringify(mockPam));
+        localStorage.setItem('clinic_audit_result', JSON.stringify(mockBill));
+
+        alert("Datos de prueba v1.4 (Caso Apendicitis c/ Opacidad) cargados. Ejecute el Módulo 10.");
+    };
+
     const copyComplaint = () => {
         if (!auditResult) return;
         navigator.clipboard.writeText(auditResult.complaintText);
@@ -157,6 +212,14 @@ export default function AuditorM10App() {
                     </div>
                 )}
 
+                {!allDataReady && !auditResult && (
+                    <div className="flex justify-center">
+                        <button onClick={loadDemoData} className="text-xs font-bold text-slate-400 hover:text-indigo-600 underline">
+                            CARGAR DATOS DE PRUEBA (DEMO CONSALUD)
+                        </button>
+                    </div>
+                )}
+
                 {/* Action Area */}
                 {!auditResult && (
                     <div className="relative overflow-hidden bg-slate-900 rounded-[2.5rem] p-12 text-center shadow-2xl">
@@ -169,7 +232,7 @@ export default function AuditorM10App() {
                                 <Zap className={allDataReady ? "text-indigo-400" : "text-slate-500"} size={48} />
                             </div>
                             <h2 className="text-3xl font-bold text-white mb-4">
-                                {allDataReady ? 'Listo para Auditoría M10 v1.3' : 'Fuentes Incompletas'}
+                                {allDataReady ? 'Listo para Auditoría M10 v1.4' : 'Fuentes Incompletas'}
                             </h2>
                             <button
                                 onClick={handleRunAudit}
@@ -183,8 +246,24 @@ export default function AuditorM10App() {
                     </div>
                 )}
 
+                {/* Gate 0 Error Display */}
+                {auditResult && auditResult.reportText.startsWith("ERROR CRÍTICO GATE 0") && (
+                    <div className="bg-rose-50 border-2 border-rose-200 rounded-3xl p-8 text-center animate-in fade-in zoom-in duration-300">
+                        <div className="flex justify-center mb-4">
+                            <div className="p-4 bg-rose-100 rounded-full text-rose-600">
+                                <AlertCircle size={48} />
+                            </div>
+                        </div>
+                        <h2 className="text-2xl font-black text-rose-700 mb-2">FALLO CRÍTICO DE INTEGRIDAD (GATE 0)</h2>
+                        <p className="text-rose-600 font-medium max-w-2xl mx-auto">{auditResult.eventModel.notes}</p>
+                        <button onClick={() => setAuditResult(null)} className="mt-6 px-6 py-2 bg-rose-600 text-white font-bold rounded-xl hover:bg-rose-700 transition-colors">
+                            REVISAR DATOS FUENTE
+                        </button>
+                    </div>
+                )}
+
                 {/* Results View */}
-                {auditResult && (
+                {auditResult && !auditResult.reportText.startsWith("ERROR CRÍTICO GATE 0") && (
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
                         {/* Summary Metrics */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -218,7 +297,7 @@ export default function AuditorM10App() {
                             <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
                                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                                     <Layers className="text-indigo-600" size={20} />
-                                    Matriz de Hallazgos (Maestro v1.3)
+                                    Matriz de Hallazgos (Maestro v1.4)
                                 </h3>
                                 <button onClick={() => setAuditResult(null)} className="text-xs font-bold text-slate-500 hover:text-indigo-600">NUEVA AUDITORÍA</button>
                             </div>
@@ -243,15 +322,16 @@ export default function AuditorM10App() {
                                                     <td className="px-8 py-4">
                                                         <span className={`inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase ${row.classification === 'CORRECTO' ? 'bg-emerald-100 text-emerald-700' :
                                                             row.classification === 'FRAGMENTACION_ESTRUCTURAL' ? 'bg-rose-100 text-rose-700' :
-                                                                'bg-amber-100 text-amber-700'
+                                                                row.classification === 'DISCUSION_TECNICA' ? 'bg-blue-100 text-blue-700' :
+                                                                    'bg-amber-100 text-amber-700'
                                                             }`}>{row.classification.replace('_', ' ')}</span>
                                                     </td>
                                                     <td className="px-8 py-4 font-mono text-xs font-bold text-slate-500">{row.motor}</td>
                                                     <td className="px-8 py-4 text-slate-600 max-w-md">
                                                         <div>{row.fundamento.split('[OPACIDAD')[0]}</div>
-                                                        {row.iop && row.iop >= 60 && (
-                                                            <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full w-fit">
-                                                                <AlertCircle size={10} /> IOP CRÍTICO: {row.iop}
+                                                        {row.iop && row.iop >= 40 && (
+                                                            <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full w-fit border border-rose-100">
+                                                                <AlertCircle size={10} /> OPACIDAD IOP: {row.iop}
                                                             </div>
                                                         )}
                                                     </td>
@@ -302,18 +382,43 @@ export default function AuditorM10App() {
 // ---------- ADAPTER LOGIC ----------
 
 function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInput {
+    // console.log("Adapting M10 Input...", { contractKeys: Object.keys(rawContract), pamKeys: Object.keys(rawPam), billKeys: Object.keys(rawBill) });
+
     // 1. Adapt CONTRACT
     let rules: CanonicalContractRule[] = [];
     let sourceArray: any[] = [];
 
+    // Try to find the array of rules/coverages
     if (Array.isArray(rawContract)) {
         sourceArray = rawContract;
-    } else if (Array.isArray(rawContract.rules)) {
+    } else if (rawContract.rules && Array.isArray(rawContract.rules)) {
         sourceArray = rawContract.rules;
-    } else if (Array.isArray(rawContract.coberturas)) {
+    } else if (rawContract.coberturas && Array.isArray(rawContract.coberturas)) {
         sourceArray = rawContract.coberturas;
     } else if (rawContract.data && Array.isArray(rawContract.data.coberturas)) {
         sourceArray = rawContract.data.coberturas;
+    } else if (rawContract.content && JSON.parse(rawContract.content).rules) {
+        // Handle wrapped content string
+        try { sourceArray = JSON.parse(rawContract.content).rules; } catch { }
+    } else if (rawContract.root && rawContract.root.children) {
+        // Handle Mental Model structure (Canonizer output)
+        const traverse = (nodes: any[]): any[] => {
+            let found: any[] = [];
+            for (const node of nodes) {
+                if (node.cobertura && node.cobertura.includes('%')) {
+                    found.push({
+                        item: node.titulo,
+                        descripcion_textual: node.titulo,
+                        porcentaje: parseInt(node.cobertura.replace('%', '')) || 100,
+                        tope: node.detalle,
+                        categoria: 'UNKNOWN' // Will be mapped by domain
+                    });
+                }
+                if (node.children) found = found.concat(traverse(node.children));
+            }
+            return found;
+        };
+        sourceArray = traverse(rawContract.root.children);
     }
 
     rules = sourceArray.map((c: any) => ({
@@ -322,38 +427,99 @@ function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         coberturaPct: c.porcentaje || (c.modalidades?.[0]?.porcentaje) || null,
         tope: {
             kind: c.tope ? 'VARIABLE' : 'SIN_TOPE_EXPRESO',
-            value: null,
+            value: null, // Parsing '2.5 UF' etc can be added if needed, for now mainly existence check
             currency: c.tope,
         },
         textLiteral: `${c.item || ''} ${c.descripcion_textual || ''}`.trim()
     }));
 
     // 2. Adapt PAM
-    let pamFolios = [];
-    if (rawPam.folios && Array.isArray(rawPam.folios)) {
-        pamFolios = rawPam.folios;
-    } else if (rawPam.data && rawPam.data.folios) {
-        pamFolios = rawPam.data.folios;
-    } else if (Array.isArray(rawPam)) {
-        // Assume array of items, wrap in single folio
-        pamFolios = [{ folioPAM: 'UNKNOWN', items: rawPam }];
+    let pamFolios: any[] = [];
+    let pamSource = rawPam;
+
+    // Unwrap if wrapped in { content: "..." } or { data: ... }
+    if (rawPam.content && typeof rawPam.content === 'string') {
+        try { pamSource = JSON.parse(rawPam.content); } catch { }
+    } else if (rawPam.data) {
+        pamSource = rawPam.data;
     }
 
-    // 3. Adapt BILL
-    let billItems = [];
-    // Handle wrapped content (common in ForensicApp saves)
-    let actualBill = rawBill.content || rawBill;
-    if (typeof actualBill === 'string') {
-        try { actualBill = JSON.parse(actualBill); } catch (e) { }
+    if (pamSource.folios && Array.isArray(pamSource.folios)) {
+        // Handle nested DesglosePorPrestador (Real PAM App structure)
+        pamFolios = pamSource.folios.map((f: any) => {
+            let items = f.items || [];
+            if (f.desglosePorPrestador && Array.isArray(f.desglosePorPrestador)) {
+                // Flatten items from all providers in this folio
+                const nestedItems = f.desglosePorPrestador.flatMap((p: any) => p.items || []);
+                items = [...items, ...nestedItems];
+            }
+            return { ...f, items };
+        });
+    } else if (Array.isArray(pamSource)) {
+        // If it's a flat array of lines, wrap it in a dummy folio
+        pamFolios = [{ folioPAM: 'UNKNOWN_FOLIO', items: pamSource }];
     }
 
-    if (actualBill.items && Array.isArray(actualBill.items)) {
-        billItems = actualBill.items;
-    } else if (Array.isArray(actualBill)) {
-        billItems = actualBill;
-    } else if (actualBill.data && Array.isArray(actualBill.data)) {
-        billItems = actualBill.data;
+    // 3. Adapt BILL (Cuenta)
+    let billItems: any[] = [];
+    let billSource = rawBill;
+
+    // Unwrap if wrapped (AccountProjectorV7 saves { content: string, ... })
+    if (rawBill.content) {
+        if (typeof rawBill.content === 'string') {
+            if (rawBill.content.trim().startsWith('<')) {
+                console.warn("Account content appears to be HTML. M10 requires JSON.");
+                // Attempt to continue, but likely empty items
+            } else {
+                try {
+                    billSource = JSON.parse(rawBill.content);
+                } catch (e) {
+                    console.error("Failed to parse Bill content JSON", e);
+                }
+            }
+        } else {
+            billSource = rawBill.content;
+        }
+    } else if (rawBill.data) {
+        billSource = rawBill.data;
     }
+
+    if (billSource.items && Array.isArray(billSource.items)) {
+        billItems = billSource.items;
+    } else if (Array.isArray(billSource)) {
+        billItems = billSource;
+    } else if (billSource.rows && Array.isArray(billSource.rows)) {
+        // Some CSV parsers output 'rows'
+        billItems = billSource.rows;
+    } else if (billSource.sections && Array.isArray(billSource.sections)) {
+        // Handle Account Projector V7 'sections' structure
+        billItems = billSource.sections.flatMap((s: any) => s.items || []);
+    }
+
+    // Ensure PAM items have numeric values
+    pamFolios = pamFolios.map((folio: any) => ({
+        ...folio,
+        folioPAM: folio.folioPAM || folio.folio || 'UNKNOWN',
+        items: (folio.items || []).map((item: any) => ({
+            ...item,
+            codigoGC: item.codigoGC || item.codigo || item.code || 'UNKNOWN',
+            descripcion: item.descripcion || item.glosa || item.description || '',
+            valorTotal: Number(item.valorTotal || item.montoTotal || 0),
+            bonificacion: Number(item.bonificacion || 0),
+            copago: Number(item.copago || item.copago_calculado || 0)
+        }))
+    }));
+
+    // Ensure Bill items have numeric values
+    billItems = billItems.map((item: any) => ({
+        ...item,
+        description: item.description || item.glosa || item.descripcion || item.Item || '',
+        total: Number(item.total || item.valor || item.monto || item.Total || 0),
+        unitPrice: Number(item.unitPrice || item.precioUnitario || item.Precio || 0),
+        qty: Number(item.qty || item.cantidad || item.Cantidad || 1)
+    }));
+
+    // console.log(`Adapter Result: Rules=${rules.length}, Folios=${pamFolios.length}, BillItems=${billItems.length}`);
 
     return {
         contract: { rules },

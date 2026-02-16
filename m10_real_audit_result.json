@@ -1,0 +1,1954 @@
+{
+  "summary": {
+    "totalCopagoAnalizado": 4025574,
+    "totalImpactoFragmentacion": 0,
+    "opacidadGlobal": {
+      "applies": false,
+      "maxIOP": 40
+    },
+    "patternSystemic": {
+      "m1Count": 0,
+      "m2Count": 0,
+      "m3CopagoPct": 0,
+      "isSystemic": false
+    }
+  },
+  "eventModel": {
+    "actoPrincipal": "HOSPITALIZACION_GENERAL",
+    "paquetesDetectados": [
+      "DIA_CAMA_INTEGRAL"
+    ],
+    "notes": "Inferido por palabras clave en glosas"
+  },
+  "matrix": [],
+  "pamRows": [
+    {
+      "pamLineId": "pam-1",
+      "codigoGC": "02-02-104-01",
+      "descripcion": "DIA CAMA INDIVIDUAL S1 02-01-101-00 06-07-2025",
+      "montoCopago": 436055,
+      "bonificacion": 16020,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-0"
+        ],
+        "notes": "Regla aplicada: Día Cama - Clínica Alemana (Oferta Preferente)"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-2",
+      "codigoGC": "18-02-053-02",
+      "descripcion": "APENDICECTOMIA POR VI 18-02-053-09 06-07-2025",
+      "montoCopago": 1728844,
+      "bonificacion": 185990,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-3",
+      "codigoGC": "03-01-015-01",
+      "descripcion": "COOMBS INDIRECTO, TES' 03-01-015-00 06-07-2025",
+      "montoCopago": 1715,
+      "bonificacion": 4490,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-4",
+      "codigoGC": "03-01-034-01",
+      "descripcion": "CLASIFICACION SANGUIN 03-01-034-00",
+      "montoCopago": -195,
+      "bonificacion": 202,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-5",
+      "codigoGC": "03-02-032-03",
+      "descripcion": "CLORO EN SANGRE",
+      "montoCopago": -30,
+      "bonificacion": 32,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-6",
+      "codigoGC": "03-02-032-02",
+      "descripcion": "SODIO",
+      "montoCopago": -30,
+      "bonificacion": 32,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-7",
+      "codigoGC": "03-02-023-01",
+      "descripcion": "CREATININA EN SANGRE",
+      "montoCopago": -21,
+      "bonificacion": 23,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-8",
+      "codigoGC": "03-02-004-01",
+      "descripcion": "LACTATO EN SANGRE",
+      "montoCopago": -2,
+      "bonificacion": 4,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-9",
+      "codigoGC": "03-02-008-01",
+      "descripcion": "AMILASA",
+      "montoCopago": -6,
+      "bonificacion": 8,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-10",
+      "codigoGC": "03-09-022-01",
+      "descripcion": "ORINA COMPLETA",
+      "montoCopago": -13,
+      "bonificacion": 22,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-11",
+      "codigoGC": "03-02-076-01",
+      "descripcion": "PERFIL HEPATICO",
+      "montoCopago": -74,
+      "bonificacion": 76,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'EXAMENES' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-12",
+      "codigoGC": "03-02-057-01",
+      "descripcion": "NITROGENO UREICO O UR 03-02-057-00",
+      "montoCopago": -51,
+      "bonificacion": 53,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-13",
+      "codigoGC": "03-02-047-01",
+      "descripcion": "GLICEMIA",
+      "montoCopago": -45,
+      "bonificacion": 47,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-14",
+      "codigoGC": "03-01-045-03",
+      "descripcion": "HEMOGRAMA URGENCIA",
+      "montoCopago": -44,
+      "bonificacion": 45,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-15",
+      "codigoGC": "03-01-085-01",
+      "descripcion": "TTPK, TROMBOBLASTINA 03-01-085-00",
+      "montoCopago": -195,
+      "bonificacion": 202,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-16",
+      "codigoGC": "03-06-011-01",
+      "descripcion": "UROCULTIVO Y RECUENT 03-06-011-00",
+      "montoCopago": -195,
+      "bonificacion": 202,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'EXAMENES' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-17",
+      "codigoGC": "03-05-031-01",
+      "descripcion": "PROTEINA C REACTIVA P( 03-05-031-00",
+      "montoCopago": -32,
+      "bonificacion": 34,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-18",
+      "codigoGC": "03-02-032-05",
+      "descripcion": "POTASIO",
+      "montoCopago": -30,
+      "bonificacion": 32,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-19",
+      "codigoGC": "03-07-011-01",
+      "descripcion": "TOMA DE MUESTRA VENC 03-07-011-00",
+      "montoCopago": -195,
+      "bonificacion": 202,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-20",
+      "codigoGC": "03-02-053-01",
+      "descripcion": "LIPASA EN SANGRE",
+      "montoCopago": 0,
+      "bonificacion": 1,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "PARTIAL",
+            "details": "Duplicate amounts found"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-21",
+      "codigoGC": "03-02-034-01",
+      "descripcion": "PERFIL LIPIDICO",
+      "montoCopago": -195,
+      "bonificacion": 202,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'EXAMENES' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-22",
+      "codigoGC": "08-01-008-01",
+      "descripcion": "ESTUDIO CORRIENTE DE E 08-01-008-00 07-07-2025",
+      "montoCopago": 0,
+      "bonificacion": 48740,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-23",
+      "codigoGC": "08-01-005-00",
+      "descripcion": "07-07-2025",
+      "montoCopago": 0,
+      "bonificacion": 70780,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-24",
+      "codigoGC": "06-01-103-01",
+      "descripcion": "ATENCION KINESIOLOGIC 06-01-103-00 06-07-2025",
+      "montoCopago": 0,
+      "bonificacion": 37650,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'KINESIOLOGIA' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-25",
+      "codigoGC": "99-00-093-01",
+      "descripcion": "CONSULTA URGENCIA INI 01-01-001-00 06-07-2025",
+      "montoCopago": 0,
+      "bonificacion": 60531,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-6"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-26",
+      "codigoGC": "04-03-020-01",
+      "descripcion": "TAC DE ABDOMEN Y PEL\\ 04-03-020-00 06-07-2025",
+      "montoCopago": 0,
+      "bonificacion": 408981,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-7"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-27",
+      "codigoGC": "99-00-028-01",
+      "descripcion": "INSTALACION DE VIA VEN 00-00-000-00 06-07-2025",
+      "montoCopago": 23985,
+      "bonificacion": 0,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación 0 / Copago Total",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-28",
+      "codigoGC": "00-00-000-00",
+      "descripcion": "06-07-2025",
+      "montoCopago": 0,
+      "bonificacion": 42957,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-29",
+      "codigoGC": "18-02-053-02",
+      "descripcion": "APENDICECTOMIA POR VI 18-02-053-09 06-07-2025",
+      "montoCopago": -107,
+      "bonificacion": 171,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-30",
+      "codigoGC": "18-02-053-02",
+      "descripcion": "APENDICECTOMIA POR VI 18-02-053-09 06-07-2025",
+      "montoCopago": 916726,
+      "bonificacion": 0,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación 0 / Copago Total",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-31",
+      "codigoGC": "18-02-053-02",
+      "descripcion": "APENDICECTOMIA POR VI 18-02-053-09 06-07-2025",
+      "montoCopago": 0,
+      "bonificacion": 229181,
+      "trace": {
+        "status": "PARTIAL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "PARTIAL",
+            "details": "Partial string overlap"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-32",
+      "codigoGC": "1802053",
+      "descripcion": "09 APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PR MEDICAMENTOS CLINICOS EN HOSPITALIZACION MEDICAMENTOS CLINICOS EN HOSPITALIZACIÓN",
+      "montoCopago": -193,
+      "bonificacion": 202,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-11"
+        ],
+        "notes": "Regla aplicada: Medicamentos - Clínica Alemana (Oferta Preferente)"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-33",
+      "codigoGC": "99-00-045-01",
+      "descripcion": "FLEBOCLISIS",
+      "montoCopago": 42957,
+      "bonificacion": 0,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 30,
+        "breakdown": [
+          {
+            "label": "Bonificación 0 / Copago Total",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-34",
+      "codigoGC": "0309022",
+      "descripcion": "ORINA COMPLETA, (INCLUYE CÓD. 03- 1 09-023 Y 03-09-024)",
+      "montoCopago": 0,
+      "bonificacion": 4821,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-35",
+      "codigoGC": "0702207",
+      "descripcion": "DETECCIÓN DE ANTICUERPOS 1",
+      "montoCopago": 2023,
+      "bonificacion": 2091,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-36",
+      "codigoGC": "3101001",
+      "descripcion": "MEDICAMENTOS CLINICOS EN 1",
+      "montoCopago": 801437,
+      "bonificacion": 310,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-11"
+        ],
+        "notes": "Regla aplicada: Medicamentos - Clínica Alemana (Oferta Preferente)"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 40,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-37",
+      "codigoGC": "3101002",
+      "descripcion": "MATERIALES CLINICOS EN HOSPITALIZACION",
+      "montoCopago": 0,
+      "bonificacion": 1059145,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-26"
+        ],
+        "notes": "Regla aplicada: Radioterapia (Incluye Insumos)"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-38",
+      "codigoGC": "3101002",
+      "descripcion": "MATERIALES CLINICOS EN HOSPITALIZACIÓN",
+      "montoCopago": 0,
+      "bonificacion": 32716,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-26"
+        ],
+        "notes": "Regla aplicada: Radioterapia (Incluye Insumos)"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-39",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+      "montoCopago": 0,
+      "bonificacion": 184653,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-40",
+      "codigoGC": "1802053",
+      "descripcion": "09",
+      "montoCopago": 0,
+      "bonificacion": 1914834,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-41",
+      "codigoGC": "1802053",
+      "descripcion": "20",
+      "montoCopago": 20,
+      "bonificacion": 0,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 30,
+        "breakdown": [
+          {
+            "label": "Bonificación 0 / Copago Total",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-42",
+      "codigoGC": "1802053",
+      "descripcion": "21 APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+      "montoCopago": 0,
+      "bonificacion": 229181,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-43",
+      "codigoGC": "1802053",
+      "descripcion": "30 APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+      "montoCopago": 0,
+      "bonificacion": 275018,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-44",
+      "codigoGC": "1802053",
+      "descripcion": "40 APENDICECTOMÍA Y/O DREN. 1 64.171 64.171",
+      "montoCopago": 73465,
+      "bonificacion": 2044723,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "rule-cob-16"
+        ],
+        "notes": "Regla aplicada: Exámenes de Laboratorio"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    }
+  ],
+  "reportText": "INFORME FORENSE M10 (Skill v1.3)\n--------------------------------------------------\nEVENTO DETECTADO: HOSPITALIZACION_GENERAL\nPAQUETES CLÍNICOS: DIA_CAMA_INTEGRAL\n\nRESUMEN EJECUTIVO:\n- Total Copago Analizado: $4.025.574\n- Impacto Fragmentación: $0\n- Estado Opacidad: Trazable\n- Patrón Sistémico: No detectado\n\nDETALLE DE HALLAZGOS RELEVANTES:\n\n\nCONCLUSIÓN:\nLa cuenta es auditable. Se detectaron fragmentaciones específicas detalladas arriba.\n",
+  "complaintText": "No hay hallazgos de opacidad que requieran reclamo estándar."
+}

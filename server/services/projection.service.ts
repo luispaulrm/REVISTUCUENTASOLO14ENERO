@@ -196,7 +196,7 @@ export class ProjectionService {
                             ]);
 
                             const timeoutPromise = new Promise((_, reject) =>
-                                setTimeout(() => reject(new Error("TimeLimitExceeded: API request timed out after 45s")), 45000)
+                                setTimeout(() => reject(new Error("TimeLimitExceeded: API request timed out after 120s")), 120000)
                             );
 
                             const resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;

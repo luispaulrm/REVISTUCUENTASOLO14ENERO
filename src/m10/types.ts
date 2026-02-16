@@ -72,7 +72,7 @@ export type VerifState = "VERIFICABLE" | "NO_VERIFICABLE_POR_CONTRATO" | "POTENC
 
 export type FindingLevel = "CORRECTO" | "DISCUSION_TECNICA" | "FRAGMENTACION_ESTRUCTURAL";
 
-export type Motor = "M1" | "M2" | "M3" | "NA";
+export type Motor = "M1" | "M2" | "M3" | "M4" | "NA";
 
 export interface TraceAttempt {
     step: "CODE" | "GLOSA_FAMILIA" | "MONTO_1A1" | "MONTO_SUBSET" | "CONTRACT_ANCHOR";

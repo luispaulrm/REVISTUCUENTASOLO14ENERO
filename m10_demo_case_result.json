@@ -1,0 +1,358 @@
+{
+  "summary": {
+    "totalCopagoAnalizado": 185000,
+    "totalImpactoFragmentacion": 160000,
+    "opacidadGlobal": {
+      "applies": true,
+      "maxIOP": 55
+    },
+    "patternSystemic": {
+      "m1Count": 2,
+      "m2Count": 0,
+      "m3CopagoPct": 0.1891891891891892,
+      "isSystemic": true
+    }
+  },
+  "eventModel": {
+    "actoPrincipal": "CIRUGIA_MAYOR",
+    "paquetesDetectados": [
+      "DERECHO_PABELLON",
+      "DIA_CAMA_INTEGRAL"
+    ],
+    "notes": "Inferido determinísticamente por glosas"
+  },
+  "matrix": [
+    {
+      "itemLabel": "1101999 - DERECHO DE SALA RECUPERACION",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M1",
+      "fundamento": "Acto accesorio inseparable del principal facturado como autónomo (Bonif 0 / Copago 100%)",
+      "impacto": 120000,
+      "iop": 15
+    },
+    {
+      "itemLabel": "3101002 - KIT DE SUTURA QUIRURGICA",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose [OPACIDAD IOP 55]",
+      "impacto": 35000,
+      "iop": 55
+    },
+    {
+      "itemLabel": "6001001 - ALIMENTACION ACOMPAÑANTE",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M1",
+      "fundamento": "Acto accesorio inseparable del principal facturado como autónomo (Bonif 0 / Copago 100%)",
+      "impacto": 5000,
+      "iop": 15
+    }
+  ],
+  "pamRows": [
+    {
+      "pamLineId": "pam-ofyz7",
+      "codigoGC": "1701001",
+      "descripcion": "APENDICECTOMIA",
+      "montoCopago": 0,
+      "bonificacion": 450000,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-qcehz"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R4"
+        ],
+        "notes": "Regla aplicada: Día Cama 100% Sin Tope"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-ulqrm",
+      "codigoGC": "1101001",
+      "descripcion": "DERECHO PABELLON QUIRURGICO",
+      "montoCopago": 0,
+      "bonificacion": 300000,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-lbm16"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R1"
+        ],
+        "notes": "Regla aplicada: Derecho Pabellón 100% Sin Tope"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-e94s2",
+      "codigoGC": "1201001",
+      "descripcion": "DIA CAMA DE HOSPITALIZACION",
+      "montoCopago": 0,
+      "bonificacion": 200000,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-gy8xo"
+        ]
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'HOSPITALIZACION' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 0,
+        "breakdown": [],
+        "agotamiento": false
+      }
+    },
+    {
+      "pamLineId": "pam-14nvk",
+      "codigoGC": "1101999",
+      "descripcion": "DERECHO DE SALA RECUPERACION",
+      "montoCopago": 120000,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-kcbg5"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R4"
+        ],
+        "notes": "Regla aplicada: Día Cama 100% Sin Tope"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M1",
+        "rationale": "Acto accesorio inseparable del principal facturado como autónomo (Bonif 0 / Copago 100%)",
+        "economicImpact": 120000
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-sa6un",
+      "codigoGC": "3101002",
+      "descripcion": "KIT DE SUTURA QUIRURGICA",
+      "montoCopago": 35000,
+      "bonificacion": 0,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          }
+        ],
+        "matchedBillItemIds": []
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R2"
+        ],
+        "notes": "Regla aplicada: Materiales e Insumos 100% Sin Tope (Simulado)"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose",
+        "economicImpact": 35000
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 55,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-ht9lp",
+      "codigoGC": "3101001",
+      "descripcion": "INSUMOS GENERALES VARIOS",
+      "montoCopago": 25000,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-ivspt"
+        ]
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'MEDICAMENTOS_HOSP' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "CORRECTO",
+        "motor": "NA",
+        "rationale": "",
+        "economicImpact": 0
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 35,
+        "breakdown": [
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam-kil8n",
+      "codigoGC": "6001001",
+      "descripcion": "ALIMENTACION ACOMPAÑANTE",
+      "montoCopago": 5000,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "itm-41feh"
+        ]
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R4"
+        ],
+        "notes": "Regla aplicada: Día Cama 100% Sin Tope"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M1",
+        "rationale": "Acto accesorio inseparable del principal facturado como autónomo (Bonif 0 / Copago 100%)",
+        "economicImpact": 5000
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    }
+  ],
+  "reportText": "INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)\n--------------------------------------------------\nEVENTO DETECTADO: CIRUGIA_MAYOR\nPAQUETES CLÍNICOS: DERECHO_PABELLON, DIA_CAMA_INTEGRAL\n\nRESUMEN EJECUTIVO:\n- Total Copago Analizado: $185.000\n- Impacto Hallazgos: $160.000\n- Estado Opacidad: CRÍTICO (IOP MAX 55)\n- Patrón Sistémico: SI (Mecanismo Repetitivo)\n\nDETALLE DE HALLAZGOS RELEVANTES:\n\n> [M1] 1101999 - DERECHO DE SALA RECUPERACION\n  Copago Real: $120.000\n  Fundamento: Acto accesorio inseparable del principal facturado como autónomo (Bonif 0 / Copago 100%)\n  \n\n\n> [M3] 3101002 - KIT DE SUTURA QUIRURGICA\n  Copago Real: $35.000\n  Fundamento: Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose\n  ⚠️ OPACIDAD DETECTADA (IOP 55):\n    - Agrupador sin desglose (+25)\n  - Bonificación $0 (Copago Total) (+15)\n  - Fallo Trazabilidad Fase B (+15)\n\n\n> [M1] 6001001 - ALIMENTACION ACOMPAÑANTE\n  Copago Real: $5.000\n  Fundamento: Acto accesorio inseparable del principal facturado como autónomo (Bonif 0 / Copago 100%)\n  \n\n\nCONCLUSIÓN:\nLa cuenta presenta Opacidad Liquidatoria Mayor (IOP > 40). Se exige desglose detallado bajo sanción de tener por no escritas las cláusulas oscuras (Contra Proferentem).\n",
+  "complaintText": "SEÑORES ISAPRE / PRESTADOR:\n\nEn relación a la liquidación (PAM) analizada, se impugnan los siguientes cobros por vulnerar el deber de información (Opacidad Liquidatoria detectada, IOP > 40):\n\n- Ítem 3101002 \"KIT DE SUTURA QUIRURGICA\" | Copago: $35000 | IOP: 55\n\nFUNDAMENTOS DE RECLAMO:\n1. \"Agrupamiento Ciego\": Los ítems señalados consolidan montos sin desglose de sub-ítem verificable, impidiendo el ejercicio del derecho a defensa del afiliado.\n2. \"Copago sin Causa\": Se cobran montos significativos (Total: $35.000) bajo glosas genéricas (\"No Cubierto\", \"Insumos\") sin acreditar la prestación subyacente.\n3. Principio de Literalidad e Integridad: El contrato de salud es de adhesión; toda oscuridad debe interpretarse a favor del afiliado (Art. 1566 Código Civil).\n\nPETICIÓN:\nSírvase anular el cobro de los ítems opacos o bien refacturar con el desglose unitario completo que permita su trazabilidad con la Ficha Clínica."
+}

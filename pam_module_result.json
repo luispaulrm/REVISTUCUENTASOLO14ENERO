@@ -1,0 +1,318 @@
+{
+  "folios": [
+    {
+      "folioPAM": "7000355689",
+      "items": [
+        {
+          "codigoGC": "0101031",
+          "descripcion": "CONSULTA DE URGENCIA INSTITUCIONAL HORARIO INHABIL",
+          "cantidad": 1,
+          "valorTotal": 60531,
+          "bonificacion": 48425,
+          "copago": 12106
+        }
+      ]
+    },
+    {
+      "folioPAM": "7000355688",
+      "items": [
+        {
+          "codigoGC": "0201101",
+          "descripcion": "DÍA CAMA DE HOSPITALIZACIÓN INTEGRAL CUIDADOS MEDIOS (SALA 1 CAMA)",
+          "cantidad": 1,
+          "valorTotal": 452075,
+          "bonificacion": 452075,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0301034",
+          "descripcion": "CLASIFICACIÓN SANGUÍNEA AB0 Y RHD",
+          "cantidad": 1,
+          "valorTotal": 6286,
+          "bonificacion": 6286,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0301045",
+          "descripcion": "HEMOGRAMA (INCLUYE RECUENTOS DE LEUCOCITOS, ERITROCITOS, PLAQUETAS, HEMOGLOBINA, HEMATOCRITO, FÓRMULA LEUCOCITARIA, CARACTERÍ",
+          "cantidad": 1,
+          "valorTotal": 7768,
+          "bonificacion": 7768,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0301085",
+          "descripcion": "TROMBOPLASTINA, TIEMPO PARCIAL DE (TTPA, TTPK O SIMILARES)",
+          "cantidad": 1,
+          "valorTotal": 6021,
+          "bonificacion": 6021,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302004",
+          "descripcion": "LACTATO EN SANGRE",
+          "cantidad": 1,
+          "valorTotal": 10264,
+          "bonificacion": 10264,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302008",
+          "descripcion": "AMILASA, EN SANGRE",
+          "cantidad": 1,
+          "valorTotal": 6021,
+          "bonificacion": 6021,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302023",
+          "descripcion": "CREATININA EN SANGRE",
+          "cantidad": 1,
+          "valorTotal": 3369,
+          "bonificacion": 3369,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302032",
+          "descripcion": "ELECTROLITOS PLASMÁTICOS (SODIO, POTASIO, CLORO) C/U",
+          "cantidad": 1,
+          "valorTotal": 3244,
+          "bonificacion": 3244,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302032",
+          "descripcion": "ELECTROLITOS PLASMÁTICOS (SODIO, POTASIO, CLORO) C/U",
+          "cantidad": 1,
+          "valorTotal": 3244,
+          "bonificacion": 3244,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302032",
+          "descripcion": "ELECTROLITOS PLASMÁTICOS (SODIO, POTASIO, CLORO) C/U",
+          "cantidad": 1,
+          "valorTotal": 3244,
+          "bonificacion": 3244,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302034",
+          "descripcion": "PERFIL LIPÍDICO (INCLUYE MEDICIONES DE COLESTEROL TOTAL, HDL-COLESTEROL Y TRIGLICÉRIDOS CON ESTIMACIONES POR FÓRMULA DE LDL-C",
+          "cantidad": 1,
+          "valorTotal": 15646,
+          "bonificacion": 15646,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302047",
+          "descripcion": "GLUCOSA EN SANGRE",
+          "cantidad": 1,
+          "valorTotal": 3152,
+          "bonificacion": 3152,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302053",
+          "descripcion": "LIPASA EN SANGRE",
+          "cantidad": 1,
+          "valorTotal": 6662,
+          "bonificacion": 6662,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302057",
+          "descripcion": "NITRÓGENO UREICO Y/O UREA, EN SANGRE",
+          "cantidad": 1,
+          "valorTotal": 3322,
+          "bonificacion": 3322,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0302076",
+          "descripcion": "PERFIL HEPÁTICO (INCLUYE TIEMPO DE PROTROMBINA, BILIRRUBINA TOTAL Y CONJUGADA, FOSFATASAS ALCALINAS TOTALES, GGT, TRANSAMINAS",
+          "cantidad": 1,
+          "valorTotal": 25740,
+          "bonificacion": 25740,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0305031",
+          "descripcion": "PROTEÍNA C REACTIVA POR TÉCNICAS AUTOMATIZADAS",
+          "cantidad": 1,
+          "valorTotal": 15303,
+          "bonificacion": 15303,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0306011",
+          "descripcion": "UROCULTIVO, RECUENTO DE COLONIAS Y ANTIBIOGRAMA (CUALQUIER TÉCNICA) (INCLUYE TOMA DE ORINA ASÉPTICA Y FRASCO RECOLECTOR)",
+          "cantidad": 1,
+          "valorTotal": 9314,
+          "bonificacion": 9314,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0307011",
+          "descripcion": "VENOSA EN ADULTOS",
+          "cantidad": 1,
+          "valorTotal": 2216,
+          "bonificacion": 2216,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0309022",
+          "descripcion": "ORINA COMPLETA, (INCLUYE CÓD. 03-09-023 Y 03-09-024)",
+          "cantidad": 1,
+          "valorTotal": 4821,
+          "bonificacion": 4821,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0702207",
+          "descripcion": "DETECCIÓN DE ANTICUERPOS IRREGULARES ERITROCITARIOS",
+          "cantidad": 1,
+          "valorTotal": 6205,
+          "bonificacion": 4114,
+          "copago": 2091
+        },
+        {
+          "codigoGC": "3101001",
+          "descripcion": "MEDICAMENTOS CLINICOS EN HOSPITALIZACION",
+          "cantidad": 1,
+          "valorTotal": 801747,
+          "bonificacion": 801747,
+          "copago": 0
+        },
+        {
+          "codigoGC": "3101001",
+          "descripcion": "MEDICAMENTOS CLINICOS EN HOSPITALIZACION",
+          "cantidad": 1,
+          "valorTotal": 134100,
+          "bonificacion": 0,
+          "copago": 134100
+        },
+        {
+          "codigoGC": "3101002",
+          "descripcion": "MATERIALES CLINICOS EN HOSPITALIZACION",
+          "cantidad": 1,
+          "valorTotal": 1059145,
+          "bonificacion": 1059145,
+          "copago": 0
+        },
+        {
+          "codigoGC": "3101002",
+          "descripcion": "MATERIALES CLINICOS EN HOSPITALIZACION",
+          "cantidad": 1,
+          "valorTotal": 32716,
+          "bonificacion": 0,
+          "copago": 32716
+        },
+        {
+          "codigoGC": "3201001",
+          "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+          "cantidad": 1,
+          "valorTotal": 184653,
+          "bonificacion": 0,
+          "copago": 184653
+        },
+        {
+          "codigoGC": "3201001",
+          "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+          "cantidad": 1,
+          "valorTotal": 13044,
+          "bonificacion": 0,
+          "copago": 13044
+        },
+        {
+          "codigoGC": "1802053 09",
+          "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+          "cantidad": 1,
+          "valorTotal": 1914834,
+          "bonificacion": 1914834,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0403020",
+          "descripcion": "TOMOGRAFÍA COMPUTARIZADA DE ABDOMEN Y PELVIS",
+          "cantidad": 1,
+          "valorTotal": 408981,
+          "bonificacion": 408981,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0601103",
+          "descripcion": "ATENCIÓN KINESIOLÓGICA INTEGRAL EN PACIENTES HOSPITALIZADOS",
+          "cantidad": 1,
+          "valorTotal": 37650,
+          "bonificacion": 37650,
+          "copago": 0
+        },
+        {
+          "codigoGC": "0801005",
+          "descripcion": "ESTUDIO HISTOPATOLÓGICO CON TÉCNICAS HISTOQUÍMICAS, NIVELES, DECALCIFICACIÓN (POR CADA LÁMINA)",
+          "cantidad": 1,
+          "valorTotal": 70780,
+          "bonificacion": 64257,
+          "copago": 6523
+        },
+        {
+          "codigoGC": "0801008",
+          "descripcion": "ESTUDIO HISTOPATOLÓGICO DE BIOPSIA DIFERIDA (POR CADA MUESTRA Y/O TEJIDO) (INCLUYE HASTA 3 LÁMINAS)",
+          "cantidad": 1,
+          "valorTotal": 48740,
+          "bonificacion": 48740,
+          "copago": 0
+        },
+        {
+          "codigoGC": "3201001",
+          "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+          "cantidad": 1,
+          "valorTotal": 23985,
+          "bonificacion": 0,
+          "copago": 23985
+        },
+        {
+          "codigoGC": "3201002",
+          "descripcion": "PRESTACION NO CONTEMPLADA EN EL ARANCEL",
+          "cantidad": 1,
+          "valorTotal": 42957,
+          "bonificacion": 0,
+          "copago": 42957
+        },
+        {
+          "codigoGC": "1802053 20",
+          "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+          "cantidad": 1,
+          "valorTotal": 916725,
+          "bonificacion": 916725,
+          "copago": 0
+        },
+        {
+          "codigoGC": "1802053 21",
+          "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+          "cantidad": 1,
+          "valorTotal": 229181,
+          "bonificacion": 229181,
+          "copago": 0
+        },
+        {
+          "codigoGC": "1802053 30",
+          "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+          "cantidad": 1,
+          "valorTotal": 275018,
+          "bonificacion": 275018,
+          "copago": 0
+        },
+        {
+          "codigoGC": "1802053 40",
+          "descripcion": "APENDICECTOMÍA Y/O DREN. ABSCESO APENDICULAR (PROC. AUT.)",
+          "cantidad": 1,
+          "valorTotal": 64171,
+          "bonificacion": 64171,
+          "copago": 0
+        }
+      ]
+    }
+  ]
+}
