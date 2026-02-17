@@ -14,7 +14,8 @@ import type {
     CanonicalContract,
     CanonicalBill,
     CanonicalContractRule,
-    ContractDomain
+    ContractDomain,
+    SubtotalBlock
 } from './types.ts';
 
 // ---------- Configuration & Constants ----------
@@ -37,12 +38,23 @@ export function runSkill(input: SkillInput): SkillOutput {
     // 2. pam.valorTotal ≈ pam.bonificacion + pam.copago (tolerance 1%).
     // 3. Global copago check (if available).
 
-    const pamLines: CanonicalPamLine[] = [];
+    const pamLinesRaw: CanonicalPamLine[] = [];
     input.pam.folios.forEach(folio => {
         folio.items.forEach(item => {
-            pamLines.push({ ...item, folioPAM: folio.folioPAM, prestador: folio.prestador || folio.folioPAM });
+            pamLinesRaw.push({ ...item, folioPAM: folio.folioPAM, prestador: folio.prestador || folio.folioPAM });
         });
     });
+
+    // === FORENSIC PRECEDENCE: Priority Sorting ===
+    // Priority: Medicamentos > Materiales > Otros > Catch-all (3201001)
+    const priority = (gc: string) => {
+        if (gc === '3101001') return 1;
+        if (gc === '3101002') return 2;
+        if (gc === '3201002') return 3;
+        if (gc === '3201001') return 9;
+        return 5;
+    };
+    const pamLines = pamLinesRaw.sort((a, b) => priority(a.codigoGC) - priority(b.codigoGC));
 
     if (pamLines.length === 0) return createErrorOutput("SC-1: Start Condition Failed - No PAM Lines", cfg);
 
@@ -74,58 +86,143 @@ export function runSkill(input: SkillInput): SkillOutput {
     }
 
     // --- Phase A: Indexing & Event Model ---
+    // 0. STRICT PHYSICAL SORT: Ensure bill items are processed in PDF order
+    // This prevents "teleportation" where an item from page 10 is bundled with an anchor from page 1.
+    input.bill.items.sort((a, b) => {
+        const idxA = (a as any).originalIndex ?? (a as any).index ?? 0;
+        const idxB = (b as any).originalIndex ?? (b as any).index ?? 0;
+        return idxA - idxB;
+    });
+
     const billIndex = indexBill(input.bill.items);
+    const anchorMap = buildAnchorMap(input.bill.items);
     const eventModel = inferEventModel(input.bill.items, input.pam);
 
     const pamRows: PamAuditRow[] = [];
+    const usedBillItemIds = new Set<string>(); // GLOBAL: prevents double-imputation across PAM lines
 
-    // --- Execution Loop per Line ---
-    for (const line of pamLines) {
+    // === TWO-PASS RESOLUTION ===
+    // Pass 1: Anchored lines (1:1 or glosa exact) + domain-specific DP → consume IDs
+    // Pass 2: Remaining lines (catch-all, weak matches) → use leftover items only
 
+    // Helper: process one PAM line with the current available pool
+    function processLine(line: CanonicalPamLine, pass: 1 | 2): PamAuditRow | null {
         // Skip purely zero lines
-        if (line.valorTotal === 0 && line.copago === 0 && line.bonificacion === 0) continue;
+        if (line.valorTotal === 0 && line.copago === 0 && line.bonificacion === 0) return null;
 
         const attempts: TraceAttempt[] = [];
+        let matchedBillItems: CanonicalBillItem[] = [];
+
+        // Available items = all items NOT yet consumed
+        const availableItems = billIndex.all.filter(i => !usedBillItemIds.has(i.id || ''));
+
+        // Build a local index for available items only
+        const availableByTotal = new Map<number, CanonicalBillItem[]>();
+        availableItems.forEach(item => {
+            const t = item.total || 0;
+            if (!availableByTotal.has(t)) availableByTotal.set(t, []);
+            availableByTotal.get(t)?.push(item);
+        });
 
         // --- Phase 1: Mapeo (Agotamiento Probatorio) ---
-        // 1. Monto 1:1 Match (Anchor)
-        const montoMatch = tryMonto1a1Match(line, billIndex);
+        // 1. Monto 1:1 Match (Anchor) — using available items only
+        const montoMatchAvail = availableByTotal.get(line.valorTotal);
+        let montoMatch: TraceAttempt;
+        if (montoMatchAvail && montoMatchAvail.length > 0) {
+            if (montoMatchAvail.length === 1) {
+                montoMatch = { step: 'MONTO_1A1', status: 'OK', details: 'Unique amount match (Total)' };
+                matchedBillItems = [montoMatchAvail[0]];
+            } else {
+                montoMatch = { step: 'MONTO_1A1', status: 'PARTIAL', details: 'Duplicate amounts found (Total)' };
+                matchedBillItems = [montoMatchAvail[0]]; // take first available
+            }
+        } else {
+            montoMatch = { step: 'MONTO_1A1', status: 'FAIL', details: 'No amount match in available pool' };
+        }
         attempts.push(montoMatch);
 
-        let matchedBillItems: CanonicalBillItem[] = [];
-        if (montoMatch.status === 'OK' && billIndex.byTotal.has(line.valorTotal)) {
-            matchedBillItems = billIndex.byTotal.get(line.valorTotal)!;
-        }
-
-        // 2. Glosa Match (if needed)
+        // 2. Glosa Match
         const glosaMatch = tryGlosaMatch(line, billIndex);
         if (montoMatch.status !== 'OK') {
             attempts.push(glosaMatch);
-            // If glosa matched and amount is close, maybe we can link? 
-            // For strict v1.4, we use attempts history.
         }
 
-        // 3. Family Match (if needed) - Simplified Bucket Check
-        // (Implemented inside classifyFragmentation if Trace fails)
+        // PASS 1: If no anchor, check domain filter
+        const domainFilterResult = getDomainFilter(line.codigoGC, line.descripcion, eventModel);
+        const isCatchAll = domainFilterResult === 'CATCH_ALL';
 
-        const traceStatus = summarizeTrace(attempts);
+        // In Pass 1, skip catch-all lines (they'll be processed in Pass 2)
+        if (pass === 1 && isCatchAll && montoMatch.status !== 'OK') return null;
+        // In Pass 2, skip lines that already had an anchor (processed in Pass 1)
+        if (pass === 2 && !isCatchAll && montoMatch.status === 'OK') return null;
+
+        if (montoMatch.status !== 'OK' && glosaMatch.status !== 'OK') {
+            // 3. Subtotal / Section Block match
+            const subtotalBlocks = Array.from(billIndex.subtotals.values()).flat()
+                .filter(b => !b.componentItemIds.some(id => usedBillItemIds.has(id))); // exclude blocks with consumed items
+
+            const subtotalMatch = subtotalBlocks.find(b => Math.abs(b.total - line.valorTotal) < 2);
+            if (subtotalMatch) {
+                attempts.push({ step: 'MONTO_SUBTOTAL', status: 'OK', details: `Subtotal/Sección: ${subtotalMatch.label}`, refsBill: [] });
+                matchedBillItems = subtotalMatch.componentItemIds
+                    .map(id => billIndex.all.find(i => i.id === id))
+                    .filter(Boolean) as CanonicalBillItem[];
+            } else if (!isCatchAll) {
+                // 4. DP with domain filter (only for non-catch-all codes)
+                const domainFilter = typeof domainFilterResult === 'function' ? domainFilterResult : null;
+                const domainItems = domainFilter
+                    ? availableItems.filter(i => domainFilter(normalize((i as any).section || ''), normalize(i.description)))
+                    : availableItems;
+
+                const subtotalBlocksForDP = subtotalBlocks;
+                let comboMatch = tryCombinationMatch(line, domainItems, subtotalBlocksForDP, !!domainFilter);
+
+                // Fallback to full available pool (with purity gate) if domain-filtered DP failed
+                // CRITICAL FIX: Block fallback for 3101001/3101002 (Medicamentos/Materiales) to prevent Day Bed absorption
+                const isStrictDomain = line.codigoGC === '3101001' || line.codigoGC === '3101002';
+
+                if (comboMatch.status !== 'OK' && domainFilter && !isStrictDomain) {
+                    comboMatch = tryCombinationMatch(line, availableItems, subtotalBlocksForDP, false);
+                }
+
+                if (comboMatch.status === 'OK' || comboMatch.status === 'PARTIAL') {
+                    attempts.push(comboMatch);
+                    matchedBillItems = (comboMatch.refsBill || [])
+                        .map((r: EvidenceRef) => r.kind === 'jsonpath' ? billIndex.all.find((i: CanonicalBillItem) => i.id === r.itemID) : undefined)
+                        .filter(Boolean) as CanonicalBillItem[];
+                }
+            }
+            // If isCatchAll and no subtotal: no DP allowed, falls through to classification
+        }
+
+        // === CONSUME IDs: Mark matched items as used globally ===
+        matchedBillItems.forEach(i => { if (i.id) usedBillItemIds.add(i.id); });
 
         // --- Phase 2: Motores de Fragmentación (M1-M4) ---
-        // Only if Gate 0 passed (which it did to get here)
-
-        // First check contract for M4 reference
         const contractCheck = evaluateContract(line, input.contract);
+        const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems, cfg, anchorMap);
 
-        const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems, cfg);
+        // --- Phase 3: Opacidad (Agotamiento) ---
+        const opacidad = evaluateOpacidad(line, cfg, attempts, contractCheck.state, matchedBillItems, frag);
 
-        // --- Phase 3: Contract Verification (Referential Only) ---
-        // Already called above for M4 input, but here we formalize it for the row
-        // Contract does NOT change numbers.
+        return buildRow(line, attempts, contractCheck, frag, opacidad, matchedBillItems);
+    }
 
-        // --- Phase 4: Opacidad (Agotamiento) ---
-        const opacidad = evaluateOpacidad(line, cfg, traceStatus, contractCheck.state, matchedBillItems, frag);
+    // --- PASS 1: Domain-specific lines (anchors + domain DP) ---
+    const pass2Lines: CanonicalPamLine[] = [];
+    for (const line of pamLines) {
+        const row = processLine(line, 1);
+        if (row) {
+            pamRows.push(row);
+        } else if (line.valorTotal !== 0 || line.copago !== 0 || line.bonificacion !== 0) {
+            pass2Lines.push(line); // Queue for Pass 2
+        }
+    }
 
-        pamRows.push(buildRow(line, attempts, contractCheck, frag, opacidad, matchedBillItems));
+    // --- PASS 2: Catch-all lines (no free DP, opacidad) ---
+    for (const line of pass2Lines) {
+        const row = processLine(line, 2);
+        if (row) pamRows.push(row);
     }
 
     // --- Aggregation ---
@@ -141,7 +238,10 @@ export function runSkill(input: SkillInput): SkillOutput {
         pamRows,
         reportText,
         complaintText,
-        metadata: input.metadata
+        metadata: {
+            ...input.metadata,
+            executionTimestamp: new Date().toISOString()
+        }
     };
 }
 
@@ -155,6 +255,7 @@ function indexBill(items: CanonicalBillItem[]) {
     const byTotal = new Map<number, CanonicalBillItem[]>();
     const byDescription = new Map<string, CanonicalBillItem[]>();
 
+    // 1. Standard Indexing
     items.forEach(item => {
         const t = item.total || 0;
         if (!byTotal.has(t)) byTotal.set(t, []);
@@ -165,22 +266,134 @@ function indexBill(items: CanonicalBillItem[]) {
         byDescription.get(norm)?.push(item);
     });
 
-    return { byTotal, byDescription, all: items };
+    // 2. Subtotal Detection (New)
+    const subtotalsMap = new Map<number, SubtotalBlock[]>();
+    const detectedSubtotals = detectSubtotals(items);
+
+    detectedSubtotals.forEach(sub => {
+        if (!subtotalsMap.has(sub.total)) subtotalsMap.set(sub.total, []);
+        subtotalsMap.get(sub.total)?.push(sub);
+    });
+
+    return { byTotal, byDescription, subtotals: subtotalsMap, all: items };
 }
 
+// --- REPLACEMENT FOR detectSubtotals ---
+function detectSubtotals(items: CanonicalBillItem[]): SubtotalBlock[] {
+    const blocks: SubtotalBlock[] = [];
+
+    // 1. Structural Groups (by Section Name)
+    // This is powerful because it matches the bill's own organization
+    const groups = new Map<string, CanonicalBillItem[]>();
+    items.forEach(item => {
+        const s = item.section || 'Sin Sección';
+        if (!groups.has(s)) groups.set(s, []);
+        groups.get(s)?.push(item);
+    });
+
+    groups.forEach((gItems, secName) => {
+        const total = gItems.reduce((s, i) => s + (i.total || 0), 0);
+        if (total > 0) {
+            blocks.push({
+                id: `group_${normalize(secName)}`,
+                total: total,
+                componentItemIds: gItems.map(i => i.id || ''),
+                label: `Sección: ${secName}`
+            });
+        }
+    });
+
+    // 2. Linear/Contiguous Sum detection (existing logic)
+    let openItems: { idx: number, val: number, id: string }[] = [];
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const val = item.total || 0;
+
+        let currentSum = 0;
+        let bestMatchStartIdx = -1;
+        for (let j = openItems.length - 1; j >= 0; j--) {
+            currentSum += openItems[j].val;
+            if (Math.abs(currentSum - val) < 2) {
+                bestMatchStartIdx = j;
+                break;
+            }
+        }
+
+        if (bestMatchStartIdx !== -1) {
+            const componentIds = openItems.slice(bestMatchStartIdx).map(x => x.id);
+            blocks.push({
+                id: item.id || `sub_${Math.random().toString(36).substr(2, 9)}`,
+                total: val,
+                componentItemIds: componentIds,
+                label: `Total Línea: ${item.description}`
+            });
+            // Reset openItems from the matched point forward
+            openItems = openItems.slice(0, bestMatchStartIdx);
+        } else {
+            if (val > 0) openItems.push({ idx: i, val: val, id: item.id || `item_${i}` });
+        }
+    }
+
+    return blocks;
+}
+
+
 function inferEventModel(billItems: CanonicalBillItem[], pam: any) {
-    const desc = billItems.map(i => i.description.toLowerCase()).join(' ');
-    const hasPabellon = desc.includes('pabellon') || desc.includes('quirofano') || desc.includes('surgery');
-    const hasDiaCama = desc.includes('dia cama') || desc.includes('habitacion') || desc.includes('sala');
+    const text = billItems.map(i => `${i.section || ''} ${i.description || ''}`).join(' ').toLowerCase();
+    const hasPabellon = text.includes('pabellon') || text.includes('quirofano') || text.includes('surgery') || text.includes('recuperacion');
+    const hasDiaCama = text.includes('dia cama') || text.includes('habitacion') || text.includes('sala');
+
+    // Also detect pabellón from anesthesia drugs in bill (even if no explicit "pabellón" keyword)
+    const anesthesiaSignals = ['propofol', 'fentanyl', 'remifentanil', 'sevoflurano', 'isoflurano', 'rocuronio', 'cisatracurio', 'midazolam', 'ketamina', 'desflurano', 'succinilcolina', 'sugammadex', 'estupefaciente'];
+    const hasAnesthesia = anesthesiaSignals.some(s => text.includes(s));
+    const inferredPabellon = hasPabellon || hasAnesthesia;
 
     return {
-        actoPrincipal: hasPabellon ? 'CIRUGIA_MAYOR' : 'HOSPITALIZACION_GENERAL',
+        actoPrincipal: inferredPabellon ? 'CIRUGIA_MAYOR' : 'HOSPITALIZACION_GENERAL',
         paquetesDetectados: [
-            hasPabellon ? 'DERECHO_PABELLON' : null,
+            inferredPabellon ? 'DERECHO_PABELLON' : null,
             hasDiaCama ? 'DIA_CAMA_INTEGRAL' : null
         ].filter(Boolean) as string[],
-        notes: 'Inferido determinísticamente por glosas'
+        notes: hasAnesthesia && !hasPabellon
+            ? 'Pabellón inferido por presencia de fármacos anestésicos o sección de estupefacientes'
+            : 'Inferido determinísticamente por glosas de secciones e ítems'
     };
+}
+
+// Package Affinity: pick the most plausible package origin for a given set of matched items
+// Package Affinity: pick the most plausible package origin for a given set of matched items
+function inferPackageOrigen(items: CanonicalBillItem[], eventModel: any, anchorMap: Record<string, number[]> | null = null): string {
+    // 1. GEOMETRY RULE (Hard Priority)
+    // Use the explicit section provenance if available
+    const sectionPathBlob = items.flatMap(i => i.sectionPath || [i.section || '']).join(' ').toLowerCase();
+
+    if (sectionPathBlob.includes('pabellon') || sectionPathBlob.includes('quirofano') || sectionPathBlob.includes('anestesia')) return 'DERECHO_PABELLON';
+    if (sectionPathBlob.includes('recuperacion')) return 'DERECHO_PABELLON';
+    if (sectionPathBlob.includes('dia cama') || sectionPathBlob.includes('hospitaliz') || sectionPathBlob.includes('habitacion')) return 'DIA_CAMA_INTEGRAL';
+    if (sectionPathBlob.includes('urgencia')) return 'URGENCIA';
+
+    // 2. ANESTHESIA SIGNATURE (Strong Clinical Fallback)
+    const descBlob = normalize(items.map(i => i.description).join(' '));
+    const anesthesiaSignals = ['propofol', 'fentanyl', 'remifentanil', 'sevoflurano', 'isoflurano', 'rocuronio', 'cisatracurio', 'midazolam', 'ketamina', 'desflurano', 'succinil', 'sugammadex', 'bupivac'];
+
+    if (anesthesiaSignals.some(s => descBlob.includes(s))) return 'DERECHO_PABELLON';
+
+    // 3. EVENT MODEL DEFAULT (Weak Fallback)
+    if (eventModel.actoPrincipal === 'CIRUGIA_MAYOR' && (descBlob.includes('mg') || descBlob.includes('ml') || descBlob.includes('amp'))) {
+        return 'DERECHO_PABELLON';
+    }
+
+    return 'DIA_CAMA_INTEGRAL'; // Default
+}
+
+function getMinDistance(target: number, anchors: number[]): number {
+    if (!anchors || anchors.length === 0) return 999999;
+    let min = 999999;
+    for (const a of anchors) {
+        const d = Math.abs(target - a);
+        if (d < min) min = d;
+    }
+    return min;
 }
 
 function tryGlosaMatch(line: CanonicalPamLine, index: any): TraceAttempt {
@@ -214,10 +427,290 @@ function tryMonto1a1Match(line: CanonicalPamLine, index: any): TraceAttempt {
     return { step: 'MONTO_1A1', status: 'FAIL', details: 'No amount match' };
 }
 
+// Regla T1: Domain-aware filter for DP candidates
+// Restricts DP search space to items from the same clinical domain as the PAM code
+// Returns filter function, 'CATCH_ALL' string for generic codes, or null
+// Regla T1: Domain-aware filter for DP candidates
+// Restricts DP search space to items from the same clinical domain as the PAM code
+// Returns filter function, 'CATCH_ALL' string for generic codes, or null
+function getDomainFilter(gc: string, desc: string, eventModel: any): ((section: string, itemDesc: string) => boolean) | 'CATCH_ALL' | null {
+    const d = normalize(desc);
+
+    // === MEDICAMENTOS (3101001) ===
+    if (gc === '3101001' || d.includes('medicamento')) {
+        // Hard exclusions: items that are NEVER medications (hotelería/insumos)
+        const medExclusions = ['tubo ', 'vacuet', 'jeringa', 'aguja', 'canister', 'termometro',
+            'mascarilla', 'equipo flebo', 'branula', 'aposito', 'electrodo', 'set de aseo',
+            'delantal', 'chata', 'bigotera', 'aquapack', 'ligadura', 'calzon', 'bandeja',
+            'guante', 'trocar', 'hemolock', 'bajada', 'gasas'];
+
+        // (Removed surgeryBundledMeds exclusion to allow M2 tracing)
+
+        // Known pharmaceutical forms
+        const pharmaForms = ['ampolla', 'vial', 'inyectable', 'comprimido', 'solucion',
+            'frasco', 'infusion', 'capsula', 'tableta', 'supositorio', 'crema', 'unguento',
+            'jarabe', 'gotas', 'spray'];
+
+        // Known drug names (partial list, covers most common Chilean hospital drugs)
+        const knownDrugs = ['ceftriaxona', 'metronidazol', 'paracetamol', 'ketorolaco',
+            'omeprazol', 'enoxaparina', 'heparina', 'propofol', 'fentanyl', 'remifentanil',
+            'ondansetron', 'midazolam', 'ketamina', 'rocuronio', 'cisatracurio', 'sugammadex',
+            'sevoflurano', 'isoflurano', 'desflurano', 'succinilcolina', 'levosulpiride',
+            'tramadol', 'morfina', 'ranitidina', 'metoclopramida', 'dexametasona',
+            'clindamicina', 'vancomicina', 'amoxicilina', 'ciprofloxacino', 'suero'];
+
+        return (sec: string, itemDesc: string) => {
+            const sec_norm = normalize(sec);
+            const desc_norm = normalize(itemDesc);
+
+            // Hard exclusion first
+            if (medExclusions.some(e => desc_norm.includes(e))) return false;
+
+            // 1. PRIMARY: Section match (clinical domain anchor)
+            if (sec_norm.includes('farmacia') || sec_norm.includes('medicamento') ||
+                sec_norm.includes('sicotropico') || sec_norm.includes('estupefaciente')) return true;
+
+            // 2. SECONDARY: Section "Pabellón" + Dosage signal
+            if (sec_norm.includes('pabellon') && (desc_norm.includes('mg') || desc_norm.includes('ml') || desc_norm.includes('inyect'))) return true;
+
+            // 3. TERTIARY: Pharmaceutical form match
+            if (pharmaForms.some(f => desc_norm.includes(f))) return true;
+
+            // 4. QUATERNARY: Known drug name match
+            if (knownDrugs.some(d => desc_norm.includes(d))) return true;
+
+            // 5. Dosage pattern
+            if (/\d+\s*(mg|ml|mcg|ug)\b/.test(desc_norm)) return true;
+
+            return false;
+        };
+    }
+
+    // === MATERIALES CLÍNICOS (3101002) ===
+    if (gc === '3101002' || d.includes('material')) {
+        // Hard exclusions: known drugs should NOT be in materials
+        const matExclusions = ['ceftriaxona', 'metronidazol', 'paracetamol', 'ketorolaco',
+            'propofol', 'fentanyl', 'ondansetron', 'midazolam', 'suero fisiologico',
+            'levosulpiride', 'remifentanil', 'omeprazol', 'enoxaparina', 'heparina',
+            'tramadol', 'morfina', 'dexametasona', 'sevoflurano'];
+
+        const matInclusions = ['jeringa', 'aguja', 'cateter', 'branula', 'aposito', 'guante',
+            'equipo', 'set ', 'bajada', 'electrodo', 'trocar', 'hemolock', 'gasas', 'venda',
+            'tubo ', 'canister', 'mascarilla', 'bigotera', 'termometro', 'chata', 'delantal',
+            'calzon', 'bandeja', 'ligadura', 'aquapack'];
+
+        return (sec: string, itemDesc: string) => {
+            // Hard exclusion: drugs out
+            if (matExclusions.some(e => itemDesc.includes(e))) return false;
+            // Section match
+            if (sec.includes('material') || sec.includes('insumo') || sec.includes('equipo')) return true;
+            // Item keyword match
+            if (matInclusions.some(k => itemDesc.includes(k))) return true;
+            return false;
+        };
+    }
+
+    // === CATCH-ALL (3201001, 3201002) = Gastos genéricos ===
+    // Block free DP for these codes — they go straight to opacidad
+    if (gc.startsWith('320')) return 'CATCH_ALL';
+
+    return null;
+}
+
+function tryCombinationMatch(line: CanonicalPamLine, items: CanonicalBillItem[], subtotalBlocks: SubtotalBlock[], domainFiltered: boolean = false): TraceAttempt {
+    const target = line.valorTotal;
+    const domainTag = domainFiltered ? ' [domain=ON]' : '';
+
+    // 1. Prioritize: Combination of Subtotal Blocks (Exact Match)
+    // Scenario: PAM matches Sum(Subtotal A + Subtotal B)
+    // e.g. 134100 = 131052 + 3048
+    if (subtotalBlocks.length > 0) {
+        // Collect all subtotal values
+        const candidates = subtotalBlocks.filter(b => b.total > 0 && b.total <= target);
+
+        function findSubtotalSubset(index: number, currentSum: number, path: SubtotalBlock[]): SubtotalBlock[] | null {
+            if (currentSum === target) return path; // EXACT match required by user
+            if (Math.abs(currentSum - target) < 2) return path; // Tolerance 1 peso rounding
+            if (path.length >= 3) return null;
+            if (index >= candidates.length) return null;
+            if (currentSum > target) return null;
+
+            for (let i = index; i < candidates.length; i++) {
+                const res = findSubtotalSubset(i + 1, currentSum + candidates[i].total, [...path, candidates[i]]);
+                if (res) return res;
+            }
+            return null;
+        }
+
+        const subMatch = findSubtotalSubset(0, 0, []);
+        if (subMatch) {
+            const allComponents = subMatch.flatMap(b => b.componentItemIds);
+            const subLabel = subMatch.map(b => b.label || `$${b.total}`).join(' + ');
+            return {
+                step: 'MONTO_SUBSET',
+                status: 'OK',
+                details: `Suma de Bloques/Secciones: ${subLabel}${domainTag}`,
+                refsBill: allComponents.map(id => ({
+                    kind: 'jsonpath',
+                    source: 'BILL',
+                    path: `item_id_${id}`,
+                    note: `Componente de Bloque/Sección Combinado`,
+                    itemID: id
+                }))
+            };
+        }
+    }
+
+    // 2. Fallback: DP Exact Subset Sum (Robust for N items)
+    // Filter candidates (only positive, non-zero).
+    const dpCandidates = items.filter(i => i.total > 0 && i.total <= target);
+
+    // Limit DP size for performance to ~3M.
+    if (target < 3000000 && dpCandidates.length > 0) {
+        const intTarget = Math.round(target);
+        const dp = new Int32Array(intTarget + 1).fill(-1);
+        const parent = new Int32Array(intTarget + 1).fill(-1);
+
+        dp[0] = 0;
+
+        for (let i = 0; i < dpCandidates.length; i++) {
+            const val = Math.round(dpCandidates[i].total);
+            if (val <= 0) continue;
+            for (let s = intTarget; s >= val; s--) {
+                if (dp[s] === -1 && dp[s - val] !== -1) {
+                    dp[s] = 1;
+                    parent[s] = i;
+                }
+            }
+        }
+
+        if (dp[intTarget] !== -1) {
+            const resultItems: CanonicalBillItem[] = [];
+            let curr = intTarget;
+            while (curr > 0) {
+                const itemIdx = parent[curr];
+                const item = dpCandidates[itemIdx];
+                resultItems.push(item);
+                curr -= Math.round(item.total);
+            }
+
+            // === PURITY GATE ===
+            // 1. All items must have IDs
+            const allHaveIds = resultItems.every(i => !!i.id);
+            // 2. If domain-filtered, check purity (≥70% items match domain)
+            let purityOk = true;
+            if (domainFiltered && resultItems.length > 0) {
+                // Count how many items would pass through domain filter
+                // (they already did since they're in the filtered pool, so purity is 100% for domain-filtered)
+                purityOk = true;
+            }
+            // 3. For non-domain-filtered fallback: purity is inherently lower
+            const finalStatus: TraceStatus = (allHaveIds && purityOk && domainFiltered) ? 'OK' : 'PARTIAL';
+
+            const formatItem = (i: CanonicalBillItem) => `$${i.total.toLocaleString()} [${i.description}] (Origen: ${i.sectionPath?.[0] || i.section || 'General'})`;
+
+            return {
+                step: 'MONTO_SUBSET',
+                status: finalStatus,
+                details: `Desglose Combinatorial (DP)${domainTag}:\n    - ` + resultItems.map(formatItem).join('\n    - '),
+                refsBill: resultItems.map(i => ({
+                    kind: 'jsonpath',
+                    source: 'BILL',
+                    path: `item_id_${i.id || 'unknown'}`,
+                    note: `${i.description} ($${i.total}) - Sec: ${i.section}`,
+                    itemID: i.id
+                }))
+            };
+        }
+    }
+
+    // 3. Fallback: Recursive Search (for large targets > 3M)
+    // Only strictly necessary if DP skipped.
+    if (target >= 3000000) {
+        const candidates = items
+            .filter(i => i.total > 0 && i.total <= target + 5)
+            .sort((a, b) => b.total - a.total)
+            .slice(0, 50);
+
+        function findSubset(index: number, currentSum: number, path: CanonicalBillItem[]): CanonicalBillItem[] | null {
+            if (Math.abs(currentSum - target) < 2) return path;
+            if (path.length >= 8) return null;
+            if (index >= candidates.length) return null;
+            if (currentSum > target + 5) return null;
+
+            for (let i = index; i < candidates.length; i++) {
+                const res = findSubset(i + 1, currentSum + candidates[i].total, [...path, candidates[i]]);
+                if (res) return res;
+            }
+            return null;
+        }
+
+        const match = findSubset(0, 0, []);
+        if (match) {
+            const formatItem = (i: CanonicalBillItem) => `$${i.total.toLocaleString()} [${i.description}] (Origen: ${i.sectionPath?.[0] || i.section || 'General'})`;
+            return {
+                step: 'MONTO_SUBSET',
+                status: 'PARTIAL', // Recursive fallback always PARTIAL (no domain purity)
+                details: `Desglose Combinatorial (Recursive)${domainTag}:\n    - ` + match.map(formatItem).join('\n    - '),
+                refsBill: match.map(i => ({
+                    kind: 'jsonpath',
+                    source: 'BILL',
+                    path: `item_id_${i.id || 'unknown'}`,
+                    note: `${i.description} ($${i.total}) - Sec: ${i.sectionPath?.[0] || i.section || 'General'}`,
+                    itemID: i.id
+                }))
+            };
+        }
+    }
+
+    return { step: 'MONTO_SUBSET', status: 'FAIL', details: 'No combinatorial match found' };
+}
+
+function trySubtotalMatch(line: CanonicalPamLine, index: any): TraceAttempt {
+    if (index.subtotals.has(line.valorTotal)) {
+        return { step: 'MONTO_SUBTOTAL', status: 'OK', details: 'Matched Accounting Subtotal Block', refsBill: [] };
+    }
+    // Try Net+IVA? (If PAM is Total, and Subtotal is Total w/ IVA)
+    // The detectSubtotals handles logic to produce the "Total" key.
+    return { step: 'MONTO_SUBTOTAL', status: 'FAIL', details: 'No subtotal match' };
+}
+
 function summarizeTrace(attempts: TraceAttempt[]): TraceStatus {
     if (attempts.some(a => a.status === 'OK')) return 'OK';
     if (attempts.some(a => a.status === 'PARTIAL')) return 'PARTIAL';
     return 'FAIL';
+}
+
+// --- Traceability Levels (Fix #1: separate numeric match from real anchor) ---
+type TraceabilityLevel = 'TRACE_OK' | 'TRACE_WEAK' | 'TRACE_NONE';
+
+function computeTraceability(attempts: TraceAttempt[], matchedItems: CanonicalBillItem[]): { level: TraceabilityLevel; reason: string } {
+    const hasAnchor1a1 = attempts.some(a => a.step === 'MONTO_1A1' && a.status === 'OK');
+    const hasGlosaExact = attempts.some(a => a.step === 'GLOSA_FAMILIA' && a.status === 'OK');
+    const hasSubtotal = attempts.some(a => a.step === 'MONTO_SUBTOTAL' && a.status === 'OK');
+    const hasDP = attempts.some(a => a.step === 'MONTO_SUBSET' && (a.status === 'OK' || a.status === 'PARTIAL'));
+    const hasDPDomain = attempts.some(a => a.step === 'MONTO_SUBSET' && a.status === 'OK' && a.details?.includes('domain=ON'));
+    const hasDPPartial = attempts.some(a => a.step === 'MONTO_SUBSET' && a.status === 'PARTIAL');
+
+    const hasIds = matchedItems?.length > 0 && matchedItems.every(i => !!i.id);
+
+    // TRACE_OK: real anchor (1A1 unique match or exact glosa)
+    if (hasAnchor1a1 || hasGlosaExact) {
+        return { level: 'TRACE_OK', reason: hasAnchor1a1 ? 'Anchor MONTO_1A1' : 'Glosa exacta' };
+    }
+
+    // TRACE_OK: domain-filtered DP with verified IDs (deterministic clinical match)
+    if (hasDPDomain && hasIds) {
+        return { level: 'TRACE_OK', reason: 'DP determinístico en dominio clínico + IDs verificados' };
+    }
+
+    // TRACE_WEAK: undifferentiated DP or SUBTOTAL (numeric match, no semantic anchor)
+    if (hasSubtotal || hasDP) {
+        return { level: 'TRACE_WEAK', reason: hasSubtotal ? 'Match por SUBTOTAL' : 'Match por DP/Subset (sin filtro dominio)' };
+    }
+
+    // TRACE_NONE: nothing usable
+    return { level: 'TRACE_NONE', reason: 'Sin ancla ni desglose' };
 }
 
 function mapGCToDomain(gc: string, description: string = ''): ContractDomain {
@@ -274,26 +767,39 @@ function classifyFragmentation(
     contractCheck: any,
     eventModel: any,
     matchedItems: CanonicalBillItem[],
-    cfg: any
+    cfg: any,
+    anchorMap: Record<string, number[]> | null = null
 ): any {
     let level: FindingLevel = 'CORRECTO';
     let motor: Motor = 'NA';
     let rationale = '';
     const impact = line.copago;
 
-    // Zero copago -> No financial injury -> Correcto (usually)
+    // Zero copago -> No financial injury
     if (impact === 0) return { level, motor, rationale, economicImpact: 0 };
 
     const desc = normalize(line.descripcion);
-    const traceFailed = summarizeTrace(attempts) !== 'OK';
     const isGeneric = cfg.suspectGroupCodes.includes(line.codigoGC) || cfg.genericGlosas.some((g: string) => desc.includes(g));
 
+    // Traceability (Fix #1: use levels, not raw trace status)
+    const t = computeTraceability(attempts, matchedItems);
+    const traceOkHard = t.level === 'TRACE_OK';
+    const traceWeak = t.level === 'TRACE_WEAK';
+    const traceNone = t.level === 'TRACE_NONE';
+
+    // Signals
+    const dpAttempt = attempts.find(a => a.step === 'MONTO_SUBSET' && (a.status === 'OK' || a.status === 'PARTIAL'));
+    const subtotalAttempt = attempts.find(a => a.step === 'MONTO_SUBTOTAL' && a.status === 'OK');
+    const traceBreakdown = dpAttempt?.details || subtotalAttempt?.details || '';
+
+    const hasM2Signals = dpAttempt?.status === 'OK';
+    const hasM2SubtotalRef = !!subtotalAttempt;
+
     // M1: Creación Artificial de Actos Autónomos
-    // Accesory acts (bonif=0, copago>0) without autonomous code OR clearly accessory desc
     const forbiddenM1 = ["preparacion", "monitorizacion", "uso de equipo", "derecho", "sala", "recargo horario"];
     if (
         (line.bonificacion === 0 && impact > 0 && !isGeneric) ||
-        (forbiddenM1.some(t => desc.includes(t)) && !desc.includes("pabellon") && !desc.includes("dia cama"))
+        (forbiddenM1.some(t2 => desc.includes(t2)) && !desc.includes("pabellon") && !desc.includes("dia cama"))
     ) {
         motor = 'M1';
         level = 'FRAGMENTACION_ESTRUCTURAL';
@@ -303,55 +809,89 @@ function classifyFragmentation(
 
     // M2: Desanclaje desde Paquete (Unbundling)
     if (eventModel.paquetesDetectados.length > 0) {
-        const standardSupplies = ["jeringa", "aguja", "torula", "guantes", "electrodo", "bajada", "branula", "gasas", "aposito"];
+        const standardSupplies = ["jeringa", "aguja", "torula", "guantes", "electrodo", "bajada", "branula", "gasas", "aposito", "ceftriaxona", "fentanyl", "propofol", "suero", "ondansetron"];
+
+        // 1. Direct PAM Description Check
         if (standardSupplies.some(s => desc.includes(s))) {
+            const paqueteOrigen = inferPackageOrigen(matchedItems.length > 0 ? matchedItems : [], eventModel, anchorMap);
             motor = 'M2';
             level = 'FRAGMENTACION_ESTRUCTURAL';
-            rationale = `Insumo estándar (${desc}) desagregado de paquete clínico obligatorio (${eventModel.paquetesDetectados[0]})`;
+            rationale = `Insumo estándar (${desc}) desagregado de paquete clínico obligatorio (${paqueteOrigen})`;
             return { level, motor, rationale, economicImpact: impact };
+        }
+
+        // 2. Component Check (Combinatorial or Subtotal Trace)
+        const isCatchAll = line.codigoGC === '3201001' || line.codigoGC === '3201002';
+        if (!isCatchAll && (hasM2Signals || hasM2SubtotalRef) && matchedItems.length > 0) {
+            const foundSupply = matchedItems.find(i => {
+                const iDesc = normalize(i.description);
+                return standardSupplies.some(s => iDesc.includes(s));
+            });
+
+            if (foundSupply) {
+                const paqueteOrigen = inferPackageOrigen(matchedItems, eventModel, anchorMap);
+                const provenance = foundSupply.section ? `proveniente de la sección '${foundSupply.section}'` : 'proveniente de la cuenta';
+                motor = 'M2';
+                level = 'FRAGMENTACION_ESTRUCTURAL';
+                rationale = `Paquete desplazado: El monto $${line.valorTotal.toLocaleString()} corresponde al siguiente hallazgo clínico:\n${traceBreakdown}\n\nEste conjunto contiene insumo estándar (${foundSupply.description}) ${provenance}, lo que confirma su pertenencia al paquete clínico (${paqueteOrigen}).`;
+                return { level, motor, rationale, economicImpact: impact };
+            }
         }
     }
 
     // M3: Traslado de Costos No Clínicos / Residuales (Bolsón)
-    if (isGeneric && traceFailed) {
+    // Generic PAM + NO hard anchor -> M3
+    // Generic PAM + only WEAK trace (DP/Subtotal) -> STILL M3 (numeric match ≠ clinical traceability)
+    if (isGeneric && (traceNone || traceWeak)) {
         motor = 'M3';
         level = 'FRAGMENTACION_ESTRUCTURAL';
-        rationale = 'Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose';
+        rationale = traceWeak
+            ? `Bolsón genérico: El monto $${line.valorTotal.toLocaleString()} corresponde al siguiente match numérico (${t.reason}):\n${traceBreakdown}\n\nSe clasifica como OPACIDAD al no contar con trazabilidad clínica real (TRACE_WEAK).`
+            : 'Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose';
         return { level, motor, rationale, economicImpact: impact };
     }
 
     // M4: Desclasificación de Dominio (Renegación Artificial)
-    // E.g. "No Cubierto" but should be covered by broad contract terms?
-    // If Rule exists but PAM says "No Cubierto" (Bonif 0)?
-    if (line.bonificacion === 0 && contractCheck.state === 'VERIFICABLE' && !traceFailed) {
-        // If contract says it should be covered but it isn't -> M4
-        // Check rule coverage pct?
-        // Detailed check omitted for brevity, assuming Bonif 0 with Verifiable Rule is suspect M4.
+    // ONLY fires if: (a) says "no cubierto/no contemplada", (b) TRACE_OK (hard anchor),
+    // (c) contract is VERIFICABLE, (d) no M2/M3 signals
+    const saysNoCover = desc.includes('no cubierto') || desc.includes('no contemplada') || desc.includes('no arancel');
+    const hasM3Signals = isGeneric && (traceNone || traceWeak);
+
+    if (
+        line.bonificacion === 0 &&
+        contractCheck.state === 'VERIFICABLE' &&
+        saysNoCover &&
+        traceOkHard &&
+        !hasM3Signals &&
+        !hasM2Signals
+    ) {
         motor = 'M4';
         level = 'DISCUSION_TECNICA';
         rationale = `Item con cobertura contractual posible (${contractCheck.notes}) pero bonificado en $0 sin causal de exclusión expresa.`;
         return { level, motor, rationale, economicImpact: impact };
     }
 
+    // Fix #3: catch-all must return impact if level != CORRECTO
+    // If we get here, it's CORRECTO (no fragmentation detected)
     return { level, motor, rationale, economicImpact: 0 };
 }
 
 function evaluateOpacidad(
     line: CanonicalPamLine,
     cfg: any,
-    traceStatus: TraceStatus,
+    attempts: TraceAttempt[],
     contractState: VerifState,
-    matchedItems: any[],
+    matchedItems: CanonicalBillItem[],
     frag: any
 ): any {
     let breakdown = [];
     let iopScore = 0;
 
-    // Conditions to activate Opacidad check:
-    // (trace.status == FAIL) AND (bonification == 0 OR copago > 0)
-    // AND (group code OR generic glosa) AND no sub-items.
+    // Use REAL traceability from actual attempts (not proxy)
+    const t = computeTraceability(attempts, matchedItems);
+    const effectiveTraceNone = (t.level === 'TRACE_NONE');
+    const effectiveTraceWeak = (t.level === 'TRACE_WEAK');
 
-    // For v1.4, calculate IOP always if "suspect", apply threshold later.
     const isSuspect = cfg.suspectGroupCodes.includes(line.codigoGC) || normalize(line.descripcion).includes("no cubierto");
 
     if (line.copago === 0 && line.bonificacion > 0) {
@@ -359,10 +899,11 @@ function evaluateOpacidad(
     }
 
     // IOP Scoring
-    // +25 Agrupador sin desglose
-    if (isSuspect && matchedItems.length === 0) {
+    // +25 Agrupador sin desglose verificable (DP/Subtotal = TRACE_WEAK counts as "sin desglose")
+    if (isSuspect && (effectiveTraceNone || effectiveTraceWeak)) {
         iopScore += 25;
-        breakdown.push({ label: 'Agrupador sin desglose', points: 25 });
+        const msg = effectiveTraceWeak ? 'Agrupador con desglose parcial/numérico (TRACE_WEAK)' : 'Agrupador sin desglose';
+        breakdown.push({ label: msg, points: 25 });
     }
     // +20 Glosa Genérica
     const desc = normalize(line.descripcion);
@@ -375,12 +916,11 @@ function evaluateOpacidad(
         iopScore += 15;
         breakdown.push({ label: 'Bonificación $0 (Copago Total)', points: 15 });
     }
-    // +15 Fallo Trazabilidad (redundant with matchedItems=0 usually, but distinct concept)
-    if (traceStatus === 'FAIL') {
+    // +15 Fallo Trazabilidad (only on TRACE_NONE, not TRACE_WEAK)
+    if (effectiveTraceNone) {
         iopScore += 15;
         breakdown.push({ label: 'Fallo Trazabilidad Fase B', points: 15 });
     }
-    // +10 Duplicidad GC sin fundamento (Hard to check locally line-by-line without context, skip for now or complex check)
 
     const applies = iopScore >= cfg.opacidadThresholdIOP;
 
@@ -388,6 +928,7 @@ function evaluateOpacidad(
 }
 
 function buildRow(line: CanonicalPamLine, attempts: TraceAttempt[], contractCheck: any, frag: any, opacidad: any, matchedItems: CanonicalBillItem[]): PamAuditRow {
+    const traceability = computeTraceability(attempts, matchedItems);
     return {
         pamLineId: line.id || `pam_${Math.random().toString(36).substr(2, 9)}`,
         codigoGC: line.codigoGC,
@@ -397,7 +938,8 @@ function buildRow(line: CanonicalPamLine, attempts: TraceAttempt[], contractChec
         trace: {
             status: summarizeTrace(attempts),
             attempts: attempts,
-            matchedBillItemIds: matchedItems.map(i => i.id)
+            matchedBillItemIds: matchedItems.map(i => i.id),
+            traceability  // TRACE_OK | TRACE_WEAK | TRACE_NONE
         },
         contractCheck: contractCheck,
         fragmentacion: frag,
@@ -503,4 +1045,23 @@ function createErrorOutput(msg: string, cfg: any): SkillOutput {
         reportText: `ERROR CRÍTICO GATE 0: ${msg}`,
         complaintText: ''
     };
+}
+
+function buildAnchorMap(items: CanonicalBillItem[]): Record<string, number[]> {
+    const map: Record<string, number[]> = {
+        'DERECHO_PABELLON': [],
+        'DIA_CAMA_INTEGRAL': []
+    };
+    items.forEach(i => {
+        const idx = (i as any).originalIndex ?? (i as any).index ?? -1;
+        if (idx === -1) return;
+        const norm = normalize(i.description);
+        if (norm.includes('pabellon') || norm.includes('quirofano') || norm.includes('recuperacion')) {
+            map['DERECHO_PABELLON'].push(idx);
+        }
+        if (norm.includes('dia cama') || norm.includes('habitacion') || norm.includes('sala')) {
+            map['DIA_CAMA_INTEGRAL'].push(idx);
+        }
+    });
+    return map;
 }

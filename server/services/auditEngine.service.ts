@@ -1214,6 +1214,7 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
                 copago: item.copago, // REQUIRED FOR RALLY BUILDER
                 bonificacion: item.bonificacion,
                 index: item.index, // CRITICAL: Preserve index for traceability
+                originalSection: section.category || section.name, // NEW: Explicit Visual Origin for M2
                 // NEW: Expose Billing Model to LLM
                 model: item.billingModel,
                 authTotal: item.authoritativeTotal,
@@ -1462,7 +1463,14 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
         // Extract items from cleanedCuenta
         if (cleanedCuenta.sections) {
             cleanedCuenta.sections.forEach((sec: any) => {
-                if (sec.items) allItemsForSkeleton.push(...sec.items);
+                if (sec.items) {
+                    // Inject section name into item for Skeleton tracking
+                    const itemsWithSection = sec.items.map((i: any) => ({
+                        ...i,
+                        originalSection: sec.category || sec.name
+                    }));
+                    allItemsForSkeleton.push(...itemsWithSection);
+                }
             });
         }
 
@@ -1476,7 +1484,8 @@ Analiza la cuenta buscando estas 10 pr�cticas espec�ficas.Si encuentras una,
             const rawItems = allItemsForSkeleton.map((it, idx) => ({
                 id: it.id || `item-${idx}`,
                 text: it.description || it.text || "Item sin descripción",
-                sourceRef: it.code || ""
+                sourceRef: it.code || "",
+                originalSection: it.originalSection
             }));
 
             // Run classification

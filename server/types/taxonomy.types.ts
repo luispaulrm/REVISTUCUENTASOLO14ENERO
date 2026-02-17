@@ -25,6 +25,7 @@ export interface RawCuentaItem {
     id: string;
     text: string;         // literal
     sourceRef?: string;   // p.ej. page/line/anchor
+    originalSection?: string;
 }
 
 export interface TaxonomyResult {

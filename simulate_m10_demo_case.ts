@@ -1,6 +1,6 @@
 
-import { runSkill } from './src/m10/engine';
-import { SkillInput, CanonicalContractRule, ContractDomain } from './src/m10/types';
+import { runSkill } from './src/m10/engine.ts';
+import type { SkillInput, CanonicalContractRule, ContractDomain } from './src/m10/types.ts';
 import fs from 'fs';
 
 // Mock Data from AuditorM10App.tsx
@@ -88,8 +88,9 @@ function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     }));
 
     // 3. Adapt BILL
-    const billItems = rawBill.items.map((item: any) => ({
+    const billItems = rawBill.items.map((item: any, i: number) => ({
         id: 'itm-' + Math.random().toString(36).substr(2, 5),
+        index: i + 1,
         description: item.description,
         total: Number(item.total),
         unitPrice: 0,

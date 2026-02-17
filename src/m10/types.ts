@@ -1,13 +1,16 @@
 // ---------- Common ----------
 export type MoneyCLP = number;
 
+
 export type EvidenceRef =
-    | { kind: "jsonpath"; source: "BILL" | "PAM" | "CONTRACT"; path: string; note?: string }
+    | { kind: "jsonpath"; source: "BILL" | "PAM" | "CONTRACT"; path: string; note?: string; itemID?: string }
     | { kind: "docref"; source: "BILL" | "PAM" | "CONTRACT"; page?: number; anchorText?: string; note?: string };
 
 export interface CanonicalBillItem {
     id: string;
     section?: string;
+    sectionPath?: string[]; // New: full path for provenance
+    sectionKey?: string;    // New: unique key for provenance
     description: string;
     qty?: number;
     unitPrice?: MoneyCLP;
@@ -63,6 +66,7 @@ export interface AuditMetadata {
     isapre?: string;
     plan?: string;
     financialDate?: string;
+    executionTimestamp?: string;
 }
 
 export interface SkillInput {
@@ -83,8 +87,17 @@ export type FindingLevel = "CORRECTO" | "DISCUSION_TECNICA" | "FRAGMENTACION_EST
 
 export type Motor = "M1" | "M2" | "M3" | "M4" | "NA";
 
+export interface SubtotalBlock {
+    id: string;
+    total: MoneyCLP;
+    neto?: MoneyCLP;
+    iva?: MoneyCLP;
+    componentItemIds: string[];
+    label?: string;
+}
+
 export interface TraceAttempt {
-    step: "CODE" | "GLOSA_FAMILIA" | "MONTO_1A1" | "MONTO_SUBSET" | "CONTRACT_ANCHOR";
+    step: "CODE" | "GLOSA_FAMILIA" | "MONTO_1A1" | "MONTO_SUBSET" | "CONTRACT_ANCHOR" | "MONTO_SUBTOTAL";
     status: TraceStatus;
     details: string;
     refsBill?: EvidenceRef[];
@@ -100,6 +113,7 @@ export interface PamAuditRow {
         status: TraceStatus;
         attempts: TraceAttempt[];
         matchedBillItemIds: string[];
+        traceability?: { level: string; reason: string };
     };
     contractCheck: {
         state: VerifState;

@@ -90,13 +90,18 @@ export class TaxonomyPhase1Service {
                     ...cached,
                     id: item.id,
                     sourceRef: item.sourceRef,
-                    item_original: item.text // Ensure original text matches request
+                    item_original: item.text, // Ensure original text matches request
+                    atributos: {
+                        ...cached.atributos,
+                        section: item.originalSection
+                    }
                 };
             } else {
                 itemsToProcessIndices.push(index);
                 itemsToProcessPayload.push({
                     id: item.id,
-                    text: item.text
+                    text: item.text,
+                    originalSection: item.originalSection
                 });
             }
         });
@@ -138,7 +143,13 @@ export class TaxonomyPhase1Service {
                     // Find matching index in original array via ID
                     const originalIndex = items.findIndex(i => i.id === res.id);
                     if (originalIndex !== -1) {
-                        results[originalIndex] = res;
+                        results[originalIndex] = {
+                            ...res,
+                            atributos: {
+                                ...res.atributos,
+                                section: items[originalIndex].originalSection
+                            }
+                        };
 
                         // Update Cache
                         if (res.item_original) {

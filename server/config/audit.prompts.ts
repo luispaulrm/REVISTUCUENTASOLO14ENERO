@@ -1033,6 +1033,7 @@ DEBES realizar una 'CACERÍA FORENSE' EXHAUSTIVA en la 'cuenta_json'.
 2. Genera una **TABLA DETALLADA (ESTÁNDAR MARKDOWN)** con CADA ÍTEM.
 3. **REGLA DE ORO:** Está terminantemente prohibido resumir o usar '...'. Si hay 100 ítems, SE LISTAN LOS 100 ÍTEMS.
 4. **FORMATO OBLIGATORIO:** Usa exclusivamente el formato de tabla con pipes '|'. NO uses tabs ni espacios.
+5. **ORIGEN VISUAL:** En la columna "Sección Origen", DEBES USAR el valor exacto de 'originalSection' provisto en el ítem (ej: 'PABELLON', 'FARMACIA'). PROHIBIDO usar 'General' o 'Cuenta' si existe una sección específica.
 
 | Sección Origen (Cuenta) | Cód | Ítem Individual (Detalle) | Cant | P. Unit | Total |
 | :--- | :--- | :--- | :---: | :---: | :---: |

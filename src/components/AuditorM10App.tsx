@@ -99,7 +99,7 @@ export default function AuditorM10App() {
         // Based on the user's request and the "Plan Pleno" file found
         const mockContract = {
             rules: [
-                { id: 'R1', domain: 'PABELLON', coberturaPct: 100, tope: { value: null, kind: 'SIN_TOPE_EXPRESO' }, textLiteral: 'Derecho Pabellón 100% Sin Tope' },
+                { id: 'R1', /* Use a robust fallback ID */ domain: 'PABELLON', coberturaPct: 100, tope: { value: null, kind: 'SIN_TOPE_EXPRESO' }, textLiteral: 'Derecho Pabellón 100% Sin Tope' },
                 { id: 'R2', domain: 'MATERIALES_CLINICOS', coberturaPct: 100, tope: { value: 6000000, kind: 'TOPE_MONTO' }, textLiteral: 'Materiales e Insumos 100% Sin Tope (Simulado)' }, // Hight cap for testing
                 { id: 'R3', domain: 'HONORARIOS', coberturaPct: 100, tope: { value: 13.26, kind: 'VAM' }, textLiteral: 'Honorarios Médicos 100% Tope 13.26 VAM' },
                 { id: 'R4', domain: 'DIA_CAMA', coberturaPct: 100, tope: { value: null, kind: 'SIN_TOPE_EXPRESO' }, textLiteral: 'Día Cama 100% Sin Tope' }
@@ -188,6 +188,24 @@ export default function AuditorM10App() {
         };
 
         html2pdf().set(opt).from(element).save();
+    };
+
+    const handleNewAudit = () => {
+        if (confirm("¿Estás seguro de que deseas iniciar una NUEVA AUDITORÍA?\n\nEsto borrará todos los datos cargados (Contrato, PAM, Cuenta) y tendrás que subirlos nuevamente.")) {
+            // 1. Clear State
+            setAuditResult(null);
+            setDataStatus({ canonical: false, pam: false, account: false });
+
+            // 2. Clear LocalStorage Logic
+            localStorage.removeItem('canonical_contract_result');
+            localStorage.removeItem('pam_audit_result');
+            localStorage.removeItem('clinic_audit_result');
+            localStorage.removeItem('audit_m10_demo_mode'); // If any
+
+            // 3. Optional: Reload to force clean state? 
+            // window.location.reload(); // Might be too aggressive.
+            // Just updating state is enough because of useEffect interval or local check.
+        }
     };
 
     const allDataReady = dataStatus.canonical && dataStatus.pam && dataStatus.account;
@@ -317,7 +335,7 @@ export default function AuditorM10App() {
                                 <Download size={16} />
                                 Descargar PDF
                             </button>
-                            <button onClick={() => setAuditResult(null)} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 text-sm font-bold hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm">
+                            <button onClick={handleNewAudit} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 text-sm font-bold hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm">
                                 Nueva Auditoría
                             </button>
                         </div>
@@ -340,8 +358,16 @@ export default function AuditorM10App() {
                                         <div className="text-xs text-slate-400">{auditResult.metadata.plan}</div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Fecha Corte</div>
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Corte Financiero</div>
                                         <div className="font-bold text-lg">{auditResult.metadata.financialDate}</div>
+                                        {auditResult.metadata.executionTimestamp && (
+                                            <div className="mt-2 text-right">
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">AUDITORIA REALIZADA</div>
+                                                <div className="text-xl font-bold text-white font-mono leading-none">
+                                                    {new Date(auditResult.metadata.executionTimestamp).toLocaleString()}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -408,7 +434,7 @@ export default function AuditorM10App() {
                                                             }`}>{row.classification.replace('_', ' ')}</span>
                                                     </td>
                                                     <td className="px-8 py-4 font-mono text-xs font-bold text-slate-500">{row.motor}</td>
-                                                    <td className="px-8 py-4 text-slate-600 max-w-md">
+                                                    <td className="px-8 py-4 text-slate-600 max-w-md whitespace-pre-wrap">
                                                         <div>{row.fundamento.split('[OPACIDAD')[0]}</div>
                                                         {row.iop && row.iop >= 40 && (
                                                             <div className="mt-1 flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full w-fit border border-rose-100">
@@ -573,8 +599,9 @@ function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         // Some CSV parsers output 'rows'
         billItems = billSource.rows;
     } else if (billSource.sections && Array.isArray(billSource.sections)) {
-        // Handle Account Projector V7 'sections' structure
-        billItems = billSource.sections.flatMap((s: any) => s.items || []);
+        billItems = billSource.sections.flatMap((s: any) =>
+            (s.items || []).map((item: any) => ({ ...item, section: s.name || s.section || s.titulo || '' }))
+        );
     }
 
     // Ensure PAM items have numeric values
@@ -591,9 +618,12 @@ function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         }))
     }));
 
-    // Ensure Bill items have numeric values
-    billItems = billItems.map((item: any) => ({
+    billItems = billItems.map((item: any, idx: number) => ({
         ...item,
+        id: item.id || item.codigo || item.codeInternal || `bill_${idx}`,
+        section: item.section || item.seccion || item.categoria || '',
+        sectionPath: item.originalSection ? [item.originalSection] : (item.section ? [item.section] : []),
+        sectionKey: item.originalSection ? `SEC_${item.originalSection.replace(/\s+/g, '_').toUpperCase()}` : undefined,
         description: item.description || item.glosa || item.descripcion || item.Item || '',
         total: Number(item.total || item.valor || item.monto || item.Total || 0),
         unitPrice: Number(item.unitPrice || item.precioUnitario || item.Precio || 0),

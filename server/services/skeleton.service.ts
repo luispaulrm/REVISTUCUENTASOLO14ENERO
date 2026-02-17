@@ -8,64 +8,54 @@ export class SkeletonService {
 
     public generateSkeleton(results: TaxonomyResult[]): TaxonomySkeleton {
         const root: TaxonomySkeleton = {
-            name: "CUENTA CLÍNICA",
+            name: "CUENTA CLÍNICA (VISUAL)",
             total_count: results.length,
             children: []
         };
 
-        // 1. Defined categories based on User's model image
-        const categories = [
-            { name: "Hospitalización", grupos: ["HOTELERA"] as GrupoCanonico[] },
-            { name: "Exámenes", subfamilias: ["LABORATORIO", "IMAGENOLOGIA"] as SubFamilia[] },
-            { name: "Procedimientos", grupos: ["PABELLON"] as GrupoCanonico[] },
-            { name: "Medicamentos y Materiales", grupos: ["INSUMOS"] as GrupoCanonico[], subfamilias: ["FARMACOS", "MATERIALES"] as SubFamilia[] },
-            { name: "Honorarios Médicos", grupos: ["HONORARIOS"] as GrupoCanonico[] }
-        ];
+        console.log(`[SkeletonService] Generating VISUAL skeleton for ${results.length} items.`);
 
-        console.log(`[SkeletonService] Generating skeleton for ${results.length} items.`);
-        const handledIds = new Set<string>();
+        // 1. Group by Visual Section (Primary) or Semantic Category (Fallback)
+        const groups = new Map<string, TaxonomyResult[]>();
 
-        // 2. Build the tree
-        for (const cat of categories) {
-            const catNode: TaxonomySkeleton = {
-                name: cat.name,
-                total_count: 0,
+        results.forEach(res => {
+            // Priority: Visual Section > Semantic Group > "Otros"
+            let groupKey = "Otros / No Clasificados";
+
+            if (res.atributos && res.atributos.section) {
+                // Visual Fidelity: formatting not nice, but strictly follows PDF
+                groupKey = res.atributos.section.toUpperCase();
+            } else if (res.grupo) {
+                // Fallback to Semantic
+                groupKey = `[SEMANTIC] ${res.grupo}`;
+            }
+
+            if (!groups.has(groupKey)) {
+                groups.set(groupKey, []);
+            }
+            groups.get(groupKey)!.push(res);
+        });
+
+        // 2. Build Tree Nodes (Keys in Map insertion order = PDF Order)
+        for (const [sectionName, items] of groups) {
+            const sectionNode: TaxonomySkeleton = {
+                name: sectionName,
+                total_count: items.length,
                 children: []
             };
 
-            // Filter items for this category (that haven't been handled yet for strictness)
-            const items = results.filter(r => {
-                if (handledIds.has(r.id)) return false;
-                let match = false;
-                if (cat.grupos && cat.grupos.includes(r.grupo)) match = true;
-                if (cat.subfamilias && cat.subfamilias.includes(r.sub_familia as any)) match = true;
-                return match;
-            });
+            // Optional: Sub-group by Sub-Family for readability within the section
+            const subFamilies = [...new Set(items.map(i => i.sub_familia))];
 
-            if (items.length > 0) {
-                catNode.total_count = items.length;
-                items.forEach(it => handledIds.add(it.id));
-
-                // Group by Sub-Family within category
-                const subFamilies = [...new Set(items.map(i => i.sub_familia))];
-                for (const sf of subFamilies) {
-                    const sfItems = items.filter(i => i.sub_familia === sf);
-                    catNode.children!.push({
-                        name: this.formatSubFamilyName(sf),
-                        total_count: sfItems.length
-                    });
-                }
-
-                root.children!.push(catNode);
+            for (const sf of subFamilies) {
+                const sfItems = items.filter(i => i.sub_familia === sf);
+                sectionNode.children!.push({
+                    name: this.formatSubFamilyName(sf),
+                    total_count: sfItems.length
+                });
             }
-        }
 
-        // 3. Add "Otros" for remaining items
-        if (handledIds.size < results.length) {
-            root.children!.push({
-                name: "Otros / No Clasificados",
-                total_count: results.length - handledIds.size
-            });
+            root.children!.push(sectionNode);
         }
 
         return root;
