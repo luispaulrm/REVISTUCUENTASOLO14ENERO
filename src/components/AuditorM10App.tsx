@@ -265,6 +265,32 @@ export default function AuditorM10App() {
                 {/* Results View */}
                 {auditResult && !auditResult.reportText.startsWith("ERROR CRÍTICO GATE 0") && (
                     <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
+
+                        {/* Phase 0: Context Header (New Metadata Integration) */}
+                        {auditResult.metadata && (
+                            <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg border border-slate-700">
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                    <div>
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Paciente</div>
+                                        <div className="font-bold text-lg truncate">{auditResult.metadata.patientName}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Prestador</div>
+                                        <div className="font-bold text-lg truncate">{auditResult.metadata.clinicName}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Financiamiento</div>
+                                        <div className="font-bold text-lg truncate">{auditResult.metadata.isapre}</div>
+                                        <div className="text-xs text-slate-400">{auditResult.metadata.plan}</div>
+                                    </div>
+                                    <div className="text-right">
+                                        <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Fecha Corte</div>
+                                        <div className="font-bold text-lg">{auditResult.metadata.financialDate}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Summary Metrics */}
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
@@ -519,12 +545,22 @@ function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         qty: Number(item.qty || item.cantidad || item.Cantidad || 1)
     }));
 
+    // 4. Extract Metadata
+    const metadata = {
+        patientName: billSource.patientName || rawBill.patientName || 'Paciente Desconocido',
+        clinicName: billSource.clinicName || rawBill.clinicName || 'Clínica Desconocida',
+        isapre: rawContract.diseno_ux?.nombre_isapre || billSource.isapre || 'Isapre Desconocida',
+        plan: rawContract.diseno_ux?.titulo_plan || billSource.plan || 'Plan Desconocido',
+        financialDate: billSource.date || rawBill.date || new Date().toLocaleDateString()
+    };
+
     // console.log(`Adapter Result: Rules=${rules.length}, Folios=${pamFolios.length}, BillItems=${billItems.length}`);
 
     return {
         contract: { rules },
         pam: { folios: pamFolios },
-        bill: { items: billItems }
+        bill: { items: billItems },
+        metadata
     };
 }
 

@@ -57,6 +57,14 @@ export interface CanonicalContract {
     rules: CanonicalContractRule[];
 }
 
+export interface AuditMetadata {
+    patientName?: string;
+    clinicName?: string;
+    isapre?: string;
+    plan?: string;
+    financialDate?: string;
+}
+
 export interface SkillInput {
     bill: CanonicalBill;
     pam: CanonicalPAM;
@@ -64,6 +72,7 @@ export interface SkillInput {
     config?: {
         opacidadThresholdIOP?: number; // default 60
     };
+    metadata?: AuditMetadata;
 }
 
 // 2) OUTPUT SCHEMA
@@ -139,4 +148,5 @@ export interface SkillOutput {
     pamRows: PamAuditRow[];
     reportText: string;
     complaintText: string;
+    metadata?: AuditMetadata;
 }

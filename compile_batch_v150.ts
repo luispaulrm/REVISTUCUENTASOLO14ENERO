@@ -4,7 +4,7 @@
  */
 
 import { qcGeometer, validateColumnBBox } from './server/services/spatial/qc-geometer.ts';
-import { qcJurist, Assignment } from './server/services/spatial/qc-jurist.ts';
+import { qcJurist, Assignment, AssignmentStatus, PointerType } from './server/services/spatial/qc-jurist.ts';
 import { packageAuditBundle } from './server/services/spatial/packager.ts';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -187,7 +187,7 @@ function compilePackage(baseName: string, docTitle: string, page: number) {
             }
         }
 
-        const pointerType = res.type === 'ZONE_ASSIGNED' ? 'ZONE_REFERENCE' : (!res.bbox && !res.pointer?.bbox ? 'TEXT_ECHO_HEADER' : 'TEXT_DIRECT_CELL');
+        const pointerType: PointerType = res.type === 'ZONE_ASSIGNED' ? 'ZONE_REFERENCE' : (!res.bbox && !res.pointer?.bbox ? 'TEXT_ECHO_HEADER' : 'TEXT_DIRECT_CELL');
 
         const atoms: any[] = [{ type: 'RULE', key: res.type || 'UNKNOWN', value: res.value, unit: res.unit }];
 
@@ -209,7 +209,7 @@ function compilePackage(baseName: string, docTitle: string, page: number) {
             column_id: finalCol,
             pointer,
             atoms,
-            status: 'ACTIVE' as const,
+            status: 'ACTIVE' as AssignmentStatus,
             confidence: { row_confidence: 0.99, assignment_confidence: 0.99 },
             tags: res.tags
         };

@@ -131,7 +131,7 @@ export function runSkill(input: SkillInput): SkillOutput {
     // --- Aggregation ---
     const summary = aggregate(pamRows, cfg);
     const matrix = buildMatrix(pamRows);
-    const reportText = buildForensicReport(eventModel, pamRows, summary);
+    const reportText = buildForensicReport(eventModel, pamRows, summary, input.metadata);
     const complaintText = buildComplaintText(pamRows, cfg);
 
     return {
@@ -140,7 +140,8 @@ export function runSkill(input: SkillInput): SkillOutput {
         matrix,
         pamRows,
         reportText,
-        complaintText
+        complaintText,
+        metadata: input.metadata
     };
 }
 
@@ -438,11 +439,18 @@ function buildMatrix(rows: PamAuditRow[]) {
         }));
 }
 
-function buildForensicReport(event: any, rows: PamAuditRow[], summary: any): string {
+function buildForensicReport(event: any, rows: PamAuditRow[], summary: any, metadata?: any): string {
     const findings = rows.filter(r => r.fragmentacion.level !== 'CORRECTO' || r.opacidad.applies);
 
+    const header = metadata ? `
+PACIENTE: ${metadata.patientName || 'N/A'}
+PRESTADOR: ${metadata.clinicName || 'N/A'}
+ISAPRE: ${metadata.isapre || 'N/A'} | PLAN: ${metadata.plan || 'N/A'}
+FECHA: ${metadata.financialDate || 'N/A'}
+` : '';
+
     return `INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)
---------------------------------------------------
+--------------------------------------------------${header}
 EVENTO DETECTADO: ${event.actoPrincipal}
 PAQUETES CLÍNICOS: ${event.paquetesDetectados.join(', ') || 'Ninguno'}
 
