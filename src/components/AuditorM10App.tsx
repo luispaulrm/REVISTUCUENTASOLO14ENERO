@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Database, FileText, Activity, Layers, Zap, CheckCircle2, AlertCircle, Play, Loader2, FileJson, Copy, Check, Info } from 'lucide-react';
+import { Brain, Database, FileText, Activity, Layers, Zap, CheckCircle2, AlertCircle, Play, Loader2, FileJson, Copy, Check, Info, Download } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 import { runSkill } from '../m10/engine';
 import { SkillInput, SkillOutput, CanonicalContractRule, ContractDomain } from '../m10/types';
 
@@ -155,6 +156,40 @@ export default function AuditorM10App() {
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const handleDownloadJSON = () => {
+        if (!auditResult) return;
+        const jsonString = JSON.stringify(auditResult, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const patientName = auditResult.metadata?.patientName?.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'unknown';
+        const date = new Date().toISOString().split('T')[0];
+        a.download = `audit_m10_${patientName}_${date}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleDownloadPDF = () => {
+        const element = document.getElementById('m10-audit-results');
+        if (!element) return;
+
+        const patientName = auditResult?.metadata?.patientName?.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'audit';
+        const date = new Date().toISOString().split('T')[0];
+        const opt = {
+            margin: [10, 10, 10, 10] as any, // top, left, bottom, right
+            filename: `audit_m10_${patientName}_${date}.pdf`,
+            image: { type: 'jpeg' as 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true, logging: false },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as 'portrait' },
+            pagebreak: { mode: 'avoid-all', before: '#page-break-before' }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    };
+
     const allDataReady = dataStatus.canonical && dataStatus.pam && dataStatus.account;
 
     return (
@@ -264,7 +299,28 @@ export default function AuditorM10App() {
 
                 {/* Results View */}
                 {auditResult && !auditResult.reportText.startsWith("ERROR CRÍTICO GATE 0") && (
-                    <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
+                    <div id="m10-audit-results" className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
+
+                        {/* Toolbar Actions */}
+                        <div className="flex justify-end gap-3 no-print">
+                            <button
+                                onClick={handleDownloadJSON}
+                                className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 text-sm font-bold hover:bg-slate-50 hover:text-indigo-600 transition-colors shadow-sm"
+                            >
+                                <FileJson size={16} />
+                                JSON Completo
+                            </button>
+                            <button
+                                onClick={handleDownloadPDF}
+                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 border border-indigo-600 rounded-lg text-white text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-200"
+                            >
+                                <Download size={16} />
+                                Descargar PDF
+                            </button>
+                            <button onClick={() => setAuditResult(null)} className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-slate-600 text-sm font-bold hover:bg-red-50 hover:text-red-600 transition-colors shadow-sm">
+                                Nueva Auditoría
+                            </button>
+                        </div>
 
                         {/* Phase 0: Context Header (New Metadata Integration) */}
                         {auditResult.metadata && (
@@ -325,7 +381,6 @@ export default function AuditorM10App() {
                                     <Layers className="text-indigo-600" size={20} />
                                     Matriz de Hallazgos (Maestro v1.4)
                                 </h3>
-                                <button onClick={() => setAuditResult(null)} className="text-xs font-bold text-slate-500 hover:text-indigo-600">NUEVA AUDITORÍA</button>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-sm text-left">
