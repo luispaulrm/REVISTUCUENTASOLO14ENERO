@@ -6,11 +6,12 @@ import ForensicApp from './ForensicApp';
 import PdfProjector from './PdfProjector';
 
 import AuditorM10App from './AuditorM10App';
+import AuditorM11App from './AuditorM11App';
 import CanonicalGeneratorApp from './CanonicalGeneratorApp';
 import MentalMapApp from './MentalMapApp';
 import { ShieldCheck, Receipt, Scale, Gavel, Eye, FileSpreadsheet, Zap, FileJson, Brain, ListChecks } from 'lucide-react';
 
-type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'canonizar' | 'mapa' | 'm10';
+type DocumentType = 'bill' | 'pam' | 'contract' | 'audit' | 'view' | 'm7' | 'canonizar' | 'mapa' | 'm10' | 'm11';
 
 export function AppWithTabs() {
     const [activeTab, setActiveTab] = useState<DocumentType>('bill');
@@ -118,6 +119,17 @@ export function AppWithTabs() {
                             M10 Auditor
                         </button>
 
+                        <button
+                            onClick={() => handleTabChange('m11')}
+                            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-wider rounded-lg transition-all duration-300 ${activeTab === 'm11'
+                                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200'
+                                : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                                }`}
+                        >
+                            <Brain size={16} />
+                            M11 Auditor
+                        </button>
+
                     </div>
                 </div>
             </div>
@@ -146,6 +158,10 @@ export function AppWithTabs() {
 
                 <div style={{ display: activeTab === 'm10' ? 'block' : 'none' }}>
                     <AuditorM10App />
+                </div>
+
+                <div style={{ display: activeTab === 'm11' ? 'block' : 'none' }}>
+                    <AuditorM11App />
                 </div>
 
             </div>
