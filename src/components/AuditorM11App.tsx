@@ -619,7 +619,7 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     }));
 
     billItems = billItems.map((item: any, idx: number) => ({
-        ...item,
+        // STRICT MAPPING: DO NOT SPREAD ...item (Removes useless vectors/embeddings/raw text)
         id: item.id || item.codigo || item.codeInternal || `bill_${idx}`,
         section: item.section || item.seccion || item.categoria || '',
         sectionPath: item.originalSection ? [item.originalSection] : (item.section ? [item.section] : []),
@@ -627,7 +627,8 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         description: item.description || item.glosa || item.descripcion || item.Item || '',
         total: Number(item.total || item.valor || item.monto || item.Total || 0),
         unitPrice: Number(item.unitPrice || item.precioUnitario || item.Precio || 0),
-        qty: Number(item.qty || item.cantidad || item.Cantidad || 1)
+        qty: Number(item.qty || item.cantidad || item.Cantidad || 1),
+        originalIndex: item.originalIndex ?? idx // Persist original index for physical sort
     }));
 
     // 4. Extract Metadata

@@ -111,34 +111,39 @@ export class TaxonomyPhase1Service {
             console.log(`[TaxonomyPhase1] Processing ${itemsToProcessIndices.length} items (Cache Hit Rate: ${((items.length - itemsToProcessIndices.length) / items.length * 100).toFixed(1)}%)`);
 
             try {
-                // CHUNK STRATEGY: 25 items per batch to avoid Token Limits & Latency timeouts
-                const CHUNK_SIZE = 25;
+                // CHUNK STRATEGY: 50 items per batch
+                // CONCURRENCY: 5 batches in parallel to maximize throughput for large files
+                const CHUNK_SIZE = 50;
+                const CONCURRENCY_LIMIT = 5;
+
                 const chunks: any[][] = [];
                 for (let i = 0; i < itemsToProcessPayload.length; i += CHUNK_SIZE) {
                     chunks.push(itemsToProcessPayload.slice(i, i + CHUNK_SIZE));
                 }
 
-                console.log(`[TaxonomyPhase1] Split into ${chunks.length} batches.`);
+                console.log(`[TaxonomyPhase1] Split into ${chunks.length} batches. Processing with concurrency ${CONCURRENCY_LIMIT}...`);
 
-                // Execute batches SEQUENTIALLY to avoid Rate Limits (429) & Congestion on Render
-                const successfulBatches: TaxonomyResult[][] = [];
-                for (let i = 0; i < chunks.length; i++) {
-                    const chunk = chunks[i];
+                // Dynamic import to avoid build issues if p-limit is ESM only
+                const { default: pLimit } = await import('p-limit');
+                const limit = pLimit(CONCURRENCY_LIMIT);
+
+                const promises = chunks.map((chunk, i) => limit(async () => {
                     try {
                         const msg = `Procesando lote ${i + 1}/${chunks.length} (${chunk.length} ítems)...`;
                         console.log(`[TaxonomyPhase1] ${msg}`);
                         if (onProgress) onProgress(msg);
 
                         const res = await this.callLlmWithRepair(chunk, 1);
-                        console.log(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} completed (${res.length} items).`);
-                        successfulBatches.push(res);
+                        console.log(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} completed.`);
+                        return res;
                     } catch (err: any) {
                         console.error(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} FAILED:`, err.message);
-                        // Fallback: push empty, will be handled by final safety net
-                        successfulBatches.push([]);
+                        return []; // Fallback empty
                     }
-                }
-                const batchResults = successfulBatches.flat();
+                }));
+
+                const resultsArray = await Promise.all(promises);
+                const batchResults = resultsArray.flat();
 
                 // 3. Merge Results & Update Cache
                 batchResults.forEach((res) => {
