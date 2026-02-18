@@ -59,7 +59,7 @@ export class TaxonomyPhase1Service {
     }
 
     // --- MAIN METHOD ---
-    async classifyItems(items: RawCuentaItem[]): Promise<TaxonomyResult[]> {
+    async classifyItems(items: RawCuentaItem[], onProgress?: (msg: string) => void): Promise<TaxonomyResult[]> {
         const results: TaxonomyResult[] = new Array(items.length);
         const itemsToProcessIndices: number[] = [];
         const itemsToProcessPayload: any[] = [];
@@ -120,20 +120,21 @@ export class TaxonomyPhase1Service {
 
                 console.log(`[TaxonomyPhase1] Split into ${chunks.length} batches.`);
 
-                // Execute batches in parallel
-                const batchPromises = chunks.map((chunk, bIdx) =>
-                    this.callLlmWithRepair(chunk, 1)
-                        .then(res => {
-                            console.log(`[TaxonomyPhase1] Batch ${bIdx + 1}/${chunks.length} completed (${res.length} items).`);
-                            return res;
-                        })
-                        .catch(err => {
-                            console.error(`[TaxonomyPhase1] Batch ${bIdx + 1}/${chunks.length} FAILED:`, err.message);
-                            return [] as TaxonomyResult[]; // Return empty to allow other batches to succeed
-                        })
-                );
-
-                const successfulBatches = await Promise.all(batchPromises);
+                // Execute batches SEQUENTIALLY to avoid Rate Limits (429) & Congestion on Render
+                const successfulBatches: TaxonomyResult[][] = [];
+                for (let i = 0; i < chunks.length; i++) {
+                    const chunk = chunks[i];
+                    try {
+                        console.log(`[TaxonomyPhase1] Processing Batch ${i + 1}/${chunks.length}...`);
+                        const res = await this.callLlmWithRepair(chunk, 1);
+                        console.log(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} completed (${res.length} items).`);
+                        successfulBatches.push(res);
+                    } catch (err: any) {
+                        console.error(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} FAILED:`, err.message);
+                        // Fallback: push empty, will be handled by final safety net
+                        successfulBatches.push([]);
+                    }
+                }
                 const batchResults = successfulBatches.flat();
 
                 // 3. Merge Results & Update Cache

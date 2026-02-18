@@ -1163,7 +1163,9 @@ app.post('/api/extract', async (req, res) => {
                     sourceRef: it.code || ""
                 }));
 
-                const taxonomyResults = await taxonomyService.classifyItems(rawItems);
+                const taxonomyResults = await taxonomyService.classifyItems(rawItems, (msg) => {
+                    forensicLog(`📊 ${msg}`);
+                });
                 skeleton = skeletonService.generateSkeleton(taxonomyResults);
                 forensicLog(`✅ Esqueleto generado: ${skeleton.children?.length || 0} ramas detectadas.`);
             } else {
