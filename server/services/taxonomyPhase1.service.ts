@@ -125,7 +125,10 @@ export class TaxonomyPhase1Service {
                 for (let i = 0; i < chunks.length; i++) {
                     const chunk = chunks[i];
                     try {
-                        console.log(`[TaxonomyPhase1] Processing Batch ${i + 1}/${chunks.length}...`);
+                        const msg = `Procesando lote ${i + 1}/${chunks.length} (${chunk.length} ítems)...`;
+                        console.log(`[TaxonomyPhase1] ${msg}`);
+                        if (onProgress) onProgress(msg);
+
                         const res = await this.callLlmWithRepair(chunk, 1);
                         console.log(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} completed (${res.length} items).`);
                         successfulBatches.push(res);
