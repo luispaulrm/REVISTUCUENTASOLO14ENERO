@@ -1143,6 +1143,7 @@ app.post('/api/extract', async (req, res) => {
         }
 
         // --- NEW: ACCOUNT SKELETON (PHASE 1.5) ---
+        const taxonomyCache = new Map<number, any>(); // Cache for TaxonomyPhase1 results to share with Forensic Phase
         let skeleton = null;
         try {
             const allItemsForSkeleton: any[] = [];
@@ -1167,6 +1168,15 @@ app.post('/api/extract', async (req, res) => {
                     forensicLog(`📊 ${msg}`);
                 });
                 skeleton = skeletonService.generateSkeleton(taxonomyResults);
+
+                // Cache results by item.index
+                taxonomyResults.forEach((res, idx) => {
+                    const original = allItemsForSkeleton[idx];
+                    if (original && original.index !== undefined) {
+                        taxonomyCache.set(original.index, res);
+                    }
+                });
+
                 forensicLog(`✅ Esqueleto generado: ${skeleton.children?.length || 0} ramas detectadas.`);
             } else {
                 console.log(`[SKELETON] No items found to generate skeleton.`);
@@ -1196,17 +1206,48 @@ app.post('/api/extract', async (req, res) => {
             if (allItems.length > 0) {
                 forensicLog(`🧠 Ejecutando Motor Taxonómico (Fase 1.5) para ${allItems.length} ítems...`);
 
-                // 1. Taxonomy Phase 1 (Basic Classification)
+                // 1. Taxonomy Phase 1 (Basic Classification) with Cache Strategy
                 const taxonomyService = new TaxonomyPhase1Service(new GeminiService(activeApiKey || getApiKey()));
 
-                // CRITICAL: Map BillingItems to the format TaxonomyService expects
-                const taxonomyInput = allItems.map((it, idx) => ({
-                    id: it.id || `item-${idx}`,
-                    text: it.description || "",
-                    sourceRef: it.code || ""
-                }));
+                const phase1Results: any[] = [];
+                const itemsToClassify: any[] = [];
+                const indicesToClassify: number[] = [];
 
-                const phase1Results = await taxonomyService.classifyItems(taxonomyInput);
+                // Check cache first
+                allItems.forEach((it, idx) => {
+                    if (it.index !== undefined && taxonomyCache.has(it.index)) {
+                        phase1Results.push(taxonomyCache.get(it.index));
+                    } else {
+                        phase1Results.push(null); // Placeholder
+                        itemsToClassify.push(it);
+                        indicesToClassify.push(idx);
+                    }
+                });
+
+                if (itemsToClassify.length > 0) {
+                    forensicLog(`⚡ Cache Miss: Clasificando ${itemsToClassify.length} ítems restantes...`);
+                    const taxonomyInput = itemsToClassify.map((it, idx) => ({
+                        id: it.id || `item-missing-${idx}`,
+                        text: it.description || "",
+                        sourceRef: it.code || ""
+                    }));
+
+                    const newResults = await taxonomyService.classifyItems(taxonomyInput);
+
+                    // Fill gaps
+                    newResults.forEach((res, i) => {
+                        const originalIdx = indicesToClassify[i];
+                        phase1Results[originalIdx] = res;
+
+                        // Update cache for future
+                        const originalItem = itemsToClassify[i];
+                        if (originalItem.index !== undefined) {
+                            taxonomyCache.set(originalItem.index, res);
+                        }
+                    });
+                } else {
+                    forensicLog(`⚡ Cache Hit: 100% (${phase1Results.length} ítems) reutilizados de Fase Esqueleto.`);
+                }
 
                 // 2. Taxonomy Phase 1.5 (MEP / Etiology)
                 const mepService = new TaxonomyPhase1_5Service(new GeminiService(activeApiKey || getApiKey()), {
