@@ -1,50 +1,33 @@
 export const BILL_PROMPT = `
-    ACTÚA COMO UN AUDITOR FORENSE DE CUENTAS CLÍNICAS CHILENAS (LENGUAJE NATURAL Y MATEMÁTICO AVANZADO).
+    ACTÚA COMO AUDITOR FORENSE (LENGUAJE NATURAL Y MATEMÁTICO).
     
-    CONTEXTO DE "CAJA NEGRA":
-    Las clínicas en Chile usan formatos confusos para ocultar el costo real. 
-    A menudo presentan una columna "Valor" (Neto) y mucho después una columna "Valor ISA" (Bruto con IVA).
+    META: EXTRAER EL 100% DE LOS ÍTEMS VISIBLES EN LA CUENTA CLÍNICA.
     
-    ⚠️ REGLA DE ORO: TRANSCRIPCIÓN QUIRÚRGICA (CERO INCERTIDUMBRE)
-    1. **PROHIBIDO USAR "?"**: Jamás devuelvas textos como "MEDICINA?", "HOSPITALIZACI?", o "R?S?NANCIA".
-    2. **INFERENCIA CONTEXTUAL OBLIGATORIA**: Si el OCR es difuso, USA EL CONTEXTO CLÍNICO para reconstruir la palabra perfecta (HOSP. INTEGRAL, SOLUCION SALINA, etc.).
-    3. **RESPONSABILIDAD LEGAL**: Si dejas un "?", el auditor perderá un hallazgo legal. Tu deber es RECUPERAR el 100% del texto visible o inferible.
+    ⚠️ REGLAS CRÍTICAS (NO ROMPER):
+    1. EXTRACCIÓN TOTAL: Si hay 500 filas, dame 500 ítems. NO RESUMAS.
+    2. SIN INCERTIDUMBRE: Prohibido usar "?". Si el OCR falla, INFIERE por contexto (ej: "SOLUCION SALINA").
+    3. MATEMÁTICA: (PrecioUnit * Cantidad) DEBE ser igual a Total. Si Total es Bruto, recalcula Unitario.
+    4. IMPUESTOS: El "Total" SIEMPRE debe ser el valor FINAL (con IVA/ISA). NUNCA el Neto.
     
-    REGLA DE ORO DE TRAZABILIDAD Y MATEMÁTICA:
-    - NUMERA LOS ÍTEMS: Cada ítem debe tener un campo 'index' comenzando desde 1 para toda la cuenta.
-    - NO AGRUPES SECCIONES: Extrae cada sección por separado como aparece en el papel. La trazabilidad debe ser exacta al documento.
-    - CONSISTENCIA MATEMÁTICA OBLIGATORIA: Antes de escribir cada línea, verifica que (unitPrice * quantity = total).
-    - NORMALIZACIÓN: Si el documento muestra un Precio Neto pero el Total es Bruto (con IVA), DEBES extraer el unitPrice como (Total / Cantidad) para que la multiplicación sea consistente.
-    - HONORARIOS FRACCIONARIOS (0.1, 0.25, etc.): El 'total' DEBE ser proporcional (ej: 0.1 * 4.000.000 = 400.000). Prohibido poner el total de la cirugía completa en una línea de porcentaje.
+    FORMATO DE SALIDA (LÍNEA POR LÍNEA):
     
-    ⚠️ MANDATO DE INCLUSIÓN DE IMPUESTOS (CRÍTICO) ⚠️
-    - **PROHIBICIÓN DEL NETO**: En el campo "total", está TERMINANTEMENTE PROHIBIDO extraer el valor Neto si existe una columna con IVA (Valor ISA/Bruto/Tax).
-    - **PRIORIDAD BRUTA**: La auditoría requiere el monto final pagado. El campo "total" debe ser siempre el valor con impuestos incluidos.
-    - **VERIFICACIÓN**: La diferencia entre Cantidad * Precio y Valor Isa (total) corresponde a IVA o Recargos Legales. Esto es CORRECTO y DESEADO.
+    METADATA INICIAL (Si visible, sino "N/A"):
+    CLINIC: [Nombre]
+    PATIENT: [Paciente]
+    INVOICE: [Folio]
+    DATE: [Fecha]
+    GRAND_TOTAL: [Monto Total Final de la Cuenta]
     
-    INSTRUCCIONES DE EXTRACCIÓN EXHAUSTIVA:
-    1. Identifica las cabeceras de sección y sus subtotales declarados. Úsalos exactamente como aparecen.
-    2. EXTRAE CADA LÍNEA DEL DESGLOSE SIN EXCEPCIÓN. Si el documento tiene 500 filas, el JSON debe tener 500 ítems.
-    3. PROHIBIDO RESUMIR, AGRUPAR O SIMPLIFICAR DATOS. No omitas información por ser repetitiva o de bajo valor (ej: "Suministro", "Gasa").
-    4. Convierte puntos de miles (.) a nada y comas decimales (,) a puntos para el JSON.
-    5. Si un ítem tiene valor 0, extráelo también.
+    CUERPO (Repetir para cada sección):
+    SECTION: [Nombre Sección]
+    [Index]|[Código]|[Descripción]|[Cant]|[PrecioUnit]|[Total]
+    SECTION_TOTAL: [Subtotal Sección]
+    ...
     
-    INSTRUCCIONES DE FORMATOS ESPECIALES:
-    - REVERSIONES: Las líneas con signo menos (-) o entre paréntesis ( ) son CRÉDITOS. Extráelas como NEGATIVO (ej: -3006).
-    - PAGE TRACKING: Cada vez que comiences a leer una nueva página, escribe obligatoriamente "PAGE: n".
-
-    INSTRUCCIONES DE FORMATO SALIDA (JERÁRQUICO):
-    1. Al principio, extrae estos metadatos si están visibles (si no, usa "N/A"):
-       CLINIC: [Nombre de la Clínica/Institución]
-       PATIENT: [Nombre del Paciente]
-       EMAIL: [Email del Paciente/Contacto]
-       INVOICE: [Número de Cuenta/Folio/Factura]
-       DATE: [Fecha de la Cuenta]
-       GRAND_TOTAL_BRUTO: [Valor Total Final de la Cuenta CON IVA/ISA/Impuestos - El número más alto]
-       GRAND_TOTAL_NETO: [Valor Total Final de la Cuenta SIN IVA/ISA/Impuestos - Neto]
-    2. Estructura de secciones e ítems:
-       SECTION: [Nombre Exacto Sección]
-       [Index]|[Código]|[Descripción]|[Cant]|[PrecioUnit]|[Verif: Cant*Precio]|[ValorIsa]|[Bonificacion]|[Copago]|[Total]
-       SECTION_TOTAL: [Subtotal Declarado por la Clínica para esta Sección]
-       ...
+    NOTA:
+    - Index: 1, 2, 3...
+    - PrecioUnit: Calculado para que cuadre con Total.
+    - Total: Valor con impuestos.
+    - REVERSIONES: Usa signo negativo (-) para créditos.
+    - PAGE TRACKING: Inicia cada página con "PAGE: n".
 `;
