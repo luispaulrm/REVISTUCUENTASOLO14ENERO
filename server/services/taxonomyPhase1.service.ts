@@ -111,10 +111,10 @@ export class TaxonomyPhase1Service {
             console.log(`[TaxonomyPhase1] Processing ${itemsToProcessIndices.length} items (Cache Hit Rate: ${((items.length - itemsToProcessIndices.length) / items.length * 100).toFixed(1)}%)`);
 
             try {
-                // CHUNK STRATEGY: 50 items per batch
-                // CONCURRENCY: 5 batches in parallel to maximize throughput for large files
-                const CHUNK_SIZE = 50;
-                const CONCURRENCY_LIMIT = 5;
+                // CHUNK STRATEGY: 25 items per batch (Reduced from 50 for reliability)
+                // CONCURRENCY: 3 batches in parallel (Reduced from 5 to avoid rate limits)
+                const CHUNK_SIZE = 25;
+                const CONCURRENCY_LIMIT = 3;
 
                 const chunks: any[][] = [];
                 for (let i = 0; i < itemsToProcessPayload.length; i += CHUNK_SIZE) {
@@ -129,12 +129,14 @@ export class TaxonomyPhase1Service {
 
                 const promises = chunks.map((chunk, i) => limit(async () => {
                     try {
+                        const startTime = Date.now();
                         const msg = `Procesando lote ${i + 1}/${chunks.length} (${chunk.length} ítems)...`;
-                        console.log(`[TaxonomyPhase1] ${msg}`);
+                        console.log(`[TaxonomyPhase1] [${new Date().toISOString()}] ${msg}`);
                         if (onProgress) onProgress(msg);
 
                         const res = await this.callLlmWithRepair(chunk, 1);
-                        console.log(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} completed.`);
+                        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                        console.log(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} completed in ${duration}s.`);
                         return res;
                     } catch (err: any) {
                         console.error(`[TaxonomyPhase1] Batch ${i + 1}/${chunks.length} FAILED:`, err.message);
