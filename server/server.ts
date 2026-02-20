@@ -610,12 +610,9 @@ app.post('/api/extract', async (req, res) => {
 
         // ... After parsing lines Loop ...
 
-        // --- AUTO-RECONCILIATION LOOP ---
+        // --- MATH AUDIT (no LLM repair) ---
         forensicLog(`Iniciando Auditoría Matemática de ${sectionsMap.size} secciones.`);
         const sectionsArray = Array.from(sectionsMap.values());
-        // Use the key that worked for the initial extraction
-        if (!activeApiKey) throw new Error("No active API key available for repair service");
-        const geminiService = new GeminiService(activeApiKey);
 
         for (const sec of sectionsArray) {
             const sumItems = sec.items.reduce((acc: number, item: any) => acc + item.total, 0);
@@ -626,66 +623,8 @@ app.post('/api/extract', async (req, res) => {
             }
 
             const diff = sec.sectionTotal - sumItems;
-
-            if (Math.abs(diff) > 10) { // Reducido el threshold para mayor sensibilidad
-                const pages: number[] = [];
-                const pagesInfo = "páginas no identificadas";
-
-                forensicLog(`⚠️ DESCUADRE en "${sec.category}": Declarado $${sec.sectionTotal} vs Suma $${sumItems} (Dif: $${diff}). Contexto: ${pagesInfo}.`);
-                forensicLog(`Solicitando REPARACIÓN focalizada para "${sec.category}"...`);
-
-                try {
-                    const repairedItems = await geminiService.repairSection(
-                        image,
-                        mimeType,
-                        sec.category,
-                        sec.sectionTotal,
-                        sumItems,
-                        pages
-                    );
-
-                    if (repairedItems && repairedItems.length > 0) {
-                        const newSum = repairedItems.reduce((acc: number, item: any) => acc + (item.total || 0), 0);
-                        const newDiff = sec.sectionTotal - newSum;
-
-                        const improvedMath = Math.abs(newDiff) < Math.abs(diff);
-                        const improvedCount = repairedItems.length > sec.items.length;
-
-                        // CRITICAL: Prioritize exhaustiveness (improvedCount) over perfect math
-                        // because the clinic might have summed it wrong.
-                        if (improvedMath || improvedCount) {
-                            const reason = improvedCount ?
-                                `Detectados ${repairedItems.length - sec.items.length} ítems adicionales.` :
-                                `Diferencia reducida de $${diff} a $${newDiff}.`;
-
-                            forensicLog(`✅ MEJORA en "${sec.category}": ${reason} Aplicando cambios.`);
-
-                            sec.items = repairedItems.map((item: any) => {
-                                const q = item.quantity || 1;
-                                const p = item.unitPrice || 0;
-                                const t = item.total || 0;
-
-                                // IVA Intelligence: Check if (Price * Qty) matches Total, OR if (Price * 1.19 * Qty) matches Total
-                                const simpleError = Math.abs((p * q) - t) > 10;
-                                const ivaError = Math.abs((p * 1.19 * q) - t) > 10;
-                                const hasRealCalcError = simpleError && ivaError;
-
-                                return {
-                                    ...item,
-                                    total: t,
-                                    unitPrice: p,
-                                    quantity: q,
-                                    hasCalculationError: hasRealCalcError,
-                                    isIVAApplied: simpleError && !ivaError // Meta flag useful for audit
-                                };
-                            });
-                        } else {
-                            forensicLog(`❌ REPARACIÓN OMITIDA en "${sec.category}": No aumentó el detalle ni mejoró la cuadratura.`);
-                        }
-                    }
-                } catch (repairError) {
-                    forensicLog(`🔴 ERROR CRÍTICO reparando "${sec.category}": ${repairError}`);
-                }
+            if (Math.abs(diff) > 10) {
+                forensicLog(`⚠️ DESCUADRE en "${sec.category}": Declarado $${sec.sectionTotal} vs Suma $${sumItems} (Dif: $${diff}).`);
             }
         }
 
