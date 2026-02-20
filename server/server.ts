@@ -249,11 +249,11 @@ app.post('/api/extract', async (req, res) => {
 
         const CSV_PROMPT = BILL_PROMPT;
 
-        // --- STREAMING JSON EXTRACTION (v2.1) ---
-        // Uses streaming with prompt-guided JSON output (no strict responseSchema to avoid timeouts).
-        // The prompt instructs the model to respond in JSON format.
+        // --- CSV STREAMING EXTRACTION (original, proven approach) ---
+        // Note: JSON output mode (responseMimeType) caused streaming to freeze on large bills.
+        // We keep the CSV approach which streams reliably, and parse line by line.
 
-        let resultJson: any = null;
+        let resultStream: any;
         let lastError: any;
         let activeApiKey: string | undefined;
 
@@ -261,14 +261,14 @@ app.post('/api/extract', async (req, res) => {
 
         for (const modelName of modelsToTry) {
             if (!modelName) continue;
-            console.log(`[AUTH] 🛡️ Attempting JSON streaming extraction with model: ${modelName}`);
+            console.log(`[AUTH] 🛡️ Attempting extraction with model: ${modelName}`);
 
             for (const apiKey of apiKeys) {
                 const keyMask = apiKey ? (apiKey.substring(0, 4) + '...') : '???';
                 console.log(`[AUTH] Trying with API Key: ${keyMask} (Model: ${modelName})`);
 
                 try {
-                    forensicLog(`Intentando extracción JSON con modelo ${modelName}...`);
+                    forensicLog(`Intentando extracción con modelo ${modelName}...`);
                     const genAI = new GoogleGenerativeAI(apiKey);
                     const model = genAI.getGenerativeModel({
                         model: modelName,
@@ -276,14 +276,17 @@ app.post('/api/extract', async (req, res) => {
                             maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
                             temperature: GENERATION_CONFIG.temperature,
                             topP: GENERATION_CONFIG.topP,
-                            topK: GENERATION_CONFIG.topK,
-                            responseMimeType: 'application/json'
+                            topK: GENERATION_CONFIG.topK
                         }
                     });
 
-                    forensicLog(`Enviando imagen al modelo ${modelName} (JSON streaming)...`);
+                    forensicLog(`Enviando imagen al modelo ${modelName}...`);
 
-                    const timeoutMs = 120000;
+                    const waitingInterval = setInterval(() => {
+                        forensicLog(`⏳ Esperando respuesta de ${modelName}... (Procesando)`);
+                    }, 10000);
+
+                    const timeoutMs = 90000;
                     const streamPromise = model.generateContentStream([
                         { text: CSV_PROMPT },
                         {
@@ -300,63 +303,23 @@ app.post('/api/extract', async (req, res) => {
                         }, timeoutMs);
                     });
 
-                    let resultStream: any;
                     try {
                         resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
-                    } catch (raceErr) {
-                        throw raceErr;
+                    } finally {
+                        clearInterval(waitingInterval);
                     }
 
-                    // Aggregate streaming chunks
-                    let fullText = "";
-                    let iteration = 0;
-                    const maxIterations = 10000;
-
-                    for await (const chunk of resultStream.stream) {
-                        iteration++;
-                        if (iteration > maxIterations) {
-                            console.error(`[CRITICAL] Stream exceeded ${maxIterations} iterations. Breaking.`);
-                            break;
-                        }
-
-                        const chunkText = chunk.text();
-                        fullText += chunkText;
-
-                        console.log(`[CHUNK] +${chunkText.length} chars (Total: ${fullText.length})`);
-                        sendUpdate({ type: 'progress', length: fullText.length });
-
-                        // Report usage from last chunk
-                        const usage = chunk.usageMetadata;
-                        if (usage) {
-                            const promptTokens = usage.promptTokenCount || 0;
-                            const candidatesTokens = usage.candidatesTokenCount || 0;
-                            const totalTokens = usage.totalTokenCount || 0;
-                            const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(modelName, promptTokens, candidatesTokens);
-                            sendUpdate({
-                                type: 'usage',
-                                usage: { promptTokens, candidatesTokens, totalTokens, estimatedCost, estimatedCostCLP }
-                            });
-                        }
+                    if (resultStream) {
+                        activeApiKey = apiKey;
+                        break;
                     }
-
-                    console.log(`[EXTRACT] Streaming complete. Total JSON length: ${fullText.length} chars`);
-                    sendUpdate({ type: 'chunk', text: `[EXTRACT] JSON recibido: ${fullText.length} caracteres` });
-
-                    if (fullText.length === 0) {
-                        throw new Error("Gemini devolvió respuesta vacía");
-                    }
-
-                    resultJson = JSON.parse(fullText);
-                    activeApiKey = apiKey;
-                    console.log(`[AUTH] Success with Key: ${keyMask} on Model: ${modelName}`);
-                    break;
 
                 } catch (attemptError: any) {
                     const errStr = (attemptError?.toString() || "") + (attemptError?.message || "");
                     const isTimeout = errStr.includes('Timeout');
 
                     if (isTimeout) {
-                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 120 segundos.`);
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 90 segundos.`);
                         lastError = attemptError;
                         continue;
                     }
@@ -369,8 +332,8 @@ app.post('/api/extract', async (req, res) => {
             console.warn(`[AUTH] ⚠️ All keys failed for model ${modelName}. Switching to next model...`);
         }
 
-        if (!resultJson) {
-            console.error("❌ All API Keys/Models failed.");
+        if (!resultStream) {
+            console.error("❌ All API Keys failed.");
             const errStr = (lastError?.toString() || "") + (lastError?.message || "");
             const has429 = errStr.includes('429') || errStr.includes('Too Many Requests') || lastError?.status === 429;
 
@@ -384,87 +347,266 @@ app.post('/api/extract', async (req, res) => {
             throw lastError || new Error("All API attempts failed");
         }
 
-        // --- PROCESS STRUCTURED JSON RESULT ---
-        forensicLog(`✅ Extracción JSON exitosa. Procesando datos estructurados...`);
+        // Stream chunks and aggregate text
+        let fullText = "";
+        let previousLength = 0;
+        let stuckCount = 0;
+        let maxIterations = 10000;
+        let iteration = 0;
 
-        const clinicName = resultJson.clinicName || "CLINICA";
-        const patientName = resultJson.patientName || "PACIENTE";
-        const patientEmail = "N/A";
-        const invoiceNumber = resultJson.invoiceNumber || "000000";
-        const billingDate = resultJson.date || new Date().toLocaleDateString('es-CL');
-        let clinicGrandTotalField = Math.round(resultJson.grandTotalBruto || 0);
+        for await (const chunk of resultStream.stream) {
+            iteration++;
+            if (iteration > maxIterations) {
+                console.error(`[CRITICAL] Stream exceeded ${maxIterations} iterations. Breaking.`);
+                break;
+            }
 
+            const chunkText = chunk.text();
+            fullText += chunkText;
+
+            if (fullText.length === previousLength) {
+                stuckCount++;
+                if (stuckCount > 3) {
+                    console.log(`[WARN] Stream stuck at ${fullText.length} chars. Breaking.`);
+                    break;
+                }
+            } else {
+                stuckCount = 0;
+            }
+            previousLength = fullText.length;
+
+            console.log(`[CHUNK] +${chunkText.length} chars (Total: ${fullText.length})`);
+            sendUpdate({ type: 'chunk', text: chunkText });
+
+            const usage = chunk.usageMetadata;
+            if (usage) {
+                const promptTokens = usage.promptTokenCount || 0;
+                const candidatesTokens = usage.candidatesTokenCount || 0;
+                const totalTokens = usage.totalTokenCount || 0;
+                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(AI_CONFIG.ACTIVE_MODEL, promptTokens, candidatesTokens);
+                sendUpdate({
+                    type: 'usage',
+                    usage: { promptTokens, candidatesTokens, totalTokens, estimatedCost, estimatedCostCLP }
+                });
+            } else {
+                sendUpdate({ type: 'progress', length: fullText.length });
+            }
+        }
+
+        console.log(`\n[DEBUG] Extracción finalizada. Longitud total: ${fullText.length} chars.`);
+
+        // --- CSV PARSER ---
+        const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
         const sectionsMap = new Map<string, any>();
+        const sectionPageTracking = new Map<string, Set<number>>();
+        let currentSectionName = "SECCION_DESCONOCIDA";
+        let currentPage = 1;
         let globalIndex = 1;
 
-        for (const section of (resultJson.sections || [])) {
-            const categoryName = section.category || "SECCION_DESCONOCIDA";
-            const sectionObj = {
-                category: categoryName,
-                items: [] as any[],
-                sectionTotal: Math.round(section.sectionTotal || 0)
-            };
+        let clinicGrandTotalField = 0;
+        let clinicName = "CLINICA";
+        let patientName = "PACIENTE";
+        let patientEmail = "N/A";
+        let invoiceNumber = "000000";
+        let billingDate = new Date().toLocaleDateString('es-CL');
 
-            for (const item of (section.items || [])) {
-                const desc = item.description || "";
-                const code = item.code || "";
-                const quantity = item.quantity || 1;
-                const unitPrice = Math.round(item.unitPrice || 0);
-                const total = Math.round(item.total || 0);
-                const fullDescription = code ? `${desc} ${code}` : desc;
+        const cleanCLP = (value: string, isQuantity: boolean = false): number => {
+            if (!value) return 0;
+            let cleaned = value.trim();
+            if (cleaned.startsWith('(') && cleaned.endsWith(')')) {
+                cleaned = '-' + cleaned.substring(1, cleaned.length - 1);
+            }
+            cleaned = cleaned.replace(/[^\d.,-]/g, '');
+            if (cleaned === '' || cleaned === '-') return 0;
+            const firstNumeric = cleaned.search(/[0-9-]/);
+            if (firstNumeric > 0) cleaned = cleaned.substring(firstNumeric);
+            if (cleaned.includes(',')) {
+                return parseFloat(cleaned.replace(/\./g, '').replace(/,/g, '.')) || 0;
+            }
+            const dots = (cleaned.match(/\./g) || []).length;
+            if (dots === 1) {
+                const parts = cleaned.split('.');
+                if (!isQuantity) return parseFloat(cleaned.replace(/\./g, '')) || 0;
+                if (parts[1] === "000") {
+                    return parts[0].length <= 2 ? (parseFloat(cleaned) || 0) : (parseFloat(cleaned.replace(/\./g, '')) || 0);
+                }
+                if (parts[1].length !== 3) return parseFloat(cleaned) || 0;
+                return parseFloat(cleaned.replace(/\./g, '')) || 0;
+            } else if (dots > 1) {
+                return parseFloat(cleaned.replace(/\./g, '')) || 0;
+            }
+            return parseFloat(cleaned.replace(/[^\d.eE-]/g, '')) || 0;
+        };
 
-                // Skip headers and zero-value items
+        const robustSplit = (line: string): string[] => {
+            let trimmed = line.trim();
+            if (trimmed.startsWith('|')) trimmed = trimmed.substring(1);
+            if (trimmed.endsWith('|')) trimmed = trimmed.substring(0, trimmed.length - 1);
+            return trimmed.split('|').map(c => c.trim());
+        };
+
+        for (const line of lines) {
+            if (line.startsWith('GRAND_TOTAL:') || line.startsWith('GRAND_TOTAL_BRUTO:')) {
+                const rawVal = line.replace(/^GRAND_TOTAL[^:]*:/, '').trim();
+                clinicGrandTotalField = Math.round(cleanCLP(rawVal, false));
+                continue;
+            }
+            if (line.startsWith('CLINIC:')) { clinicName = line.replace('CLINIC:', '').trim(); continue; }
+            if (line.startsWith('PATIENT:')) { patientName = line.replace('PATIENT:', '').trim(); continue; }
+            if (line.startsWith('EMAIL:')) { patientEmail = line.replace('EMAIL:', '').trim(); continue; }
+            if (line.startsWith('INVOICE:')) { invoiceNumber = line.replace('INVOICE:', '').trim(); continue; }
+            if (line.startsWith('DATE:')) { billingDate = line.replace('DATE:', '').trim(); continue; }
+            if (line.startsWith('PAGE:')) {
+                const p = parseInt(line.replace('PAGE:', '').trim());
+                if (!isNaN(p)) currentPage = p;
+                forensicLog(`Procesando Página ${currentPage}...`);
+                continue;
+            }
+            if (line.startsWith('SECTION:')) {
+                currentSectionName = line.replace('SECTION:', '').trim();
+                if (!sectionsMap.has(currentSectionName)) {
+                    sectionsMap.set(currentSectionName, { category: currentSectionName, items: [], sectionTotal: 0 });
+                }
+                if (!sectionPageTracking.has(currentSectionName)) {
+                    sectionPageTracking.set(currentSectionName, new Set<number>());
+                }
+                continue;
+            }
+            if (line.startsWith('SECTION_TOTAL:')) {
+                const rawVal = line.replace('SECTION_TOTAL:', '').trim();
+                const secTotal = Math.round(cleanCLP(rawVal, false));
+                if (sectionsMap.has(currentSectionName)) {
+                    sectionsMap.get(currentSectionName).sectionTotal = secTotal;
+                }
+                continue;
+            }
+            if (!line.includes('|')) continue;
+
+            if (sectionPageTracking.has(currentSectionName)) {
+                sectionPageTracking.get(currentSectionName)!.add(currentPage);
+            }
+
+            const cols = robustSplit(line);
+            if (cols.length < 3) continue;
+
+            let code = "", desc = "", qtyStr = "1", unitPriceStr = "0", totalStr = "0";
+            let valorIsaStr = "", bonifStr = "", copagoStr = "";
+
+            if (cols.length === 3) {
+                desc = cols[1]; totalStr = cols[2]; unitPriceStr = totalStr;
+            } else {
+                code = cols[1]; desc = cols[2]; qtyStr = cols[3]; unitPriceStr = cols[4];
+                if (cols.length >= 10) {
+                    valorIsaStr = cols[6]; bonifStr = cols[7]; copagoStr = cols[8]; totalStr = cols[9];
+                } else if (cols.length >= 7) {
+                    totalStr = cols[6];
+                } else {
+                    totalStr = cols.length >= 6 ? cols[5] : cols[3];
+                }
+            }
+
+            const isClinicTotalLine = desc?.toUpperCase().includes("TOTAL SECCIÓN") || desc?.toUpperCase().includes("SUBTOTAL");
+            const total = Math.round(cleanCLP(totalStr || "0", false));
+            const quantity = cleanCLP(qtyStr || "1", true);
+            const unitPrice = Math.round(cleanCLP(unitPriceStr || "0", false));
+            const valorIsa = Math.round(cleanCLP(valorIsaStr || "0", false));
+            const bonificacion = Math.round(cleanCLP(bonifStr || "0", false));
+            const copago = Math.round(cleanCLP(copagoStr || "0", false));
+            const fullDescription = code ? `${desc} ${code}` : desc;
+
+            let sectionObj = sectionsMap.get(currentSectionName);
+            if (!sectionObj) {
+                sectionsMap.set("SECCIONES_GENERALES", { category: "SECCIONES_GENERALES", items: [], sectionTotal: 0 });
+                sectionObj = sectionsMap.get("SECCIONES_GENERALES");
+            }
+
+            const calcTotal = Math.round(unitPrice * quantity);
+            let finalQuantity = quantity, finalUnitPrice = unitPrice, finalTotal = total, finalCalcTotal = calcTotal;
+
+            // Smart magnitude coherence check
+            const factors = [10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000];
+            let foundFix = false;
+            if (Math.abs(calcTotal - total) > 5) {
+                for (const f of factors) {
+                    if (unitPrice > 0) {
+                        const testQty = quantity / f;
+                        const testCalc = Math.round(unitPrice * testQty);
+                        if (Math.abs(testCalc - total) <= 10) { finalQuantity = testQty; finalCalcTotal = testCalc; foundFix = true; break; }
+                    }
+                    if (quantity > 0) {
+                        const testPrice = unitPrice / f;
+                        const testCalc = Math.round(testPrice * quantity);
+                        if (Math.abs(testCalc - total) <= 10) { finalUnitPrice = testPrice; finalCalcTotal = testCalc; foundFix = true; break; }
+                    }
+                }
+            }
+
+            const simpleError = Math.abs(finalTotal - finalCalcTotal) > 10;
+            const ivaError = Math.abs(finalTotal - Math.round(finalCalcTotal * 1.19)) > 10;
+            let hasError = !foundFix && simpleError && ivaError;
+            const isIVAApplied = simpleError && !ivaError;
+
+            if (finalQuantity > 10000 && finalTotal < 1000000 && finalUnitPrice > 0 && finalUnitPrice < finalTotal) {
+                const correctedQty = Math.round((finalTotal / finalUnitPrice) * 100) / 100;
+                if (correctedQty < 1000 && correctedQty > 0) {
+                    finalQuantity = correctedQty;
+                    finalCalcTotal = Math.round(finalQuantity * finalUnitPrice);
+                    hasError = Math.abs(finalTotal - finalCalcTotal) > 10;
+                }
+            }
+
+            if (isClinicTotalLine) {
+                sectionObj.sectionTotal = finalTotal;
+            } else {
                 const isHeaderArtifact = fullDescription.toLowerCase().includes("descripción") ||
                     fullDescription.toLowerCase().includes("código") ||
                     fullDescription.includes("---");
-                if (isHeaderArtifact || total === 0) continue;
 
-                // Billing model classification (preserved from original)
-                const classification = classifyBillingModel({
-                    quantity,
-                    unitPrice,
-                    total,
-                    valorIsa: 0,
-                    description: fullDescription
-                });
+                if (!isHeaderArtifact && finalTotal > 0) {
+                    const classification = classifyBillingModel({
+                        quantity: finalQuantity,
+                        unitPrice: finalUnitPrice,
+                        total: finalTotal,
+                        valorIsa: valorIsa,
+                        description: fullDescription
+                    });
 
-                const calculatedTotal = Math.round(unitPrice * quantity);
-                const simpleError = Math.abs(total - calculatedTotal) > 10;
-                const ivaCalc = Math.round(calculatedTotal * 1.19);
-                const ivaError = Math.abs(total - ivaCalc) > 10;
-                const hasError = simpleError && ivaError;
-                const isIVAApplied = simpleError && !ivaError;
+                    const finalAuthoritativeTotal = classification.authoritativeTotal;
+                    if (valorIsa > 0) finalTotal = finalAuthoritativeTotal;
 
-                sectionObj.items.push({
-                    index: globalIndex++,
-                    description: fullDescription,
-                    quantity,
-                    unitPrice,
-                    total,
-                    calculatedTotal,
-                    hasCalculationError: hasError,
-                    isIVAApplied,
-                    valorIsa: 0,
-                    bonificacion: 0,
-                    copago: 0,
-                    billingModel: classification.model,
-                    authoritativeTotal: classification.authoritativeTotal,
-                    unitPriceTrust: classification.unitPriceTrust,
-                    qtyIsProration: classification.qtyIsProration,
-                    suspectedColumnShift: classification.suspectedColumnShift,
-                    toleranceApplied: classification.toleranceApplied
-                });
+                    if (classification.model === 'MULTIPLICATIVE_EXACT') {
+                        finalCalcTotal = Math.round(finalQuantity * finalUnitPrice);
+                        const tolerance = classification.toleranceApplied || 10;
+                        hasError = Math.abs(finalTotal - finalCalcTotal) > tolerance;
+                    } else {
+                        finalCalcTotal = finalAuthoritativeTotal;
+                        hasError = false;
+                    }
+
+                    sectionObj.items.push({
+                        index: globalIndex++,
+                        description: fullDescription,
+                        quantity: finalQuantity,
+                        unitPrice: finalUnitPrice,
+                        total: finalTotal,
+                        calculatedTotal: finalCalcTotal,
+                        hasCalculationError: hasError,
+                        isIVAApplied: isIVAApplied,
+                        valorIsa: valorIsa,
+                        bonificacion: bonificacion,
+                        copago: copago,
+                        billingModel: classification.model,
+                        authoritativeTotal: finalAuthoritativeTotal,
+                        unitPriceTrust: classification.unitPriceTrust,
+                        qtyIsProration: classification.qtyIsProration,
+                        suspectedColumnShift: classification.suspectedColumnShift,
+                        toleranceApplied: classification.toleranceApplied
+                    });
+                }
             }
-
-            // Recalculate section total from items if not provided
-            if (sectionObj.sectionTotal === 0 && sectionObj.items.length > 0) {
-                sectionObj.sectionTotal = sectionObj.items.reduce((acc: number, it: any) => acc + it.total, 0);
-            }
-
-            sectionsMap.set(categoryName, sectionObj);
         }
 
-        forensicLog(`📊 Procesadas ${sectionsMap.size} secciones con ${globalIndex - 1} ítems totales.`);
+
 
         // ... After parsing lines Loop ...
 
