@@ -1,0 +1,287 @@
+{
+  "summary": {
+    "totalCopagoAnalizado": 318753,
+    "totalImpactoFragmentacion": 318753,
+    "opacidadGlobal": {
+      "applies": false,
+      "maxIOP": 35
+    },
+    "patternSystemic": {
+      "m1Count": 0,
+      "m2Count": 1,
+      "m3CopagoPct": 0.5792980771945676,
+      "isSystemic": true
+    }
+  },
+  "eventModel": {
+    "actoPrincipal": "CIRUGIA_MAYOR",
+    "paquetesDetectados": [
+      "DERECHO_PABELLON"
+    ],
+    "notes": "Pabellón inferido por presencia de fármacos anestésicos o sección de estupefacientes"
+  },
+  "matrix": [
+    {
+      "itemLabel": "3101001 - MEDICAMENTOS CLINICOS",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M2",
+      "fundamento": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nValidación Contable: Suma de Bloques [Sección: MEDICAMENTOS + Sección: SICOTROPICOS]\n\nDESGLOSE EVIDENCIA (8 items, suma $134.100, Δ=$0):\n- [37] CEFTRIAXONA 1G (ACANT) | $102.588 |\n- [38] METRONIDAZOL 500 MG. I | $4.587 |\n- [40] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [41] ONDANSETRON 4 MG | $15.716 |\n- [42] SUERO FISIOLOGICO 500 CC | $2.344 |\n- [43] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [44] SUERO FISIOLOGICO 20 ML (BIS) | $1.208 |\n- [45] FENTANYL 2 ML (ESTUPEF) | $3.048 |\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G (ACANT)) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).",
+      "impacto": 134100,
+      "iop": 15
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS POR EL PLAN",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 9 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [110] DELANTAL PACIENTE AZUL | $2.334 |\n- [111] TERMOMETRO DIGITAL CON LOGO | $8.605 |\n- [112] ESPONJA CON JABON NEUTRO | $8.178 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MEDIAS ANTIEMBOLICAS S ($34.768), MANGAS TALLA S PARA COMPRESOR ($97.862)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), DELANTAL PACIENTE AZUL ($2.334), TERMOMETRO DIGITAL CON LOGO ($8.605), ESPONJA CON JABON NEUTRO ($8.178)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+      "impacto": 184653,
+      "iop": 35
+    }
+  ],
+  "pamRows": [
+    {
+      "pamLineId": "pam_1",
+      "codigoGC": "3101001",
+      "descripcion": "MEDICAMENTOS CLINICOS",
+      "montoCopago": 134100,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_SUBTOTAL_COMBO",
+            "status": "OK",
+            "details": "Validación Contable: Suma de Bloques [Sección: MEDICAMENTOS + Sección: SICOTROPICOS]",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_1.1",
+                "itemID": "img_1.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_1.2",
+                "itemID": "img_1.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_1.3",
+                "itemID": "img_1.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_1.4",
+                "itemID": "img_1.4"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_1.5",
+                "itemID": "img_1.5"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_1.6",
+                "itemID": "img_1.6"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_1.7",
+                "itemID": "img_1.7"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_1.8",
+                "itemID": "img_1.8"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "img_1.1",
+          "img_1.2",
+          "img_1.3",
+          "img_1.4",
+          "img_1.5",
+          "img_1.6",
+          "img_1.7",
+          "img_1.8"
+        ],
+        "traceability": {
+          "level": "TRACE_OK",
+          "reason": "Bloque Contable Verificado"
+        }
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R1"
+        ],
+        "notes": "Regla aplicada: Medicamentos 0%"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M2",
+        "rationale": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nValidación Contable: Suma de Bloques [Sección: MEDICAMENTOS + Sección: SICOTROPICOS]\n\nDESGLOSE EVIDENCIA (8 items, suma $134.100, Δ=$0):\n- [37] CEFTRIAXONA 1G (ACANT) | $102.588 |\n- [38] METRONIDAZOL 500 MG. I | $4.587 |\n- [40] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [41] ONDANSETRON 4 MG | $15.716 |\n- [42] SUERO FISIOLOGICO 500 CC | $2.344 |\n- [43] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [44] SUERO FISIOLOGICO 20 ML (BIS) | $1.208 |\n- [45] FENTANYL 2 ML (ESTUPEF) | $3.048 |\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G (ACANT)) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).",
+        "economicImpact": 134100
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam_2",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+      "montoCopago": 184653,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_SUBTOTAL_COMBO",
+            "status": "OK",
+            "details": "Validación Contable: Suma de Bloques [Sección: INSUMOS + Sección: MATERIALES + Sección: EQUIPOS + Sección: FARMACIA + Sección: HOTELERIA]",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.4",
+                "itemID": "img_2.4"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.2",
+                "itemID": "img_2.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.5",
+                "itemID": "img_2.5"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.1",
+                "itemID": "img_2.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.6",
+                "itemID": "img_2.6"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.3",
+                "itemID": "img_2.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.7",
+                "itemID": "img_2.7"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.8",
+                "itemID": "img_2.8"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_img_2.9",
+                "itemID": "img_2.9"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "img_2.4",
+          "img_2.2",
+          "img_2.5",
+          "img_2.1",
+          "img_2.6",
+          "img_2.3",
+          "img_2.7",
+          "img_2.8",
+          "img_2.9"
+        ],
+        "traceability": {
+          "level": "TRACE_OK",
+          "reason": "Bloque Contable Verificado"
+        }
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 9 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [110] DELANTAL PACIENTE AZUL | $2.334 |\n- [111] TERMOMETRO DIGITAL CON LOGO | $8.605 |\n- [112] ESPONJA CON JABON NEUTRO | $8.178 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MEDIAS ANTIEMBOLICAS S ($34.768), MANGAS TALLA S PARA COMPRESOR ($97.862)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), DELANTAL PACIENTE AZUL ($2.334), TERMOMETRO DIGITAL CON LOGO ($8.605), ESPONJA CON JABON NEUTRO ($8.178)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+        "economicImpact": 184653
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 35,
+        "breakdown": [
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    }
+  ],
+  "reportText": "INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)\n--------------------------------------------------\nEVENTO DETECTADO: CIRUGIA_MAYOR\nPAQUETES CLÍNICOS: DERECHO_PABELLON\n\nRESUMEN EJECUTIVO:\n- Total Copago Analizado: $318.753\n- Impacto Hallazgos: $318.753\n- Estado Opacidad: Trazable\n- Patrón Sistémico: SI (Mecanismo Repetitivo)\n\nDETALLE DE HALLAZGOS RELEVANTES:\n\n> [M2] 3101001 - MEDICAMENTOS CLINICOS\n  Copago Real: $134.100\n  Fundamento: Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nValidación Contable: Suma de Bloques [Sección: MEDICAMENTOS + Sección: SICOTROPICOS]\n\nDESGLOSE EVIDENCIA (8 items, suma $134.100, Δ=$0):\n- [37] CEFTRIAXONA 1G (ACANT) | $102.588 |\n- [38] METRONIDAZOL 500 MG. I | $4.587 |\n- [40] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [41] ONDANSETRON 4 MG | $15.716 |\n- [42] SUERO FISIOLOGICO 500 CC | $2.344 |\n- [43] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [44] SUERO FISIOLOGICO 20 ML (BIS) | $1.208 |\n- [45] FENTANYL 2 ML (ESTUPEF) | $3.048 |\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G (ACANT)) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).\n  \n\n\n> [M3] 3201001 - GASTOS NO CUBIERTOS POR EL PLAN\n  Copago Real: $184.653\n  Fundamento: [M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 9 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [110] DELANTAL PACIENTE AZUL | $2.334 |\n- [111] TERMOMETRO DIGITAL CON LOGO | $8.605 |\n- [112] ESPONJA CON JABON NEUTRO | $8.178 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MEDIAS ANTIEMBOLICAS S ($34.768), MANGAS TALLA S PARA COMPRESOR ($97.862)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), DELANTAL PACIENTE AZUL ($2.334), TERMOMETRO DIGITAL CON LOGO ($8.605), ESPONJA CON JABON NEUTRO ($8.178)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  \n\n\nCONCLUSIÓN:\nCuenta auditable con hallazgos específicos de fragmentación.\n",
+  "complaintText": "Sin hallazgos de opacidad crítica.",
+  "metadata": {
+    "executionTimestamp": "2026-02-20T12:57:17.237Z"
+  }
+}

@@ -3,6 +3,7 @@ import { Brain, Database, FileText, Activity, Layers, Zap, CheckCircle2, AlertCi
 import html2pdf from 'html2pdf.js';
 import { runSkill } from '../m11/engine';
 import { SkillInput, SkillOutput, CanonicalContractRule, ContractDomain } from '../m11/types';
+import ChatBox from './ChatBox';
 
 export default function AuditorM11App() {
     const [dataStatus, setDataStatus] = useState({
@@ -451,6 +452,129 @@ export default function AuditorM11App() {
                             </div>
                         </div>
 
+                        {/* === NEW: Forensic Evidence Breakdown (Desglose Forense) === */}
+                        {auditResult.pamRows && auditResult.pamRows.length > 0 && (
+                            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+                                <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                    <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                                        <CheckCircle2 className="text-emerald-600" size={20} />
+                                        Desglose Forense por Línea PAM
+                                    </h3>
+                                    <span className="text-xs text-slate-400 font-medium">Reconstrucción matemática exacta (Δ=$0)</span>
+                                </div>
+                                <div className="divide-y divide-slate-100">
+                                    {auditResult.pamRows.map((row: any, idx: number) => {
+                                        const isOk = row.trace.status === 'OK';
+                                        const isPartial = row.trace.status === 'PARTIAL';
+                                        const method = row.trace.attempts?.find((a: any) => a.status === 'OK')?.step || row.trace.attempts?.[0]?.step || 'N/A';
+                                        const matchedItems: any[] = row.trace.attempts
+                                            ?.flatMap((a: any) => a.candidates?.[0]?.items || [])
+                                            ?.filter((v: any, i: number, arr: any[]) => arr.findIndex((x: any) => x.id === v.id) === i)
+                                            || [];
+                                        const itemSum = matchedItems.reduce((s: number, i: any) => s + (i.total || 0), 0);
+                                        const delta = Math.round(row.montoCopago) - Math.round(itemSum);
+
+                                        return (
+                                            <details key={idx} className="group" open={isOk || isPartial}>
+                                                <summary className="flex items-center justify-between px-8 py-4 cursor-pointer hover:bg-slate-50 transition-colors list-none">
+                                                    <div className="flex items-center gap-4">
+                                                        <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${isOk ? 'bg-emerald-500' : isPartial ? 'bg-amber-500' : 'bg-rose-500'}`} />
+                                                        <div>
+                                                            <div className="font-bold text-slate-900 text-sm">{row.codigoGC}</div>
+                                                            <div className="text-xs text-slate-500 truncate max-w-xs">{row.descripcion}</div>
+                                                        </div>
+                                                        <span className={`ml-2 inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase ${isOk ? 'bg-emerald-100 text-emerald-700' :
+                                                            isPartial ? 'bg-amber-100 text-amber-700' :
+                                                                'bg-rose-100 text-rose-700'
+                                                            }`}>{row.trace.status}</span>
+                                                        <span className="ml-1 inline-flex px-2 py-0.5 rounded text-[10px] font-mono bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                                            {method}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center gap-6 text-right flex-shrink-0">
+                                                        <div>
+                                                            <div className="text-[10px] font-bold text-slate-400 uppercase">Objetivo PAM</div>
+                                                            <div className="text-sm font-mono font-bold text-slate-900">${(row.montoCopago + row.bonificacion).toLocaleString()}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-[10px] font-bold text-slate-400 uppercase">Δ Diferencia</div>
+                                                            <div className={`text-sm font-mono font-bold ${delta === 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                                                {delta === 0 ? '$0 ✅' : `$${delta.toLocaleString()}`}
+                                                            </div>
+                                                        </div>
+                                                        <div className="text-slate-300 group-open:rotate-180 transition-transform text-lg">▼</div>
+                                                    </div>
+                                                </summary>
+
+                                                {/* Expanded: Item breakdown */}
+                                                <div className="px-8 pb-6 pt-2 bg-slate-50/30">
+                                                    {matchedItems.length > 0 ? (
+                                                        <div className="rounded-xl border border-slate-200 overflow-hidden bg-white">
+                                                            <table className="w-full text-xs">
+                                                                <thead className="bg-slate-100 text-[10px] uppercase font-bold text-slate-500">
+                                                                    <tr>
+                                                                        <th className="px-4 py-2 text-left">#</th>
+                                                                        <th className="px-4 py-2 text-left">Descripción del Ítem (Cuenta Clínica)</th>
+                                                                        <th className="px-4 py-2 text-left">Sección</th>
+                                                                        <th className="px-4 py-2 text-right">Total</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody className="divide-y divide-slate-100">
+                                                                    {matchedItems.map((item: any, iIdx: number) => (
+                                                                        <tr key={iIdx} className="hover:bg-indigo-50/30 transition-colors">
+                                                                            <td className="px-4 py-2 text-slate-400 font-mono">{String(iIdx + 1).padStart(2, '0')}</td>
+                                                                            <td className="px-4 py-2 font-medium text-slate-800">{item.description}</td>
+                                                                            <td className="px-4 py-2 text-slate-500">
+                                                                                <span className="px-2 py-0.5 bg-slate-100 rounded text-[10px] font-mono">
+                                                                                    {item.section || 'N/A'}
+                                                                                </span>
+                                                                            </td>
+                                                                            <td className="px-4 py-2 text-right font-mono font-bold text-slate-900">
+                                                                                ${(item.total || 0).toLocaleString()}
+                                                                            </td>
+                                                                        </tr>
+                                                                    ))}
+                                                                    {/* Running total row */}
+                                                                    <tr className={`font-bold border-t-2 ${delta === 0 ? 'bg-emerald-50 border-emerald-200' : 'bg-rose-50 border-rose-200'}`}>
+                                                                        <td colSpan={3} className={`px-4 py-3 text-xs uppercase tracking-wider ${delta === 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                                                            SUMA TOTAL → {matchedItems.length} ítem{matchedItems.length !== 1 ? 's' : ''}
+                                                                            {delta === 0 && ' · CUADRATURA EXACTA ✅'}
+                                                                        </td>
+                                                                        <td className={`px-4 py-3 text-right font-mono text-sm ${delta === 0 ? 'text-emerald-700' : 'text-rose-700'}`}>
+                                                                            ${Math.round(itemSum).toLocaleString()}
+                                                                        </td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-slate-400 text-xs italic py-4 text-center">
+                                                            {row.trace.status === 'FAIL' ? 'No se encontraron ítems que cuadren este monto.' : 'Desglose no disponible para este método de calce.'}
+                                                        </div>
+                                                    )}
+
+                                                    {/* Classification badge */}
+                                                    <div className="mt-3 flex items-center gap-2 text-xs">
+                                                        <span className={`px-2 py-1 rounded font-bold uppercase ${row.fragmentacion.motor === 'M2' ? 'bg-purple-100 text-purple-700' :
+                                                            row.fragmentacion.motor === 'M3' ? 'bg-rose-100 text-rose-700' :
+                                                                row.fragmentacion.motor === 'M1' ? 'bg-blue-100 text-blue-700' :
+                                                                    'bg-slate-100 text-slate-600'
+                                                            }`}>{row.fragmentacion.motor || 'N/A'}</span>
+                                                        <span className="text-slate-500 flex-1 truncate">{row.fragmentacion.rationale}</span>
+                                                        {row.opacidad.applies && (
+                                                            <span className="flex items-center gap-1 text-rose-600 font-bold bg-rose-50 px-2 py-0.5 rounded border border-rose-100">
+                                                                <AlertCircle size={10} /> IOP: {row.opacidad.iopScore}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </details>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Report & Complaint Tabs */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col h-[500px]">
@@ -478,6 +602,17 @@ export default function AuditorM11App() {
                                     {auditResult.complaintText || "No hay hallazgos que generen reclamo."}
                                 </div>
                             </div>
+                        </div>
+                        {/* Chat Box Integration */}
+                        <div className="mt-8 no-print">
+                            <ChatBox
+                                contextData={{
+                                    result: auditResult,
+                                    contract: JSON.parse(localStorage.getItem('canonical_contract_result') || '{}'),
+                                    pam: JSON.parse(localStorage.getItem('pam_audit_result') || '{}'),
+                                    bill: JSON.parse(localStorage.getItem('clinic_audit_result') || '{}')
+                                }}
+                            />
                         </div>
                     </div>
                 )}
@@ -621,8 +756,8 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     billItems = billItems.map((item: any, idx: number) => ({
         // STRICT MAPPING: DO NOT SPREAD ...item (Removes useless vectors/embeddings/raw text)
         id: item.id || item.codigo || item.codeInternal || `bill_${idx}`,
-        section: item.section || item.seccion || item.categoria || '',
-        sectionPath: item.originalSection ? [item.originalSection] : (item.section ? [item.section] : []),
+        section: item.section || item.seccion || item.categoria || item.Category || '',
+        sectionPath: item.originalSection ? [item.originalSection] : (item.section ? [item.section] : (item.seccion ? [item.seccion] : [])),
         sectionKey: item.originalSection ? `SEC_${item.originalSection.replace(/\s+/g, '_').toUpperCase()}` : undefined,
         description: item.description || item.glosa || item.descripcion || item.Item || '',
         total: Number(item.total || item.valor || item.monto || item.Total || 0),
@@ -633,11 +768,11 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
 
     // 4. Extract Metadata
     const metadata = {
-        patientName: billSource.patientName || rawBill.patientName || 'Paciente Desconocido',
-        clinicName: billSource.clinicName || rawBill.clinicName || 'Clínica Desconocida',
+        patientName: billSource.patientName || rawBill.patientName || billSource.paciente?.nombre || 'Paciente Desconocido',
+        clinicName: billSource.clinicName || rawBill.clinicName || billSource.prestador?.nombre || 'Clínica Desconocida',
         isapre: rawContract.diseno_ux?.nombre_isapre || billSource.isapre || 'Isapre Desconocida',
         plan: rawContract.diseno_ux?.titulo_plan || billSource.plan || 'Plan Desconocido',
-        financialDate: billSource.date || rawBill.date || new Date().toLocaleDateString()
+        financialDate: billSource.date || rawBill.date || billSource.fecha || new Date().toLocaleDateString()
     };
 
     // console.log(`Adapter Result: Rules=${rules.length}, Folios=${pamFolios.length}, BillItems=${billItems.length}`);

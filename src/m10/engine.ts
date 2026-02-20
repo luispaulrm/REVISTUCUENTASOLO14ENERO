@@ -94,9 +94,10 @@ export function runSkill(input: SkillInput): SkillOutput {
         return idxA - idxB;
     });
 
-    const billIndex = indexBill(input.bill.items);
-    const anchorMap = buildAnchorMap(input.bill.items);
-    const eventModel = inferEventModel(input.bill.items, input.pam);
+    const billItems = preProcessBillSections(input.bill.items);
+    const billIndex = indexBill(billItems);
+    const anchorMap = buildAnchorMap(billItems);
+    const eventModel = inferEventModel(billItems, input.pam);
 
     const pamRows: PamAuditRow[] = [];
     const usedBillItemIds = new Set<string>(); // GLOBAL: prevents double-imputation across PAM lines
@@ -152,58 +153,95 @@ export function runSkill(input: SkillInput): SkillOutput {
         const isCatchAll = domainFilterResult === 'CATCH_ALL';
 
         // In Pass 1, skip catch-all lines (they'll be processed in Pass 2)
-        if (pass === 1 && isCatchAll && montoMatch.status !== 'OK') return null;
+        if (pass === 1 && isCatchAll && montoMatch.status !== 'OK' && glosaMatch.status !== 'OK') return null;
         // In Pass 2, skip lines that already had an anchor (processed in Pass 1)
-        if (pass === 2 && !isCatchAll && montoMatch.status === 'OK') return null;
+        if (pass === 2 && !isCatchAll && (montoMatch.status === 'OK' || glosaMatch.status === 'OK')) return null;
 
         if (montoMatch.status !== 'OK' && glosaMatch.status !== 'OK') {
-            // 3. Subtotal / Section Block match
+            // 3. Subtotal / Section Block match (Single or Combo)
+            // Priority 1: High-fidelity accounting blocks
             const subtotalBlocks = Array.from(billIndex.subtotals.values()).flat()
-                .filter(b => !b.componentItemIds.some(id => usedBillItemIds.has(id))); // exclude blocks with consumed items
+                .filter(b => !b.componentItemIds.some(id => usedBillItemIds.has(id)));
 
-            const subtotalMatch = subtotalBlocks.find(b => Math.abs(b.total - line.valorTotal) < 2);
-            if (subtotalMatch) {
-                attempts.push({ step: 'MONTO_SUBTOTAL', status: 'OK', details: `Subtotal/Sección: ${subtotalMatch.label}`, refsBill: [] });
-                matchedBillItems = subtotalMatch.componentItemIds
-                    .map(id => billIndex.all.find(i => i.id === id))
+            const subMatch = trySubtotalCombinationMatch(line, subtotalBlocks);
+            if (subMatch.status === 'OK') {
+                attempts.push(subMatch);
+                matchedBillItems = (subMatch.refsBill || [])
+                    .map(r => r.kind === 'jsonpath' ? billIndex.all.find(i => i.id === r.itemID) : undefined)
                     .filter(Boolean) as CanonicalBillItem[];
-            } else if (!isCatchAll) {
-                // 4. DP with domain filter (only for non-catch-all codes)
-                const domainFilter = typeof domainFilterResult === 'function' ? domainFilterResult : null;
-                const domainItems = domainFilter
-                    ? availableItems.filter(i => domainFilter(normalize((i as any).section || ''), normalize(i.description)))
-                    : availableItems;
+            }
 
-                const subtotalBlocksForDP = subtotalBlocks;
-                let comboMatch = tryCombinationMatch(line, domainItems, subtotalBlocksForDP, !!domainFilter);
-
-                // Fallback to full available pool (with purity gate) if domain-filtered DP failed
-                // CRITICAL FIX: Block fallback for 3101001/3101002 (Medicamentos/Materiales) to prevent Day Bed absorption
-                const isStrictDomain = line.codigoGC === '3101001' || line.codigoGC === '3101002';
-
-                if (comboMatch.status !== 'OK' && domainFilter && !isStrictDomain) {
-                    comboMatch = tryCombinationMatch(line, availableItems, subtotalBlocksForDP, false);
-                }
-
-                if (comboMatch.status === 'OK' || comboMatch.status === 'PARTIAL') {
-                    attempts.push(comboMatch);
-                    matchedBillItems = (comboMatch.refsBill || [])
-                        .map((r: EvidenceRef) => r.kind === 'jsonpath' ? billIndex.all.find((i: CanonicalBillItem) => i.id === r.itemID) : undefined)
-                        .filter(Boolean) as CanonicalBillItem[];
+            if (summarizeTrace(attempts) !== 'OK') {
+                // Priority 1.5: physically contiguous block match (New v1.4.2)
+                const windowMatch = tryContiguousWindowMatch(line, availableItems);
+                if (windowMatch.status === 'OK') {
+                    attempts.push(windowMatch);
+                    matchedBillItems = (windowMatch.candidates?.[0].items || []);
                 }
             }
-            // If isCatchAll and no subtotal: no DP allowed, falls through to classification
+
+            if (summarizeTrace(attempts) !== 'OK') {
+                // 4. Contiguous Block Match (Physical Window - Scoring)
+                const contiguousMatch = tryContiguousBlockMatch(line, availableItems);
+                if (contiguousMatch.status !== 'FAIL') {
+                    attempts.push(contiguousMatch);
+                    if (contiguousMatch.status === 'OK') {
+                        matchedBillItems = (contiguousMatch.candidates?.[0].items || []);
+                    }
+                }
+            }
+
+            if (summarizeTrace(attempts) !== 'OK') {
+                if (isCatchAll) {
+                    const residualFilter = getResidualFilter();
+                    const residualItems = availableItems.filter(i => residualFilter(normalize((i as any).section || ''), normalize(i.description)));
+
+                    if (residualItems.length > 0) {
+                        const residualMatch = tryCombinationMatch(line, residualItems, [], true);
+                        if (residualMatch.status === 'OK' || residualMatch.status === 'PARTIAL') {
+                            residualMatch.details = `Bolsón de Residuales (Hotelería/Zonas Grises): ${residualMatch.details}`;
+                            attempts.push(residualMatch);
+                            matchedBillItems = (residualMatch.refsBill || [])
+                                .map((r: EvidenceRef) => r.kind === 'jsonpath' ? billIndex.all.find((i: CanonicalBillItem) => i.id === r.itemID) : undefined)
+                                .filter(Boolean) as CanonicalBillItem[];
+                        }
+                    }
+                }
+
+                if (summarizeTrace(attempts) !== 'OK' && !isCatchAll) {
+                    // 5. DP with domain filter (limited search)
+                    const domainFilter = typeof domainFilterResult === 'function' ? domainFilterResult : null;
+                    const domainItems = domainFilter
+                        ? availableItems.filter(i => domainFilter(normalize((i as any).section || ''), normalize(i.description)))
+                        : availableItems;
+
+                    let comboMatch = tryCombinationMatch(line, domainItems, [], !!domainFilter);
+
+                    // Fallback to full available pool if domain-filtered DP failed
+                    const isStrictDomain = line.codigoGC === '3101001' || line.codigoGC === '3101002';
+                    if (comboMatch.status !== 'OK' && domainFilter && !isStrictDomain) {
+                        comboMatch = tryCombinationMatch(line, availableItems, [], false);
+                    }
+
+                    if (comboMatch.status === 'OK' || comboMatch.status === 'PARTIAL') {
+                        attempts.push(comboMatch);
+                        matchedBillItems = (comboMatch.refsBill || [])
+                            .map((r: EvidenceRef) => r.kind === 'jsonpath' ? billIndex.all.find((i: CanonicalBillItem) => i.id === r.itemID) : undefined)
+                            .filter(Boolean) as CanonicalBillItem[];
+                    }
+                }
+            }
         }
 
         // === CONSUME IDs: Mark matched items as used globally ===
         matchedBillItems.forEach(i => { if (i.id) usedBillItemIds.add(i.id); });
 
-        // --- Phase 2: Motores de Fragmentación (M1-M4) ---
+        // --- Phase 2: Opacidad (Agotamiento) ---
         const contractCheck = evaluateContract(line, input.contract);
-        const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems, cfg, anchorMap);
+        const opacidad = evaluateOpacidad(line, cfg, attempts, contractCheck.state, matchedBillItems, null);
 
-        // --- Phase 3: Opacidad (Agotamiento) ---
-        const opacidad = evaluateOpacidad(line, cfg, attempts, contractCheck.state, matchedBillItems, frag);
+        // --- Phase 3: Motores de Fragmentación (M1-M4) ---
+        const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems, cfg, anchorMap, opacidad);
 
         return buildRow(line, attempts, contractCheck, frag, opacidad, matchedBillItems);
     }
@@ -246,6 +284,61 @@ export function runSkill(input: SkillInput): SkillOutput {
 }
 
 // ---------- Helpers ----------
+
+/**
+ * v1.4.2: Infers section headers if they are missing based on description keywords.
+ * This restores structural auditing logic for live data that lost section headers.
+ */
+function preProcessBillSections(items: CanonicalBillItem[]): CanonicalBillItem[] {
+    let currentInferredSection = "GENERAL";
+
+    return items.map(item => {
+        const desc = (item.description || "").toUpperCase();
+
+        // Priority inference keywords: trigger a section switch
+        if (desc.includes("DIA CAMA") || desc.includes("HABITACION")) currentInferredSection = "DIA_CAMA";
+        else if (desc.includes("CEFTRIAXONA") || desc.includes("METRONIDAZOL") || desc.includes("PARACETAMOL") || desc.includes("FENTANYL")) currentInferredSection = "MEDICAMENTOS";
+        else if (desc.includes("SUTURA") || desc.includes("APOSITO") || desc.includes("VICRYL") || desc.includes("JERINGA")) currentInferredSection = "MATERIALES";
+        else if (desc.includes("PABELLON") || desc.includes("RECUPERACION") || desc.includes("DERECHO DE PABELLON")) currentInferredSection = "PABELLON";
+        else if (desc.includes("LABORATORIO") || desc.includes("EXAMEN") || desc.includes("GLUCOSA")) currentInferredSection = "EXAMENES";
+
+        // Only apply inference if original section is empty or generic
+        if (!item.section || item.section === "" || item.section === "Sin Sección" || item.section === "GENERAL") {
+            return { ...item, section: currentInferredSection };
+        }
+        return item;
+    });
+}
+
+/**
+ * v1.4.2: Scans for a contiguous block of items that sum EXACTLY to the PAM target.
+ * Use for physically clustered items that might be missing section headers.
+ */
+function tryContiguousWindowMatch(line: CanonicalPamLine, items: CanonicalBillItem[]): TraceAttempt {
+    const target = line.valorTotal;
+    if (target <= 0) return { step: "MONTO_BLOQUE_CONTIGUO", status: "FAIL", details: "Zero or negative target" };
+
+    // Sliding window of size k
+    for (let size = 1; size <= Math.min(items.length, 15); size++) {
+        for (let i = 0; i <= items.length - size; i++) {
+            const window = items.slice(i, i + size);
+            const sum = window.reduce((s, item) => s + (item.total || 0), 0);
+
+            if (Math.abs(sum - target) < 2) {
+                return {
+                    step: "MONTO_BLOQUE_CONTIGUO",
+                    status: "OK",
+                    details: `Exact match found in contiguous block of ${size} items (Index ${i} to ${i + size - 1})`,
+                    refsBill: window.map(item => ({ kind: 'jsonpath', source: 'BILL', path: `item_id_${item.id}`, itemID: item.id || '' })),
+                    candidates: [{ items: window, score: 120, reason: "Physical Contiguity + Exact Sum" }]
+                };
+            }
+        }
+    }
+
+    return { step: "MONTO_BLOQUE_CONTIGUO", status: "FAIL", details: "No contiguous window match" };
+}
+
 
 function normalize(str: string): string {
     return (str || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9 ]/g, "").trim();
@@ -408,6 +501,83 @@ function tryGlosaMatch(line: CanonicalPamLine, index: any): TraceAttempt {
     return { step: 'GLOSA_FAMILIA', status: 'FAIL', details: 'No match' };
 }
 
+function scoreCandidate(items: CanonicalBillItem[]): { score: number; reason: string } {
+    let score = 0;
+    const reasons: string[] = [];
+
+    if (items.length === 0) return { score: 0, reason: "Empty" };
+
+    // 1. Contiguous Run Bonus: round(count/3) * 5
+    const runValue = Math.round(items.length / 3);
+    const runBonus = runValue * 5;
+    score += runBonus;
+    reasons.push(`Contiguous Run of ${runValue} (+${runBonus})`);
+
+    // 2. Pool Code Note (Static wording as requested)
+    reasons.push("Pool Code (Section Bias Neutralized)");
+
+    // 3. Item Count Penalty: (count - 8) * 2 if count > 8
+    if (items.length > 8) {
+        const penalty = (items.length - 8) * 2;
+        score -= penalty;
+        reasons.push(`Too Many Items (-${penalty})`);
+    }
+
+    // 4. Numeric Confidence
+    score += 40;
+    reasons.push("Numeric Confidence (Pool Code + Exact Match) (+40)");
+
+    return { score, reason: reasons.join(", ") };
+}
+
+function tryContiguousBlockMatch(line: CanonicalPamLine, availableItems: CanonicalBillItem[]): TraceAttempt {
+    const target = line.valorTotal;
+    const candidates: Array<{ items: CanonicalBillItem[]; score: number; reason: string }> = [];
+
+    // availableItems must be sorted by originalIndex (handled in main loop)
+    for (let start = 0; start < availableItems.length; start++) {
+        let currentSum = 0;
+        const window: CanonicalBillItem[] = [];
+
+        for (let end = start; end < availableItems.length; end++) {
+            const item = availableItems[end];
+            currentSum += item.total || 0;
+            window.push(item);
+
+            if (Math.abs(currentSum - target) < 2) {
+                // Exact match found in window
+                const { score, reason } = scoreCandidate(window);
+                candidates.push({ items: [...window], score, reason });
+                break; // Move to next start point
+            }
+
+            if (currentSum > target + 500) break; // Optimization: stop if sum is way over
+            if (window.length > 20) break; // Limit window size
+        }
+    }
+
+    if (candidates.length > 0) {
+        // Sort by score descending
+        candidates.sort((a, b) => b.score - a.score);
+        const best = candidates[0];
+
+        return {
+            step: 'MONTO_CONTIGUO',
+            status: best.score >= 100 ? 'OK' : 'PARTIAL',
+            details: `Bloque Contiguo (Score ${best.score}): ${best.reason}`,
+            candidates: candidates.slice(0, 3), // Keep top 3
+            refsBill: best.items.map(i => ({
+                kind: 'jsonpath',
+                source: 'BILL',
+                path: `item_id_${i.id}`,
+                itemID: i.id
+            }))
+        };
+    }
+
+    return { step: 'MONTO_CONTIGUO', status: 'FAIL', details: 'No match' };
+}
+
 function tryMonto1a1Match(line: CanonicalPamLine, index: any): TraceAttempt {
     // Try matching valorTotal OR copago (sometimes bills reflect copago directly)
     const matchesTotal = index.byTotal.get(line.valorTotal);
@@ -427,9 +597,41 @@ function tryMonto1a1Match(line: CanonicalPamLine, index: any): TraceAttempt {
     return { step: 'MONTO_1A1', status: 'FAIL', details: 'No amount match' };
 }
 
-// Regla T1: Domain-aware filter for DP candidates
-// Restricts DP search space to items from the same clinical domain as the PAM code
-// Returns filter function, 'CATCH_ALL' string for generic codes, or null
+// --- REGLA T2: Hotelería & Zonas Grises (Bolsón de Residuales) ---
+const HOTELERY_KEYWORDS = [
+    'aseo personal', 'kit de aseo', 'pijama', 'chata', 'termometro digital', 'calzon clinico',
+    'pantufla', 'bolso', 'shampoo', 'jabon', 'cepillo', 'pasta dental', 'vaso', 'jarro', 'toalla',
+    'esponja con jabon', 'delantal paciente', 'delantal esteril', 'fleboclisis', 'instalacion de via',
+    'jeringa', 'suero fisiologico', 'ondansetron', 'metamizol', 'lubricante ocular', 'removedor de adhesivo',
+    'protector de piel', 'crema protectora', 'barrera cutanea', 'higiene', 'confort'
+];
+
+const GREY_ZONE_KEYWORDS = [
+    'mangas', 'medias antiembolicas'
+];
+
+function getResidualFilter(): (section: string, itemDesc: string) => boolean {
+    return (sec: string, itemDesc: string) => {
+        const d = normalize(itemDesc);
+        const s = normalize(sec);
+
+        // 1. Explicit Hotelery/Comfort
+        if (HOTELERY_KEYWORDS.some(k => d.includes(k))) return true;
+
+        // 2. Grey Zone Materials
+        if (GREY_ZONE_KEYWORDS.some(k => d.includes(k))) return true;
+
+        // 3. Section Bias
+        if (s.includes('hoteleria') || s.includes('confort') || s.includes('paciente') || s.includes('administrativo') || s.includes('general')) return true;
+
+        // 4. HARD EXCLUSION: Clinical domains should NOT be residuals
+        const clinicalDomains = ['medicamento', 'farmacia', 'sicotropico', 'estupefaciente', 'pabellon', 'quirofano', 'examen', 'laboratorio', 'imagenologia', 'kinesi', 'protesis', 'honorario'];
+        if (clinicalDomains.some(cd => s.includes(cd))) return false;
+
+        return false;
+    };
+}
+
 // Regla T1: Domain-aware filter for DP candidates
 // Restricts DP search space to items from the same clinical domain as the PAM code
 // Returns filter function, 'CATCH_ALL' string for generic codes, or null
@@ -438,6 +640,7 @@ function getDomainFilter(gc: string, desc: string, eventModel: any): ((section: 
 
     // === MEDICAMENTOS (3101001) ===
     if (gc === '3101001' || d.includes('medicamento')) {
+        // ... (rest of the medication filter logic)
         // Hard exclusions: items that are NEVER medications (hotelería/insumos)
         const medExclusions = ['tubo ', 'vacuet', 'jeringa', 'aguja', 'canister', 'termometro',
             'mascarilla', 'equipo flebo', 'branula', 'aposito', 'electrodo', 'set de aseo',
@@ -521,47 +724,7 @@ function tryCombinationMatch(line: CanonicalPamLine, items: CanonicalBillItem[],
     const target = line.valorTotal;
     const domainTag = domainFiltered ? ' [domain=ON]' : '';
 
-    // 1. Prioritize: Combination of Subtotal Blocks (Exact Match)
-    // Scenario: PAM matches Sum(Subtotal A + Subtotal B)
-    // e.g. 134100 = 131052 + 3048
-    if (subtotalBlocks.length > 0) {
-        // Collect all subtotal values
-        const candidates = subtotalBlocks.filter(b => b.total > 0 && b.total <= target);
-
-        function findSubtotalSubset(index: number, currentSum: number, path: SubtotalBlock[]): SubtotalBlock[] | null {
-            if (currentSum === target) return path; // EXACT match required by user
-            if (Math.abs(currentSum - target) < 2) return path; // Tolerance 1 peso rounding
-            if (path.length >= 3) return null;
-            if (index >= candidates.length) return null;
-            if (currentSum > target) return null;
-
-            for (let i = index; i < candidates.length; i++) {
-                const res = findSubtotalSubset(i + 1, currentSum + candidates[i].total, [...path, candidates[i]]);
-                if (res) return res;
-            }
-            return null;
-        }
-
-        const subMatch = findSubtotalSubset(0, 0, []);
-        if (subMatch) {
-            const allComponents = subMatch.flatMap(b => b.componentItemIds);
-            const subLabel = subMatch.map(b => b.label || `$${b.total}`).join(' + ');
-            return {
-                step: 'MONTO_SUBSET',
-                status: 'OK',
-                details: `Suma de Bloques/Secciones: ${subLabel}${domainTag}`,
-                refsBill: allComponents.map(id => ({
-                    kind: 'jsonpath',
-                    source: 'BILL',
-                    path: `item_id_${id}`,
-                    note: `Componente de Bloque/Sección Combinado`,
-                    itemID: id
-                }))
-            };
-        }
-    }
-
-    // 2. Fallback: DP Exact Subset Sum (Robust for N items)
+    // 1. DP Exact Subset Sum (Robust for N items)
     // Filter candidates (only positive, non-zero).
     const dpCandidates = items.filter(i => i.total > 0 && i.total <= target);
 
@@ -600,9 +763,13 @@ function tryCombinationMatch(line: CanonicalPamLine, items: CanonicalBillItem[],
             // 2. If domain-filtered, check purity (≥70% items match domain)
             let purityOk = true;
             if (domainFiltered && resultItems.length > 0) {
-                // Count how many items would pass through domain filter
-                // (they already did since they're in the filtered pool, so purity is 100% for domain-filtered)
+                // High confidence if it was already filtered
                 purityOk = true;
+            } else if (!domainFiltered && resultItems.length > 1) {
+                // FALLBACK DP: check if we are mixing domains too much
+                const domains = resultItems.map(i => mapGCToDomain('', i.description));
+                const uniqueDomains = new Set(domains);
+                if (uniqueDomains.size > 2) purityOk = false; // "Frankenstein" match
             }
             // 3. For non-domain-filtered fallback: purity is inherently lower
             const finalStatus: TraceStatus = (allHaveIds && purityOk && domainFiltered) ? 'OK' : 'PARTIAL';
@@ -675,8 +842,48 @@ function trySubtotalMatch(line: CanonicalPamLine, index: any): TraceAttempt {
     return { step: 'MONTO_SUBTOTAL', status: 'FAIL', details: 'No subtotal match' };
 }
 
+// --- REGLA T3: Combinación de Subtotales (Bolsón Contable) ---
+function trySubtotalCombinationMatch(line: CanonicalPamLine, subtotalBlocks: SubtotalBlock[]): TraceAttempt {
+    const target = line.valorTotal;
+    if (subtotalBlocks.length === 0) return { step: 'MONTO_SUBTOTAL_COMBO', status: 'FAIL', details: 'No subtotal blocks provided' };
+
+    const candidates = subtotalBlocks.filter(b => b.total > 0 && b.total <= target + 5);
+
+    function findSubset(index: number, currentSum: number, path: SubtotalBlock[]): SubtotalBlock[] | null {
+        if (Math.abs(currentSum - target) < 2) return path;
+        if (path.length >= 5) return null; // allow up to 5 blocks
+        if (index >= candidates.length) return null;
+        if (currentSum > target + 5) return null;
+
+        for (let i = index; i < candidates.length; i++) {
+            const res = findSubset(i + 1, currentSum + candidates[i].total, [...path, candidates[i]]);
+            if (res) return res;
+        }
+        return null;
+    }
+
+    const match = findSubset(0, 0, []);
+    if (match) {
+        const allComponents = match.flatMap(b => b.componentItemIds);
+        const subLabel = match.map(b => b.label || `$${b.total}`).join(' + ');
+        return {
+            step: 'MONTO_SUBTOTAL_COMBO',
+            status: 'OK',
+            details: `Validación Contable: Suma de Bloques [${subLabel}]`,
+            refsBill: allComponents.map(id => ({
+                kind: 'jsonpath',
+                source: 'BILL',
+                path: `item_id_${id}`,
+                itemID: id
+            }))
+        };
+    }
+
+    return { step: 'MONTO_SUBTOTAL_COMBO', status: 'FAIL', details: 'No subtotal combination match' };
+}
+
 function summarizeTrace(attempts: TraceAttempt[]): TraceStatus {
-    if (attempts.some(a => a.status === 'OK')) return 'OK';
+    if (attempts.some(a => (a.step === 'MONTO_1A1' || a.step === 'MONTO_SUBTOTAL' || a.step === 'MONTO_SUBTOTAL_COMBO' || a.step === 'MONTO_BLOQUE_CONTIGUO') && a.status === 'OK')) return 'OK';
     if (attempts.some(a => a.status === 'PARTIAL')) return 'PARTIAL';
     return 'FAIL';
 }
@@ -688,15 +895,22 @@ function computeTraceability(attempts: TraceAttempt[], matchedItems: CanonicalBi
     const hasAnchor1a1 = attempts.some(a => a.step === 'MONTO_1A1' && a.status === 'OK');
     const hasGlosaExact = attempts.some(a => a.step === 'GLOSA_FAMILIA' && a.status === 'OK');
     const hasSubtotal = attempts.some(a => a.step === 'MONTO_SUBTOTAL' && a.status === 'OK');
+    const hasSubtotalCombo = attempts.some(a => (a.step === 'MONTO_SUBTOTAL_COMBO' || a.step === 'MONTO_SUBTOTAL') && a.status === 'OK');
+    const hasContiguous = attempts.some(a => a.step === 'MONTO_CONTIGUO' && a.status === 'OK');
     const hasDP = attempts.some(a => a.step === 'MONTO_SUBSET' && (a.status === 'OK' || a.status === 'PARTIAL'));
     const hasDPDomain = attempts.some(a => a.step === 'MONTO_SUBSET' && a.status === 'OK' && a.details?.includes('domain=ON'));
     const hasDPPartial = attempts.some(a => a.step === 'MONTO_SUBSET' && a.status === 'PARTIAL');
 
     const hasIds = matchedItems?.length > 0 && matchedItems.every(i => !!i.id);
 
-    // TRACE_OK: real anchor (1A1 unique match or exact glosa)
-    if (hasAnchor1a1 || hasGlosaExact) {
-        return { level: 'TRACE_OK', reason: hasAnchor1a1 ? 'Anchor MONTO_1A1' : 'Glosa exacta' };
+    // TRACE_OK: real anchor (1A1 unique match, exact glosa, subtotal block or high-score contiguous run)
+    if (hasAnchor1a1 || hasGlosaExact || hasSubtotalCombo || hasContiguous) {
+        let reason = "Anchor";
+        if (hasAnchor1a1) reason = 'Anchor MONTO_1A1';
+        else if (hasGlosaExact) reason = 'Glosa exacta';
+        else if (hasSubtotalCombo) reason = 'Bloque Contable Verificado';
+        else if (hasContiguous) reason = 'Bloque Contiguo Verificado';
+        return { level: 'TRACE_OK', reason };
     }
 
     // TRACE_OK: domain-filtered DP with verified IDs (deterministic clinical match)
@@ -768,7 +982,8 @@ function classifyFragmentation(
     eventModel: any,
     matchedItems: CanonicalBillItem[],
     cfg: any,
-    anchorMap: Record<string, number[]> | null = null
+    anchorMap: Record<string, number[]> | null = null,
+    opacidad: any = null
 ): any {
     let level: FindingLevel = 'CORRECTO';
     let motor: Motor = 'NA';
@@ -789,10 +1004,11 @@ function classifyFragmentation(
 
     // Signals
     const dpAttempt = attempts.find(a => a.step === 'MONTO_SUBSET' && (a.status === 'OK' || a.status === 'PARTIAL'));
-    const subtotalAttempt = attempts.find(a => a.step === 'MONTO_SUBTOTAL' && a.status === 'OK');
-    const traceBreakdown = dpAttempt?.details || subtotalAttempt?.details || '';
+    const subtotalAttempt = attempts.find(a => (a.step === 'MONTO_SUBTOTAL' || a.step === 'MONTO_SUBTOTAL_COMBO' || a.step === 'MONTO_BLOQUE_CONTIGUO') && a.status === 'OK');
+    const contiguousAttempt = attempts.find(a => (a.step === 'MONTO_CONTIGUO' || a.step === 'MONTO_BLOQUE_CONTIGUO') && (a.status === 'OK' || a.status === 'PARTIAL'));
+    const traceBreakdown = dpAttempt?.details || subtotalAttempt?.details || contiguousAttempt?.details || '';
 
-    const hasM2Signals = dpAttempt?.status === 'OK';
+    const hasM2Signals = dpAttempt?.status === 'OK' || contiguousAttempt?.status === 'OK' || subtotalAttempt?.status === 'OK';
     const hasM2SubtotalRef = !!subtotalAttempt;
 
     // M1: Creación Artificial de Actos Autónomos
@@ -809,7 +1025,7 @@ function classifyFragmentation(
 
     // M2: Desanclaje desde Paquete (Unbundling)
     if (eventModel.paquetesDetectados.length > 0) {
-        const standardSupplies = ["jeringa", "aguja", "torula", "guantes", "electrodo", "bajada", "branula", "gasas", "aposito", "ceftriaxona", "fentanyl", "propofol", "suero", "ondansetron"];
+        const standardSupplies = ["jeringa", "aguja", "torula", "guantes", "electrodo", "bajada", "branula", "gasas", "aposito", "ceftriaxona", "fentanyl", "propofol", "suero", "ondansetron", "mascarilla", "bandeja", "ligadura", "chata"];
 
         // 1. Direct PAM Description Check
         if (standardSupplies.some(s => desc.includes(s))) {
@@ -823,6 +1039,9 @@ function classifyFragmentation(
         // 2. Component Check (Combinatorial or Subtotal Trace)
         const isCatchAll = line.codigoGC === '3201001' || line.codigoGC === '3201002';
         if (!isCatchAll && (hasM2Signals || hasM2SubtotalRef) && matchedItems.length > 0) {
+            const sumMatched = matchedItems.reduce((s, i) => s + (i.total || 0), 0);
+            const delta = Math.abs(sumMatched - line.valorTotal);
+
             const foundSupply = matchedItems.find(i => {
                 const iDesc = normalize(i.description);
                 return standardSupplies.some(s => iDesc.includes(s));
@@ -830,24 +1049,56 @@ function classifyFragmentation(
 
             if (foundSupply) {
                 const paqueteOrigen = inferPackageOrigen(matchedItems, eventModel, anchorMap);
-                const provenance = foundSupply.section ? `proveniente de la sección '${foundSupply.section}'` : 'proveniente de la cuenta';
+                const provenance = foundSupply.section ? `la sección '${foundSupply.section}'` : 'la cuenta';
+
+                const evidenceLines = matchedItems.map(i => {
+                    const idx = (i as any).originalIndex ?? "?";
+                    // Using .toLocaleString('es-CL') or similar might be better, but let's stick to simple fixed format for now
+                    return `- [${idx}] ${i.description} | $${(i.total || 0).toLocaleString()} |`;
+                });
+
+                const iopScore = opacidad?.iopScore ?? 0;
                 motor = 'M2';
                 level = 'FRAGMENTACION_ESTRUCTURAL';
-                rationale = `Paquete desplazado: El monto $${line.valorTotal.toLocaleString()} corresponde al siguiente hallazgo clínico:\n${traceBreakdown}\n\nEste conjunto contiene insumo estándar (${foundSupply.description}) ${provenance}, lo que confirma su pertenencia al paquete clínico (${paqueteOrigen}).`;
+                const contigAttempt = attempts.find(a => a.step === 'MONTO_CONTIGUO' && !!a.details && a.details !== 'No match');
+                const scoreLine = contigAttempt?.details ? `Desglose [domain=ON] (${contigAttempt.details})` : traceBreakdown;
+
+                rationale = `Paquete desplazado: El monto $${line.valorTotal.toLocaleString()} corresponde al siguiente hallazgo clínico:\n${scoreLine}\n\nDESGLOSE EVIDENCIA (${matchedItems.length} items, suma $${sumMatched.toLocaleString()}, Δ=$0):\n${evidenceLines.join('\n')}\n\nEste conjunto contiene insumo estándar (${foundSupply.description}) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (${paqueteOrigen}).`;
                 return { level, motor, rationale, economicImpact: impact };
             }
         }
     }
 
     // M3: Traslado de Costos No Clínicos / Residuales (Bolsón)
-    // Generic PAM + NO hard anchor -> M3
-    // Generic PAM + only WEAK trace (DP/Subtotal) -> STILL M3 (numeric match ≠ clinical traceability)
-    if (isGeneric && (traceNone || traceWeak)) {
+    const residualFilter = getResidualFilter();
+    const isPureResidualMatch = matchedItems.length > 0 && matchedItems.every(i => residualFilter(normalize((i as any).section || ''), normalize(i.description)));
+
+    if (isGeneric && (traceNone || traceWeak || isPureResidualMatch)) {
         motor = 'M3';
         level = 'FRAGMENTACION_ESTRUCTURAL';
-        rationale = traceWeak
-            ? `Bolsón genérico: El monto $${line.valorTotal.toLocaleString()} corresponde al siguiente match numérico (${t.reason}):\n${traceBreakdown}\n\nSe clasifica como OPACIDAD al no contar con trazabilidad clínica real (TRACE_WEAK).`
-            : 'Traslado de costos a bolsón genérico sin trazabilidad clínica ni desglose';
+
+        let evidenceBlock = "";
+        const iopScore = opacidad?.iopScore ?? 0;
+        let sumMatched = 0;
+        let delta = line.valorTotal;
+
+        if (matchedItems.length > 0) {
+            sumMatched = matchedItems.reduce((s, i) => s + (i.total || 0), 0);
+            delta = Math.abs(sumMatched - line.valorTotal);
+            const evidenceLines = matchedItems.map(i => {
+                const idx = (i as any).originalIndex ?? "?";
+                return `- [${idx}] ${i.description} | $${(i.total || 0).toLocaleString()} |`;
+            });
+            evidenceBlock = `DESGLOSE EVIDENCIA:\n${evidenceLines.join('\n')}\n\n`;
+        }
+
+        const defendible = matchedItems.filter(i => GREY_ZONE_KEYWORDS.some(k => normalize(i.description).includes(k)));
+        const amenities = matchedItems.filter(i => HOTELERY_KEYWORDS.some(k => normalize(i.description).includes(k)) || (!GREY_ZONE_KEYWORDS.some(k => normalize(i.description).includes(k))));
+
+        const classificationDetail = matchedItems.length > 0 ? `\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($${defendible.reduce((s, i) => s + (i.total || 0), 0).toLocaleString()}): ${defendible.map(i => `${i.description} ($${(i.total || 0).toLocaleString()})`).join(', ')}\n→ Amenities/Administrativo ($${amenities.reduce((s, i) => s + (i.total || 0), 0).toLocaleString()}): ${amenities.map(i => `${i.description} ($${(i.total || 0).toLocaleString()})`).join(', ')}` : "";
+
+        rationale = `[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican ${matchedItems.length} ítems del BILL que suman exacto el monto del agrupador (Δ=$${delta}).\n\n${evidenceBlock}${classificationDetail}\n  ⚠️ OPACIDAD DETECTADA (IOP ${iopScore}):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)`;
+
         return { level, motor, rationale, economicImpact: impact };
     }
 

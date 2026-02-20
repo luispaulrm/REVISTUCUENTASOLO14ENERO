@@ -1,0 +1,810 @@
+{
+  "summary": {
+    "totalCopagoAnalizado": 431455,
+    "totalImpactoFragmentacion": 431455,
+    "opacidadGlobal": {
+      "applies": true,
+      "maxIOP": 75
+    },
+    "patternSystemic": {
+      "m1Count": 0,
+      "m2Count": 2,
+      "m3CopagoPct": 0.6133640820015992,
+      "isSystemic": true
+    }
+  },
+  "eventModel": {
+    "actoPrincipal": "CIRUGIA_MAYOR",
+    "paquetesDetectados": [
+      "DERECHO_PABELLON"
+    ],
+    "notes": "Pabellón inferido por presencia de fármacos anestésicos o sección de estupefacientes"
+  },
+  "matrix": [
+    {
+      "itemLabel": "3101001 - MEDICAMENTOS CLINICOS",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M2",
+      "fundamento": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nExact match found in contiguous block of 8 items (Index 13 to 20)\n\nDESGLOSE EVIDENCIA (8 items, suma $134.100, Δ=$0):\n- [37] CEFTRIAXONA 1G (ACANT) | $102.588 |\n- [38] METRONIDAZOL 500 MG. I | $4.587 |\n- [40] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [41] ONDANSETRON 4 MG | $15.716 |\n- [42] SUERO FISIOLOGICO 500 CC | $2.344 |\n- [43] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [44] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [45] FENTANYL 2 ML (ESTUPEF) | $3.048 |\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G (ACANT)) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON). [OPACIDAD IOP 55]",
+      "impacto": 134100,
+      "iop": 55
+    },
+    {
+      "itemLabel": "3101002 - MATERIALES CLINICOS",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M2",
+      "fundamento": "Paquete desplazado: El monto $32.716 corresponde al siguiente hallazgo clínico:\nDesglose Combinatorial (DP) [domain=ON]:\n    - $17.525 [JERINGA INYECTORA MONO] (Origen: MATERIALES)\n    - $421 [JERINGA 10 cc. EMBUTIDA] (Origen: MATERIALES)\n    - $729 [EQUIPO FLEBOCLISIS] (Origen: MATERIALES)\n    - $1.058 [CHATA HONDA DESECHABLE] (Origen: MATERIALES)\n    - $9.132 [MASCARILLA MULTIVENT] (Origen: MATERIALES)\n    - $551 [JERINGA 10 cc. LUER LOCK] (Origen: MATERIALES)\n    - $614 [LIGADURA LIBRE DE LATEX] (Origen: MATERIALES)\n    - $872 [BRANULA VIALON 20GX1] (Origen: MATERIALES)\n    - $548 [APOSITO 10 X 10 ESTERIL] (Origen: MATERIALES)\n    - $1.266 [BANDEJA ALUSA ESTERIL] (Origen: GENERAL)\n\nDESGLOSE EVIDENCIA (10 items, suma $32.716, Δ=$0):\n- [31] JERINGA INYECTORA MONO | $17.525 |\n- [24] JERINGA 10 cc. EMBUTIDA | $421 |\n- [20] EQUIPO FLEBOCLISIS | $729 |\n- [17] CHATA HONDA DESECHABLE | $1.058 |\n- [11] MASCARILLA MULTIVENT | $9.132 |\n- [10] JERINGA 10 cc. LUER LOCK | $551 |\n- [9] LIGADURA LIBRE DE LATEX | $614 |\n- [7] BRANULA VIALON 20GX1 | $872 |\n- [3] APOSITO 10 X 10 ESTERIL | $548 |\n- [2] BANDEJA ALUSA ESTERIL | $1.266 |\n\nEste conjunto contiene insumo estándar (JERINGA INYECTORA MONO) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DIA_CAMA_INTEGRAL).",
+      "impacto": 32716,
+      "iop": 15
+    },
+    {
+      "itemLabel": "3201002 - PRESTACION NO CONTEMPLADA",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [133] FLEBOCLISIS 99-00-045-01 | $42.957 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($42.957): FLEBOCLISIS 99-00-045-01 ($42.957)\n  ⚠️ OPACIDAD DETECTADA (IOP 15):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+      "impacto": 42957,
+      "iop": 15
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS B",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [132] INSTALACION DE VIA VENOSA | $23.985 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($23.985): INSTALACION DE VIA VENOSA ($23.985)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+      "impacto": 23985,
+      "iop": 35
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS POR EL PLAN",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 8 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [111] TERMOMETRO DIGITAL CON LOGO | $8.605 |\n- [112] SET ASEO PERSONAL PACIENTE | $10.512 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MANGAS TALLA S PARA COMPRESOR ($97.862), MEDIAS ANTIEMBOLICAS S ($34.768)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), TERMOMETRO DIGITAL CON LOGO ($8.605), SET ASEO PERSONAL PACIENTE ($10.512)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15) [OPACIDAD IOP 75]",
+      "impacto": 184653,
+      "iop": 75
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS C",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 3 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [15] ESPONJA CON JABON NEUTRO | $2.105 |\n- [16] DELANTAL PACIENTE AZUL | $2.334 |\n- [33] TERMOMETRO DIGITAL C | $8.605 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($13.044): ESPONJA CON JABON NEUTRO ($2.105), DELANTAL PACIENTE AZUL ($2.334), TERMOMETRO DIGITAL C ($8.605)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15) [OPACIDAD IOP 75]",
+      "impacto": 13044,
+      "iop": 75
+    }
+  ],
+  "pamRows": [
+    {
+      "pamLineId": "pam_1",
+      "codigoGC": "3101001",
+      "descripcion": "MEDICAMENTOS CLINICOS",
+      "montoCopago": 134100,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_BLOQUE_CONTIGUO",
+            "status": "OK",
+            "details": "Exact match found in contiguous block of 8 items (Index 13 to 20)",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.1",
+                "itemID": "b1.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.2",
+                "itemID": "b1.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.3",
+                "itemID": "b1.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.4",
+                "itemID": "b1.4"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.5",
+                "itemID": "b1.5"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.6",
+                "itemID": "b1.6"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.7",
+                "itemID": "b1.7"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.8",
+                "itemID": "b1.8"
+              }
+            ],
+            "candidates": [
+              {
+                "items": [
+                  {
+                    "id": "b1.1",
+                    "description": "CEFTRIAXONA 1G (ACANT)",
+                    "total": 102588,
+                    "originalIndex": 37,
+                    "section": "MEDICAMENTOS"
+                  },
+                  {
+                    "id": "b1.2",
+                    "description": "METRONIDAZOL 500 MG. I",
+                    "total": 4587,
+                    "originalIndex": 38,
+                    "section": "MEDICAMENTOS"
+                  },
+                  {
+                    "id": "b1.3",
+                    "description": "SUERO FISIOLOGICO 20 ML",
+                    "total": 1208,
+                    "originalIndex": 40,
+                    "section": "MEDICAMENTOS"
+                  },
+                  {
+                    "id": "b1.4",
+                    "description": "ONDANSETRON 4 MG",
+                    "total": 15716,
+                    "originalIndex": 41,
+                    "section": "MEDICAMENTOS"
+                  },
+                  {
+                    "id": "b1.5",
+                    "description": "SUERO FISIOLOGICO 500 CC",
+                    "total": 2344,
+                    "originalIndex": 42,
+                    "section": "MEDICAMENTOS"
+                  },
+                  {
+                    "id": "b1.6",
+                    "description": "SUERO FISIOLOGICO 100 ML",
+                    "total": 3401,
+                    "originalIndex": 43,
+                    "section": "MEDICAMENTOS"
+                  },
+                  {
+                    "id": "b1.7",
+                    "description": "SUERO FISIOLOGICO 20 ML",
+                    "total": 1208,
+                    "originalIndex": 44,
+                    "section": "MEDICAMENTOS"
+                  },
+                  {
+                    "id": "b1.8",
+                    "description": "FENTANYL 2 ML (ESTUPEF)",
+                    "total": 3048,
+                    "originalIndex": 45,
+                    "section": "MEDICAMENTOS"
+                  }
+                ],
+                "score": 120,
+                "reason": "Physical Contiguity + Exact Sum"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "b1.1",
+          "b1.2",
+          "b1.3",
+          "b1.4",
+          "b1.5",
+          "b1.6",
+          "b1.7",
+          "b1.8"
+        ],
+        "traceability": {
+          "level": "TRACE_NONE",
+          "reason": "Sin ancla ni desglose"
+        }
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R1"
+        ],
+        "notes": "Regla aplicada: Medicamentos 0%"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M2",
+        "rationale": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nExact match found in contiguous block of 8 items (Index 13 to 20)\n\nDESGLOSE EVIDENCIA (8 items, suma $134.100, Δ=$0):\n- [37] CEFTRIAXONA 1G (ACANT) | $102.588 |\n- [38] METRONIDAZOL 500 MG. I | $4.587 |\n- [40] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [41] ONDANSETRON 4 MG | $15.716 |\n- [42] SUERO FISIOLOGICO 500 CC | $2.344 |\n- [43] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [44] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [45] FENTANYL 2 ML (ESTUPEF) | $3.048 |\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G (ACANT)) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).",
+        "economicImpact": 134100
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 55,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam_2",
+      "codigoGC": "3101002",
+      "descripcion": "MATERIALES CLINICOS",
+      "montoCopago": 32716,
+      "bonificacion": 0,
+      "trace": {
+        "status": "FAIL",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_SUBSET",
+            "status": "OK",
+            "details": "Desglose Combinatorial (DP) [domain=ON]:\n    - $17.525 [JERINGA INYECTORA MONO] (Origen: MATERIALES)\n    - $421 [JERINGA 10 cc. EMBUTIDA] (Origen: MATERIALES)\n    - $729 [EQUIPO FLEBOCLISIS] (Origen: MATERIALES)\n    - $1.058 [CHATA HONDA DESECHABLE] (Origen: MATERIALES)\n    - $9.132 [MASCARILLA MULTIVENT] (Origen: MATERIALES)\n    - $551 [JERINGA 10 cc. LUER LOCK] (Origen: MATERIALES)\n    - $614 [LIGADURA LIBRE DE LATEX] (Origen: MATERIALES)\n    - $872 [BRANULA VIALON 20GX1] (Origen: MATERIALES)\n    - $548 [APOSITO 10 X 10 ESTERIL] (Origen: MATERIALES)\n    - $1.266 [BANDEJA ALUSA ESTERIL] (Origen: GENERAL)",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.10",
+                "note": "JERINGA INYECTORA MONO ($17525) - Sec: MATERIALES",
+                "itemID": "b2.10"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.9",
+                "note": "JERINGA 10 cc. EMBUTIDA ($421) - Sec: MATERIALES",
+                "itemID": "b2.9"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.8",
+                "note": "EQUIPO FLEBOCLISIS ($729) - Sec: MATERIALES",
+                "itemID": "b2.8"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.7",
+                "note": "CHATA HONDA DESECHABLE ($1058) - Sec: MATERIALES",
+                "itemID": "b2.7"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.6",
+                "note": "MASCARILLA MULTIVENT ($9132) - Sec: MATERIALES",
+                "itemID": "b2.6"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.5",
+                "note": "JERINGA 10 cc. LUER LOCK ($551) - Sec: MATERIALES",
+                "itemID": "b2.5"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.4",
+                "note": "LIGADURA LIBRE DE LATEX ($614) - Sec: MATERIALES",
+                "itemID": "b2.4"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.3",
+                "note": "BRANULA VIALON 20GX1 ($872) - Sec: MATERIALES",
+                "itemID": "b2.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.2",
+                "note": "APOSITO 10 X 10 ESTERIL ($548) - Sec: MATERIALES",
+                "itemID": "b2.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b2.1",
+                "note": "BANDEJA ALUSA ESTERIL ($1266) - Sec: GENERAL",
+                "itemID": "b2.1"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "b2.10",
+          "b2.9",
+          "b2.8",
+          "b2.7",
+          "b2.6",
+          "b2.5",
+          "b2.4",
+          "b2.3",
+          "b2.2",
+          "b2.1"
+        ],
+        "traceability": {
+          "level": "TRACE_OK",
+          "reason": "DP determinístico en dominio clínico + IDs verificados"
+        }
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R2"
+        ],
+        "notes": "Regla aplicada: Materiales 0%"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M2",
+        "rationale": "Paquete desplazado: El monto $32.716 corresponde al siguiente hallazgo clínico:\nDesglose Combinatorial (DP) [domain=ON]:\n    - $17.525 [JERINGA INYECTORA MONO] (Origen: MATERIALES)\n    - $421 [JERINGA 10 cc. EMBUTIDA] (Origen: MATERIALES)\n    - $729 [EQUIPO FLEBOCLISIS] (Origen: MATERIALES)\n    - $1.058 [CHATA HONDA DESECHABLE] (Origen: MATERIALES)\n    - $9.132 [MASCARILLA MULTIVENT] (Origen: MATERIALES)\n    - $551 [JERINGA 10 cc. LUER LOCK] (Origen: MATERIALES)\n    - $614 [LIGADURA LIBRE DE LATEX] (Origen: MATERIALES)\n    - $872 [BRANULA VIALON 20GX1] (Origen: MATERIALES)\n    - $548 [APOSITO 10 X 10 ESTERIL] (Origen: MATERIALES)\n    - $1.266 [BANDEJA ALUSA ESTERIL] (Origen: GENERAL)\n\nDESGLOSE EVIDENCIA (10 items, suma $32.716, Δ=$0):\n- [31] JERINGA INYECTORA MONO | $17.525 |\n- [24] JERINGA 10 cc. EMBUTIDA | $421 |\n- [20] EQUIPO FLEBOCLISIS | $729 |\n- [17] CHATA HONDA DESECHABLE | $1.058 |\n- [11] MASCARILLA MULTIVENT | $9.132 |\n- [10] JERINGA 10 cc. LUER LOCK | $551 |\n- [9] LIGADURA LIBRE DE LATEX | $614 |\n- [7] BRANULA VIALON 20GX1 | $872 |\n- [3] APOSITO 10 X 10 ESTERIL | $548 |\n- [2] BANDEJA ALUSA ESTERIL | $1.266 |\n\nEste conjunto contiene insumo estándar (JERINGA INYECTORA MONO) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DIA_CAMA_INTEGRAL).",
+        "economicImpact": 32716
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam_4",
+      "codigoGC": "3201002",
+      "descripcion": "PRESTACION NO CONTEMPLADA",
+      "montoCopago": 42957,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "b4"
+        ],
+        "traceability": {
+          "level": "TRACE_OK",
+          "reason": "Anchor MONTO_1A1"
+        }
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [133] FLEBOCLISIS 99-00-045-01 | $42.957 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($42.957): FLEBOCLISIS 99-00-045-01 ($42.957)\n  ⚠️ OPACIDAD DETECTADA (IOP 15):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+        "economicImpact": 42957
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam_5",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS B",
+      "montoCopago": 23985,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "OK",
+            "details": "Unique amount match (Total)"
+          }
+        ],
+        "matchedBillItemIds": [
+          "b5"
+        ],
+        "traceability": {
+          "level": "TRACE_OK",
+          "reason": "Anchor MONTO_1A1"
+        }
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [132] INSTALACION DE VIA VENOSA | $23.985 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($23.985): INSTALACION DE VIA VENOSA ($23.985)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+        "economicImpact": 23985
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 35,
+        "breakdown": [
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam_3",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+      "montoCopago": 184653,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_BLOQUE_CONTIGUO",
+            "status": "OK",
+            "details": "Exact match found in contiguous block of 8 items (Index 3 to 10)",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.3",
+                "itemID": "b3.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.6",
+                "itemID": "b3.6"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.1",
+                "itemID": "b3.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.2",
+                "itemID": "b3.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.4",
+                "itemID": "b3.4"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.5",
+                "itemID": "b3.5"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.7",
+                "itemID": "b3.7"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.8",
+                "itemID": "b3.8"
+              }
+            ],
+            "candidates": [
+              {
+                "items": [
+                  {
+                    "id": "b3.3",
+                    "description": "DELANTAL ESTERIL TALLA L",
+                    "total": 29686,
+                    "originalIndex": 61,
+                    "section": "MEDICAMENTOS"
+                  },
+                  {
+                    "id": "b3.6",
+                    "description": "JERINGA 5 cc. EMBUTIDA",
+                    "total": 752,
+                    "originalIndex": 65,
+                    "section": "MATERIALES"
+                  },
+                  {
+                    "id": "b3.1",
+                    "description": "MANGAS TALLA S PARA COMPRESOR",
+                    "total": 97862,
+                    "originalIndex": 77,
+                    "section": "MATERIALES"
+                  },
+                  {
+                    "id": "b3.2",
+                    "description": "MEDIAS ANTIEMBOLICAS S",
+                    "total": 34768,
+                    "originalIndex": 83,
+                    "section": "MATERIALES"
+                  },
+                  {
+                    "id": "b3.4",
+                    "description": "METAMIZOL 1G/2 ML.",
+                    "total": 1800,
+                    "originalIndex": 87,
+                    "section": "MATERIALES"
+                  },
+                  {
+                    "id": "b3.5",
+                    "description": "LUBRICANTE OCULAR (THEALOZ)",
+                    "total": 668,
+                    "originalIndex": 96,
+                    "section": "MATERIALES"
+                  },
+                  {
+                    "id": "b3.7",
+                    "description": "TERMOMETRO DIGITAL CON LOGO",
+                    "total": 8605,
+                    "originalIndex": 111,
+                    "section": "MATERIALES"
+                  },
+                  {
+                    "id": "b3.8",
+                    "description": "SET ASEO PERSONAL PACIENTE",
+                    "total": 10512,
+                    "originalIndex": 112,
+                    "section": "MATERIALES"
+                  }
+                ],
+                "score": 120,
+                "reason": "Physical Contiguity + Exact Sum"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "b3.3",
+          "b3.6",
+          "b3.1",
+          "b3.2",
+          "b3.4",
+          "b3.5",
+          "b3.7",
+          "b3.8"
+        ],
+        "traceability": {
+          "level": "TRACE_NONE",
+          "reason": "Sin ancla ni desglose"
+        }
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 8 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [111] TERMOMETRO DIGITAL CON LOGO | $8.605 |\n- [112] SET ASEO PERSONAL PACIENTE | $10.512 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MANGAS TALLA S PARA COMPRESOR ($97.862), MEDIAS ANTIEMBOLICAS S ($34.768)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), TERMOMETRO DIGITAL CON LOGO ($8.605), SET ASEO PERSONAL PACIENTE ($10.512)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+        "economicImpact": 184653
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 75,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam_6",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS C",
+      "montoCopago": 13044,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_BLOQUE_CONTIGUO",
+            "status": "OK",
+            "details": "Exact match found in contiguous block of 3 items (Index 0 to 2)",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b6.1",
+                "itemID": "b6.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b6.2",
+                "itemID": "b6.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b6.3",
+                "itemID": "b6.3"
+              }
+            ],
+            "candidates": [
+              {
+                "items": [
+                  {
+                    "id": "b6.1",
+                    "description": "ESPONJA CON JABON NEUTRO",
+                    "total": 2105,
+                    "originalIndex": 15,
+                    "section": "MATERIALES"
+                  },
+                  {
+                    "id": "b6.2",
+                    "description": "DELANTAL PACIENTE AZUL",
+                    "total": 2334,
+                    "originalIndex": 16,
+                    "section": "MATERIALES"
+                  },
+                  {
+                    "id": "b6.3",
+                    "description": "TERMOMETRO DIGITAL C",
+                    "total": 8605,
+                    "originalIndex": 33,
+                    "section": "MATERIALES"
+                  }
+                ],
+                "score": 120,
+                "reason": "Physical Contiguity + Exact Sum"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "b6.1",
+          "b6.2",
+          "b6.3"
+        ],
+        "traceability": {
+          "level": "TRACE_NONE",
+          "reason": "Sin ancla ni desglose"
+        }
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 3 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [15] ESPONJA CON JABON NEUTRO | $2.105 |\n- [16] DELANTAL PACIENTE AZUL | $2.334 |\n- [33] TERMOMETRO DIGITAL C | $8.605 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($13.044): ESPONJA CON JABON NEUTRO ($2.105), DELANTAL PACIENTE AZUL ($2.334), TERMOMETRO DIGITAL C ($8.605)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+        "economicImpact": 13044
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 75,
+        "breakdown": [
+          {
+            "label": "Agrupador sin desglose",
+            "points": 25
+          },
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          },
+          {
+            "label": "Fallo Trazabilidad Fase B",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    }
+  ],
+  "reportText": "INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)\n--------------------------------------------------\nEVENTO DETECTADO: CIRUGIA_MAYOR\nPAQUETES CLÍNICOS: DERECHO_PABELLON\n\nRESUMEN EJECUTIVO:\n- Total Copago Analizado: $431.455\n- Impacto Hallazgos: $431.455\n- Estado Opacidad: CRÍTICO (IOP MAX 75)\n- Patrón Sistémico: SI (Mecanismo Repetitivo)\n\nDETALLE DE HALLAZGOS RELEVANTES:\n\n> [M2] 3101001 - MEDICAMENTOS CLINICOS\n  Copago Real: $134.100\n  Fundamento: Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nExact match found in contiguous block of 8 items (Index 13 to 20)\n\nDESGLOSE EVIDENCIA (8 items, suma $134.100, Δ=$0):\n- [37] CEFTRIAXONA 1G (ACANT) | $102.588 |\n- [38] METRONIDAZOL 500 MG. I | $4.587 |\n- [40] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [41] ONDANSETRON 4 MG | $15.716 |\n- [42] SUERO FISIOLOGICO 500 CC | $2.344 |\n- [43] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [44] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [45] FENTANYL 2 ML (ESTUPEF) | $3.048 |\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G (ACANT)) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).\n  ⚠️ OPACIDAD DETECTADA (IOP 55):\n    - Agrupador sin desglose (+25)\n  - Bonificación $0 (Copago Total) (+15)\n  - Fallo Trazabilidad Fase B (+15)\n\n\n> [M2] 3101002 - MATERIALES CLINICOS\n  Copago Real: $32.716\n  Fundamento: Paquete desplazado: El monto $32.716 corresponde al siguiente hallazgo clínico:\nDesglose Combinatorial (DP) [domain=ON]:\n    - $17.525 [JERINGA INYECTORA MONO] (Origen: MATERIALES)\n    - $421 [JERINGA 10 cc. EMBUTIDA] (Origen: MATERIALES)\n    - $729 [EQUIPO FLEBOCLISIS] (Origen: MATERIALES)\n    - $1.058 [CHATA HONDA DESECHABLE] (Origen: MATERIALES)\n    - $9.132 [MASCARILLA MULTIVENT] (Origen: MATERIALES)\n    - $551 [JERINGA 10 cc. LUER LOCK] (Origen: MATERIALES)\n    - $614 [LIGADURA LIBRE DE LATEX] (Origen: MATERIALES)\n    - $872 [BRANULA VIALON 20GX1] (Origen: MATERIALES)\n    - $548 [APOSITO 10 X 10 ESTERIL] (Origen: MATERIALES)\n    - $1.266 [BANDEJA ALUSA ESTERIL] (Origen: GENERAL)\n\nDESGLOSE EVIDENCIA (10 items, suma $32.716, Δ=$0):\n- [31] JERINGA INYECTORA MONO | $17.525 |\n- [24] JERINGA 10 cc. EMBUTIDA | $421 |\n- [20] EQUIPO FLEBOCLISIS | $729 |\n- [17] CHATA HONDA DESECHABLE | $1.058 |\n- [11] MASCARILLA MULTIVENT | $9.132 |\n- [10] JERINGA 10 cc. LUER LOCK | $551 |\n- [9] LIGADURA LIBRE DE LATEX | $614 |\n- [7] BRANULA VIALON 20GX1 | $872 |\n- [3] APOSITO 10 X 10 ESTERIL | $548 |\n- [2] BANDEJA ALUSA ESTERIL | $1.266 |\n\nEste conjunto contiene insumo estándar (JERINGA INYECTORA MONO) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DIA_CAMA_INTEGRAL).\n  \n\n\n> [M3] 3201002 - PRESTACION NO CONTEMPLADA\n  Copago Real: $42.957\n  Fundamento: [M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [133] FLEBOCLISIS 99-00-045-01 | $42.957 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($42.957): FLEBOCLISIS 99-00-045-01 ($42.957)\n  ⚠️ OPACIDAD DETECTADA (IOP 15):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  \n\n\n> [M3] 3201001 - GASTOS NO CUBIERTOS B\n  Copago Real: $23.985\n  Fundamento: [M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [132] INSTALACION DE VIA VENOSA | $23.985 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($23.985): INSTALACION DE VIA VENOSA ($23.985)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  \n\n\n> [M3] 3201001 - GASTOS NO CUBIERTOS POR EL PLAN\n  Copago Real: $184.653\n  Fundamento: [M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 8 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [111] TERMOMETRO DIGITAL CON LOGO | $8.605 |\n- [112] SET ASEO PERSONAL PACIENTE | $10.512 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MANGAS TALLA S PARA COMPRESOR ($97.862), MEDIAS ANTIEMBOLICAS S ($34.768)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), TERMOMETRO DIGITAL CON LOGO ($8.605), SET ASEO PERSONAL PACIENTE ($10.512)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador sin desglose (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  - Fallo Trazabilidad Fase B (+15)\n\n\n> [M3] 3201001 - GASTOS NO CUBIERTOS C\n  Copago Real: $13.044\n  Fundamento: [M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 3 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [15] ESPONJA CON JABON NEUTRO | $2.105 |\n- [16] DELANTAL PACIENTE AZUL | $2.334 |\n- [33] TERMOMETRO DIGITAL C | $8.605 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($13.044): ESPONJA CON JABON NEUTRO ($2.105), DELANTAL PACIENTE AZUL ($2.334), TERMOMETRO DIGITAL C ($8.605)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador sin desglose (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  - Fallo Trazabilidad Fase B (+15)\n\n\nCONCLUSIÓN:\nLa cuenta presenta Opacidad Liquidatoria Mayor (IOP > 40). Se exige desglose detallado bajo sanción de tener por no escritas las cláusulas oscuras (Contra Proferentem).\n",
+  "complaintText": "SEÑORES ISAPRE / PRESTADOR:\n\nEn relación a la liquidación (PAM) analizada, se impugnan los siguientes cobros por vulnerar el deber de información (Opacidad Liquidatoria detectada, IOP > 40):\n\n- Ítem 3101001 \"MEDICAMENTOS CLINICOS\" | Copago: $134100 | IOP: 55\n- Ítem 3201001 \"GASTOS NO CUBIERTOS POR EL PLAN\" | Copago: $184653 | IOP: 75\n- Ítem 3201001 \"GASTOS NO CUBIERTOS C\" | Copago: $13044 | IOP: 75\n\nFUNDAMENTOS DE RECLAMO:\n1. \"Agrupamiento Ciego\": Los ítems señalados consolidan montos sin desglose de sub-ítem verificable, impidiendo el ejercicio del derecho a defensa del afiliado.\n2. \"Copago sin Causa\": Se cobran montos significativos (Total: $331.797) bajo glosas genéricas (\"No Cubierto\", \"Insumos\") sin acreditar la prestación subyacente.\n3. Principio de Literalidad e Integridad: El contrato de salud es de adhesión; toda oscuridad debe interpretarse a favor del afiliado (Art. 1566 Código Civil).\n\nPETICIÓN:\nSírvase anular el cobro de los ítems opacos o bien refacturar con el desglose unitario completo que permita su trazabilidad con la Ficha Clínica.",
+  "metadata": {
+    "executionTimestamp": "2026-02-20T13:29:34.613Z"
+  }
+}

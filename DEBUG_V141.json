@@ -1,0 +1,273 @@
+{
+  "summary": {
+    "totalCopagoAnalizado": 318753,
+    "totalImpactoFragmentacion": 318753,
+    "opacidadGlobal": {
+      "applies": false,
+      "maxIOP": 35
+    },
+    "patternSystemic": {
+      "m1Count": 0,
+      "m2Count": 1,
+      "m3CopagoPct": 0.5792980771945676,
+      "isSystemic": true
+    }
+  },
+  "eventModel": {
+    "actoPrincipal": "CIRUGIA_MAYOR",
+    "paquetesDetectados": [
+      "DERECHO_PABELLON"
+    ],
+    "notes": "Inferido determinísticamente por glosas de secciones e ítems"
+  },
+  "matrix": [
+    {
+      "itemLabel": "3101001 - MEDICAMENTOS CLINICOS",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M2",
+      "fundamento": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nValidación Contable: Suma de Bloques [Sección: FARMACIA PABELLON + Sección: FARMACIA RECUPERACION]\n\nDESGLOSE EVIDENCIA (7 items, suma $134.100, Δ=$0):\n- [101] FENTANYL 0.1 MG | $15.000 |\n- [102] PROPOFOL 1% 20ML | $25.000 |\n- [103] SEVOFLURANO 250ML | $85.000 |\n- [201] KETOPROFENO 100MG | $3.000 |\n- [202] METOCLOPRAMIDA 10MG | $2.500 |\n- [203] SUERO FISIOLOGICO 500ML | $1.800 |\n- [204] ALTAZOL 40MG | $1.800 |\n\nEste conjunto contiene insumo estándar (FENTANYL 0.1 MG) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).",
+      "impacto": 134100,
+      "iop": 15
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS POR EL PLAN",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 8 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [47] ONDANSETRON 4 MG | $15.716 |\n- [49] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MEDIAS ANTIEMBOLICAS S ($34.768), MANGAS TALLA S PARA COMPRESOR ($97.862)\n→ Amenities/Administrativo ($52.023): ONDANSETRON 4 MG ($15.716), SUERO FISIOLOGICO 100 ML ($3.401), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+      "impacto": 184653,
+      "iop": 35
+    }
+  ],
+  "pamRows": [
+    {
+      "pamLineId": "pam_1",
+      "codigoGC": "3101001",
+      "descripcion": "MEDICAMENTOS CLINICOS",
+      "montoCopago": 134100,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_SUBTOTAL_COMBO",
+            "status": "OK",
+            "details": "Validación Contable: Suma de Bloques [Sección: FARMACIA PABELLON + Sección: FARMACIA RECUPERACION]",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_A1",
+                "itemID": "item_A1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_A2",
+                "itemID": "item_A2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_A3",
+                "itemID": "item_A3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_B1",
+                "itemID": "item_B1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_B2",
+                "itemID": "item_B2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_B3",
+                "itemID": "item_B3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_B4",
+                "itemID": "item_B4"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "item_A1",
+          "item_A2",
+          "item_A3",
+          "item_B1",
+          "item_B2",
+          "item_B3",
+          "item_B4"
+        ],
+        "traceability": {
+          "level": "TRACE_OK",
+          "reason": "Bloque Contable Verificado"
+        }
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R1"
+        ],
+        "notes": "Regla aplicada: Medicamentos 0%"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M2",
+        "rationale": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nValidación Contable: Suma de Bloques [Sección: FARMACIA PABELLON + Sección: FARMACIA RECUPERACION]\n\nDESGLOSE EVIDENCIA (7 items, suma $134.100, Δ=$0):\n- [101] FENTANYL 0.1 MG | $15.000 |\n- [102] PROPOFOL 1% 20ML | $25.000 |\n- [103] SEVOFLURANO 250ML | $85.000 |\n- [201] KETOPROFENO 100MG | $3.000 |\n- [202] METOCLOPRAMIDA 10MG | $2.500 |\n- [203] SUERO FISIOLOGICO 500ML | $1.800 |\n- [204] ALTAZOL 40MG | $1.800 |\n\nEste conjunto contiene insumo estándar (FENTANYL 0.1 MG) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).",
+        "economicImpact": 134100
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 15,
+        "breakdown": [
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam_2",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+      "montoCopago": 184653,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_SUBTOTAL_COMBO",
+            "status": "OK",
+            "details": "Validación Contable: Suma de Bloques [Sección: FARMACIA + Sección: INSUMOS + Sección: MATERIALES + Sección: EQUIPOS]",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_C5",
+                "itemID": "item_C5"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_C6",
+                "itemID": "item_C6"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_C8",
+                "itemID": "item_C8"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_C3",
+                "itemID": "item_C3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_C4",
+                "itemID": "item_C4"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_C2",
+                "itemID": "item_C2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_C7",
+                "itemID": "item_C7"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_item_C1",
+                "itemID": "item_C1"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "item_C5",
+          "item_C6",
+          "item_C8",
+          "item_C3",
+          "item_C4",
+          "item_C2",
+          "item_C7",
+          "item_C1"
+        ],
+        "traceability": {
+          "level": "TRACE_OK",
+          "reason": "Bloque Contable Verificado"
+        }
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 8 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [47] ONDANSETRON 4 MG | $15.716 |\n- [49] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MEDIAS ANTIEMBOLICAS S ($34.768), MANGAS TALLA S PARA COMPRESOR ($97.862)\n→ Amenities/Administrativo ($52.023): ONDANSETRON 4 MG ($15.716), SUERO FISIOLOGICO 100 ML ($3.401), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+        "economicImpact": 184653
+      },
+      "opacidad": {
+        "applies": false,
+        "iopScore": 35,
+        "breakdown": [
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    }
+  ],
+  "reportText": "INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)\n--------------------------------------------------\nEVENTO DETECTADO: CIRUGIA_MAYOR\nPAQUETES CLÍNICOS: DERECHO_PABELLON\n\nRESUMEN EJECUTIVO:\n- Total Copago Analizado: $318.753\n- Impacto Hallazgos: $318.753\n- Estado Opacidad: Trazable\n- Patrón Sistémico: SI (Mecanismo Repetitivo)\n\nDETALLE DE HALLAZGOS RELEVANTES:\n\n> [M2] 3101001 - MEDICAMENTOS CLINICOS\n  Copago Real: $134.100\n  Fundamento: Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nValidación Contable: Suma de Bloques [Sección: FARMACIA PABELLON + Sección: FARMACIA RECUPERACION]\n\nDESGLOSE EVIDENCIA (7 items, suma $134.100, Δ=$0):\n- [101] FENTANYL 0.1 MG | $15.000 |\n- [102] PROPOFOL 1% 20ML | $25.000 |\n- [103] SEVOFLURANO 250ML | $85.000 |\n- [201] KETOPROFENO 100MG | $3.000 |\n- [202] METOCLOPRAMIDA 10MG | $2.500 |\n- [203] SUERO FISIOLOGICO 500ML | $1.800 |\n- [204] ALTAZOL 40MG | $1.800 |\n\nEste conjunto contiene insumo estándar (FENTANYL 0.1 MG) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).\n  \n\n\n> [M3] 3201001 - GASTOS NO CUBIERTOS POR EL PLAN\n  Copago Real: $184.653\n  Fundamento: [M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 8 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [47] ONDANSETRON 4 MG | $15.716 |\n- [49] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MEDIAS ANTIEMBOLICAS S ($34.768), MANGAS TALLA S PARA COMPRESOR ($97.862)\n→ Amenities/Administrativo ($52.023): ONDANSETRON 4 MG ($15.716), SUERO FISIOLOGICO 100 ML ($3.401), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n  \n\n\nCONCLUSIÓN:\nCuenta auditable con hallazgos específicos de fragmentación.\n",
+  "complaintText": "Sin hallazgos de opacidad crítica.",
+  "metadata": {
+    "executionTimestamp": "2026-02-20T12:46:11.342Z"
+  }
+}

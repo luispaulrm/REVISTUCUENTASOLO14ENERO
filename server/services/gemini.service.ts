@@ -411,4 +411,41 @@ export class GeminiService {
             estimatedCostCLP: costCLP
         };
     }
+
+    static async generateChatResponse(
+        systemPrompt: string,
+        userMessage: string,
+        history: { role: string, parts: { text: string }[] }[],
+        modelName: string
+    ): Promise<string> {
+        // Instantiate a fresh client (or use a singleton/pool if needed)
+        // For static context, we need a key. Let's borrow from config or env.
+        // LIMITATION: Static method doesn't have access to instance keys rotation.
+        // FIX: Create a temporary instance to handle this.
+        const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
+        if (!apiKey) throw new Error("No API Key found for Chat");
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
+
+        const chat = model.startChat({
+            history: [
+                {
+                    role: "user",
+                    parts: [{ text: systemPrompt }],
+                },
+                {
+                    role: "model",
+                    parts: [{ text: "Entendido. Operaré como el Asistente Forense M11 bajo esas instrucciones." }],
+                },
+                ...history
+            ],
+            generationConfig: {
+                maxOutputTokens: 1000,
+            },
+        });
+
+        const result = await chat.sendMessage(userMessage);
+        return result.response.text();
+    }
 }

@@ -1,0 +1,155 @@
+
+[CASE 1] MEDICAMENTOS CLINICOS ($ 134.100)
+Status: OK
+Traceability Reason: DP determinístico en dominio clínico + IDs verificados
+Motor: M2
+
+--- FUNDAMENTO ---
+Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:
+Desglose Combinatorial (DP) [domain=ON]:
+    - $862 [ATROPINA SULFATO 1 MG] (Origen: FARMACIA)
+    - $1.208 [SUERO FISIOLOGICO 20 ML] (Origen: FARMACIA)
+    - $20.268 [KETOPROFENO 100MG EV] (Origen: FARMACIA)
+    - $9.174 [METRONIDAZOL 500 MG] (Origen: FARMACIA)
+    - $102.588 [CEFTRIAXONA 1G] (Origen: FARMACIA)
+
+DESGLOSE EVIDENCIA (5 items, suma $134.100, Δ=$0):
+- [86] ATROPINA SULFATO 1 MG | $862 |
+- [42] SUERO FISIOLOGICO 20 ML | $1.208 |
+- [40] KETOPROFENO 100MG EV | $20.268 |
+- [38] METRONIDAZOL 500 MG | $9.174 |
+- [37] CEFTRIAXONA 1G | $102.588 |
+
+Este conjunto contiene insumo estándar (SUERO FISIOLOGICO 20 ML) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).
+------------------------------------------------
+
+[CASE 2] MATERIALES CLINICOS ($ 32.716)
+Status: OK
+Traceability Reason: DP determinístico en dominio clínico + IDs verificados
+Motor: M2
+
+--- FUNDAMENTO ---
+Paquete desplazado: El monto $32.716 corresponde al siguiente hallazgo clínico:
+Desglose Combinatorial (DP) [domain=ON]:
+    - $17.525 [JERINGA INYECTORA MOI] (Origen: EQUIPOS)
+    - $421 [JERINGA 10 cc. EMBUTIDA] (Origen: MATERIALES)
+    - $729 [EQUIPO FLEBOCLISIS] (Origen: MATERIALES)
+    - $1.058 [CHATA HONDA DESECHABLE] (Origen: MATERIALES)
+    - $9.132 [MASCARILLA MULTIVENT] (Origen: INSUMOS)
+    - $551 [JERINGA 10 cc. LUER LOCK] (Origen: MATERIALES)
+    - $614 [LIGADURA LIBRE DE LATEX] (Origen: MATERIALES)
+    - $872 [BRANULA VIALON 20GX1] (Origen: MATERIALES)
+    - $548 [APOSITO 10 X 10 ESTERIL] (Origen: MATERIALES)
+    - $1.266 [BANDEJA ALUSA ESTERIL] (Origen: MATERIALES)
+
+DESGLOSE EVIDENCIA (10 items, suma $32.716, Δ=$0):
+- [31] JERINGA INYECTORA MOI | $17.525 |
+- [24] JERINGA 10 cc. EMBUTIDA | $421 |
+- [20] EQUIPO FLEBOCLISIS | $729 |
+- [17] CHATA HONDA DESECHABLE | $1.058 |
+- [11] MASCARILLA MULTIVENT | $9.132 |
+- [10] JERINGA 10 cc. LUER LOCK | $551 |
+- [9] LIGADURA LIBRE DE LATEX | $614 |
+- [7] BRANULA VIALON 20GX1 | $872 |
+- [3] APOSITO 10 X 10 ESTERIL | $548 |
+- [2] BANDEJA ALUSA ESTERIL | $1.266 |
+
+Este conjunto contiene insumo estándar (JERINGA INYECTORA MOI) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DIA_CAMA_INTEGRAL).
+------------------------------------------------
+
+[CASE 3] PRESTACION NO CONTEMPLADA EN EL ARANCEL ($ 42.957)
+Status: OK
+Traceability Reason: Anchor MONTO_1A1
+Motor: M3
+
+--- FUNDAMENTO ---
+[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).
+Se identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).
+
+DESGLOSE EVIDENCIA:
+- [133] FLEBOCLISIS 99-00-045-01 | $42.957 |
+
+
+CLASIFICACIÓN FORENSE:
+→ Clínicamente Defendible ($0): 
+→ Amenities/Administrativo ($42.957): FLEBOCLISIS 99-00-045-01 ($42.957)
+  ⚠️ OPACIDAD DETECTADA (IOP 15):
+    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)
+  - Glosa Genérica indeterminada (+20)
+  - Bonificación $0 (Copago Total) (+15)
+------------------------------------------------
+
+[CASE 4] GASTOS NO CUBIERTOS POR EL PLAN ($ 23.985)
+Status: OK
+Traceability Reason: Anchor MONTO_1A1
+Motor: M3
+
+--- FUNDAMENTO ---
+[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).
+Se identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).
+
+DESGLOSE EVIDENCIA:
+- [132] INSTALACION DE VIA VENOSA | $23.985 |
+
+
+CLASIFICACIÓN FORENSE:
+→ Clínicamente Defendible ($0): 
+→ Amenities/Administrativo ($23.985): INSTALACION DE VIA VENOSA ($23.985)
+  ⚠️ OPACIDAD DETECTADA (IOP 35):
+    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)
+  - Glosa Genérica indeterminada (+20)
+  - Bonificación $0 (Copago Total) (+15)
+------------------------------------------------
+
+[CASE 5] GASTOS NO CUBIERTOS POR EL PLAN ($ 184.653)
+Status: OK
+Traceability Reason: DP determinístico en dominio clínico + IDs verificados
+Motor: M3
+
+--- FUNDAMENTO ---
+[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).
+Se identifican 8 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).
+
+DESGLOSE EVIDENCIA:
+- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |
+- [87] METAMIZOL 1G/2 ML. | $1.800 |
+- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |
+- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |
+- [65] JERINGA 5 cc. EMBUTIDA | $752 |
+- [61] DELANTAL ESTERIL TALLA L | $29.686 |
+- [49] SUERO FISIOLOGICO 100 ML | $3.401 |
+- [47] ONDANSETRON 4 MG | $15.716 |
+
+
+CLASIFICACIÓN FORENSE:
+→ Clínicamente Defendible ($132.630): MEDIAS ANTIEMBOLICAS S ($34.768), MANGAS TALLA S PARA COMPRESOR ($97.862)
+→ Amenities/Administrativo ($52.023): LUBRICANTE OCULAR (THEALOZ) ($668), METAMIZOL 1G/2 ML. ($1.800), JERINGA 5 cc. EMBUTIDA ($752), DELANTAL ESTERIL TALLA L ($29.686), SUERO FISIOLOGICO 100 ML ($3.401), ONDANSETRON 4 MG ($15.716)
+  ⚠️ OPACIDAD DETECTADA (IOP 35):
+    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)
+  - Glosa Genérica indeterminada (+20)
+  - Bonificación $0 (Copago Total) (+15)
+------------------------------------------------
+
+[CASE 6] GASTOS NO CUBIERTOS POR EL PLAN ($ 13.044)
+Status: OK
+Traceability Reason: Match por SUBTOTAL
+Motor: M3
+
+--- FUNDAMENTO ---
+[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).
+Se identifican 3 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).
+
+DESGLOSE EVIDENCIA:
+- [15] ESPONJA CON JABON NEUTRO | $2.105 |
+- [16] DELANTAL PACIENTE AZUL | $2.334 |
+- [33] TERMOMETRO DIGITAL CON LOGO | $8.605 |
+
+
+CLASIFICACIÓN FORENSE:
+→ Clínicamente Defendible ($0): 
+→ Amenities/Administrativo ($13.044): ESPONJA CON JABON NEUTRO ($2.105), DELANTAL PACIENTE AZUL ($2.334), TERMOMETRO DIGITAL CON LOGO ($8.605)
+  ⚠️ OPACIDAD DETECTADA (IOP 60):
+    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)
+  - Glosa Genérica indeterminada (+20)
+  - Bonificación $0 (Copago Total) (+15)
+------------------------------------------------

@@ -1,0 +1,512 @@
+{
+  "summary": {
+    "totalCopagoAnalizado": 318753,
+    "totalImpactoFragmentacion": 318753,
+    "opacidadGlobal": {
+      "applies": true,
+      "maxIOP": 60
+    },
+    "patternSystemic": {
+      "m1Count": 0,
+      "m2Count": 1,
+      "m3CopagoPct": 0.5792980771945676,
+      "isSystemic": true
+    }
+  },
+  "eventModel": {
+    "actoPrincipal": "CIRUGIA_MAYOR",
+    "paquetesDetectados": [
+      "DERECHO_PABELLON"
+    ],
+    "notes": "Pabellón inferido por presencia de fármacos anestésicos o sección de estupefacientes"
+  },
+  "matrix": [
+    {
+      "itemLabel": "3101001 - MEDICAMENTOS CLINICOS",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M2",
+      "fundamento": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nExact match found in contiguous block of 6 items (Index 0 to 5)\n\nDESGLOSE EVIDENCIA (6 items, suma $134.100, Δ=$0):\n- [1] CEFTRIAXONA 1G | $102.588 | GENERAL\n- [2] METRONIDAZOL 500 MG | $4.587 | GENERAL\n- [3] ONDANSETRON 4 MG | $15.716 | GENERAL\n- [4] SUERO FISIOLOGICO 500 CC | $2.344 | GENERAL\n- [5] FENTANYL 2 ML | $3.048 | GENERAL\n- [6] SUERO FISIOLOGICO 100 ML | $5.817 | GENERAL\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G) proveniente de la sección 'GENERAL', lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON). [OPACIDAD IOP 40]",
+      "impacto": 134100,
+      "iop": 40
+    },
+    {
+      "itemLabel": "3201001 - GASTOS NO CUBIERTOS POR EL PLAN",
+      "classification": "FRAGMENTACION_ESTRUCTURAL",
+      "motor": "M3",
+      "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 4 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\n\nDESGLOSE EVIDENCIA:\n- [10] MANGAS TALLA S PARA COMPRESOR | $97.862 | GENERAL\n- [11] MEDIAS ANTIEMBOLICAS S | $34.768 | GENERAL\n- [12] DELANTAL ESTERIL TALLA L | $29.686 | GENERAL\n- [13] SET ASEO PERSONAL PACIENTE | $22.337 | GENERAL\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MANGAS TALLA S PARA COMPRESOR ($97.862), MEDIAS ANTIEMBOLICAS S ($34.768)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), SET ASEO PERSONAL PACIENTE ($22.337) [OPACIDAD IOP 60]",
+      "impacto": 184653,
+      "iop": 60
+    }
+  ],
+  "pamRows": [
+    {
+      "pamLineId": "pam_1",
+      "codigoGC": "3101001",
+      "descripcion": "MEDICAMENTOS CLINICOS",
+      "montoCopago": 134100,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_CONTIGUO",
+            "status": "OK",
+            "details": "Exact match found in contiguous block of 6 items (Index 0 to 5)",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.1",
+                "itemID": "b1.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.2",
+                "itemID": "b1.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.3",
+                "itemID": "b1.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.4",
+                "itemID": "b1.4"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.5",
+                "itemID": "b1.5"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.6",
+                "itemID": "b1.6"
+              }
+            ],
+            "candidates": [
+              {
+                "items": [
+                  {
+                    "id": "b1.1",
+                    "description": "CEFTRIAXONA 1G",
+                    "total": 102588,
+                    "originalIndex": 1,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.2",
+                    "description": "METRONIDAZOL 500 MG",
+                    "total": 4587,
+                    "originalIndex": 2,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.3",
+                    "description": "ONDANSETRON 4 MG",
+                    "total": 15716,
+                    "originalIndex": 3,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.4",
+                    "description": "SUERO FISIOLOGICO 500 CC",
+                    "total": 2344,
+                    "originalIndex": 4,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.5",
+                    "description": "FENTANYL 2 ML",
+                    "total": 3048,
+                    "originalIndex": 5,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.6",
+                    "description": "SUERO FISIOLOGICO 100 ML",
+                    "total": 5817,
+                    "originalIndex": 6,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  }
+                ],
+                "score": 300,
+                "reason": "Physical Contiguity + Exact Sum"
+              }
+            ]
+          },
+          {
+            "step": "MONTO_CONTIGUO",
+            "status": "OK",
+            "details": "Bloque Contiguo (Score 160): Contiguous Run of 6 (+30), Perfect Contiguity (+10), Pool Code (Section Bias Neutralized), Numeric Confidence (Pool Code + Exact Match) (+40), Contiguous Scan Found (+80)",
+            "candidates": [
+              {
+                "items": [
+                  {
+                    "id": "b1.1",
+                    "description": "CEFTRIAXONA 1G",
+                    "total": 102588,
+                    "originalIndex": 1,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.2",
+                    "description": "METRONIDAZOL 500 MG",
+                    "total": 4587,
+                    "originalIndex": 2,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.3",
+                    "description": "ONDANSETRON 4 MG",
+                    "total": 15716,
+                    "originalIndex": 3,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.4",
+                    "description": "SUERO FISIOLOGICO 500 CC",
+                    "total": 2344,
+                    "originalIndex": 4,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.5",
+                    "description": "FENTANYL 2 ML",
+                    "total": 3048,
+                    "originalIndex": 5,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b1.6",
+                    "description": "SUERO FISIOLOGICO 100 ML",
+                    "total": 5817,
+                    "originalIndex": 6,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  }
+                ],
+                "score": 160,
+                "reason": "Contiguous Run of 6 (+30), Perfect Contiguity (+10), Pool Code (Section Bias Neutralized), Numeric Confidence (Pool Code + Exact Match) (+40), Contiguous Scan Found (+80)"
+              }
+            ],
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.1",
+                "itemID": "b1.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.2",
+                "itemID": "b1.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.3",
+                "itemID": "b1.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.4",
+                "itemID": "b1.4"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.5",
+                "itemID": "b1.5"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b1.6",
+                "itemID": "b1.6"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "b1.1",
+          "b1.2",
+          "b1.3",
+          "b1.4",
+          "b1.5",
+          "b1.6"
+        ],
+        "traceability": {
+          "level": "TRACE_WEAK",
+          "reason": "Candidato de trazabilidad (no concluyente)"
+        }
+      },
+      "contractCheck": {
+        "state": "VERIFICABLE",
+        "rulesUsed": [
+          "R1"
+        ],
+        "notes": "Regla aplicada: Medicamentos 0%"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M2",
+        "rationale": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nExact match found in contiguous block of 6 items (Index 0 to 5)\n\nDESGLOSE EVIDENCIA (6 items, suma $134.100, Δ=$0):\n- [1] CEFTRIAXONA 1G | $102.588 | GENERAL\n- [2] METRONIDAZOL 500 MG | $4.587 | GENERAL\n- [3] ONDANSETRON 4 MG | $15.716 | GENERAL\n- [4] SUERO FISIOLOGICO 500 CC | $2.344 | GENERAL\n- [5] FENTANYL 2 ML | $3.048 | GENERAL\n- [6] SUERO FISIOLOGICO 100 ML | $5.817 | GENERAL\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G) proveniente de la sección 'GENERAL', lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).",
+        "economicImpact": 134100
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 40,
+        "breakdown": [
+          {
+            "label": "Agrupador con desglose parcial/numérico (TRACE_WEAK)",
+            "points": 25
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    },
+    {
+      "pamLineId": "pam_3",
+      "codigoGC": "3201001",
+      "descripcion": "GASTOS NO CUBIERTOS POR EL PLAN",
+      "montoCopago": 184653,
+      "bonificacion": 0,
+      "trace": {
+        "status": "OK",
+        "attempts": [
+          {
+            "step": "MONTO_1A1",
+            "status": "FAIL",
+            "details": "No amount match in available pool"
+          },
+          {
+            "step": "GLOSA_FAMILIA",
+            "status": "FAIL",
+            "details": "No match"
+          },
+          {
+            "step": "MONTO_CONTIGUO",
+            "status": "OK",
+            "details": "Exact match found in contiguous block of 4 items (Index 6 to 9)",
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.1",
+                "itemID": "b3.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.2",
+                "itemID": "b3.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.3",
+                "itemID": "b3.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.4",
+                "itemID": "b3.4"
+              }
+            ],
+            "candidates": [
+              {
+                "items": [
+                  {
+                    "id": "b3.1",
+                    "description": "MANGAS TALLA S PARA COMPRESOR",
+                    "total": 97862,
+                    "originalIndex": 10,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b3.2",
+                    "description": "MEDIAS ANTIEMBOLICAS S",
+                    "total": 34768,
+                    "originalIndex": 11,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b3.3",
+                    "description": "DELANTAL ESTERIL TALLA L",
+                    "total": 29686,
+                    "originalIndex": 12,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b3.4",
+                    "description": "SET ASEO PERSONAL PACIENTE",
+                    "total": 22337,
+                    "originalIndex": 13,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  }
+                ],
+                "score": 300,
+                "reason": "Physical Contiguity + Exact Sum"
+              }
+            ]
+          },
+          {
+            "step": "MONTO_CONTIGUO",
+            "status": "OK",
+            "details": "Bloque Contiguo (Score 190): Contiguous Run of 4 (+20), Perfect Contiguity (+10), Single Section (+50), Amenity Affinity (100%, +30), Contiguous Scan Found (+80)",
+            "candidates": [
+              {
+                "items": [
+                  {
+                    "id": "b3.1",
+                    "description": "MANGAS TALLA S PARA COMPRESOR",
+                    "total": 97862,
+                    "originalIndex": 10,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b3.2",
+                    "description": "MEDIAS ANTIEMBOLICAS S",
+                    "total": 34768,
+                    "originalIndex": 11,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b3.3",
+                    "description": "DELANTAL ESTERIL TALLA L",
+                    "total": 29686,
+                    "originalIndex": 12,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  },
+                  {
+                    "id": "b3.4",
+                    "description": "SET ASEO PERSONAL PACIENTE",
+                    "total": 22337,
+                    "originalIndex": 13,
+                    "section": "GENERAL",
+                    "originalSection": ""
+                  }
+                ],
+                "score": 190,
+                "reason": "Contiguous Run of 4 (+20), Perfect Contiguity (+10), Single Section (+50), Amenity Affinity (100%, +30), Contiguous Scan Found (+80)"
+              }
+            ],
+            "refsBill": [
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.1",
+                "itemID": "b3.1"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.2",
+                "itemID": "b3.2"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.3",
+                "itemID": "b3.3"
+              },
+              {
+                "kind": "jsonpath",
+                "source": "BILL",
+                "path": "item_id_b3.4",
+                "itemID": "b3.4"
+              }
+            ]
+          }
+        ],
+        "matchedBillItemIds": [
+          "b3.1",
+          "b3.2",
+          "b3.3",
+          "b3.4"
+        ],
+        "traceability": {
+          "level": "TRACE_WEAK",
+          "reason": "Candidato de trazabilidad (no concluyente)"
+        }
+      },
+      "contractCheck": {
+        "state": "NO_VERIFICABLE_POR_CONTRATO",
+        "rulesUsed": [],
+        "notes": "Dominio 'OTROS' no hallado en contrato"
+      },
+      "fragmentacion": {
+        "level": "FRAGMENTACION_ESTRUCTURAL",
+        "motor": "M3",
+        "rationale": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 4 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\n\nDESGLOSE EVIDENCIA:\n- [10] MANGAS TALLA S PARA COMPRESOR | $97.862 | GENERAL\n- [11] MEDIAS ANTIEMBOLICAS S | $34.768 | GENERAL\n- [12] DELANTAL ESTERIL TALLA L | $29.686 | GENERAL\n- [13] SET ASEO PERSONAL PACIENTE | $22.337 | GENERAL\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MANGAS TALLA S PARA COMPRESOR ($97.862), MEDIAS ANTIEMBOLICAS S ($34.768)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), SET ASEO PERSONAL PACIENTE ($22.337)",
+        "economicImpact": 184653
+      },
+      "opacidad": {
+        "applies": true,
+        "iopScore": 60,
+        "breakdown": [
+          {
+            "label": "Agrupador con desglose parcial/numérico (TRACE_WEAK)",
+            "points": 25
+          },
+          {
+            "label": "Glosa Genérica indeterminada",
+            "points": 20
+          },
+          {
+            "label": "Bonificación $0 (Copago Total)",
+            "points": 15
+          }
+        ],
+        "agotamiento": true
+      }
+    }
+  ],
+  "reportText": "INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)\n--------------------------------------------------\nEVENTO DETECTADO: CIRUGIA_MAYOR\nPAQUETES CLÍNICOS: DERECHO_PABELLON\n\nRESUMEN EJECUTIVO:\n- Total Copago Analizado: $318.753\n- Impacto Hallazgos: $318.753\n- Estado Opacidad: CRÍTICO (IOP MAX 60)\n- Patrón Sistémico: SI (Mecanismo Repetitivo)\n\nDETALLE DE HALLAZGOS RELEVANTES:\n\n> [M2] 3101001 - MEDICAMENTOS CLINICOS\n  Copago Real: $134.100\n  Fundamento: Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nExact match found in contiguous block of 6 items (Index 0 to 5)\n\nDESGLOSE EVIDENCIA (6 items, suma $134.100, Δ=$0):\n- [1] CEFTRIAXONA 1G | $102.588 | GENERAL\n- [2] METRONIDAZOL 500 MG | $4.587 | GENERAL\n- [3] ONDANSETRON 4 MG | $15.716 | GENERAL\n- [4] SUERO FISIOLOGICO 500 CC | $2.344 | GENERAL\n- [5] FENTANYL 2 ML | $3.048 | GENERAL\n- [6] SUERO FISIOLOGICO 100 ML | $5.817 | GENERAL\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G) proveniente de la sección 'GENERAL', lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON).\n  ⚠️ OPACIDAD DETECTADA (IOP 40):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Bonificación $0 (Copago Total) (+15)\n\n\n> [M3] 3201001 - GASTOS NO CUBIERTOS POR EL PLAN\n  Copago Real: $184.653\n  Fundamento: [M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 4 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\n\nDESGLOSE EVIDENCIA:\n- [10] MANGAS TALLA S PARA COMPRESOR | $97.862 | GENERAL\n- [11] MEDIAS ANTIEMBOLICAS S | $34.768 | GENERAL\n- [12] DELANTAL ESTERIL TALLA L | $29.686 | GENERAL\n- [13] SET ASEO PERSONAL PACIENTE | $22.337 | GENERAL\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MANGAS TALLA S PARA COMPRESOR ($97.862), MEDIAS ANTIEMBOLICAS S ($34.768)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), SET ASEO PERSONAL PACIENTE ($22.337)\n  ⚠️ OPACIDAD DETECTADA (IOP 60):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)\n\n\nCONCLUSIÓN:\nLa cuenta presenta Opacidad Liquidatoria Mayor (IOP > 40). Se exige desglose detallado bajo sanción de tener por no escritas las cláusulas oscuras (Contra Proferentem).\n",
+  "complaintText": "SEÑORES ISAPRE / PRESTADOR:\n\nEn relación a la liquidación (PAM) analizada, se impugnan los siguientes cobros por vulnerar el deber de información (Opacidad Liquidatoria detectada, IOP > 40):\n\n- Ítem 3101001 \"MEDICAMENTOS CLINICOS\" | Copago: $134100 | IOP: 40\n- Ítem 3201001 \"GASTOS NO CUBIERTOS POR EL PLAN\" | Copago: $184653 | IOP: 60\n\nFUNDAMENTOS DE RECLAMO:\n1. \"Agrupamiento Ciego\": Los ítems señalados consolidan montos sin desglose de sub-ítem verificable, impidiendo el ejercicio del derecho a defensa del afiliado.\n2. \"Copago sin Causa\": Se cobran montos significativos (Total: $318.753) bajo glosas genéricas (\"No Cubierto\", \"Insumos\") sin acreditar la prestación subyacente.\n3. Principio de Literalidad e Integridad: El contrato de salud es de adhesión; toda oscuridad debe interpretarse a favor del afiliado (Art. 1566 Código Civil).\n\nPETICIÓN:\nSírvase anular el cobro de los ítems opacos o bien refacturar con el desglose unitario completo que permita su trazabilidad con la Ficha Clínica.",
+  "metadata": {
+    "executionTimestamp": "2026-02-20T13:42:49.303Z"
+  }
+}

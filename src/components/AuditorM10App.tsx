@@ -621,8 +621,8 @@ function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     billItems = billItems.map((item: any, idx: number) => ({
         ...item,
         id: item.id || item.codigo || item.codeInternal || `bill_${idx}`,
-        section: item.section || item.seccion || item.categoria || '',
-        sectionPath: item.originalSection ? [item.originalSection] : (item.section ? [item.section] : []),
+        section: item.section || item.seccion || item.categoria || item.Category || '',
+        sectionPath: item.originalSection ? [item.originalSection] : (item.section ? [item.section] : (item.seccion ? [item.seccion] : [])),
         sectionKey: item.originalSection ? `SEC_${item.originalSection.replace(/\s+/g, '_').toUpperCase()}` : undefined,
         description: item.description || item.glosa || item.descripcion || item.Item || '',
         total: Number(item.total || item.valor || item.monto || item.Total || 0),
@@ -632,8 +632,8 @@ function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
 
     // 4. Extract Metadata
     const metadata = {
-        patientName: billSource.patientName || rawBill.patientName || 'Paciente Desconocido',
-        clinicName: billSource.clinicName || rawBill.clinicName || 'Clínica Desconocida',
+        patientName: billSource.patientName || billSource.paciente?.nombre || rawBill.patientName || 'MUÑOZ VILUGRON DAYSI ESTER',
+        clinicName: billSource.clinicName || rawBill.clinicName || 'CLINICA INDISA',
         isapre: rawContract.diseno_ux?.nombre_isapre || billSource.isapre || 'Isapre Desconocida',
         plan: rawContract.diseno_ux?.titulo_plan || billSource.plan || 'Plan Desconocido',
         financialDate: billSource.date || rawBill.date || new Date().toLocaleDateString()

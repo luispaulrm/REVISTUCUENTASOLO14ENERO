@@ -29,7 +29,7 @@
   "patterns": [],
   "trainingExamples": [
     {
-      "id": "1771420180472",
+      "id": "1771610032647",
       "tags": [
         "ISAPRE - Plan   PLENO\n ",
         "ISAPRE"
@@ -600,7 +600,7 @@
         "items_no_clasificados": []
       },
       "reason": "User initiated learning from UI",
-      "timestamp": "2026-02-18T13:09:40.475Z"
+      "timestamp": "2026-02-20T17:53:52.649Z"
     },
     {
       "id": "1771541846539",
@@ -1274,5 +1274,5 @@
     }
   ],
   "processedContracts": [],
-  "lastUpdated": "2026-02-19T22:57:26.546Z"
+  "lastUpdated": "2026-02-20T17:53:52.649Z"
 }

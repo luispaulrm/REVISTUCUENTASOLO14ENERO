@@ -166,6 +166,8 @@ app.post('/api/audit/pre-check', handlePreCheck);
 app.post('/api/generate-pdf', handleGeneratePdf);
 app.post('/api/extract-canonical', handleCanonicalExtraction);
 app.post('/api/learn-contract', LearnContractEndpoint);
+import { handleChat } from './endpoints/chat.endpoint.js';
+app.post('/api/audit/chat', handleChat);
 
 // import { handleTaxonomyClassification } from './endpoints/taxonomy.endpoint.js';
 // app.post('/api/audit/taxonomy', handleTaxonomyClassification);
@@ -611,35 +613,46 @@ app.post('/api/extract', async (req, res) => {
             if (!line.includes('|')) continue;
 
             const cols = robustSplit(line);
-            if (cols.length < 4) continue;
 
-            // New logic to handle extra columns (ValorIsa, Bonif, Copago)
-            // Expected: [Index]|[Code]|[Desc]|[Qty]|[UnitPrice]|[Verif]|[ValorIsa]|[Bonif]|[Copago]|[Total]
+            // STRICT DIET SUPPORT: [Index]|[Desc]|[Total] (Length 3)
+            // ORIGINAL FORMAT: [Index]|[Code]|[Desc]|[Qty]|[UnitPrice]|... (Length >= 4)
 
-            const idxStr = cols[0];
-            const code = cols[1];
-            const desc = cols[2];
-            const qtyStr = cols[3];
-            const unitPriceStr = cols[4];
+            if (cols.length < 3) continue;
+
+            let idxStr = cols[0];
+            let code = "";
+            let desc = "";
+            let qtyStr = "1";
+            let unitPriceStr = "0";
+            let totalStr = "0";
 
             // Default mappings fallback
-            let totalStr = "";
             let valorIsaStr = "";
             let bonifStr = "";
             let copagoStr = "";
 
-            if (cols.length >= 10) {
-                // Full new format
-                valorIsaStr = cols[6];
-                bonifStr = cols[7];
-                copagoStr = cols[8];
-                totalStr = cols[9];
-            } else if (cols.length >= 7) {
-                // Mid format or old format + verification
-                // Assuming format: ...[Verif]|[Total]
-                totalStr = cols[6];
+            if (cols.length === 3) {
+                // DIET FORMAT
+                desc = cols[1];
+                totalStr = cols[2];
+                unitPriceStr = totalStr; // Implicit Qty=1
             } else {
-                totalStr = cols.length >= 6 ? cols[5] : cols[3];
+                // CLASSIC FORMAT
+                code = cols[1];
+                desc = cols[2];
+                qtyStr = cols[3];
+                unitPriceStr = cols[4];
+
+                if (cols.length >= 10) {
+                    valorIsaStr = cols[6];
+                    bonifStr = cols[7];
+                    copagoStr = cols[8];
+                    totalStr = cols[9];
+                } else if (cols.length >= 7) {
+                    totalStr = cols[6];
+                } else {
+                    totalStr = cols.length >= 6 ? cols[5] : cols[3];
+                }
             }
 
             const isClinicTotalLine = desc?.toUpperCase().includes("TOTAL SECCIÓN") || desc?.toUpperCase().includes("SUBTOTAL");
@@ -777,20 +790,17 @@ app.post('/api/extract', async (req, res) => {
             if (isClinicTotalLine) {
                 sectionObj.sectionTotal = finalTotal;
             } else {
-                // --- DEDUPLICATION LOGIC ---
-                // Avoid adding the same item twice ONLY if the entire row (including quantity and price) is identical
-                // and they share the same Folio (idxStr). 
-                // We use a counter in the key to allow legitimate multiple charges of same product in same section
-                // if they appear as distinct lines in the AI response.
+                // --- DEDUPLICATION LOGIC DISABLED ---
+                // We trust the AI (and the "NO MERGE" prompt rule) to list duplicates only if they exist in the PDF.
+                // Strict Diet + Integrity First: If it's in the text, it goes in.
+                /*
                 const itemKey = `${currentSectionName}|${idxStr}|${code}|${desc}|${finalQuantity}|${finalUnitPrice}|${finalTotal}`;
                 if (processedItemsSet.has(itemKey)) {
-                    // Only skip if the AI is clearly repeating itself (same everything)
-                    // But if it's a clinical bill, sometimes same code and total repeat legitimately.
-                    // We'll trust the AI's list unless it's an exact duplicate of a previously seen line.
                     console.log(`[PARSER] Skipping potential duplicate row: ${fullDescription}`);
                     continue;
                 }
                 processedItemsSet.add(itemKey);
+                */
 
                 const isHeaderArtifact = fullDescription.toLowerCase().includes("descripción") ||
                     fullDescription.toLowerCase().includes("código") ||

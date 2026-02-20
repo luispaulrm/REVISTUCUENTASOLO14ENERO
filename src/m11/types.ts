@@ -94,6 +94,7 @@ export interface SubtotalBlock {
     iva?: MoneyCLP;
     componentItemIds: string[];
     label?: string;
+    isVirtual?: boolean;
 }
 
 export interface TraceAttempt {

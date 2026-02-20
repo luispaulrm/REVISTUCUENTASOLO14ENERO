@@ -97,10 +97,15 @@ export interface SubtotalBlock {
 }
 
 export interface TraceAttempt {
-    step: "CODE" | "GLOSA_FAMILIA" | "MONTO_1A1" | "MONTO_SUBSET" | "CONTRACT_ANCHOR" | "MONTO_SUBTOTAL";
+    step: "CODE" | "GLOSA_FAMILIA" | "MONTO_1A1" | "MONTO_SUBSET" | "CONTRACT_ANCHOR" | "MONTO_SUBTOTAL" | "MONTO_CONTIGUO" | "MONTO_SUBTOTAL_COMBO" | "MONTO_BLOQUE_CONTIGUO";
     status: TraceStatus;
     details: string;
     refsBill?: EvidenceRef[];
+    candidates?: Array<{
+        items: CanonicalBillItem[];
+        score: number;
+        reason: string;
+    }>;
 }
 
 export interface PamAuditRow {

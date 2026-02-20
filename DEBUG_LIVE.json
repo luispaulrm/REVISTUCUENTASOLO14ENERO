@@ -1,0 +1,50 @@
+[
+  {
+    "itemLabel": "3101001 - MEDICAMENTOS CLINICOS",
+    "classification": "FRAGMENTACION_ESTRUCTURAL",
+    "motor": "M2",
+    "fundamento": "Paquete desplazado: El monto $134.100 corresponde al siguiente hallazgo clínico:\nExact match found in contiguous block of 8 items (Index 13 to 20)\n\nDESGLOSE EVIDENCIA (8 items, suma $134.100, Δ=$0):\n- [37] CEFTRIAXONA 1G (ACANT) | $102.588 |\n- [38] METRONIDAZOL 500 MG. I | $4.587 |\n- [40] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [41] ONDANSETRON 4 MG | $15.716 |\n- [42] SUERO FISIOLOGICO 500 CC | $2.344 |\n- [43] SUERO FISIOLOGICO 100 ML | $3.401 |\n- [44] SUERO FISIOLOGICO 20 ML | $1.208 |\n- [45] FENTANYL 2 ML (ESTUPEF) | $3.048 |\n\nEste conjunto contiene insumo estándar (CEFTRIAXONA 1G (ACANT)) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DERECHO_PABELLON). [OPACIDAD IOP 55]",
+    "impacto": 134100,
+    "iop": 55
+  },
+  {
+    "itemLabel": "3101002 - MATERIALES CLINICOS",
+    "classification": "FRAGMENTACION_ESTRUCTURAL",
+    "motor": "M2",
+    "fundamento": "Paquete desplazado: El monto $32.716 corresponde al siguiente hallazgo clínico:\nDesglose Combinatorial (DP) [domain=ON]:\n    - $17.525 [JERINGA INYECTORA MONO] (Origen: MATERIALES)\n    - $421 [JERINGA 10 cc. EMBUTIDA] (Origen: MATERIALES)\n    - $729 [EQUIPO FLEBOCLISIS] (Origen: MATERIALES)\n    - $1.058 [CHATA HONDA DESECHABLE] (Origen: MATERIALES)\n    - $9.132 [MASCARILLA MULTIVENT] (Origen: MATERIALES)\n    - $551 [JERINGA 10 cc. LUER LOCK] (Origen: MATERIALES)\n    - $614 [LIGADURA LIBRE DE LATEX] (Origen: MATERIALES)\n    - $872 [BRANULA VIALON 20GX1] (Origen: MATERIALES)\n    - $548 [APOSITO 10 X 10 ESTERIL] (Origen: MATERIALES)\n    - $1.266 [BANDEJA ALUSA ESTERIL] (Origen: GENERAL)\n\nDESGLOSE EVIDENCIA (10 items, suma $32.716, Δ=$0):\n- [31] JERINGA INYECTORA MONO | $17.525 |\n- [24] JERINGA 10 cc. EMBUTIDA | $421 |\n- [20] EQUIPO FLEBOCLISIS | $729 |\n- [17] CHATA HONDA DESECHABLE | $1.058 |\n- [11] MASCARILLA MULTIVENT | $9.132 |\n- [10] JERINGA 10 cc. LUER LOCK | $551 |\n- [9] LIGADURA LIBRE DE LATEX | $614 |\n- [7] BRANULA VIALON 20GX1 | $872 |\n- [3] APOSITO 10 X 10 ESTERIL | $548 |\n- [2] BANDEJA ALUSA ESTERIL | $1.266 |\n\nEste conjunto contiene insumo estándar (JERINGA INYECTORA MONO) proveniente de la cuenta, lo que confirma su pertenencia al paquete clínico (DIA_CAMA_INTEGRAL).",
+    "impacto": 32716,
+    "iop": 15
+  },
+  {
+    "itemLabel": "3201002 - PRESTACION NO CONTEMPLADA",
+    "classification": "FRAGMENTACION_ESTRUCTURAL",
+    "motor": "M3",
+    "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [133] FLEBOCLISIS 99-00-045-01 | $42.957 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($42.957): FLEBOCLISIS 99-00-045-01 ($42.957)\n  ⚠️ OPACIDAD DETECTADA (IOP 15):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+    "impacto": 42957,
+    "iop": 15
+  },
+  {
+    "itemLabel": "3201001 - GASTOS NO CUBIERTOS B",
+    "classification": "FRAGMENTACION_ESTRUCTURAL",
+    "motor": "M3",
+    "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 1 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [132] INSTALACION DE VIA VENOSA | $23.985 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($23.985): INSTALACION DE VIA VENOSA ($23.985)\n  ⚠️ OPACIDAD DETECTADA (IOP 35):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15)",
+    "impacto": 23985,
+    "iop": 35
+  },
+  {
+    "itemLabel": "3201001 - GASTOS NO CUBIERTOS POR EL PLAN",
+    "classification": "FRAGMENTACION_ESTRUCTURAL",
+    "motor": "M3",
+    "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 8 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [61] DELANTAL ESTERIL TALLA L | $29.686 |\n- [65] JERINGA 5 cc. EMBUTIDA | $752 |\n- [77] MANGAS TALLA S PARA COMPRESOR | $97.862 |\n- [83] MEDIAS ANTIEMBOLICAS S | $34.768 |\n- [87] METAMIZOL 1G/2 ML. | $1.800 |\n- [96] LUBRICANTE OCULAR (THEALOZ) | $668 |\n- [111] TERMOMETRO DIGITAL CON LOGO | $8.605 |\n- [112] SET ASEO PERSONAL PACIENTE | $10.512 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($132.630): MANGAS TALLA S PARA COMPRESOR ($97.862), MEDIAS ANTIEMBOLICAS S ($34.768)\n→ Amenities/Administrativo ($52.023): DELANTAL ESTERIL TALLA L ($29.686), JERINGA 5 cc. EMBUTIDA ($752), METAMIZOL 1G/2 ML. ($1.800), LUBRICANTE OCULAR (THEALOZ) ($668), TERMOMETRO DIGITAL CON LOGO ($8.605), SET ASEO PERSONAL PACIENTE ($10.512)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15) [OPACIDAD IOP 75]",
+    "impacto": 184653,
+    "iop": 75
+  },
+  {
+    "itemLabel": "3201001 - GASTOS NO CUBIERTOS C",
+    "classification": "FRAGMENTACION_ESTRUCTURAL",
+    "motor": "M3",
+    "fundamento": "[M3-R] TGE-A: Bolsón de Rechazo (Copago >95% + Glosa Genérica).\nSe identifican 3 ítems del BILL que suman exacto el monto del agrupador (Δ=$0).\n\nDESGLOSE EVIDENCIA:\n- [15] ESPONJA CON JABON NEUTRO | $2.105 |\n- [16] DELANTAL PACIENTE AZUL | $2.334 |\n- [33] TERMOMETRO DIGITAL C | $8.605 |\n\n\nCLASIFICACIÓN FORENSE:\n→ Clínicamente Defendible ($0): \n→ Amenities/Administrativo ($13.044): ESPONJA CON JABON NEUTRO ($2.105), DELANTAL PACIENTE AZUL ($2.334), TERMOMETRO DIGITAL C ($8.605)\n  ⚠️ OPACIDAD DETECTADA (IOP 75):\n    - Agrupador con desglose parcial/numérico (TRACE_WEAK) (+25)\n  - Glosa Genérica indeterminada (+20)\n  - Bonificación $0 (Copago Total) (+15) [OPACIDAD IOP 75]",
+    "impacto": 13044,
+    "iop": 75
+  }
+]

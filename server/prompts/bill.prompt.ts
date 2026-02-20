@@ -8,6 +8,7 @@ export const BILL_PROMPT = `
     2. SIN INCERTIDUMBRE: Prohibido usar "?". Si el OCR falla, INFIERE por contexto (ej: "SOLUCION SALINA").
     3. MATEMÁTICA: (PrecioUnit * Cantidad) DEBE ser igual a Total. Si Total es Bruto, recalcula Unitario.
     4. IMPUESTOS: El "Total" SIEMPRE debe ser el valor FINAL (con IVA/ISA). NUNCA el Neto.
+    5. NO FUSIONAR DUPLICADOS: Si un ítem (ej: "CEFTRIAXONA") aparece 2 veces con el mismo precio, DAME 2 FILAS. Mantén la integridad 100%.
     
     FORMATO DE SALIDA (LÍNEA POR LÍNEA):
     
