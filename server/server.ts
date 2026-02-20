@@ -21,7 +21,7 @@ import { handleGeneratePdf } from './endpoints/generate-pdf.endpoint.js';
 import { handleCanonicalExtraction } from './endpoints/canonical.endpoint.js';
 import { LearnContractEndpoint } from './endpoints/learn-contract.endpoint.js';
 import { learnFromContract } from './services/contractLearning.service.js';
-import { BILL_PROMPT, BILL_JSON_SCHEMA } from './prompts/bill.prompt.js';
+import { BILL_PROMPT } from './prompts/bill.prompt.js';
 // REMOVED: TaxonomyPhase1Service, TaxonomyPhase1_5Service, SkeletonService, preProcessEventos
 // These were eliminated to lighten the bill extraction pipeline (no longer used by M11 engine)
 
@@ -249,9 +249,9 @@ app.post('/api/extract', async (req, res) => {
 
         const CSV_PROMPT = BILL_PROMPT;
 
-        // --- STRUCTURED JSON EXTRACTION (v2.0) ---
-        // Uses Gemini's structured output to get well-formed JSON directly.
-        // Eliminates CSV parsing, magnitude heuristics, and coherence checks.
+        // --- STREAMING JSON EXTRACTION (v2.1) ---
+        // Uses streaming with prompt-guided JSON output (no strict responseSchema to avoid timeouts).
+        // The prompt instructs the model to respond in JSON format.
 
         let resultJson: any = null;
         let lastError: any;
@@ -261,7 +261,7 @@ app.post('/api/extract', async (req, res) => {
 
         for (const modelName of modelsToTry) {
             if (!modelName) continue;
-            console.log(`[AUTH] 🛡️ Attempting structured extraction with model: ${modelName}`);
+            console.log(`[AUTH] 🛡️ Attempting JSON streaming extraction with model: ${modelName}`);
 
             for (const apiKey of apiKeys) {
                 const keyMask = apiKey ? (apiKey.substring(0, 4) + '...') : '???';
@@ -277,20 +277,14 @@ app.post('/api/extract', async (req, res) => {
                             temperature: GENERATION_CONFIG.temperature,
                             topP: GENERATION_CONFIG.topP,
                             topK: GENERATION_CONFIG.topK,
-                            responseMimeType: 'application/json',
-                            responseSchema: BILL_JSON_SCHEMA as any
+                            responseMimeType: 'application/json'
                         }
                     });
 
-                    forensicLog(`Enviando imagen al modelo ${modelName} (JSON estructurado)...`);
+                    forensicLog(`Enviando imagen al modelo ${modelName} (JSON streaming)...`);
 
-                    // Progress ticking
-                    const waitingInterval = setInterval(() => {
-                        forensicLog(`⏳ Esperando respuesta JSON de ${modelName}... (Procesando)`);
-                    }, 10000);
-
-                    const timeoutMs = 120000; // 120 seconds for structured JSON extraction
-                    const resultPromise = model.generateContent([
+                    const timeoutMs = 120000;
+                    const streamPromise = model.generateContentStream([
                         { text: CSV_PROMPT },
                         {
                             inlineData: {
@@ -306,31 +300,53 @@ app.post('/api/extract', async (req, res) => {
                         }, timeoutMs);
                     });
 
-                    let apiResult: any;
+                    let resultStream: any;
                     try {
-                        apiResult = await Promise.race([resultPromise, timeoutPromise]) as any;
-                    } finally {
-                        clearInterval(waitingInterval);
+                        resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
+                    } catch (raceErr) {
+                        throw raceErr;
                     }
 
-                    const responseText = apiResult.response.text();
-                    console.log(`[EXTRACT] Raw JSON length: ${responseText.length} chars`);
-                    sendUpdate({ type: 'chunk', text: `[EXTRACT] Respuesta JSON recibida: ${responseText.length} caracteres` });
+                    // Aggregate streaming chunks
+                    let fullText = "";
+                    let iteration = 0;
+                    const maxIterations = 10000;
 
-                    // Report usage if available
-                    const usage = apiResult.response.usageMetadata;
-                    if (usage) {
-                        const promptTokens = usage.promptTokenCount || 0;
-                        const candidatesTokens = usage.candidatesTokenCount || 0;
-                        const totalTokens = usage.totalTokenCount || 0;
-                        const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(modelName, promptTokens, candidatesTokens);
-                        sendUpdate({
-                            type: 'usage',
-                            usage: { promptTokens, candidatesTokens, totalTokens, estimatedCost, estimatedCostCLP }
-                        });
+                    for await (const chunk of resultStream.stream) {
+                        iteration++;
+                        if (iteration > maxIterations) {
+                            console.error(`[CRITICAL] Stream exceeded ${maxIterations} iterations. Breaking.`);
+                            break;
+                        }
+
+                        const chunkText = chunk.text();
+                        fullText += chunkText;
+
+                        console.log(`[CHUNK] +${chunkText.length} chars (Total: ${fullText.length})`);
+                        sendUpdate({ type: 'progress', length: fullText.length });
+
+                        // Report usage from last chunk
+                        const usage = chunk.usageMetadata;
+                        if (usage) {
+                            const promptTokens = usage.promptTokenCount || 0;
+                            const candidatesTokens = usage.candidatesTokenCount || 0;
+                            const totalTokens = usage.totalTokenCount || 0;
+                            const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(modelName, promptTokens, candidatesTokens);
+                            sendUpdate({
+                                type: 'usage',
+                                usage: { promptTokens, candidatesTokens, totalTokens, estimatedCost, estimatedCostCLP }
+                            });
+                        }
                     }
 
-                    resultJson = JSON.parse(responseText);
+                    console.log(`[EXTRACT] Streaming complete. Total JSON length: ${fullText.length} chars`);
+                    sendUpdate({ type: 'chunk', text: `[EXTRACT] JSON recibido: ${fullText.length} caracteres` });
+
+                    if (fullText.length === 0) {
+                        throw new Error("Gemini devolvió respuesta vacía");
+                    }
+
+                    resultJson = JSON.parse(fullText);
                     activeApiKey = apiKey;
                     console.log(`[AUTH] Success with Key: ${keyMask} on Model: ${modelName}`);
                     break;
