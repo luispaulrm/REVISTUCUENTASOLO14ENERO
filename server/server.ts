@@ -21,11 +21,9 @@ import { handleGeneratePdf } from './endpoints/generate-pdf.endpoint.js';
 import { handleCanonicalExtraction } from './endpoints/canonical.endpoint.js';
 import { LearnContractEndpoint } from './endpoints/learn-contract.endpoint.js';
 import { learnFromContract } from './services/contractLearning.service.js';
-import { BILL_PROMPT } from './prompts/bill.prompt.js';
-import { TaxonomyPhase1Service } from './services/taxonomyPhase1.service.js';
-import { TaxonomyPhase1_5Service } from './services/taxonomyPhase1_5.service.js';
-import { SkeletonService } from './services/skeleton.service.js';
-import { preProcessEventos } from './services/eventProcessor.service.js';
+import { BILL_PROMPT, BILL_JSON_SCHEMA } from './prompts/bill.prompt.js';
+// REMOVED: TaxonomyPhase1Service, TaxonomyPhase1_5Service, SkeletonService, preProcessEventos
+// These were eliminated to lighten the bill extraction pipeline (no longer used by M11 engine)
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -251,42 +249,26 @@ app.post('/api/extract', async (req, res) => {
 
         const CSV_PROMPT = BILL_PROMPT;
 
-        // --- VALIDATION LAYER START (HOTFIX) ---
-        // Ensure this is actually a BILL (Cuenta) and not a PAM or random meme.
-        const { ValidationService } = await import('./services/validation.service.js');
-        const validationService = new ValidationService(apiKeys);
+        // --- STRUCTURED JSON EXTRACTION (v2.0) ---
+        // Uses Gemini's structured output to get well-formed JSON directly.
+        // Eliminates CSV parsing, magnitude heuristics, and coherence checks.
 
-        forensicLog("🕵️ Validando identidad del documento (Debe ser CUENTA)...");
-        const validation = await validationService.validateDocumentType(image, mimeType, 'CUENTA');
-
-        if (!validation.isValid) {
-            console.warn(`[EXTRACT] VALIDATION REJECTED: ${validation.detectedType}. Reason: ${validation.reason}`);
-            sendUpdate({
-                type: 'error',
-                message: `VALIDACIÓN FALLIDA: Sube una CUENTA CLÍNICA. Se detectó: "${validation.detectedType}". (${validation.reason})`
-            });
-            return res.end();
-        }
-        forensicLog(`✅ Documento validado como CUENTA CLÍNICA.`);
-        // --- VALIDATION LAYER END ---  
-
-        let resultStream;
+        let resultJson: any = null;
         let lastError: any;
         let activeApiKey: string | undefined;
 
-        // RETRY LOOP WITH FAILURE OVER KEYS AND MODELS
         const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
 
         for (const modelName of modelsToTry) {
             if (!modelName) continue;
-            console.log(`[AUTH] 🛡️ Attempting extraction with model: ${modelName}`);
+            console.log(`[AUTH] 🛡️ Attempting structured extraction with model: ${modelName}`);
 
             for (const apiKey of apiKeys) {
                 const keyMask = apiKey ? (apiKey.substring(0, 4) + '...') : '???';
                 console.log(`[AUTH] Trying with API Key: ${keyMask} (Model: ${modelName})`);
 
                 try {
-                    forensicLog(`Intentando extracción con modelo ${modelName}...`);
+                    forensicLog(`Intentando extracción JSON con modelo ${modelName}...`);
                     const genAI = new GoogleGenerativeAI(apiKey);
                     const model = genAI.getGenerativeModel({
                         model: modelName,
@@ -294,20 +276,21 @@ app.post('/api/extract', async (req, res) => {
                             maxOutputTokens: GENERATION_CONFIG.maxOutputTokens,
                             temperature: GENERATION_CONFIG.temperature,
                             topP: GENERATION_CONFIG.topP,
-                            topK: GENERATION_CONFIG.topK
+                            topK: GENERATION_CONFIG.topK,
+                            responseMimeType: 'application/json',
+                            responseSchema: BILL_JSON_SCHEMA as any
                         }
                     });
 
-                    forensicLog(`Enviando imagen al modelo ${modelName}...`);
+                    forensicLog(`Enviando imagen al modelo ${modelName} (JSON estructurado)...`);
 
-                    // Progress ticking to keep user informed during long waits
+                    // Progress ticking
                     const waitingInterval = setInterval(() => {
-                        forensicLog(`⏳ Esperando respuesta de ${modelName}... (Procesando)`);
+                        forensicLog(`⏳ Esperando respuesta JSON de ${modelName}... (Procesando)`);
                     }, 10000);
 
-                    // Add timeout wrapper to prevent indefinite hangs
-                    const timeoutMs = 90000; // 90 seconds for bill extraction
-                    const streamPromise = model.generateContentStream([
+                    const timeoutMs = 120000; // 120 seconds for structured JSON extraction
+                    const resultPromise = model.generateContent([
                         { text: CSV_PROMPT },
                         {
                             inlineData: {
@@ -323,49 +306,55 @@ app.post('/api/extract', async (req, res) => {
                         }, timeoutMs);
                     });
 
+                    let apiResult: any;
                     try {
-                        resultStream = await Promise.race([streamPromise, timeoutPromise]) as any;
+                        apiResult = await Promise.race([resultPromise, timeoutPromise]) as any;
                     } finally {
                         clearInterval(waitingInterval);
                     }
 
-                    // If successful, break both loops
-                    if (resultStream) {
-                        console.log(`[AUTH] Success with Key: ${keyMask} on Model: ${modelName}`);
-                        activeApiKey = apiKey;
+                    const responseText = apiResult.response.text();
+                    console.log(`[EXTRACT] Raw JSON length: ${responseText.length} chars`);
+                    sendUpdate({ type: 'chunk', text: `[EXTRACT] Respuesta JSON recibida: ${responseText.length} caracteres` });
 
-                        // Critical: Update pricing used for this successful request if possible, 
-                        // but actually pricing is static map. We should probably note which model won.
-                        // For now just breaking.
-                        break;
+                    // Report usage if available
+                    const usage = apiResult.response.usageMetadata;
+                    if (usage) {
+                        const promptTokens = usage.promptTokenCount || 0;
+                        const candidatesTokens = usage.candidatesTokenCount || 0;
+                        const totalTokens = usage.totalTokenCount || 0;
+                        const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(modelName, promptTokens, candidatesTokens);
+                        sendUpdate({
+                            type: 'usage',
+                            usage: { promptTokens, candidatesTokens, totalTokens, estimatedCost, estimatedCostCLP }
+                        });
                     }
+
+                    resultJson = JSON.parse(responseText);
+                    activeApiKey = apiKey;
+                    console.log(`[AUTH] Success with Key: ${keyMask} on Model: ${modelName}`);
+                    break;
 
                 } catch (attemptError: any) {
                     const errStr = (attemptError?.toString() || "") + (attemptError?.message || "");
                     const isTimeout = errStr.includes('Timeout');
 
                     if (isTimeout) {
-                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 90 segundos.`);
-                        forensicLog(`💡 Esto puede indicar que el PDF es muy grande o complejo.`);
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 120 segundos.`);
                         lastError = attemptError;
-                        // Try next key/model
                         continue;
                     }
 
                     console.warn(`[AUTH] Failed with Key: ${keyMask} on ${modelName}:`, attemptError.message);
                     lastError = attemptError;
-                    // If 400 Bad Request (Invalid Argument), switching models/keys might not help if prompt is bad,
-                    // but switching model MIGHT help if one model doesn't support a param.
-                    // For 429/500, definitely retry.
                 }
             }
-            if (activeApiKey) break; // Found a working key/model combo
-            console.warn(`[AUTH] ⚠️ All keys failed for model ${modelName}. Switching to next model if available...`);
+            if (activeApiKey) break;
+            console.warn(`[AUTH] ⚠️ All keys failed for model ${modelName}. Switching to next model...`);
         }
 
-        if (!resultStream) {
-            console.error("❌All API Keys failed.");
-            // Handle last error specifically
+        if (!resultJson) {
+            console.error("❌ All API Keys/Models failed.");
             const errStr = (lastError?.toString() || "") + (lastError?.message || "");
             const has429 = errStr.includes('429') || errStr.includes('Too Many Requests') || lastError?.status === 429;
 
@@ -379,496 +368,87 @@ app.post('/api/extract', async (req, res) => {
             throw lastError || new Error("All API attempts failed");
         }
 
+        // --- PROCESS STRUCTURED JSON RESULT ---
+        forensicLog(`✅ Extracción JSON exitosa. Procesando datos estructurados...`);
 
-        let fullText = "";
-        let previousLength = 0;
-        let stuckCount = 0;
-        let maxIterations = 10000; // Safety limit
-        let iteration = 0;
+        const clinicName = resultJson.clinicName || "CLINICA";
+        const patientName = resultJson.patientName || "PACIENTE";
+        const patientEmail = "N/A";
+        const invoiceNumber = resultJson.invoiceNumber || "000000";
+        const billingDate = resultJson.date || new Date().toLocaleDateString('es-CL');
+        let clinicGrandTotalField = Math.round(resultJson.grandTotalBruto || 0);
 
-        for await (const chunk of resultStream.stream) {
-            iteration++;
-
-            // Safety check: prevent infinite loops
-            if (iteration > maxIterations) {
-                console.error(`[CRITICAL] Stream exceeded ${maxIterations} iterations. Breaking loop.`);
-                break;
-            }
-
-            const chunkText = chunk.text();
-            fullText += chunkText;
-
-            // Detect stuck stream (same length for 3+ iterations)
-            if (fullText.length === previousLength) {
-                stuckCount++;
-                if (stuckCount > 3) {
-                    console.log(`[WARN] Stream appears stuck at ${fullText.length} chars. Breaking loop.`);
-                    break;
-                }
-            } else {
-                stuckCount = 0; // Reset counter
-            }
-            previousLength = fullText.length;
-
-            console.log(`[CHUNK] Received chunk: ${chunkText.length} chars (Total: ${fullText.length})`);
-            // Enviar el texto extraído en tiempo real al log del frontend
-            sendUpdate({ type: 'chunk', text: chunkText });
-
-            // Enviar actualización de tokens si está disponible en el chunk
-            const usage = chunk.usageMetadata;
-            if (usage) {
-                const promptTokens = usage.promptTokenCount || 0;
-                const candidatesTokens = usage.candidatesTokenCount || 0;
-                const totalTokens = usage.totalTokenCount || 0;
-
-                const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(AI_CONFIG.ACTIVE_MODEL, promptTokens, candidatesTokens);
-
-                sendUpdate({
-                    type: 'usage',
-                    usage: {
-                        promptTokens,
-                        candidatesTokens,
-                        totalTokens,
-                        estimatedCost,
-                        estimatedCostCLP
-                    }
-                });
-            } else {
-                sendUpdate({ type: 'progress', length: fullText.length });
-            }
-        }
-
-        console.log(`\n[DEBUG] Extracción finalizada. Longitud total texto: ${fullText.length} caracteres.`);
-        if (fullText.length === 0) {
-            console.warn("[WARN] Gemini devolvió un texto vacío.");
-        }
-
-        console.log(`[PROCESS] Starting data parsing for ${fullText.length} chars...`);
-        const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
         const sectionsMap = new Map<string, any>();
-        const sectionPageTracking = new Map<string, Set<number>>();
-        let currentSectionName = "SECCION_DESCONOCIDA";
-        let currentPage = 1;
         let globalIndex = 1;
 
-        let clinicGrandTotalField = 0;
-        let clinicName = "CLINICA INDISA";
-        let patientName = "PACIENTE AUDITORIA";
-        let patientEmail = "N/A";
-        let invoiceNumber = "000000";
-        let billingDate = new Date().toLocaleDateString('es-CL');
+        for (const section of (resultJson.sections || [])) {
+            const categoryName = section.category || "SECCION_DESCONOCIDA";
+            const sectionObj = {
+                category: categoryName,
+                items: [] as any[],
+                sectionTotal: Math.round(section.sectionTotal || 0)
+            };
 
-        const cleanCLP = (value: string, isQuantity: boolean = false): number => {
-            if (!value) return 0;
-            let cleaned = value.trim();
+            for (const item of (section.items || [])) {
+                const desc = item.description || "";
+                const code = item.code || "";
+                const quantity = item.quantity || 1;
+                const unitPrice = Math.round(item.unitPrice || 0);
+                const total = Math.round(item.total || 0);
+                const fullDescription = code ? `${desc} ${code}` : desc;
 
-            // Handle parentheses for negatives (ej: (1.234) -> -1.234)
-            if (cleaned.startsWith('(') && cleaned.endsWith(')')) {
-                cleaned = '-' + cleaned.substring(1, cleaned.length - 1);
-            }
-
-            // Now remove non-numeric characters, but keep '.', ',', and '-'
-            cleaned = cleaned.replace(/[^\d.,-]/g, '');
-            if (cleaned === '' || cleaned === '-') return 0;
-
-            // Start cleaning from first digit or minus sign
-            const firstNumeric = cleaned.search(/[0-9-]/);
-            if (firstNumeric > 0) cleaned = cleaned.substring(firstNumeric);
-
-            // Handle Chilean format if comma exists
-            if (cleaned.includes(',')) {
-                // "1.000,50" -> "1000.50"
-                return parseFloat(cleaned.replace(/\./g, '').replace(/,/g, '.')) || 0;
-            }
-
-            // Handle ambiguity: dots without commas
-            const dots = (cleaned.match(/\./g) || []).length;
-            if (dots === 1) {
-                const parts = cleaned.split('.');
-
-                // CRITICAL FIX: Context-Aware Parsing
-                // If it's a PRICE/TOTAL in CLP, decimals are almost non-existent (no cents).
-                // So "24.000" MUST be 24000.
-                if (!isQuantity) {
-                    // For prices, assume dot is thousands separator unless typically small floating math from AI
-                    // But AI usually outputs "24000" or "24.000".
-                    // Safe bet for CLP: Treat dot as thousands.
-                    return parseFloat(cleaned.replace(/\./g, '')) || 0;
-                }
-
-                // For QUANTITY, "1.000" might be 1. "0.5" is 0.5.
-                // Logic: If decimal part is "000", it's likely an integer formatted with thousands.
-                if (parts[1] === "000") {
-                    // 1.000 -> 1000? Or 1?
-                    // In medical quantities, 1000 units is rare but possible (grams?).
-                    // But 1.000 (1) is also possible output from AI.
-                    // Let's stick to previous logic for quantities: small numbers are decimals.
-                    if (parts[0].length <= 2) {
-                        return parseFloat(cleaned) || 0; // 1.000 -> 1
-                    } else {
-                        return parseFloat(cleaned.replace(/\./g, '')) || 0; // 100.000 -> 100000
-                    }
-                }
-
-                // If it ends with .00 or .0, it's a decimal (1.0 -> 1)
-                if (parts[1].length !== 3) {
-                    return parseFloat(cleaned) || 0;
-                }
-
-                // Default: Treat as thousands
-                return parseFloat(cleaned.replace(/\./g, '')) || 0;
-            } else if (dots > 1) {
-                // "1.000.000" -> thousands
-                return parseFloat(cleaned.replace(/\./g, '')) || 0;
-            }
-
-            // No dots/commas or scientific notation/plain
-            const finalVal = cleaned.replace(/[^\d.eE-]/g, '');
-            return parseFloat(finalVal) || 0;
-        };
-
-        const robustSplit = (line: string): string[] => {
-            // Remove leading and trailing pipes if they exist (Markdown table style)
-            let trimmed = line.trim();
-            if (trimmed.startsWith('|')) trimmed = trimmed.substring(1);
-            if (trimmed.endsWith('|')) trimmed = trimmed.substring(0, trimmed.length - 1);
-            return trimmed.split('|').map(c => c.trim());
-        };
-
-        const processedItemsSet = new Set<string>();
-        for (const line of lines) {
-            if (line.startsWith('GRAND_TOTAL_BRUTO:')) {
-                const rawVal = line.replace('GRAND_TOTAL_BRUTO:', '').trim();
-                clinicGrandTotalField = Math.round(cleanCLP(rawVal, false));
-                console.log(`[PARSER] Raw GRAND_TOTAL_BRUTO: "${rawVal}" -> Parsed: ${clinicGrandTotalField}`);
-                continue;
-            }
-            if (line.startsWith('GRAND_TOTAL_NETO:')) {
-                // We capture it but the primary pivot for Audit M8 is the BRUTO
-                continue;
-            }
-            if (line.startsWith('GRAND_TOTAL:')) { // Fallback for old models
-                const rawVal = line.replace('GRAND_TOTAL:', '').trim();
-                clinicGrandTotalField = Math.round(cleanCLP(rawVal, false));
-                continue;
-            }
-            if (line.startsWith('CLINIC:')) {
-                clinicName = line.replace('CLINIC:', '').trim();
-                continue;
-            }
-            if (line.startsWith('PATIENT:')) {
-                patientName = line.replace('PATIENT:', '').trim();
-                continue;
-            }
-            if (line.startsWith('EMAIL:')) {
-                patientEmail = line.replace('EMAIL:', '').trim();
-                continue;
-            }
-            if (line.startsWith('INVOICE:')) {
-                invoiceNumber = line.replace('INVOICE:', '').trim();
-                continue;
-            }
-            if (line.startsWith('DATE:')) {
-                billingDate = line.replace('DATE:', '').trim();
-                continue;
-            }
-
-            if (line.startsWith('PAGE:')) {
-                const p = parseInt(line.replace('PAGE:', '').trim());
-                if (!isNaN(p)) currentPage = p;
-                forensicLog(`Procesando Página ${currentPage}...`);
-                continue;
-            }
-
-            if (line.startsWith('SECTION:')) {
-                currentSectionName = line.replace('SECTION:', '').trim();
-                if (!sectionsMap.has(currentSectionName)) {
-                    sectionsMap.set(currentSectionName, { category: currentSectionName, items: [], sectionTotal: 0 });
-                }
-                if (!sectionPageTracking.has(currentSectionName)) {
-                    sectionPageTracking.set(currentSectionName, new Set<number>());
-                }
-                continue;
-            }
-
-            const parts = robustSplit(line);
-            if (parts.length < 3) continue;
-
-            // Track page for this section based on where its items are found
-            if (sectionPageTracking.has(currentSectionName)) {
-                sectionPageTracking.get(currentSectionName).add(currentPage);
-            }
-
-            if (line.startsWith('SECTION_TOTAL:')) {
-                const rawVal = line.replace('SECTION_TOTAL:', '').trim();
-                const secTotal = Math.round(cleanCLP(rawVal, false));
-
-                if (sectionsMap.has(currentSectionName)) {
-                    sectionsMap.get(currentSectionName).sectionTotal = secTotal;
-                }
-                console.log(`[PARSER] Found explicit SECTION_TOTAL for "${currentSectionName}": ${secTotal}`);
-                continue;
-            }
-
-            if (!line.includes('|')) continue;
-
-            const cols = robustSplit(line);
-
-            // STRICT DIET SUPPORT: [Index]|[Desc]|[Total] (Length 3)
-            // ORIGINAL FORMAT: [Index]|[Code]|[Desc]|[Qty]|[UnitPrice]|... (Length >= 4)
-
-            if (cols.length < 3) continue;
-
-            let idxStr = cols[0];
-            let code = "";
-            let desc = "";
-            let qtyStr = "1";
-            let unitPriceStr = "0";
-            let totalStr = "0";
-
-            // Default mappings fallback
-            let valorIsaStr = "";
-            let bonifStr = "";
-            let copagoStr = "";
-
-            if (cols.length === 3) {
-                // DIET FORMAT
-                desc = cols[1];
-                totalStr = cols[2];
-                unitPriceStr = totalStr; // Implicit Qty=1
-            } else {
-                // CLASSIC FORMAT
-                code = cols[1];
-                desc = cols[2];
-                qtyStr = cols[3];
-                unitPriceStr = cols[4];
-
-                if (cols.length >= 10) {
-                    valorIsaStr = cols[6];
-                    bonifStr = cols[7];
-                    copagoStr = cols[8];
-                    totalStr = cols[9];
-                } else if (cols.length >= 7) {
-                    totalStr = cols[6];
-                } else {
-                    totalStr = cols.length >= 6 ? cols[5] : cols[3];
-                }
-            }
-
-            const isClinicTotalLine = desc?.toUpperCase().includes("TOTAL SECCIÓN") || desc?.toUpperCase().includes("SUBTOTAL");
-            const total = Math.round(cleanCLP(totalStr || "0", false));
-            const quantity = cleanCLP(qtyStr || "1", true);
-            const unitPrice = Math.round(cleanCLP(unitPriceStr || "0", false));
-
-            const valorIsa = Math.round(cleanCLP(valorIsaStr || "0", false));
-            const bonificacion = Math.round(cleanCLP(bonifStr || "0", false));
-            const copago = Math.round(cleanCLP(copagoStr || "0", false));
-
-            const fullDescription = code ? `${desc} ${code}` : desc;
-
-            let sectionObj = sectionsMap.get(currentSectionName);
-            if (!sectionObj) {
-                sectionsMap.get("SECCIONES_GENERALES") || sectionsMap.set("SECCIONES_GENERALES", { category: "SECCIONES_GENERALES", items: [], sectionTotal: 0 });
-                sectionObj = sectionsMap.get("SECCIONES_GENERALES");
-            }
-
-            const calcTotal = Math.round(unitPrice * quantity);
-            let finalQuantity = quantity;
-            let finalUnitPrice = unitPrice;
-            let finalTotal = total;
-            let finalCalcTotal = calcTotal;
-
-            // --- SMART COHERENCE CHECK ---
-            // Detect if quantity or unitPrice is inflated due to decimal confusion (e.g. 1.000 read as 1000)
-            // Expanding factors up to 10^12 for extreme cases (Sevoflurano, Esferas, etc.)
-            const factors = [10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000, 10000000000, 100000000000, 1000000000000];
-            let foundFix = false;
-
-            if (Math.abs(calcTotal - total) > 5) {
-                // 1. Try single factors first (Qty or Price)
-                for (const f of factors) {
-                    if (unitPrice > 0) {
-                        const testQty = quantity / f;
-                        const testCalc = Math.round(unitPrice * testQty);
-                        if (Math.abs(testCalc - total) <= 10) { // Tolerance slightly higher for extreme scales
-                            finalQuantity = testQty;
-                            finalCalcTotal = testCalc;
-                            foundFix = true;
-                            console.log(`[PARSER] Fixed magnitude (Qty) for "${fullDescription}": ${quantity} -> ${finalQuantity}`);
-                            break;
-                        }
-                    }
-                    if (quantity > 0) {
-                        const testPrice = unitPrice / f;
-                        const testCalc = Math.round(testPrice * quantity);
-                        if (Math.abs(testCalc - total) <= 10) {
-                            finalUnitPrice = testPrice;
-                            finalCalcTotal = testCalc;
-                            foundFix = true;
-                            console.log(`[PARSER] Fixed magnitude (Price) for "${fullDescription}": ${unitPrice} -> ${finalUnitPrice}`);
-                            break;
-                        }
-                    }
-                }
-
-                // 2. Try combined factors (Total / F)
-                if (!foundFix) {
-                    // Try common factors: 10, 100, 1000
-                    const commonFactors = [10, 100, 1000];
-                    for (const f of commonFactors) {
-                        // Prefer scaling PRICE down if it results in an integer-like Quantity
-                        // Especially for drugs where quantities are usually whole numbers or simple decimals (0.5)
-                        if (Math.abs((quantity * (unitPrice / f)) - finalTotal) < 10) {
-                            finalUnitPrice = unitPrice / f;
-                            finalCalcTotal = Math.round(quantity * finalUnitPrice);
-                            foundFix = true;
-                            console.log(`[PARSER] Fixed Price magnitude for "${fullDescription}": Price/${f}`);
-                            break;
-                        }
-                        // Only scale Quantity if the resulting quantity is not "too small" (< 0.01)
-                        if (Math.abs(((quantity / f) * unitPrice) - finalTotal) < 10) {
-                            const qf = quantity / f;
-                            if (qf >= 0.009) { // Avoid micro-quantities unless very precise
-                                finalQuantity = qf;
-                                finalCalcTotal = Math.round(finalQuantity * unitPrice);
-                                foundFix = true;
-                                console.log(`[PARSER] Fixed Qty magnitude for "${fullDescription}": Qty/${f}`);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                if (!foundFix) {
-                    for (const f of factors) { // This 'factors' is the large array [10, 100, ..., 10^12]
-                        if (Math.abs(Math.round(calcTotal / f) - total) <= 10) {
-                            // If Total / F works, try to distribute f between Qty and Price
-                            // Common: Qty has 1000x or 1000000x inflation
-                            const commonQtyFactors = [1000, 1000000];
-                            for (const qf of commonQtyFactors) {
-                                if (f % qf === 0) {
-                                    const pf = f / qf;
-                                    finalQuantity = quantity / qf;
-                                    finalUnitPrice = unitPrice / pf;
-                                    finalCalcTotal = Math.round(finalQuantity * finalUnitPrice);
-                                    foundFix = true;
-                                    console.log(`[PARSER] Combined Fixed magnitude for "${fullDescription}": Qty/${qf}, Price/${pf}`);
-                                    break;
-                                }
-                            }
-                            if (!foundFix) {
-                                // Default distribution to Price if no common Qty factor
-                                finalUnitPrice = unitPrice / f;
-                                finalCalcTotal = Math.round(quantity * finalUnitPrice);
-                                foundFix = true;
-                                console.log(`[PARSER] Global Fixed magnitude for "${fullDescription}": Price/${f}`);
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // IVA Intelligence: Check if (Price * Qty) matches Total, OR if (Price * 1.19 * Qty) matches Total
-            const simpleError = Math.abs(finalTotal - finalCalcTotal) > 10;
-            const ivaError = Math.abs(finalTotal - Math.round(finalCalcTotal * 1.19)) > 10;
-            let hasError = !foundFix && simpleError && ivaError;
-            const isIVAApplied = simpleError && !ivaError;
-
-            // AUTO-FIX: Absurd quantity detection (OCR code fusion error)
-            // If quantity is > 10000 but total is reasonable (< 1M) and unitPrice is reasonable, recalculate
-            if (finalQuantity > 10000 && finalTotal < 1000000 && finalUnitPrice > 0 && finalUnitPrice < finalTotal) {
-                const correctedQuantity = Math.round((finalTotal / finalUnitPrice) * 100) / 100;
-                if (correctedQuantity < 1000 && correctedQuantity > 0) {
-                    console.log(`[AUTO-FIX] Correcting absurd quantity: ${finalQuantity} -> ${correctedQuantity} for "${desc}"`);
-                    finalQuantity = correctedQuantity;
-                    finalCalcTotal = Math.round(finalQuantity * finalUnitPrice);
-                    hasError = Math.abs(finalTotal - finalCalcTotal) > 10;
-                }
-            }
-
-            if (isClinicTotalLine) {
-                sectionObj.sectionTotal = finalTotal;
-            } else {
-                // --- DEDUPLICATION LOGIC DISABLED ---
-                // We trust the AI (and the "NO MERGE" prompt rule) to list duplicates only if they exist in the PDF.
-                // Strict Diet + Integrity First: If it's in the text, it goes in.
-                /*
-                const itemKey = `${currentSectionName}|${idxStr}|${code}|${desc}|${finalQuantity}|${finalUnitPrice}|${finalTotal}`;
-                if (processedItemsSet.has(itemKey)) {
-                    console.log(`[PARSER] Skipping potential duplicate row: ${fullDescription}`);
-                    continue;
-                }
-                processedItemsSet.add(itemKey);
-                */
-
+                // Skip headers and zero-value items
                 const isHeaderArtifact = fullDescription.toLowerCase().includes("descripción") ||
                     fullDescription.toLowerCase().includes("código") ||
                     fullDescription.includes("---");
+                if (isHeaderArtifact || total === 0) continue;
 
-                if (!isHeaderArtifact && finalTotal > 0) {
+                // Billing model classification (preserved from original)
+                const classification = classifyBillingModel({
+                    quantity,
+                    unitPrice,
+                    total,
+                    valorIsa: 0,
+                    description: fullDescription
+                });
 
-                    // NEW: 3-Model Classification System (Applied after Coherence/Auto-Fix)
-                    const classification = classifyBillingModel({
-                        quantity: finalQuantity,
-                        unitPrice: finalUnitPrice,
-                        total: finalTotal, // stated total (after parsing fix)
-                        valorIsa: valorIsa, // authoritative
-                        description: fullDescription
-                    });
+                const calculatedTotal = Math.round(unitPrice * quantity);
+                const simpleError = Math.abs(total - calculatedTotal) > 10;
+                const ivaCalc = Math.round(calculatedTotal * 1.19);
+                const ivaError = Math.abs(total - ivaCalc) > 10;
+                const hasError = simpleError && ivaError;
+                const isIVAApplied = simpleError && !ivaError;
 
-                    // Update Truths
-                    const finalAuthoritativeTotal = classification.authoritativeTotal;
-
-                    // IF we trust the authoritative total more than the text total, update it.
-                    // Usually authoritativeTotal IS `valorIsa` or `total` depending on rule.
-                    // If Rule 1 applied (ValorISA exists), we override.
-                    if (valorIsa > 0) {
-                        finalTotal = finalAuthoritativeTotal;
-                    }
-
-                    // Recalculate Error Flags based on Model
-                    if (classification.model === 'MULTIPLICATIVE_EXACT') {
-                        finalCalcTotal = Math.round(finalQuantity * finalUnitPrice);
-                        const tolerance = classification.toleranceApplied || 10;
-                        hasError = Math.abs(finalTotal - finalCalcTotal) > tolerance;
-                    } else {
-                        // PRORATED or UNTRUSTED
-                        // No calculation error by definition (we don't calculate)
-                        finalCalcTotal = finalAuthoritativeTotal;
-                        hasError = false;
-                    }
-
-                    // For UNTRUSTED (Rule 4), we might want to flag it differently?
-                    // The plan said: "Flag as UNIT_PRICE_UNTRUSTED... Validation: Flag as EXTRACTION ERROR"
-                    // But `hasCalculationError` is specific to arithmetic.
-                    // We interpret "hasCalculationError" as "Invalid Arithmetic".
-                    // If it's B or C, the arithmetic is irrelevant.
-
-                    sectionObj.items.push({
-                        index: globalIndex++,
-                        description: fullDescription,
-                        quantity: finalQuantity,
-                        unitPrice: finalUnitPrice,
-                        total: finalTotal,
-                        calculatedTotal: finalCalcTotal,
-                        hasCalculationError: hasError,
-                        isIVAApplied: isIVAApplied,
-                        valorIsa: valorIsa,
-                        bonificacion: bonificacion,
-                        copago: copago,
-
-                        // New Metadata
-                        billingModel: classification.model,
-                        authoritativeTotal: finalAuthoritativeTotal,
-                        unitPriceTrust: classification.unitPriceTrust,
-                        qtyIsProration: classification.qtyIsProration,
-                        suspectedColumnShift: classification.suspectedColumnShift,
-                        toleranceApplied: classification.toleranceApplied
-                    });
-                }
+                sectionObj.items.push({
+                    index: globalIndex++,
+                    description: fullDescription,
+                    quantity,
+                    unitPrice,
+                    total,
+                    calculatedTotal,
+                    hasCalculationError: hasError,
+                    isIVAApplied,
+                    valorIsa: 0,
+                    bonificacion: 0,
+                    copago: 0,
+                    billingModel: classification.model,
+                    authoritativeTotal: classification.authoritativeTotal,
+                    unitPriceTrust: classification.unitPriceTrust,
+                    qtyIsProration: classification.qtyIsProration,
+                    suspectedColumnShift: classification.suspectedColumnShift,
+                    toleranceApplied: classification.toleranceApplied
+                });
             }
+
+            // Recalculate section total from items if not provided
+            if (sectionObj.sectionTotal === 0 && sectionObj.items.length > 0) {
+                sectionObj.sectionTotal = sectionObj.items.reduce((acc: number, it: any) => acc + it.total, 0);
+            }
+
+            sectionsMap.set(categoryName, sectionObj);
         }
+
+        forensicLog(`📊 Procesadas ${sectionsMap.size} secciones con ${globalIndex - 1} ítems totales.`);
 
         // ... After parsing lines Loop ...
 
@@ -890,8 +470,8 @@ app.post('/api/extract', async (req, res) => {
             const diff = sec.sectionTotal - sumItems;
 
             if (Math.abs(diff) > 10) { // Reducido el threshold para mayor sensibilidad
-                const pages = Array.from(sectionPageTracking.get(sec.category) || []);
-                const pagesInfo = pages.length > 0 ? `detectado en pág(s): ${pages.join(', ')}` : "páginas no identificadas";
+                const pages: number[] = [];
+                const pagesInfo = "páginas no identificadas";
 
                 forensicLog(`⚠️ DESCUADRE en "${sec.category}": Declarado $${sec.sectionTotal} vs Suma $${sumItems} (Dif: $${diff}). Contexto: ${pagesInfo}.`);
                 forensicLog(`Solicitando REPARACIÓN focalizada para "${sec.category}"...`);
@@ -1152,220 +732,11 @@ app.post('/api/extract', async (req, res) => {
             console.error('[AUDIT] Error inferring AC2:', e);
         }
 
-        // --- NEW: ACCOUNT SKELETON (PHASE 1.5) ---
-        const taxonomyCache = new Map<number, any>(); // Cache for TaxonomyPhase1 results to share with Forensic Phase
-        let skeleton = null;
-        try {
-            const allItemsForSkeleton: any[] = [];
-            for (const sec of sectionsMap.values()) {
-                allItemsForSkeleton.push(...sec.items);
-            }
-
-            if (allItemsForSkeleton.length > 0) {
-                forensicLog(`📊 Generando estructura jerárquica de la cuenta (${allItemsForSkeleton.length} ítems)...`);
-                // Use the same API key that worked for extraction
-                const geminiForTaxonomy = new GeminiService(activeApiKey);
-                const taxonomyService = new TaxonomyPhase1Service(geminiForTaxonomy);
-                const skeletonService = new SkeletonService();
-
-                const rawItems = allItemsForSkeleton.map((it, idx) => ({
-                    id: it.id || `item-${idx}`,
-                    text: it.description || "",
-                    sourceRef: it.code || ""
-                }));
-
-                const taxonomyResults = await taxonomyService.classifyItems(rawItems, (msg) => {
-                    forensicLog(`📊 ${msg}`);
-                });
-                skeleton = skeletonService.generateSkeleton(taxonomyResults);
-
-                // Cache results by item.index
-                taxonomyResults.forEach((res, idx) => {
-                    const original = allItemsForSkeleton[idx];
-                    if (original && original.index !== undefined) {
-                        taxonomyCache.set(original.index, res);
-                    }
-                });
-
-                forensicLog(`✅ Esqueleto generado: ${skeleton.children?.length || 0} ramas detectadas.`);
-            } else {
-                console.log(`[SKELETON] No items found to generate skeleton.`);
-            }
-        } catch (skError) {
-            console.error('[SKELETON] Error generating account skeleton:', skError);
-        }
-
-        // --- TAXONOMY & ETIOLOGY PHASE (MOTOR 1.5) ---
-        // Integramos la clasificación taxonómica y etiológica (MEP) directamente en el flujo de extracción
-
-        let forensicAnalysisResult: any | null = null; // Defined outside try/catch to be visible for injection
-
-        try {
-            const allItems: any[] = [];
-            const activeSections = Array.from(sectionsMap.values()).filter((s: any) => {
-                const cat = s.category.toUpperCase();
-                return !(cat.includes('PROGRAMA DE ATENCION MEDICA') ||
-                    cat.includes('PAM') ||
-                    cat.includes('DETALLE DE COBROS DUPLICADOS'));
-            });
-
-            for (const sec of activeSections) {
-                allItems.push(...sec.items);
-            }
-
-            if (allItems.length > 0) {
-                forensicLog(`🧠 Ejecutando Motor Taxonómico (Fase 1.5) para ${allItems.length} ítems...`);
-
-                // 1. Taxonomy Phase 1 (Basic Classification) with Cache Strategy
-                const taxonomyService = new TaxonomyPhase1Service(new GeminiService(activeApiKey || getApiKey()));
-
-                const phase1Results: any[] = [];
-                const itemsToClassify: any[] = [];
-                const indicesToClassify: number[] = [];
-
-                // Check cache first
-                allItems.forEach((it, idx) => {
-                    if (it.index !== undefined && taxonomyCache.has(it.index)) {
-                        phase1Results.push(taxonomyCache.get(it.index));
-                    } else {
-                        phase1Results.push(null); // Placeholder
-                        itemsToClassify.push(it);
-                        indicesToClassify.push(idx);
-                    }
-                });
-
-                if (itemsToClassify.length > 0) {
-                    forensicLog(`⚡ Cache Miss: Clasificando ${itemsToClassify.length} ítems restantes...`);
-                    const taxonomyInput = itemsToClassify.map((it, idx) => ({
-                        id: it.id || `item-missing-${idx}`,
-                        text: it.description || "",
-                        sourceRef: it.code || ""
-                    }));
-
-                    const newResults = await taxonomyService.classifyItems(taxonomyInput);
-
-                    // Fill gaps
-                    newResults.forEach((res, i) => {
-                        const originalIdx = indicesToClassify[i];
-                        phase1Results[originalIdx] = res;
-
-                        // Update cache for future
-                        const originalItem = itemsToClassify[i];
-                        if (originalItem.index !== undefined) {
-                            taxonomyCache.set(originalItem.index, res);
-                        }
-                    });
-                } else {
-                    forensicLog(`⚡ Cache Hit: 100% (${phase1Results.length} ítems) reutilizados de Fase Esqueleto.`);
-                }
-
-                // 2. Taxonomy Phase 1.5 (MEP / Etiology)
-                const mepService = new TaxonomyPhase1_5Service(new GeminiService(activeApiKey || getApiKey()), {
-                    enableLLM: false, // Use deterministic regex only for speed during extraction
-                    cache: new Map()
-                });
-
-                // Build anchors for MEP context
-                const sectionNames = Array.from(sectionsMap.keys());
-                const anchors = {
-                    hasPabellon: sectionNames.some(n => /(^|\b)pabell/i.test(n) || /farmacia.*pabell/i.test(n)),
-                    hasDayBed: sectionNames.some(n => /d[ií]as?\s*cama/i.test(n)),
-                    hasUrgencia: sectionNames.some(n => /urgenc/i.test(n) || /consulta.*urgenc/i.test(n)),
-                    hasEventoUnicoHint: false,
-                    sectionNames: sectionNames
-                };
-
-                // Run MEP (Phase 1.5)
-                const mepResults = await mepService.run(phase1Results, anchors);
-
-                // --- SYSTEMIC AGGREGATION (M1-M3) ---
-                // M1: Fraude Técnico | M2: Unbundling Clínico | M3: Absorción Normativa
-
-                // 1. Residual Discrepancy (M3: Camuflaje administrativo / Bolsón opaco)
-                // If Clinic Grand Total > Sum of items, the difference is an unjustified charge (M3)
-                const residualDiscrepancy = Math.max(0, (clinicGrandTotalField || finalSumOfSections) - finalSumOfSections);
-
-                let itemsWithAbsorption = 0;
-                let totalExposedAmount = residualDiscrepancy; // Start with the "bolsón opaco"
-                const forensicItems: any[] = [];
-
-                if (residualDiscrepancy > 0) {
-                    forensicLog(`🟣 M3 DETECTADO: Sobrante no detallado de $${residualDiscrepancy.toLocaleString('es-CL')} (Bolsón Opaco).`);
-                }
-
-                // mepResults corresponds to allItems array order
-                for (let i = 0; i < allItems.length; i++) {
-                    const original = allItems[i];
-                    const enriched = mepResults[i];
-
-                    if (enriched) {
-                        const isObjectionable = enriched.etiologia?.tipo && enriched.etiologia?.tipo !== 'CORRECTO';
-
-                        if (isObjectionable) {
-                            itemsWithAbsorption++;
-                            totalExposedAmount += original.total || 0;
-                        }
-
-                        // Create parallel forensic item
-                        forensicItems.push({
-                            index: original.index,
-                            description: original.description,
-                            diagnostico_forense: {
-                                index: original.index,
-                                clasificacion: enriched.etiologia?.tipo || "CORRECTO",
-                                dominio_funcional: enriched.etiologia?.absorcion_clinica || "CLINICO_GENERAL",
-                                regla_aplicada: enriched.etiologia?.evidence?.rules?.[0] || "ARANCEL_FONASA",
-                                motivo_rechazo_previsible: enriched.etiologia?.motivo_rechazo_previsible || "SIN_RECHAZO",
-                                tipo_unbundling: isObjectionable ? 1 : 0,
-                                rationale: enriched.rationale_short
-                            }
-                        });
-                    }
-                }
-
-                // --- SYSTEMIC DISCOVERY: EVENTO ÚNICO ---
-                try {
-                    const pamJson = Array.from(sectionsMap.values()).find(s => s.category.toUpperCase().includes('PAM'))?.rawPamJson;
-                    if (pamJson) {
-                        const events = await preProcessEventos(pamJson, {});
-                        const euViolations = events.filter((e: any) => e.metadata?.evento_unico_v6_detected);
-
-                        for (const ev of euViolations) {
-                            forensicLog(`🟣 EU DETECTADO: Urgencia (${ev.id_evento}) debió integrarse a Hospitalización (${ev.metadata?.target_hosp_id}).`);
-                            totalExposedAmount += ev.total_bonificacion; // The entire urgency event is exposed if it should have been integrated
-                            itemsWithAbsorption++;
-                        }
-                    }
-                } catch (euError) {
-                    console.error("Error detecting Evento Único:", euError);
-                }
-
-                forensicAnalysisResult = {
-                    resumen: {
-                        total_items: allItems.length,
-                        items_con_absorcion_normativa: itemsWithAbsorption,
-                        monto_expuesto_indebidamente: totalExposedAmount,
-                        bolson_opaco_m3: residualDiscrepancy
-                    },
-                    items: forensicItems,
-                    status: "SUCCESS"
-                };
-
-                forensicLog(`✅ Análisis Forense consolidado (M1+M2+M3): $${totalExposedAmount.toLocaleString('es-CL')} expuestos.`);
-            }
-
-        } catch (taxError) {
-            console.error("Error en Fase Taxonómica:", taxError);
-            forensicLog(`⚠️ Error en Motor Taxonómico: ${taxError instanceof Error ? taxError.message : String(taxError)} (Continuando extracción base)`);
-
-            forensicAnalysisResult = {
-                status: "ERROR",
-                error: taxError instanceof Error ? taxError.message : String(taxError),
-                items: []
-            };
-        }
-        // --- END TAXONOMY PHASE ---
-        console.log(`[SUCCESS] Audit data prepared. Skeleton present: ${!!skeleton}`);
+        // --- SKELETON + TAXONOMY PHASES REMOVED ---
+        // Previously generated skeleton, Taxonomy Phase 1, and MEP/Etiology Phase 1.5 here.
+        // Removed to lighten the extraction pipeline: 2-3 LLM calls eliminated.
+        // The M11 engine operates directly on CanonicalBillItem[] and CanonicalPamLine[].
+        console.log(`[SUCCESS] Audit data prepared.`);
 
         const auditData = {
             clinicName: clinicName,
@@ -1378,12 +749,8 @@ app.post('/api/extract', async (req, res) => {
             clinicStatedTotal: detectedInflation ? Math.round((clinicGrandTotalField || finalSumOfSections) / 100) : (clinicGrandTotalField || finalSumOfSections),
             // INJECT INFERRED AC2 (CANONICAL)
             valorUnidadReferencia: inferredAC2,
-            // INJECT SKELETON
-            skeleton: skeleton,
             // PHASE MARKER FOR FRONTEND
-            phase: "1.5",
-            // INJECT PARALLEL FORENSIC ANALYSIS (SEMANTIC FIREWALL)
-            analisis_taxonomico_forense: forensicAnalysisResult
+            phase: "2.0"
         };
 
 
