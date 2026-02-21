@@ -580,7 +580,8 @@ export function runSkill(input: SkillInput): SkillOutput {
         }
 
         // --- Phase 2: Motores de Fragmentación (M1-M4) ---
-        const contractCheck = evaluateContract(line, input.contract, input.config);
+        const isHospEvent = (eventModel.paquetesDetectados || []).includes('DERECHO_PABELLON') || (eventModel.paquetesDetectados || []).includes('DIA_CAMA_INTEGRAL');
+        const contractCheck = evaluateContract(line, input.contract, input.config, undefined, isHospEvent);
         const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems, cfg, input.contract, anchorMap, allById);
 
         // --- Phase 3: Opacidad (Agotamiento) ---
@@ -748,11 +749,11 @@ function indexBill(items: CanonicalBillItem[]) {
 
 function inferEventModel(billItems: CanonicalBillItem[], pam: any) {
     const text = billItems.map(i => `${i.section || ''} ${i.description || ''}`).join(' ').toLowerCase();
-    const hasPabellon = text.includes('pabellon') || text.includes('pab.') || text.includes('quirofano') || text.includes('qx') || text.includes('quirof') || text.includes('recuperacion') || text.includes('sala recuper') || text.includes('derecho de pabellon') || text.includes('derecho pabellon') || text.includes('surgery');
-    const hasDiaCama = text.includes('dia cama') || text.includes('habitacion') || text.includes('hab.') || text.includes('estadia') || text.includes('hospitaliz') || text.includes('sala');
+    const hasPabellon = text.includes('pabellon') || text.includes('pab.') || text.includes('quirofano') || text.includes('qx') || text.includes('quirof') || text.includes('recuperacion') || text.includes('sala recuper') || text.includes('derecho de pabellon') || text.includes('derecho pabellon') || text.includes('surgery') || text.includes('intervencion') || text.includes('anestesia');
+    const hasDiaCama = text.includes('dia cama') || text.includes('habitacion') || text.includes('hab.') || text.includes('estadia') || text.includes('hospitaliz') || text.includes('sala') || text.includes('residencia') || text.includes('visita medica') || text.includes('atencion profesional');
 
     // Also detect pabellón from anesthesia drugs in bill (even if no explicit "pabellón" keyword)
-    const anesthesiaSignals = ['propofol', 'fentanyl', 'remifentanil', 'sevoflurano', 'isoflurano', 'rocuronio', 'cisatracurio', 'midazolam', 'ketamina', 'desflurano', 'succinilcolina', 'sugammadex', 'estupefaciente'];
+    const anesthesiaSignals = ['propofol', 'fentanyl', 'fentanilo', 'remifentanil', 'sevoflurano', 'isoflurano', 'rocuronio', 'cisatracurio', 'midazolam', 'ketamina', 'desflurano', 'succinilcolina', 'sugammadex', 'estupefaciente'];
     const hasAnesthesia = anesthesiaSignals.some(s => text.includes(s));
     const inferredPabellon = hasPabellon || hasAnesthesia;
 
@@ -1728,7 +1729,7 @@ function mapGCToDomain(gc: string, description: string = ''): ContractDomain {
 // M5: UF fallback only used if config doesn't provide a resolved value
 const UF_FALLBACK_CLP = 39750; // Approximate — should always prefer resolved value
 
-function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, config?: any, overrideDomain?: ContractDomain): any {
+function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, config?: any, overrideDomain?: ContractDomain, isHospEvent: boolean = false): any {
     const domain = overrideDomain || mapGCToDomain(line.codigoGC, line.descripcion);
 
     // Resolve UF value: prefer config (pre-resolved by adapter), fallback to constant
@@ -1768,16 +1769,33 @@ function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, c
             const ruleText = normalize(r.textLiteral || '');
             let score = 0;
 
-            // Positive affinity
+            // 1. Semantic Match (Medical keywords)
             if (ruleText.includes('psicoterapia') && lineDesc.includes('psicoterapia')) score += 1000;
             if (ruleText.includes('radioterapia') && lineDesc.includes('radioterapia')) score += 1000;
             if (ruleText.includes('kinesi') && lineDesc.includes('kinesi')) score += 1000;
             if (ruleText.includes('medicamento') && (lineDesc.includes('clinico') || lineDesc.includes('farmaco') || lineDesc.includes('medicamento'))) score += 500;
             if (ruleText.includes('insumo') && (lineDesc.includes('material') || lineDesc.includes('insumo') || lineDesc.includes('gasa'))) score += 500;
 
+            // 2. Event-Agnostic Contextual Bias (Hospital vs Ambulatory)
+            if (isHospEvent) {
+                // If we know it's a hospital event, favor rules that mention hospital context
+                if (ruleText.includes('hospitalizacion') || ruleText.includes('clinica') || ruleText.includes('pabellon') || ruleText.includes('dia cama') || ruleText.includes('quirurgico')) {
+                    score += 2000;
+                }
+                // Penalty for ambulatory-only rules during hospital events
+                if (ruleText.includes('ambulatorio') || ruleText.includes('visita')) {
+                    score -= 500;
+                }
+            } else {
+                // If NOT a hospital event, favor ambulatory rules
+                if (ruleText.includes('ambulatorio')) {
+                    score += 500;
+                }
+            }
+
             // Negative affinity (Antipattern prevention)
-            if (ruleText.includes('psicoterapia') && !lineDesc.includes('psicoterapia')) score -= 2000;
-            if (ruleText.includes('radioterapia') && !lineDesc.includes('radioterapia')) score -= 2000;
+            if (ruleText.includes('psicoterapia') && !lineDesc.includes('psicoterapia')) score -= 3000;
+            if (ruleText.includes('radioterapia') && !lineDesc.includes('radioterapia')) score -= 3000;
 
             return { rule: r, score };
         }).sort((a, b) => b.score - a.score);
@@ -2161,17 +2179,22 @@ function classifyFragmentation(
         const billedCheck = contractCheck;
 
         // Fix #2: Try HONORARIOS first; if not in contract, fallback to HOSPITALIZACION
-        let hospCheck = evaluateContract(line, contract, cfg, 'HONORARIOS');
+        const isHospEventM4 = true; // By definition here
+        let hospCheck = evaluateContract(line, contract, cfg, 'HONORARIOS', isHospEventM4);
         if (hospCheck.state === 'NO_VERIFICABLE_POR_CONTRATO') {
-            hospCheck = evaluateContract(line, contract, cfg, 'HOSPITALIZACION');
+            hospCheck = evaluateContract(line, contract, cfg, 'HOSPITALIZACION', isHospEventM4);
         }
 
         if (hospCheck.state !== 'NO_VERIFICABLE_POR_CONTRATO') {
             const billedPct = billedCheck.expectedBonifPct ?? 0;
             const hospPct = hospCheck.expectedBonifPct ?? 0;
-            const deltaCopago = (billedCheck.expectedCopago ?? impact) - (hospCheck.expectedCopago ?? 0);
+            const deltaCopagoTotal = (billedCheck.expectedCopago ?? impact) - (hospCheck.expectedCopago ?? 0);
 
-            if (hospPct > billedPct && deltaCopago > 0) {
+            // Fix #1: M4 triggers if hosp domain has better coverage OR if billed is currently failing contractual validation
+            // during a hospital event.
+            const isM4Candidate = (hospPct > billedPct) || (billedCheck.state === 'INFRA_BONIFICACION' && hospPct >= billedPct);
+
+            if (isM4Candidate && (deltaCopagoTotal > 0 || impact > 0)) {
                 const hospDomainUsed = hospCheck.ruleRef?.includes('HOSPITALIZACION') ? 'HOSPITALIZACION' : 'HONORARIOS';
                 motor = 'M4';
                 level = 'DISCUSION_TECNICA';
@@ -2182,17 +2205,19 @@ function classifyFragmentation(
                     `Análisis Comparativo por Mecanismo:`,
                     `- Cobertura Actual (${billedDomain}): ${billedPct}% (Copago: $${line.copago.toLocaleString()})`,
                     `- Cobertura Hospitalaria (${hospDomainUsed}): ${hospPct}% (Copago esperado: $${(hospCheck.expectedCopago ?? 0).toLocaleString()})`,
-                    `Impacto: Exceso de $${deltaCopago.toLocaleString()} por cambio artificial de dominio dentro de episodio único.`,
+                    `Impacto: Exceso de $${deltaCopagoTotal.toLocaleString()} por cambio artificial de dominio dentro de episodio único.`,
                     `Se solicita reliquidación bajo reglas de ${hospDomainUsed.toLowerCase()}.`
                 ].join('\n');
 
-                return { level, motor, rationale, economicImpact: Math.min(impact, deltaCopago) };
+                return { level, motor, rationale, economicImpact: Math.min(impact, deltaCopagoTotal || impact) };
             }
         }
     }
 
-    // If hard anchor and perfect sum, and NOT surgical/unbundling, it's correct
-    if (isHardAnchor && delta < 2) return { level, motor, rationale, economicImpact: 0 };
+    // --- M1-M3 / Early return guards ---
+    // If hard anchor and perfect sum, and NOT surgical/unbundling, it's correct ONLY IF contractual validation passed.
+    // If it's a hard anchor but has M5 (infra-bonificación), we MUST let it fall through to M5.
+    if (isHardAnchor && delta < 2 && contractCheck.state === 'VERIFICABLE_OK') return { level, motor, rationale, economicImpact: 0 };
 
     // --- Fallback M3 for generic opacidad (if not CatchAll) ---
     if (matchedItems.length > 0 && (isGeneric || delta < 100)) {

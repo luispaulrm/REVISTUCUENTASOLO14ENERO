@@ -325,9 +325,9 @@ app.post('/api/extract', async (req, res) => {
                     const is429 = errStr.includes('429') || errStr.includes('Too Many Requests') || (attemptError?.status === 429);
 
                     if (isTimeout) {
-                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 120 segundos. Cambiando clave/modelo...`);
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 120 segundos. Saltando a SIGUIENTE MODELO para ahorrar tiempo...`);
                         lastError = attemptError;
-                        continue;
+                        break; // Fail over to next model immediately
                     }
 
                     if (is429) {
