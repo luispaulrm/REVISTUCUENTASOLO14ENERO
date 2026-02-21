@@ -1,8 +1,9 @@
 export const AI_MODELS = {
-    primary: 'gemini-3-flash-preview', // Extractor: Gemini 3.0 Flash
-    fallback: 'gemini-2.5-flash', // Fallback: Gemini 2.5 Flash
-    extractor: 'gemini-3-flash-preview',
-    reasoner: 'gemini-3-pro-preview' // Reasoner: Gemini 3 Pro
+    primary: 'gemini-3.1-pro-preview',          // Extractor principal: Gemini 3.1 Pro
+    fallback: 'gemini-3-flash-preview',          // Fallback 1: Gemini 3 Flash
+    fallback2: 'gemini-2.5-flash-preview-04-17', // Fallback 2: Gemini 2.5 Flash
+    extractor: 'gemini-3.1-pro-preview',
+    reasoner: 'gemini-3.1-pro-preview'
 };
 
 export const GENERATION_CONFIG = {

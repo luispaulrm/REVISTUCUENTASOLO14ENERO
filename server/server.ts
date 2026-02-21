@@ -10,7 +10,7 @@ import { GeminiService } from './services/gemini.service.js';
 import { performForensicAudit } from './services/auditEngine.service.js';
 import { classifyBillingModel } from './services/billingModelClassifier.service.js';
 import { ParserService } from "./services/parser.service.js";
-import { AI_CONFIG, GENERATION_CONFIG } from "./config/ai.config.js";
+import { AI_CONFIG, AI_MODELS, GENERATION_CONFIG } from "./config/ai.config.js";
 import { handlePamExtraction } from './endpoints/pam.endpoint.js';
 import { handleContractExtraction } from './endpoints/contract.endpoint.js';
 // No unnecessary imports
@@ -262,7 +262,7 @@ app.post('/api/extract', async (req, res) => {
         let lastError: any;
         let activeApiKey: string | undefined;
 
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL, AI_MODELS.fallback2].filter(Boolean);
 
         for (const modelName of modelsToTry) {
             if (!modelName) continue;
@@ -289,9 +289,9 @@ app.post('/api/extract', async (req, res) => {
 
                     const waitingInterval = setInterval(() => {
                         forensicLog(`⏳ Esperando respuesta de ${modelName}... (Procesando)`);
-                    }, 3000);
+                    }, 10000);
 
-                    const timeoutMs = 15000;
+                    const timeoutMs = 60000;
                     const streamPromise = model.generateContentStream([
                         { text: CSV_PROMPT },
                         {
@@ -324,7 +324,7 @@ app.post('/api/extract', async (req, res) => {
                     const isTimeout = errStr.includes('Timeout');
 
                     if (isTimeout) {
-                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 15 segundos. Cambiando clave/modelo...`);
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 60 segundos. Cambiando clave/modelo...`);
                         lastError = attemptError;
                         continue;
                     }
