@@ -79,6 +79,10 @@ const GEMINI_QUA = envGet("GEMINI_API_KEY_QUATERNARY");
 if (GEMINI_QUA) {
     console.log(`✅ GEMINI_API_KEY_QUATERNARY LOADED: ${GEMINI_QUA.substring(0, 8)}...`);
 }
+const GEMINI_QUI = envGet("GEMINI_API_KEY_QUINARY");
+if (GEMINI_QUI) {
+    console.log(`✅ GEMINI_API_KEY_QUINARY LOADED: ${GEMINI_QUI.substring(0, 8)}...`);
+}
 console.log("=".repeat(50) + "\n");
 
 // 🛡️ GLOBAL CRASH GUARD
@@ -155,6 +159,7 @@ const getApiKeys = () => {
     if (envGet("GEMINI_API_KEY_SECONDARY")) keys.push(envGet("GEMINI_API_KEY_SECONDARY"));
     if (envGet("GEMINI_API_KEY_TERTIARY")) keys.push(envGet("GEMINI_API_KEY_TERTIARY"));
     if (envGet("GEMINI_API_KEY_QUATERNARY")) keys.push(envGet("GEMINI_API_KEY_QUATERNARY"));
+    if (envGet("GEMINI_API_KEY_QUINARY")) keys.push(envGet("GEMINI_API_KEY_QUINARY"));
     // Deduplicate
     return [...new Set(keys)].filter((k): k is string => !!k && k.length > 5);
 };
@@ -284,9 +289,9 @@ app.post('/api/extract', async (req, res) => {
 
                     const waitingInterval = setInterval(() => {
                         forensicLog(`⏳ Esperando respuesta de ${modelName}... (Procesando)`);
-                    }, 5000);
+                    }, 3000);
 
-                    const timeoutMs = 30000;
+                    const timeoutMs = 15000;
                     const streamPromise = model.generateContentStream([
                         { text: CSV_PROMPT },
                         {
@@ -319,7 +324,7 @@ app.post('/api/extract', async (req, res) => {
                     const isTimeout = errStr.includes('Timeout');
 
                     if (isTimeout) {
-                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 30 segundos.`);
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 15 segundos. Cambiando clave/modelo...`);
                         lastError = attemptError;
                         continue;
                     }
