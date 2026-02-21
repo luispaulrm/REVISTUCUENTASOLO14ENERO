@@ -262,7 +262,7 @@ app.post('/api/extract', async (req, res) => {
         let lastError: any;
         let activeApiKey: string | undefined;
 
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL, AI_MODELS.fallback2].filter(Boolean);
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL, AI_MODELS.fallback2, 'gemini-1.5-flash'].filter(Boolean);
 
         for (const modelName of modelsToTry) {
             if (!modelName) continue;
@@ -291,7 +291,7 @@ app.post('/api/extract', async (req, res) => {
                         forensicLog(`⏳ Esperando respuesta de ${modelName}... (Procesando)`);
                     }, 10000);
 
-                    const timeoutMs = 60000;
+                    const timeoutMs = 120000;
                     const streamPromise = model.generateContentStream([
                         { text: CSV_PROMPT },
                         {
@@ -322,9 +322,18 @@ app.post('/api/extract', async (req, res) => {
                 } catch (attemptError: any) {
                     const errStr = (attemptError?.toString() || "") + (attemptError?.message || "");
                     const isTimeout = errStr.includes('Timeout');
+                    const is429 = errStr.includes('429') || errStr.includes('Too Many Requests') || (attemptError?.status === 429);
 
                     if (isTimeout) {
-                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 60 segundos. Cambiando clave/modelo...`);
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 120 segundos. Cambiando clave/modelo...`);
+                        lastError = attemptError;
+                        continue;
+                    }
+
+                    if (is429) {
+                        const backoffMs = 30000 + Math.random() * 30000; // 30-60s backoff
+                        forensicLog(`⚠️ Quota 429 en ${keyMask}. Esperando ${Math.round(backoffMs / 1000)}s antes de intentar otra clave...`);
+                        await new Promise(resolve => setTimeout(resolve, backoffMs));
                         lastError = attemptError;
                         continue;
                     }
