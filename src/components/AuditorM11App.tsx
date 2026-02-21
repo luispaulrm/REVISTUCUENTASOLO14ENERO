@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Brain, Database, FileText, Activity, Layers, Zap, CheckCircle2, AlertCircle, Play, Loader2, FileJson, Copy, Check, Info, Download } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Brain, Database, FileText, Activity, Layers, Zap, CheckCircle2, AlertCircle, Play, Loader2, FileJson, Copy, Check, Info, Download, Sparkles } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import { runSkill } from '../m11/engine';
 import { SkillInput, SkillOutput, CanonicalContractRule, ContractDomain } from '../m11/types';
@@ -14,6 +14,7 @@ export default function AuditorM11App() {
     const [auditResult, setAuditResult] = useState<SkillOutput | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [copied, setCopied] = useState(false);
+    const adaptedInputRef = useRef<SkillInput | null>(null);
 
     useEffect(() => {
         const checkData = () => {
@@ -33,77 +34,89 @@ export default function AuditorM11App() {
         return () => clearInterval(interval);
     }, []);
 
-    const handleRunAudit = () => {
+    const handleRunAudit = async () => {
         setIsProcessing(true);
-        setTimeout(() => {
-            try {
-                const canonicalStr = localStorage.getItem('canonical_contract_result');
-                const pamStr = localStorage.getItem('pam_audit_result');
-                const accountStr = localStorage.getItem('clinic_audit_result');
+        try {
+            const canonicalStr = localStorage.getItem('canonical_contract_result');
+            const pamStr = localStorage.getItem('pam_audit_result');
+            const accountStr = localStorage.getItem('clinic_audit_result');
 
-                if (!canonicalStr || !pamStr || !accountStr) {
-                    alert('Faltan datos para ejecutar la auditoría.');
-                    setIsProcessing(false);
-                    return;
-                }
+            if (!canonicalStr || !pamStr || !accountStr) {
+                alert('Faltan datos para ejecutar la auditoría.');
+                setIsProcessing(false);
+                return;
+            }
 
-                const rawContract = JSON.parse(canonicalStr);
-                const rawPam = JSON.parse(pamStr);
-                const rawBill = JSON.parse(accountStr);
+            const rawContract = JSON.parse(canonicalStr);
+            const rawPam = JSON.parse(pamStr);
+            const rawBill = JSON.parse(accountStr);
 
-                const input = adaptToM11Input(rawContract, rawPam, rawBill);
+            const input = adaptToM11Input(rawContract, rawPam, rawBill);
 
-                // DIAGNOSTIC: warn if rules=0 but there were coberturas (mapping bug vs missing contract)
-                const rawCoberturasCount = Array.isArray(rawContract.coberturas) ? rawContract.coberturas.length
-                    : Array.isArray(rawContract.rules) ? rawContract.rules.length
-                        : 0;
+            // Pre-resolve UF value for M5 tope calculations
+            const ufResult = await resolveUFValueCLP();
+            if (ufResult) {
+                input.config = {
+                    ...input.config,
+                    ufValueCLP: ufResult.valueCLP,
+                    ufDateUsed: ufResult.date,
+                    ufSource: ufResult.source
+                };
+                console.log(`[M11 UF] ✅ UF = $${ufResult.valueCLP.toLocaleString()} (${ufResult.date}, fuente: ${ufResult.source})`);
+            } else {
+                console.warn(`[M11 UF] ⚠️ No se pudo resolver UF — M5 topes serán NO_VERIFICABLE`);
+            }
 
-                if (input.pam.folios.length === 0 || input.bill.items.length === 0) {
-                    const missing = [];
-                    if (input.pam.folios.length === 0) missing.push("PAM (Folios=0)");
-                    if (input.bill.items.length === 0) missing.push("Cuenta (Items=0)");
+            // DIAGNOSTIC: warn if rules=0 but there were coberturas (mapping bug vs missing contract)
+            const rawCoberturasCount = Array.isArray(rawContract.coberturas) ? rawContract.coberturas.length
+                : Array.isArray(rawContract.rules) ? rawContract.rules.length
+                    : 0;
 
-                    const debugMsg = `SC-1 ERROR DIAGNÓSTICO:\n${missing.join(', ')}\n\nKeys RAW:\nPAM: ${Object.keys(rawPam).join(',')}\nBill: ${Object.keys(rawBill).join(',')}`;
+            if (input.pam.folios.length === 0 || input.bill.items.length === 0) {
+                const missing = [];
+                if (input.pam.folios.length === 0) missing.push("PAM (Folios=0)");
+                if (input.bill.items.length === 0) missing.push("Cuenta (Items=0)");
 
-                    setAuditResult({
-                        summary: { totalCopagoAnalizado: 0, totalImpactoFragmentacion: 0, opacidadGlobal: { applies: false, maxIOP: 0 }, patternSystemic: { m1Count: 0, m2Count: 0, m3CopagoPct: 0, isSystemic: false } },
-                        eventModel: { notes: "Error de Datos", paquetesDetectados: [] },
-                        matrix: [],
-                        pamRows: [],
-                        reportText: debugMsg,
-                        complaintText: ''
-                    });
-                    setIsProcessing(false);
-                    return;
-                }
+                const debugMsg = `SC-1 ERROR DIAGNÓSTICO:\n${missing.join(', ')}\n\nKeys RAW:\nPAM: ${Object.keys(rawPam).join(',')}\nBill: ${Object.keys(rawBill).join(',')}`;
 
-                // Warn in console if rules are 0 but contract had coberturas (domain mapping failure)
-                if (input.contract.rules.length === 0 && rawCoberturasCount > 0) {
-                    console.warn(`[M11 ADAPTER] ⚠️ Contrato tiene ${rawCoberturasCount} coberturas pero se mapearon 0 reglas. Revisar mapCategoryToDomain.`);
-                } else if (input.contract.rules.length === 0) {
-                    console.warn(`[M11 ADAPTER] Sin contrato canonizado — auditoría por inferencia estructural.`);
-                } else {
-                    console.log(`[M11 ADAPTER] ✅ ${input.contract.rules.length} reglas contractuales cargadas.`);
-                }
-
-                const result = runSkill(input);
-                setAuditResult(result);
-            } catch (error: any) {
-                console.error("Error executing M10 Audit:", error);
-                alert(`Error al ejecutar el motor M10: ${error.message}`);
-                // Optional: Set a dummy error result to show in UI
                 setAuditResult({
-                    summary: { totalCopagoAnalizado: 0, totalImpactoFragmentacion: 0, opacidadGlobal: { applies: false, maxIOP: 0 }, patternSystemic: { m1Count: 0, m2Count: 0, m3CopagoPct: 0, isSystemic: false } },
-                    eventModel: { notes: `Error Critico: ${error.message}`, paquetesDetectados: [] },
+                    summary: { totalCopagoAnalizado: 0, totalImpactoFragmentacion: 0, opacidadGlobal: { applies: false, maxIOP: 0 }, patternSystemic: { m1Count: 0, m2Count: 0, m3CopagoPct: 0, m5Count: 0, m5ExcessCopago: 0, m5OverchargePct: 0, isSystemic: false } },
+                    eventModel: { notes: "Error de Datos", paquetesDetectados: [] },
                     matrix: [],
                     pamRows: [],
-                    reportText: `ERROR CRÍTICO DEL SISTEMA:\n${error.message}`,
+                    reportText: debugMsg,
                     complaintText: ''
                 });
-            } finally {
                 setIsProcessing(false);
+                return;
             }
-        }, 500);
+
+            // Warn in console if rules are 0 but contract had coberturas (domain mapping failure)
+            if (input.contract.rules.length === 0 && rawCoberturasCount > 0) {
+                console.warn(`[M11 ADAPTER] ⚠️ Contrato tiene ${rawCoberturasCount} coberturas pero se mapearon 0 reglas. Revisar mapCategoryToDomain.`);
+            } else if (input.contract.rules.length === 0) {
+                console.warn(`[M11 ADAPTER] Sin contrato canonizado — auditoría por inferencia estructural.`);
+            } else {
+                console.log(`[M11 ADAPTER] ✅ ${input.contract.rules.length} reglas contractuales cargadas.`);
+            }
+
+            adaptedInputRef.current = input; // Store for ChatBox context
+            const result = runSkill(input);
+            setAuditResult(result);
+        } catch (error: any) {
+            console.error("Error executing M11 Audit:", error);
+            alert(`Error al ejecutar el motor M11: ${error.message}`);
+            setAuditResult({
+                summary: { totalCopagoAnalizado: 0, totalImpactoFragmentacion: 0, opacidadGlobal: { applies: false, maxIOP: 0 }, patternSystemic: { m1Count: 0, m2Count: 0, m3CopagoPct: 0, m5Count: 0, m5ExcessCopago: 0, m5OverchargePct: 0, isSystemic: false } },
+                eventModel: { notes: `Error Critico: ${error.message}`, paquetesDetectados: [] },
+                matrix: [],
+                pamRows: [],
+                reportText: `ERROR CRÍTICO DEL SISTEMA:\n${error.message}`,
+                complaintText: ''
+            });
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const loadDemoData = () => {
@@ -297,8 +310,45 @@ export default function AuditorM11App() {
                                 <Zap className={allDataReady ? "text-indigo-400" : "text-slate-500"} size={48} />
                             </div>
                             <h2 className="text-3xl font-bold text-white mb-4">
-                                {allDataReady ? 'Listo para Auditoría M11 v1.4' : 'Fuentes Incompletas'}
+                                {allDataReady ? 'Listo para Auditoría M11 v2.0' : 'Fuentes Incompletas'}
                             </h2>
+
+                            {/* NEW: Forensic Source Checklist */}
+                            <div className="w-full max-w-xl bg-white/5 backdrop-blur-md rounded-2xl p-6 mb-8 border border-white/10 text-left">
+                                <h3 className="text-sm font-bold text-indigo-300 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <Activity size={14} /> Validación de Capacidad Forense
+                                </h3>
+                                <div className="space-y-4">
+                                    {[
+                                        {
+                                            title: 'Contrato Canónico',
+                                            check: dataStatus.canonical,
+                                            desc: 'Habilita validación de Topes (M5-T) y Coberturas Contractuales.'
+                                        },
+                                        {
+                                            title: 'Plan de Atención (PAM)',
+                                            check: dataStatus.pam,
+                                            desc: 'Provee montos de Bonificación Isapre y códigos de prestación.'
+                                        },
+                                        {
+                                            title: 'Cuenta Clínica (Bill)',
+                                            check: dataStatus.account,
+                                            desc: 'Aporta el desglose unitario para detección de fragmentación (M1/M2).'
+                                        }
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex items-start gap-4">
+                                            <div className={`mt-1 p-1 rounded-full ${item.check ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-700 text-slate-500'}`}>
+                                                {item.check ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-bold text-white">{item.title}</div>
+                                                <div className="text-xs text-slate-400 leading-relaxed">{item.desc}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
                             <button
                                 onClick={handleRunAudit}
                                 disabled={!allDataReady || isProcessing}
@@ -354,8 +404,14 @@ export default function AuditorM11App() {
 
                         {/* Phase 0: Context Header (New Metadata Integration) */}
                         {auditResult.metadata && (
-                            <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg border border-slate-700">
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white shadow-lg border border-slate-700 relative overflow-hidden">
+                                {/* NEW: Triple Cruce Badge */}
+                                <div className="absolute -top-1 -right-1 bg-indigo-600 px-4 py-1.5 rounded-bl-xl flex items-center gap-2 shadow-lg z-10">
+                                    <Sparkles size={14} className="text-white" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white">Triple Cruce Verificado</span>
+                                </div>
+
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative z-10">
                                     <div>
                                         <div className="text-[10px] font-bold uppercase tracking-widest text-indigo-400 mb-1">Paciente</div>
                                         <div className="font-bold text-lg truncate">{auditResult.metadata.patientName}</div>
@@ -441,9 +497,10 @@ export default function AuditorM11App() {
                                                     <td className="px-8 py-4">
                                                         <span className={`inline-flex px-2 py-1 rounded text-[10px] font-bold uppercase ${row.classification === 'CORRECTO' ? 'bg-emerald-100 text-emerald-700' :
                                                             row.classification === 'FRAGMENTACION_ESTRUCTURAL' ? 'bg-rose-100 text-rose-700' :
-                                                                row.classification === 'DISCUSION_TECNICA' ? 'bg-blue-100 text-blue-700' :
-                                                                    'bg-amber-100 text-amber-700'
-                                                            }`}>{row.classification.replace('_', ' ')}</span>
+                                                                row.classification === 'INFRA_BONIFICACION' ? 'bg-orange-100 text-orange-700' :
+                                                                    row.classification === 'DISCUSION_TECNICA' ? 'bg-blue-100 text-blue-700' :
+                                                                        'bg-amber-100 text-amber-700'
+                                                            }`}>{row.classification.replace(/_/g, ' ')}</span>
                                                     </td>
                                                     <td className="px-8 py-4 font-mono text-xs font-bold text-slate-500">{row.motor}</td>
                                                     <td className="px-8 py-4 text-slate-600 max-w-md whitespace-pre-wrap">
@@ -619,9 +676,10 @@ export default function AuditorM11App() {
                             <ChatBox
                                 contextData={{
                                     result: auditResult,
-                                    contract: JSON.parse(localStorage.getItem('canonical_contract_result') || '{}'),
-                                    pam: JSON.parse(localStorage.getItem('pam_audit_result') || '{}'),
-                                    bill: JSON.parse(localStorage.getItem('clinic_audit_result') || '{}')
+                                    contract: adaptedInputRef.current?.contract,
+                                    rawContract: JSON.parse(localStorage.getItem('canonical_contract_result') || '{}'),
+                                    pam: adaptedInputRef.current?.pam || JSON.parse(localStorage.getItem('pam_audit_result') || '{}'),
+                                    bill: adaptedInputRef.current?.bill || JSON.parse(localStorage.getItem('clinic_audit_result') || '{}')
                                 }}
                             />
                         </div>
@@ -632,6 +690,66 @@ export default function AuditorM11App() {
     );
 }
 
+// ---------- UF VALUE RESOLVER (M5) ----------
+
+const UF_CACHE_KEY = 'm11_uf_cache'; // localStorage key
+
+interface UFResolveResult {
+    valueCLP: number;
+    date: string;       // ISO date
+    source: string;     // "mindicador.cl" | "cache" | "fallback"
+}
+
+/**
+ * Resolve current UF value from mindicador.cl API.
+ * Uses localStorage cache with 24h TTL.
+ * Returns null if API is unreachable (engine will use TOPE_NO_VERIFICABLE).
+ */
+async function resolveUFValueCLP(): Promise<UFResolveResult | null> {
+    const today = new Date().toISOString().split('T')[0]; // "2026-02-21"
+
+    // 1. Check localStorage cache (24h TTL)
+    try {
+        const cached = localStorage.getItem(UF_CACHE_KEY);
+        if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed.date === today && parsed.valueCLP > 0) {
+                return { ...parsed, source: 'cache (mindicador.cl)' };
+            }
+        }
+    } catch { /* cache miss */ }
+
+    // 2. Fetch from mindicador.cl API (free, no key required, official BCCh data)
+    try {
+        const response = await fetch('https://mindicador.cl/api/uf', {
+            signal: AbortSignal.timeout(5000) // 5s timeout
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const data = await response.json();
+        const serie = data.serie;
+
+        if (Array.isArray(serie) && serie.length > 0) {
+            const latest = serie[0]; // Most recent value
+            const result: UFResolveResult = {
+                valueCLP: latest.valor,
+                date: latest.fecha.split('T')[0],
+                source: 'mindicador.cl (BCCh)'
+            };
+
+            // Cache for today
+            localStorage.setItem(UF_CACHE_KEY, JSON.stringify(result));
+            return result;
+        }
+    } catch (err) {
+        console.warn('[M11 UF] API fetch failed:', err);
+    }
+
+    // 3. Fallback: return null → engine uses UF_FALLBACK_CLP and marks TOPE_NO_VERIFICABLE
+    return null;
+}
+
 // ---------- ADAPTER LOGIC ----------
 
 function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInput {
@@ -640,50 +758,58 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     // 1. Adapt CONTRACT
     let rules: CanonicalContractRule[] = [];
     let sourceArray: any[] = [];
+    let contractSource = rawContract;
+
+    // Unwrap if wrapped in { content: "..." } or { data: ... }
+    if (rawContract.content && typeof rawContract.content === 'string') {
+        try { contractSource = JSON.parse(rawContract.content); } catch { }
+    } else if (rawContract.data) {
+        contractSource = rawContract.data;
+    }
 
     // Fallback: If canonical_contract_result is empty, try legacy contract_audit_result
-    if (!rawContract || Object.keys(rawContract).length === 0) {
+    if (!contractSource || Object.keys(contractSource).length === 0) {
         try {
             const legacy = localStorage.getItem('contract_audit_result');
-            if (legacy) rawContract = JSON.parse(legacy);
+            if (legacy) contractSource = JSON.parse(legacy);
         } catch (e) { console.error("Error reading legacy contract", e); }
     }
 
     // Try to find the array of rules/coverages
     // v2.3: Combine multiple possible sources within the canonical JSON
-    if (Array.isArray(rawContract)) {
-        sourceArray = rawContract;
-    } else if (rawContract.rules && Array.isArray(rawContract.rules)) {
-        sourceArray = rawContract.rules;
+    if (Array.isArray(contractSource)) {
+        sourceArray = contractSource;
+    } else if (contractSource.rules && Array.isArray(contractSource.rules)) {
+        sourceArray = contractSource.rules;
     } else {
         // Collect from all standard canonical buckets
-        if (rawContract.coberturas && Array.isArray(rawContract.coberturas)) {
-            sourceArray = [...sourceArray, ...rawContract.coberturas];
+        if (contractSource.coberturas && Array.isArray(contractSource.coberturas)) {
+            sourceArray = [...sourceArray, ...contractSource.coberturas];
         }
-        if (rawContract.topes && Array.isArray(rawContract.topes)) {
+        if (contractSource.topes && Array.isArray(contractSource.topes)) {
             // Map topes to rules for conceptually broader coverage
-            const topeRules = rawContract.topes.map((t: any) => ({
+            const topeRules = contractSource.topes.map((t: any) => ({
                 ...t,
                 item: t.item || t.descripcion_textual || "Tope",
                 categoria: t.categoria || t.ambito || "TOPE"
             }));
             sourceArray = [...sourceArray, ...topeRules];
         }
-        if (rawContract.reglas_aplicacion && Array.isArray(rawContract.reglas_aplicacion)) {
-            const extraRules = rawContract.reglas_aplicacion.map((r: any) => ({
+        if (contractSource.reglas_aplicacion && Array.isArray(contractSource.reglas_aplicacion)) {
+            const extraRules = contractSource.reglas_aplicacion.map((r: any) => ({
                 item: r.condicion || "Regla",
                 descripcion_textual: r.efecto,
                 categoria: "REGLA_GENERAL"
             }));
             sourceArray = [...sourceArray, ...extraRules];
         }
-        if (rawContract.data && Array.isArray(rawContract.data.coberturas)) {
-            sourceArray = [...sourceArray, ...rawContract.data.coberturas];
+        if (contractSource.data && Array.isArray(contractSource.data.coberturas)) {
+            sourceArray = [...sourceArray, ...contractSource.data.coberturas];
         }
     }
 
     // Final Fallback: Mental Model (Recursive)
-    if (sourceArray.length === 0 && rawContract.root && rawContract.root.children) {
+    if (sourceArray.length === 0 && contractSource.root && contractSource.root.children) {
         const traverse = (nodes: any[]): any[] => {
             let found: any[] = [];
             for (const node of nodes) {
@@ -704,17 +830,30 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
             }
             return found;
         };
-        sourceArray = traverse(rawContract.root.children);
+        sourceArray = traverse(contractSource.root.children);
     }
 
     rules = sourceArray.map((c: any) => {
-        // Use all available text fields for domain detection
-        const catText = [c.categoria, c.seccion, c.ambito, c.item, c.descripcion_textual].filter(Boolean).join(' ');
+        // Use ALL available text fields for domain detection — crucially including fuente_textual
+        // which the canonical JSON uses to store section context like "Sección HOSPITALARIAS...: Día Cama"
+        const catText = [
+            c.categoria, c.seccion, c.ambito, c.item,
+            c.descripcion_textual, c.fuente_textual,
+            c.red_especifica, c.tipo_modalidad
+        ].filter(Boolean).join(' ');
         const domain = mapCategoryToDomain(catText);
 
-        // Parse tope value from strings like '2.5 UF', '50 UTM', '$1.000.000'
-        const topeStr = c.tope || (c.modalidades?.[0]?.tope) || '';
-        const parsedTope = parseTopeValue(topeStr);
+        // Parse tope value: first try canonical tope fields (unidad/valor), then string parsing
+        let topeStr = c.tope || (c.modalidades?.[0]?.tope) || '';
+        let parsedTope = parseTopeValue(topeStr);
+
+        // If canonical tope object fields exist (from topes[] bucket), use them directly
+        if (c.unidad && c.unidad !== 'DESCONOCIDO') {
+            const kindMap: Record<string, "UF" | "UTM" | "CLP" | "VAM" | "AC2" | "SIN_TOPE_EXPRESO" | "VARIABLE"> = {
+                'UF': 'UF', 'UTM': 'UTM', 'VAM': 'VAM', 'AC2': 'AC2', 'PESOS': 'CLP'
+            };
+            parsedTope = { kind: kindMap[c.unidad] || 'VARIABLE', value: c.valor ?? null };
+        }
 
         return {
             id: c.item || c.id || 'rule_' + Math.random().toString(36).substr(2, 9),
@@ -729,7 +868,29 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         };
     });
 
-    console.log(`[M11 ADAPTER] Contract source: ${sourceArray.length} coberturas → ${rules.length} rules. Domains: ${[...new Set(rules.map(r => r.domain))].join(', ')}`);
+    // Deduplicate: keep best rule per domain (highest coberturaPct wins, prefer rules with tope values)
+    const domainBest = new Map<string, CanonicalContractRule>();
+    for (const rule of rules) {
+        const key = rule.domain;
+        const existing = domainBest.get(key);
+        if (!existing) {
+            domainBest.set(key, rule);
+        } else {
+            // Prefer rule with higher coverage or with a tope value
+            const existingPct = existing.coberturaPct ?? 0;
+            const newPct = rule.coberturaPct ?? 0;
+            const existingHasTope = existing.tope?.value !== null && existing.tope?.value !== undefined;
+            const newHasTope = rule.tope?.value !== null && rule.tope?.value !== undefined;
+            if (newHasTope && !existingHasTope) domainBest.set(key, rule);
+            else if (newPct > existingPct && !existingHasTope) domainBest.set(key, rule);
+        }
+    }
+    const deduplicatedRules = Array.from(domainBest.values());
+
+    console.log(`[M11 ADAPTER] Contract source: ${sourceArray.length} entries → ${rules.length} raw rules → ${deduplicatedRules.length} unique domain rules.`);
+    console.log(`[M11 ADAPTER] Domains: ${deduplicatedRules.map(r => `${r.domain}(${r.coberturaPct}%)`).join(', ')}`);
+
+    rules = deduplicatedRules;
 
     // 2. Adapt PAM
     let pamFolios: any[] = [];
@@ -826,8 +987,8 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     const metadata = {
         patientName: billSource.patientName || rawBill.patientName || billSource.paciente?.nombre || 'Paciente Desconocido',
         clinicName: billSource.clinicName || rawBill.clinicName || billSource.prestador?.nombre || 'Clínica Desconocida',
-        isapre: rawContract.diseno_ux?.nombre_isapre || billSource.isapre || 'Isapre Desconocida',
-        plan: rawContract.diseno_ux?.titulo_plan || billSource.plan || 'Plan Desconocido',
+        isapre: contractSource.diseno_ux?.nombre_isapre || contractSource.metadata?.fuente || billSource.isapre || 'Isapre Desconocida',
+        plan: contractSource.diseno_ux?.titulo_plan || contractSource.metadata?.fuente || billSource.plan || 'Plan Desconocido',
         financialDate: billSource.date || rawBill.date || billSource.fecha || new Date().toLocaleDateString()
     };
 
@@ -860,25 +1021,25 @@ function normalizeStr(s: string): string {
 function mapCategoryToDomain(text: string): ContractDomain {
     const n = normalizeStr(text);
 
-    // HOSPITALIZACION: días cama, UTI, UCI, UPC, internación, hospitalización
-    if (/hospitali|dia(s)? cama|dia cama|uti|uci|upc|unidad (de )?cuidado|internac/.test(n)) return 'HOSPITALIZACION';
+    // HOSPITALIZACION: días cama, UTI, UCI, UPC, internación, hospitalización, sala cuna, incubadora
+    if (/hospitali|dia(s)? cama|dia cama|uti|uci|upc|unidad (de )?cuidado|internac|incubadora|sala cuna/.test(n)) return 'HOSPITALIZACION';
 
-    // PABELLON: pabellón, quirófano, cirugía, acto quirúrgico, sala de operaciones
-    if (/pabellon|quirofano|cirugi|acto quirurgico|sala de operacion|sala operacion|anestesi/.test(n)) return 'PABELLON';
+    // PABELLON: pabellón, quirófano, cirugía, acto quirúrgico, sala de operaciones, anestesia, recuperación
+    if (/pabellon|quirofano|cirugi|acto quirurgico|sala de operacion|sala operacion|anestesi|recuperac/.test(n)) return 'PABELLON';
 
-    // HONORARIOS: honorarios médicos, médicos, cirujano, anestesiólogo, especialista
-    if (/honorario|medico|cirujano|anaestesiol|anestesiol|especialista|profesional medic/.test(n)) return 'HONORARIOS';
+    // HONORARIOS: honorarios médicos, médicos, cirujano, anestesiólogo, especialista, matrona, tratante, interconsultor
+    if (/honorario|medico|cirujano|anaestesiol|anestesiol|especialista|profesional medic|matrona|tratante|interconsultor/.test(n)) return 'HONORARIOS';
 
-    // MEDICAMENTOS: medicamentos, fármacos, farmacia, medicación, drogas
-    if (/medicament|farmac|medicacion|droga/.test(n)) return 'MEDICAMENTOS_HOSP';
+    // MEDICAMENTOS: medicamentos, fármacos, farmacia, medicación, drogas, quimioterapia
+    if (/medicament|farmac|medicacion|droga|quimioterapia/.test(n)) return 'MEDICAMENTOS_HOSP';
 
-    // MATERIALES: materiales, insumos, material clínico, dispositivo médico
-    if (/material|insumo|implan|dispositivo medic/.test(n)) return 'MATERIALES_CLINICOS';
+    // MATERIALES: materiales, insumos, material clínico, dispositivo médico, mallas, suturas, cateter, stent
+    if (/material|insumo|implan|dispositivo medic|malla|sutura|cateter|stent/.test(n)) return 'MATERIALES_CLINICOS';
 
     // PROTESIS / ORTESIS
     if (/protesis|ortesis|protesis|implante ortopedic/.test(n)) return 'PROTESIS_ORTESIS';
 
-    // EXAMENES: exámenes, laboratorio, imágenes, radiología, ecografía, scanner, TAC
+    // EXAMENES: exámenes, laboratorio, imágenes, radiología, ecografía, scanner, TAC, resonancia
     if (/examen|laborat|imagen|radiolog|ecograf|scanner|tomograf|resonan/.test(n)) return 'EXAMENES';
 
     // CONSULTA: consulta, policlínico, atención ambulatoria

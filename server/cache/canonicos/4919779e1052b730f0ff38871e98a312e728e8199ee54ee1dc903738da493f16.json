@@ -1,0 +1,4165 @@
+{
+  "fingerprint": {
+    "tipo_contrato": "ISAPRE_TRADICIONAL_SIS",
+    "estilo_numeracion": "DECIMAL",
+    "layout": "TABLA_GRILLA",
+    "lenguaje": "TECNICO",
+    "densidad_texto": "MEDIA",
+    "tiene_notas_explicativas": true,
+    "tiene_seleccion_valorizada": false,
+    "tiene_oferta_preferente": false,
+    "tiene_pad_dental": true,
+    "tiene_tabla_resumen": false,
+    "total_paginas_estimadas": 4,
+    "confianza": 95,
+    "observaciones": [
+      "Grilla de beneficios estándar SIS",
+      "Incluye tabla de factores de riesgo",
+      "Sección de notas explicativas en página 4",
+      "Menciona explícitamente Prestaciones Dentales (PA D)"
+    ]
+  },
+  "reglas": [],
+  "coberturas_evidencia": [
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama (Ver Anexo Plan de Salud Complementario (**))",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama Cuidados Intensivos o Coronarios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama Cuidados Intermedios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Derecho de Pabellón",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "16,00 VAM / 16,00 VAM (Internacional)",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "16,00 VAM / 16,00 VAM (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Procedimientos",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,56 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "5,56 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Honorarios Médicos Quirúrgicos",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "13,26 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "13,26 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Visita por Médico Tratante",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "1,52 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "1,52 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Visita por Médico Interconsultor",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "1,52 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "1,52 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Sala Cuna",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "5,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Incubadora",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "10,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "10,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Psiquiatría",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,50 UF / 52,50 UF (Año Contrato)",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,50 UF / 52,50 UF (Año Contrato)",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Hospitalarios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,45 VAM / 6,15 UF (Año Contrato)",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "5,45 VAM / 6,15 UF (Año Contrato)",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Honorarios Matrona",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,20 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,20 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Exámenes de Laboratorio",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Imagenología",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "unidadTope": "DESCONOCIDO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "Imagenología",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Consulta Médica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "1,74 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "1,74 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Consulta Oftalmológica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "2,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "2,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Exámenes de Laboratorio",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Imagenología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Procedimientos",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "2,90 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "2,90 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Kinesiología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 5,05 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 5,05 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Fonoaudiología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 4,90 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 4,90 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Radioterapia (Incluye Insumos)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "30,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "30,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Quimioterapia",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "40,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "40,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prótesis y Ortesis",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "10,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "10,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Lentes con Fuerza Dióptrica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,80 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "0,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Atención Integral de Enfermería",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,57 UF / 1,71 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "0,57 UF / 1,71 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Imagenología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Resonancia Nuclear Magnética Ambulatoria",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Procedimientos",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "2,90 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "2,90 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Kinesiología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 5,05 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 5,05 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Fonoaudiología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 4,90 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 4,90 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Radioterapia (Incluye Insumos)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "30,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "30,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Quimioterapia",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "40,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "40,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prótesis y Ortesis",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "10,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "10,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Lentes con Fuerza Dióptrica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,80 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "0,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Atención Integral de Enfermería",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,57 UF / 1,71 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "0,57 UF / 1,71 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Atención Integral de Nutricionista (****)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,57 UF / 1,71 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "0,57 UF / 1,71 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prestaciones Dentales (PA D) (*****)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "1,00 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "1,00 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Honorarios Médicos Quirúrgicos",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "13,26 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "13,26 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Box Ambulatorio (por menos de 4 horas)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,78 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,78 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Pabellón Ambulatorio",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "14,70 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "14,70 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Resonancia Nuclear Magnética Ambulatoria",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Ambulatorios",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 4,20 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 4,20 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Consulta Oftalmológica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "2,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "2,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prótesis y Ortesis",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "10,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "10,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Lentes con Fuerza Dióptrica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,80 UF",
+          "unidadTope": "UF",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "0,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prestaciones Dentales (PA D) (*****)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "1,00 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "1,00 VAM",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Consulta Psiquiátrica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "5,90 VAM / 5,80 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "5,90 VAM / 5,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Consulta Psicológica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "5,90 VAM / 5,80 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "5,90 VAM / 5,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Ambulatorios",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 4,20 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "DESCONOCIDO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 4,20 UF",
+          "origen_extraccion": "VISUAL_MODULAR"
+        }
+      ],
+      "nota_restriccion": null
+    }
+  ],
+  "coberturas_enriquecidas": [
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama (Ver Anexo Plan de Salud Complementario (**))",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "COMPUESTO",
+          "tope_raw": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "excepciones": [
+                {
+                  "prestador": "SIN TOPEClínica Las Condes",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Alemana",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Las Nieves de Santiago.",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                }
+              ],
+              "regla": "SIN_TOPE",
+              "unidad": "SIN_TOPE",
+              "tope": null,
+              "descripcion": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago."
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 16,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "16,00 UF (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_0_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama Cuidados Intensivos o Coronarios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "COMPUESTO",
+          "tope_raw": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "excepciones": [
+                {
+                  "prestador": "SIN TOPEClínica Las Condes",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Alemana",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Las Nieves de Santiago.",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                }
+              ],
+              "regla": "SIN_TOPE",
+              "unidad": "SIN_TOPE",
+              "tope": null,
+              "descripcion": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago."
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 25,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "25,00 UF (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_1_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama Cuidados Intermedios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "COMPUESTO",
+          "tope_raw": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "excepciones": [
+                {
+                  "prestador": "SIN TOPEClínica Las Condes",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Alemana",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Las Nieves de Santiago.",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                }
+              ],
+              "regla": "SIN_TOPE",
+              "unidad": "SIN_TOPE",
+              "tope": null,
+              "descripcion": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago."
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 21,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "21,00 UF (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_2_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Derecho de Pabellón",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "16,00 VAM / 16,00 VAM (Internacional)",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "16,00 VAM / 16,00 VAM (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 16,00 VAM / 16,00 VAM (Internacional)",
+          "tope_normalizado": 16,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "16,00 VAM / 16,00 VAM (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 16,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "16,00 VAM"
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 16,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "16,00 VAM (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "QUIRURGICO_HOSPITALARIO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_3_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Procedimientos",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,56 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,56 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 5,56 VAM",
+          "tope_normalizado": 5.56,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "5,56 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.56,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "5,56 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_4_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Honorarios Médicos Quirúrgicos",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "13,26 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "13,26 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 13,26 VAM",
+          "tope_normalizado": 13.26,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "13,26 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 13.26,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "13,26 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "QUIRURGICO_HOSPITALARIO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_5_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Visita por Médico Tratante",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "1,52 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "1,52 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 1,52 UF",
+          "tope_normalizado": 1.52,
+          "unidad_normalizada": "UF",
+          "tope_raw": "1,52 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.52,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,52 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_6_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Visita por Médico Interconsultor",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "1,52 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "1,52 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 1,52 UF",
+          "tope_normalizado": 1.52,
+          "unidad_normalizada": "UF",
+          "tope_raw": "1,52 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.52,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,52 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_7_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Sala Cuna",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 5,00 UF",
+          "tope_normalizado": 5,
+          "unidad_normalizada": "UF",
+          "tope_raw": "5,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "5,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_8_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Incubadora",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "10,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "10,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 10,00 UF",
+          "tope_normalizado": 10,
+          "unidad_normalizada": "UF",
+          "tope_raw": "10,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 10,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "10,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_9_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Psiquiatría",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,50 UF / 52,50 UF (Año Contrato)",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,50 UF / 52,50 UF (Año Contrato)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 3,50 UF / 52,50 UF (Año Contrato)",
+          "tope_normalizado": 3.5,
+          "unidad_normalizada": "UF",
+          "tope_raw": "3,50 UF / 52,50 UF (Año Contrato)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.5,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "3,50 UF"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 52.5,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "52,50 UF (Año Contrato)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_10_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Hospitalarios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,45 VAM / 6,15 UF (Año Contrato)",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,45 VAM / 6,15 UF (Año Contrato)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 5,45 VAM / 6,15 UF (Año Contrato)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "5,45 VAM / 6,15 UF (Año Contrato)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.45,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "5,45 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 6.15,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "6,15 UF (Año Contrato)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_11_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Honorarios Matrona",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,20 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,20 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 3,20 VAM",
+          "tope_normalizado": 3.2,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "3,20 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.2,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,20 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_12_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Exámenes de Laboratorio",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "SIN_TOPE",
+          "tope_raw": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "excepciones": [
+                {
+                  "prestador": "SIN TOPEClínica Las Condes",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Alemana",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Las Nieves de Santiago.",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                }
+              ],
+              "regla": "SIN_TOPE",
+              "unidad": "SIN_TOPE",
+              "tope": null,
+              "descripcion": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago."
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 6,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "6,00 VAM (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_13_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Imagenología",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "unidadTope": "DESCONOCIDO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "Imagenología",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó undefined% con evidencia: Imagenología",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": "",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "descripcion": "Imagenología"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_14_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Consulta Médica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "1,74 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "1,74 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 1,74 UF",
+          "tope_normalizado": 1.74,
+          "unidad_normalizada": "UF",
+          "tope_raw": "1,74 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.74,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,74 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "CONSULTA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_15_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Consulta Oftalmológica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "2,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "2,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 2,00 UF",
+          "tope_normalizado": 2,
+          "unidad_normalizada": "UF",
+          "tope_raw": "2,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 2,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "2,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "CONSULTA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_16_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Exámenes de Laboratorio",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,65 VAM",
+          "tope_normalizado": 3.65,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "3,65 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.65,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,65 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_17_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Imagenología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,65 VAM",
+          "tope_normalizado": 3.65,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "3,65 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.65,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,65 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_18_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Procedimientos",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "2,90 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "2,90 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 2,90 VAM",
+          "tope_normalizado": 2.9,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "2,90 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 2.9,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "2,90 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_19_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Kinesiología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 5,05 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 5,05 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,55 VAM / 5,05 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "3,55 VAM / 5,05 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.55,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,55 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.05,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "5,05 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_20_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Fonoaudiología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 4,90 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 4,90 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,55 VAM / 4,90 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "3,55 VAM / 4,90 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.55,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,55 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 4.9,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "4,90 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_21_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Radioterapia (Incluye Insumos)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "30,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "30,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 30,00 UF",
+          "tope_normalizado": 30,
+          "unidad_normalizada": "UF",
+          "tope_raw": "30,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 30,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "30,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_22_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Quimioterapia",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "40,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "40,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 40,00 UF",
+          "tope_normalizado": 40,
+          "unidad_normalizada": "UF",
+          "tope_raw": "40,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 40,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "40,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_23_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prótesis y Ortesis",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "10,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "10,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 10,00 UF",
+          "tope_normalizado": 10,
+          "unidad_normalizada": "UF",
+          "tope_raw": "10,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 10,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "10,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "INSUMOS",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_24_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Lentes con Fuerza Dióptrica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,80 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "0,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 0,80 UF",
+          "tope_normalizado": 0.8,
+          "unidad_normalizada": "UF",
+          "tope_raw": "0,80 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 0.8,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "0,80 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_25_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Atención Integral de Enfermería",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,57 UF / 1,71 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "0,57 UF / 1,71 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 0,57 UF / 1,71 UF",
+          "tope_normalizado": 0.57,
+          "unidad_normalizada": "UF",
+          "tope_raw": "0,57 UF / 1,71 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 0.57,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "0,57 UF"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.71,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,71 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_26_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Resonancia Nuclear Magnética Ambulatoria",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,65 VAM",
+          "tope_normalizado": 3.65,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "3,65 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.65,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,65 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_27_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Atención Integral de Nutricionista (****)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,57 UF / 1,71 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "0,57 UF / 1,71 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 0,57 UF / 1,71 UF",
+          "tope_normalizado": 0.57,
+          "unidad_normalizada": "UF",
+          "tope_raw": "0,57 UF / 1,71 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 0.57,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "0,57 UF"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.71,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,71 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_28_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prestaciones Dentales (PA D) (*****)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "1,00 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "1,00 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 1,00 VAM",
+          "tope_normalizado": 1,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "1,00 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "1,00 VAM"
+            }
+          ],
+          "subdominio": "DENTAL_PAD",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_29_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Honorarios Médicos Quirúrgicos",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "13,26 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "13,26 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 13,26 VAM",
+          "tope_normalizado": 13.26,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "13,26 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 13.26,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "13,26 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "QUIRURGICO_AMBULATORIO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_30_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Box Ambulatorio (por menos de 4 horas)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,78 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,78 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 3,78 UF",
+          "tope_normalizado": 3.78,
+          "unidad_normalizada": "UF",
+          "tope_raw": "3,78 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.78,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "3,78 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_31_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Pabellón Ambulatorio",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "14,70 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "14,70 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 14,70 VAM",
+          "tope_normalizado": 14.7,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "14,70 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 14.7,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "14,70 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "QUIRURGICO_AMBULATORIO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_32_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Ambulatorios",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 4,20 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 4,20 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,55 VAM / 4,20 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "3,55 VAM / 4,20 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.55,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,55 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 4.2,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "4,20 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_33_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Consulta Psiquiátrica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "5,90 VAM / 5,80 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,90 VAM / 5,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 5,90 VAM / 5,80 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "5,90 VAM / 5,80 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.9,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "5,90 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.8,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "5,80 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "CONSULTA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_34_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Consulta Psicológica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "5,90 VAM / 5,80 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,90 VAM / 5,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 5,90 VAM / 5,80 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "5,90 VAM / 5,80 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.9,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "5,90 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.8,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "5,80 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "CONSULTA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_35_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    }
+  ],
+  "coberturas": [
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama (Ver Anexo Plan de Salud Complementario (**))",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "COMPUESTO",
+          "tope_raw": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 16,00 UF (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "excepciones": [
+                {
+                  "prestador": "SIN TOPEClínica Las Condes",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Alemana",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Las Nieves de Santiago.",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                }
+              ],
+              "regla": "SIN_TOPE",
+              "unidad": "SIN_TOPE",
+              "tope": null,
+              "descripcion": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago."
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 16,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "16,00 UF (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_0_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama Cuidados Intensivos o Coronarios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "COMPUESTO",
+          "tope_raw": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 25,00 UF (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "excepciones": [
+                {
+                  "prestador": "SIN TOPEClínica Las Condes",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Alemana",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Las Nieves de Santiago.",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                }
+              ],
+              "regla": "SIN_TOPE",
+              "unidad": "SIN_TOPE",
+              "tope": null,
+              "descripcion": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago."
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 25,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "25,00 UF (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_1_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Día Cama Cuidados Intermedios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "COMPUESTO",
+          "tope_raw": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 21,00 UF (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "excepciones": [
+                {
+                  "prestador": "SIN TOPEClínica Las Condes",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Alemana",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Las Nieves de Santiago.",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                }
+              ],
+              "regla": "SIN_TOPE",
+              "unidad": "SIN_TOPE",
+              "tope": null,
+              "descripcion": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago."
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 21,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "21,00 UF (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_2_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Derecho de Pabellón",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "16,00 VAM / 16,00 VAM (Internacional)",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "16,00 VAM / 16,00 VAM (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 16,00 VAM / 16,00 VAM (Internacional)",
+          "tope_normalizado": 16,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "16,00 VAM / 16,00 VAM (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 16,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "16,00 VAM"
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 16,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "16,00 VAM (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "QUIRURGICO_HOSPITALARIO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_3_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Procedimientos",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,56 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,56 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 5,56 VAM",
+          "tope_normalizado": 5.56,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "5,56 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.56,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "5,56 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_4_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Honorarios Médicos Quirúrgicos",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "13,26 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "13,26 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 13,26 VAM",
+          "tope_normalizado": 13.26,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "13,26 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 13.26,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "13,26 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "QUIRURGICO_HOSPITALARIO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_5_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Visita por Médico Tratante",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "1,52 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "1,52 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 1,52 UF",
+          "tope_normalizado": 1.52,
+          "unidad_normalizada": "UF",
+          "tope_raw": "1,52 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.52,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,52 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_6_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Visita por Médico Interconsultor",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "1,52 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "1,52 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 1,52 UF",
+          "tope_normalizado": 1.52,
+          "unidad_normalizada": "UF",
+          "tope_raw": "1,52 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.52,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,52 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_7_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Sala Cuna",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 5,00 UF",
+          "tope_normalizado": 5,
+          "unidad_normalizada": "UF",
+          "tope_raw": "5,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "5,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_8_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Incubadora",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "10,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "10,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 10,00 UF",
+          "tope_normalizado": 10,
+          "unidad_normalizada": "UF",
+          "tope_raw": "10,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 10,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "10,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_9_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Día Cama Psiquiatría",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,50 UF / 52,50 UF (Año Contrato)",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,50 UF / 52,50 UF (Año Contrato)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 3,50 UF / 52,50 UF (Año Contrato)",
+          "tope_normalizado": 3.5,
+          "unidad_normalizada": "UF",
+          "tope_raw": "3,50 UF / 52,50 UF (Año Contrato)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.5,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "3,50 UF"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 52.5,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "52,50 UF (Año Contrato)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_10_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Hospitalarios",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "5,45 VAM / 6,15 UF (Año Contrato)",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,45 VAM / 6,15 UF (Año Contrato)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 5,45 VAM / 6,15 UF (Año Contrato)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "5,45 VAM / 6,15 UF (Año Contrato)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.45,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "5,45 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 6.15,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "6,15 UF (Año Contrato)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_11_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Honorarios Matrona",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,20 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,20 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 3,20 VAM",
+          "tope_normalizado": 3.2,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "3,20 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.2,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,20 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_12_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Exámenes de Laboratorio",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "tope_normalizado": null,
+          "unidad_normalizada": "SIN_TOPE",
+          "tope_raw": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago. / 6,00 VAM (Internacional)",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "excepciones": [
+                {
+                  "prestador": "SIN TOPEClínica Las Condes",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Alemana",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                },
+                {
+                  "prestador": "Las Nieves de Santiago.",
+                  "porcentaje": 60,
+                  "efecto": "LIMITANTE"
+                }
+              ],
+              "regla": "SIN_TOPE",
+              "unidad": "SIN_TOPE",
+              "tope": null,
+              "descripcion": "100% SIN TOPE Excepto 60% SIN TOPE en Clínica Las Condes, Alemana y Las Nieves de Santiago."
+            },
+            {
+              "alcance": "INTERNACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 6,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "6,00 VAM (Internacional)"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_13_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "seccion_raw": "HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA",
+      "item": "Imagenología",
+      "ambito": "HOSPITALARIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "unidadTope": "DESCONOCIDO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "Imagenología",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó undefined% con evidencia: Imagenología",
+          "tope_normalizado": null,
+          "unidad_normalizada": "UNKNOWN",
+          "tope_raw": "",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "descripcion": "Imagenología"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "HOSP_ITEM_14_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "HOSPITALARIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Consulta Médica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "1,74 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "1,74 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 1,74 UF",
+          "tope_normalizado": 1.74,
+          "unidad_normalizada": "UF",
+          "tope_raw": "1,74 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.74,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,74 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "CONSULTA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_15_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Consulta Oftalmológica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "2,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "2,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 2,00 UF",
+          "tope_normalizado": 2,
+          "unidad_normalizada": "UF",
+          "tope_raw": "2,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 2,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "2,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "CONSULTA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_16_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Exámenes de Laboratorio",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,65 VAM",
+          "tope_normalizado": 3.65,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "3,65 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.65,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,65 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_17_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Imagenología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,65 VAM",
+          "tope_normalizado": 3.65,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "3,65 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.65,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,65 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_18_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Procedimientos",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "2,90 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "2,90 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 2,90 VAM",
+          "tope_normalizado": 2.9,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "2,90 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 2.9,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "2,90 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_19_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Kinesiología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 5,05 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 5,05 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,55 VAM / 5,05 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "3,55 VAM / 5,05 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.55,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,55 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.05,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "5,05 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_20_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Fonoaudiología",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 4,90 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 4,90 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,55 VAM / 4,90 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "3,55 VAM / 4,90 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.55,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,55 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 4.9,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "4,90 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_21_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Radioterapia (Incluye Insumos)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "30,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "30,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 30,00 UF",
+          "tope_normalizado": 30,
+          "unidad_normalizada": "UF",
+          "tope_raw": "30,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 30,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "30,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_22_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Quimioterapia",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "40,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "40,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 40,00 UF",
+          "tope_normalizado": 40,
+          "unidad_normalizada": "UF",
+          "tope_raw": "40,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 40,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "40,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_23_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prótesis y Ortesis",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "10,00 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "10,00 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 10,00 UF",
+          "tope_normalizado": 10,
+          "unidad_normalizada": "UF",
+          "tope_raw": "10,00 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 10,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "10,00 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "INSUMOS",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_24_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Lentes con Fuerza Dióptrica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,80 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "0,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 0,80 UF",
+          "tope_normalizado": 0.8,
+          "unidad_normalizada": "UF",
+          "tope_raw": "0,80 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 0.8,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "0,80 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_25_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Atención Integral de Enfermería",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,57 UF / 1,71 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "0,57 UF / 1,71 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 0,57 UF / 1,71 UF",
+          "tope_normalizado": 0.57,
+          "unidad_normalizada": "UF",
+          "tope_raw": "0,57 UF / 1,71 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 0.57,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "0,57 UF"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.71,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,71 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_26_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Resonancia Nuclear Magnética Ambulatoria",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,65 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,65 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,65 VAM",
+          "tope_normalizado": 3.65,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "3,65 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.65,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,65 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_27_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Atención Integral de Nutricionista (****)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "0,57 UF / 1,71 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "0,57 UF / 1,71 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 0,57 UF / 1,71 UF",
+          "tope_normalizado": 0.57,
+          "unidad_normalizada": "UF",
+          "tope_raw": "0,57 UF / 1,71 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 0.57,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "0,57 UF"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1.71,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "1,71 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_28_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Prestaciones Dentales (PA D) (*****)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "1,00 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "1,00 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 1,00 VAM",
+          "tope_normalizado": 1,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "1,00 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 1,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "1,00 VAM"
+            }
+          ],
+          "subdominio": "DENTAL_PAD",
+          "contexto_clinico": "DIAGNOSTICO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_29_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Honorarios Médicos Quirúrgicos",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "13,26 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "13,26 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 13,26 VAM",
+          "tope_normalizado": 13.26,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "13,26 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 13.26,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "13,26 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "QUIRURGICO_AMBULATORIO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_30_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Box Ambulatorio (por menos de 4 horas)",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "3,78 UF",
+          "unidadTope": "UF",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,78 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 3,78 UF",
+          "tope_normalizado": 3.78,
+          "unidad_normalizada": "UF",
+          "tope_raw": "3,78 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.78,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "3,78 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "GLOBAL",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_31_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "AMBULATORIAS",
+      "seccion_raw": "AMBULATORIAS",
+      "item": "Pabellón Ambulatorio",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 100,
+          "tope": "14,70 VAM",
+          "unidadTope": "VAM",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "14,70 VAM",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 100% con evidencia: 14,70 VAM",
+          "tope_normalizado": 14.7,
+          "unidad_normalizada": "VAM",
+          "tope_raw": "14,70 VAM",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 14.7,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "14,70 VAM"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "QUIRURGICO_AMBULATORIO",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_32_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Ambulatorios",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "3,55 VAM / 4,20 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "3,55 VAM / 4,20 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 3,55 VAM / 4,20 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "3,55 VAM / 4,20 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 3.55,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "3,55 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 4.2,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "4,20 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "TERAPIA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_33_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Consulta Psiquiátrica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "5,90 VAM / 5,80 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,90 VAM / 5,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 5,90 VAM / 5,80 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "5,90 VAM / 5,80 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.9,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "5,90 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.8,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "5,80 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "CONSULTA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_34_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    },
+    {
+      "categoria": "PRESTACIONES RESTRINGIDAS",
+      "seccion_raw": "PRESTACIONES RESTRINGIDAS",
+      "item": "Consulta Psicológica",
+      "ambito": "AMBULATORIO",
+      "modalidades": [
+        {
+          "tipo": "LIBRE_ELECCION",
+          "porcentaje": 80,
+          "tope": "5,90 VAM / 5,80 UF",
+          "unidadTope": "MIXTO",
+          "tipoTope": "POR_EVENTO",
+          "copago": null,
+          "evidencia_literal": "5,90 VAM / 5,80 UF",
+          "origen_extraccion": "VISUAL_MODULAR",
+          "interpretacion_sugerida": "IA detectó 80% con evidencia: 5,90 VAM / 5,80 UF",
+          "tope_normalizado": null,
+          "unidad_normalizada": "MIXTO",
+          "tope_raw": "5,90 VAM / 5,80 UF",
+          "tope_compuesto": [
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.9,
+              "unidad": "VAM",
+              "regla": "CON_TOPE",
+              "descripcion": "5,90 VAM"
+            },
+            {
+              "alcance": "NACIONAL",
+              "tipoTope": "TOPE_EVENTO",
+              "tope": 5.8,
+              "unidad": "UF",
+              "regla": "CON_TOPE",
+              "descripcion": "5,80 UF"
+            }
+          ],
+          "subdominio": "GLOBAL",
+          "contexto_clinico": "CONSULTA",
+          "flag_inconsistencia_porcentaje": false,
+          "source_occurrence_id": "AMB_ITEM_35_M0"
+        }
+      ],
+      "nota_restriccion": null,
+      "categoria_canonica": "AMBULATORIO"
+    }
+  ],
+  "diseno_ux": {
+    "nombre_isapre": "ISAPRE",
+    "titulo_plan": "Plan   PLENO\n ",
+    "layout": "modular_phased_v13",
+    "funcionalidad": "visual_hierarchy_v20",
+    "salida_json": "unified"
+  },
+  "rawMarkdown": "--- PÁGINA 1 ---\nANEXO DE CONTRATO |  | \nDE SALUD PREVISIONAL |  | \n |  | Plan   PLENO\n |  | PLE 847\n | Plan de Salud | \n | Complementario con | \n | Modalidad Libre Elección | \n | Plan con cobertura reducida | \n | En prestaciones obstétricas y de neonatología | \nPLENO |  | \n\n--- PÁGINA 2 ---\nPlan | PLENO |  |  |  |  |  |  |  |  | 5507\nPLE 847 |  |  |  |  |  |  |  |  |  | \n |  |  |  | % |  | TOPE DE | TOPE MÁXIMO | TOPE | AMPLIACIÓN | \n |  |  |  | Bonificación |  | BONIFICACION | Año Contrato por | BONIFICACION |  | DE\nPRESTACIONES |  |  |  | sobre |  | U.F. | Beneficiario | Internacional | COBERTURA | \n |  |  |  | Valor Real |  | o Veces Arancel | en U.F. |  |  | \n |  |  |  | de la Prestación |  | (1) | (2) | (3) |  | (4)\nHOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA |  |  |  |  |  |  |  |  |  | \nDía Cama (Ver Anexo Plan de Salud Complementario (**)). |  |  |  | 100% |  |  |  | 16,00 UF |  | \nDía Cama Cuidados Intensivos o Coronarios |  |  |  | 100% |  | 100% |  | 25,00 UF |  | \nDía Cama Cuidados Intermedios |  |  |  | 100% |  | SIN TOPE |  | 21,00 UF |  | \nExámenes de Laboratorio |  |  |  | 100% |  | Excepto 60% |  | 6,00 VAM |  | \nImagenología |  |  |  | 100% |  | SIN TOPE |  | 6,00 VAM |  | \nKinesiología |  |  |  | 100% |  | en Clínica Las |  | 6,00 VAM |  | \nDerecho de Pabellón |  |  |  | 100% | Condes, Alemana y |  |  | 16,00 VAM |  | \nMedicamentos (Por evento durante la Hospitalización) (***) |  |  |  | 100% |  | Las Nieves de |  | 300,00 UF |  | \nMateriales e Insumos Clínicos (Por evento durante la Hospitalización) (***) |  |  |  | 100% |  | Santiago. |  | 100,00 UF |  | \nProcedimientos |  |  |  | 100% |  | 5,56 VAM |  |  |  | \nHonorarios Médicos Quirúrgicos |  |  |  | 100% |  | 13,26 VAM |  |  |  | \nVisita por Médico Tratante |  |  |  | 100% |  | 1,52 UF |  |  |  | \nVisita por Médico Interconsultor |  |  |  | 100% |  | 1,52 UF |  |  |  | \nTraslados Médicos |  |  |  | 100% |  |  | 3,96 UF |  |  | \nQuimioterapia |  |  |  | 100% |  |  | 44,00 UF |  |  | \nPrótesis y Ortesis y Elementos de Osteosíntesis |  |  |  | 100% |  |  | 11,88 UF |  |  | \nAMBULATORIAS |  |  |  |  |  |  |  |  |  | \nConsulta Médica |  |  |  | 80% |  | 1,74   UF |  |  |  | \nConsulta Oftalmológica |  |  |  | 80% |  | 2,00   UF |  |  |  | \nExámenes de Laboratorio |  |  |  | 80% |  | 3,65   VAM |  |  | 95% Nivel I, II y | \nImagenología |  |  |  | 80% |  | 3,65   VAM |  |  | 90% Nivel III (*) | \nProcedimientos |  |  |  | 80% |  | 2,90   VAM |  |  |  | \nKinesiología |  |  |  | 80% |  | 3,55   VAM | 5,05 UF |  |  | \nFonoaudiología |  |  |  | 80% |  | 3,55   VAM | 4,90 UF |  |  | \nRadioterapia (Incluye Insumos) |  |  |  | 80% |  |  | 30,00 UF |  |  | \nQuimioterapia |  |  |  | 80% |  |  | 40,00 UF |  |  | \nPrótesis y Ortesis |  |  |  | 80% |  |  | 10,00 UF |  |  | \nLentes con Fuerza Dióptrica |  |  |  | 80% |  |  | 0,80 UF |  |  | \nAtención Integral de Enfermería |  |  |  | 80% |  | 0,57 UF | 1,71 UF |  |  | \nAtención Integral de Nutricionista (****) |  |  |  | 80% |  | 0,57 UF | 1,71 UF |  |  | \nPrestaciones Dentales (PA D) (*****) |  |  |  | 80% |  | 1,00 VAM |  |  |  | \nHonorarios Médicos Quirúrgicos |  |  |  | 100% |  | 13,26 VAM |  |  |  | \nBox Ambulatorio (por menos de 4 horas) |  |  |  | 100% |  | 3,78 UF |  |  |  | \nPabellón Ambulatorio |  |  |  | 100% |  | 14,70 VAM |  |  |  | \nPRESTACIONES RESTRINGIDAS |  |  |  |  |  |  |  |  |  | \nDía Cama Sala Cuna |  |  |  | 100% |  | 5,00 UF |  |  |  | \nDía Cama Incubadora |  |  |  | 100% |  | 10,00 UF |  |  |  | \nDía Cama Psiquiatría |  |  |  | 100% |  | 3,50 UF | 52,50 UF |  |  | \nPsicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Hospitalarios |  |  |  | 100% |  | 5,45 VAM | 6,15 UF |  |  | \nHonorarios Matrona |  |  |  | 100% |  | 3,20 VAM |  |  |  | \nConsulta Psiquiátrica |  |  |  | 80% |  | 5,90 VAM | 5,80 UF |  |  | \nConsulta Psicológica |  |  |  | 80% |  | 5,90 VAM | 5,80 UF |  |  | \nResonancia Nuclear Magnética Ambulatoria |  |  |  | 80% |  | 3,65 VAM |  |  |  | \nPsicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Ambulatorios |  |  |  | 80% |  | 3,55 VAM | 4,20 UF |  |  | \nVAM : VECES ARANCEL MASVIDA |  |  |  |  |  |  |  |  |  | \nRENUNCIA A LOS EXCEDENTES DE COTIZACION EN PLANES INDIVIDUALES COMPENSADOS: |  |  |  |  |  |  |  |  |  | \nDe acuerdo a lo dispuesto en el inciso primero del articulo Nº 188 del DFL Nº 1 de 2005, modificado por la ley Nº 20.317, Isapre Masvida otorgará a cambio de la |  |  |  |  |  |  |  |  |  | \nrenuncia de excedentes los siguientes beneficios adicionales: |  |  |  |  |  |  |  |  |  | \n |  |  | % Bonificación sobre |  | Topes de Bonificación |  |  |  |  | \n |  |  |  | Valor real de la |  | expresados |  |  |  | \n |  |  |  | Prestación | en Unidades de Fomento |  |  |  |  | \n | Consulta Médica |  |  | 80% |  | 2,00 |  |  |  | \n | Consulta Oftalmológica |  |  | 80% |  | 2,30 |  |  |  | \nSe deja constancia que el aumento en los topes de bonificación regirá siempre y cuando el afiliado renuncie expresamente |  |  |  |  |  |  |  |  |  | \na los excedentes de cotización. |  |  |  |  |  |  |  |  |  | \nOTRAS COBERTURAS |  |  |  |  |  |  |  |  |  | \nCOBERTURA INTERNACIONAL: |  | BONIFICACION DE ACUERDO A LOS TOPES EXPRESADOS EN LAS COLUMNAS (1) Y (2). PARA EL CASO DE LAS PRESTACIONES |  |  |  |  |  |  |  | \nSIN TOPE SE BONIFICARA EN BASE A LOS TOPES EXPRESADOS EN LA COLUMNA (3). |  |  |  |  |  |  |  |  |  | \nCOBERTURA DENTAL EN EL PLAN COMPLEMENTARIO: |  |  |  |  |  |  |  |  |  | \nLa Isapre cubre aquellas prestaciones dentales contenidas en el arancel de prestaciones de Isapre Masvida. |  |  |  |  |  |  |  |  |  | \nEl resto de las prestaciones dentales ofrece descuentos entre un 30% y 60% del Arancel del Colegio de Odontologos de Chile con prestadores que mantengan |  |  |  |  |  |  |  |  |  | \nconvenio vigente con la Isapre Masvida. |  | El listado de prestadores y Arancel están disponibles en las oficinas de atención de público de la Isapre. |  |  |  |  |  |  |  | \n\n--- PÁGINA 3 ---\nLAS PRESTACIONES OBSTÉTRICAS (PARTO, CÉSAREA O ABORTO) Y DE NEONATOLOGÍA TENDRÁN UNA COBERTURA REDUCIDA TAL COMO SE |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nINDICA A CONTINUACIÓN. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \n |  |  |  |  |  |  |  |  |  |  |  |  |  | COBERTURA |  | \n |  |  |  |  |  |  |  |  |  |  |  |  |  | 25 | % | \n |  |  |  |  |  |  |  |  |  |  |  |  | DE LA COBERTURA |  |  | \n |  |  |  |  |  |  |  |  |  |  |  |  |  | DEL PLAN |  | \n |  |  |  |  |  |  |  |  |  |  |  |  | COMPLEMENTARIO |  |  | \n |  |  |  |  |  |  |  |  |  |  |  |  |  | DE SALUD |  | \n- Para aquellos planes en que el cálculo de la bonificación de cobertura reducida resulte inferior a la que otorga el Fondo Nacional de Salud en su |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nmodalidad libre elección, la Isapre otorgará dicha cobertura mínima. Para el cálculo de la Cobertura Reducida, no rige la Ampliación de Cobertura |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nexpresada en la columna 3 del Plan complementario de Salud. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \n- No será aplicable a este tipo de planes la cobertura proporcional a la que alude el Articulo 189, letra g) del DFL Nº 1 de Salud de 2005. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \n |  |  | CLAUSULA ESPECIAL PARA PLANES CON COBERTURA REDUCIDA DE PARTO |  |  |  |  |  |  |  |  |  |  |  |  | \nDurante la vigencia del presente Plan, ISAPRE MASVIDA S.A. estará obligada a aceptar el cambio que el(la) cotizante le solicite. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nEl(la) cotizante tendrá derecho a optar, al menos entre los siguientes planes de salud: |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \na) Un Plan de salud que mantenga la equivalencia en precio con aquel que se reemplaza y que satisfaga la cobertura de parto |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nrequerida, caso en el cual podrán efectuarse los ajustes que correspondan en relación a los restantes beneficios del nuevo plan. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nb) Un Plan de salud que mantenga los beneficios del Plan que se sustituye y aumente la cobertura de parto, caso en el cual podrán |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nrealizarse los ajustes pertinentes en relación al precio del nuevo plan. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nEn todo caso, las partes podrán convenir, de común acuerdo, que el (la) cotizante se incorpore a un plan que otorgue mayores |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \nbeneficios, realizando los ajustes de precio que correspondan. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \n |  |  | IDENTIFICACION UNICA DE LA TABLA DE FACTORES: 35 |  |  |  |  |  |  |  |  |  |  |  |  | \n |  |  | GRUPOS |  |  | COTIZANTE |  |  |  |  |  | CARGA |  |  |  | \n |  |  | DE EDAD |  |  | HOMBRE |  | MUJER |  | HOMBRE |  |  | MUJER |  |  | \n |  |  | 0 a menos de | 2 Años |  | 1,90 |  | 1,90 |  |  | 1,80 |  | 1,80 |  |  | \n |  |  | 2 a menos de | 5 Años |  | 0,90 |  | 0,90 |  |  | 0,80 |  | 0,80 |  |  | \n |  |  | 5 a menos de 10 Años |  |  | 0,70 |  | 0,70 |  |  | 0,60 |  | 0,60 |  |  | \n |  |  | 10 a menos de 15 Años |  |  | 0,70 |  | 0,70 |  |  | 0,60 |  | 0,60 |  |  | \n |  |  | 15 a menos de 20 Años |  |  | 0,70 |  | 1,20 |  |  | 0,60 |  | 0,70 |  |  | \n |  |  | 20 a menos de 25 Años |  |  | 0,80 |  | 2,00 |  |  | 0,70 |  | 1,40 |  |  | \n |  |  | 25 a menos de 30 Años |  |  | 0,85 |  | 2,60 |  |  | 0,80 |  | 1,60 |  |  | \n |  |  | 30 a menos de 35 Años |  |  | 1,00 |  | 2,80 |  |  | 1,00 |  | 1,85 |  |  | \n |  |  | 35 a menos de 40 Años |  |  | 1,05 |  | 2,80 |  |  | 1,00 |  | 1,85 |  |  | \n |  |  | 40 a menos de 45 Años |  |  | 1,25 |  | 2,80 |  |  | 1,20 |  | 1,85 |  |  | \n |  |  | 45 a menos de 50 Años |  |  | 1,40 |  | 2,80 |  |  | 1,40 |  | 1,85 |  |  | \n |  |  | 50 a menos de 55 Años |  |  | 1,90 |  | 3,00 |  |  | 1,80 |  | 2,00 |  |  | \n |  |  | 55 a menos de 60 Años |  |  | 2,40 |  | 3,30 |  |  | 2,20 |  | 2,20 |  |  | \n |  |  | 60 a menos de 65 Años |  |  | 3,20 |  | 3,30 |  |  | 3,00 |  | 3,00 |  |  | \n |  |  | 65 a menos de 70 Años |  |  | 4,00 |  | 4,00 |  |  | 4,00 |  | 4,00 |  |  | \n |  |  | 70 a menos de 75 Años |  |  | 4,00 |  | 4,00 |  |  | 4,00 |  | 4,00 |  |  | \n |  |  | 75 a menos de 80 Años |  |  | 4,00 |  | 4,00 |  |  | 4,00 |  | 4,00 |  |  | \n |  |  | 80 y más Años |  |  | 4,00 |  | 4,00 |  |  | 4,00 |  | 4,00 |  |  | \n | PRECIO BASE |  |  | PRECIO TOTAL DEL PLAN COMPLEMENTARIO: |  |  |  |  |  |  |  |  | Unidades de Fomento * |  |  | \n |  |  |  | (Según composición del grupo familiar) |  |  |  |  |  |  |  |  |  |  |  | \nPRECIO TOTAL DEL PLAN COMPLEMENTARIO: |  |  |  | Suma de Factores x Tarifa Base. |  |  |  |  |  |  |  |  |  |  |  | \n* La cotización de salud deberá ser cancelada considerando el valor de esta unidad reajustable al último día del mes en que se devenga la remuneración. |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | \n | IDENTIFICACION DEL ARANCEL: Arancel MVPC#3 |  |  |  |  |  |  |  |  |  |  | UNIDAD: PESOS |  |  |  | \n |  | TOPE GENERAL |  |  |  |  | 5.000 |  |  |  |  |  | U.F. |  |  | \n |  | POR BENEFICIARIO |  |  |  |  |  |  |  |  |  | Año/Contrato |  |  |  | \n |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  | PLE847_P3\n\n--- PÁGINA 4 ---\nPlan | PLENO |  |  |  |  |  |  |  |  |  |  |  |  | \nPLE 847 |  |  |  |  |  |  |  |  |  |  |  |  |  | \n |  | ANEXO DEL PLAN DE SALUD COMPLEMENTARIO |  |  |  |  |  |  |  |  |  |  |  | \n |  |  |  | MODALIDAD LIBRE ELECCION |  |  |  |  |  |  |  |  |  | \nNOTAS EXPLICATIVAS DEL PLAN DE SALUD: |  |  |  |  |  |  |  |  |  |  |  |  |  | \n(1) COBERTURAS: |  |  |  |  |  |  |  |  |  |  |  |  |  | \n- | Es de exclusiva responsabilidad del beneficiario informarse sobre los prestadores que mantienen convenio vigente con Isapre |  |  |  |  |  |  |  |  |  |  |  |  | \n | MASVIDA S.A.. |  |  |  |  |  |  |  |  |  |  |  |  | \n- | Cobertura Internacional: | La bonificación opera contra reembolso. Los documentos originales deben ser presentados dentro |  |  |  |  |  |  |  |  |  |  |  | \n | del plazo de 90 días de la emisión. El tipo de cambio que se utilice será el del día de la emisión de las respectivas boletas. |  |  |  |  |  |  |  |  |  |  |  |  | \n- | (*)   Si se utilizan Laboratorios y Centros de Radiología, cuyas prestaciones estén pactadas en los precios equivalentes a los |  |  |  |  |  |  |  |  |  |  |  |  | \n | niveles indicados en la columna Ampliación de Cobertura, sólo mediante la |  |  |  |  |  |  |  | modalidad de Orden de Atención (Bono). |  |  |  |  | \n- | (**)   La Cobertura Sin Tope para Día Cama se otorgará solamente hasta el Día Cama Estándar del establecimiento asistencial |  |  |  |  |  |  |  |  |  |  |  |  | \n | en que se encuentre hospitalizado. Si se utiliza una cama de mayor valor, deberá cancelar la diferencia de precio entre el |  |  |  |  |  |  |  |  |  |  |  |  | \n | Día Cama Estándar y la cama utilizada |  |  | (*****) . |  |  |  |  |  |  |  |  |  | \n- | (***)   Para la Bonificación de la Prestación Medicamentos, Materiales e Insumos Clínicos se considerará como “EVENTO” al |  |  |  |  |  |  |  |  |  |  |  |  | \n | período contemplado desde el ingreso al recinto hospitalario hasta el alta. La cobertura de los Medicamentos y Materiales |  |  |  |  |  |  |  |  |  |  |  |  | \n | Clínicos   se | dará   solamente | a   aquellos | administrados |  |  | durante | la   Hospitalización |  |  | en | el   Centro | Asistencial. | \n- | (****)   Estas atenciones están destinadas a pacientes entre 15 y 35 años, con riesgo cardiovascular modificable con dieta, que presenten |  |  |  |  |  |  |  |  |  |  |  |  | \n | obesidad o sobrepeso según criterios de Índice de Masa Corporal (I.M.C.) y con valores de glicemia > 110 mg/dl (Diabetes Mellitus |  |  |  |  |  |  |  |  |  |  |  |  | \n | Tipo II o Pre-Diabetes). Por el carácter integral de la atención de nutricionista, se entiende que la prestación incluye en su valor una |  |  |  |  |  |  |  |  |  |  |  |  | \n | evaluación al inicio, cuatro controles y una evaluación al término. |  |  |  |  |  |  |  |  |  |  |  |  | \n- | (*****)   Estas prestaciones estan destinadas a pacientes entre 12 y 17 años, que requieran algunas de las prestaciones dentales que |  |  |  |  |  |  |  |  |  |  |  |  | \n | están incorporadas en el Arancel de Prestaciones. Sólo se otorgan en la red de prestadores habilitados por la isapre, la que está |  |  |  |  |  |  |  |  |  |  |  |  | \n | disponible en la página web de Isapre Masvida. |  |  |  |  |  |  |  |  |  |  |  |  | \n- | Quimioterapia: | El Tope de Bonificación para Quimioterapia Hospitalaria y Ambulatoria comprende la cobertura de: Honorarios |  |  |  |  |  |  |  |  |  |  |  | \n | Médicos, administración y preparación de la droga y Drogas Antineoplásicas. |  |  |  |  |  |  |  |  |  |  |  |  | \n- | (*****) El listado de los prestadores y establecimientos asistenciales con sus correspondientes camas estándar está disponible |  |  |  |  |  |  |  |  |  |  |  |  | \n | en las oficinas de atención de público de la isapre. |  |  |  |  |  |  |  |  |  |  |  |  | \n(2) DEFINICIONES: |  |  |  |  |  |  |  |  |  |  |  |  |  | \n | Prestaciones Hospitalarias y Cirugía Mayor Ambulatoria: |  |  |  |  | Cuando exista un ingreso hospitalario, la utilización de un día cama |  |  |  |  |  |  |  | \n | en un establecimiento asistencial por, a lo menos, cuatro horas o cuando se realice una prestación asociada a un guarismo |  |  |  |  |  |  |  |  |  |  |  |  | \n | de un pabellón 5 o superior, se entenderá que se trata de una prestación de este grupo y recibirá cobertura hospitalaria. |  |  |  |  |  |  |  |  |  |  |  |  | \n | Box Ambulatorio: | La lsapre podrá bonificar bajo este concepto aquellos cobros que haga el prestador, por la utilización de |  |  |  |  |  |  |  |  |  |  |  | \n | cualquier tipo de acomodación dentro del establecimiento asistencial -cama, sillón, camilla u otro- con fines de diagnóstico |  |  |  |  |  |  |  |  |  |  |  |  | \n | o tratamiento, que se utilice por menos de 4 horas. |  |  |  |  |  |  |  |  |  |  |  |  | \n | Cirugía Ambulatoria: | Corresponde a aquellas Intervenciones Quirúrgicas que tienen asociados pabellones de guarismo 4 o |  |  |  |  |  |  |  |  |  |  |  | \n | menos. |  |  |  |  |  |  |  |  |  |  |  |  | \n(3) VALOR DE CONVERSION DE LA UNIDAD DE FOMENTO A UTILIZAR: |  |  |  |  |  |  |  |  |  |  |  |  |  | \n- | La equivalencia en pesos de la UF utilizada para las prestaciones que estén pactadas en dicha unidad, será el valor |  |  |  |  |  |  |  |  |  |  |  |  | \n | correspondiente al último día del mes anterior al otorgamiento de la prestación. |  |  |  |  |  |  |  |  |  |  |  |  | \n- | La Cotización de Salud deberá ser cancelada considerando el valor de esta unidad reajustable al último día del mes en que |  |  |  |  |  |  |  |  |  |  |  |  | \n | se devenga la remuneración. |  |  |  |  |  |  |  |  |  |  |  |  | \n(4) REAJUSTE DEL ARANCEL DE PRESTACIONES: |  |  |  |  |  |  |  |  |  |  |  |  |  | \n- | Para efecto de reajustar el valor de las prestaciones del Arancel en Pesos ($), la isapre considerará un valor entre 10% y 100% |  |  |  |  |  |  |  |  |  |  |  |  | \n | de la variación que haya experimentado el I.P.C. el año calendario anterior al cual se está aplicando el reajuste y será aplicable |  |  |  |  |  |  |  |  |  |  |  |  | \n | 30   días   después | de   que | el   Arancel | del | Fondo | Nacional |  | de   Salud | sea | publicado |  | en   el | Diario | Oficial.\nFirma Representante Isapre |  |  |  |  | Firma y Huella Dactilar del Afiliado |  |  |  |  |  |  |  |  | \nNombre: |  |  |  |  | Nombre: |  |  |  |  |  |  |  |  | \nRUT: |  |  |  |  | RUT: |  |  |  |  |  |  |  |  | \nFecha: |  |  |  |  |  |  |  |  |  |  |  |  |  |",
+  "metrics": {
+    "executionTimeMs": 323882,
+    "tokenUsage": {
+      "input": 19893,
+      "output": 8067,
+      "total": 27960,
+      "costClp": 38,
+      "totalPages": 4,
+      "phaseSuccess": {
+        "CLASSIFIER": true,
+        "HOSP_P1": true,
+        "HOSP_P2": true,
+        "AMB_P1": true,
+        "AMB_P2": true,
+        "AMB_P3": true,
+        "AMB_P4": true
+      },
+      "phases": [
+        {
+          "phase": "Clasificación",
+          "totalTokens": 3098,
+          "promptTokens": 2942,
+          "candidatesTokens": 156,
+          "estimatedCostCLP": 2
+        },
+        {
+          "phase": "HOSP_P1",
+          "totalTokens": 4693,
+          "promptTokens": 2869,
+          "candidatesTokens": 1824,
+          "estimatedCostCLP": 7
+        },
+        {
+          "phase": "HOSP_P2",
+          "totalTokens": 4533,
+          "promptTokens": 2965,
+          "candidatesTokens": 1568,
+          "estimatedCostCLP": 7
+        },
+        {
+          "phase": "AMB_P1",
+          "totalTokens": 4055,
+          "promptTokens": 2789,
+          "candidatesTokens": 1266,
+          "estimatedCostCLP": 6
+        },
+        {
+          "phase": "AMB_P2",
+          "totalTokens": 3068,
+          "promptTokens": 2761,
+          "candidatesTokens": 307,
+          "estimatedCostCLP": 3
+        },
+        {
+          "phase": "AMB_P3",
+          "totalTokens": 4467,
+          "promptTokens": 2787,
+          "candidatesTokens": 1680,
+          "estimatedCostCLP": 7
+        },
+        {
+          "phase": "AMB_P4",
+          "totalTokens": 4046,
+          "promptTokens": 2780,
+          "candidatesTokens": 1266,
+          "estimatedCostCLP": 6
+        }
+      ]
+    },
+    "extractionBreakdown": {
+      "totalReglas": 0,
+      "totalCoberturas": 36,
+      "totalItems": 51
+    }
+  }
+}

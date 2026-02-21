@@ -319,7 +319,8 @@ export type HypothesisId =
   | "H_UNBUNDLING_IF319"
   | "H_INCUMPLIMIENTO_CONTRACTUAL"
   | "H_PRACTICA_IRREGULAR"
-  | "H_FRAUDE_PROBABLE";
+  | "H_FRAUDE_PROBABLE"
+  | "H_FRAUDE_TECNICO";
 
 export type Confidence = number; // 0..1
 

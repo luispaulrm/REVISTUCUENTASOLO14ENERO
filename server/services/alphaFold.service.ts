@@ -236,6 +236,22 @@ export class AlphaFoldService {
             });
         }
 
+        // H_FRAUDE_TECNICO (M1)
+        {
+            const irregularScore = findHypothesis(scores, "H_PRACTICA_IRREGULAR")?.confidence || 0;
+            const hotel = get(signals, "S_HOTELERIA_ITEMS");
+            // M1 is activated when we see regular patterns of accessories being charged separately
+            const conf = clamp(0.1 + 0.6 * irregularScore + 0.3 * hotel);
+
+            scores.push({
+                hypothesis: "H_FRAUDE_TECNICO",
+                confidence: conf,
+                violations: [],
+                explains: ["S_PRACTICA_IRREGULAR"],
+                requiresAssumptions: ["Se presume que los actos accesorios no tienen autonomía diagnóstica."]
+            });
+        }
+
         // H_OK_CUMPLIMIENTO
         // Drops if any other signal is active
         {
@@ -513,6 +529,9 @@ export class AlphaFoldService {
         ) {
             active.push("H_FRAUDE_PROBABLE");
         }
+
+        // Fraude técnico (M1)
+        if (score("H_FRAUDE_TECNICO") > 0.6) active.push("H_FRAUDE_TECNICO");
 
         // Add H_OK_CUMPLIMIENTO if very high and no critical active alerts? 
         // Or if it's the top 1.

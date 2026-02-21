@@ -75,17 +75,35 @@ export interface SkillInput {
     contract: CanonicalContract;
     config?: {
         opacidadThresholdIOP?: number; // default 60
+        // M5: UF resolver output (pre-resolved by adapter before engine call)
+        ufValueCLP?: number;          // e.g. 39750.94
+        ufDateUsed?: string;          // ISO date: "2026-02-21"
+        ufSource?: string;            // "mindicador.cl" | "BCCh" | "SII" | "fallback"
     };
     metadata?: AuditMetadata;
 }
 
 // 2) OUTPUT SCHEMA
 export type TraceStatus = "OK" | "PARTIAL" | "FAIL" | "AMBIGUOUS";
-export type VerifState = "VERIFICABLE" | "NO_VERIFICABLE_POR_CONTRATO" | "POTENCIAL_INFRACCION";
 
-export type FindingLevel = "CORRECTO" | "DISCUSION_TECNICA" | "FRAGMENTACION_ESTRUCTURAL";
+// --- STRUCTURAL GLOSS TYPOLOGY (TGE) ---
+export type TGEType = "TGE_A" | "TGE_B" | "TGE_C" | "TGE_D" | "TGE_E" | "NONE";
 
-export type Motor = "M1" | "M2" | "M3" | "M4" | "NA";
+// M5: Full contract verification state machine
+export type ContractCheckState =
+    | "VERIFICABLE_OK"               // Rule found, bonif/copago within tolerance
+    | "INFRA_BONIFICACION"           // Rule found, copago exceeds expected by > tolerance
+    | "TOPE_EXCEDIDO"                // Tope value exists and amount exceeds it
+    | "TOPE_NO_VERIFICABLE"          // Tope indicated but value is null/unparsed
+    | "NO_VERIFICABLE_POR_CONTRATO"  // No rule found for this domain
+    | "NO_VERIFICABLE_POR_MODALIDAD"; // Rules exist but can't determine preferente vs LE
+
+// Legacy alias (some code still references this)
+export type VerifState = ContractCheckState | "VERIFICABLE" | "POTENCIAL_INFRACCION";
+
+export type FindingLevel = "CORRECTO" | "DISCUSION_TECNICA" | "FRAGMENTACION_ESTRUCTURAL" | "INFRA_BONIFICACION" | "NO_ARANCELABLE";
+
+export type Motor = "M1" | "M2" | "M3" | "M4" | "M5" | "NA";
 
 export interface SubtotalBlock {
     id: string;
@@ -103,6 +121,7 @@ export interface TraceAttempt {
     details: string;
     refsBill?: EvidenceRef[];
     candidates?: TraceCandidate[]; // New: store top candidates
+    billItemIds?: string[];        // New: store IDs reached in this attempt
 }
 
 export interface TraceCandidate {
@@ -125,15 +144,25 @@ export interface PamAuditRow {
         traceability?: { level: string; reason: string };
     };
     contractCheck: {
-        state: VerifState;
+        state: ContractCheckState | VerifState;
         rulesUsed: string[];
         notes: string;
+        ruleRef?: string;               // e.g. "Día Cama / preferente / 100%"
+        ruleMatchedBy?: 'MODALIDAD' | 'FALLBACK' | 'NONE';
+        expectedBonifPct?: number | null;
+        expectedBonif?: number | null;
+        expectedCopago?: number | null;
+        deltaCopago?: number | null;     // positive = patient overcharged
+        toleranceCLP?: number;
+        topeState?: 'SIN_TOPE' | 'TOPE_OK' | 'TOPE_EXCEDIDO' | 'TOPE_NO_VERIFICABLE';
+        topeCLP?: number | null;
     };
     fragmentacion: {
         level: FindingLevel;
         motor: Motor;
         rationale: string;
         economicImpact: MoneyCLP;
+        tge?: TGEType;
     };
     opacidad: {
         applies: boolean;
@@ -152,6 +181,9 @@ export interface SkillOutput {
             m1Count: number;
             m2Count: number;
             m3CopagoPct: number;
+            m5Count: number;
+            m5ExcessCopago: MoneyCLP;
+            m5OverchargePct: number;
             isSystemic: boolean;
         };
     };

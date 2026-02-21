@@ -183,19 +183,19 @@ function classifyItemNorm(item: BillingItem): { norma: string, isCatA: boolean }
         return {
             norma: `PRÁCTICA IRREGULAR #5: Cobro de enfermería básica ya incluida en el Día Cama.\n` +
                 `• PERSPECTIVA CLÍNICA: Procedimientos como instalación de vías y control de signos vitales son inherentes al cuidado continuo de enfermería.\n` +
-                `• PERSPECTIVA LEGAL: Circular IF-319 y aranceles institucionales establecen que estas prestaciones forman parte del valor integral del Día Cama.\n` +
+                `• INFRACCIÓN NORMATIVA (CIRCULAR 43): Según Circular 43 de la Superintendencia, el valor del "Día Cama" incluye la "atención completa de enfermería... incluyendo curaciones, colocación de sondas, inyecciones, toma de muestras y administración de fluidos (fleboclisis)".\n` +
                 `• PERSPECTIVA FINANCIERA: La fragmentación genera un doble cobro duplicado, trasladando al paciente un costo que ya ha sido cubierto por el beneficio de hospitalización.`,
             isCatA: true
         };
     }
 
     // 2. Intraoperative Medication (Practice #3)
-    if (/PROPOFOL|FENTANIL|SEVOFLURANO|LIDOCAINA|BUPIVACAINA|ROCURONIO|VECURONIO|MIDAZOLAM|REMIFENTANIL|SUGAMMADEX|ANESTESIA/i.test(desc)) {
+    if (/PROPOFOL|FENTANYL|FENTANIL|SEVOFLURANO|LIDOCAINA|BUPIVACAINA|ROCURONIO|VECURONIO|MIDAZOLAM|REMIFENTANIL|SUGAMMADEX|ANESTESIA|CEFTRIAXONA|METRONIDAZOL|ONDASETRON/i.test(desc)) {
         return {
             norma: `PRÁCTICA IRREGULAR #3: Fármacos de pabellón cobrados aparte (medicación intraoperatoria desagregada).\n` +
-                `• PERSPECTIVA CLÍNICA: Los agentes anestésicos y relajantes musculares administrados durante la cirugía deben ser reportados en la hoja de anestesia y forman parte del acto quirúrgico.\n` +
-                `• PERSPECTIVA LEGAL: Norma Técnica #3/IF: Estos fármacos constituyen componentes esenciales del Derecho de Pabellón y no pueden facturarse como farmacia general.\n` +
-                `• PERSPECTIVA FINANCIERA: El desplazamiento a farmacia ambulatoria/general anula la bonificación quirúrgica paquetizada, aumentando artificialmente el copago.`,
+                `• LA SEÑAL CLÍNICA: La presencia de Fentanyl (estupefaciente anestésico) u Ondansetron (antiemético postoperatorio) es la huella digital de administración durante la cirugía o recuperación inmediata.\n` +
+                `• INFRACCIÓN NORMATIVA (CIRCULAR 43): La Circular 43 de 1998 establece taxativamente que el "Derecho de Pabellón" incluye "gases y anestésicos de cualquier tipo", además de insumos quirúrgicos básicos.\n` +
+                `• PATRÓN DE ENCUBRIMIENTO: La facturación de estos ítems bajo el agrupador ciego 3101001 (Medicamentos clínicos) elude la cobertura de la Isapre y traslada el costo íntegro al paciente.`,
             isCatA: true
         };
     }
@@ -225,9 +225,9 @@ function classifyItemNorm(item: BillingItem): { norma: string, isCatA: boolean }
     // 4. Mandatory Detail (Practice #6)
     return {
         norma: `PRÁCTICA IRREGULAR #6: Uso de glosas genéricas para cargar costos opacos al paciente.\n` +
-            `• PERSPECTIVA CLÍNICA: La falta de desglose impide correlacionar el cobro con el registro en la ficha médica.\n` +
-            `• PERSPECTIVA LEGAL: Ley 20.584: El paciente tiene derecho a conocer el desglose detallado de su cuenta. Los agrupadores inespecíficos vulneran el deber de información.\n` +
-            `• PERSPECTIVA FINANCIERA: Agrupar cargos en códigos como 3201001 traslada el 100% del costo al paciente sin posibilidad de auditoría o bonificación justa.`,
+            `• DEFENSA DEL PACIENTE (LEY 20.584): El paciente tiene derecho a conocer el desglose detallado de su cuenta (Art. 8). El uso de agrupadores ciegos como 3101001 o 3201001 vulnera la transparencia.\n` +
+            `• ALTA PROBABILIDAD CLÍNICA: La reconstrucción matemática demuestra que este monto agrupa prestaciones que, por normativa IF/319 y Circular 43, no son cobrables por separado.\n` +
+            `• ACCIÓN REQUERIDA: Se objeta el cobro por falta de respaldo documental y se exige la reclasificación inmediata a ítems bonificables o su eliminación por duplicidad.`,
         isCatA: true
     };
 }
@@ -277,8 +277,12 @@ export function reconstructAllOpaque(bill: ExtractedAccount, findings: Finding[]
                 const hasHardImprocedencia = result.matchedItems.some(i => classifyItemNorm(i).isCatA && !classifyItemNorm(i).norma.includes("Ley 20.584"));
 
                 if (!hasHardImprocedencia) {
-                    category = "K"; // If exact match but no specific unbundling rule, stay in K (Opacidad probada)
+                    category = "K";
                     forensicStatus = "OPACIDAD_IDENTIFICADA_MATEMATICAMENTE";
+                } else {
+                    category = "A"; // FORCE A if surgical/nursing items found
+                    forensicStatus = "COBRO_ENCUBIERTO_IDENTIFICADO";
+                    action = "IMPUGNAR";
                 }
 
                 let itemsTable = "| Zona | Familia | Item Detalle | Monto | Norma Aplicable |\n| :--- | :--- | :--- | :--- | :--- |\n";

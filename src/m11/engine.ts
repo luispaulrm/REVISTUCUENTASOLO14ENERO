@@ -9,6 +9,7 @@ import type {
     VerifState,
     FindingLevel,
     Motor,
+    TGEType,
     CanonicalPamLine,
     CanonicalBillItem,
     CanonicalContract,
@@ -37,6 +38,72 @@ const AMENITY_WHITELIST = [
 function isAmenityItem(it: CanonicalBillItem): boolean {
     const d = normalize(it.description);
     return AMENITY_WHITELIST.some(k => d.includes(k));
+}
+
+// Clinical acts — procedures that should be included in integral packages (Día Cama / Pabellón)
+// but are sometimes extracted and billed as autonomous acts.
+// Guard: MUST NOT contain insumo/admin/hotel keywords (prevents false positives on mixed glosas).
+const CLINICAL_ACT_KEYWORDS = [
+    'instalacion de via', 'fleboclisis', 'venopuncion', 'puncion venosa',
+    'atencion profesional', 'monitorizacion', 'monitoreo',
+    'curacion', 'sondaje', 'aspiracion', 'aspirado',
+    'administracion de medicamento', 'preparacion de medicamento',
+    'recargo horario', 'control de enfermeria', 'control enfermera'
+];
+
+// Keywords that disqualify an item from being a "clinical act" (insumo / admin / hotelería)
+const NON_CLINICAL_KEYWORDS = [
+    'insumo', 'kit', 'set ', 'bandeja', 'calzon', 'calzón',
+    'aseo', 'manga', 'medias', 'delantal', 'termometro',
+    'pañal', 'panal', 'toalla', 'sabana', 'pechera', 'bata',
+    'lubricante', 'removedor', 'adhesiv', 'confort', 'chata', 'comoda'
+];
+
+const ADMIN_KEYWORDS = [
+    'servicio', 'gestion', 'cargo', 'derecho', 'tramite', 'papeleria',
+    'administrativo', 'copias', 'fotocopia', 'estacionamiento', 'seguro',
+    'admision', 'certific', 'timbre', 'despacho'
+];
+
+function isClinicalAct(it: CanonicalBillItem): boolean {
+    const d = normalize(it.description);
+    const hasClinical = CLINICAL_ACT_KEYWORDS.some(k => d.includes(k));
+    if (!hasClinical) return false;
+    // Reject if the glosa is contaminated with insumo/hotel keywords (mixed text)
+    const isNonClinical = NON_CLINICAL_KEYWORDS.some(k => d.includes(k));
+    return !isNonClinical;
+}
+
+// ---------- M2 Helpers: Package Eligibility & Belonging ----------
+
+// Strong eligibility: specific surgical/clinical items (minimal ambiguity)
+const ELIGIBLE_STRONG_KW = [
+    'trocar', 'clip', 'hemolock', 'sutura', 'vicryl', 'monocryl', 'prolene',
+    'circuito anest', 'mascara laringe', 'tubo endotraq', 'canula', 'branula',
+    'electrodo bisturi', 'aspiracion quirurg', 'compresa quirurg',
+    'lino', 'bisturi', 'hoja bisturi', 'equipo descartable', 'fleboclisis'
+];
+
+function isEligibleStrong(it: CanonicalBillItem): boolean {
+    const d = normalize(it.description);
+    return ELIGIBLE_STRONG_KW.some(k => d.includes(k));
+}
+
+// Weak eligibility: generic drug/material units — requires strong belonging to confirm M2
+const ELIGIBLE_WEAK_RE = /(\d+(\,\d+)?)(\s*|\/)?(mg|ml|mcg|g|gr|amp|vial|frasco)\b/;
+
+function isEligibleWeak(it: CanonicalBillItem): boolean {
+    const d = normalize(it.description);
+    return ELIGIBLE_WEAK_RE.test(d);
+}
+
+// Strict belonging: item must be in a section that proves package membership
+function hasBelongingStrong(it: CanonicalBillItem): boolean {
+    const sec = normalize(it.section || '');
+    return sec.includes('pabellon') || sec.includes('farmacia en pabellon')
+        || sec.includes('recuperacion') || sec.includes('post anest')
+        || sec.includes('estupefaciente') || sec.includes('dia cama')
+        || sec.includes('dia_cama') || sec.includes('hospitaliz');
 }
 
 // Semantic coherence for M3-R
@@ -204,13 +271,23 @@ export function runSkill(input: SkillInput): SkillOutput {
             });
 
             if (candidates.length === 1) {
-                montoMatch = { step: 'MONTO_1A1', status: 'OK', details: 'Unique amount match (Total)' };
-                matchedBillItems = [candidates[0]];
+                const cand = candidates[0];
+                montoMatch = {
+                    step: 'MONTO_1A1',
+                    status: 'OK',
+                    details: 'Unique amount match (Total)',
+                    billItemIds: [cand.id],
+                    refsBill: [{ kind: 'jsonpath', source: 'BILL', path: `item_id_${cand.id}`, itemID: cand.id }]
+                };
+                matchedBillItems = [cand];
             } else {
+                const cand = candidates[0];
                 montoMatch = {
                     step: 'MONTO_1A1',
                     status: 'PARTIAL',
-                    details: `Duplicate amounts found. Picked best by anchor distance/section/ID (${candidates.length} candidates).`
+                    details: `Duplicate amounts found. Picked best by anchor distance/section/ID (${candidates.length} candidates).`,
+                    billItemIds: [cand.id],
+                    refsBill: [{ kind: 'jsonpath', source: 'BILL', path: `item_id_${cand.id}`, itemID: cand.id }]
                 };
                 matchedBillItems = [candidates[0]];
             }
@@ -278,9 +355,16 @@ export function runSkill(input: SkillInput): SkillOutput {
         // In Pass 1, skip catch-all lines (they'll be processed in Pass 2)
         // Fix #11: STRICT Exclusion of 320 codes from Pass 1 to ensure they are sorted in Pass 2
         // Fix #7: Single guard (the second was redundant since the first already returns for isCatchAll)
-        if (pass === 1 && (isCatchAll || line.codigoGC.startsWith('320'))) return null;
-        // In Pass 2, skip lines that already had an anchor (processed in Pass 1)
-        if (pass === 2 && !isCatchAll && (montoMatch.status === 'OK' || contiguousMatch.status === 'OK')) return null;
+        if (pass === 1 && (isCatchAll || line.codigoGC.startsWith('320'))) {
+            return null;
+        }
+        if (pass === 2 && !isCatchAll && (montoMatch.status === 'OK' || contiguousMatch.status === 'OK')) {
+            return null;
+        }
+
+        if (pass === 2) {
+            console.log(`DEBUG ENGINE: Processing ${line.codigoGC} in Pass 2. isCatchAll=${isCatchAll}`);
+        }
 
         if (montoMatch.status !== 'OK' && glosaMatch.status !== 'OK' && contiguousMatch.status !== 'OK') {
             // 3. Subtotal / Section Block match
@@ -496,8 +580,8 @@ export function runSkill(input: SkillInput): SkillOutput {
         }
 
         // --- Phase 2: Motores de Fragmentación (M1-M4) ---
-        const contractCheck = evaluateContract(line, input.contract);
-        const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems, cfg, anchorMap);
+        const contractCheck = evaluateContract(line, input.contract, input.config);
+        const frag = classifyFragmentation(line, attempts, contractCheck, eventModel, matchedBillItems, cfg, input.contract, anchorMap, allById);
 
         // --- Phase 3: Opacidad (Agotamiento) ---
         const opacidad = evaluateOpacidad(line, cfg, attempts, contractCheck.state, matchedBillItems, frag);
@@ -664,8 +748,8 @@ function indexBill(items: CanonicalBillItem[]) {
 
 function inferEventModel(billItems: CanonicalBillItem[], pam: any) {
     const text = billItems.map(i => `${i.section || ''} ${i.description || ''}`).join(' ').toLowerCase();
-    const hasPabellon = text.includes('pabellon') || text.includes('quirofano') || text.includes('surgery') || text.includes('recuperacion');
-    const hasDiaCama = text.includes('dia cama') || text.includes('habitacion') || text.includes('sala');
+    const hasPabellon = text.includes('pabellon') || text.includes('pab.') || text.includes('quirofano') || text.includes('qx') || text.includes('quirof') || text.includes('recuperacion') || text.includes('sala recuper') || text.includes('derecho de pabellon') || text.includes('derecho pabellon') || text.includes('surgery');
+    const hasDiaCama = text.includes('dia cama') || text.includes('habitacion') || text.includes('hab.') || text.includes('estadia') || text.includes('hospitaliz') || text.includes('sala');
 
     // Also detect pabellón from anesthesia drugs in bill (even if no explicit "pabellón" keyword)
     const anesthesiaSignals = ['propofol', 'fentanyl', 'remifentanil', 'sevoflurano', 'isoflurano', 'rocuronio', 'cisatracurio', 'midazolam', 'ketamina', 'desflurano', 'succinilcolina', 'sugammadex', 'estupefaciente'];
@@ -790,7 +874,6 @@ function tryMonto1a1Match(line: CanonicalPamLine, index: any): TraceAttempt {
 }
 
 // --- STRUCTURAL GLOSS TYPOLOGY (TGE) ---
-type TGEType = 'TGE_A' | 'TGE_B' | 'TGE_C' | 'TGE_D' | 'TGE_E' | 'NONE';
 
 function detectTGE(line: CanonicalPamLine): { type: TGEType, reason: string } {
     const desc = normalize(line.descripcion);
@@ -870,6 +953,10 @@ function tryContiguousBlockMatch(line: CanonicalPamLine, items: CanonicalBillIte
 // Returns filter function, 'CATCH_ALL' string for generic codes, or null
 function getDomainFilter(gc: string, desc: string, eventModel: any): ((section: string, itemDesc: string) => boolean) | 'CATCH_ALL' | null {
     const d = normalize(desc);
+
+    // 0. CATCH-ALL (320xxxx) = Gastos genéricos 
+    // High priority: these codes go straight to opacidad pass 2
+    if (gc.startsWith('320')) return 'CATCH_ALL';
 
     // === MEDICAMENTOS (3101001) ===
     if (gc === '3101001' || d.includes('medicamento')) {
@@ -956,10 +1043,6 @@ function getDomainFilter(gc: string, desc: string, eventModel: any): ((section: 
             return false;
         };
     }
-
-    // === CATCH-ALL (3201001, 3201002) = Gastos genéricos ===
-    // Block free DP for these codes — they go straight to opacidad
-    if (gc.startsWith('320')) return 'CATCH_ALL';
 
     return null;
 }
@@ -1603,30 +1686,38 @@ function computeTraceability(attempts: TraceAttempt[], matchedItems: CanonicalBi
 }
 
 function mapGCToDomain(gc: string, description: string = ''): ContractDomain {
+    // 1. Exact matches (Priority: specific codes override generic ranges)
     const codeMap: Record<string, ContractDomain> = {
         '3101002': 'MATERIALES_CLINICOS',
         '3101001': 'MEDICAMENTOS_HOSP',
         '3000000': 'HOSPITALIZACION',
         '3201001': 'OTROS',
-        '3201002': 'OTROS',
-        '0101001': 'CONSULTA',
-        '0300000': 'EXAMENES',
-        '0400000': 'EXAMENES',
-        '0500000': 'KINESIOLOGIA',
-        '0600000': 'PROTESIS_ORTESIS',
-        '1100000': 'PABELLON',
-        '1200000': 'PABELLON',
-        '1300000': 'HONORARIOS'
+        '3201002': 'OTROS'
     };
     if (codeMap[gc]) return codeMap[gc];
 
+    // 2. Semantic Ranges (Fonasa/Isapre Arancel standard)
+    if (gc.startsWith('01')) return 'CONSULTA';
+    if (/^03|^04|^07|^08|^09|^02/.test(gc)) return 'EXAMENES';
+    if (gc.startsWith('05') || gc.startsWith('06')) return 'KINESIOLOGIA';
+    if (gc.startsWith('11') || gc.startsWith('12')) {
+        const lower = normalize(description);
+        if (/quirofano|pabellon|recuperac|anestesia/i.test(lower)) return 'PABELLON';
+        return 'HOSPITALIZACION'; // Default for 12XXXX (Dia Cama) / 3000000
+    }
+    if (/^13|^14|^15|^16|^17|^18|^19|^20/.test(gc)) return 'HONORARIOS';
+    if (gc.startsWith('21')) return 'MEDICAMENTOS_HOSP';
+    if (gc.startsWith('31')) return 'MATERIALES_CLINICOS';
+    if (gc.startsWith('32')) return 'OTROS';
+
+    // 3. Keyword-based fallback (normalized)
     const lower = normalize(description);
-    if (lower.includes('dia cama') || lower.includes('habitacion')) return 'HOSPITALIZACION';
-    if (lower.includes('pabellon') || lower.includes('quirofano')) return 'PABELLON';
-    if (lower.includes('honorario') || lower.includes('medico')) return 'HONORARIOS';
-    if (lower.includes('medicamento') || lower.includes('farmaco')) return 'MEDICAMENTOS_HOSP';
-    if (lower.includes('material') || lower.includes('insumo')) return 'MATERIALES_CLINICOS';
-    if (lower.includes('examen') || lower.includes('laboratorio')) return 'EXAMENES';
+    if (lower.includes('dia cama') || lower.includes('habitacion') || lower.includes('internac')) return 'HOSPITALIZACION';
+    if (lower.includes('pabellon') || lower.includes('quirofano') || lower.includes('recuperac')) return 'PABELLON';
+    if (lower.includes('honorario') || lower.includes('medico') || lower.includes('cirujano') || lower.includes('matrona')) return 'HONORARIOS';
+    if (lower.includes('medicamento') || lower.includes('farmaco') || lower.includes('quimio')) return 'MEDICAMENTOS_HOSP';
+    if (lower.includes('material') || lower.includes('insumo') || lower.includes('malla') || lower.includes('sutura')) return 'MATERIALES_CLINICOS';
+    if (lower.includes('examen') || lower.includes('laboratorio') || lower.includes('imagen')) return 'EXAMENES';
     if (lower.includes('kinesi')) return 'KINESIOLOGIA';
     if (lower.includes('protesis') || lower.includes('ortesis')) return 'PROTESIS_ORTESIS';
     if (lower.includes('traslado')) return 'TRASLADOS';
@@ -1634,20 +1725,166 @@ function mapGCToDomain(gc: string, description: string = ''): ContractDomain {
     return 'OTROS';
 }
 
-function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract): any {
-    const domain = mapGCToDomain(line.codigoGC, line.descripcion);
+// M5: UF fallback only used if config doesn't provide a resolved value
+const UF_FALLBACK_CLP = 39750; // Approximate — should always prefer resolved value
 
-    // Exact match by domain
-    const rule = contract.rules.find(r => r.domain === domain);
+function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, config?: any, overrideDomain?: ContractDomain): any {
+    const domain = overrideDomain || mapGCToDomain(line.codigoGC, line.descripcion);
 
-    if (!rule) {
-        return { state: 'NO_VERIFICABLE_POR_CONTRATO', rulesUsed: [], notes: `Dominio '${domain}' no hallado en contrato` };
+    // Resolve UF value: prefer config (pre-resolved by adapter), fallback to constant
+    const ufValueCLP = config?.ufValueCLP || UF_FALLBACK_CLP;
+    const ufSource = config?.ufSource || 'fallback';
+    const ufDateUsed = config?.ufDateUsed || 'N/A';
+
+    // 1. Find ALL rules matching this domain
+    const domainRules = contract.rules.filter(r => r.domain === domain);
+
+    if (domainRules.length === 0) {
+        return {
+            state: 'NO_VERIFICABLE_POR_CONTRATO',
+            rulesUsed: [],
+            notes: `Dominio '${domain}' no hallado en contrato`,
+            ruleMatchedBy: 'NONE' as const
+        };
     }
 
-    // Check if it's explicitly excluded? (Assumption: if coverage is 0% explicitly)
-    // Here logic depends on rule structure. For now, existence = Verificable.
+    // 2. Resolve MODALIDAD — try to infer from PAM/prestador context
+    //    Convention: "preferente" rules have higher coberturaPct
+    //    If we can't determine modalidad, we pick the WORST case for the patient (lowest pct)
+    //    to avoid false positives → conservative approach
+    // 2. Resolve MODALIDAD & Semantic Affinity
+    //    If multiple rules exist for the same domain, we score them by keyword affinity
+    //    to avoid misalignments (e.g. picking a 'Psicoterapia' rule for a 'Medicamento' block)
+    let rule = domainRules[0];
+    let matchedBy: 'MODALIDAD' | 'KEYWORDS' | 'FALLBACK' = 'FALLBACK';
 
-    return { state: 'VERIFICABLE', rulesUsed: [rule.id], notes: `Regla aplicada: ${rule.textLiteral}` };
+    if (domainRules.length === 1) {
+        rule = domainRules[0];
+        matchedBy = 'MODALIDAD'; // Only one option
+    } else {
+        // Find best semantic match
+        const lineDesc = normalize(line.descripcion);
+        const scoredRules = domainRules.map(r => {
+            const ruleText = normalize(r.textLiteral || '');
+            let score = 0;
+
+            // Positive affinity
+            if (ruleText.includes('psicoterapia') && lineDesc.includes('psicoterapia')) score += 1000;
+            if (ruleText.includes('radioterapia') && lineDesc.includes('radioterapia')) score += 1000;
+            if (ruleText.includes('kinesi') && lineDesc.includes('kinesi')) score += 1000;
+            if (ruleText.includes('medicamento') && (lineDesc.includes('clinico') || lineDesc.includes('farmaco') || lineDesc.includes('medicamento'))) score += 500;
+            if (ruleText.includes('insumo') && (lineDesc.includes('material') || lineDesc.includes('insumo') || lineDesc.includes('gasa'))) score += 500;
+
+            // Negative affinity (Antipattern prevention)
+            if (ruleText.includes('psicoterapia') && !lineDesc.includes('psicoterapia')) score -= 2000;
+            if (ruleText.includes('radioterapia') && !lineDesc.includes('radioterapia')) score -= 2000;
+
+            return { rule: r, score };
+        }).sort((a, b) => b.score - a.score);
+
+        const best = scoredRules[0];
+        if (best.score > 0) {
+            rule = best.rule;
+            matchedBy = 'KEYWORDS';
+        } else {
+            // If no clear semantic winner, fallback to lowest coverage (conservative)
+            const sorted = [...domainRules].sort((a, b) => (a.coberturaPct ?? 0) - (b.coberturaPct ?? 0));
+            rule = sorted[0];
+            matchedBy = 'FALLBACK';
+        }
+    }
+
+    const ruleRef = `${rule.textLiteral || domain} / ${matchedBy === 'FALLBACK' ? 'peor caso' : 'modalidad'} / ${rule.coberturaPct ?? '?'}%`;
+
+    // 3. Calculate expected bonif/copago
+    const pct = rule.coberturaPct;
+    if (pct === null || pct === undefined) {
+        return {
+            state: 'NO_VERIFICABLE_POR_CONTRATO',
+            rulesUsed: [rule.id],
+            notes: `Regla encontrada pero porcentaje no extraído (null)`,
+            ruleRef,
+            ruleMatchedBy: matchedBy
+        };
+    }
+
+    const expectedBonif = Math.round(line.valorTotal * (pct / 100));
+    const expectedCopago = line.valorTotal - expectedBonif;
+    const deltaCopago = line.copago - expectedCopago; // positive = patient overcharged
+
+    // Tolerance: max(500 CLP, 0.1% of valorTotal) — accounts for rounding
+    const toleranceCLP = Math.max(500, Math.round(line.valorTotal * 0.001));
+
+    // 4. Check TOPE
+    let topeState: 'SIN_TOPE' | 'TOPE_OK' | 'TOPE_EXCEDIDO' | 'TOPE_NO_VERIFICABLE' = 'SIN_TOPE';
+    let topeCLP: number | null = null;
+
+    if (rule.tope) {
+        const topeKind = rule.tope.kind;
+        const topeValue = rule.tope.value;
+
+        if (topeKind === 'SIN_TOPE_EXPRESO') {
+            topeState = 'SIN_TOPE';
+        } else if (topeValue === null || topeValue === undefined) {
+            // Tope indicated but no value parsed → can't verify
+            topeState = 'TOPE_NO_VERIFICABLE';
+        } else {
+            // Convert tope to CLP
+            switch (topeKind) {
+                case 'UF': topeCLP = topeValue * ufValueCLP; break;
+                case 'UTM': topeCLP = topeValue * 65000; break; // Approximate UTM
+                case 'CLP': topeCLP = topeValue; break;
+                case 'VAM': topeCLP = topeValue * 5000; break;  // Approximate VAM
+                case 'AC2': topeCLP = topeValue * 5000; break;  // Approximate AC2
+                default: topeCLP = null;
+            }
+
+            if (topeCLP !== null) {
+                // Conservative: check BOTH valorTotal and expectedBonif against tope
+                // Only flag as EXCEDIDO if clearly over
+                if (line.valorTotal > topeCLP * 1.02) { // 2% tolerance on tope
+                    topeState = 'TOPE_EXCEDIDO';
+                } else {
+                    topeState = 'TOPE_OK';
+                }
+            } else {
+                topeState = 'TOPE_NO_VERIFICABLE';
+            }
+        }
+    }
+
+    // 5. Determine final state
+    let state: string;
+    let notes: string;
+
+    if (deltaCopago > toleranceCLP) {
+        state = 'INFRA_BONIFICACION';
+        notes = `Copago real $${line.copago.toLocaleString()} excede esperado $${expectedCopago.toLocaleString()} en $${deltaCopago.toLocaleString()} (tol $${toleranceCLP.toLocaleString()})`;
+    } else if (topeState === 'TOPE_EXCEDIDO') {
+        state = 'TOPE_EXCEDIDO';
+        notes = `Monto $${line.valorTotal.toLocaleString()} excede tope ${rule.tope?.kind} (${topeCLP ? '$' + topeCLP.toLocaleString() : '?'})`;
+    } else {
+        state = 'VERIFICABLE_OK';
+        notes = `Bonificación coherente con contrato (${pct}%, Δ$${deltaCopago.toLocaleString()}, tol $${toleranceCLP.toLocaleString()})`;
+    }
+
+    return {
+        state,
+        rulesUsed: [rule.id],
+        notes,
+        ruleRef,
+        ruleMatchedBy: matchedBy,
+        expectedBonifPct: pct,
+        expectedBonif,
+        expectedCopago,
+        deltaCopago: Math.max(0, deltaCopago), // Only positive excess matters
+        toleranceCLP,
+        topeState,
+        topeCLP,
+        ufValueCLPUsed: ufValueCLP,
+        ufDateUsed,
+        ufSource
+    };
 }
 
 function classifyFragmentation(
@@ -1657,17 +1894,24 @@ function classifyFragmentation(
     eventModel: any,
     matchedItems: CanonicalBillItem[],
     cfg: any,
-    anchorMap: Record<string, number[]> | null = null
+    contract: CanonicalContract,
+    anchorMap: Record<string, number[]> | null = null,
+    allById: Map<string, CanonicalBillItem> = new Map()
 ): any {
     let level: FindingLevel = 'CORRECTO';
     let motor: Motor = 'NA';
     let rationale = 'Trazabilidad determinística directa (1:1 o Glosa exacta).';
     const impact = line.copago;
 
+    // ELIGIBLE M2 FAMILIES: Only these codes should trigger M2 on rebote total
+    const ELIGIBLE_M2_FAMILIES = ['3101001', '3101002', '3201001', '3201002', '3000000'];
+
     // 0. Zero copago -> No financial injury
     if (impact === 0) return { level, motor, rationale, economicImpact: 0 };
 
-    const desc = normalize(line.descripcion);
+    const pamDesc = normalize(line.descripcion ?? '');
+    // Legacy alias used below in older blocks
+    const desc = pamDesc;
     const sum = matchedItems.reduce((s, i) => s + (i.total || 0), 0);
     const delta = Math.abs(sum - line.valorTotal);
     const secs = new Set(matchedItems.map(i => sectionKey(i)).filter(Boolean));
@@ -1675,19 +1919,26 @@ function classifyFragmentation(
     const isCatchAll = line.codigoGC === '3201001' || line.codigoGC === '3201002';
     const isGeneric = cfg.suspectGroupCodes.includes(line.codigoGC) || cfg.genericGlosas.some((g: string) => desc.includes(g));
 
-    // Traceability level
+    // Traceability level (needed by M1-DET and later blocks)
     const t = computeTraceability(attempts, matchedItems);
     const isHardAnchor = t.level === 'TRACE_OK';
 
-    // If hard anchor and perfect sum, it's correct
-    if (isHardAnchor && delta < 2) return { level, motor, rationale, economicImpact: 0 };
-
-    // Standard supplies for M2 detection
-    const standardSupplies = ["jeringa", "aguja", "torula", "guantes", "electrodo", "bajada", "branula", "gasas", "aposito", "ceftriaxona", "fentanyl", "propofol", "suero", "ondansetron"];
+    // Clinical signal flags (reused by M2 and M3)
+    const standardSupplies = ["jeringa", "aguja", "torula", "guantes", "electrodo", "bajada", "branula", "gasas", "aposito", "ceftriaxona", "fentanyl", "fentanilo", "propofol", "suero", "ondansetron", "metronidazol", "midazolam", "sevoflurano"];
     const foundStandard = matchedItems.find(i => {
         const iDesc = normalize(i.description);
         return standardSupplies.some(s => iDesc.includes(s));
     });
+
+    const foundSurgicalDrug = matchedItems.some(i => {
+        const d = normalize(i.description);
+        return ["fentanyl", "fentanilo", "propofol", "sevoflurano", "ondansetron", "remifentanil", "sugammadex"].some(s => d.includes(s));
+    });
+
+    const hasClinicalSignal =
+        matchedItems.some(isEligibleStrong) ||
+        (matchedItems.some(isEligibleWeak) && matchedItems.some(hasBelongingStrong)) ||
+        foundSurgicalDrug;
 
     // Breakdown for rationales
     const desglose = matchedItems
@@ -1702,82 +1953,292 @@ function classifyFragmentation(
 
     const traceLines = attempts.map(a => `→ ${a.step}: ${a.status} (${a.details})`).join('\n');
 
-    // --- M1: Duplicidad Nominal / Actos Accesosrios ---
-    const forbiddenM1 = ["preparacion", "monitorizacion", "uso de equipo", "derecho", "sala", "recargo horario"];
-    if (
-        (line.bonificacion === 0 && impact > 0 && !isMedMat && !isCatchAll) ||
-        (forbiddenM1.some(f => desc.includes(f)) && !desc.includes("pabellon") && !desc.includes("dia cama"))
-    ) {
-        motor = 'M1';
-        level = 'FRAGMENTACION_ESTRUCTURAL';
-        rationale = `Acto accesorio inseparable del principal facturado como autónomo (Bonif 0 / Copago 100%).`;
-        return { level, motor, rationale, economicImpact: impact };
-    }
+    // ============================================================
+    // --- M1-DET: ACTO NO ARANCELABLE / PRESTACIÓN FABRICADA ---
+    // Trigger (Isapre side): PAM rejection code 3201002 or 3201001
+    // Anchor  (Clinic side): Unique MONTO_1A1 match (1 single bill item)
+    // Guard 1: not an amenity item → preserve M3 path
+    // Guard 2: for 3201001 only, bill item must be a clinical act (not insumo/admin/hotel)
+    // Priority: highest — evaluated BEFORE nursingActs and general M1 blocks.
+    // ============================================================
+    const isM1Trigger =
+        line.codigoGC === '3201002' ||
+        line.codigoGC === '3201001' ||
+        pamDesc.includes('no contemplada en el arancel') ||
+        pamDesc.includes('no cubierto por el plan');
 
-    // --- M2: Fragmentación Estructural / Unbundling ---
-    if (matchedItems.length > 0 && delta < 5) {
-        const surgicalSecs = [...secs].filter(s => isSurgicalSection(s));
-        const isInterSection = isMedMat && surgicalSecs.length >= 2;
-        const paqueteOrigen = inferPackageOrigen(matchedItems, eventModel, anchorMap);
-        const isUnbundling = !!foundStandard || (paqueteOrigen !== 'CUENTA_TOTAL' && paqueteOrigen !== 'N/A');
+    if (isM1Trigger) {
+        // Take the LAST MONTO_1A1 OK (most reliable if there is more than one attempt)
+        const monto1a1Ok = [...attempts].reverse().find(
+            a => a.step === 'MONTO_1A1' && a.status === 'OK'
+        );
 
-        if (isInterSection || isUnbundling) {
-            motor = 'M2';
-            level = 'FRAGMENTACION_ESTRUCTURAL';
-            let forensicReason = isInterSection
-                ? `Esto constituye desmembramiento del acto médico (M2) por fragmentación inter-sección (pabellón/recuperación).`
-                : `Esto constituye desmembramiento del acto médico (M2) porque el conjunto corresponde al paquete clínico (${paqueteOrigen}) según evidencia de insumo estándar (${foundStandard?.description || 'varios'}).`;
+        // Anchor resolution: prefer billItemIds from the attempt; fall back to matchedItems
+        const anchorIds = monto1a1Ok?.billItemIds || matchedItems.map(i => i.id);
+        const anchor = (anchorIds.length === 1 && allById) ? allById.get(anchorIds[0]) : null;
 
-            rationale = `Se reconstruye íntegramente la línea PAM ${line.codigoGC} por ${matchedItems.length} ítems del BILL que suman $${line.valorTotal.toLocaleString()}.
-Los ítems están distribuidos en ${secs.size} secciones: ${[...secs].join(' | ')} (separación estructural).
-${forensicReason}
+        if (anchor && !isAmenityItem(anchor)) {
 
-DESGLOSE EVIDENCIA:
-${desglose}
+            // Guard 1: amenity → let M3 handle it
+            if (!isAmenityItem(anchor)) {
+                // Guard 2: for 3201001 ("gastos no cubiertos") enforce clinical act
+                const allow3201001 = line.codigoGC !== '3201001' || isClinicalAct(anchor);
 
-TRAZABILIDAD:
-${traceLines}`;
-            return { level, motor, rationale, economicImpact: impact };
+                if (allow3201001) {
+                    motor = 'M1';
+                    level = 'NO_ARANCELABLE';
+                    rationale = [
+                        '[M1 – ACTO NO ARANCELABLE]',
+                        `PAM: ${line.codigoGC} "${line.descripcion}" (copago $${line.copago.toLocaleString()}).`,
+                        `Cuenta: "${anchor.description}"${(anchor as any).code ? ` (${(anchor as any).code})` : ''}.`,
+                        `Ancla determinística: MONTO_1A1 único $${line.valorTotal.toLocaleString()} ↔ ítem ${anchor.id}.`,
+                        `Interpretación: el prestador presenta un acto como autónomo sin reconocimiento arancelario (fabricación por autonomía de acto accesorio).`
+                    ].join('\n');
+                    return { level, motor, rationale, economicImpact: impact };
+                }
+            }
         }
     }
 
-    // --- M3: Traslado de Costos No Clínicos (Opacidad) ---
-    if (matchedItems.length > 0) {
-        const coherence = amenityCoherenceRatio(matchedItems);
-        const isReconstructible = coherence >= 0.6;
+    // --- M1: PRIVILEGE MODE - Nursing Acts (Rubro I) ---
+    // These codes (Fleboclisis, Via Venosa) do NOT exist in Fonasa; they are invented to fragment nurse labor.
+    // Note: M1-DET above fires first for PAM codes 3201002/3201001 + unique match.
+    // This block handles nursing-act glosas that appear in OTHER PAM codes.
+    const nursingActs = ["instalacion de via", "fleboclisis", "puncion", "atencion profesional", "preparacion", "monitorizacion", "recargo horario"];
+    const isNursingAct = nursingActs.some(f => desc.includes(f));
 
-        motor = 'M3';
-        level = 'FRAGMENTACION_ESTRUCTURAL';
-
-        const type = isReconstructible ? '[M3-R] Bolsón Reconstruible' : '[M3] Opacidad Liquidatoria';
-        const coherenceText = isReconstructible
-            ? `El set es semánticamente coherente (Coherencia ${(coherence * 100).toFixed(0)}%).`
-            : `Baja coherencia semántica para agrupador genérico (Coherencia ${(coherence * 100).toFixed(0)}%).`;
-
-        rationale = `${type}. Se reconstruye el agrupador por ${matchedItems.length} ítems que suman $${sum.toLocaleString()} (Δ=$${delta.toLocaleString()}).
-${coherenceText}
-Forensicamente, los códigos de agrupamiento se utilizan para trasladar costos no clínicos, lo que se valida con este desglose.
-
-DESGLOSE EVIDENCIA:
-${desglose}`;
-
+    if (isNursingAct && !desc.includes("pabellon") && !desc.includes("dia cama")) {
+        motor = 'M1';
+        level = 'NO_ARANCELABLE';
+        rationale = `[M1 – ACTO NO ARANCELABLE - Rubro Enfermería]\nEl acto "${desc.toUpperCase()}" no existe en el Arancel Fonasa como prestación autónoma; corresponde a una creación administrativa para fragmentar el Día Cama Integral.`;
         return { level, motor, rationale, economicImpact: impact };
     }
 
-    // --- M4: Desclasificación de Dominio (Renegación Artificial) ---
-    const saysNoCover = desc.includes('no cubierto') || desc.includes('no contemplada') || desc.includes('no arancel');
-    const hasM3RMatch = matchedItems.length > 0 && !isHardAnchor;
+    // --- M1: Duplicidad Nominal / Actos Accesorios (General) ---
+    if (line.bonificacion === 0 && impact > 0 && !isMedMat && !isCatchAll && !isGeneric) {
+        motor = 'M1';
+        level = 'NO_ARANCELABLE';
+        rationale = `[M1 – ACTO NO ARANCELABLE]\nActo accesorio inseparable del principal facturado como autónomo. Corresponds a fragmentación de la integridad del acto médico.`;
+        return { level, motor, rationale, economicImpact: impact };
+    }
 
-    if (
-        line.bonificacion === 0 &&
-        contractCheck.state === 'VERIFICABLE' &&
-        saysNoCover &&
-        isHardAnchor &&
-        !hasM3RMatch
-    ) {
-        motor = 'M4';
+    // ============================================================
+    // --- M2-DET: DESANCLAJE DESDE PAQUETE OBLIGATORIO ---
+    // Trigger: PAM rebote total (bonif=0) in target families (310, 320, 300)
+    // Anchor:  Traceable bill items (TRACE_OK or TRACE_WEAK) with package belonging
+    // Guard 1: not all amenities (→ M3)
+    // Guard 2: 3201001 requires rebote total
+    // Priority: Higher than M3 (prevents "stealing" clinical unbundling into amenities)
+    // ============================================================
+    const isReboteTotal = line.bonificacion === 0 && Math.abs(line.copago - line.valorTotal) < 2;
+    const isM2TriggerByFamily = ELIGIBLE_M2_FAMILIES.includes(line.codigoGC);
+    const isM2Trigger = isReboteTotal && isM2TriggerByFamily;
+
+    if (isM2Trigger && matchedItems.length > 0 && t.level !== 'TRACE_NONE') {
+        // Guard 1: if ALL matched items are amenities → let M3 handle
+        if (!matchedItems.every(isAmenityItem)) {
+            // Package detection (from eventModel + deterministic fallback)
+            const hasPab = eventModel.paquetesDetectados.includes('DERECHO_PABELLON')
+                || matchedItems.some(it => {
+                    const sec = normalize(it.section || '');
+                    return sec.includes('pabellon') || sec.includes('farmacia en pabellon') || sec.includes('estupefaciente');
+                });
+            const hasDC = eventModel.paquetesDetectados.includes('DIA_CAMA_INTEGRAL')
+                || matchedItems.some(it => {
+                    const sec = normalize(it.section || '');
+                    return sec.includes('dia cama') || sec.includes('dia_cama') || sec.includes('hospitaliz');
+                });
+
+            // Tiered eligibility
+            const anyStrong = matchedItems.some(isEligibleStrong);
+            const anyWeak = matchedItems.some(isEligibleWeak);
+            const anyBelongStrong = matchedItems.some(hasBelongingStrong);
+
+            // M2 confirmation matrix:
+            // 1. Strong eligible item (surgical specifics) + package exists
+            // 2. Surgical drug (anesthetics) + Pabellon package exists (Pab 7)
+            // 3. Weak eligible item (meds/mats) + explicit section unbundling + package exists
+            const m2Confirmed =
+                (anyStrong && (hasPab || hasDC)) ||
+                (foundSurgicalDrug && hasPab) ||
+                (anyWeak && anyBelongStrong && (hasPab || hasDC));
+
+            if (m2Confirmed) {
+                const detectedPkgs = [hasPab ? 'DERECHO_PABELLON' : null, hasDC ? 'DIA_CAMA_INTEGRAL' : null].filter(Boolean).join(', ');
+                const paqueteOrigen = inferPackageOrigen(matchedItems, eventModel, anchorMap);
+
+                let forensicReason = '';
+                if (foundSurgicalDrug) {
+                    forensicReason = [
+                        '[DEFENSA FORENSE – PABELLÓN 7]',
+                        '1. La presencia de anestésicos/fármacos quirúrgicos constituye huella digital de acto intraoperatorio.',
+                        '2. Circular 43 (SIS): el Derecho de Pabellón incluye gases y anestésicos de cualquier tipo.',
+                        `3. Al facturar bajo agrupador ${line.codigoGC} se extrae artificialmente del paquete quirúrgico.`
+                    ].join('\n');
+                } else if (anyStrong) {
+                    forensicReason = `Dado que el ítem es material/insumo quirúrgico específico y existe ${detectedPkgs} facturado, se infiere desanclaje del paquete obligatorio.`;
+                } else {
+                    forensicReason = `Dado que el ítem (fármaco/material) pertenece a sección clínica de soporte y existe ${detectedPkgs}, se infiere desanclaje del paquete integral.`;
+                }
+
+                motor = 'M2';
+                level = 'FRAGMENTACION_ESTRUCTURAL';
+                rationale = [
+                    '[M2 – DESANCLAJE DE PAQUETE OBLIGATORIO]',
+                    `PAM: ${line.codigoGC} "${line.descripcion}" (copago $${line.copago.toLocaleString()}).`,
+                    `Se reconstruye por ${matchedItems.length} ítems del BILL que suman $${sum.toLocaleString()}.`,
+                    `Paquetes detectados: ${detectedPkgs}. Origen inferido: ${paqueteOrigen}.`,
+                    forensicReason,
+                    '',
+                    'DESGLOSE EVIDENCIA:',
+                    desglose,
+                    '',
+                    'TRAZABILIDAD:',
+                    traceLines
+                ].join('\n');
+                return { level, motor, rationale, economicImpact: impact };
+            }
+        }
+    }
+
+    // --- M3: TRASLADO DE COSTOS NO CLÍNICOS (MECANISMO TGE) ---
+    // AlphaFold M3: Not just "what" was billed, but "how" it was transferred via rebote total
+    // signature: isReboteTotal + (catch-all or generic glosa)
+    const isGenericGlosa = desc.includes("no cubierto") || desc.includes("insumos") || desc.includes("gasto") || desc.includes("otros") || desc.includes("materiales") || desc.includes("no gasto medico");
+    const transferSig = isReboteTotal && (isCatchAll || isGenericGlosa);
+
+    if (transferSig && matchedItems.length > 0) {
+        const amenRatio = amenityCoherenceRatio(matchedItems);
+        const adminCount = matchedItems.filter(it => ADMIN_KEYWORDS.some(k => normalize(it.description).includes(k))).length;
+        const adminRatio = adminCount / matchedItems.length;
+
+        if (!hasClinicalSignal) {
+            let tge: TGEType = 'NONE';
+            let tgeLabel = '';
+
+            if (amenRatio >= 0.6) {
+                tge = 'TGE_C';
+                tgeLabel = 'Confort / Hotelería / Amenities (TGE-C)';
+            } else if (adminRatio >= 0.6) {
+                tge = 'TGE_D';
+                tgeLabel = 'Administrativo / Indefinido (TGE-D)';
+            } else if (amenRatio >= 0.3) {
+                tge = 'TGE_E';
+                tgeLabel = 'Mezcla Camuflada (TGE-E)';
+            } else {
+                tge = 'TGE_A';
+                tgeLabel = 'Bolsón de Rechazo Genérico (TGE-A)';
+            }
+
+            motor = 'M3';
+            level = 'FRAGMENTACION_ESTRUCTURAL';
+            rationale = [
+                `[M3 – TRASLADO DE COSTO NO CLÍNICO]`,
+                `Mecanismo: ${tgeLabel}.`,
+                `Firma: Bonificación $0 y copago total, lo que constituye transferencia íntegra al paciente.`,
+                `El cargo se presenta bajo agrupador/código genérico "${line.codigoGC}", impidiendo identificar causal clínica-arancelaria específica.`,
+                `La reconstrucción evidencia naturaleza del gasto: ${tge === 'TGE_C' ? 'Predominio de confort/amenities' : tge === 'TGE_D' ? 'Gasto administrativos/papelería' : 'Contenido mixto/indeterminado'}.`,
+                `Tipología: ${tge}. Coherencia Amenities: ${(amenRatio * 100).toFixed(0)}%. Admin: ${(adminRatio * 100).toFixed(0)}%.`,
+                '',
+                'DESGLOSE EVIDENCIA:',
+                desglose
+            ].join('\n');
+
+            return { level, motor, rationale, economicImpact: impact, tge };
+        }
+    }
+    // --- M4: DECLASIFICACIÓN DE DOMINIO DEL EVENTO (ALPHAFOLD M4) ---
+    // PRIORITY: Must run BEFORE the isHardAnchor early return because M4 fires even
+    // when the line has a perfect 1:1 anchor match — the fraud is in the DOMAIN, not the amount.
+    const isHospEvent = eventModel.paquetesDetectados.includes('DERECHO_PABELLON') || eventModel.paquetesDetectados.includes('DIA_CAMA_INTEGRAL');
+
+    // Fix #1: Domain-based ambulatory detection (not keyword-based)
+    const billedDomain = mapGCToDomain(line.codigoGC, line.descripcion);
+    const AMBULATORY_DOMAINS: ContractDomain[] = ['CONSULTA', 'EXAMENES', 'KINESIOLOGIA', 'TRASLADOS', 'PROTESIS_ORTESIS'];
+    const isSuspectAmbulatory = AMBULATORY_DOMAINS.includes(billedDomain);
+
+    if (isHospEvent && isSuspectAmbulatory && impact > (contractCheck.toleranceCLP || 1000)) {
+        const billedCheck = contractCheck;
+
+        // Fix #2: Try HONORARIOS first; if not in contract, fallback to HOSPITALIZACION
+        let hospCheck = evaluateContract(line, contract, cfg, 'HONORARIOS');
+        if (hospCheck.state === 'NO_VERIFICABLE_POR_CONTRATO') {
+            hospCheck = evaluateContract(line, contract, cfg, 'HOSPITALIZACION');
+        }
+
+        if (hospCheck.state !== 'NO_VERIFICABLE_POR_CONTRATO') {
+            const billedPct = billedCheck.expectedBonifPct ?? 0;
+            const hospPct = hospCheck.expectedBonifPct ?? 0;
+            const deltaCopago = (billedCheck.expectedCopago ?? impact) - (hospCheck.expectedCopago ?? 0);
+
+            if (hospPct > billedPct && deltaCopago > 0) {
+                const hospDomainUsed = hospCheck.ruleRef?.includes('HOSPITALIZACION') ? 'HOSPITALIZACION' : 'HONORARIOS';
+                motor = 'M4';
+                level = 'DISCUSION_TECNICA';
+                rationale = [
+                    `[M4 – DECLASIFICACIÓN DE DOMINIO DEL EVENTO]`,
+                    `Contexto: se detecta evento hospitalario vigente (paquetes quirúrgicos/día cama).`,
+                    `Hallazgo: la prestación "${line.descripcion}" (dominio: ${billedDomain}) se imputa fuera del episodio hospitalario, reduciendo la cobertura.`,
+                    `Análisis Comparativo por Mecanismo:`,
+                    `- Cobertura Actual (${billedDomain}): ${billedPct}% (Copago: $${line.copago.toLocaleString()})`,
+                    `- Cobertura Hospitalaria (${hospDomainUsed}): ${hospPct}% (Copago esperado: $${(hospCheck.expectedCopago ?? 0).toLocaleString()})`,
+                    `Impacto: Exceso de $${deltaCopago.toLocaleString()} por cambio artificial de dominio dentro de episodio único.`,
+                    `Se solicita reliquidación bajo reglas de ${hospDomainUsed.toLowerCase()}.`
+                ].join('\n');
+
+                return { level, motor, rationale, economicImpact: Math.min(impact, deltaCopago) };
+            }
+        }
+    }
+
+    // If hard anchor and perfect sum, and NOT surgical/unbundling, it's correct
+    if (isHardAnchor && delta < 2) return { level, motor, rationale, economicImpact: 0 };
+
+    // --- Fallback M3 for generic opacidad (if not CatchAll) ---
+    if (matchedItems.length > 0 && (isGeneric || delta < 100)) {
+        motor = 'M3';
+        level = 'FRAGMENTACION_ESTRUCTURAL';
+        rationale = `Opacidad Liquidatoria (M3). Se identifica desglose para el monto $${line.valorTotal.toLocaleString()} con evidencia de traslado de costos no clínicos o falta de transparencia en agrupador genérico.
+
+DESGLOSE EVIDENCIA:
+${desglose}`;
+        return { level, motor, rationale, economicImpact: impact };
+    }
+
+    // --- M5: Infra-bonificación Contractual ---
+    if (contractCheck.state === 'INFRA_BONIFICACION' && contractCheck.deltaCopago > 0) {
+        motor = 'M5';
+        level = 'INFRA_BONIFICACION';
+        const pct = contractCheck.expectedBonifPct ?? '?';
+        rationale = [
+            `VALIDACIÓN CONTRACTUAL (M5):`,
+            `Contrato: ${contractCheck.ruleRef || 'regla encontrada'}`,
+            `Valor prestación: $${line.valorTotal.toLocaleString()}`,
+            `Bonificación esperada (${pct}%): $${(contractCheck.expectedBonif ?? 0).toLocaleString()}`,
+            `Copago esperado: $${(contractCheck.expectedCopago ?? 0).toLocaleString()}`,
+            `Copago real: $${line.copago.toLocaleString()}`,
+            `EXCESO: $${contractCheck.deltaCopago.toLocaleString()} (tolerancia $${(contractCheck.toleranceCLP ?? 0).toLocaleString()})`,
+            contractCheck.ruleMatchedBy === 'FALLBACK'
+                ? `⚠ Modalidad no determinada — se usó cobertura mínima (peor caso para paciente) como referencia conservadora.`
+                : '',
+            contractCheck.topeState === 'TOPE_NO_VERIFICABLE'
+                ? `⚠ El contrato indica tope en la unidad correspondiente, pero el valor no fue extraído del documento.`
+                : ''
+        ].filter(Boolean).join('\n');
+        return { level, motor, rationale, economicImpact: contractCheck.deltaCopago };
+    }
+
+    // --- M5-T: Tope Excedido ---
+    if (contractCheck.state === 'TOPE_EXCEDIDO') {
+        motor = 'M5';
         level = 'DISCUSION_TECNICA';
-        rationale = `Item con cobertura contractual posible (${contractCheck.notes}) pero bonificado en $0 sin causal de exclusión expresa.`;
+        rationale = [
+            `TOPE CONTRACTUAL POSIBLEMENTE EXCEDIDO (M5):`,
+            `Contrato: ${contractCheck.ruleRef || 'regla encontrada'}`,
+            `Valor prestación: $${line.valorTotal.toLocaleString()}`,
+            `Tope: $${(contractCheck.topeCLP ?? 0).toLocaleString()}`,
+            `⚠ El monto de la prestación supera el tope contractual. Solicitar cálculo oficial al prestador.`
+        ].join('\n');
         return { level, motor, rationale, economicImpact: impact };
     }
 
@@ -1871,14 +2332,20 @@ function aggregate(rows: PamAuditRow[], cfg: any) {
     const m2Count = findings.filter(r => r.fragmentacion.motor === 'M2').length;
     const m3Copago = findings.filter(r => r.fragmentacion.motor === 'M3').reduce((s, r) => s + r.montoCopago, 0);
 
-    const isSystemic = (m1Count >= 3 || m2Count >= 5 || (totalCopagoAnalizado > 0 && (m3Copago / totalCopagoAnalizado) >= cfg.minImpactoM3Systemic));
+    // M5: Contract validation stats
+    const m5Findings = findings.filter(r => r.fragmentacion.motor === 'M5');
+    const m5Count = m5Findings.length;
+    const m5ExcessCopago = m5Findings.reduce((s, r) => s + (r.contractCheck.deltaCopago ?? 0), 0);
+    const m5OverchargePct = totalCopagoAnalizado > 0 ? m5ExcessCopago / totalCopagoAnalizado : 0;
+
+    const isSystemic = (m1Count >= 3 || m2Count >= 5 || m5Count >= 3 || (totalCopagoAnalizado > 0 && (m3Copago / totalCopagoAnalizado) >= cfg.minImpactoM3Systemic));
     const maxIOP = Math.max(...rows.map(r => r.opacidad.iopScore), 0);
 
     return {
         totalCopagoAnalizado,
         totalImpactoFragmentacion,
         opacidadGlobal: { applies: maxIOP >= cfg.opacidadThresholdIOP, maxIOP },
-        patternSystemic: { m1Count, m2Count, m3CopagoPct: totalCopagoAnalizado ? m3Copago / totalCopagoAnalizado : 0, isSystemic }
+        patternSystemic: { m1Count, m2Count, m3CopagoPct: totalCopagoAnalizado ? m3Copago / totalCopagoAnalizado : 0, m5Count, m5ExcessCopago, m5OverchargePct, isSystemic }
     };
 }
 
@@ -1905,7 +2372,7 @@ ISAPRE: ${metadata.isapre || 'N/A'} | PLAN: ${metadata.plan || 'N/A'}
 FECHA: ${metadata.financialDate || 'N/A'}
 ` : '';
 
-    return `INFORME FORENSE M10 (v1.4 - Integridad & Opacidad)
+    return `INFORME FORENSE M11 (v2.0 - Integridad, Opacidad & Validación Contractual)
 --------------------------------------------------${header}
 EVENTO DETECTADO: ${event.actoPrincipal}
 PAQUETES CLÍNICOS: ${event.paquetesDetectados.join(', ') || 'Ninguno'}
@@ -1914,12 +2381,17 @@ RESUMEN EJECUTIVO:
 - Total Copago Analizado: $${summary.totalCopagoAnalizado.toLocaleString()}
 - Impacto Hallazgos: $${summary.totalImpactoFragmentacion.toLocaleString()}
 - Estado Opacidad: ${summary.opacidadGlobal.applies ? `CRÍTICO (IOP MAX ${summary.opacidadGlobal.maxIOP})` : 'Trazable'}
-- Patrón Sistémico: ${summary.patternSystemic.isSystemic ? 'SI (Mecanismo Repetitivo)' : 'No detectado'}
+- Patrón Sistémico: ${summary.patternSystemic.isSystemic ? 'SI (Mecanismo Repetitivo)' : 'No detectado'}${summary.patternSystemic.m5Count > 0 ? `
+- VALIDACIÓN CONTRACTUAL (M5): ${summary.patternSystemic.m5Count} hallazgos | Exceso total: $${summary.patternSystemic.m5ExcessCopago.toLocaleString()} (${(summary.patternSystemic.m5OverchargePct * 100).toFixed(1)}% del copago analizado)` : ''}
 
 DETALLE DE HALLAZGOS RELEVANTES:
 ${findings.map(f => `
 > [${f.fragmentacion.motor}] ${f.codigoGC} - ${f.descripcion}
   Copago Real: $${f.montoCopago.toLocaleString()}
+  ${f.contractCheck.state === 'INFRA_BONIFICACION' ? `  Contrato: ${f.contractCheck.ruleRef || 'N/A'}
+  Bonif Esperada (${f.contractCheck.expectedBonifPct}%): $${(f.contractCheck.expectedBonif ?? 0).toLocaleString()}
+  Copago Esperado: $${(f.contractCheck.expectedCopago ?? 0).toLocaleString()}
+  EXCESO: $${(f.contractCheck.deltaCopago ?? 0).toLocaleString()}` : ''}
   Fundamento: ${f.fragmentacion.rationale}
   ${f.opacidad.applies ? `⚠️ OPACIDAD DETECTADA (IOP ${f.opacidad.iopScore}):\n  ` + f.opacidad.breakdown.map((b: any) => `  - ${b.label} (+${b.points})`).join('\n') : ''}
 `).join('\n')}
@@ -1928,31 +2400,65 @@ CONCLUSIÓN:
 ${summary.opacidadGlobal.applies
             ? "La cuenta presenta Opacidad Liquidatoria Mayor (IOP > 40). Se exige desglose detallado bajo sanción de tener por no escritas las cláusulas oscuras (Contra Proferentem)."
             : "Cuenta auditable con hallazgos específicos de fragmentación."}
+${summary.patternSystemic.m5Count > 0
+            ? `\nVALIDACIÓN CONTRACTUAL: Se detectaron ${summary.patternSystemic.m5Count} ítems donde el copago cobrado excede el copago esperado según contrato, por un total de $${summary.patternSystemic.m5ExcessCopago.toLocaleString()}. Se solicita reliquidación conforme a los términos pactados.`
+            : ''}
 `;
 }
 
 function buildComplaintText(rows: PamAuditRow[], cfg: any): string {
     const opacos = rows.filter(r => r.opacidad.applies);
-    if (opacos.length === 0) return "Sin hallazgos de opacidad crítica.";
+    const m5s = rows.filter(r => r.fragmentacion.motor === 'M5');
 
-    return `SEÑORES ISAPRE / PRESTADOR:
+    if (opacos.length === 0 && m5s.length === 0) return "Sin hallazgos de opacidad crítica ni infra-bonificación contractual.";
 
-En relación a la liquidación (PAM) analizada, se impugnan los siguientes cobros por vulnerar el deber de información (Opacidad Liquidatoria detectada, IOP > ${cfg.opacidadThresholdIOP}):
+    let text = `SEÑORES ISAPRE / PRESTADOR:\n\n`;
+
+    // Section 1: Opacidad (if any)
+    if (opacos.length > 0) {
+        text += `I. OPACIDAD LIQUIDATORIA (IOP > ${cfg.opacidadThresholdIOP}):
 
 ${opacos.map(r => `- Ítem ${r.codigoGC} "${r.descripcion}" | Copago: $${r.montoCopago} | IOP: ${r.opacidad.iopScore}`).join('\n')}
 
-FUNDAMENTOS DE RECLAMO:
-1. "Agrupamiento Ciego": Los ítems señalados consolidan montos sin desglose de sub-ítem verificable, impidiendo el ejercicio del derecho a defensa del afiliado.
-2. "Copago sin Causa": Se cobran montos significativos (Total: $${opacos.reduce((s, r) => s + r.montoCopago, 0).toLocaleString()}) bajo glosas genéricas ("No Cubierto", "Insumos") sin acreditar la prestación subyacente.
-3. Principio de Literalidad e Integridad: El contrato de salud es de adhesión; toda oscuridad debe interpretarse a favor del afiliado (Art. 1566 Código Civil).
+FUNDAMENTOS:
+1. "Agrupamiento Ciego": Los ítems señalados consolidan montos sin desglose verificable.
+2. "Copago sin Causa": Se cobran montos significativos (Total: $${opacos.reduce((s, r) => s + r.montoCopago, 0).toLocaleString()}) bajo glosas genéricas sin acreditar la prestación subyacente.
+3. Principio de Literalidad: El contrato de salud es de adhesión; toda oscuridad debe interpretarse a favor del afiliado (Art. 1566 Código Civil).
 
-PETICIÓN:
-Sírvase anular el cobro de los ítems opacos o bien refacturar con el desglose unitario completo que permita su trazabilidad con la Ficha Clínica.`;
+`;
+    }
+
+    // Section 2: Infra-bonificación contractual (M5)
+    if (m5s.length > 0) {
+        const totalExcess = m5s.reduce((s, r) => s + (r.contractCheck.deltaCopago ?? 0), 0);
+        text += `${opacos.length > 0 ? 'II' : 'I'}. INFRA-BONIFICACIÓN CONTRACTUAL (M5):
+
+Según contrato, los siguientes ítems fueron bonificados por debajo de la cobertura pactada:
+
+${m5s.map(r => `- ${r.codigoGC} "${r.descripcion}"
+  Valor: $${r.montoCopago.toLocaleString()} | Contrato: ${r.contractCheck.ruleRef || 'N/A'}
+  Copago esperado: $${(r.contractCheck.expectedCopago ?? 0).toLocaleString()} | Copago real: $${r.montoCopago.toLocaleString()}
+  Exceso: $${(r.contractCheck.deltaCopago ?? 0).toLocaleString()}`).join('\n\n')}
+
+TOTAL EXCESO: $${totalExcess.toLocaleString()}
+
+FUNDAMENTOS:
+1. Cobertura Pactada: El contrato de salud establece los porcentajes de cobertura indicados. La bonificación aplicada es inferior a la contratada.
+2. Obligación de Cumplimiento: La ISAPRE está obligada a otorgar las coberturas en los términos pactados (Art. 189 DFL N°1/2005).
+3. Principio de Buena Fe Contractual: Las cláusulas del contrato deben ejecutarse conforme su tenor literal.
+
+`;
+    }
+
+    text += `PETICIÓN:
+Sírvase reliquidar la cuenta conforme a las coberturas y topes del contrato vigente, restituyendo al afiliado los montos cobrados en exceso${opacos.length > 0 ? ', y proporcionar el desglose unitario completo de los ítems opacos' : ''}.`;
+
+    return text;
 }
 
 function createErrorOutput(msg: string, cfg: any): SkillOutput {
     return {
-        summary: { totalCopagoAnalizado: 0, totalImpactoFragmentacion: 0, opacidadGlobal: { applies: false, maxIOP: 0 }, patternSystemic: { m1Count: 0, m2Count: 0, m3CopagoPct: 0, isSystemic: false } },
+        summary: { totalCopagoAnalizado: 0, totalImpactoFragmentacion: 0, opacidadGlobal: { applies: false, maxIOP: 0 }, patternSystemic: { m1Count: 0, m2Count: 0, m3CopagoPct: 0, m5Count: 0, m5ExcessCopago: 0, m5OverchargePct: 0, isSystemic: false } },
         eventModel: { notes: msg, paquetesDetectados: [] },
         matrix: [],
         pamRows: [],

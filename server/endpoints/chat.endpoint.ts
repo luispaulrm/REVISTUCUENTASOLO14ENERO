@@ -10,6 +10,23 @@ export const handleChat = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Message is required' });
         }
 
+        // 1. Unpack Raw Canonical Contract if exists
+        let contractSource = context.rawContract || {};
+        if (contractSource.content && typeof contractSource.content === 'string') {
+            try { contractSource = JSON.parse(contractSource.content); } catch { }
+        } else if (contractSource.data) {
+            contractSource = contractSource.data;
+        }
+
+        const rawJsonSummary = contractSource.coberturas ? `
+        CONTENIDO BRUTO DEL JSON CANÓNICO (COBERTURAS/TOPES):
+        ${JSON.stringify({
+            coberturas: contractSource.coberturas?.slice(0, 15),
+            topes: contractSource.topes?.slice(0, 10),
+            reglas: contractSource.reglas_aplicacion?.slice(0, 5)
+        }, null, 2)}
+        ` : '';
+
         // Construct a concise context summary
         const auditSummary = context.result ? `
         RESULTADOS AUDITORÍA M11:
@@ -21,29 +38,34 @@ export const handleChat = async (req: Request, res: Response) => {
         HALLAZGOS PRINCIPALES (${context.result.matrix.length}):
         ${context.result.matrix.slice(0, 5).map((m: any) => `- ${m.itemLabel}: ${m.classification} (${m.fundamento})`).join('\n')}
         ${context.result.matrix.length > 5 ? '... y más hallazgos.' : ''}
+        ${rawJsonSummary}
         ` : 'No hay resultados de auditoría aún.';
 
-        const sourceSummary = `
-        DATOS FUENTE:
-        - Contrato: ${context.contract?.rules?.length || 0} reglas cargadas.
-        - PAM: ${context.pam?.folios?.length || 0} folios.
-        - Cuenta: ${context.bill?.items?.length || 0} ítems.
-        `;
+        const contractRules = context.contract?.rules || [];
+        const rulesDetail = contractRules.length > 0
+            ? contractRules.map((r: any) =>
+                `- DOMINIO: ${r.domain} | COBERTURA: ${r.coberturaPct ?? '0'}% | TOPE: ${r.tope?.kind || 'Sin tope'} ${r.tope?.value || ''} | GLOSA: "${r.textLiteral || ''}"`
+            ).join('\n')
+            : 'No se detectaron reglas paramétricas en el contrato.';
 
         const systemPrompt = `
-        Eres el Asistente Forense M11, un auditor médico experto en detección de fraude y errores de facturación.
-        Tu objetivo es ayudar al auditor humano a entender los hallazgos del motor M11 y explorar los datos del caso.
+        Eres el Asistente Forense M11. Tu misión es analizar el caso cruzando Contrato, PAM y Cuenta.
         
-        CONTEXTO DEL CASO:
-        ${sourceSummary}
+        DEFINICIÓN TÉCNICA DEL PLAN (CONTRATO):
+        ${rulesDetail}
+        
+        HISTORIAL DE CARGA:
+        - Reglas contractuales mapeadas: ${contractRules.length}
+        - Folios PAM: ${context.pam?.folios?.length || 0}
+        - Ítems Cuenta: ${context.bill?.items?.length || 0}
 
         ${auditSummary}
 
-        INSTRUCCIONES:
-        1. Responde de manera profesional, técnica pero accesible.
-        2. Basa tus respuestas ESTRICTAMENTE en los datos proporcionados. Si no sabes algo, dilo.
-        3. Si el usuario pregunta por un ítem específico, búscalo en el contexto (aunque aquí solo tienes un resumen, asume que puedes explicar los hallazgos generales).
-        4. Sé conciso.
+        INSTRUCCIONES CRÍTICAS:
+        1. Si el usuario pregunta por topes o coberturas, utiliza la sección "DEFINICIÓN TÉCNICA DEL PLAN" de arriba. 
+        2. Responde en español de forma técnica y auditable.
+        3. Si una regla tiene TOPE, menciónalo explícitamente.
+        4. No inventes datos. Si el contrato no especifica un tope para un dominio, di que no aparece registrado.
         `;
 
         // Convert history to Gemini format
