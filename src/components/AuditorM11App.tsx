@@ -53,14 +53,17 @@ export default function AuditorM11App() {
 
                 const input = adaptToM11Input(rawContract, rawPam, rawBill);
 
-                // DIAGNOSTIC START
-                if (input.contract.rules.length === 0 || input.pam.folios.length === 0 || input.bill.items.length === 0) {
+                // DIAGNOSTIC: warn if rules=0 but there were coberturas (mapping bug vs missing contract)
+                const rawCoberturasCount = Array.isArray(rawContract.coberturas) ? rawContract.coberturas.length
+                    : Array.isArray(rawContract.rules) ? rawContract.rules.length
+                        : 0;
+
+                if (input.pam.folios.length === 0 || input.bill.items.length === 0) {
                     const missing = [];
-                    if (input.contract.rules.length === 0) missing.push("Contrato (Rules=0)");
                     if (input.pam.folios.length === 0) missing.push("PAM (Folios=0)");
                     if (input.bill.items.length === 0) missing.push("Cuenta (Items=0)");
 
-                    const debugMsg = `SC-1 ERROR DIAGNÓSTICO:\n${missing.join(', ')}\n\nKeys RAW:\nContract: ${Object.keys(rawContract).join(',')}\nPAM: ${Object.keys(rawPam).join(',')}\nBill: ${Object.keys(rawBill).join(',')}`;
+                    const debugMsg = `SC-1 ERROR DIAGNÓSTICO:\n${missing.join(', ')}\n\nKeys RAW:\nPAM: ${Object.keys(rawPam).join(',')}\nBill: ${Object.keys(rawBill).join(',')}`;
 
                     setAuditResult({
                         summary: { totalCopagoAnalizado: 0, totalImpactoFragmentacion: 0, opacidadGlobal: { applies: false, maxIOP: 0 }, patternSystemic: { m1Count: 0, m2Count: 0, m3CopagoPct: 0, isSystemic: false } },
@@ -73,7 +76,15 @@ export default function AuditorM11App() {
                     setIsProcessing(false);
                     return;
                 }
-                // DIAGNOSTIC END
+
+                // Warn in console if rules are 0 but contract had coberturas (domain mapping failure)
+                if (input.contract.rules.length === 0 && rawCoberturasCount > 0) {
+                    console.warn(`[M11 ADAPTER] ⚠️ Contrato tiene ${rawCoberturasCount} coberturas pero se mapearon 0 reglas. Revisar mapCategoryToDomain.`);
+                } else if (input.contract.rules.length === 0) {
+                    console.warn(`[M11 ADAPTER] Sin contrato canonizado — auditoría por inferencia estructural.`);
+                } else {
+                    console.log(`[M11 ADAPTER] ✅ ${input.contract.rules.length} reglas contractuales cargadas.`);
+                }
 
                 const result = runSkill(input);
                 setAuditResult(result);
@@ -630,30 +641,63 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     let rules: CanonicalContractRule[] = [];
     let sourceArray: any[] = [];
 
+    // Fallback: If canonical_contract_result is empty, try legacy contract_audit_result
+    if (!rawContract || Object.keys(rawContract).length === 0) {
+        try {
+            const legacy = localStorage.getItem('contract_audit_result');
+            if (legacy) rawContract = JSON.parse(legacy);
+        } catch (e) { console.error("Error reading legacy contract", e); }
+    }
+
     // Try to find the array of rules/coverages
+    // v2.3: Combine multiple possible sources within the canonical JSON
     if (Array.isArray(rawContract)) {
         sourceArray = rawContract;
     } else if (rawContract.rules && Array.isArray(rawContract.rules)) {
         sourceArray = rawContract.rules;
-    } else if (rawContract.coberturas && Array.isArray(rawContract.coberturas)) {
-        sourceArray = rawContract.coberturas;
-    } else if (rawContract.data && Array.isArray(rawContract.data.coberturas)) {
-        sourceArray = rawContract.data.coberturas;
-    } else if (rawContract.content && JSON.parse(rawContract.content).rules) {
-        // Handle wrapped content string
-        try { sourceArray = JSON.parse(rawContract.content).rules; } catch { }
-    } else if (rawContract.root && rawContract.root.children) {
-        // Handle Mental Model structure (Canonizer output)
+    } else {
+        // Collect from all standard canonical buckets
+        if (rawContract.coberturas && Array.isArray(rawContract.coberturas)) {
+            sourceArray = [...sourceArray, ...rawContract.coberturas];
+        }
+        if (rawContract.topes && Array.isArray(rawContract.topes)) {
+            // Map topes to rules for conceptually broader coverage
+            const topeRules = rawContract.topes.map((t: any) => ({
+                ...t,
+                item: t.item || t.descripcion_textual || "Tope",
+                categoria: t.categoria || t.ambito || "TOPE"
+            }));
+            sourceArray = [...sourceArray, ...topeRules];
+        }
+        if (rawContract.reglas_aplicacion && Array.isArray(rawContract.reglas_aplicacion)) {
+            const extraRules = rawContract.reglas_aplicacion.map((r: any) => ({
+                item: r.condicion || "Regla",
+                descripcion_textual: r.efecto,
+                categoria: "REGLA_GENERAL"
+            }));
+            sourceArray = [...sourceArray, ...extraRules];
+        }
+        if (rawContract.data && Array.isArray(rawContract.data.coberturas)) {
+            sourceArray = [...sourceArray, ...rawContract.data.coberturas];
+        }
+    }
+
+    // Final Fallback: Mental Model (Recursive)
+    if (sourceArray.length === 0 && rawContract.root && rawContract.root.children) {
         const traverse = (nodes: any[]): any[] => {
             let found: any[] = [];
             for (const node of nodes) {
-                if (node.cobertura && node.cobertura.includes('%')) {
+                // More lenient criteria for mental model nodes
+                const hasCobertura = node.cobertura && (node.cobertura.includes('%') || !isNaN(parseInt(node.cobertura)));
+                const hasTopes = node.detalle && (node.detalle.includes('UF') || node.detalle.includes('UTM') || node.detalle.includes('$'));
+
+                if (hasCobertura || hasTopes) {
                     found.push({
                         item: node.titulo,
-                        descripcion_textual: node.titulo,
-                        porcentaje: parseInt(node.cobertura.replace('%', '')) || 100,
+                        descripcion_textual: node.titulo + " " + (node.detalle || ""),
+                        porcentaje: parseInt(node.cobertura?.replace('%', '')) || 100,
                         tope: node.detalle,
-                        categoria: 'UNKNOWN' // Will be mapped by domain
+                        categoria: node.categoria || 'UNKNOWN'
                     });
                 }
                 if (node.children) found = found.concat(traverse(node.children));
@@ -663,17 +707,29 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         sourceArray = traverse(rawContract.root.children);
     }
 
-    rules = sourceArray.map((c: any) => ({
-        id: c.item || c.id || 'rule_' + Math.random().toString(36).substr(2, 9),
-        domain: mapCategoryToDomain(c.categoria || c.seccion || c.ambito || '', c.descripcion_textual || c.item || ''),
-        coberturaPct: c.porcentaje || (c.modalidades?.[0]?.porcentaje) || null,
-        tope: {
-            kind: c.tope ? 'VARIABLE' : 'SIN_TOPE_EXPRESO',
-            value: null, // Parsing '2.5 UF' etc can be added if needed, for now mainly existence check
-            currency: c.tope,
-        },
-        textLiteral: `${c.item || ''} ${c.descripcion_textual || ''}`.trim()
-    }));
+    rules = sourceArray.map((c: any) => {
+        // Use all available text fields for domain detection
+        const catText = [c.categoria, c.seccion, c.ambito, c.item, c.descripcion_textual].filter(Boolean).join(' ');
+        const domain = mapCategoryToDomain(catText);
+
+        // Parse tope value from strings like '2.5 UF', '50 UTM', '$1.000.000'
+        const topeStr = c.tope || (c.modalidades?.[0]?.tope) || '';
+        const parsedTope = parseTopeValue(topeStr);
+
+        return {
+            id: c.item || c.id || 'rule_' + Math.random().toString(36).substr(2, 9),
+            domain,
+            coberturaPct: c.porcentaje || (c.modalidades?.[0]?.porcentaje) || null,
+            tope: {
+                kind: parsedTope.kind,
+                value: parsedTope.value,
+                currency: topeStr || undefined,
+            },
+            textLiteral: `${c.item || ''} ${c.descripcion_textual || ''}`.trim()
+        };
+    });
+
+    console.log(`[M11 ADAPTER] Contract source: ${sourceArray.length} coberturas → ${rules.length} rules. Domains: ${[...new Set(rules.map(r => r.domain))].join(', ')}`);
 
     // 2. Adapt PAM
     let pamFolios: any[] = [];
@@ -785,26 +841,77 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     };
 }
 
-function mapCategoryToDomain(cat: string, desc: string = ''): ContractDomain {
-    const lowerCat = (cat || '').toLowerCase();
-    const lowerDesc = (desc || '').toLowerCase();
-    const combined = `${lowerCat} ${lowerDesc}`;
+/** Normalize a string: lowercase, remove accents, remove non-alphanumeric */
+function normalizeStr(s: string): string {
+    return (s || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // strip accent marks
+        .replace(/[^a-z0-9 ]/g, ' ')      // remove punctuation
+        .replace(/\s+/g, ' ')             // collapse spaces
+        .trim();
+}
 
-    if (lowerCat.includes('hospital') || lowerCat.includes('dias cama')) return 'HOSPITALIZACION';
-    if (lowerCat.includes('pabellon') || lowerCat.includes('quirofano')) return 'PABELLON';
-    if (lowerCat.includes('honorario') || lowerCat.includes('medico')) return 'HONORARIOS';
-    if (lowerCat.includes('medicamento')) return 'MEDICAMENTOS_HOSP';
-    if (lowerCat.includes('material')) return 'MATERIALES_CLINICOS';
-    if (lowerCat.includes('examen') || lowerCat.includes('laboratorio') || lowerCat.includes('imagen')) return 'EXAMENES';
-    if (lowerCat.includes('protesis') || lowerCat.includes('ortesis')) return 'PROTESIS_ORTESIS';
-    if (lowerCat.includes('consulta')) return 'CONSULTA';
-    if (lowerCat.includes('kinesi')) return 'KINESIOLOGIA';
-    if (lowerCat.includes('traslado')) return 'TRASLADOS';
+/**
+ * Map canonical contract text to M11 ContractDomain.
+ * Accepts any combination of category/item/description text.
+ * Uses accent-normalized matching to handle real PDF-extracted strings.
+ */
+function mapCategoryToDomain(text: string): ContractDomain {
+    const n = normalizeStr(text);
 
-    // Heuristics if Category is generic
-    if (combined.includes('dia cama') || combined.includes('habitacion')) return 'HOSPITALIZACION';
-    if (combined.includes('pabellon') || combined.includes('quirofano')) return 'PABELLON';
-    if (combined.includes('cirujano') || combined.includes('anestesia')) return 'HONORARIOS';
+    // HOSPITALIZACION: días cama, UTI, UCI, UPC, internación, hospitalización
+    if (/hospitali|dia(s)? cama|dia cama|uti|uci|upc|unidad (de )?cuidado|internac/.test(n)) return 'HOSPITALIZACION';
+
+    // PABELLON: pabellón, quirófano, cirugía, acto quirúrgico, sala de operaciones
+    if (/pabellon|quirofano|cirugi|acto quirurgico|sala de operacion|sala operacion|anestesi/.test(n)) return 'PABELLON';
+
+    // HONORARIOS: honorarios médicos, médicos, cirujano, anestesiólogo, especialista
+    if (/honorario|medico|cirujano|anaestesiol|anestesiol|especialista|profesional medic/.test(n)) return 'HONORARIOS';
+
+    // MEDICAMENTOS: medicamentos, fármacos, farmacia, medicación, drogas
+    if (/medicament|farmac|medicacion|droga/.test(n)) return 'MEDICAMENTOS_HOSP';
+
+    // MATERIALES: materiales, insumos, material clínico, dispositivo médico
+    if (/material|insumo|implan|dispositivo medic/.test(n)) return 'MATERIALES_CLINICOS';
+
+    // PROTESIS / ORTESIS
+    if (/protesis|ortesis|protesis|implante ortopedic/.test(n)) return 'PROTESIS_ORTESIS';
+
+    // EXAMENES: exámenes, laboratorio, imágenes, radiología, ecografía, scanner, TAC
+    if (/examen|laborat|imagen|radiolog|ecograf|scanner|tomograf|resonan/.test(n)) return 'EXAMENES';
+
+    // CONSULTA: consulta, policlínico, atención ambulatoria
+    if (/consulta|policlinic|ambulatori/.test(n)) return 'CONSULTA';
+
+    // KINESIOLOGIA
+    if (/kinesi|rehabilit|fisioterapia/.test(n)) return 'KINESIOLOGIA';
+
+    // TRASLADOS
+    if (/traslado|ambulancia|transporte medic/.test(n)) return 'TRASLADOS';
 
     return 'OTROS';
+}
+
+/** Parse tope strings like '2.5 UF', '50 UTM', '$1.000.000' into a numeric value */
+function parseTopeValue(topeStr: string): { kind: "UF" | "UTM" | "CLP" | "VAM" | "AC2" | "SIN_TOPE_EXPRESO" | "VARIABLE"; value: number | null } {
+    if (!topeStr) return { kind: 'SIN_TOPE_EXPRESO', value: null };
+    const n = topeStr.trim().toUpperCase();
+
+    // Patterns: '2.5 UF', '50 UTM', '13.26 VAM'
+    const unitMatch = n.match(/([\d.,]+)\s*(UF|UTM|VAM|USD)/);
+    if (unitMatch) {
+        const val = parseFloat(unitMatch[1].replace(/\./g, '').replace(',', '.'));
+        const k = unitMatch[2] as "UF" | "UTM" | "VAM";
+        return { kind: k, value: isNaN(val) ? null : val };
+    }
+
+    // Patterns: '$1.000.000', '1000000'
+    const moneyMatch = n.match(/\$?([\d.,]+)/);
+    if (moneyMatch) {
+        const val = parseInt(moneyMatch[1].replace(/[.,]/g, ''), 10);
+        return { kind: 'CLP', value: isNaN(val) ? null : val };
+    }
+
+    return { kind: 'VARIABLE', value: null };
 }

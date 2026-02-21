@@ -52,7 +52,7 @@ export interface CanonicalContractRule {
     id: string;
     domain: ContractDomain;
     coberturaPct?: number | null;
-    tope?: { kind: "UF" | "VAM" | "AC2" | "SIN_TOPE_EXPRESO" | "VARIABLE"; value?: number | null; currency?: string; };
+    tope?: { kind: "UF" | "UTM" | "CLP" | "VAM" | "AC2" | "SIN_TOPE_EXPRESO" | "VARIABLE"; value?: number | null; currency?: string; };
     textLiteral: string;
 }
 
