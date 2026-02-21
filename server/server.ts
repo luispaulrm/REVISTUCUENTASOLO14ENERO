@@ -284,9 +284,9 @@ app.post('/api/extract', async (req, res) => {
 
                     const waitingInterval = setInterval(() => {
                         forensicLog(`⏳ Esperando respuesta de ${modelName}... (Procesando)`);
-                    }, 10000);
+                    }, 5000);
 
-                    const timeoutMs = 90000;
+                    const timeoutMs = 30000;
                     const streamPromise = model.generateContentStream([
                         { text: CSV_PROMPT },
                         {
@@ -319,7 +319,7 @@ app.post('/api/extract', async (req, res) => {
                     const isTimeout = errStr.includes('Timeout');
 
                     if (isTimeout) {
-                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 90 segundos.`);
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 30 segundos.`);
                         lastError = attemptError;
                         continue;
                     }
