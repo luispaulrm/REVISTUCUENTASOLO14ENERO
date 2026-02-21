@@ -29,16 +29,16 @@
   "patterns": [],
   "trainingExamples": [
     {
-      "id": "1771683474356",
+      "id": "1771701238977",
       "tags": [
-        "Banmédica - Plan Lite ",
+        "ISAPRE - Plan Complementario de Salud",
         "ISAPRE"
       ],
       "originalTextSnippet": "FULL_CONTRACT_CONTEXT_AUTOMATIC_LEARNING",
       "correctedJson": {
         "metadata": {
           "origen": "contrato_pdf",
-          "fuente": "Banmédica - Plan Lite ",
+          "fuente": "ISAPRE - Plan Complementario de Salud",
           "vigencia": "Vigencia no especificada",
           "tipo_contrato": "ISAPRE"
         },
@@ -47,588 +47,332 @@
             "ambito": "desconocido",
             "descripcion_textual": "Día Cama",
             "porcentaje": 100,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama",
-            "porcentaje": 90,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama"
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Día Cama"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Sala Cuna",
+            "descripcion_textual": "Día Cama UTI y Coronaria",
             "porcentaje": 100,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Sala Cuna"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Sala Cuna",
-            "porcentaje": 90,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Sala Cuna"
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Día Cama UTI y Coronaria"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Incubadora",
+            "descripcion_textual": "Día Cama Intermedio",
             "porcentaje": 100,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Incubadora"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Incubadora",
-            "porcentaje": 90,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Incubadora"
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Día Cama Intermedio"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Cuidado Intensivo, Intermedio o Coronario",
+            "descripcion_textual": "Día Cama Sala Cuna",
             "porcentaje": 100,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama Cuidado Intensivo, Intermedio o Coronario"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Cuidado Intensivo, Intermedio o Coronario",
-            "porcentaje": 90,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama Cuidado Intensivo, Intermedio o Coronario"
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Día Cama Sala Cuna"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Transitorio u Observación",
+            "descripcion_textual": "Día Cama Incubadora",
             "porcentaje": 100,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama Transitorio u Observación"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Transitorio u Observación",
-            "porcentaje": 90,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama Transitorio u Observación"
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Día Cama Incubadora"
           },
           {
             "ambito": "desconocido",
             "descripcion_textual": "Exámenes de Laboratorio",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Exámenes de Laboratorio"
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Exámenes de Laboratorio"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Exámenes de Imagenología y Radiología",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Exámenes de Imagenología y Radiología"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Kinesiología, Medicina Física y Rehabilitación",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Kinesiología, Medicina Física y Rehabilitación"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Derecho de Pabellón",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Derecho de Pabellón"
+          },
+          {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Medica.y Mat.Clínicos (Por evento durante la Hospitalización) (***)",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Medica.y Mat.Clínicos (Por evento durante la Hospitalización) (***)"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Día Cama Psiquiatría",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Día Cama Psiquiatría"
+          },
+          {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Psicoterapia y Procedimientos Psiquiatricos y Psicológicos Hospitalarios",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Psicoterapia y Procedimientos Psiquiatricos y Psicológicos Hospitalarios"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Otros Exámenes y Procedimientos",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Otros Exámenes y Procedimientos"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Radioisotopos",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Radioisotopos"
+          },
+          {
+            "ambito": "hospitalario",
+            "descripcion_textual": "Visita Médica Enfermo Hospitalizado",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Visita Médica Enfermo Hospitalizado"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Honorarios Quirúrgicos",
+            "porcentaje": 100,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Honorarios Quirúrgicos"
           },
           {
             "ambito": "desconocido",
             "descripcion_textual": "Exámenes de Laboratorio",
-            "porcentaje": 90,
+            "porcentaje": 100,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Exámenes de Laboratorio"
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Exámenes de Laboratorio"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Imagenología",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Imagenología"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Imagenología",
-            "porcentaje": 90,
+            "descripcion_textual": "Exámenes de Imagenología y Radiología",
+            "porcentaje": 100,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Imagenología"
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Exámenes de Imagenología y Radiología"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Derecho Pabellón",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Derecho Pabellón"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Derecho Pabellón",
-            "porcentaje": 90,
+            "descripcion_textual": "Kinesiología, Medicina Física y Rehabilitación",
+            "porcentaje": 100,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Derecho Pabellón"
+            "fuente_textual": "[p.1] Sección PRESTACIONES HOSPITALARIAS: Kinesiología, Medicina Física y Rehabilitación"
           },
           {
-            "ambito": "desconocido",
-            "descripcion_textual": "Kinesiología, Fisioterapia y Terapia Ocupacional",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Kinesiología, Fisioterapia y Terapia Ocupacional"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Kinesiología, Fisioterapia y Terapia Ocupacional",
-            "porcentaje": 90,
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Traslado Local en Ambulancia",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Kinesiología, Fisioterapia y Terapia Ocupacional"
+            "fuente_textual": "[p.1] Sección OTRAS PRESTACIONES: Traslado Local en Ambulancia"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Procedimientos",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Procedimientos"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Procedimientos",
-            "porcentaje": 90,
+            "descripcion_textual": "Traslado Interurbano con indicación médica",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Procedimientos"
+            "fuente_textual": "[p.2] Sección OTRAS PRESTACIONES: Traslado Interurbano con indicación médica"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Honorarios Médicos Quirúrgicos (1.2)",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Honorarios Médicos Quirúrgicos (1.2)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Honorarios Médicos Quirúrgicos (1.2)",
-            "porcentaje": 90,
+            "descripcion_textual": "Prótesis, Órtesis y Audífonos",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Honorarios Médicos Quirúrgicos (1.2)"
+            "fuente_textual": "[p.2] Sección OTRAS PRESTACIONES: Prótesis, Órtesis y Audífonos"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Medicamentos (1.4) (1.10)",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Medicamentos (1.4) (1.10)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Medicamentos (1.4) (1.10)",
-            "porcentaje": 90,
+            "descripcion_textual": "Marcapaso y Válvula Mitral",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Medicamentos (1.4) (1.10)"
+            "fuente_textual": "[p.2] Sección OTRAS PRESTACIONES: Marcapaso y Válvula Mitral"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Materiales e Insumos Clínicos (1.4) (1.10)",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Materiales e Insumos Clínicos (1.4) (1.10)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Materiales e Insumos Clínicos (1.4) (1.10)",
-            "porcentaje": 90,
+            "descripcion_textual": "Medicamentos e Insumos para el Tto del Cancer (Drogas Antineoplásicas)",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Materiales e Insumos Clínicos (1.4) (1.10)"
+            "fuente_textual": "[p.2] Sección TRATAMIENTOS ONCOLOGICOS: Medicamentos e Insumos para el Tto del Cancer (Drogas Antineoplásicas)"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Quimioterapia (1.6)",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Quimioterapia (1.6)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Quimioterapia (1.6)",
-            "porcentaje": 90,
+            "descripcion_textual": "Quimioterapia Honorarios",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Quimioterapia (1.6)"
+            "fuente_textual": "[p.2] Sección TRATAMIENTOS ONCOLOGICOS: Quimioterapia Honorarios"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Prótesis, Órtesis y Elementos de Osteosíntesis",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Prótesis, Órtesis y Elementos de Osteosíntesis"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Prótesis, Órtesis y Elementos de Osteosíntesis",
-            "porcentaje": 90,
+            "descripcion_textual": "Radioterapia Integral (Incluye insumos)",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Prótesis, Órtesis y Elementos de Osteosíntesis"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Visita por Médico Tratante y Médico Interconsultor",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Visita por Médico Tratante y Médico Interconsultor"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Visita por Médico Tratante y Médico Interconsultor",
-            "porcentaje": 90,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Visita por Médico Tratante y Médico Interconsultor"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Traslados (5.4)",
-            "porcentaje": 90,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Traslados (5.4)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Traslados (5.4)",
-            "porcentaje": 90,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Traslados (5.4)"
+            "fuente_textual": "[p.2] Sección TRATAMIENTOS ONCOLOGICOS: Radioterapia Integral (Incluye insumos)"
           },
           {
             "ambito": "desconocido",
             "descripcion_textual": "Consulta Médica",
             "porcentaje": 80,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Consulta Médica"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta Médica",
-            "porcentaje": 70,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Consulta Médica"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Consulta Médica"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Consulta Médica de Telemedicina en Especialidades (1.14)**",
+            "descripcion_textual": "Consulta Oftalmológica",
             "porcentaje": 80,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Consulta Médica de Telemedicina en Especialidades (1.14)**"
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Consulta Oftalmológica"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Consulta Médica de Telemedicina en Especialidades (1.14)**",
-            "porcentaje": 70,
+            "descripcion_textual": "Visita Médica",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Consulta Médica de Telemedicina en Especialidades (1.14)**"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Visita Médica"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Consulta Psiquiátrica",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Consulta Psiquiátrica"
+          },
+          {
+            "ambito": "desconocido",
+            "descripcion_textual": "Consulta Psicológica",
+            "porcentaje": 80,
+            "red_especifica": "Libre Elección",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Consulta Psicológica"
           },
           {
             "ambito": "desconocido",
             "descripcion_textual": "Exámenes de Laboratorio",
             "porcentaje": 80,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Exámenes de Laboratorio"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Exámenes de Laboratorio",
-            "porcentaje": 70,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Exámenes de Laboratorio"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Exámenes de Laboratorio"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Consulta, Tratamiento Psiquiatría y Psicología (1.7)",
-            "porcentaje": 40,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección PRESTACIONES RESTRINGIDAS: Consulta, Tratamiento Psiquiatría y Psicología (1.7)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta, Tratamiento Psiquiatría y Psicología (1.7)",
-            "porcentaje": 40,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección PRESTACIONES RESTRINGIDAS: Consulta, Tratamiento Psiquiatría y Psicología (1.7)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta de Telemedicina de Psiquiatría (1.7)**",
-            "porcentaje": 40,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección PRESTACIONES RESTRINGIDAS: Consulta de Telemedicina de Psiquiatría (1.7)**"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta de Telemedicina de Psiquiatría (1.7)**",
-            "porcentaje": 40,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección PRESTACIONES RESTRINGIDAS: Consulta de Telemedicina de Psiquiatría (1.7)**"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Rayos X, Ecotomografía",
+            "descripcion_textual": "Exámenes de Imagenología y Radiología",
             "porcentaje": 80,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Rayos X, Ecotomografía"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Rayos X, Ecotomografía",
-            "porcentaje": 70,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Rayos X, Ecotomografía"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Exámenes de Imagenología y Radiología"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "TAC / Scanner",
+            "descripcion_textual": "Otros Exámenes y Procedimientos",
             "porcentaje": 80,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: TAC / Scanner"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "TAC / Scanner",
-            "porcentaje": 70,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: TAC / Scanner"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Otros Exámenes y Procedimientos"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Resonancia Magnética",
+            "descripcion_textual": "Radioisotopos",
             "porcentaje": 80,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Resonancia Magnética"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Resonancia Magnética",
-            "porcentaje": 70,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Resonancia Magnética"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Mamografía, Densitometría",
-            "porcentaje": 80,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Mamografía, Densitometría"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Mamografía, Densitometría",
-            "porcentaje": 70,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Mamografía, Densitometría"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Procedimientos",
-            "porcentaje": 80,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Procedimientos"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Procedimientos",
-            "porcentaje": null,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Procedimientos"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Radioisotopos"
           },
           {
             "ambito": "desconocido",
             "descripcion_textual": "Fonoaudiología",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Fonoaudiología"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Fonoaudiología",
-            "porcentaje": 70,
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Fonoaudiología"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Fonoaudiología"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Kinesiología, Fisioterapia y Terapia Ocupacional",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Kinesiología, Fisioterapia y Terapia Ocupacional"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Kinesiología, Fisioterapia y Terapia Ocupacional",
-            "porcentaje": 70,
+            "descripcion_textual": "Kinesiología, Medicina Física y Rehabilitación",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Kinesiología, Fisioterapia y Terapia Ocupacional"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Kinesiología, Medicina Física y Rehabilitación"
           },
           {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta y Atención Integral de Nutricionista",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Consulta y Atención Integral de Nutricionista"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta y Atención Integral de Nutricionista",
-            "porcentaje": 70,
+            "ambito": "ambulatorio",
+            "descripcion_textual": "Psicoterapia y Procedimientos Psiquiatricos y Psicológicos Ambulatorios",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Consulta y Atención Integral de Nutricionista"
+            "fuente_textual": "[p.2] Sección PRESTACIONES AMBULATORIAS: Psicoterapia y Procedimientos Psiquiatricos y Psicológicos Ambulatorios"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Prestaciones Dentales (PAD) (1.13)",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Prestaciones Dentales (PAD) (1.13)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Prestaciones Dentales (PAD) (1.13)",
-            "porcentaje": 70,
+            "descripcion_textual": "Exámenes Laboratorio ,Imagenología y Radiología",
+            "porcentaje": 100,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Prestaciones Dentales (PAD) (1.13)"
+            "fuente_textual": "[p.2] Sección CIRUGIA MAYOR AMBULATORIA: Exámenes Laboratorio ,Imagenología y Radiología"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Prótesis y Órtesis (1.5)",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Prótesis y Órtesis (1.5)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Prótesis y Órtesis (1.5)",
-            "porcentaje": 70,
+            "descripcion_textual": "Procedimientos",
+            "porcentaje": 100,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Prótesis y Órtesis (1.5)"
+            "fuente_textual": "[p.2] Sección CIRUGIA MAYOR AMBULATORIA: Procedimientos"
           },
           {
             "ambito": "desconocido",
-            "descripcion_textual": "Urgencia Adulto",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección ATENCIONES DE URGENCIA (1.11): Urgencia Adulto"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Urgencia Adulto",
-            "porcentaje": null,
+            "descripcion_textual": "Lentes con Fuerza Dióptrica",
+            "porcentaje": 80,
             "red_especifica": "Libre Elección",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección ATENCIONES DE URGENCIA (1.11): Urgencia Adulto"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Urgencia Pediátrica",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección ATENCIONES DE URGENCIA (1.11): Urgencia Pediátrica"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Urgencia Pediátrica",
-            "porcentaje": null,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección ATENCIONES DE URGENCIA (1.11): Urgencia Pediátrica"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Urgencia Maternidad",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección ATENCIONES DE URGENCIA (1.11): Urgencia Maternidad"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Urgencia Maternidad",
-            "porcentaje": null,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección ATENCIONES DE URGENCIA (1.11): Urgencia Maternidad"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Marcos y Cristales Ópticos (1.8)",
-            "porcentaje": null,
-            "red_especifica": "Red Preferente",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Sección OTRAS PRESTACIONES: Marcos y Cristales Ópticos (1.8)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Marcos y Cristales Ópticos (1.8)",
-            "porcentaje": 70,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección OTRAS PRESTACIONES: Marcos y Cristales Ópticos (1.8)"
+            "fuente_textual": "[p.2] Sección OTRAS PRESTACIONES: Lentes con Fuerza Dióptrica"
           }
         ],
         "topes": [
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Día Cama (PREFERENTE): null SIN_TOPE"
-          },
           {
             "ambito": "desconocido",
             "unidad": "UF",
@@ -639,11 +383,11 @@
           },
           {
             "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
+            "unidad": "UF",
             "valor": null,
             "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Sala Cuna (PREFERENTE): null SIN_TOPE"
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Día Cama UTI y Coronaria (LIBRE_ELECCION): null UF"
           },
           {
             "ambito": "desconocido",
@@ -651,932 +395,7 @@
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Sala Cuna (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Incubadora (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Incubadora (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Día Cama Cuidado Intensivo, Intermedio o Coronario (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Día Cama Cuidado Intensivo, Intermedio o Coronario (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Día Cama Transitorio u Observación (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Día Cama Transitorio u Observación (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Exámenes de Laboratorio (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Exámenes de Laboratorio (LIBRE_ELECCION): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Imagenología (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Imagenología (LIBRE_ELECCION): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Derecho Pabellón (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Derecho Pabellón (LIBRE_ELECCION): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Kinesiología, Fisioterapia y Terapia Ocupacional (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Kinesiología, Fisioterapia y Terapia Ocupacional (LIBRE_ELECCION): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Procedimientos (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Procedimientos (LIBRE_ELECCION): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Honorarios Médicos Quirúrgicos (1.2) (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Honorarios Médicos Quirúrgicos (1.2) (LIBRE_ELECCION): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Medicamentos (1.4) (1.10) (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Medicamentos (1.4) (1.10) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Materiales e Insumos Clínicos (1.4) (1.10) (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Materiales e Insumos Clínicos (1.4) (1.10) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Quimioterapia (1.6) (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Quimioterapia (1.6) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Prótesis, Órtesis y Elementos de Osteosíntesis (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Prótesis, Órtesis y Elementos de Osteosíntesis (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Visita por Médico Tratante y Médico Interconsultor (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Visita por Médico Tratante y Médico Interconsultor (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Traslados (5.4) (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Traslados (5.4) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Consulta Médica (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Consulta Médica (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Consulta Médica de Telemedicina en Especialidades (1.14)** (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Consulta Médica de Telemedicina en Especialidades (1.14)** (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.1] Tope para Exámenes de Laboratorio (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Exámenes de Laboratorio (LIBRE_ELECCION): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Consulta, Tratamiento Psiquiatría y Psicología (1.7) (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Consulta, Tratamiento Psiquiatría y Psicología (1.7) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Consulta de Telemedicina de Psiquiatría (1.7)** (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Consulta de Telemedicina de Psiquiatría (1.7)** (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Rayos X, Ecotomografía (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Rayos X, Ecotomografía (LIBRE_ELECCION): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para TAC / Scanner (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para TAC / Scanner (LIBRE_ELECCION): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Resonancia Magnética (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Resonancia Magnética (LIBRE_ELECCION): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Mamografía, Densitometría (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Mamografía, Densitometría (LIBRE_ELECCION): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Procedimientos (PREFERENTE): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Procedimientos (LIBRE_ELECCION): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Fonoaudiología (PREFERENTE): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Fonoaudiología (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Kinesiología, Fisioterapia y Terapia Ocupacional (PREFERENTE): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Kinesiología, Fisioterapia y Terapia Ocupacional (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Consulta y Atención Integral de Nutricionista (PREFERENTE): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Consulta y Atención Integral de Nutricionista (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Prestaciones Dentales (PAD) (1.13) (PREFERENTE): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Prestaciones Dentales (PAD) (1.13) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Prótesis y Órtesis (1.5) (PREFERENTE): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Prótesis y Órtesis (1.5) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Urgencia Adulto (PREFERENTE): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Urgencia Adulto (LIBRE_ELECCION): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Urgencia Pediátrica (PREFERENTE): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Urgencia Pediátrica (LIBRE_ELECCION): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Urgencia Maternidad (PREFERENTE): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Urgencia Maternidad (LIBRE_ELECCION): null SIN_TOPE"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "preferente",
-            "fuente_textual": "[p.2] Tope para Marcos y Cristales Ópticos (1.8) (PREFERENTE): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Marcos y Cristales Ópticos (1.8) (LIBRE_ELECCION): null UF"
-          }
-        ],
-        "deducibles": [],
-        "copagos": [],
-        "exclusiones": [],
-        "reglas_aplicacion": [],
-        "observaciones": [
-          "Funcionalidad: visual_hierarchy_v20"
-        ],
-        "items_no_clasificados": []
-      },
-      "reason": "User initiated learning from UI",
-      "timestamp": "2026-02-21T14:17:54.357Z"
-    },
-    {
-      "id": "1771689720659",
-      "tags": [
-        "ISAPRE - Plan   PLENO\n ",
-        "ISAPRE"
-      ],
-      "originalTextSnippet": "FULL_CONTRACT_CONTEXT_AUTOMATIC_LEARNING",
-      "correctedJson": {
-        "metadata": {
-          "origen": "contrato_pdf",
-          "fuente": "ISAPRE - Plan   PLENO\n ",
-          "vigencia": "Vigencia no especificada",
-          "tipo_contrato": "ISAPRE"
-        },
-        "coberturas": [
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama (Ver Anexo Plan de Salud Complementario (**))",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama (Ver Anexo Plan de Salud Complementario (**))"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Cuidados Intensivos o Coronarios",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama Cuidados Intensivos o Coronarios"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Cuidados Intermedios",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Día Cama Cuidados Intermedios"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Derecho de Pabellón",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Derecho de Pabellón"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Procedimientos",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Procedimientos"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Honorarios Médicos Quirúrgicos",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Honorarios Médicos Quirúrgicos"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Visita por Médico Tratante",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Visita por Médico Tratante"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Visita por Médico Interconsultor",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Visita por Médico Interconsultor"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Sala Cuna",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección PRESTACIONES RESTRINGIDAS: Día Cama Sala Cuna"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Incubadora",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección PRESTACIONES RESTRINGIDAS: Día Cama Incubadora"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Día Cama Psiquiatría",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección PRESTACIONES RESTRINGIDAS: Día Cama Psiquiatría"
-          },
-          {
-            "ambito": "hospitalario",
-            "descripcion_textual": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Hospitalarios",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección PRESTACIONES RESTRINGIDAS: Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Hospitalarios"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Honorarios Matrona",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección PRESTACIONES RESTRINGIDAS: Honorarios Matrona"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Exámenes de Laboratorio",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Exámenes de Laboratorio"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Imagenología",
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección HOSPITALARIAS Y CIRUGÍA MAYOR AMBULATORIA: Imagenología"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta Médica",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Consulta Médica"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta Oftalmológica",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Consulta Oftalmológica"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Exámenes de Laboratorio",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Exámenes de Laboratorio"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Imagenología",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Imagenología"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Procedimientos",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Sección AMBULATORIAS: Procedimientos"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Kinesiología",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Kinesiología"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Fonoaudiología",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Fonoaudiología"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Radioterapia (Incluye Insumos)",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Radioterapia (Incluye Insumos)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Quimioterapia",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Quimioterapia"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Prótesis y Ortesis",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Prótesis y Ortesis"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Lentes con Fuerza Dióptrica",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Lentes con Fuerza Dióptrica"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Atención Integral de Enfermería",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Atención Integral de Enfermería"
-          },
-          {
-            "ambito": "ambulatorio",
-            "descripcion_textual": "Resonancia Nuclear Magnética Ambulatoria",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección PRESTACIONES RESTRINGIDAS: Resonancia Nuclear Magnética Ambulatoria"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Atención Integral de Nutricionista (****)",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Atención Integral de Nutricionista (****)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Prestaciones Dentales (PA D) (*****)",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Prestaciones Dentales (PA D) (*****)"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Honorarios Médicos Quirúrgicos",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Honorarios Médicos Quirúrgicos"
-          },
-          {
-            "ambito": "ambulatorio",
-            "descripcion_textual": "Box Ambulatorio (por menos de 4 horas)",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Box Ambulatorio (por menos de 4 horas)"
-          },
-          {
-            "ambito": "ambulatorio",
-            "descripcion_textual": "Pabellón Ambulatorio",
-            "porcentaje": 100,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección AMBULATORIAS: Pabellón Ambulatorio"
-          },
-          {
-            "ambito": "ambulatorio",
-            "descripcion_textual": "Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Ambulatorios",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección PRESTACIONES RESTRINGIDAS: Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Ambulatorios"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta Psiquiátrica",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección PRESTACIONES RESTRINGIDAS: Consulta Psiquiátrica"
-          },
-          {
-            "ambito": "desconocido",
-            "descripcion_textual": "Consulta Psicológica",
-            "porcentaje": 80,
-            "red_especifica": "Libre Elección",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Sección PRESTACIONES RESTRINGIDAS: Consulta Psicológica"
-          }
-        ],
-        "topes": [
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Día Cama (Ver Anexo Plan de Salud Complementario (**)) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Día Cama Cuidados Intensivos o Coronarios (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Día Cama Cuidados Intermedios (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "VAM",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Derecho de Pabellón (LIBRE_ELECCION): null VAM"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "VAM",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Procedimientos (LIBRE_ELECCION): null VAM"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "VAM",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Honorarios Médicos Quirúrgicos (LIBRE_ELECCION): null VAM"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Visita por Médico Tratante (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Visita por Médico Interconsultor (LIBRE_ELECCION): null UF"
+            "fuente_textual": "[p.1] Tope para Día Cama Intermedio (LIBRE_ELECCION): null UF"
           },
           {
             "ambito": "desconocido",
@@ -1596,6 +415,46 @@
           },
           {
             "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Exámenes de Laboratorio (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Exámenes de Imagenología y Radiología (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Kinesiología, Medicina Física y Rehabilitación (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Derecho de Pabellón (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "hospitalario",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.1] Tope para Medica.y Mat.Clínicos (Por evento durante la Hospitalización) (***) (LIBRE_ELECCION): null UF"
+          },
+          {
+            "ambito": "desconocido",
             "unidad": "UF",
             "valor": null,
             "aplicacion": "por_evento",
@@ -1608,7 +467,7 @@
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Hospitalarios (LIBRE_ELECCION): null MIXTO"
+            "fuente_textual": "[p.1] Tope para Psicoterapia y Procedimientos Psiquiatricos y Psicológicos Hospitalarios (LIBRE_ELECCION): null MIXTO"
           },
           {
             "ambito": "desconocido",
@@ -1616,7 +475,7 @@
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Honorarios Matrona (LIBRE_ELECCION): null VAM"
+            "fuente_textual": "[p.1] Tope para Otros Exámenes y Procedimientos (LIBRE_ELECCION): null VAM"
           },
           {
             "ambito": "desconocido",
@@ -1624,31 +483,23 @@
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Exámenes de Laboratorio (LIBRE_ELECCION): null VAM"
+            "fuente_textual": "[p.1] Tope para Radioisotopos (LIBRE_ELECCION): null VAM"
           },
           {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Imagenología (LIBRE_ELECCION): null DESCONOCIDO"
-          },
-          {
-            "ambito": "desconocido",
+            "ambito": "hospitalario",
             "unidad": "UF",
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Consulta Médica (LIBRE_ELECCION): null UF"
+            "fuente_textual": "[p.1] Tope para Visita Médica Enfermo Hospitalizado (LIBRE_ELECCION): null UF"
           },
           {
             "ambito": "desconocido",
-            "unidad": "UF",
+            "unidad": "VAM",
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Consulta Oftalmológica (LIBRE_ELECCION): null UF"
+            "fuente_textual": "[p.1] Tope para Honorarios Quirúrgicos (LIBRE_ELECCION): null VAM"
           },
           {
             "ambito": "desconocido",
@@ -1664,7 +515,7 @@
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Imagenología (LIBRE_ELECCION): null VAM"
+            "fuente_textual": "[p.1] Tope para Exámenes de Imagenología y Radiología (LIBRE_ELECCION): null VAM"
           },
           {
             "ambito": "desconocido",
@@ -1672,95 +523,7 @@
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.1] Tope para Procedimientos (LIBRE_ELECCION): null VAM"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Kinesiología (LIBRE_ELECCION): null MIXTO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "DESCONOCIDO",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Fonoaudiología (LIBRE_ELECCION): null MIXTO"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Radioterapia (Incluye Insumos) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Quimioterapia (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Prótesis y Ortesis (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Lentes con Fuerza Dióptrica (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Atención Integral de Enfermería (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "ambulatorio",
-            "unidad": "VAM",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Resonancia Nuclear Magnética Ambulatoria (LIBRE_ELECCION): null VAM"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "UF",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Atención Integral de Nutricionista (****) (LIBRE_ELECCION): null UF"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "VAM",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Prestaciones Dentales (PA D) (*****) (LIBRE_ELECCION): null VAM"
-          },
-          {
-            "ambito": "desconocido",
-            "unidad": "VAM",
-            "valor": null,
-            "aplicacion": "por_evento",
-            "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Honorarios Médicos Quirúrgicos (LIBRE_ELECCION): null VAM"
+            "fuente_textual": "[p.1] Tope para Kinesiología, Medicina Física y Rehabilitación (LIBRE_ELECCION): null VAM"
           },
           {
             "ambito": "ambulatorio",
@@ -1768,23 +531,79 @@
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Box Ambulatorio (por menos de 4 horas) (LIBRE_ELECCION): null UF"
+            "fuente_textual": "[p.1] Tope para Traslado Local en Ambulancia (LIBRE_ELECCION): null UF"
           },
           {
-            "ambito": "ambulatorio",
-            "unidad": "VAM",
+            "ambito": "desconocido",
+            "unidad": "UF",
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Pabellón Ambulatorio (LIBRE_ELECCION): null VAM"
+            "fuente_textual": "[p.2] Tope para Traslado Interurbano con indicación médica (LIBRE_ELECCION): null UF"
           },
           {
-            "ambito": "ambulatorio",
-            "unidad": "DESCONOCIDO",
+            "ambito": "desconocido",
+            "unidad": "UF",
             "valor": null,
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
-            "fuente_textual": "[p.2] Tope para Psicoterapia y Procedimientos Psiquiátricos y/o Psicológicos Ambulatorios (LIBRE_ELECCION): null MIXTO"
+            "fuente_textual": "[p.2] Tope para Prótesis, Órtesis y Audífonos (LIBRE_ELECCION): null UF"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Marcapaso y Válvula Mitral (LIBRE_ELECCION): null UF"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Medicamentos e Insumos para el Tto del Cancer (Drogas Antineoplásicas) (LIBRE_ELECCION): null UF"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Quimioterapia Honorarios (LIBRE_ELECCION): null UF"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Radioterapia Integral (Incluye insumos) (LIBRE_ELECCION): null UF"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Consulta Médica (LIBRE_ELECCION): null UF"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Consulta Oftalmológica (LIBRE_ELECCION): null UF"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Visita Médica (LIBRE_ELECCION): null UF"
           },
           {
             "ambito": "desconocido",
@@ -1801,6 +620,86 @@
             "aplicacion": "por_evento",
             "tipo_modalidad": "libre_eleccion",
             "fuente_textual": "[p.2] Tope para Consulta Psicológica (LIBRE_ELECCION): null MIXTO"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Exámenes de Laboratorio (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Exámenes de Imagenología y Radiología (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Otros Exámenes y Procedimientos (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Radioisotopos (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Fonoaudiología (LIBRE_ELECCION): null MIXTO"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "DESCONOCIDO",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Kinesiología, Medicina Física y Rehabilitación (LIBRE_ELECCION): null MIXTO"
+          },
+          {
+            "ambito": "ambulatorio",
+            "unidad": "DESCONOCIDO",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Psicoterapia y Procedimientos Psiquiatricos y Psicológicos Ambulatorios (LIBRE_ELECCION): null MIXTO"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Exámenes Laboratorio ,Imagenología y Radiología (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "VAM",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Procedimientos (LIBRE_ELECCION): null VAM"
+          },
+          {
+            "ambito": "desconocido",
+            "unidad": "UF",
+            "valor": null,
+            "aplicacion": "por_evento",
+            "tipo_modalidad": "libre_eleccion",
+            "fuente_textual": "[p.2] Tope para Lentes con Fuerza Dióptrica (LIBRE_ELECCION): null UF"
           }
         ],
         "deducibles": [],
@@ -1813,9 +712,9 @@
         "items_no_clasificados": []
       },
       "reason": "User initiated learning from UI",
-      "timestamp": "2026-02-21T16:02:00.661Z"
+      "timestamp": "2026-02-21T19:13:58.978Z"
     }
   ],
   "processedContracts": [],
-  "lastUpdated": "2026-02-21T16:02:00.661Z"
+  "lastUpdated": "2026-02-21T19:13:58.978Z"
 }

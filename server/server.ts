@@ -396,7 +396,11 @@ app.post('/api/extract', async (req, res) => {
         console.log(`\n[DEBUG] Extracción finalizada. Longitud total: ${fullText.length} chars.`);
 
         // --- CSV PARSER ---
-        const lines = fullText.split('\n').map(l => l.trim()).filter(l => l);
+        // Strip Markdown bold (**...**) and heading markers (#) that the LLM sometimes adds
+        // despite being instructed not to. Without this, `**SECTION: foo**` fails `startsWith('SECTION:')`.
+        const lines = fullText.split('\n')
+            .map(l => l.trim().replace(/\*\*/g, '').replace(/^#+\s*/, ''))
+            .filter(l => l);
         const sectionsMap = new Map<string, any>();
         const sectionPageTracking = new Map<string, Set<number>>();
         let currentSectionName = "SECCION_DESCONOCIDA";
