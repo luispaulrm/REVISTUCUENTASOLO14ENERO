@@ -10,7 +10,7 @@ export const BILL_PROMPT = `
     4. IMPUESTOS: El "Total" SIEMPRE debe ser el valor FINAL (con IVA/ISA). NUNCA el Neto.
     5. NO FUSIONAR DUPLICADOS: Si un ítem (ej: "CEFTRIAXONA") aparece 2 veces con el mismo precio, DAME 2 FILAS. Mantén la integridad 100%.
     
-    ⛔ SIN MARKDOWN: NUNCA uses **negrita**, # encabezados, ni `backticks`. Texto plano puro.
+    ⛔ SIN MARKDOWN: NUNCA uses negrita (**), encabezados (#), ni backticks. Texto plano puro.
     
     FORMATO DE SALIDA (LÍNEA POR LÍNEA):
     
