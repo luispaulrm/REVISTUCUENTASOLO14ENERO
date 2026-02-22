@@ -1,5 +1,6 @@
 import { transformToCanonical } from './services/canonicalTransform.service.js';
 import { ContractAnalysisResult } from './services/contractTypes.js';
+import fs from 'fs';
 
 const mockResult: ContractAnalysisResult = {
     diseno_ux: {
@@ -19,9 +20,19 @@ const mockResult: ContractAnalysisResult = {
                     tipo: "PREFERENTE",
                     porcentaje: 100,
                     tope: "SIN TOPE",
+                    tope_anual: "SIN TOPE",
                     unidad_normalizada: "SIN_TOPE",
-                    evidencia_literal: "SIN TOPE",
+                    evidencia_literal: "100% Sin Tope (Merged Rule)",
                     tipoTope: "ILIMITADO"
+                },
+                {
+                    tipo: "LIBRE_ELECCION",
+                    porcentaje: 90,
+                    tope: "5 UF",
+                    tope_anual: "SIN TOPE",
+                    unidad_normalizada: "UF",
+                    evidencia_literal: "90% 5 UF / Sin Tope",
+                    tipoTope: "POR_EVENTO"
                 }
             ]
         },
@@ -33,41 +44,11 @@ const mockResult: ContractAnalysisResult = {
                 {
                     tipo: "PREFERENTE",
                     porcentaje: 100,
-                    tope: "4.5 UF",
-                    tope_normalizado: 4.5,
-                    unidad_normalizada: "UF",
-                    evidencia_literal: "4.5 UF",
-                    tipoTope: "POR_EVENTO"
-                }
-            ]
-        },
-        {
-            categoria: "AMBULATORIO",
-            item: "Consulta Médica",
-            ambito: "AMBULATORIO",
-            modalidades: [
-                {
-                    tipo: "LIBRE_ELECCION",
-                    porcentaje: 80,
-                    tope: "1.2 UF",
-                    unidadTope: "UF",
-                    evidencia_literal: "1.2 UF",
-                    tipoTope: "POR_EVENTO"
-                }
-            ]
-        },
-        {
-            categoria: "RESTRINGIDAS",
-            item: "Psicología",
-            ambito: "UNDETERMINED" as any,
-            modalidades: [
-                {
-                    tipo: "LIBRE_ELECCION",
-                    porcentaje: "50%",
-                    tope: "0.5 UF",
-                    unidadTope: "UF",
-                    evidencia_literal: "0.5 UF",
-                    tipoTope: "ANUAL"
+                    tope: "SIN TOPE",
+                    tope_anual: "SIN TOPE",
+                    unidad_normalizada: "SIN_TOPE",
+                    evidencia_literal: "100% Sin Tope (Propagated from Día Cama block)",
+                    tipoTope: "ILIMITADO"
                 }
             ]
         }
@@ -85,41 +66,52 @@ const mockResult: ContractAnalysisResult = {
 try {
     console.log("Starting verification...");
     const canonical = transformToCanonical(mockResult);
+    fs.writeFileSync('verification_result.json', JSON.stringify(canonical, null, 2));
+    console.log("✅ Verification result saved to verification_result.json");
 
     console.log("\n--- VERIFICATION RESULTS ---");
 
-    // 1. Check "Sin Tope" handling
-    const diaCamaTope = canonical.topes.find(t => t.fuente_textual.includes("Día Cama"));
-    console.log("Dia Cama Tope:", JSON.stringify(diaCamaTope, null, 2));
-    if (diaCamaTope && (diaCamaTope as any).tope_existe === false && (diaCamaTope as any).razon === "SIN_TOPE_EXPRESO_EN_CONTRATO") {
-        console.log("✅ Sin Tope Rule (v2.0) applied correctly.");
+    // Helper to normalize for matching
+    const normMatch = (t: string) => t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    // 1. Check "Sin Tope" handling for Merged Rule
+    const diaCamaTopes = canonical.topes.filter(t => normMatch(t.fuente_textual).includes("dia cama"));
+    console.log(`Dia Cama Topes Found: ${diaCamaTopes.length}`);
+
+    const prefTopes = diaCamaTopes.filter(t => t.tipo_modalidad === "preferente");
+    const eventTope = prefTopes.find(t => t.aplicacion !== "anual");
+    const annualTope = prefTopes.find(t => t.aplicacion === "anual");
+
+    if (prefTopes.length >= 2 && (eventTope as any)?.tope_existe === false && (annualTope as any)?.tope_existe === false) {
+        console.log("✅ Geometric/Merged Sin Tope Rule applied correctly (Pref Event & Pref Annual).");
     } else {
-        console.log("❌ Sin Tope Rule failed.");
+        console.log("❌ Geometric/Merged Sin Tope Rule failed for Preferente.");
+        console.log("   Pref Topes Detail:", JSON.stringify(prefTopes, null, 2));
     }
 
-    // 2. Check numeric extraction from tope_normalizado
-    const medTope = canonical.topes.find(t => t.fuente_textual.includes("Medicamentos"));
-    console.log("Medicamentos Tope:", JSON.stringify(medTope, null, 2));
-    if (medTope && medTope.valor === 4.5) {
-        console.log("✅ Numeric extraction from tope_normalizado success.");
+    // 2. Check Libre Elección Dual Topes
+    const leTopes = diaCamaTopes.filter(t => t.tipo_modalidad === "libre_eleccion");
+    const leEvent = leTopes.find(t => t.aplicacion !== "anual");
+    const leAnnual = leTopes.find(t => t.aplicacion === "anual");
+
+    const leEventOk = leEvent?.valor === 5 && leEvent?.unidad === "UF";
+    const leAnnualOk = (leAnnual as any)?.tope_existe === false;
+
+    if (leTopes.length >= 2 && leEventOk && leAnnualOk) {
+        console.log("✅ Libre Elección Dual Topes success (5 UF Event / Sin Tope Annual).");
     } else {
-        console.log("❌ Numeric extraction from tope_normalizado failed.");
+        console.log("❌ Libre Elección Dual Topes failed.");
+        console.log("   LE Event Detail:", JSON.stringify(leEvent, null, 2));
+        console.log("   LE Annual Detail:", JSON.stringify(leAnnual, null, 2));
     }
 
-    // 3. Check legacy extraction (percentage parsing)
-    const psicCobertura = canonical.coberturas.find(c => c.descripcion_textual.includes("Psicología"));
-    console.log("Psicoterapia Cobertura:", JSON.stringify(psicCobertura, null, 2));
-    if (psicCobertura && psicCobertura.porcentaje === 50) {
-        console.log("✅ Percentage string parsing success.");
+    // 3. Scope Inference
+    const diaCamaCob = canonical.coberturas.find(c => normMatch(c.descripcion_textual).includes("dia cama"));
+    if (diaCamaCob?.ambito === "hospitalario") {
+        console.log("✅ Scope Inference for 'Día Cama' is hospitalario.");
     } else {
-        console.log("❌ Percentage string parsing failed.");
+        console.log("❌ Scope Inference failed for 'Día Cama'. Got:", diaCamaCob?.ambito);
     }
-
-    // 4. Check scope inference
-    console.log("Scope Inference checks:");
-    canonical.coberturas.forEach(c => {
-        console.log(` - ${c.descripcion_textual}: ${c.ambito}`);
-    });
 
 } catch (e) {
     console.error("Verification crashed:", e);

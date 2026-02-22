@@ -25,6 +25,8 @@ export interface CanonicalTope {
     aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido";
     tipo_modalidad?: "preferente" | "libre_eleccion" | "desconocido";
     fuente_textual: string;
+    tope_existe?: boolean;
+    razon?: string;
 }
 
 export interface CanonicalDeducible {
@@ -180,60 +182,73 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
                 fuente_textual: `${pagePrefix} Sección ${cob.categoria}: ${itemName}`
             });
 
-            // Add Tope if exists
-            // RULE: If unit is SIN_TOPE, we must create a tope entry with tope_existe: false and razon: "SIN_TOPE_EXPRESO_EN_CONTRATO"
-            const uRaw = (mod.unidad_normalizada || mod.unidadTope || "").toUpperCase();
-            const isSinTope = uRaw.includes("SIN_TOPE") || uRaw.includes("ILIMITADO") || (mod.evidencia_literal || "").toUpperCase().includes("SIN TOPE");
+            // Add Topes (Geometric Multi-Type Support v2.5)
+            const processTope = (rawVal: any, forceAplicacion?: "anual" | "por_evento") => {
+                const uTopeRaw = (mod.unidad_normalizada || mod.unidadTope || "").toUpperCase();
 
-            if (mod.tope !== null || isSinTope) {
-                // UNIT NORMALIZATION (v1.8) - AC2 Preserved
-                let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
+                // Value-specific detection (v2.6)
+                const valStr = (String(rawVal || "")).toUpperCase();
+                const isSinTopeValue = valStr.includes("SIN TOPE") || valStr.includes("ILIMITADO") || valStr.includes("SIN_TOPE");
 
-                if (uRaw.includes("UF")) unidad = "UF";
-                else if (uRaw.includes("AC2")) unidad = "AC2";
-                else if (["VAM", "V20", "V10", "VA", "VECES ARANCEL"].some(u => uRaw.includes(u))) unidad = "VAM";
-                else if (uRaw.includes("PESOS") || uRaw.includes("$")) unidad = "PESOS";
+                // Fallback to unit/evidence ONLY if value is missing or value itself says Sin Tope
+                const isSinTopeItem = isSinTopeValue || (
+                    (rawVal === null || rawVal === undefined) &&
+                    (uTopeRaw.includes("SIN_TOPE") || uTopeRaw.includes("ILIMITADO") || (mod.evidencia_literal || "").toUpperCase().match(/\bSIN TOPE\b/))
+                );
 
-                let aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido" = "desconocido";
-                if (mod.tipoTope === "ANUAL" || (mod.tipoTope as string) === "ANUAL") aplicacion = "anual";
-                else if (mod.tipoTope === "POR_EVENTO" || (mod.tipoTope as string) === "POR_EVENTO") aplicacion = "por_evento";
+                if (rawVal !== null && rawVal !== undefined || isSinTopeItem) {
+                    let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
+                    if (uTopeRaw.includes("UF") || (String(rawVal)).toUpperCase().includes("UF")) unidad = "UF";
+                    else if (uTopeRaw.includes("AC2") || (String(rawVal)).toUpperCase().includes("AC2")) unidad = "AC2";
+                    else if (["VAM", "V20", "V10", "VA", "VECES ARANCEL"].some(u => uTopeRaw.includes(u) || (String(rawVal)).toUpperCase().includes(u))) unidad = "VAM";
+                    else if (uTopeRaw.includes("PESOS") || uTopeRaw.includes("$") || (String(rawVal)).includes("$")) unidad = "PESOS";
 
-                // V2 Support: Priority 1: tope_normalizado, Priority 2: tope_nested, Priority 3: legacy
-                let val: number | null = (mod as any).tope_normalizado ?? mod.tope_nested?.valor ?? null;
-
-                if (val === null) {
-                    if (typeof mod.tope === 'number') {
-                        val = mod.tope;
-                    } else if (typeof mod.tope === 'object' && mod.tope !== null) {
-                        val = (mod.tope as any).valor ?? null;
-                    } else if (typeof mod.tope === 'string') {
-                        // Fallback: extract first number if engine didn't normalize it
-                        const match = mod.tope.match(/(\d+[,.]?\d*)/);
-                        if (match) val = parseFloat(match[1].replace(",", "."));
+                    let aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido" = forceAplicacion || "desconocido";
+                    if (!forceAplicacion) {
+                        if (mod.tipoTope === "ANUAL" || (mod.tipoTope as string) === "ANUAL") aplicacion = "anual";
+                        else if (mod.tipoTope === "POR_EVENTO" || (mod.tipoTope as string) === "POR_EVENTO") aplicacion = "por_evento";
                     }
+
+                    let val: number | null = null;
+                    if (typeof rawVal === 'number') val = rawVal;
+                    else if (typeof rawVal === 'string') {
+                        const match = rawVal.match(/(\d+[,.]?\d*)/);
+                        if (match) val = parseFloat(match[1].replace(",", "."));
+                    } else if (rawVal && typeof rawVal === 'object') {
+                        val = (rawVal as any).valor ?? null;
+                    }
+
+                    // Priority for normalized engine numeric values if checking the main tope
+                    if (!forceAplicacion && val === null) {
+                        val = (mod as any).tope_normalizado ?? mod.tope_nested?.valor ?? null;
+                    }
+
+                    const topeEntry: any = {
+                        ambito,
+                        unidad: isSinTopeItem ? "DESCONOCIDO" : unidad,
+                        valor: isSinTopeItem ? null : val,
+                        aplicacion,
+                        tipo_modalidad: mod.tipo === "LIBRE_ELECCION" ? "libre_eleccion" : (mod.tipo === "PREFERENTE" ? "preferente" : "desconocido"),
+                        fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${isSinTopeItem ? "SIN TOPE" : (val + " " + unidad)}`
+                    };
+
+                    if (isSinTopeItem) {
+                        (topeEntry as any).tope_existe = false;
+                        (topeEntry as any).razon = "SIN_TOPE_EXPRESO_EN_CONTRATO";
+                    } else {
+                        (topeEntry as any).tope_existe = true;
+                    }
+
+                    canonical.topes.push(topeEntry);
                 }
+            };
 
-                const displayUnit = mod.tope_nested?.unidad || (typeof mod.tope === 'object' ? (mod.tope as any)?.unidad : mod.unidadTope) || uRaw || "";
+            // 1. Process regular tope (usually per event/proc)
+            processTope(mod.tope);
 
-                // SKILL RULE 4: Semantic mapping of SIN TOPE
-                const topeEntry: any = {
-                    ambito,
-                    unidad: isSinTope ? "DESCONOCIDO" : unidad, // Reset to unknown if it's actually SIN_TOPE
-                    valor: isSinTope ? null : val,
-                    aplicacion,
-                    tipo_modalidad: mod.tipo === "LIBRE_ELECCION" ? "libre_eleccion" : (mod.tipo === "PREFERENTE" ? "preferente" : "desconocido"),
-                    fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${isSinTope ? "SIN TOPE" : (val + " " + displayUnit)}`
-                };
-
-                if (isSinTope) {
-                    // Inject Skill v2.0 Fields
-                    (topeEntry as any).tope_existe = false;
-                    (topeEntry as any).razon = "SIN_TOPE_EXPRESO_EN_CONTRATO";
-                } else {
-                    (topeEntry as any).tope_existe = true;
-                }
-
-                canonical.topes.push(topeEntry);
+            // 2. Process annual tope (if extracted by geometric prompt)
+            if ((mod as any).tope_anual) {
+                processTope((mod as any).tope_anual, "anual");
             }
 
             // Add Copago if exists

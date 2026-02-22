@@ -85,6 +85,7 @@ export interface ExplorationModality {
     flag_inconsistencia_porcentaje?: boolean;
     source_occurrence_id?: string;
     clinicas?: string[];
+    tope_anual?: string | null;
 
     // V2 SCHEMA (Strict Join)
     tope_nested?: {
