@@ -84,6 +84,13 @@ export interface ExplorationModality {
     contexto_clinico?: 'QUIRURGICO_HOSPITALARIO' | 'QUIRURGICO_AMBULATORIO' | 'CONSULTA' | 'DIAGNOSTICO' | 'TERAPIA' | 'INSUMOS' | 'GLOBAL';
     flag_inconsistencia_porcentaje?: boolean;
     source_occurrence_id?: string;
+    clinicas?: string[];
+
+    // V2 SCHEMA (Strict Join)
+    tope_nested?: {
+        unidad: string;
+        valor: number;
+    } | null;
 }
 
 

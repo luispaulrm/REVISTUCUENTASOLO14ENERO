@@ -65,6 +65,17 @@ export interface CanonicalContract {
 }
 
 /**
+ * Normalizes text for robust comparison (strips accents, non-alpha, lowercase)
+ */
+function normalizeText(text: string): string {
+    return (text || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // Remove accents
+        .replace(/[^a-z0-9]/g, "");    // Remove non-alphanumeric
+}
+
+/**
  * Transforms a high-fidelity ContractAnalysisResult into the Canonical JSON format
  * defined in the 'canonizar-contrato-salud' skill.
  */
@@ -79,17 +90,17 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
     // 0. Metadata Normalization
     let tipo_contrato: "ISAPRE" | "FONASA" | "COMPLEMENTARIO" | "DENTAL" | "DESCONOCIDO" = "DESCONOCIDO";
 
-    // REDUNDANT SAFETY: Even with ?., we ensure diseno_ux exists as an object
     const diseno = result.diseno_ux || ({} as any);
     const finger = result.fingerprint || ({} as any);
     const meta = (result as any).metadata || {};
 
-    const tcRaw = (String(finger.tipo_contrato || diseno.nombre_isapre || meta.source_document || "")).toUpperCase();
+    const tcRaw = normalizeText(finger.tipo_contrato || diseno.nombre_isapre || meta.source_document || "");
+    const isapreNames = ["banmedica", "colmena", "consalud", "cruzblanca", "vidatres", "esencial", "nueva masvida"];
 
-    if (tcRaw.includes("ISAPRE")) tipo_contrato = "ISAPRE";
-    else if (tcRaw.includes("FONASA")) tipo_contrato = "FONASA";
-    else if (tcRaw.includes("COMPLEMENTARIO")) tipo_contrato = "COMPLEMENTARIO";
-    else if (tcRaw.includes("DENTAL")) tipo_contrato = "DENTAL";
+    if (tcRaw.includes("isapre") || isapreNames.some(name => tcRaw.includes(name))) tipo_contrato = "ISAPRE";
+    else if (tcRaw.includes("fonasa")) tipo_contrato = "FONASA";
+    else if (tcRaw.includes("complementario")) tipo_contrato = "COMPLEMENTARIO";
+    else if (tcRaw.includes("dental")) tipo_contrato = "DENTAL";
 
     const canonical: CanonicalContract = {
         metadata: {
@@ -124,18 +135,28 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
         const normalizedCategory = applySynonyms(cob.categoria || "");
 
         let ambito: "hospitalario" | "ambulatorio" | "mixto" | "desconocido" = "desconocido";
-        if (normalizedCategory.includes("hosp") || normalizedItem.toLowerCase().includes("hosp")) ambito = "hospitalario";
-        else if (normalizedCategory.includes("amb") || normalizedItem.toLowerCase().includes("amb")) ambito = "ambulatorio";
-        else if (normalizedCategory.includes("restringida") || normalizedCategory.includes("libre") || normalizedCategory.includes("extra")) ambito = "mixto";
+        const lowerItem = itemName.toLowerCase();
+        const normItem = normalizeText(itemName);
+        const normCat = normalizeText(cob.categoria || "");
+
+        if (normCat.includes("hosp") || normItem.includes("hosp") || normItem.includes("diacama") || normItem.includes("pabellon") || normItem.includes("quirurgico") || normItem.includes("intensivo")) {
+            ambito = "hospitalario";
+        } else if (normCat.includes("amb") || normItem.includes("amb") || normItem.includes("consulta") || normItem.includes("examen") || normItem.includes("laboratorio") || normItem.includes("imagen")) {
+            ambito = "ambulatorio";
+        } else if (normCat.includes("restringida") || normCat.includes("libre") || normCat.includes("extra")) {
+            ambito = "mixto";
+        }
 
         cob.modalidades.forEach(mod => {
-            // Attempt to infer Red Specificity
-            let red_especifica = "Todas";
+            // Attempt to infer Red Specificity (v2.1)
+            let red_especifica = mod.tipo === "PREFERENTE" ? "Red Preferente" : "Libre Elección";
             if (mod.tipo === "PREFERENTE") {
-                const clinicsMatch = diseno.subtitulo_plan?.match(/Clínica\s+(\w+)/i);
-                red_especifica = clinicsMatch ? clinicsMatch[0] : "Red Preferente";
-            } else if (mod.tipo === "LIBRE_ELECCION") {
-                red_especifica = "Libre Elección";
+                if (mod.clinicas && mod.clinicas.length > 0) {
+                    red_especifica = mod.clinicas.join(", ");
+                } else {
+                    const clinicsMatch = diseno.subtitulo_plan?.match(/Clínica\s+[\w\s]+/i);
+                    if (clinicsMatch) red_especifica = clinicsMatch[0];
+                }
             }
 
             // Map Modality Type
@@ -146,57 +167,80 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
             else if (mod.tipo === "BONIFICACION" || categoria.includes("ampliaci")) tipo_modalidad = "ampliada";
 
             // Add Cobertura
+            const percentageVal = typeof mod.porcentaje === 'string'
+                ? parseFloat(mod.porcentaje.replace("%", "").replace(",", "."))
+                : mod.porcentaje;
+
             canonical.coberturas.push({
                 ambito,
                 descripcion_textual: `${itemName}`,
-                porcentaje: mod.porcentaje,
+                porcentaje: isNaN(percentageVal as number) ? null : percentageVal,
                 red_especifica,
                 tipo_modalidad,
                 fuente_textual: `${pagePrefix} Sección ${cob.categoria}: ${itemName}`
             });
 
             // Add Tope if exists
-            if (mod.tope !== null) {
+            // RULE: If unit is SIN_TOPE, we must create a tope entry with tope_existe: false and razon: "SIN_TOPE_EXPRESO_EN_CONTRATO"
+            const uRaw = (mod.unidad_normalizada || mod.unidadTope || "").toUpperCase();
+            const isSinTope = uRaw.includes("SIN_TOPE") || uRaw.includes("ILIMITADO") || (mod.evidencia_literal || "").toUpperCase().includes("SIN TOPE");
+
+            if (mod.tope !== null || isSinTope) {
                 // UNIT NORMALIZATION (v1.8) - AC2 Preserved
                 let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
-                const uRaw = (mod.unidadTope || "").toUpperCase();
-                if (uRaw === "UF") unidad = "UF";
-                else if (uRaw === "AC2") unidad = "AC2";
-                else if (["VAM", "V20", "V10", "VA", "VECES ARANCEL"].includes(uRaw)) unidad = "VAM";
-                else if (uRaw === "PESOS" || uRaw === "$") unidad = "PESOS";
+
+                if (uRaw.includes("UF")) unidad = "UF";
+                else if (uRaw.includes("AC2")) unidad = "AC2";
+                else if (["VAM", "V20", "V10", "VA", "VECES ARANCEL"].some(u => uRaw.includes(u))) unidad = "VAM";
+                else if (uRaw.includes("PESOS") || uRaw.includes("$")) unidad = "PESOS";
 
                 let aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido" = "desconocido";
-                if (mod.tipoTope === "ANUAL") aplicacion = "anual";
-                else if (mod.tipoTope === "POR_EVENTO") aplicacion = "por_evento";
+                if (mod.tipoTope === "ANUAL" || (mod.tipoTope as string) === "ANUAL") aplicacion = "anual";
+                else if (mod.tipoTope === "POR_EVENTO" || (mod.tipoTope as string) === "POR_EVENTO") aplicacion = "por_evento";
 
-                // V2 Support: Check nested tope first, then legacy number, or extract if object
-                let val: number | null = mod.tope_nested?.valor ?? null;
+                // V2 Support: Priority 1: tope_normalizado, Priority 2: tope_nested, Priority 3: legacy
+                let val: number | null = (mod as any).tope_normalizado ?? mod.tope_nested?.valor ?? null;
 
                 if (val === null) {
                     if (typeof mod.tope === 'number') {
                         val = mod.tope;
                     } else if (typeof mod.tope === 'object' && mod.tope !== null) {
-                        // Handle case where LLM puts object in 'tope' instead of 'tope_nested'
                         val = (mod.tope as any).valor ?? null;
+                    } else if (typeof mod.tope === 'string') {
+                        // Fallback: extract first number if engine didn't normalize it
+                        const match = mod.tope.match(/(\d+[,.]?\d*)/);
+                        if (match) val = parseFloat(match[1].replace(",", "."));
                     }
                 }
 
-                const unit = mod.tope_nested?.unidad ?? (typeof mod.tope === 'object' ? (mod.tope as any)?.unidad : mod.unidadTope) ?? "";
+                const displayUnit = mod.tope_nested?.unidad || (typeof mod.tope === 'object' ? (mod.tope as any)?.unidad : mod.unidadTope) || uRaw || "";
 
-                canonical.topes.push({
+                // SKILL RULE 4: Semantic mapping of SIN TOPE
+                const topeEntry: any = {
                     ambito,
-                    unidad,
-                    valor: val,
+                    unidad: isSinTope ? "DESCONOCIDO" : unidad, // Reset to unknown if it's actually SIN_TOPE
+                    valor: isSinTope ? null : val,
                     aplicacion,
                     tipo_modalidad: mod.tipo === "LIBRE_ELECCION" ? "libre_eleccion" : (mod.tipo === "PREFERENTE" ? "preferente" : "desconocido"),
-                    fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${val} ${unit || "SIN_UNIDAD"}`
-                });
+                    fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${isSinTope ? "SIN TOPE" : (val + " " + displayUnit)}`
+                };
+
+                if (isSinTope) {
+                    // Inject Skill v2.0 Fields
+                    (topeEntry as any).tope_existe = false;
+                    (topeEntry as any).razon = "SIN_TOPE_EXPRESO_EN_CONTRATO";
+                } else {
+                    (topeEntry as any).tope_existe = true;
+                }
+
+                canonical.topes.push(topeEntry);
             }
 
             // Add Copago if exists
             if (mod.copago) {
-                const valMatch = mod.copago.match(/(\d+[,.]?\d*)/);
-                const unitMatch = mod.copago.match(/(UF|VAM|AC2|V20|PESOS|\$)/i);
+                const copagoStr = String(mod.copago);
+                const valMatch = copagoStr.match(/(\d+[,.]?\d*)/);
+                const unitMatch = copagoStr.match(/(UF|VAM|AC2|V20|PESOS|\$)/i);
 
                 if (valMatch) {
                     let unidad: "UF" | "VAM" | "AC2" | "PESOS" = "PESOS";

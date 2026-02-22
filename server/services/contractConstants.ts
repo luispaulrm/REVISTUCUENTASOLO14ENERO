@@ -215,6 +215,18 @@ export const PROMPT_MODULAR_JSON = `
    - Ejemplo: "100% SIN TOPE / 16,00 UF (Internacional)".
    - No omitas ninguna cláusula de límite presente en la fila.
 
+   ⚠️ ESTRUCTURA DE COLUMNAS ISAPRE (ALINEACIÓN):
+   - Columna 1: Prestación / Item (nombre del servicio).
+   - Columna 2: % Bonificación PREFERENTE.
+   - Columna 3: Tope PREFERENTE (si existe).
+   - Columna 4: % Bonificación LIBRE ELECCIÓN.
+   - Columna 5: Tope LIBRE ELECCIÓN (si existe).
+   - ** REGLA DE PROPAGACIÓN **: Si una celda de porcentaje está centrada o abarca varias filas (merged cell), DEBES propagar ese mismo porcentaje a cada fila individual que caiga bajo su rango visual.
+
+   ⚠️ EXTRACCIÓN DE CLÍNICAS (RED PREFERENTE):
+   - Busca nombres de clínicas (ej: Indisa, Alemana, UC, Santa María, etc.) en las celdas de bonificación o descripción.
+   - Si se mencionan prestadores específicos para la "Oferta Preferente", extráelos en el array 'clinicas'.
+
    ⚠️ DOCTRINA DE SILENCIO (ANTI-HALLUCINATION):
    - PROHIBIDO inventar frases de relleno como "Sin restricciones adicionales" o "Sujeto a condiciones generales".
    - Si una celda está vacía, el valor debe ser null. 
@@ -247,7 +259,8 @@ export const SCHEMA_MODULAR_JSON = {
             type: SchemaType.OBJECT,
             properties: {
               porcentaje: { type: SchemaType.NUMBER, nullable: true },
-              tope: { type: SchemaType.STRING, nullable: true }
+              tope: { type: SchemaType.STRING, nullable: true },
+              clinicas: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING }, nullable: true }
             }
           },
           libre_eleccion: {
