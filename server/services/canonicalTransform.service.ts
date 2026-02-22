@@ -124,6 +124,77 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
         items_no_clasificados: []
     };
 
+    // --- V3.5 BRIDGE (Rule-Based Hierarchy) ---
+    if (result.v3) {
+        console.log('[CANONICAL] V3.5 Bridge activated');
+
+        result.v3.coverageBlocks.forEach(block => {
+            block.benefitRules.forEach(rule => {
+                const itemName = rule.prestacionLabel;
+                const pagePrefix = `[p.V3]`;
+
+                // Determine ambito from block title or prestacion
+                let ambito: "hospitalario" | "ambulatorio" | "mixto" | "desconocido" = "desconocido";
+                const lowBlock = block.blockTitle.toLowerCase();
+                if (lowBlock.includes("hosp") || lowBlock.includes("quiru")) ambito = "hospitalario";
+                else if (lowBlock.includes("amb") || lowBlock.includes("cons")) ambito = "ambulatorio";
+
+                const processV3Modality = (mod: any, type: "preferente" | "libre_eleccion") => {
+                    if (!mod) return;
+
+                    // Add Cobertura
+                    canonical.coberturas.push({
+                        ambito,
+                        descripcion_textual: itemName,
+                        porcentaje: mod.bonificacionPct,
+                        red_especifica: type === "preferente" ? "Red Preferente" : "Libre Elección",
+                        tipo_modalidad: type,
+                        fuente_textual: `${pagePrefix} Block ${block.blockTitle}: ${itemName}`
+                    });
+
+                    // Add Topes
+                    const mapTope = (v3Tope: any, aplicacion: "por_prestacion" | "anual") => {
+                        if (!v3Tope || v3Tope.tipo === 'NO_ENCONTRADO') return;
+
+                        const isSinTope = v3Tope.tipo === 'SIN_TOPE_EXPLICITO';
+                        let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
+                        if (v3Tope.unidad === 'UF') unidad = "UF";
+                        else if (v3Tope.unidad === 'VA') unidad = "VAM";
+                        else if (v3Tope.unidad === 'CLP') unidad = "PESOS";
+
+                        canonical.topes.push({
+                            ambito,
+                            unidad: isSinTope ? "DESCONOCIDO" : unidad,
+                            valor: isSinTope ? null : v3Tope.valor,
+                            aplicacion,
+                            tipo_modalidad: type,
+                            fuente_textual: `${pagePrefix} ${itemName} (${type}): ${v3Tope.raw || (isSinTope ? "SIN TOPE" : "")}`,
+                            tope_existe: !isSinTope,
+                            razon: isSinTope ? "SIN_TOPE_EXPRESO_EN_CONTRATO" : undefined
+                        } as any);
+                    };
+
+                    mapTope(mod.topePrestacion, "por_prestacion");
+                    mapTope(mod.topeAnualBeneficiario, "anual");
+                };
+
+                processV3Modality(rule.modalidadPreferente, "preferente");
+                processV3Modality(rule.modalidadLibreEleccion, "libre_eleccion");
+            });
+        });
+
+        // Map V3 Network Rules as General Rules
+        result.v3.networkRules.forEach(net => {
+            canonical.reglas_aplicacion.push({
+                condicion: `Regla de Red: ${net.redesPrestador.join(", ")}`,
+                efecto: `${net.bonificacionPct}% cobertura - ${net.notesRaw || "Sin notas"}`,
+                fuente_textual: `[V3] Base legal de red: ${net.networkRuleId}`
+            });
+        });
+
+        if (canonical.coberturas.length > 0) return canonical; // V3 is sufficient
+    }
+
     // 1. Process Coberturas & Topes
     (result.coberturas || []).forEach((cob, cobIdx) => {
         const itemName = cob.item || "Prestación desconocida";

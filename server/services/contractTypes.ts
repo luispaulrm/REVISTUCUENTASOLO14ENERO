@@ -16,6 +16,8 @@ export interface UploadedFile {
 
 export interface ContractAnalysisOptions {
     maxOutputTokens?: number;
+    maxPages?: number;
+    log?: (msg: string) => void;
 }
 
 export interface UsageMetadata {
@@ -38,16 +40,6 @@ export interface ContractCoverage {
     fuente: "TABLA_CONTRATO";
 }
 
-// ============================================================================
-// DOCTRINA INDUSTRIAL: DIVISIÓN EXPLORATION vs LEGAL
-// ============================================================================
-
-/**
- * 🧪 EXPLORATION JSON
- * "Mapa exploratorio del documento. No tiene fuerza legal."
- * Función: Descubrir, enumerar, mapear, medir incertidumbre.
- * NUNCA usar para efectos legales directos sin pasar por el compilador.
- */
 export interface ExplorationTopeCompound {
     alcance: 'NACIONAL' | 'INTERNACIONAL' | 'TRANSITORIO' | 'REGIONAL';
     regla?: 'SIN_TOPE' | 'CON_TOPE' | 'ARANCEL' | 'REEMBOLSO';
@@ -103,6 +95,86 @@ export interface ExplorationItem {
     'modalidades': Array<ExplorationModality>;
     'nota_restriccion'?: string | null;
     'categoria_canonica'?: string;
+}
+
+// ============================================================================
+// V3.5 ARCHITECTURE: RULE-BASED EXTRACTION & SEMANTIC GRID
+// ============================================================================
+
+export type UnidadRef = 'UF' | 'VA' | 'CLP' | 'OTRA';
+
+export type TopeTipo =
+    | 'NUMERICO'
+    | 'SIN_TOPE_EXPLICITO'
+    | 'NO_ENCONTRADO';
+
+export type TopeRazon =
+    | 'SIN_TOPE_EXPRESO_EN_CONTRATO'
+    | 'SIN_TOPE_INFERIDO_POR_DISENO'
+    | 'CELDA_VACIA_OCR'
+    | 'COLUMNA_NO_EXISTE';
+
+export interface TopeValue {
+    tipo: TopeTipo;
+    valor: number | null;        // null SOLO si tipo != NUMERICO
+    unidad: UnidadRef | null;     // null SOLO si no aplica
+    raw: string | null;           // texto crudo de la celda
+    razon?: TopeRazon;            // obligatorio si tipo != NUMERICO
+    confidence?: number;          // opcional
+}
+
+export interface V3BenefitRule {
+    ruleId: string;
+    blockId: string;
+    prestacionLabel: string;
+    modalidadPreferente?: {
+        bonificacionPct: number | null;
+        topePrestacion: TopeValue;
+        topeAnualBeneficiario?: TopeValue | null;
+    } | null;
+    modalidadLibreEleccion?: {
+        bonificacionPct: number | null;
+        topePrestacion: TopeValue;
+        topeAnualBeneficiario?: TopeValue | null;
+    } | null;
+    networkRuleIds?: string[];
+    evidence: {
+        source?: string;
+        anchors: string[];
+    };
+}
+
+export interface V3NetworkRule {
+    networkRuleId: string;
+    blockId?: string | null; // scope block si inequívoco
+    bonificacionPct: number;
+    topePrestacion: TopeValue; // típicamente SIN_TOPE_EXPLICITO
+    redesPrestador: string[];
+    notesRaw?: string | null;
+    evidence: {
+        source?: string;
+        anchors: string[];
+    };
+}
+
+export interface ContractV3Output {
+    docMeta: {
+        planType: string | null;
+        hasPreferredProviderMode: boolean;
+        funNumber: string | null;
+        rawTitle: string | null;
+    };
+    coverageBlocks: Array<{
+        blockId: string;
+        blockTitle: string;
+        benefitRules: V3BenefitRule[];
+    }>;
+    networkRules: V3NetworkRule[];
+    issues: Array<{
+        code: string;
+        message: string;
+        path?: string;
+    }>;
 }
 
 /**
@@ -165,9 +237,58 @@ export interface ExplorationJSON {
             totalItems: number;
         };
     };
+
+    // V3 Evolution
+    v3?: ContractV3Output;
 }
 
 /**
  * ⚖️ LEGAL AUDIT PACKAGE (Alias for external usage)
  */
 export type ContractAnalysisResult = ExplorationJSON;
+
+// ============================================================================
+// GRID ALGORITHM V3.5: SEMANTIC GRID
+// ============================================================================
+
+export interface Token {
+    text: string;
+    page: number;
+    x0: number;
+    x1: number;
+    y0: number;
+    y1: number;
+}
+
+export interface GridColumn {
+    colId: string;
+    x0: number;
+    x1: number;
+    headerHint?: string | null; // "PRESTACIONES", "BONIF_%_PREF", etc.
+}
+
+export interface GridRow {
+    rowId: string;
+    page: number;
+    y0: number;
+    y1: number;
+    cells: Record<string, { raw: string; tokenIds?: string[] }>;
+}
+
+export interface RuleBox {
+    boxId: string;
+    page: number;
+    y0: number;
+    y1: number;
+    raw: string;
+    anchors: string[];
+}
+
+export interface TableModel {
+    docId: string;
+    columns: GridColumn[];
+    rows: GridRow[];
+    ruleBoxes: RuleBox[];
+    blockHints: Array<{ blockTitle: string; y0: number; y1: number; page: number }>;
+    issues: Array<{ code: string; message: string; page?: number }>;
+}

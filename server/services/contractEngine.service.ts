@@ -5,11 +5,23 @@ import {
     ExplorationItem,
     ExplorationModality,
     ExplorationTopeCompound,
-    ContractAnalysisResult,
     ContractAnalysisOptions,
     UploadedFile,
     ContractCoverage,
-    RawCell // Cartesian Support
+    RawCell, // Cartesian Support
+    UnidadRef,
+    TopeTipo,
+    TopeRazon,
+    TopeValue,
+    V3BenefitRule,
+    V3NetworkRule,
+    ContractV3Output,
+    Token,
+    GridColumn,
+    GridRow,
+    RuleBox,
+    TableModel,
+    ContractAnalysisResult
 } from './contractTypes.js';
 import { decodeCartesian } from './contractDecoder.js';
 import { jsonrepair } from 'jsonrepair';
@@ -178,117 +190,224 @@ function assignToColumn(item: any, columns: Array<{ start: number, end: number, 
     return -1; // Out of bounds
 }
 
-async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<{ text: string, totalPages: number, structuredData?: any }> {
-    try {
-        log(`[ContractEngine] 🔍 Escaneando PDF con Detector de Columnas Geométricas v13.5 (Debug Mode)...`);
-        const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+/**
+ * NEW: Grid Algorithm v3.5
+ * Extracts raw tokens with precise coordinates.
+ */
+async function extractTokensFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<Token[]> {
+    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    const data = new Uint8Array(file.buffer);
+    const pdf = await pdfjsLib.getDocument({ data, disableFontFace: true }).promise;
 
-        const fontPathRaw = path.resolve(__dirname, '../../node_modules/pdfjs-dist/standard_fonts');
-        const fontPath = fontPathRaw.replace(/\\/g, '/') + '/';
-        const standardFontDataUrl = fontPath;
+    const pagesToScan = Math.min(pdf.numPages, maxPages);
+    const tokens: Token[] = [];
 
-        const data = new Uint8Array(file.buffer);
-        const loadingTask = pdfjsLib.getDocument({
-            data,
-            disableFontFace: true,
-            standardFontDataUrl
+    for (let pageNum = 1; pageNum <= pagesToScan; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+
+        for (const item of (textContent.items as any[])) {
+            if (!item.transform) continue;
+            tokens.push({
+                text: item.str,
+                page: pageNum,
+                x0: item.transform[4],
+                x1: item.transform[4] + (item.width || 0),
+                y0: item.transform[5],
+                y1: item.transform[5] + (item.height || 0)
+            });
+        }
+    }
+    return tokens;
+}
+
+/**
+ * Detects columns using density clustering (Histogram).
+ */
+export function detectGridColumns(tokens: Token[], page: number, globalModel?: GridColumn[]): GridColumn[] {
+    const pageTokens = tokens.filter(t => t.page === page);
+    if (pageTokens.length === 0) return globalModel || [];
+
+    // Density histogram in X (using center points for clustering)
+    const binSize = 3;
+    const histogram: Record<number, number> = {};
+
+    pageTokens.forEach(t => {
+        const center = (t.x0 + t.x1) / 2;
+        const bin = Math.floor(center / binSize) * binSize;
+        histogram[bin] = (histogram[bin] || 0) + 1;
+    });
+
+    // Simple valley search for column separators
+    const bins = Object.keys(histogram).map(Number).sort((a, b) => a - b);
+    const columns: GridColumn[] = [];
+    let currentColX0 = pageTokens.reduce((min, t) => Math.min(min, t.x0), Infinity);
+
+    for (let i = 1; i < bins.length; i++) {
+        const gap = bins[i] - bins[i - 1];
+        if (gap > binSize * 5) { // Threshold for column gap
+            columns.push({
+                colId: `col_${columns.length}`,
+                x0: currentColX0,
+                x1: bins[i - 1] + binSize,
+                headerHint: null
+            });
+            currentColX0 = bins[i];
+        }
+    }
+
+    const lastBin = bins[bins.length - 1];
+    columns.push({
+        colId: `col_${columns.length}`,
+        x0: currentColX0,
+        x1: lastBin + binSize,
+        headerHint: null
+    });
+
+    // HYSTERESIS: Snap to global model if it exists
+    if (globalModel && globalModel.length > 0) {
+        return columns.map(col => {
+            const snapMatch = globalModel.find(g => Math.abs(g.x0 - col.x0) < 20);
+            return snapMatch ? { ...snapMatch } : col;
         });
-        const pdf = await loadingTask.promise;
+    }
 
-        const pagesToScan = Math.min(pdf.numPages, Number.isFinite(maxPages) ? maxPages : pdf.numPages);
-        log(`[ContractEngine] 📗 PDF cargado (${pdf.numPages} págs). Procesando ${pagesToScan}.`);
+    return columns;
+}
 
-        let formattedText = '';
-        const structuredTables: any[] = [];
+/**
+ * NEW: Grid Algorithm v3.5
+ * Detects "100%/90% Sin Tope" blocks via regex and vertical expansion.
+ */
+function detectRuleBoxes(tokens: Token[], page: number): RuleBox[] {
+    const pageTokens = tokens.filter(t => t.page === page).sort((a, b) => b.y0 - a.y0);
+    const ruleBoxes: RuleBox[] = [];
+    const fullText = pageTokens.map(t => t.text).join(" ").toUpperCase();
 
-        for (let pageNumber = 1; pageNumber <= pagesToScan; pageNumber++) {
-            const pagePromise = pdf.getPage(pageNumber).then(async (page) => {
-                const textContent = await page.getTextContent();
-                const items: any[] = textContent.items || [];
+    // Regex for: 100% Sin Tope or 90% Sin Tope
+    const boxRegex = /(100|90)\s*%\s*SIN\s*TOPE/g;
+    let match: RegExpExecArray | null;
 
-                // --- STEP 1: DETECT COLUMN BOUNDARIES ---
-                const columns = detectColumnBoundaries(items, log);
-                log(`[DEBUG_OCR] Pág ${pageNumber}: ${columns.length} columnas detectadas.`);
-                columns.forEach(c => log(`  -> Col ${c.index}: ${c.start.toFixed(0)}px - ${c.end.toFixed(0)}px`));
+    while ((match = boxRegex.exec(fullText)) !== null) {
+        const pct = match[1];
+        const anchors: string[] = [`${pct}% SIN TOPE`];
 
-                // --- STEP 2: GROUP ITEMS BY ROW (Y-coordinate) ---
-                const Y_TOLERANCE = 5.0; // Slightly increased vertical tolerance
-                const lines: { y: number, items: any[] }[] = [];
+        // Find anchors (tokens) to locate the box coordinate-wise
+        const anchorToken = pageTokens.find(t => t.text.includes(pct) && t.text.includes("%"));
 
-                for (const item of items) {
-                    if (!item.transform || item.transform.length < 6) continue;
-                    const y = item.transform[5];
-
-                    const line = lines.find(l => Math.abs(l.y - y) < Y_TOLERANCE);
-                    if (line) {
-                        line.items.push(item);
-                    } else {
-                        lines.push({ y, items: [item] });
-                    }
-                }
-
-                lines.sort((a, b) => b.y - a.y); // Top to bottom
-
-                // --- STEP 3: ASSIGN ITEMS TO COLUMNS AND BUILD STRUCTURED TABLE ---
-                const tableRows: any[] = [];
-
-                for (const line of lines) {
-                    const row: string[] = new Array(columns.length).fill('');
-
-                    // Sort items in line by X to ensure logical reading order even within cells
-                    line.items.sort((a, b) => a.transform[4] - b.transform[4]);
-
-                    for (const item of line.items) {
-                        const colIndex = assignToColumn(item, columns);
-                        if (colIndex >= 0 && colIndex < columns.length) {
-                            row[colIndex] += (row[colIndex].length > 0 ? ' ' : '') + item.str;
-                        }
-                    }
-
-                    // Only add non-empty rows
-                    if (row.some(cell => cell.trim().length > 0)) {
-                        tableRows.push(row);
-                    }
-                }
-
-                structuredTables.push({
-                    page: pageNumber,
-                    columns: columns.length,
-                    rows: tableRows
-                });
-
-                // --- STEP 4: DEBUG OUTPUT & FORMATTING ---
-                const pageLines = tableRows.map(row => {
-                    const formattedRow = row.map((cell: string) => cell.trim()).join(' | ');
-                    return formattedRow;
-                });
-
-                // Log a sample of rows for debugging
-                if (pageLines.length > 0) {
-                    log(`[DEBUG_OCR] --- Muestra de Filas Detectadas (Pág ${pageNumber}) ---`);
-                    pageLines.slice(0, 10).forEach(l => log(`  ${l.substring(0, 150)}...`));
-                }
-
-                return pageLines.join('\n');
+        if (anchorToken) {
+            ruleBoxes.push({
+                boxId: `box_${ruleBoxes.length}`,
+                page,
+                y0: anchorToken.y0 - 20, // Rough expansion
+                y1: anchorToken.y1 + 20,
+                raw: match[0],
+                anchors
             });
+        }
+    }
+    return ruleBoxes;
+}
 
-            const pageText = await Promise.race([
-                pagePromise,
-                new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout de lectura')), 25000))
-            ]).catch(err => {
-                log(`[ContractEngine] ⚠️ Error pág ${pageNumber}: ${err.message}`);
-                return '';
-            });
+export function reconstructTableGrid(tokens: Token[], page: number, columns: GridColumn[]): TableModel {
+    const pageTokens = tokens.filter(t => t.page === page).sort((a, b) => b.y0 - a.y0);
+    const rows: GridRow[] = [];
+    const Y_THRESHOLD = 4;
 
-            if (pageText) {
-                formattedText += `\n--- PÁGINA ${pageNumber} ---\n${pageText}\n`;
-            }
+    // STEP 1: Y-Band Segmenter (Group tokens into bands)
+    for (const token of pageTokens) {
+        let row = rows.find(r => Math.abs(r.y0 - token.y0) < Y_THRESHOLD);
+        if (!row) {
+            row = {
+                rowId: `row_${rows.length}`,
+                page,
+                y0: token.y0,
+                y1: token.y1,
+                cells: {}
+            };
+            rows.push(row);
+        } else {
+            row.y0 = Math.min(row.y0, token.y0);
+            row.y1 = Math.max(row.y1, token.y1);
         }
 
-        return { text: formattedText.trim(), totalPages: pdf.numPages, structuredData: structuredTables };
+        // INTERSECTION LOGIC: Assign to column if center falls within x-range
+        const center = (token.x0 + token.x1) / 2;
+        const col = columns.find(c => center >= c.x0 && center <= c.x1);
+
+        if (col) {
+            const cell = row.cells[col.colId] || { raw: "", tokenIds: [] };
+            cell.raw = (cell.raw + " " + token.text).trim();
+            // Using text as ID since we don't have unique token IDs from PDF.js here
+            cell.tokenIds?.push(`${token.page}_${token.x0}_${token.y0}`);
+            row.cells[col.colId] = cell;
+        }
+    }
+
+    rows.sort((a, b) => b.y0 - a.y0);
+
+    // STEP 2: PRE-LLM ROW PROPAGATION (Propagate "Sin Tope" to empty neighbor rows)
+    // Heuristic: If a cell is empty but its neighbors in a specific range have "Sin Tope"
+    // and it's within the same block hint (simplified as contiguity here).
+    columns.forEach(col => {
+        for (let i = 1; i < rows.length; i++) {
+            const currentCell = rows[i].cells[col.colId];
+            const prevCell = rows[i - 1].cells[col.colId];
+
+            if ((!currentCell || !currentCell.raw) && (prevCell && prevCell.raw.toUpperCase().includes("SIN TOPE"))) {
+                rows[i].cells[col.colId] = {
+                    raw: prevCell.raw,
+                    tokenIds: prevCell.tokenIds // Proximity inheritance
+                };
+            }
+        }
+    });
+
+    return {
+        docId: `doc_${page}`,
+        columns,
+        rows,
+        ruleBoxes: detectRuleBoxes(tokens, page),
+        blockHints: [], // Ideally extracted from Column A headers
+        issues: []
+    };
+}
+
+async function extractTextFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<{ text: string, totalPages: number, tableModels: TableModel[] }> {
+    try {
+        log(`[ContractEngine] 🔍 Iniciando Grid Algorithm v3.5 (Semantic Grid)...`);
+
+        const tokens = await extractTokensFromPdf(file, maxPages, log);
+        const totalPages = [...new Set(tokens.map(t => t.page))].length;
+
+        let globalColumns: GridColumn[] | undefined;
+        const tableModels: TableModel[] = [];
+        let formattedText = "";
+
+        for (let p = 1; p <= totalPages; p++) {
+            const columns = detectGridColumns(tokens, p, globalColumns);
+            if (!globalColumns && columns.length > 0) globalColumns = columns; // Lock in first page's grid
+
+            const model = reconstructTableGrid(tokens, p, columns);
+            tableModels.push(model);
+
+            // Generate legacy formatted text for backward compatibility/reference
+            formattedText += `\n--- PÁGINA ${p} ---\n`;
+            model.rows.forEach(row => {
+                const rowStr = columns.map(c => {
+                    const cell = row.cells[c.colId];
+                    return (cell ? cell.raw : "").trim();
+                }).join(" | ");
+                if (rowStr.replace(/[| ]/g, "").length > 0) {
+                    formattedText += rowStr + "\n";
+                }
+            });
+        }
+
+        return { text: formattedText.trim(), totalPages, tableModels };
     } catch (error) {
-        log(`[ContractEngine] ❌ Error en OCR: ${error instanceof Error ? error.message : 'Error fatal'}`);
-        return { text: '', totalPages: 0 };
+        log(`[ContractEngine] ❌ Error en Grid Analysis: ${error instanceof Error ? error.message : 'Error fatal'}`);
+        return { text: '', totalPages: 0, tableModels: [] };
     }
 }
 
@@ -464,7 +583,7 @@ export async function analyzeSingleContract(
     const mimeType = file.mimetype;
 
     // Helper for Extraction Call with Robustness Features
-    async function extractSection(name: string, prompt: string, schema: any): Promise<any> {
+    async function extractSection(name: string, prompt: string, schema: any, tableModels?: TableModel[]): Promise<any> {
         log(`\n[ContractEngine] 🚀 Iniciando FASE: ${name.toUpperCase()}...`);
         // Use uniqueKeys defined in parent scope
 
@@ -522,6 +641,10 @@ export async function analyzeSingleContract(
                         enrichedPrompt = prompt.replace("{{FEW_SHOT_EXAMPLES}}", exampleText);
                     }
 
+                    // Inject table models into the prompt if available
+                    const tableContext = tableModels ? `\n[TABLE_MODEL_JSON]\n${JSON.stringify(tableModels, null, 2)}\n` : "";
+                    const finalPrompt = `${enrichedPrompt}\n${tableContext}`;
+
 
                     const model = genAI.getGenerativeModel({
                         model: modelName,
@@ -537,7 +660,7 @@ export async function analyzeSingleContract(
                     });
 
                     const stream = await model.generateContentStream([
-                        { text: enrichedPrompt },
+                        { text: finalPrompt },
                         { inlineData: { data: base64Data, mimeType: mimeType } }
                     ]);
 
@@ -631,8 +754,16 @@ export async function analyzeSingleContract(
         return { result: finalResult, metrics: finalMetrics, success: isSuccess };
     }
 
-    // --- PHASE 0: CLASSIFIER (Sequential Validation) ---
-    const fingerprintPhase = await extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER);
+    // --- PHASE 1: STRUCTURAL ANALYSIS (Grid Algorithm v3.5) ---
+    const { text: fullText, totalPages, tableModels } = await extractTextFromPdf(file, Number(options.maxPages) || CONTRACT_OCR_MAX_PAGES, log);
+    const ocrResult = { text: fullText, totalPages, tableModels };
+
+    if (!fullText) {
+        log(`[ContractEngine] ⚠️ No se detectó texto con Grid Algorithm. Reintentando con OCR plano...`);
+    }
+
+    // --- PHASE 2: CLASSIFIER (Sequential Validation) ---
+    const fingerprintPhase = await extractSection("CLASSIFIER", PROMPT_CLASSIFIER, SCHEMA_CLASSIFIER, tableModels);
 
     if (fingerprintPhase.result) {
         log(`\n[ContractEngine] 📍 Huella Digital:`);
@@ -663,83 +794,10 @@ export async function analyzeSingleContract(
         return t === t.toUpperCase() && !/[0-9%$.,]/.test(t);
     }
 
-    const runModularPhase = async (phaseId: string, segmentPrompt: string, targetAmbito: "HOSPITALARIO" | "AMBULATORIO") => {
-        const enrichedPrompt = PROMPT_MODULAR_JSON.replace("{{SEGMENT}}", segmentPrompt);
-        const phase = await extractSection(phaseId, enrichedPrompt, SCHEMA_MODULAR_JSON);
-
-        let currentSectionHeader = "SIN_SECCION_VISUAL";
-        const processedItems: any[] = [];
-
-        (phase.result?.coberturas || []).forEach((item: any) => {
-            // Guardrail: Process Visual Headers
-            if (item.tipo === "seccion_visual") {
-                if (isValidSectionHeader(item.seccion_raw || item.item)) {
-                    currentSectionHeader = (item.seccion_raw || item.item || "").trim().toUpperCase();
-                    log(`[${phaseId}] 📑 Nuevo encabezado visual detectado: ${currentSectionHeader}`);
-                } else {
-                    // Demote rejected header
-                    item.tipo = "texto_no_prestacion";
-                }
-            }
-
-            // Skip non-prestacion text for actual coverage mapping
-            if (item.tipo !== "prestacion") return;
-
-            // ENFORCE INVARIANTS
-            const rowAmbito = targetAmbito;
-            const seccionRaw = item.seccion_raw || currentSectionHeader;
-
-            // Map Modalities
-            const modalities = [];
-
-            const mapModality = (rawMod: any, tipo: "PREFERENTE" | "LIBRE_ELECCION") => {
-                if (!rawMod) return null;
-
-                const topeStr = String(rawMod.tope || "").toUpperCase();
-                let unit: "UF" | "AC2" | "VAM" | "PESOS" | "SIN_TOPE" | "DESCONOCIDO" | "MIXTO" = "DESCONOCIDO";
-
-                // DOCTRINA IMBATIBLE: Detectar MIXTO antes que unidades simples
-                const hasVAM = topeStr.includes("VAM");
-                const hasUF = topeStr.includes("UF");
-
-                if (hasVAM && hasUF) unit = "MIXTO";
-                else if (hasUF) unit = "UF";
-                else if (hasVAM) unit = "VAM";
-                else if (topeStr.includes("AC2") || topeStr.includes("VECES")) unit = "AC2";
-                else if (topeStr.includes("PESOS") || topeStr.includes("$")) unit = "PESOS";
-                else if (topeStr.includes("SIN TOPE") || topeStr.includes("ILIMITADO")) unit = "SIN_TOPE";
-
-                return {
-                    tipo,
-                    porcentaje: rawMod.porcentaje,
-                    tope: rawMod.tope,
-                    unidadTope: unit,
-                    tipoTope: "DESCONOCIDO" as const, // NO ASSUMING POR_EVENTO
-                    copago: rawMod.tope,
-                    // --- EXPLORATION DOCTRINE EVIDENCE ---
-                    evidencia_literal: rawMod.tope || item.item,
-                    incertidumbre: (rawMod.porcentaje === null || rawMod.tope === null) ? "Dato faltante o ambiguo en PDF" : undefined,
-                    origen_extraccion: 'VISUAL_MODULAR' as const
-                    // interpretacion_sugerida REMOVED from extraction phase (v1.6.0)
-                };
-            };
-
-            const modPref = mapModality(item.preferente, "PREFERENTE");
-            if (modPref) modalities.push(modPref);
-
-            const modLibre = mapModality(item.libre_eleccion, "LIBRE_ELECCION");
-            if (modLibre) modalities.push(modLibre);
-
-            processedItems.push({
-                categoria: seccionRaw, // Map seccion_raw to categoria for UI
-                seccion_raw: seccionRaw,
-                item: item.item,
-                ambito: rowAmbito,
-                modalidades: modalities
-            });
-        });
-
-        return { items: processedItems, phase };
+    // Helper for parallel phase execution
+    const runModularPhase = async (id: string, prompt: string, ambito: string) => {
+        const res = await extractSection(id, prompt, SCHEMA_MODULAR_JSON, tableModels);
+        return { items: res.result?.items || [], phase: res, id, ambito };
     };
 
     // Execute phases
@@ -758,18 +816,10 @@ export async function analyzeSingleContract(
     const fullJsonPhase = { success: allModularPhases.every(p => p.success), result: null };
 
 
-    // OCR Text is still useful for deterministic check
-    const textExtractionPromise = extractTextFromPdf(file, CONTRACT_OCR_MAX_PAGES, log);
-    const [ocrResult] = await Promise.all([textExtractionPromise]);
-
     // --- INTEGRATION: DETERMINISTIC MARKDOWN PARSER ---
-    // We attempt to parse the OCR markdown directly.
-    // If successful, we can use these items directly or merge them.
-    // For now, let's inject them into the raw streams.
-
-    // OCR parsing disabled in single-pass mode (data comes from fullJsonPhase)
-    if ((ocrResult as any).text) {
-        log(`[ContractEngine] 🧠 OCR Text extracted for reference (${(ocrResult as any).text.length} chars)`);
+    // ocrResult is already available from Phase 1
+    if (fullText) {
+        log(`[ContractEngine] 🧠 Grid Text available for reference (${fullText.length} chars)`);
     }
 
     // ============================================================================

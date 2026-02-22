@@ -193,6 +193,157 @@ const SHARED_MANDATE = `
   - Tu único trabajo es digitalizar la grilla 2D.
 `;
 
+export const PROMPT_V3_JSON = `
+  Eres CONTRACT_CANONIZER_V3. Tu tarea es extraer y canonizar a JSON una tabla de beneficios.
+
+  ENTRADA:
+  Te entregaré un objeto estructurado "tableModel" que contiene:
+  - columns: Definición de x-ranges.
+  - rows: Celdas pre-agrupadas por proximidad geométrica.
+  - ruleBoxes: Cajas de reglas generales (ej: 100% Sin Tope) extraídas mediante lógica determinística.
+
+  TU TAREA:
+  1) Analizar semánticamente el contenido de las filas ("rows").
+  2) Mapear cada fila a una "benefitRule".
+  3) Utilizar los "ruleBoxes" para aplicar porcentajes y topes a los bloques de prestaciones correspondientes.
+  4) Resolver ambigüedades: Si una "ruleBox" aplica a un bloque entero (SCOPE="BLOCK"), asociala a todas las prestaciones de ese bloque.
+  5) Producir el JSON final siguiendo estrictamente el SCHEMA_V3_JSON.
+
+  REGLA 4 (SIN TOPE):
+  - Si una celda contiene exactamente "Sin Tope" (o variantes OCR: "S/Tope", "SinTope"):
+    -> tope.tipo = "SIN_TOPE_EXPLICITO"
+    -> tope.valor = null
+    -> tope.unidad = null
+    -> tope.raw = texto original
+    -> tope.razon = "SIN_TOPE_EXPRESO_EN_CONTRATO"
+  - Si la celda está vacía o ilegible:
+    -> tope.tipo = "NO_ENCONTRADO"
+    -> tope.valor = null
+    -> tope.unidad = null
+    -> tope.raw = null
+    -> tope.razon = "CELDA_VACIA_OCR"
+  - PROHIBIDO: usar unidad="DESCONOCIDO".
+
+  REGLAS DE NEGOCIO (Isapre/Convenio):
+  - OFERTA PREFERENTE: Columnas de bonificación y tope en red.
+  - LIBRE ELECCIÓN: Cobertura fuera de red.
+  - TOPE ANUAL: Si la tabla muestra una columna de tope anual por beneficiario, extráelo como topeAnualBeneficiario.
+
+  DETERMINISMO:
+  - Usa los valores de "tableModel" tal cual. No inventes prestaciones que no estén en las filas proporcionadas.
+  - Si una fila tiene celdas vacías en una modalidad, marca issue MISSING_CELL.
+
+  SALIDA: JSON ESTRICTO.
+`;
+
+const SCHEMA_TOPE_VALUE = {
+  type: SchemaType.OBJECT,
+  properties: {
+    tipo: { type: SchemaType.STRING, enum: ["NUMERICO", "SIN_TOPE_EXPLICITO", "NO_ENCONTRADO"] },
+    valor: { type: SchemaType.NUMBER, nullable: true },
+    unidad: { type: SchemaType.STRING, enum: ["UF", "VA", "CLP", "OTRA"], nullable: true },
+    raw: { type: SchemaType.STRING, nullable: true },
+    razon: { type: SchemaType.STRING, enum: ["SIN_TOPE_EXPRESO_EN_CONTRATO", "SIN_TOPE_INFERIDO_POR_DISENO", "CELDA_VACIA_OCR", "COLUMNA_NO_EXISTE"], nullable: true }
+  }
+};
+
+export const SCHEMA_V3_JSON = {
+  type: SchemaType.OBJECT,
+  properties: {
+    docMeta: {
+      type: SchemaType.OBJECT,
+      properties: {
+        planType: { type: SchemaType.STRING, nullable: true },
+        hasPreferredProviderMode: { type: SchemaType.BOOLEAN },
+        funNumber: { type: SchemaType.STRING, nullable: true },
+        rawTitle: { type: SchemaType.STRING, nullable: true }
+      }
+    },
+    coverageBlocks: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          blockId: { type: SchemaType.STRING },
+          blockTitle: { type: SchemaType.STRING },
+          benefitRules: {
+            type: SchemaType.ARRAY,
+            items: {
+              type: SchemaType.OBJECT,
+              properties: {
+                ruleId: { type: SchemaType.STRING },
+                blockId: { type: SchemaType.STRING },
+                prestacionLabel: { type: SchemaType.STRING },
+                modalidadPreferente: {
+                  type: SchemaType.OBJECT,
+                  nullable: true,
+                  properties: {
+                    bonificacionPct: { type: SchemaType.NUMBER, nullable: true },
+                    topePrestacion: SCHEMA_TOPE_VALUE,
+                    topeAnualBeneficiario: { ...SCHEMA_TOPE_VALUE, nullable: true }
+                  }
+                },
+                modalidadLibreEleccion: {
+                  type: SchemaType.OBJECT,
+                  nullable: true,
+                  properties: {
+                    bonificacionPct: { type: SchemaType.NUMBER, nullable: true },
+                    topePrestacion: SCHEMA_TOPE_VALUE,
+                    topeAnualBeneficiario: { ...SCHEMA_TOPE_VALUE, nullable: true }
+                  }
+                },
+                networkRuleIds: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+                evidence: {
+                  type: SchemaType.OBJECT,
+                  properties: {
+                    anchors: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+                  }
+                }
+              },
+              required: ['ruleId', 'blockId', 'prestacionLabel']
+            }
+          }
+        },
+        required: ['blockId', 'blockTitle', 'benefitRules']
+      }
+    },
+    networkRules: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          networkRuleId: { type: SchemaType.STRING },
+          blockId: { type: SchemaType.STRING, nullable: true },
+          bonificacionPct: { type: SchemaType.NUMBER },
+          topePrestacion: SCHEMA_TOPE_VALUE,
+          redesPrestador: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } },
+          notesRaw: { type: SchemaType.STRING, nullable: true },
+          evidence: {
+            type: SchemaType.OBJECT,
+            properties: {
+              anchors: { type: SchemaType.ARRAY, items: { type: SchemaType.STRING } }
+            }
+          }
+        },
+        required: ['networkRuleId', 'bonificacionPct', 'redesPrestador']
+      }
+    },
+    issues: {
+      type: SchemaType.ARRAY,
+      items: {
+        type: SchemaType.OBJECT,
+        properties: {
+          code: { type: SchemaType.STRING },
+          message: { type: SchemaType.STRING },
+          path: { type: SchemaType.STRING, nullable: true }
+        },
+        required: ['code', 'message']
+      }
+    }
+  },
+  required: ['coverageBlocks', 'networkRules', 'issues']
+};
+
 export const PROMPT_MODULAR_JSON = `
   ACT AS A HIGH-FIDELITY MEDICAL CONTRACT ANALYST (MODULAR MAPPING MODE).
 
