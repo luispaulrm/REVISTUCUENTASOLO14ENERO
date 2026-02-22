@@ -268,17 +268,14 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
                 );
 
                 if (rawVal !== null && rawVal !== undefined || isSinTopeItem) {
-                    let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
-                    if (uTopeRaw.includes("UF") || (String(rawVal)).toUpperCase().includes("UF")) unidad = "UF";
-                    else if (uTopeRaw.includes("AC2") || (String(rawVal)).toUpperCase().includes("AC2")) unidad = "AC2";
-                    else if (["VAM", "V20", "V10", "VA", "VECES ARANCEL"].some(u => uTopeRaw.includes(u) || (String(rawVal)).toUpperCase().includes(u))) unidad = "VAM";
-                    else if (uTopeRaw.includes("PESOS") || uTopeRaw.includes("$") || (String(rawVal)).includes("$")) unidad = "PESOS";
+                    // Bug 1 Fix: Deterministic unit inference from raw string / evidence
+                    let unidad: "UF" | "VAM" | "AC2" | "PESOS" | null = null;
+                    const combinedSource = `${uTopeRaw} ${valStr} ${(mod.evidencia_literal || "").toUpperCase()}`;
 
-                    let aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido" = forceAplicacion || "desconocido";
-                    if (!forceAplicacion) {
-                        if (mod.tipoTope === "ANUAL" || (mod.tipoTope as string) === "ANUAL") aplicacion = "anual";
-                        else if (mod.tipoTope === "POR_EVENTO" || (mod.tipoTope as string) === "POR_EVENTO") aplicacion = "por_evento";
-                    }
+                    if (combinedSource.includes("UF") || combinedSource.includes("U.F.")) unidad = "UF";
+                    else if (combinedSource.includes("AC2")) unidad = "AC2";
+                    else if (["VAM", "V20", "V10", "VA", "VECES ARANCEL", "V.A"].some(u => combinedSource.includes(u))) unidad = "VAM";
+                    else if (combinedSource.includes("PESOS") || combinedSource.includes("$") || combinedSource.includes("CLP")) unidad = "PESOS";
 
                     let val: number | null = null;
                     if (typeof rawVal === 'number') val = rawVal;
@@ -290,32 +287,58 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
                     }
 
                     // Priority for normalized engine numeric values if checking the main tope
-                    if (!forceAplicacion && val === null) {
+                    if (!forceAplicacion && val === null && !isSinTopeItem) {
                         val = (mod as any).tope_normalizado ?? mod.tope_nested?.valor ?? null;
+                    }
+
+                    // Bug 2 Fix: Rely on explicit forceAplicacion for anual/por_evento
+                    let aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido" = forceAplicacion || "desconocido";
+                    if (!forceAplicacion) {
+                        if (mod.tipoTope === "ANUAL" || (mod.tipoTope as string) === "ANUAL") aplicacion = "anual";
+                        else if (mod.tipoTope === "POR_EVENTO" || (mod.tipoTope as string) === "POR_EVENTO" || mod.tipoTope === "ILIMITADO" || mod.tipoTope === "DIARIO") aplicacion = "por_evento";
+                    }
+
+                    // Bug 3 Fix: Semantic TopeValue implementation
+                    let tipo: "NUMERICO" | "SIN_TOPE_EXPLICITO" | "NO_ENCONTRADO" = "NO_ENCONTRADO";
+                    let razon: string | undefined = undefined;
+                    let tope_existe: boolean | null = null;
+
+                    if (isSinTopeItem) {
+                        tipo = "SIN_TOPE_EXPLICITO";
+                        val = null;
+                        unidad = null;
+                        tope_existe = false;
+                        razon = "SIN_TOPE_EXPRESO_EN_CONTRATO";
+                    } else if (val !== null) {
+                        tipo = "NUMERICO";
+                        tope_existe = true;
+                    } else {
+                        tipo = "NO_ENCONTRADO";
+                        val = null;
+                        unidad = null;
+                        tope_existe = false;
+                        razon = "CELDA_VACIA_OCR";
                     }
 
                     const topeEntry: any = {
                         ambito,
-                        unidad: isSinTopeItem ? "DESCONOCIDO" : unidad,
-                        valor: isSinTopeItem ? null : val,
+                        tipo,
+                        unidad,
+                        valor: val,
                         aplicacion,
+                        tope_existe,
                         tipo_modalidad: mod.tipo === "LIBRE_ELECCION" ? "libre_eleccion" : (mod.tipo === "PREFERENTE" ? "preferente" : "desconocido"),
-                        fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${isSinTopeItem ? "SIN TOPE" : (val + " " + unidad)}`
+                        fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${isSinTopeItem ? "SIN TOPE" : (val !== null ? val + " " + (unidad || "") : "No encontrado")}`
                     };
 
-                    if (isSinTopeItem) {
-                        (topeEntry as any).tope_existe = false;
-                        (topeEntry as any).razon = "SIN_TOPE_EXPRESO_EN_CONTRATO";
-                    } else {
-                        (topeEntry as any).tope_existe = true;
-                    }
+                    if (razon) topeEntry.razon = razon;
 
                     canonical.topes.push(topeEntry);
                 }
             };
 
             // 1. Process regular tope (usually per event/proc)
-            processTope(mod.tope);
+            processTope(mod.tope, "por_evento");
 
             // 2. Process annual tope (if extracted by geometric prompt)
             if ((mod as any).tope_anual) {
@@ -452,6 +475,45 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
     if (diseno.funcionalidad) {
         canonical.observaciones.push(`Funcionalidad: ${diseno.funcionalidad}`);
     }
+
+    // ============================================================================
+    // BUG FIX PASS: GLOBAL TOPE NORMALIZER (Deterministic Enforcement)
+    // Ensures no 'DESCONOCIDO' units survive, enforces TopeValue semantics.
+    // ============================================================================
+    canonical.topes.forEach((t: any) => {
+        const text = (t.fuente_textual || t.raw || "").toUpperCase();
+
+        // Bug 3: Semantic mapping for "Sin Tope"
+        if (t.razon === "SIN_TOPE_EXPRESO_EN_CONTRATO" || text.includes("SIN TOPE") || text.includes("ILIMITADO")) {
+            t.tipo = "SIN_TOPE_EXPLICITO";
+            t.valor = null;
+            t.unidad = null;
+            t.tope_existe = false;
+            t.razon = "SIN_TOPE_EXPRESO_EN_CONTRATO";
+        }
+        // Numeric Topes
+        else if (t.valor !== null && t.valor !== undefined) {
+            t.tipo = "NUMERICO";
+            t.tope_existe = true;
+
+            // Bug 1: Infer unit explicitly from source text
+            if (!t.unidad || t.unidad === "DESCONOCIDO") {
+                if (text.includes("UF") || text.includes("U.F.")) t.unidad = "UF";
+                else if (text.includes("AC2")) t.unidad = "AC2";
+                else if (text.match(/\b(VAM|V20|V10|VA|V.A|VECES ARANCEL)\b/)) t.unidad = "VAM";
+                else if (text.includes("PESOS") || text.includes("$") || text.includes("CLP") || text.includes("CL$")) t.unidad = "PESOS";
+                else t.unidad = null; // Clean fallback instead of DESCONOCIDO
+            }
+        }
+        // Missing Topes
+        else {
+            t.tipo = "NO_ENCONTRADO";
+            t.valor = null;
+            t.unidad = null;
+            t.tope_existe = false;
+            if (!t.razon) t.razon = "CELDA_VACIA_OCR";
+        }
+    });
 
     return canonical;
 }

@@ -224,10 +224,11 @@ export const PROMPT_V3_JSON = `
     -> tope.razon = "CELDA_VACIA_OCR"
   - PROHIBIDO: usar unidad="DESCONOCIDO".
 
-  REGLAS DE NEGOCIO (Isapre/Convenio):
-  - OFERTA PREFERENTE: Columnas de bonificación y tope en red.
-  - LIBRE ELECCIÓN: Cobertura fuera de red.
-  - TOPE ANUAL: Si la tabla muestra una columna de tope anual por beneficiario, extráelo como topeAnualBeneficiario.
+  REGLAS DE NEGOCIO Y MODALIDADES (CRÍTICAS):
+  - OFERTA PREFERENTE: DEBES extraer la bonificación y el TOPE (por evento y anual) reportado en red.
+  - LIBRE ELECCIÓN: DEBES extraer la bonificación y el TOPE (por evento y anual) fuera de red.
+  - NUNCA omitas el tope de la libre elección si está especificado en la columna respectiva.
+  - TOPE ANUAL: Si la tabla muestra un tope anual, extráelo como topeAnualBeneficiario.
 
   DETERMINISMO:
   - Usa los valores de "tableModel" tal cual. No inventes prestaciones que no estén en las filas proporcionadas.
@@ -379,6 +380,13 @@ export const PROMPT_MODULAR_JSON = `
    ⚠️ EXTRACCIÓN DE CLÍNICAS:
    - Captura nombres de clínicas mencionadas en las celdas de bonificación preferente o títulos.
    - Agrégalas al array 'clinicas'.
+
+   ⚠️ DETECCIÓN DE TOPES Y MODALIDADES (CRÍTICO - REGLA V11.4):
+   - DEBES extraer el TOPE exacto para la modalidad PREFERENTE y para la modalidad LIBRE ELECCIÓN de la columna correspondiente.
+   - Si la celda dice "Sin Tope" o "Ilimitado", extrae textualmente "Sin Tope".
+   - Si la celda muestra un número con unidad (ej: "2.5 UF", "100%", "3 VAM"), extrae ese texto EXACTO (ej: "2.5 UF").
+   - Es sumamente importante que inspecciones visualmente si hay topes anuales (ej: "Tope Anual 50 UF") y los asignes al campo \`tope_anual\` de la modalidad (preferente o libre_eleccion) correspondiente.
+   - NO OMITAS LOS TOPES. La extracción del \`tope\` y \`tope_anual\` para "preferente" y "libre_eleccion" debe ser exhaustiva.
 
    ⚠️ DOCTRINA DE SILENCIO (ANTI-HALLUCINATION):
    - PROHIBIDO inventar frases de relleno como "Sin restricciones adicionales" o "Sujeto a condiciones generales".
@@ -631,7 +639,7 @@ export const SCHEMA_COBERTURAS = {
                   enum: ["PREFERENTE", "LIBRE_ELECCION", "BONIFICACION"]
                 },
                 'porcentaje': { type: SchemaType.NUMBER, nullable: true },
-                'tope': { type: SchemaType.NUMBER, nullable: true },
+                'tope': { type: SchemaType.STRING, nullable: true },
                 'unidadTope': {
                   type: SchemaType.STRING,
                   enum: ["UF", "AC2", "VAM", "PESOS", "SIN_TOPE", "DESCONOCIDO"]

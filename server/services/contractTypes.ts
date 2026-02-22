@@ -60,7 +60,7 @@ export interface ExplorationModality {
     porcentaje: number | string; // e.g., 100 or "80%"
     tope: string | number | null;
     unidadTope: 'UF' | 'AC2' | 'VAM' | 'PESOS' | 'SIN_TOPE' | 'MIXTO' | 'UNKNOWN';
-    tipoTope: 'POR_EVENTO' | 'ANUAL' | 'ILIMITADO' | 'MIXTO_EVENTO_Y_ANUAL' | 'DESCONOCIDO';
+    tipoTope: 'POR_EVENTO' | 'ANUAL' | 'ILIMITADO' | 'MIXTO_EVENTO_Y_ANUAL' | 'DESCONOCIDO' | 'DIARIO';
     copago: string | number | null;
     evidencia_literal: string;
     origen_extraccion?: string;

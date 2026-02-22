@@ -797,7 +797,7 @@ export async function analyzeSingleContract(
     // Helper for parallel phase execution
     const runModularPhase = async (id: string, prompt: string, ambito: string) => {
         const res = await extractSection(id, prompt, SCHEMA_MODULAR_JSON, tableModels);
-        return { items: res.result?.items || [], phase: res, id, ambito };
+        return { items: res.result?.coberturas || [], phase: res, id, ambito };
     };
 
     // Execute phases
@@ -828,8 +828,31 @@ export async function analyzeSingleContract(
     const MAX_HOSP_ITEMS = 56;
     const MAX_AMB_ITEMS = 70;
 
-    const hospSliced = coberturasHospRaw;
-    const ambSliced = coberturasAmbRaw;
+    const mapModularToLegacy = (item: any) => {
+        if (item.modalidades) return item;
+        const modalidades = [];
+        if (item.preferente) {
+            modalidades.push({
+                tipo: "PREFERENTE",
+                porcentaje: item.preferente.porcentaje,
+                tope: item.preferente.tope,
+                tope_anual: item.preferente.tope_anual,
+                clinicas: item.preferente.clinicas
+            });
+        }
+        if (item.libre_eleccion) {
+            modalidades.push({
+                tipo: "LIBRE_ELECCION",
+                porcentaje: item.libre_eleccion.porcentaje,
+                tope: item.libre_eleccion.tope,
+                tope_anual: item.libre_eleccion.tope_anual
+            });
+        }
+        return { ...item, modalidades };
+    };
+
+    const hospSliced = coberturasHospRaw.map(mapModularToLegacy);
+    const ambSliced = coberturasAmbRaw.map(mapModularToLegacy);
 
 
     // ============================================================================
