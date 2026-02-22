@@ -262,7 +262,7 @@ app.post('/api/extract', async (req, res) => {
         let lastError: any;
         let activeApiKey: string | undefined;
 
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL, AI_MODELS.fallback2, 'gemini-1.5-flash'].filter(Boolean);
+        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL, AI_MODELS.fallback2, AI_MODELS.fallback3].filter(Boolean);
 
         for (const modelName of modelsToTry) {
             if (!modelName) continue;
@@ -291,7 +291,7 @@ app.post('/api/extract', async (req, res) => {
                         forensicLog(`⏳ Esperando respuesta de ${modelName}... (Procesando)`);
                     }, 10000);
 
-                    const timeoutMs = 120000;
+                    const timeoutMs = 180000;
                     const streamPromise = model.generateContentStream([
                         { text: CSV_PROMPT },
                         {
@@ -325,9 +325,9 @@ app.post('/api/extract', async (req, res) => {
                     const is429 = errStr.includes('429') || errStr.includes('Too Many Requests') || (attemptError?.status === 429);
 
                     if (isTimeout) {
-                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 120 segundos. Saltando a SIGUIENTE MODELO para ahorrar tiempo...`);
+                        forensicLog(`⏱️ Timeout: El modelo ${modelName} no respondió en 180 segundos. Intentando con la siguiente clave...`);
                         lastError = attemptError;
-                        break; // Fail over to next model immediately
+                        continue; // Keep trying keys for the same model
                     }
 
                     if (is429) {
