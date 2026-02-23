@@ -1,3 +1,4 @@
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { GeminiService } from './gemini.service.js';
 import {
@@ -195,16 +196,30 @@ function assignToColumn(item: any, columns: Array<{ start: number, end: number, 
  * Extracts raw tokens with precise coordinates.
  */
 async function extractTokensFromPdf(file: UploadedFile, maxPages: number, log: (msg: string) => void): Promise<Token[]> {
-    const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
+    log('[ContractEngine-Grid] pdfjsLib is loaded. Creating Uint8Array...');
     const data = new Uint8Array(file.buffer);
-    const pdf = await pdfjsLib.getDocument({ data, disableFontFace: true }).promise;
+    log('[ContractEngine-Grid] Calling getDocument...');
+
+    // Quick fix for potential hanging: disable worker in Node environment if needed, or just let it try
+    const loadingTask = pdfjsLib.getDocument({
+        data,
+        disableFontFace: true,
+        useSystemFonts: true,
+        standardFontDataUrl: `node_modules/pdfjs-dist/standard_fonts/`
+    });
+
+    const pdf = await loadingTask.promise;
+    log(`[ContractEngine-Grid] getDocument success. Num pages: ${pdf.numPages}`);
 
     const pagesToScan = Math.min(pdf.numPages, maxPages);
     const tokens: Token[] = [];
 
     for (let pageNum = 1; pageNum <= pagesToScan; pageNum++) {
+        log(`[ContractEngine-Grid] Fetching page ${pageNum}...`);
         const page = await pdf.getPage(pageNum);
+        log(`[ContractEngine-Grid] Getting text content for page ${pageNum}...`);
         const textContent = await page.getTextContent();
+        log(`[ContractEngine-Grid] Text content retrieved. Parsing tokens...`);
 
         for (const item of (textContent.items as any[])) {
             if (!item.transform) continue;
@@ -831,13 +846,15 @@ export async function analyzeSingleContract(
     const mapModularToLegacy = (item: any) => {
         if (item.modalidades) return item;
         const modalidades = [];
+        const evidencia = item.seccion_raw ? `${item.seccion_raw} - ${item.item}` : item.item;
         if (item.preferente) {
             modalidades.push({
                 tipo: "PREFERENTE",
                 porcentaje: item.preferente.porcentaje,
                 tope: item.preferente.tope,
                 tope_anual: item.preferente.tope_anual,
-                clinicas: item.preferente.clinicas
+                clinicas: item.preferente.clinicas,
+                evidencia_literal: evidencia
             });
         }
         if (item.libre_eleccion) {
@@ -845,14 +862,14 @@ export async function analyzeSingleContract(
                 tipo: "LIBRE_ELECCION",
                 porcentaje: item.libre_eleccion.porcentaje,
                 tope: item.libre_eleccion.tope,
-                tope_anual: item.libre_eleccion.tope_anual
+                tope_anual: item.libre_eleccion.tope_anual,
+                evidencia_literal: evidencia
             });
         }
         return { ...item, modalidades };
     };
-
-    const hospSliced = coberturasHospRaw.map(mapModularToLegacy);
-    const ambSliced = coberturasAmbRaw.map(mapModularToLegacy);
+    const hospSliced = coberturasHospRaw.filter((i: any) => i.tipo === 'prestacion').map(mapModularToLegacy);
+    const ambSliced = coberturasAmbRaw.filter((i: any) => i.tipo === 'prestacion').map(mapModularToLegacy);
 
 
     // ============================================================================
@@ -901,8 +918,9 @@ export async function analyzeSingleContract(
      * Proyecta un tope compuesto (multi-cláusula) determinístico.
      */
     function parseCompoundTope(evidencia: string): ExplorationTopeCompound[] {
+        if (!evidencia) return [];
         const compounds: ExplorationTopeCompound[] = [];
-        const s = evidencia.toUpperCase();
+        const s = String(evidencia).toUpperCase();
 
         // R1 — Split por “/” con preservación literal
         const parts = evidencia.split(/\s\/\s/);

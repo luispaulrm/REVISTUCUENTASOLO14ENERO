@@ -5,9 +5,9 @@ import { GeminiService } from '../services/gemini.service.js';
 import { RawCuentaItem } from '../types/taxonomy.types.js';
 
 // --- SERVICE FACTORY ---
+// --- SERVICE FACTORY ---
 // In a real app, use DI.
-const geminiService = new GeminiService(process.env.GEMINI_API_KEY || "");
-const taxonomyService = new TaxonomyPhase1Service(geminiService);
+const getTaxonomyService = () => new TaxonomyPhase1Service(new GeminiService(process.env.GEMINI_API_KEY || ""));
 const auditEngine = new AuditEngineRefactored();
 
 export async function handleAuditOrchestration(req: Request, res: Response) {
@@ -23,6 +23,7 @@ export async function handleAuditOrchestration(req: Request, res: Response) {
 
         // 1. Phase 1: Classification (The "Account Module")
         // "Traduce la cuenta a la verdad canónica"
+        const taxonomyService = getTaxonomyService();
         const taxonomyResults = await taxonomyService.classifyItems(body.items);
 
         // 2. Phase 2: Audit (The "Judge")

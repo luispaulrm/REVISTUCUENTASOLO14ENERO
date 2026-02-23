@@ -855,9 +855,12 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
             parsedTope = { kind: kindMap[c.unidad] || 'VARIABLE', value: c.valor ?? null };
         }
 
+        const modalidad = c.tipo_modalidad || (c.modalidades?.[0]?.tipo ? (String(c.modalidades?.[0]?.tipo).toLowerCase().includes('pref') ? 'preferente' : 'libre_eleccion') : 'desconocido');
+
         return {
             id: c.item || c.id || 'rule_' + Math.random().toString(36).substr(2, 9),
             domain,
+            modalidad,
             coberturaPct: c.porcentaje || (c.modalidades?.[0]?.porcentaje) || null,
             tope: {
                 kind: parsedTope.kind,
@@ -868,10 +871,10 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         };
     });
 
-    // Deduplicate: keep best rule per domain (highest coberturaPct wins, prefer rules with tope values)
+    // Deduplicate: keep best rule per domain AND modality
     const domainBest = new Map<string, CanonicalContractRule>();
     for (const rule of rules) {
-        const key = rule.domain;
+        const key = `${rule.domain}_${(rule as any).modalidad || 'preferente'}`;
         const existing = domainBest.get(key);
         if (!existing) {
             domainBest.set(key, rule);
@@ -881,8 +884,19 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
             const newPct = rule.coberturaPct ?? 0;
             const existingHasTope = existing.tope?.value !== null && existing.tope?.value !== undefined;
             const newHasTope = rule.tope?.value !== null && rule.tope?.value !== undefined;
-            if (newHasTope && !existingHasTope) domainBest.set(key, rule);
-            else if (newPct > existingPct && !existingHasTope) domainBest.set(key, rule);
+            const existingIsSinTope = existing.tope?.kind === 'SIN_TOPE_EXPRESO';
+            const newIsSinTope = rule.tope?.kind === 'SIN_TOPE_EXPRESO';
+
+            // If new rule has EXACTLY a tope (but no percentage) and existing has a percentage (but no solid tope), merge them!
+            if (rule.coberturaPct === null && existing.coberturaPct !== null && (newHasTope || newIsSinTope) && !(existingHasTope || existingIsSinTope)) {
+                existing.tope = rule.tope;
+            }
+            // Otherwise, standard replacement logic
+            else if ((newHasTope || newIsSinTope) && !(existingHasTope || existingIsSinTope)) {
+                domainBest.set(key, rule);
+            } else if (newPct > existingPct && !(existingHasTope || existingIsSinTope)) {
+                domainBest.set(key, rule);
+            }
         }
     }
     const deduplicatedRules = Array.from(domainBest.values());

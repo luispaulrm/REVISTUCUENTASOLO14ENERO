@@ -528,17 +528,47 @@ function adaptToM10Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
         sourceArray = traverse(rawContract.root.children);
     }
 
-    rules = sourceArray.map((c: any) => ({
-        id: c.item || c.id || 'rule_' + Math.random().toString(36).substr(2, 9),
-        domain: mapCategoryToDomain(c.categoria || c.seccion || c.ambito || '', c.descripcion_textual || c.item || ''),
-        coberturaPct: c.porcentaje || (c.modalidades?.[0]?.porcentaje) || null,
-        tope: {
-            kind: c.tope ? 'VARIABLE' : 'SIN_TOPE_EXPRESO',
-            value: null, // Parsing '2.5 UF' etc can be added if needed, for now mainly existence check
-            currency: c.tope,
-        },
-        textLiteral: `${c.item || ''} ${c.descripcion_textual || ''}`.trim()
-    }));
+    const mappedRules = sourceArray.map((c: any) => {
+        const modalidad = c.tipo_modalidad || (c.modalidades?.[0]?.tipo ? (String(c.modalidades?.[0]?.tipo).toLowerCase().includes('pref') ? 'preferente' : 'libre_eleccion') : 'desconocido');
+        return {
+            id: c.item || c.id || 'rule_' + Math.random().toString(36).substr(2, 9),
+            domain: mapCategoryToDomain(c.categoria || c.seccion || c.ambito || '', c.descripcion_textual || c.item || ''),
+            modalidad,
+            coberturaPct: c.porcentaje || (c.modalidades?.[0]?.porcentaje) || null,
+            tope: {
+                kind: (c.tope ? 'VARIABLE' : 'SIN_TOPE_EXPRESO') as 'VARIABLE' | 'SIN_TOPE_EXPRESO',
+                value: null, // Parsing '2.5 UF' etc can be added if needed, for now mainly existence check
+                currency: c.tope,
+            },
+            textLiteral: `${c.item || ''} ${c.descripcion_textual || ''}`.trim()
+        };
+    });
+
+    // Deduplicate: keep best rule per domain AND modality
+    const domainBest = new Map<string, CanonicalContractRule>();
+    for (const rule of mappedRules) {
+        const key = `${rule.domain}_${(rule as any).modalidad || 'preferente'}`;
+        const existing = domainBest.get(key);
+        if (!existing) {
+            domainBest.set(key, rule);
+        } else {
+            const existingPct = existing.coberturaPct ?? 0;
+            const newPct = rule.coberturaPct ?? 0;
+            const existingHasTope = existing.tope?.value !== null && existing.tope?.value !== undefined;
+            const newHasTope = rule.tope?.value !== null && rule.tope?.value !== undefined;
+            const existingIsSinTope = existing.tope?.kind === 'SIN_TOPE_EXPRESO';
+            const newIsSinTope = rule.tope?.kind === 'SIN_TOPE_EXPRESO';
+
+            if (rule.coberturaPct === null && existing.coberturaPct !== null && (newHasTope || newIsSinTope) && !(existingHasTope || existingIsSinTope)) {
+                existing.tope = rule.tope;
+            } else if ((newHasTope || newIsSinTope) && !(existingHasTope || existingIsSinTope)) {
+                domainBest.set(key, rule);
+            } else if (newPct > existingPct && !(existingHasTope || existingIsSinTope)) {
+                domainBest.set(key, rule);
+            }
+        }
+    }
+    rules = Array.from(domainBest.values());
 
     // 2. Adapt PAM
     let pamFolios: any[] = [];

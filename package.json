@@ -15,8 +15,8 @@
     "build:server": "echo 'Server uses TypeScript, no build needed'",
     "preview": "vite preview",
     "start": "tsx server/server.ts",
-    "server": "tsx watch server/server.ts",
-    "dev:all": "node scripts/update-version.js && concurrently \"npm run start\" \"node scripts/wait-for-port.js 5000 && npm run dev\""
+    "server": "node --watch --import tsx server/server.ts",
+    "dev:all": "node scripts/update-version.js && concurrently \"npm run server\" \"node scripts/wait-for-port.js 5000 && npm run dev\""
   },
   "dependencies": {
     "@google/genai": "^1.34.0",

@@ -7,9 +7,10 @@ import { RawCuentaItem, TaxonomyContextAnchors } from '../types/taxonomy.types.j
 import { TaxonomyPhase1_5Service } from '../services/taxonomyPhase1_5.service.js';
 
 // --- Singleton Service Instantiation ---
-const geminiService = new GeminiService(process.env.GEMINI_API_KEY || "");
-const taxonomyService = new TaxonomyPhase1Service(geminiService);
-const taxonomyEtiologyService = new TaxonomyPhase1_5Service(geminiService, { enableLLM: true, cache: new Map() });
+// --- Singleton Service Instantiation ---
+const getGeminiService = () => new GeminiService(process.env.GEMINI_API_KEY || "");
+const getTaxonomyService = () => new TaxonomyPhase1Service(getGeminiService());
+const getTaxonomyEtiologyService = () => new TaxonomyPhase1_5Service(getGeminiService(), { enableLLM: true, cache: new Map() });
 const skeletonService = new SkeletonService();
 
 export async function handleTaxonomyPhase1(req: Request, res: Response) {
@@ -29,6 +30,7 @@ export async function handleTaxonomyPhase1(req: Request, res: Response) {
         console.log(`[POST /api/cuenta/taxonomy-phase1] Processing ${body.items.length} items...`);
 
         // Phase 1: taxonomy pura
+        const taxonomyService = getTaxonomyService();
         let results = await taxonomyService.classifyItems(body.items);
 
         // Phase 1.5: Etiología (Opt-in)
@@ -48,6 +50,7 @@ export async function handleTaxonomyPhase1(req: Request, res: Response) {
             anchors = buildAnchorsFromCuenta({ sections: rawSections });
 
             // Run Phase 1.5
+            const taxonomyEtiologyService = getTaxonomyEtiologyService();
             results = await taxonomyEtiologyService.run(results, anchors);
         }
 

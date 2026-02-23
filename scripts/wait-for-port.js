@@ -25,7 +25,7 @@ function checkPort() {
         retry();
     });
 
-    socket.connect(port, '127.0.0.1');
+    socket.connect(port, 'localhost');
 }
 
 function retry() {

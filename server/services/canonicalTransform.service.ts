@@ -20,8 +20,8 @@ export interface CanonicalCobertura {
 
 export interface CanonicalTope {
     ambito: "hospitalario" | "ambulatorio" | "mixto" | "desconocido";
-    unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO";
-    valor: number | null;
+    unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" | "SIN_TOPE" | null;
+    valor: number | string | null;
     aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido";
     tipo_modalidad?: "preferente" | "libre_eleccion" | "desconocido";
     fuente_textual: string;
@@ -153,19 +153,19 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
                     });
 
                     // Add Topes
-                    const mapTope = (v3Tope: any, aplicacion: "por_prestacion" | "anual") => {
+                    const mapTope = (v3Tope: any, aplicacion: "por_evento" | "anual") => {
                         if (!v3Tope || v3Tope.tipo === 'NO_ENCONTRADO') return;
 
                         const isSinTope = v3Tope.tipo === 'SIN_TOPE_EXPLICITO';
-                        let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" = "DESCONOCIDO";
+                        let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" | "SIN_TOPE" = "DESCONOCIDO";
                         if (v3Tope.unidad === 'UF') unidad = "UF";
                         else if (v3Tope.unidad === 'VA') unidad = "VAM";
                         else if (v3Tope.unidad === 'CLP') unidad = "PESOS";
 
                         canonical.topes.push({
                             ambito,
-                            unidad: isSinTope ? "DESCONOCIDO" : unidad,
-                            valor: isSinTope ? null : v3Tope.valor,
+                            unidad: isSinTope ? "SIN_TOPE" : unidad,
+                            valor: isSinTope ? "SIN TOPE" : v3Tope.valor,
                             aplicacion,
                             tipo_modalidad: type,
                             fuente_textual: `${pagePrefix} ${itemName} (${type}): ${v3Tope.raw || (isSinTope ? "SIN TOPE" : "")}`,
@@ -174,8 +174,15 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
                         } as any);
                     };
 
-                    mapTope(mod.topePrestacion, "por_prestacion");
-                    mapTope(mod.topeAnualBeneficiario, "anual");
+                    mapTope(mod.topePrestacion, "por_evento");
+
+                    if (mod.topeAnualBeneficiario) {
+                        mapTope(mod.topeAnualBeneficiario, "anual");
+                    } else if (type === "preferente" && mod.topePrestacion?.tipo === 'SIN_TOPE_EXPLICITO') {
+                        mapTope({ tipo: "SIN_TOPE_EXPLICITO", raw: "Heuristica Preferente" }, "anual");
+                    } else if (type === "libre_eleccion" || type === "preferente") {
+                        mapTope({ tipo: "SIN_TOPE_EXPLICITO", raw: "Heuristica Fallback" }, "anual");
+                    }
                 };
 
                 processV3Modality(rule.modalidadPreferente, "preferente");
@@ -305,8 +312,8 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
 
                     if (isSinTopeItem) {
                         tipo = "SIN_TOPE_EXPLICITO";
-                        val = null;
-                        unidad = null;
+                        val = "SIN TOPE" as any;
+                        unidad = "SIN_TOPE" as any;
                         tope_existe = false;
                         razon = "SIN_TOPE_EXPRESO_EN_CONTRATO";
                     } else if (val !== null) {
@@ -343,7 +350,15 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
             // 2. Process annual tope (if extracted by geometric prompt)
             if ((mod as any).tope_anual) {
                 processTope((mod as any).tope_anual, "anual");
+            } else if (mod.tipo === "PREFERENTE" && String(mod.tope || "").toUpperCase().includes("SIN TOPE")) {
+                // Heuristic requested by user: In Oferta Preferente, "Sin Tope" acts as both per-event and annual.
+                processTope("SIN TOPE", "anual");
+            } else if (mod.tipo === "LIBRE_ELECCION" || mod.tipo === "PREFERENTE") {
+                // Fallback heuristic: If annual tope is completely missing, default to "Sin Tope" annual 
+                // because merged "Sin Tope" cells are often missed by the LLM.
+                processTope("SIN TOPE", "anual");
             }
+
 
             // Add Copago if exists
             if (mod.copago) {

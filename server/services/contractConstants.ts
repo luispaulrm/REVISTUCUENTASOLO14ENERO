@@ -386,12 +386,14 @@ export const PROMPT_MODULAR_JSON = `
    - Si la celda dice "Sin Tope" o "Ilimitado", extrae textualmente "Sin Tope".
    - Si la celda muestra un número con unidad (ej: "2.5 UF", "100%", "3 VAM"), extrae ese texto EXACTO (ej: "2.5 UF").
    - Es sumamente importante que inspecciones visualmente si hay topes anuales (ej: "Tope Anual 50 UF") y los asignes al campo \`tope_anual\` de la modalidad (preferente o libre_eleccion) correspondiente.
+   - 🚨 CELDAS COMBINADAS DE "TOPE ANUAL": Si la columna final ("Tope máx. año contrato" o similar) muestra un gran "Sin Tope" que abarca varias filas de prestaciones hacia abajo, DEBES copiar y pegar "Sin Tope" en el \`tope_anual\` de la modalidad LIBRE_ELECCION para CADA UNA de las prestaciones cubiertas por ese bloque visual.
+   - 🚨 REGLA "PREFERENTE": Si Observas "100% Sin Tope" agrupado bajo Preferente, pon "Sin Tope" TANTO en el \`tope\` COMO en el \`tope_anual\` de la modalidad \`preferente\`.
    - NO OMITAS LOS TOPES. La extracción del \`tope\` y \`tope_anual\` para "preferente" y "libre_eleccion" debe ser exhaustiva.
 
    ⚠️ DOCTRINA DE SILENCIO (ANTI-HALLUCINATION):
    - PROHIBIDO inventar frases de relleno como "Sin restricciones adicionales" o "Sujeto a condiciones generales".
    - Si una celda está vacía, el valor debe ser null. 
-   - Si un ítem no tiene tope explícito, NO asumas "Sin Tope" a menos que lo veas escrito.
+   - Si un ítem no tiene tope explícito, NO asumas "Sin Tope" a menos que lo veas explícitamente combinado.
    - Tu output debe ser una digitalización SECA del contrato.
 
   CHECKLIST SEGMENT TO EXTRACT:

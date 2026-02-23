@@ -1776,7 +1776,16 @@ function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, c
             if (ruleText.includes('medicamento') && (lineDesc.includes('clinico') || lineDesc.includes('farmaco') || lineDesc.includes('medicamento'))) score += 500;
             if (ruleText.includes('insumo') && (lineDesc.includes('material') || lineDesc.includes('insumo') || lineDesc.includes('gasa'))) score += 500;
 
-            // 2. Event-Agnostic Contextual Bias (Hospital vs Ambulatory)
+            // 2. Modality Affinity
+            if (lineDesc.includes('preferente') || lineDesc.includes('red pref')) {
+                if (((r as any).modalidad === 'preferente')) score += 5000;
+                else if (((r as any).modalidad === 'libre_eleccion')) score -= 1000;
+            } else if (lineDesc.includes('libre eleccion') || lineDesc.includes('libre elec')) {
+                if (((r as any).modalidad === 'libre_eleccion')) score += 5000;
+                else if (((r as any).modalidad === 'preferente')) score -= 1000;
+            }
+
+            // 3. Event-Agnostic Contextual Bias (Hospital vs Ambulatory)
             if (isHospEvent) {
                 // If we know it's a hospital event, favor rules that mention hospital context
                 if (ruleText.includes('hospitalizacion') || ruleText.includes('clinica') || ruleText.includes('pabellon') || ruleText.includes('dia cama') || ruleText.includes('quirurgico')) {
