@@ -144,6 +144,8 @@ export class GeminiService {
             responseMimeType?: string;
             responseSchema?: any;
             temperature?: number;
+            topP?: number;
+            topK?: number;
         } = {}
     ): Promise<string> {
         return this.extract('', '', prompt, config);

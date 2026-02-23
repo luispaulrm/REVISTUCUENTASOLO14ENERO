@@ -215,7 +215,9 @@ ${JSON.stringify(optimizedPage)}
 
     try {
       const responseText = await this.gemini.extractText(prompt, {
-        responseMimeType: "application/json"
+        responseMimeType: "application/json",
+        temperature: 0.0,
+        topP: 0.01
       });
 
       let parsed = JSON.parse(responseText);
@@ -225,11 +227,14 @@ ${JSON.stringify(optimizedPage)}
       const hasBasicCols = schema.prestacion_col && (schema.preferente_pct_col || schema.libre_pct_col);
       const isCollapsed = schema.preferente_pct_col && schema.preferente_pct_col === schema.preferente_tope_evento_col;
 
-      if (!hasBasicCols) {
-        this.log(`   ⚠️ Error: No se detectaron cabeceras suficientes en página ${page.page}.`);
+      // Strict validation: Does the prestacion_col cell actually exist in the page geometry?
+      const prestacionCelExists = page.cells && page.cells.some((c: any) => c.cellId === schema.prestacion_col);
+
+      if (!hasBasicCols || (schema.prestacion_col && !prestacionCelExists)) {
+        this.log(`   ⚠️ Error: Cabeceras insuficientes o inválidas en página ${page.page}.`);
         return {
           items: [],
-          warnings: [{ type: "MISSING_HEADERS", detail: "No se logró anclar las columnas de prestación y porcentaje de bonificación de forma defendible." }],
+          warnings: [{ type: "MISSING_HEADERS", detail: "Falló anclaje estricto de cabeceras o la celda inventada por el LLM no existe en la geometría." }],
           detectedSchema: null
         };
       }
@@ -239,6 +244,7 @@ ${JSON.stringify(optimizedPage)}
         // If col collapsed, the LLM confused a merged data cell with a column header. Set to null.
         schema.preferente_pct_col = null;
         schema.preferente_tope_evento_col = null;
+        parsed.detectedSchema = schema; // Push the fixed schema back to the parsed object tracking
         parsed.warnings = parsed.warnings || [];
         parsed.warnings.push({ type: "SCHEMA_COLLAPSE_FIXED", detail: "Columnas % y Tope apuntaban a la misma celda. Se corrigió a null." });
       }

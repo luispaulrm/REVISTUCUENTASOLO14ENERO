@@ -1,11 +1,11 @@
 export const AI_MODELS = {
-    primary: 'gemini-3.1-pro-preview',
-    fallback: 'gemini-3-flash-preview',
-    fallback2: 'gemini-2.5-flash',
-    fallback3: 'gemini-1.5-pro',
-    fallback4: 'gemini-1.5-flash',
-    extractor: 'gemini-3.1-pro-preview',
-    reasoner: 'gemini-3.1-pro-preview'
+    primary: 'gemini-3-flash-preview',
+    fallback: 'gemini-2.5-flash',
+    fallback2: 'gemini-1.5-pro',
+    fallback3: 'gemini-1.5-flash',
+    fallback4: 'gemini-3.1-pro-preview', // Keep it in the list, but at bottom
+    extractor: 'gemini-3-flash-preview',
+    reasoner: 'gemini-3-flash-preview'
 };
 
 export const AI_CONFIG = {
