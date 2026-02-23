@@ -911,4 +911,5 @@ app.get('*', (req, res) => {
 const server = app.listen(PORT, "0.0.0.0", () => {
     console.log(`Backend server running on port ${PORT}`);
 });
+// Port conflict resolution trigger
 server.timeout = 600000; // 10 minutes

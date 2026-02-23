@@ -18,6 +18,7 @@ export default function CanonicalGeneratorApp() {
     const [contractCount, setContractCount] = useState<number>(0);
     const [reportMetrics, setReportMetrics] = useState<any | null>(null);
     const [viewMode, setViewMode] = useState<'json' | 'map'>('json');
+    const [strategy, setStrategy] = useState<'STANDARD' | 'GRID_GEOMETRY'>('STANDARD');
 
     const timerRef = useRef<number | null>(null);
     const progressRef = useRef<number | null>(null);
@@ -107,7 +108,12 @@ export default function CanonicalGeneratorApp() {
                 const response = await fetch('/api/extract-canonical', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ image: pureBase64, mimeType: file.type, originalname: file.name }),
+                    body: JSON.stringify({
+                        image: pureBase64,
+                        mimeType: file.type,
+                        originalname: file.name,
+                        strategy: strategy
+                    }),
                     signal: controller.signal
                 });
 
@@ -129,30 +135,35 @@ export default function CanonicalGeneratorApp() {
 
                     for (const line of lines) {
                         if (!line.trim()) continue;
-                        const update = JSON.parse(line);
-                        if (update.type === 'chunk') addLog(update.text);
-                        if (update.type === 'metrics') {
-                            setRealTimeUsage(prev => ({
-                                promptTokens: (prev?.promptTokens || 0) + (update.metrics.input || 0),
-                                candidatesTokens: (prev?.candidatesTokens || 0) + (update.metrics.output || 0),
-                                totalTokens: (prev?.totalTokens || 0) + (update.metrics.input || 0) + (update.metrics.output || 0),
-                                estimatedCost: (prev?.estimatedCost || 0) + (update.metrics.cost / 900), // Approx USD
-                                estimatedCostCLP: (prev?.estimatedCostCLP || 0) + (update.metrics.cost || 0)
-                            }));
-                        }
-                        if (update.type === 'final') {
-                            setCanonicalResult(update.data);
-                            if (update.data.cached) {
-                                addLog('[SISTEMA] 🚀 CACHE HIT! Recuperado de memoria local.');
-                                setProgress(100);
+                        try {
+                            const update = JSON.parse(line);
+                            console.log('[CANONICAL_STREAM]', update);
+                            if (update.type === 'chunk') addLog(update.text);
+                            if (update.type === 'metrics') {
+                                setRealTimeUsage(prev => ({
+                                    promptTokens: (prev?.promptTokens || 0) + (update.metrics.input || 0),
+                                    candidatesTokens: (prev?.candidatesTokens || 0) + (update.metrics.output || 0),
+                                    totalTokens: (prev?.totalTokens || 0) + (update.metrics.input || 0) + (update.metrics.output || 0),
+                                    estimatedCost: (prev?.estimatedCost || 0) + (update.metrics.cost / 900), // Approx USD
+                                    estimatedCostCLP: (prev?.estimatedCostCLP || 0) + (update.metrics.cost || 0)
+                                }));
                             }
-                            if (update.metrics) setReportMetrics(update.metrics);
-                            if (update.totalCount) setContractCount(update.totalCount);
-                            // PERSISTENCE FOR AUDITOR INTEGRATION (v2.2)
-                            localStorage.setItem('canonical_contract_result', JSON.stringify(update.data));
-                            setStatus(AppStatus.SUCCESS);
+                            if (update.type === 'final') {
+                                setCanonicalResult(update.data);
+                                if (update.data.cached) {
+                                    addLog('[SISTEMA] 🚀 CACHE HIT! Recuperado de memoria local.');
+                                    setProgress(100);
+                                }
+                                if (update.metrics) setReportMetrics(update.metrics);
+                                if (update.totalCount) setContractCount(update.totalCount);
+                                // PERSISTENCE FOR AUDITOR INTEGRATION (v2.2)
+                                localStorage.setItem('canonical_contract_result', JSON.stringify(update.data));
+                                setStatus(AppStatus.SUCCESS);
+                            }
+                            if (update.type === 'error') throw new Error(update.message);
+                        } catch (e) {
+                            console.error('[CANONICAL_STREAM] Error parsing update line', e, line);
                         }
-                        if (update.type === 'error') throw new Error(update.message);
                     }
                 }
             } catch (err: any) {
@@ -218,8 +229,48 @@ export default function CanonicalGeneratorApp() {
             children: []
         };
 
-        // 1. Coberturas
-        if (canonical.coberturas && canonical.coberturas.length > 0) {
+        // Detect if it's a Module B result (AuditorBResult) or Legacy V2
+        const isModuleB = canonical.items && Array.isArray(canonical.items) && !canonical.coberturas;
+
+        // 1. Coberturas (Module B Logic)
+        if (isModuleB) {
+            const coberturasNode: any = {
+                titulo: 'COBERTURAS (GEO A/B)',
+                detalle: `${canonical.items.length} items extraídos con geometría`,
+                children: []
+            };
+
+            const ambitos: Record<string, any[]> = {};
+            canonical.items.forEach((c: any) => {
+                const key = c.ambito || 'OTROS';
+                if (!ambitos[key]) ambitos[key] = [];
+                ambitos[key].push(c);
+            });
+
+            Object.entries(ambitos).forEach(([catName, items]) => {
+                coberturasNode.children.push({
+                    titulo: catName.toUpperCase(),
+                    children: items.map((c: any) => ({
+                        titulo: c.item,
+                        children: [
+                            {
+                                titulo: 'PREFERENTE',
+                                cobertura: c.preferente?.porcentaje ? `${c.preferente.porcentaje}%` : 'N/A',
+                                detalle: `Evento: ${c.preferente?.tope_evento?.valor || 'N/A'} ${c.preferente?.tope_evento?.unidad || ''} | Anual: ${c.preferente?.tope_anual?.valor || 'N/A'} ${c.preferente?.tope_anual?.unidad || ''}`
+                            },
+                            {
+                                titulo: 'LIBRE ELECCIÓN',
+                                cobertura: c.libre_eleccion?.porcentaje ? `${c.libre_eleccion.porcentaje}%` : 'N/A',
+                                detalle: `Evento: ${c.libre_eleccion?.tope_evento?.valor || 'N/A'} ${c.libre_eleccion?.tope_evento?.unidad || ''} | Anual: ${c.libre_eleccion?.tope_anual?.valor || 'N/A'} ${c.libre_eleccion?.tope_anual?.unidad || ''}`
+                            }
+                        ]
+                    }))
+                });
+            });
+            root.children.push(coberturasNode);
+        }
+        // 1. Coberturas (Legacy Logic)
+        else if (canonical.coberturas && canonical.coberturas.length > 0) {
             const coberturasNode: any = {
                 titulo: 'COBERTURAS',
                 detalle: `${canonical.coberturas.length} prestaciones`,
@@ -373,6 +424,23 @@ export default function CanonicalGeneratorApp() {
                                 </div>
                                 <p className="text-sm font-bold text-slate-600 group-hover:text-indigo-600 transition-colors">Cargar Contrato para Canonización</p>
                                 <p className="text-xs text-slate-400 mt-1">Formato PDF o Imagen</p>
+
+                                {/* STRATEGY SELECTOR */}
+                                <div className="mt-8 flex bg-slate-100 p-1 rounded-xl border border-slate-200" onClick={(e) => e.stopPropagation()}>
+                                    <button
+                                        onClick={() => setStrategy('STANDARD')}
+                                        className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all ${strategy === 'STANDARD' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                    >
+                                        Estándar (V2)
+                                    </button>
+                                    <button
+                                        onClick={() => setStrategy('GRID_GEOMETRY')}
+                                        className={`px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-lg transition-all flex items-center gap-2 ${strategy === 'GRID_GEOMETRY' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-400 hover:text-slate-600'}`}
+                                    >
+                                        <Zap size={10} fill={strategy === 'GRID_GEOMETRY' ? "currentColor" : "none"} />
+                                        Alta Fidelidad (Geo A/B)
+                                    </button>
+                                </div>
                             </div>
                         </label>
                     </div>

@@ -1,4 +1,10 @@
-import { ContractAnalysisResult } from './contractTypes.js';
+import {
+    ContractAnalysisResult,
+    UnidadRef,
+    TopeTipo,
+    TopeRazon,
+    TopeValue
+} from './contractTypes.js';
 import { applySynonyms } from './contractLearning.service.js';
 
 export interface CanonicalMetadata {
@@ -78,6 +84,110 @@ function normalizeText(text: string): string {
 }
 
 /**
+ * Normalizes VA units (V.A, VAM, etc.) to canonical 'VA'.
+ */
+export function normalizeVAUnit(raw: string): string {
+    const s = (raw || "").toUpperCase();
+    // Normaliza variantes visuales: "V.A", "VA", "V A", "VAM" mal OCR
+    let res = s.replace(/\bV\s*\.?\s*A\s*\.?\b/g, " VA ");
+    res = res.replace(/\bVAM\b/g, " VA ");
+    return res.replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Normalizes UnitRef for canonical JSON.
+ */
+export function normalizeUnidadRef(u: string | null | undefined): string | null {
+    if (!u) return null;
+    const up = u.toUpperCase().trim();
+    if (up === "VAM") return "VA";
+    if (up === "V.A" || up === "V A") return "VA";
+    return up;
+}
+
+/**
+ * V3.6 Precision Parser: Ensures empty != Sin Tope.
+ */
+export function parseTopeStrict(raw: unknown): TopeValue {
+    const s0 = String(raw ?? "").trim();
+    const s = s0.replace(/\s+/g, " ").trim();
+
+    // 1) CELDA VACÍA / OCR: no es Sin Tope
+    if (!s || s === "-" || s === "—" || s === "–" || s === "N/A" || s === "—") {
+        return {
+            tipo: "NO_ENCONTRADO" as TopeTipo,
+            unidad: null,
+            valor: null,
+            raw: s,
+            tope_existe: null,
+            razon: "CELDA_VACIA_OCR" as TopeRazon
+        };
+    }
+
+    const up = normalizeVAUnit(s).toUpperCase();
+
+    // 2) SIN TOPE explícito (único caso donde valor=null significa ilimitado)
+    if (/(SIN\s*TOPE|ILIMITADO|SIN\s*L[IÍ]MITE)/i.test(up)) {
+        return {
+            tipo: "SIN_TOPE_EXPLICITO" as TopeTipo,
+            unidad: null,
+            valor: null,
+            raw: s,
+            tope_existe: false,
+            razon: "SIN_TOPE_EXPRESO_EN_CONTRATO" as TopeRazon
+        };
+    }
+
+    // 3) Extrae número (coma decimal)
+    const m = up.match(/(\d+(?:[.,]\d+)?)/);
+    const num = m ? parseFloat(m[1].replace(",", ".")) : null;
+
+    // Si no hay número, no inventes
+    if (num === null || Number.isNaN(num)) {
+        return {
+            tipo: "NO_ENCONTRADO" as TopeTipo,
+            unidad: null,
+            valor: null,
+            raw: s,
+            tope_existe: null,
+            razon: "FORMATO_NO_RECONOCIDO" as TopeRazon
+        };
+    }
+
+    // 4) Determina unidad
+    if (/\bUF\b/.test(up)) {
+        return {
+            tipo: "NUMERICO" as TopeTipo,
+            unidad: "UF" as UnidadRef,
+            valor: num,
+            raw: s,
+            tope_existe: true
+        };
+    }
+
+    // Veces arancel: VA
+    if (/\bVA\b/.test(up) || /\bV\.A\b/.test(up)) {
+        return {
+            tipo: "NUMERICO" as TopeTipo,
+            unidad: "VA" as UnidadRef,
+            valor: num,
+            raw: s,
+            tope_existe: true
+        };
+    }
+
+    // Si hay número pero no unidad: UNKNOWN (no asumir UF)
+    return {
+        tipo: "NUMERICO" as TopeTipo,
+        unidad: null,
+        valor: num,
+        raw: s,
+        tope_existe: true,
+        razon: "CELDA_VACIA_OCR" as any // Or UNIDAD_NO_DETECTADA if you prefer
+    };
+}
+
+/**
  * Transforms a high-fidelity ContractAnalysisResult into the Canonical JSON format
  * defined in the 'canonizar-contrato-salud' skill.
  */
@@ -154,23 +264,25 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
 
                     // Add Topes
                     const mapTope = (v3Tope: any, aplicacion: "por_evento" | "anual") => {
-                        if (!v3Tope || v3Tope.tipo === 'NO_ENCONTRADO') return;
+                        if (!v3Tope) return;
 
+                        // Refine V3.6: Strict unit re-mapping and reason handling
                         const isSinTope = v3Tope.tipo === 'SIN_TOPE_EXPLICITO';
-                        let unidad: "UF" | "VAM" | "AC2" | "PESOS" | "DESCONOCIDO" | "SIN_TOPE" = "DESCONOCIDO";
-                        if (v3Tope.unidad === 'UF') unidad = "UF";
-                        else if (v3Tope.unidad === 'VA') unidad = "VAM";
-                        else if (v3Tope.unidad === 'CLP') unidad = "PESOS";
+                        const isNoEncontrado = v3Tope.tipo === 'NO_ENCONTRADO';
+
+                        let unidad = normalizeUnidadRef(v3Tope.unidad);
+                        if (isSinTope) unidad = "SIN_TOPE";
+                        else if (isNoEncontrado) unidad = null;
 
                         canonical.topes.push({
                             ambito,
-                            unidad: isSinTope ? "SIN_TOPE" : unidad,
-                            valor: isSinTope ? "SIN TOPE" : v3Tope.valor,
+                            unidad: unidad as any,
+                            valor: isSinTope ? "SIN TOPE" : (isNoEncontrado ? null : v3Tope.valor),
                             aplicacion,
                             tipo_modalidad: type,
                             fuente_textual: `${pagePrefix} ${itemName} (${type}): ${v3Tope.raw || (isSinTope ? "SIN TOPE" : "")}`,
-                            tope_existe: !isSinTope,
-                            razon: isSinTope ? "SIN_TOPE_EXPRESO_EN_CONTRATO" : undefined
+                            tope_existe: isSinTope ? false : (isNoEncontrado ? null : true),
+                            razon: v3Tope.razon || (isSinTope ? "SIN_TOPE_EXPRESO_EN_CONTRATO" : (isNoEncontrado ? "CELDA_VACIA_OCR" : undefined))
                         } as any);
                     };
 
@@ -260,88 +372,38 @@ export function transformToCanonical(result: ContractAnalysisResult): CanonicalC
                 fuente_textual: `${pagePrefix} Sección ${cob.categoria}: ${itemName}`
             });
 
-            // Add Topes (Geometric Multi-Type Support v2.5)
+            // Add Topes (Geometric Multi-Type Support v2.5 / Strict v3.6)
             const processTope = (rawVal: any, forceAplicacion?: "anual" | "por_evento") => {
-                const uTopeRaw = (mod.unidad_normalizada || mod.unidadTope || "").toUpperCase();
+                const result = parseTopeStrict(rawVal);
 
-                // Value-specific detection (v2.6)
-                const valStr = (String(rawVal || "")).toUpperCase();
-                const isSinTopeValue = valStr.includes("SIN TOPE") || valStr.includes("ILIMITADO") || valStr.includes("SIN_TOPE");
-
-                // Fallback to unit/evidence ONLY if value is missing or value itself says Sin Tope
-                const isSinTopeItem = isSinTopeValue || (
-                    (rawVal === null || rawVal === undefined) &&
-                    (uTopeRaw.includes("SIN_TOPE") || uTopeRaw.includes("ILIMITADO") || (mod.evidencia_literal || "").toUpperCase().match(/\bSIN TOPE\b/))
-                );
-
-                if (rawVal !== null && rawVal !== undefined || isSinTopeItem) {
-                    // Bug 1 Fix: Deterministic unit inference from raw string / evidence
-                    let unidad: "UF" | "VAM" | "AC2" | "PESOS" | null = null;
-                    const combinedSource = `${uTopeRaw} ${valStr} ${(mod.evidencia_literal || "").toUpperCase()}`;
-
-                    if (combinedSource.includes("UF") || combinedSource.includes("U.F.")) unidad = "UF";
-                    else if (combinedSource.includes("AC2")) unidad = "AC2";
-                    else if (["VAM", "V20", "V10", "VA", "VECES ARANCEL", "V.A"].some(u => combinedSource.includes(u))) unidad = "VAM";
-                    else if (combinedSource.includes("PESOS") || combinedSource.includes("$") || combinedSource.includes("CLP")) unidad = "PESOS";
-
-                    let val: number | null = null;
-                    if (typeof rawVal === 'number') val = rawVal;
-                    else if (typeof rawVal === 'string') {
-                        const match = rawVal.match(/(\d+[,.]?\d*)/);
-                        if (match) val = parseFloat(match[1].replace(",", "."));
-                    } else if (rawVal && typeof rawVal === 'object') {
-                        val = (rawVal as any).valor ?? null;
+                // Fallback to normalized engine numeric values if checking the main tope and strict parse failed
+                if (!forceAplicacion && result.tipo === "NO_ENCONTRADO") {
+                    const engineVal = (mod as any).tope_normalizado ?? mod.tope_nested?.valor ?? null;
+                    if (engineVal !== null) {
+                        result.tipo = "NUMERICO";
+                        result.valor = engineVal;
+                        result.unidad = normalizeUnidadRef(mod.unidad_normalizada || mod.unidadTope) as any;
+                        result.tope_existe = true;
+                        delete result.razon;
                     }
-
-                    // Priority for normalized engine numeric values if checking the main tope
-                    if (!forceAplicacion && val === null && !isSinTopeItem) {
-                        val = (mod as any).tope_normalizado ?? mod.tope_nested?.valor ?? null;
-                    }
-
-                    // Bug 2 Fix: Rely on explicit forceAplicacion for anual/por_evento
-                    let aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido" = forceAplicacion || "desconocido";
-                    if (!forceAplicacion) {
-                        if (mod.tipoTope === "ANUAL" || (mod.tipoTope as string) === "ANUAL") aplicacion = "anual";
-                        else if (mod.tipoTope === "POR_EVENTO" || (mod.tipoTope as string) === "POR_EVENTO" || mod.tipoTope === "ILIMITADO" || mod.tipoTope === "DIARIO") aplicacion = "por_evento";
-                    }
-
-                    // Bug 3 Fix: Semantic TopeValue implementation
-                    let tipo: "NUMERICO" | "SIN_TOPE_EXPLICITO" | "NO_ENCONTRADO" = "NO_ENCONTRADO";
-                    let razon: string | undefined = undefined;
-                    let tope_existe: boolean | null = null;
-
-                    if (isSinTopeItem) {
-                        tipo = "SIN_TOPE_EXPLICITO";
-                        val = "SIN TOPE" as any;
-                        unidad = "SIN_TOPE" as any;
-                        tope_existe = false;
-                        razon = "SIN_TOPE_EXPRESO_EN_CONTRATO";
-                    } else if (val !== null) {
-                        tipo = "NUMERICO";
-                        tope_existe = true;
-                    } else {
-                        tipo = "NO_ENCONTRADO";
-                        val = null;
-                        unidad = null;
-                        tope_existe = false;
-                        razon = "CELDA_VACIA_OCR";
-                    }
-
-                    const topeEntry: any = {
-                        ambito,
-                        tipo,
-                        unidad,
-                        valor: val,
-                        aplicacion,
-                        tope_existe,
-                        tipo_modalidad: mod.tipo === "LIBRE_ELECCION" ? "libre_eleccion" : (mod.tipo === "PREFERENTE" ? "preferente" : "desconocido"),
-                        fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${isSinTopeItem ? "SIN TOPE" : (val !== null ? val + " " + (unidad || "") : "No encontrado")}`
-                    };
-
-                    if (razon) topeEntry.razon = razon;
-
-                    canonical.topes.push(topeEntry);
                 }
+
+                const aplicacion: "anual" | "por_evento" | "por_prestacion" | "desconocido" = forceAplicacion || (result.tipo === "SIN_TOPE_EXPLICITO" ? "por_evento" : "desconocido");
+
+                const topeEntry: any = {
+                    ambito,
+                    tipo: result.tipo,
+                    unidad: normalizeUnidadRef(result.unidad),
+                    valor: result.tipo === "SIN_TOPE_EXPLICITO" ? "SIN TOPE" : result.valor,
+                    aplicacion,
+                    tope_existe: result.tope_existe,
+                    tipo_modalidad: mod.tipo === "LIBRE_ELECCION" ? "libre_eleccion" : (mod.tipo === "PREFERENTE" ? "preferente" : "desconocido"),
+                    fuente_textual: `${pagePrefix} Tope para ${itemName} (${mod.tipo}): ${result.raw || (result.tipo === "SIN_TOPE_EXPLICITO" ? "SIN TOPE" : "No encontrado")}`
+                };
+
+                if (result.razon) topeEntry.razon = result.razon;
+
+                canonical.topes.push(topeEntry);
             };
 
             // 1. Process regular tope (usually per event/proc)

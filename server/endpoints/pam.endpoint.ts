@@ -82,13 +82,13 @@ export async function handlePamExtraction(req: Request, res: Response) {
         const workflow = [
             {
                 model: AI_CONFIG.ACTIVE_MODEL || 'gemini-3-flash-preview',
-                timeout: 60000, // 60s timeout
+                timeout: 90000, // 90s timeout
                 desc: 'Primary Model (Active)'
             },
             {
-                model: 'gemini-2.5-flash',
-                timeout: 60000, // 60s timeout
-                desc: 'Gemini 2.5 Flash - Fallback confiable'
+                model: 'gemini-1.5-flash',
+                timeout: 90000, // 90s timeout
+                desc: 'Gemini 1.5 Flash - Fallback confiable'
             }
         ];
 
@@ -247,7 +247,7 @@ export async function handlePamExtraction(req: Request, res: Response) {
 
                     const { estimatedCost, estimatedCostCLP } = GeminiService.calculateCost(
                         // Use active model we captured
-                        activeModel || 'gemini-2.5-flash',
+                        activeModel || AI_CONFIG.FALLBACK_MODEL || 'gemini-3-flash-preview',
                         promptTokens,
                         candidatesTokens
                     );

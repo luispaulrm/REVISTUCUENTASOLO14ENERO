@@ -170,11 +170,14 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
 
     // --- FALLBACK LOGIC ---
     // Models to try in order
-    const preferredModel = AI_CONFIG.ACTIVE_MODEL || "gemini-1.5-flash";
     const modelsToTry = [
-        preferredModel,
-        "gemini-2.5-flash" // User-enforced strict fallback (2.0 and 1.5 are retired/excluded)
-    ];
+        AI_CONFIG.ACTIVE_MODEL,
+        AI_CONFIG.FALLBACK_MODEL,
+        "gemini-3-flash-preview",
+        "gemini-2.5-flash",
+        "gemini-1.5-pro",
+        "gemini-1.5-flash"
+    ].filter(Boolean);
     // Removing duplicates while preserving order
     const uniqueModels = [...new Set(modelsToTry)];
 
@@ -195,6 +198,12 @@ export const handleAskAuditor = async (req: Request, res: Response) => {
             for await (const chunk of result.stream) {
                 const chunkText = chunk.text();
                 res.write(chunkText);
+
+                // Optional: Send usage metadata if available (Interrogation doesn't usually show usage in UI but good for logs)
+                const usage = chunk.usageMetadata;
+                if (usage) {
+                    console.log(`[ASK] Usage for ${modelName}: ${usage.totalTokenCount} tokens`);
+                }
             }
             success = true;
         } catch (error: any) {

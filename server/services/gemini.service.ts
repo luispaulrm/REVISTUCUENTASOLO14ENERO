@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { AI_CONFIG, calculatePrice } from '../config/ai.config.js';
+import { AI_CONFIG, AI_MODELS, calculatePrice } from '../config/ai.config.js';
 
 export interface StreamChunk {
     text: string;
@@ -14,14 +14,12 @@ export class GeminiService {
     private keys: string[];
     private activeKeyIndex: number = 0;
     private client: GoogleGenerativeAI;
+    private logCallback?: (msg: string) => void;
 
-    constructor(apiKeyOrKeys: string | string[]) {
-        // Normalize input to array
+    constructor(apiKeyOrKeys: string | string[], logCallback?: (msg: string) => void) {
+        this.logCallback = logCallback;
         const initialKeys = Array.isArray(apiKeyOrKeys) ? apiKeyOrKeys : [apiKeyOrKeys];
-
-        // Auto-discover environmental keys if single key passed matches env
         const envKeys = [];
-        // Helper to safely get env in both Node and potentially other runtimes (though this is server-side)
         const getEnv = (k: string) => typeof process !== 'undefined' && process.env ? process.env[k] : undefined;
 
         if (getEnv("GEMINI_API_KEY")) envKeys.push(getEnv("GEMINI_API_KEY")!);
@@ -29,8 +27,8 @@ export class GeminiService {
         if (getEnv("GEMINI_API_KEY_SECONDARY")) envKeys.push(getEnv("GEMINI_API_KEY_SECONDARY")!);
         if (getEnv("GEMINI_API_KEY_TERTIARY")) envKeys.push(getEnv("GEMINI_API_KEY_TERTIARY")!);
         if (getEnv("GEMINI_API_KEY_QUATERNARY")) envKeys.push(getEnv("GEMINI_API_KEY_QUATERNARY")!);
+        if (getEnv("GEMINI_API_KEY_QUINARY")) envKeys.push(getEnv("GEMINI_API_KEY_QUINARY")!);
 
-        // Combine and unique
         const combined = Array.from(new Set([...initialKeys, ...envKeys]));
         this.keys = combined.filter(k => !!k && k.length > 5);
 
@@ -38,24 +36,13 @@ export class GeminiService {
             console.error("❌ GeminiService started with NO VALID KEYS");
             this.client = new GoogleGenerativeAI("DUMMY_KEY");
         } else {
-            // Initialize with first available key
             this.client = new GoogleGenerativeAI(this.keys[0]);
         }
     }
 
-    private getClientForCurrentKey(): GoogleGenerativeAI {
-        const key = this.keys[this.activeKeyIndex];
-        return new GoogleGenerativeAI(key);
-    }
-
-    private rotateKey(): boolean {
-        if (this.activeKeyIndex >= this.keys.length - 1) return false; // No more keys
-        this.activeKeyIndex++;
-        const newKey = this.keys[this.activeKeyIndex];
-        const mask = newKey.substring(0, 4) + '...';
-        console.log(`[GeminiService] 🔄 Switching to Backup Key: ${mask} (Index ${this.activeKeyIndex})`);
-        this.client = new GoogleGenerativeAI(newKey);
-        return true;
+    private log(msg: string) {
+        if (this.logCallback) this.logCallback(msg);
+        console.log(`[GeminiService] ${msg}`);
     }
 
     async extract(
@@ -72,21 +59,24 @@ export class GeminiService {
         } = {}
     ): Promise<string> {
         let lastError: any;
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
+        const modelsToTry = [
+            AI_CONFIG.ACTIVE_MODEL,
+            AI_CONFIG.FALLBACK_MODEL,
+            AI_MODELS.fallback2,
+            AI_MODELS.fallback3,
+            AI_MODELS.fallback4,
+            'gemini-2.0-flash'
+        ].filter(Boolean);
 
         for (const modelName of modelsToTry) {
             if (!modelName) continue;
-            console.log(`[GeminiService] 🛡️ Strategy: Attempting non-streaming extraction with model ${modelName}`);
+            this.log(`🛡️ Estrategia: Intentando extracción con modelo ${modelName}`);
 
-            // Persist valid key index, but allow wrap-around search
-            // Start search from the last known good key
             let startingKeyIdx = this.activeKeyIndex;
 
             for (let i = 0; i < this.keys.length; i++) {
-                // Calculate actual key index based on offset from starting index
                 const keyIdx = (startingKeyIdx + i) % this.keys.length;
-                this.activeKeyIndex = keyIdx; // Update active index as we try
-
+                this.activeKeyIndex = keyIdx;
                 const currentKey = this.keys[keyIdx];
                 const mask = currentKey ? (currentKey.substring(0, 4) + '...') : '???';
 
@@ -104,30 +94,42 @@ export class GeminiService {
                         }
                     });
 
-                    const result = await model.generateContent([{ text: prompt }, ...(image && mimeType ? [{
-                        inlineData: {
-                            data: image,
-                            mimeType: mimeType
-                        }
+                    this.log(`🚀 Enviando solicitud a ${modelName}... (Llave ${keyIdx + 1})`);
+
+                    const timeoutMs = 90000; // Increased to 90s for better stability
+                    const extractionPromise = model.generateContent([{ text: prompt }, ...(image && mimeType ? [{
+                        inlineData: { data: image, mimeType: mimeType }
                     }] : [])]);
 
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error(`Timeout: Gemini ${modelName} did not respond in ${timeoutMs / 1000}s`)), timeoutMs);
+                    });
+
+                    const result = await Promise.race([extractionPromise, timeoutPromise]) as any;
                     const text = result.response.text();
-                    console.log(`[GeminiService] ✅ Success (Non-Stream) with Key ${mask} on ${modelName}`);
+                    this.log(`✅ Éxito con Llave ${mask} en ${modelName} (${text.length} chars)`);
                     return text;
 
                 } catch (err: any) {
                     lastError = err;
                     const errStr = (err?.toString() || "") + (err?.message || "");
                     const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || err?.status === 429 || err?.status === 503;
+                    const isTimeout = errStr.includes('Timeout') || errStr.includes('deadline');
+                    const isInvalid = errStr.includes('404') || errStr.includes('not found') || errStr.includes('400');
 
                     if (isQuota) {
-                        console.warn(`[GeminiService] ⚠️ Quota error on Key ${mask}. Trying next key...`);
+                        this.log(`⚠️ Error de cuota en Llave ${mask}. Probando siguiente llave...`);
                         continue;
+                    } else if (isTimeout) {
+                        this.log(`⏱️ Tiempo excedido en Llave ${mask} con ${modelName}. Probando siguiente llave/modelo...`);
+                        if (i >= 1) break;
+                        continue;
+                    } else if (isInvalid) {
+                        this.log(`❌ Modelo ${modelName} no disponible. Saltando al siguiente modelo...`);
+                        break;
                     } else {
-                        // Non-quota error (param error, bad image, etc). Do not retry blindly?
-                        console.error(`[GeminiService] ❌ Non-retriable error on Key ${mask}:`, err.message);
-                        // Try next key just in case, or break?
-                        // For robustness, try next.
+                        this.log(`❌ Error en Llave ${mask}: ${err.message}`);
+                        if (i >= 1) break;
                     }
                 }
             }
@@ -161,29 +163,28 @@ export class GeminiService {
         } = {}
     ): Promise<AsyncIterable<StreamChunk>> {
         let lastError: any;
-
-        // Persist valid key index, but allow wrap-around search
         let startingKeyIdx = this.activeKeyIndex;
+        const modelsToTry = [
+            AI_CONFIG.ACTIVE_MODEL,
+            AI_CONFIG.FALLBACK_MODEL,
+            AI_MODELS.fallback2,
+            AI_MODELS.fallback3,
+            AI_MODELS.fallback4,
+            'gemini-2.0-flash'
+        ].filter(Boolean);
 
-        const modelsToTry = [AI_CONFIG.ACTIVE_MODEL, AI_CONFIG.FALLBACK_MODEL];
-
-        // Loop through Models (Primary -> Fallback)
         for (const modelName of modelsToTry) {
             if (!modelName) continue;
-            console.log(`[GeminiService] 🛡️ Strategy: Attempting with model ${modelName}`);
+            this.log(`🛡️ Estrategia: Probando streaming con ${modelName}`);
 
-            // Loop through Keys (Primary -> Secondary -> etc)
             for (let i = 0; i < this.keys.length; i++) {
                 const keyIdx = (startingKeyIdx + i) % this.keys.length;
                 this.activeKeyIndex = keyIdx;
-
                 const currentKey = this.keys[keyIdx];
                 const mask = currentKey ? (currentKey.substring(0, 4) + '...') : '???';
 
                 try {
-                    // Update client with current key
                     this.client = new GoogleGenerativeAI(currentKey);
-
                     const model = this.client.getGenerativeModel({
                         model: modelName,
                         generationConfig: {
@@ -198,15 +199,12 @@ export class GeminiService {
 
                     const resultStream = await model.generateContentStream([
                         { text: prompt },
-                        {
-                            inlineData: {
-                                data: image,
-                                mimeType: mimeType
-                            }
-                        }
+                        ...(image && mimeType ? [{
+                            inlineData: { data: image, mimeType: mimeType }
+                        }] : [])
                     ]);
 
-                    console.log(`[GeminiService] ✅ Success with Key ${mask} on ${modelName}`);
+                    this.log(`✅ Éxito (Stream) con Llave ${mask} en ${modelName}`);
                     return this.processStream(resultStream);
 
                 } catch (err: any) {
@@ -215,22 +213,14 @@ export class GeminiService {
                     const isQuota = errStr.includes('429') || errStr.includes('Too Many Requests') || err?.status === 429 || err?.status === 503;
 
                     if (isQuota) {
-                        console.warn(`[GeminiService] ⚠️ Quota/Service Error on Key ${mask} (${modelName}). Trying next key...`);
+                        this.log(`⚠️ Error de cuota en Llave ${mask}. Probando siguiente...`);
                         continue;
                     } else {
-                        // Non-quota error (param error, bad image, etc). Do not retry blindly?
-                        console.error(`[GeminiService] ❌ Non-retriable error on Key ${mask} (${modelName}):`, err.message);
-                        // If it's a model-specific error (Active model unsupported?), we SHOULD try fallback model.
-                        // But if it's "Invalid Argument", fallback likely won't help unless arguments differ.
-                        // For safety, we continue to next Key/Model ONLY if it helps.
-                        // Determining if it helps is hard. Let's assume strict retry only on Quota/Server Errors.
-                        // If user wants robustness, maybe we retry everything? No, "Invalid Image" wont be fixed.
+                        this.log(`❌ Error en Llave ${mask}: ${err.message}`);
                     }
                 }
             }
-            console.warn(`[GeminiService] ⚠️ All keys failed for model ${modelName}. Switching to fallback if available...`);
         }
-
         throw lastError || new Error("All API keys failed for stream extraction.");
     }
 
@@ -238,7 +228,6 @@ export class GeminiService {
         for await (const chunk of resultStream.stream) {
             const chunkText = chunk.text();
             const usage = chunk.usageMetadata;
-
             yield {
                 text: chunkText,
                 usageMetadata: usage ? {
@@ -250,159 +239,8 @@ export class GeminiService {
         }
     }
 
-    /**
-     * Executes a targeted repair tailored for a specific section discrepancy.
-     * Uses CSV format for token efficiency and preventing truncation.
-     * IMPLEMENTS MULTI-PASS REPAIR IF TRUNCATED.
-     */
-    async repairSection(
-        image: string,
-        mimeType: string,
-        sectionName: string,
-        declaredTotal: number,
-        currentSum: number,
-        pages?: number[]
-    ): Promise<any[]> {
-        let allItems: any[] = [];
-        let lastItemDescription = "";
-        let isTruncated = true;
-        let attempts = 0;
-        const maxAttempts = 3;
-
-        while (isTruncated && attempts < maxAttempts) {
-            attempts++;
-            const pageFocus = pages && pages.length > 0 ? `FOCUS ON PAGES: ${pages.join(', ')}.` : '';
-            const prompt = `
-            ACT AS A CLINICAL BILL AUDIT SPECIALIST.
-            
-            ISSUE:
-            In the section "${sectionName}", you previously extracted items that sum up to $${currentSum.toLocaleString('es-CL')}.
-            However, the document states that the TOTAL for this section should be $${declaredTotal.toLocaleString('es-CL')}.
-            
-            ${pageFocus}
-            ${attempts > 1 ? `PARTIAL PROGRESS: You already extracted ${allItems.length} items. The last one was "${lastItemDescription}". PLEASE CONTINUE listing the remaining items from there.` : ''}
-            CRITICAL INSTRUCTIONS:
-            - EXHAUSTIVENESS IS #1: List EVERY item. If the clinician's total is wrong, WE DON'T CARE. We want the full 100% list of products verbatim.
-            - DO NOT GROUP ITEMS. If the paper lists it 5 times, you extract it 5 times.
-            - FORMAT: index | description | quantity | unitPrice | total
-            - IMPORTANT: Some lines are CREDIT/REVERSALS. They have a minus sign (-) or are in parentheses ( ). You MUST extract them as negative (ej: -1, -3006).
-            - IVA DETECTION: If unitPrice * quantity doesn't match total, it might be due to 19% tax (IVA). Just extract values as they are.
-            - ANTI-FUSION: If a price looks like millions (ej: 2.470500501), it is fused with a code. Clean it to match the total (ej: 2.470).
-            - MATH CHECK: sum(items.total) SHOULD equal $${declaredTotal.toLocaleString('es-CL')}, BUT IF THE DOCUMENT IS WRONG, PRIORITIZE LISTING ALL ITEMS.
-            - ABSOLUTELY NO decimals in Prices/Totals. INTEGERS ONLY.
-            - Return ONLY a CSV-style list using "|" as separator. No markdown.
-            - TRUNCATION SAFETY: If the list is too long, end with "CONTINUE|PENDING".
-            `;
-
-            const model = this.client.getGenerativeModel({
-                model: AI_CONFIG.ACTIVE_MODEL,
-                generationConfig: {
-                    maxOutputTokens: 35000
-                }
-            });
-
-            const result = await model.generateContent([
-                { text: prompt },
-                {
-                    inlineData: {
-                        data: image,
-                        mimeType: mimeType
-                    }
-                }
-            ]);
-
-            const text = result.response.text();
-            console.log(`[REPAIR] Pass ${attempts} Raw Response (Preview):`, text.substring(0, 200) + "...");
-
-            const lines = text.split('\n').map(l => l.trim()).filter(l => l && l.includes('|'));
-            let passTruncated = false;
-
-            for (const line of lines) {
-                // Skip header if present
-                if (line.toLowerCase().includes('description|quantity')) continue;
-                // Skip markdown table separators like |--|--|
-                if (line.includes('---')) continue;
-
-                if (line.toUpperCase().includes('CONTINUE|PENDING')) {
-                    passTruncated = true;
-                    continue;
-                }
-
-                const parts = line.split('|').map(p => p.trim()).filter(p => p !== "");
-                if (parts.length >= 4) {
-                    try {
-                        const idx = parseInt(parts[0]);
-
-                        // Standard parser for quantities and prices in repair CSV
-                        const parseVal = (v: string): number => {
-                            if (!v) return 0;
-                            let c = v.trim();
-
-                            // Handle negative parentheses
-                            if (c.startsWith('(') && c.endsWith(')')) {
-                                c = '-' + c.substring(1, c.length - 1);
-                            }
-
-                            c = c.replace(/[^\d.,-]/g, '');
-                            if (c.includes(',')) return parseFloat(c.replace(/\./g, '').replace(/,/g, '.')) || 0;
-                            const d = (c.match(/\./g) || []).length;
-                            if (d === 1) {
-                                const p = c.split('.');
-                                if (p[1].length !== 3 || (p[1] === "000" && p[0].length <= 2)) return parseFloat(c) || 0;
-                                return parseFloat(c.replace(/\./g, '')) || 0;
-                            } else if (d > 1) {
-                                return parseFloat(c.replace(/\./g, '')) || 0;
-                            }
-                            return parseFloat(c) || 0;
-                        };
-
-                        // ROBUST PARSING: The last 3 columns are always Qty|Price|Total
-                        // This makes it immune to IA injecting "Code" or "Date" at the beginning.
-                        const lastThree = parts.slice(-3);
-                        const qty = parseVal(lastThree[0]);
-                        const uprice = parseVal(lastThree[1]);
-                        const total = parseVal(lastThree[2]);
-
-                        // Description is everything between the index (parts[0]) and the last three
-                        const desc = parts.slice(1, -3).join(' ').trim();
-
-                        if (!isNaN(total)) {
-                            allItems.push({
-                                index: isNaN(idx) ? allItems.length + 1 : idx,
-                                description: desc,
-                                quantity: isNaN(qty) ? 1 : qty,
-                                unitPrice: uprice || (qty !== 0 ? Math.round(Math.abs(total / qty)) : 0),
-                                total: total
-                            });
-                            lastItemDescription = desc;
-                        }
-                    } catch (err) { }
-                }
-            }
-
-            isTruncated = passTruncated;
-            if (!isTruncated) break;
-            console.log(`[REPAIR] Section "${sectionName}" truncated. Total items so far: ${allItems.length}. Requesting next part...`);
-        }
-
-        if (allItems.length > 0) {
-            console.log(`[REPAIR SUCCESS] Parsed total of ${allItems.length} items for "${sectionName}" after ${attempts} pass(es).`);
-            return allItems;
-        }
-
-        return allItems;
-    }
-
-    /**
-     * Calcula el costo estimado basado en el modelo y el uso de tokens.
-     * Basado en las nuevas tarifas de Gemini 3.
-     */
     static calculateCost(modelName: string, promptTokens: number, candidatesTokens: number) {
-        // We ignore modelName argument to enforce Single Source of Truth from Config
-        // or check if it matches AI_CONFIG.ACTIVE_MODEL
-
-        const { costUSD, costCLP } = calculatePrice(promptTokens, candidatesTokens);
-
+        const { costUSD, costCLP } = calculatePrice(promptTokens, candidatesTokens, modelName);
         return {
             promptTokens,
             candidatesTokens,
@@ -418,33 +256,17 @@ export class GeminiService {
         history: { role: string, parts: { text: string }[] }[],
         modelName: string
     ): Promise<string> {
-        // Instantiate a fresh client (or use a singleton/pool if needed)
-        // For static context, we need a key. Let's borrow from config or env.
-        // LIMITATION: Static method doesn't have access to instance keys rotation.
-        // FIX: Create a temporary instance to handle this.
         const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || '';
         if (!apiKey) throw new Error("No API Key found for Chat");
-
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: modelName });
-
         const chat = model.startChat({
             history: [
-                {
-                    role: "user",
-                    parts: [{ text: systemPrompt }],
-                },
-                {
-                    role: "model",
-                    parts: [{ text: "Entendido. Operaré como el Asistente Forense M11 bajo esas instrucciones." }],
-                },
+                { role: "user", parts: [{ text: systemPrompt }] },
+                { role: "model", parts: [{ text: "Entendido." }] },
                 ...history
-            ],
-            generationConfig: {
-                maxOutputTokens: 1000,
-            },
+            ]
         });
-
         const result = await chat.sendMessage(userMessage);
         return result.response.text();
     }

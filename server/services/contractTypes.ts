@@ -120,6 +120,7 @@ export interface TopeValue {
     unidad: UnidadRef | null;     // null SOLO si no aplica
     raw: string | null;           // texto crudo de la celda
     razon?: TopeRazon;            // obligatorio si tipo != NUMERICO
+    tope_existe?: boolean | null; // v3.6
     confidence?: number;          // opcional
 }
 
@@ -291,4 +292,128 @@ export interface TableModel {
     ruleBoxes: RuleBox[];
     blockHints: Array<{ blockTitle: string; y0: number; y1: number; page: number }>;
     issues: Array<{ code: string; message: string; page?: number }>;
+}
+
+// ============================================================================
+// LAYOUT GRID DOC SCHEMA V1 (Technology A)
+// ============================================================================
+
+export interface LayoutGridToken {
+    text: string;
+    bbox: { x0: number; y0: number; x1: number; y1: number };
+}
+
+export interface LayoutGridIssue {
+    code: "NO_GRID_LINES" | "AMBIGUOUS_CELL_BOUNDARY" | "OVERLAPPING_CELLS" | "TOKEN_OUTSIDE_ANY_CELL" | "PARTIAL_PAGE_RENDER" | "LOW_CONFIDENCE_PAGE";
+    severity: "info" | "warn" | "error";
+    message: string;
+    debug?: { any: any };
+}
+
+export interface LayoutGridCell {
+    cellId: string;
+    bbox: { x0: number; y0: number; x1: number; y1: number };
+    row: number | null;
+    col: number | null;
+    rowSpan: number;
+    colSpan: number;
+    kind: "CELL" | "RULE_BOX" | "COLUMN_BLOCK" | "ROW_BLOCK" | "UNKNOWN";
+    text: string;
+    tokens: LayoutGridToken[];
+    empty: boolean;
+    emptyReason: "NONE" | "BORDER_ONLY" | "OCR_MISS" | "NOT_IN_IMAGE";
+    confidence: number;
+}
+
+export interface LayoutGridPage {
+    page: number;
+    coordSystem: "TOP_LEFT";
+    pageSize: { width: number; height: number; unit: "px" | "pt" };
+    dpi: number | null;
+    grid: {
+        verticalLines: number[];
+        horizontalLines: number[];
+        rectangles: Array<{
+            rectId: string;
+            bbox: { x0: number; y0: number; x1: number; y1: number };
+            kind: "CELL" | "RULE_BOX" | "HEADER" | "FOOTER" | "UNKNOWN";
+            strokeDetected: boolean;
+            fillDetected: boolean;
+        }>;
+    };
+    cells: LayoutGridCell[];
+    // Pre-computed spatial index for Module B
+    spatialIndex?: {
+        cellsByRow: Record<number, string[]>; // row -> [cellId, ...]
+        cellsByCol: Record<number, string[]>; // col -> [cellId, ...]
+    };
+    issues: LayoutGridIssue[];
+}
+
+export interface LayoutGridDoc {
+    module: "CONTRACT_LAYOUT_EXTRACTOR_A";
+    version: "1.0";
+    doc: {
+        docId: string;
+        source: { filename: string };
+        pages: LayoutGridPage[];
+    };
+}
+
+// ============================================================================
+// CONTRACT AUDITOR B SCHEMA V1
+// ============================================================================
+
+export interface AuditorBTope {
+    valor: number | null;
+    unidad: "UF" | "VA" | "SIN_TOPE" | "UNKNOWN" | "CLP";
+    tipo?: "TOPE_BONIFICACION" | "COPAGO_FIJO"; // Discriminator
+}
+
+export type TableType = "COVERAGE_GRID" | "FACTOR_TABLE" | "ARANCEL_CATALOG" | "WAIT_TIMES_TABLE" | "DEFINITIONS_TEXT" | "UNKNOWN";
+
+export interface AuditorBItemRule {
+    porcentaje: number | null;
+    clinicas?: string[]; // Para capturar "Dávila, Vespucio", etc.
+    tope_evento: AuditorBTope;
+    tope_anual: AuditorBTope;
+    copago_fijo?: { valor: number; unidad: "UF" | "CLP" } | null;
+    evidence: {
+        page: number;
+        cells: Array<{ cellId: string; text: string }>;
+    };
+}
+
+export interface AuditorBItem {
+    ambito: "HOSPITALARIO" | "AMBULATORIO" | "URGENCIA" | "OTROS";
+    item: string;
+    preferente: {
+        rules: AuditorBItemRule[];
+    };
+    libre_eleccion: {
+        rules: AuditorBItemRule[];
+    };
+}
+
+export interface AuditorBResult {
+    docMeta: {
+        planId?: string;
+        page?: number;
+        tableType?: TableType;
+        [key: string]: any;
+    };
+    detectedSchema: {
+        prestacion_col: string | null;
+        preferente_pct_col: string | null;
+        preferente_tope_evento_col: string | null;
+        preferente_tope_anual_col: string | null;
+        libre_pct_col: string | null;
+        libre_tope_evento_col: string | null;
+        libre_tope_anual_col: string | null;
+    };
+    items: AuditorBItem[];
+    warnings: Array<{
+        type: "COLUMN_AMBIGUITY" | "MISSING_HEADERS" | "MERGED_CELL";
+        detail: string;
+    }>;
 }

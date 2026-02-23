@@ -15,7 +15,7 @@ export class ValidationService {
     constructor(apiKeyOrKeys: string | string[]) {
         this.apiKeys = Array.isArray(apiKeyOrKeys) ? apiKeyOrKeys : [apiKeyOrKeys];
         // Use Flash for speed and low cost validation
-        this.modelName = AI_CONFIG.FALLBACK_MODEL || "gemini-1.5-flash";
+        this.modelName = AI_CONFIG.FALLBACK_MODEL || "gemini-3-flash-preview";
     }
 
     /**

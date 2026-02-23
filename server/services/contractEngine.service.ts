@@ -205,8 +205,10 @@ async function extractTokensFromPdf(file: UploadedFile, maxPages: number, log: (
         data,
         disableFontFace: true,
         useSystemFonts: true,
+        disableWorker: true, // IMPORTANT: Fixes hangs in Node.js ESM
+        verbosity: 0,
         standardFontDataUrl: `node_modules/pdfjs-dist/standard_fonts/`
-    });
+    } as any);
 
     const pdf = await loadingTask.promise;
     log(`[ContractEngine-Grid] getDocument success. Num pages: ${pdf.numPages}`);
@@ -260,7 +262,7 @@ export function detectGridColumns(tokens: Token[], page: number, globalModel?: G
 
     for (let i = 1; i < bins.length; i++) {
         const gap = bins[i] - bins[i - 1];
-        if (gap > binSize * 5) { // Threshold for column gap
+        if (gap > binSize * 8) { // V3.6: Increased threshold to avoid informative box contamination (was * 5)
             columns.push({
                 colId: `col_${columns.length}`,
                 x0: currentColX0,
@@ -314,8 +316,8 @@ function detectRuleBoxes(tokens: Token[], page: number): RuleBox[] {
             ruleBoxes.push({
                 boxId: `box_${ruleBoxes.length}`,
                 page,
-                y0: anchorToken.y0 - 20, // Rough expansion
-                y1: anchorToken.y1 + 20,
+                y0: anchorToken.y0 - 100, // V3.6: Increased expansion for larger network boxes
+                y1: anchorToken.y1 + 100,
                 raw: match[0],
                 anchors
             });
@@ -361,9 +363,8 @@ export function reconstructTableGrid(tokens: Token[], page: number, columns: Gri
 
     rows.sort((a, b) => b.y0 - a.y0);
 
-    // STEP 2: PRE-LLM ROW PROPAGATION (Propagate "Sin Tope" to empty neighbor rows)
-    // Heuristic: If a cell is empty but its neighbors in a specific range have "Sin Tope"
-    // and it's within the same block hint (simplified as contiguity here).
+    // STEP 2: PRE-LLM ROW PROPAGATION (V3.6: DISABLED TO PREVENT "SIN TOPE" CONTAMINATION)
+    /*
     columns.forEach(col => {
         for (let i = 1; i < rows.length; i++) {
             const currentCell = rows[i].cells[col.colId];
@@ -377,6 +378,7 @@ export function reconstructTableGrid(tokens: Token[], page: number, columns: Gri
             }
         }
     });
+    */
 
     return {
         docId: `doc_${page}`,
