@@ -1,5 +1,6 @@
 import { GeminiService } from './gemini.service.js';
 import { LayoutGridDoc, LayoutGridPage } from './contractTypes.js';
+import { jsonrepair } from 'jsonrepair';
 
 export class ContractLayoutExtractorA {
   private gemini: GeminiService;
@@ -75,7 +76,6 @@ Return exactly the JSON for a single page matching the schema:
       "colSpan": number,
       "kind": "CELL" | "RULE_BOX" | "COLUMN_BLOCK" | "ROW_BLOCK" | "UNKNOWN",
       "text": "string",
-      "tokens": [ { "text": "string", "bbox": { "x0": number, "y0": number, "x1": number, "y1": number } } ],
       "empty": boolean,
       "emptyReason": "NONE" | "BORDER_ONLY" | "OCR_MISS" | "NOT_IN_IMAGE",
       "confidence": number
@@ -97,7 +97,13 @@ Return exactly the JSON for a single page matching the schema:
     });
 
     try {
-      const pageData = JSON.parse(responseText);
+      let pageData: any;
+      try {
+        pageData = JSON.parse(responseText);
+      } catch (parseErr) {
+        this.log(`⚠️ JSON primario falló, intentando reparación...`);
+        pageData = JSON.parse(jsonrepair(responseText));
+      }
       // Defensive: Ensure the page number property exists as expected by Auditor B
       if (pageData && typeof pageData === 'object') {
         pageData.page = pageData.page || pageNumber;

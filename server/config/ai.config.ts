@@ -1,16 +1,23 @@
 export const AI_MODELS = {
-    primary: 'gemini-3-flash-preview',
-    fallback: 'gemini-2.5-flash',
-    fallback2: 'gemini-1.5-pro',
-    fallback3: 'gemini-1.5-flash',
-    fallback4: 'gemini-3.1-pro-preview', // Keep it in the list, but at bottom
-    extractor: 'gemini-3-flash-preview',
-    reasoner: 'gemini-3-flash-preview'
+    primary: 'gemini-1.5-flash-latest',
+    fallback: 'gemini-2.0-flash-exp', // Using more stable identifiers
+    fallback2: 'gemini-2.5-flash',
+    fallback3: 'gemini-3-flash-preview',
+    pro: 'gemini-1.5-pro-latest',
+    pro_preview: 'gemini-3.1-pro-preview',
+    extractor: 'gemini-1.5-flash-latest',
+    reasoner: 'gemini-1.5-flash-latest'
 };
 
 export const AI_CONFIG = {
     ACTIVE_MODEL: AI_MODELS.primary,
-    FALLBACK_MODEL: AI_MODELS.fallback,
+    FALLBACK_MODELS: [
+        AI_MODELS.fallback,
+        AI_MODELS.fallback2,
+        AI_MODELS.fallback3,
+        AI_MODELS.pro,
+        AI_MODELS.pro_preview
+    ],
     MAX_TOKENS: 35000,
     TEMPERATURE: 0.1,
     PRICING: {
@@ -18,9 +25,9 @@ export const AI_CONFIG = {
         'gemini-3-flash-preview': { input: 0.1, output: 0.4 },
         'gemini-2.5-flash': { input: 0.1, output: 0.4 },
         'gemini-2.5-pro': { input: 1.25, output: 5.0 },
+        'gemini-2.0-flash': { input: 0.1, output: 0.4 },
         'gemini-1.5-pro': { input: 1.25, output: 5.0 },
-        'gemini-1.5-flash': { input: 0.1, output: 0.4 },
-        'gemini-2.0-flash': { input: 0.1, output: 0.4 }
+        'gemini-1.5-flash': { input: 0.075, output: 0.3 } // 1.5 Flash is even cheaper now
     }
 };
 

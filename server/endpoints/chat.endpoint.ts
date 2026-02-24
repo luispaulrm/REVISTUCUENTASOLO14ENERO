@@ -18,10 +18,11 @@ export const handleChat = async (req: Request, res: Response) => {
             contractSource = contractSource.data;
         }
 
-        const rawJsonSummary = contractSource.coberturas ? `
-        CONTENIDO BRUTO DEL JSON CANÓNICO (COBERTURAS/TOPES):
+        const rawJsonSummary = (contractSource.coberturas || contractSource.items || contractSource.reglas_aplicacion) ? `
+        CONTENIDO BRUTO DEL JSON CANÓNICO:
         ${JSON.stringify({
             coberturas: contractSource.coberturas?.slice(0, 15),
+            items_auditor_b: contractSource.items?.slice(0, 10),
             topes: contractSource.topes?.slice(0, 10),
             reglas: contractSource.reglas_aplicacion?.slice(0, 5)
         }, null, 2)}
@@ -38,7 +39,6 @@ export const handleChat = async (req: Request, res: Response) => {
         HALLAZGOS PRINCIPALES (${context.result.matrix.length}):
         ${context.result.matrix.slice(0, 5).map((m: any) => `- ${m.itemLabel}: ${m.classification} (${m.fundamento})`).join('\n')}
         ${context.result.matrix.length > 5 ? '... y más hallazgos.' : ''}
-        ${rawJsonSummary}
         ` : 'No hay resultados de auditoría aún.';
 
         const contractRules = context.contract?.rules || [];
@@ -60,6 +60,8 @@ export const handleChat = async (req: Request, res: Response) => {
         - Ítems Cuenta: ${context.bill?.items?.length || 0}
 
         ${auditSummary}
+
+        ${rawJsonSummary}
 
         INSTRUCCIONES CRÍTICAS:
         1. Si el usuario pregunta por topes o coberturas, utiliza la sección "DEFINICIÓN TÉCNICA DEL PLAN" de arriba. 

@@ -777,7 +777,58 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
 
     // Try to find the array of rules/coverages
     // v2.3: Combine multiple possible sources within the canonical JSON
-    if (Array.isArray(contractSource)) {
+
+    // v2.4: DETECT AUDITOR B FORMAT NATIVELY
+    // AuditorB produces: { items: [{ ambito, item, preferente: { rules: [...] }, libre_eleccion: { rules: [...] } }] }
+    const isAuditorB = contractSource.items && Array.isArray(contractSource.items)
+        && contractSource.items.length > 0
+        && contractSource.items[0]?.preferente?.rules !== undefined;
+
+    if (isAuditorB) {
+        console.log(`[M11 ADAPTER] 🔍 Detected AuditorB format with ${contractSource.items.length} items.`);
+        sourceArray = contractSource.items.flatMap((bItem: any) => {
+            const results: any[] = [];
+            // Preferente rules
+            (bItem.preferente?.rules || []).forEach((r: any, idx: number) => {
+                results.push({
+                    id: `${bItem.item}_pref_${idx}`,
+                    item: bItem.item,
+                    ambito: bItem.ambito,
+                    porcentaje: r.porcentaje,
+                    tope_evento_obj: r.tope_evento, // Pass structured object directly
+                    tope_anual_obj: r.tope_anual,
+                    copago_fijo: r.copago_fijo,
+                    tipo_modalidad: 'preferente',
+                    subred_id: r.subred_id,       // v1.3
+                    condiciones: r.condiciones,   // v1.3
+                    categoria: bItem.ambito,
+                    clinicas: r.clinicas || [],
+                    descripcion_textual: bItem.item,
+                    _isAuditorB: true
+                });
+            });
+            // Libre Elección rules
+            (bItem.libre_eleccion?.rules || []).forEach((r: any, idx: number) => {
+                results.push({
+                    id: `${bItem.item}_libre_${idx}`,
+                    item: bItem.item,
+                    ambito: bItem.ambito,
+                    porcentaje: r.porcentaje,
+                    tope_evento_obj: r.tope_evento,
+                    tope_anual_obj: r.tope_anual,
+                    copago_fijo: r.copago_fijo,
+                    tipo_modalidad: 'libre_eleccion',
+                    subred_id: r.subred_id,       // v1.3
+                    condiciones: r.condiciones,   // v1.3
+                    categoria: bItem.ambito,
+                    clinicas: r.clinicas || [],
+                    descripcion_textual: bItem.item,
+                    _isAuditorB: true
+                });
+            });
+            return results;
+        });
+    } else if (Array.isArray(contractSource)) {
         sourceArray = contractSource;
     } else if (contractSource.rules && Array.isArray(contractSource.rules)) {
         sourceArray = contractSource.rules;
@@ -834,40 +885,70 @@ function adaptToM11Input(rawContract: any, rawPam: any, rawBill: any): SkillInpu
     }
 
     rules = sourceArray.map((c: any) => {
-        // Use ALL available text fields for domain detection — crucially including fuente_textual
-        // which the canonical JSON uses to store section context like "Sección HOSPITALARIAS...: Día Cama"
-        const catText = [
-            c.categoria, c.seccion, c.ambito, c.item,
-            c.descripcion_textual, c.fuente_textual,
-            c.red_especifica, c.tipo_modalidad
-        ].filter(Boolean).join(' ');
-        const domain = mapCategoryToDomain(catText);
+        // v2.4: AuditorB items have a direct ambito field → use mapAmbitoToDomain
+        let domain: ContractDomain;
+        if (c._isAuditorB && c.ambito) {
+            domain = mapAmbitoToDomain(c.ambito);
+        } else {
+            // Legacy: Use ALL available text fields for domain detection
+            const catText = [
+                c.categoria, c.seccion, c.ambito, c.item,
+                c.descripcion_textual, c.fuente_textual,
+                c.red_especifica, c.tipo_modalidad
+            ].filter(Boolean).join(' ');
+            domain = mapCategoryToDomain(catText);
+        }
 
-        // Parse tope value: first try canonical tope fields (unidad/valor), then string parsing
-        let topeStr = c.tope || (c.modalidades?.[0]?.tope) || '';
-        let parsedTope = parseTopeValue(topeStr);
+        // Parse tope value: structured objects (AuditorB) or string parsing (legacy)
+        let parsedTope: { kind: "UF" | "UTM" | "CLP" | "VAM" | "AC2" | "SIN_TOPE_EXPRESO" | "VARIABLE"; value: number | null };
 
-        // If canonical tope object fields exist (from topes[] bucket), use them directly
-        if (c.unidad && c.unidad !== 'DESCONOCIDO') {
-            const kindMap: Record<string, "UF" | "UTM" | "CLP" | "VAM" | "AC2" | "SIN_TOPE_EXPRESO" | "VARIABLE"> = {
-                'UF': 'UF', 'UTM': 'UTM', 'VAM': 'VAM', 'AC2': 'AC2', 'PESOS': 'CLP'
+        if (c._isAuditorB && c.tope_evento_obj) {
+            // Direct structured tope from AuditorB (v1.3)
+            const te = c.tope_evento_obj;
+            const kindMap: Record<string, typeof parsedTope.kind> = {
+                'UF': 'UF', 'UTM': 'UTM', 'VA': 'VAM', 'VAM': 'VAM', 'AC2': 'AC2',
+                'SIN_TOPE': 'SIN_TOPE_EXPRESO', 'SIN_TOPE_ITEM': 'SIN_TOPE_EXPRESO',
+                'UNKNOWN': 'VARIABLE', 'CLP': 'CLP', 'PESOS': 'CLP'
             };
-            parsedTope = { kind: kindMap[c.unidad] || 'VARIABLE', value: c.valor ?? null };
+
+            // v1.3: if estado is SIN_TOPE_ITEM, force the kind
+            let kind: typeof parsedTope.kind = kindMap[te.unidad] || 'VARIABLE';
+            if (te.estado === 'SIN_TOPE_ITEM') kind = 'SIN_TOPE_EXPRESO';
+
+            parsedTope = { kind, value: te.valor ?? null };
+        } else {
+            let topeStr = c.tope || (c.modalidades?.[0]?.tope) || '';
+            parsedTope = parseTopeValue(topeStr);
+
+            // If canonical tope object fields exist (from topes[] bucket), use them directly
+            if (c.unidad && c.unidad !== 'DESCONOCIDO') {
+                const kindMap: Record<string, typeof parsedTope.kind> = {
+                    'UF': 'UF', 'UTM': 'UTM', 'VAM': 'VAM', 'AC2': 'AC2', 'PESOS': 'CLP'
+                };
+                parsedTope = { kind: kindMap[c.unidad] || 'VARIABLE', value: c.valor ?? null };
+            }
         }
 
         const modalidad = c.tipo_modalidad || (c.modalidades?.[0]?.tipo ? (String(c.modalidades?.[0]?.tipo).toLowerCase().includes('pref') ? 'preferente' : 'libre_eleccion') : 'desconocido');
 
+        // Build textLiteral with clinic names and conditions for transparency
+        const clinicStr = (c.clinicas && c.clinicas.length > 0) ? ` [${c.clinicas.join(', ')}]` : '';
+        const condStr = (c.condiciones && c.condiciones.length > 0) ? ` (${c.condiciones.join(', ')})` : '';
+
         return {
-            id: c.item || c.id || 'rule_' + Math.random().toString(36).substr(2, 9),
+            id: c.id || c.item || 'rule_' + Math.random().toString(36).substr(2, 9),
             domain,
             modalidad,
+            subredId: c.subred_id, // v1.3
+            condiciones: c.condiciones, // v1.3
+            clinicas: c.clinicas, // v1.3
             coberturaPct: c.porcentaje || (c.modalidades?.[0]?.porcentaje) || null,
             tope: {
                 kind: parsedTope.kind,
                 value: parsedTope.value,
-                currency: topeStr || undefined,
+                currency: c._isAuditorB ? `${parsedTope.value ?? ''} ${parsedTope.kind}` : (c.tope || undefined),
             },
-            textLiteral: `${c.item || ''} ${c.descripcion_textual || ''}`.trim()
+            textLiteral: `${c.item || ''} ${c.descripcion_textual || ''}${clinicStr}${condStr}`.trim()
         };
     });
 
@@ -1025,6 +1106,28 @@ function normalizeStr(s: string): string {
         .replace(/[^a-z0-9 ]/g, ' ')      // remove punctuation
         .replace(/\s+/g, ' ')             // collapse spaces
         .trim();
+}
+
+/**
+ * v2.4: Direct mapping from AuditorB expanded ambito enum to ContractDomain.
+ * No regex needed — uses the structured classification from the LLM prompt.
+ */
+function mapAmbitoToDomain(ambito: string): ContractDomain {
+    const map: Record<string, ContractDomain> = {
+        'DIA_CAMA': 'HOSPITALIZACION',
+        'HOSPITALARIO': 'HOSPITALIZACION',
+        'PABELLON': 'PABELLON',
+        'HONORARIOS': 'HONORARIOS',
+        'MEDICAMENTOS': 'MEDICAMENTOS_HOSP',
+        'MATERIALES': 'MATERIALES_CLINICOS',
+        'EXAMENES': 'EXAMENES',
+        'PROTESIS': 'PROTESIS_ORTESIS',
+        'QUIMIOTERAPIA': 'MEDICAMENTOS_HOSP', // Chemo is a subset of medications for M11
+        'URGENCIA': 'OTROS', // Urgencia not a separate M11 domain; map to OTROS
+        'AMBULATORIO': 'CONSULTA',
+        'OTROS': 'OTROS'
+    };
+    return map[ambito] || mapCategoryToDomain(ambito); // Fallback to regex for unrecognized values
 }
 
 /**

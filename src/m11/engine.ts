@@ -1802,6 +1802,14 @@ function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, c
                 }
             }
 
+            // 4. Clinical Affinity (v1.4+)
+            // If the PAM line has a specific prestador and the rule lists it, apply a huge boost
+            if (line.prestador && r.clinicas && r.clinicas.length > 0) {
+                const lp = normalize(line.prestador);
+                const isMatch = r.clinicas.some(c => lp.includes(normalize(c)) || normalize(c).includes(lp));
+                if (isMatch) score += 10000; // Absolute priority for explicit clinics
+            }
+
             // Negative affinity (Antipattern prevention)
             if (ruleText.includes('psicoterapia') && !lineDesc.includes('psicoterapia')) score -= 3000;
             if (ruleText.includes('radioterapia') && !lineDesc.includes('radioterapia')) score -= 3000;
@@ -1835,12 +1843,7 @@ function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, c
         };
     }
 
-    const expectedBonif = Math.round(line.valorTotal * (pct / 100));
-    const expectedCopago = line.valorTotal - expectedBonif;
-    const deltaCopago = line.copago - expectedCopago; // positive = patient overcharged
-
-    // Tolerance: max(500 CLP, 0.1% of valorTotal) — accounts for rounding
-    const toleranceCLP = Math.max(500, Math.round(line.valorTotal * 0.001));
+    const expectedBonifRaw = Math.round(line.valorTotal * (pct / 100));
 
     // 4. Check TOPE
     let topeState: 'SIN_TOPE' | 'TOPE_OK' | 'TOPE_EXCEDIDO' | 'TOPE_NO_VERIFICABLE' = 'SIN_TOPE';
@@ -1867,9 +1870,10 @@ function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, c
             }
 
             if (topeCLP !== null) {
-                // Conservative: check BOTH valorTotal and expectedBonif against tope
-                // Only flag as EXCEDIDO if clearly over
-                if (line.valorTotal > topeCLP * 1.02) { // 2% tolerance on tope
+                // Fix: price cap applies to the bonification, not the total value itself in most Isapre contexts
+                // If actual insurance payment is significantly over capped limit, it's a tope issue.
+                // Note: We use a 2% tolerance for rounding/UF variations.
+                if (line.bonificacion > topeCLP * 1.02) {
                     topeState = 'TOPE_EXCEDIDO';
                 } else {
                     topeState = 'TOPE_OK';
@@ -1880,19 +1884,27 @@ function evaluateContract(line: CanonicalPamLine, contract: CanonicalContract, c
         }
     }
 
+    // Fix Component 5a: Capping expectedBonif with topeCLP
+    const expectedBonif = (topeCLP !== null) ? Math.min(expectedBonifRaw, topeCLP) : expectedBonifRaw;
+    const expectedCopago = line.valorTotal - expectedBonif;
+    const deltaCopago = line.copago - expectedCopago; // positive = patient overcharged
+
+    // Tolerance: max(500 CLP, 0.1% of valorTotal) — accounts for rounding
+    const toleranceCLP = Math.max(500, Math.round(line.valorTotal * 0.001));
+
     // 5. Determine final state
     let state: string;
     let notes: string;
 
     if (deltaCopago > toleranceCLP) {
         state = 'INFRA_BONIFICACION';
-        notes = `Copago real $${line.copago.toLocaleString()} excede esperado $${expectedCopago.toLocaleString()} en $${deltaCopago.toLocaleString()} (tol $${toleranceCLP.toLocaleString()})`;
+        notes = `Copago real $${line.copago.toLocaleString()} excede esperado $${expectedCopago.toLocaleString()} en $${deltaCopago.toLocaleString()} (tol $${toleranceCLP.toLocaleString()}). ${topeCLP ? `Tope aplicado: $${topeCLP.toLocaleString()}.` : ''}`;
     } else if (topeState === 'TOPE_EXCEDIDO') {
         state = 'TOPE_EXCEDIDO';
-        notes = `Monto $${line.valorTotal.toLocaleString()} excede tope ${rule.tope?.kind} (${topeCLP ? '$' + topeCLP.toLocaleString() : '?'})`;
+        notes = `Bonificación $${line.bonificacion.toLocaleString()} excede tope ${rule.tope?.kind} (${topeCLP ? '$' + topeCLP.toLocaleString() : '?'})`;
     } else {
         state = 'VERIFICABLE_OK';
-        notes = `Bonificación coherente con contrato (${pct}%, Δ$${deltaCopago.toLocaleString()}, tol $${toleranceCLP.toLocaleString()})`;
+        notes = `Bonificación coherente con contrato (${pct}%, Δ$${deltaCopago.toLocaleString()}, tol $${toleranceCLP.toLocaleString()}).${topeCLP ? ` (Tope $${topeCLP.toLocaleString()})` : ''}`;
     }
 
     return {

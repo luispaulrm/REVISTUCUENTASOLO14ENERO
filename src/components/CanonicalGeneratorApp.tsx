@@ -19,6 +19,7 @@ export default function CanonicalGeneratorApp() {
     const [reportMetrics, setReportMetrics] = useState<any | null>(null);
     const [viewMode, setViewMode] = useState<'json' | 'map'>('json');
     const [strategy, setStrategy] = useState<'STANDARD' | 'GRID_GEOMETRY'>('STANDARD');
+    const [savedToCache, setSavedToCache] = useState(false);
 
     const timerRef = useRef<number | null>(null);
     const progressRef = useRef<number | null>(null);
@@ -192,6 +193,14 @@ export default function CanonicalGeneratorApp() {
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
+    };
+
+    const saveToCache = () => {
+        if (!canonicalResult) return;
+        localStorage.setItem('canonical_contract_result', JSON.stringify(canonicalResult));
+        setSavedToCache(true);
+        addLog('[SISTEMA] 💾 Contrato guardado en cache local (localStorage).');
+        setTimeout(() => setSavedToCache(false), 2000);
     };
 
     const handleLearn = async () => {
@@ -586,6 +595,16 @@ export default function CanonicalGeneratorApp() {
                                         >
                                             {isLearning ? <Loader2 size={14} className="animate-spin" /> : <Brain size={14} />}
                                             {learned ? 'APRENDIDO' : 'APRENDER'}
+                                        </button>
+                                        <button
+                                            onClick={saveToCache}
+                                            className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-xs font-bold transition-all ${savedToCache
+                                                ? 'bg-emerald-50 border-emerald-200 text-emerald-600'
+                                                : 'bg-orange-50 border-orange-100 text-orange-600 hover:bg-orange-100'
+                                                }`}
+                                        >
+                                            {savedToCache ? <Check size={14} /> : <Zap size={14} />}
+                                            {savedToCache ? 'GUARDADO' : 'GUARDAR EN CACHE'}
                                         </button>
                                     </div>
                                 </div>

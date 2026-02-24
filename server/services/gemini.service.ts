@@ -61,11 +61,7 @@ export class GeminiService {
         let lastError: any;
         const modelsToTry = [
             AI_CONFIG.ACTIVE_MODEL,
-            AI_CONFIG.FALLBACK_MODEL,
-            AI_MODELS.fallback2,
-            AI_MODELS.fallback3,
-            AI_MODELS.fallback4,
-            'gemini-2.0-flash'
+            ...AI_CONFIG.FALLBACK_MODELS
         ].filter(Boolean);
 
         for (const modelName of modelsToTry) {
@@ -125,7 +121,7 @@ export class GeminiService {
                         if (i >= 1) break;
                         continue;
                     } else if (isInvalid) {
-                        this.log(`❌ Modelo ${modelName} no disponible. Saltando al siguiente modelo...`);
+                        this.log(`❌ Modelo ${modelName} no disponible (${err.message}). Saltando al siguiente modelo...`);
                         break;
                     } else {
                         this.log(`❌ Error en Llave ${mask}: ${err.message}`);
@@ -168,11 +164,7 @@ export class GeminiService {
         let startingKeyIdx = this.activeKeyIndex;
         const modelsToTry = [
             AI_CONFIG.ACTIVE_MODEL,
-            AI_CONFIG.FALLBACK_MODEL,
-            AI_MODELS.fallback2,
-            AI_MODELS.fallback3,
-            AI_MODELS.fallback4,
-            'gemini-2.0-flash'
+            ...AI_CONFIG.FALLBACK_MODELS
         ].filter(Boolean);
 
         for (const modelName of modelsToTry) {

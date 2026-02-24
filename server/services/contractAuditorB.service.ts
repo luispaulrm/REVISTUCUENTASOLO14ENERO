@@ -15,15 +15,14 @@ export class ContractAuditorB {
     if (this.logCallback) this.logCallback(msg);
   }
 
-  /**
-   * Deterministically classifies a page to skip non-coverage tables.
-   */
-  private classifyTableHard(page: any): "COVERAGE_GRID" | "FACTOR_TABLE" | "ARANCEL_CATALOG" | "WAIT_TIMES_TABLE" | "DEFINITIONS_TEXT" | "UNKNOWN" {
+  private classifyTableHard(page: any): "COVERAGE_GRID" | "FACTOR_TABLE" | "ARANCEL_CATALOG" | "WAIT_TIMES_TABLE" | "DEFINITIONS_TEXT" | "SERVICE_LEVEL" | "UNKNOWN" {
     const text = (page.cells || []).map((c: any) => c.text).join(" ").toLowerCase();
 
     // 1. FACTOR_TABLE (Ages, quote types)
-    if (text.includes("años") && (text.includes("0 a") || text.includes("65 y mas") || text.includes("mayor de"))) {
-      return "FACTOR_TABLE";
+    if (text.includes("años") && (text.includes("0 a") || text.includes("65 y mas") || text.includes("mayor de") || text.includes("beneficiario"))) {
+      if (!text.includes("hospitalario") && !text.includes("ambulatorio")) {
+        return "FACTOR_TABLE";
+      }
     }
 
     // 2. WAIT_TIMES_TABLE (Wait times, days)
@@ -31,17 +30,34 @@ export class ContractAuditorB {
       return "WAIT_TIMES_TABLE";
     }
 
-    // 3. ARANCEL_CATALOG (Long lists of codes)
+    // 3. ARANCEL_CATALOG (Long lists of codes — even without "código" header)
     const codeMatches = text.match(/\b\d{7}\b/g) || [];
-    if (codeMatches.length > 10 && !text.includes("libre elección")) {
+    if (codeMatches.length > 5) {
       return "ARANCEL_CATALOG";
     }
 
-    // 4. COVERAGE_GRID (Percentage signs, UF/VA, Modalidades)
-    const hasPercentages = (text.match(/%/g) || []).length > 3;
-    const hasModalities = text.includes("preferente") || text.includes("libre elección") || text.includes("bonificación");
-    if (hasPercentages && hasModalities) {
+    // 4. DEFINITIONS_TEXT (Footnotes, glossaries, conditions — broad detection)
+    const definitionSignals = ["definición", "glosario", "condiciones generales", "nota:", "artículo", "circular",
+      "en virtud de", "se entenderá por", "el presente", "se excluye", "exclusion", "restriccion"];
+    const hasDefinitions = definitionSignals.some(s => text.includes(s));
+    const hasPercentages = (text.match(/%/g) || []).length;
+    if (hasDefinitions && hasPercentages < 2) {
+      return "DEFINITIONS_TEXT";
+    }
+
+    // 5. COVERAGE_GRID (Percentage signs, UF/VA, Modalidades)
+    if (hasPercentages < 2) {
+      return "UNKNOWN";
+    }
+
+    const hasModalities = text.includes("preferente") || text.includes("libre elección") || text.includes("bonificación") || text.includes("tope");
+    if (hasPercentages >= 2 && hasModalities) {
       return "COVERAGE_GRID";
+    }
+
+    // 6. SERVICE_LEVEL (SLA, Response times, Days for delivery)
+    if (text.includes("tiempo") && text.includes("máximo") && (text.includes("entrega") || text.includes("respuesta") || text.includes("plazo") || text.includes("días hábiles"))) {
+      return "SERVICE_LEVEL";
     }
 
     return "UNKNOWN";
@@ -63,7 +79,8 @@ export class ContractAuditorB {
 
     const allItems: any[] = [];
     const allWarnings: any[] = [];
-    let detectedSchema: any = null;
+    const allServiceLevels: any[] = [];
+    const detectedSchemaByPage: Record<number, any> = {};
 
     // Process each page independently to ensure completeness
     for (const page of layoutDoc.doc.pages) {
@@ -72,21 +89,27 @@ export class ContractAuditorB {
       const tableType = this.classifyTableHard(page);
       this.log(`   🔍 Clasificación Determinista: ${tableType}`);
 
-      if (tableType !== "COVERAGE_GRID" && tableType !== "UNKNOWN") {
+      if (tableType !== "COVERAGE_GRID" && tableType !== "UNKNOWN" && tableType !== "SERVICE_LEVEL") {
         this.log(`   ⏭️ Saltando página ${page.page} (Tipo: ${tableType})`);
         continue;
       }
 
       this.log(`   🚀 Iniciando auditoría semántica en página ${page.page}...`);
-      const pageResult = await this.auditSinglePage(page, detectedSchema, anchors);
+      // Do not pass global detectedSchema. Force each page to identify its own schema to prevent cross-page contamination.
+      const pageResult = await this.auditSinglePage(page, null, anchors);
 
       if (pageResult.items && pageResult.items.length > 0) {
         allItems.push(...pageResult.items);
         this.log(`   ✅ Página ${page.page}: ${pageResult.items.length} items extraídos.`);
       }
 
-      if (pageResult.detectedSchema && !detectedSchema) {
-        detectedSchema = pageResult.detectedSchema;
+      if (pageResult.service_levels && pageResult.service_levels.length > 0) {
+        allServiceLevels.push(...pageResult.service_levels);
+        this.log(`   ✅ Página ${page.page}: ${pageResult.service_levels.length} niveles de servicio extraídos.`);
+      }
+
+      if (pageResult.detectedSchema && !detectedSchemaByPage[page.page]) {
+        detectedSchemaByPage[page.page] = pageResult.detectedSchema;
         this.log(`   📍 Esquema de columnas detectado en página ${page.page}.`);
       }
 
@@ -97,22 +120,52 @@ export class ContractAuditorB {
 
     this.log(`✅ Auditoría completada. Total items: ${allItems.length}`);
 
+    // --- POST-PROCESSING ---
+    // A1: Rule Backfilling (Vertical Spans)
+    // If an item has rules but no 'item' name, and it follows an item with the same 'ambito',
+    // attach its rules to that predecessor.
+    let lastValidItem: any = null;
+    const itemsToKeep: any[] = [];
+
+    for (const item of allItems) {
+      const isOrphan = !item.item || item.item.trim() === "" || item.item.toLowerCase() === "unknown" || item.item.toLowerCase() === "item";
+      if (isOrphan) {
+        if (lastValidItem && item.ambito === lastValidItem.ambito) {
+          this.log(`   🔗 Backfilling reglas para "${lastValidItem.item}" desde bloque huérfano.`);
+          // Merge rules
+          if (item.preferente?.rules) {
+            item.preferente.rules.forEach((r: any) => {
+              lastValidItem.preferente.rules.push({
+                ...r,
+                attached_by: "BLOCK_SPAN_BACKFILL"
+              });
+            });
+          }
+          if (item.libre_eleccion?.rules) {
+            item.libre_eleccion.rules.forEach((r: any) => {
+              lastValidItem.libre_eleccion.rules.push({
+                ...r,
+                attached_by: "BLOCK_SPAN_BACKFILL"
+              });
+            });
+          }
+          continue; // Don't add orphans to main list
+        }
+      } else {
+        lastValidItem = item;
+      }
+      itemsToKeep.push(item);
+    }
+
     return {
       docMeta: {
         docId: layoutDoc.doc.docId,
         source: "contract_audit_topology",
         totalPages: layoutDoc.doc.pages.length
       },
-      detectedSchema: detectedSchema || {
-        prestacion_col: null,
-        preferente_pct_col: null,
-        preferente_tope_evento_col: null,
-        preferente_tope_anual_col: null,
-        libre_pct_col: null,
-        libre_tope_evento_col: null,
-        libre_tope_anual_col: null
-      },
-      items: allItems,
+      detectedSchema: Object.keys(detectedSchemaByPage).length > 0 ? detectedSchemaByPage : null,
+      service_levels: allServiceLevels,
+      items: itemsToKeep,
       warnings: allWarnings
     };
   }
@@ -134,6 +187,9 @@ export class ContractAuditorB {
         rectangles: page.grid?.rectangles || []
       }
     };
+
+    // Pre-compute explicit cellId whitelist for anti-hallucination
+    const validCellIds = (page.cells || []).map((c: any) => c.cellId).filter(Boolean);
 
     const prompt = `
 YOU ARE A CONTRACT AUDITOR.
@@ -158,25 +214,37 @@ TASK:
 4) Response MUST be valid JSON matching this schema:
 {
   "detectedSchema": {
-    "prestacion_col": "string|null",
-    "preferente_pct_col": "string|null",
-    "preferente_tope_evento_col": "string|null",
-    "preferente_tope_anual_col": "string|null",
-    "libre_pct_col": "string|null",
-    "libre_tope_evento_col": "string|null",
-    "libre_tope_anual_col": "string|null"
+    "item_col": "EXTRACT EXACT cellId FROM TOPOLOGY (e.g. p1_c_0_0) | null",
+    "preferente_pct_col": "EXTRACT EXACT cellId FROM TOPOLOGY | null",
+    "preferente_tope_evento_col": "EXTRACT EXACT cellId FROM TOPOLOGY | null",
+    "preferente_tope_anual_col": "EXTRACT EXACT cellId FROM TOPOLOGY | null",
+    "libre_pct_col": "EXTRACT EXACT cellId FROM TOPOLOGY | null",
+    "libre_tope_evento_col": "EXTRACT EXACT cellId FROM TOPOLOGY | null",
+    "libre_tope_anual_col": "EXTRACT EXACT cellId FROM TOPOLOGY | null"
   },
   "items": [
     {
-      "ambito": "HOSPITALARIO|AMBULATORIO|URGENCIA|OTROS",
+      "ambito": "DIA_CAMA|PABELLON|HONORARIOS|MEDICAMENTOS|MATERIALES|EXAMENES|PROTESIS|QUIMIOTERAPIA|URGENCIA|AMBULATORIO|OTROS",
       "item": "string",
       "preferente": {
         "rules": [
           {
+            "subred_id": "PREF_TIER_1|PREF_TIER_2|LIBRE_ELECCION|string",
+            "condiciones": ["MEDICOS_STAFF", "VENTA_BONO", "INSTITUCIONAL", "string"],
             "porcentaje": number|null,
             "clinicas": ["string"],
-            "tope_evento": { "valor": number|null, "unidad": "UF|VA|SIN_TOPE|UNKNOWN", "tipo": "TOPE_BONIFICACION|COPAGO_FIJO" },
-            "tope_anual": { "valor": number|null, "unidad": "UF|VA|SIN_TOPE|UNKNOWN" },
+            "tope_evento": { 
+                "estado": "CON_TOPE|SIN_TOPE_ITEM|SUB_LIMITE", 
+                "valor": number|null, 
+                "unidad": "UF|VA|SIN_TOPE|UNKNOWN", 
+                "tipo": "TOPE_BONIFICACION|COPAGO_FIJO",
+                "sujeto_tope_general_anual": boolean 
+            },
+            "tope_anual": { 
+                "estado": "CON_TOPE|SIN_TOPE_ITEM|UNKNOWN", 
+                "valor": number|null, 
+                "unidad": "UF|VA|SIN_TOPE|UNKNOWN" 
+            },
             "copago_fijo": { "valor": number, "unidad": "UF|CLP" } | null,
             "evidence": { "page": ${page.page}, "cells": [ { "cellId": "string", "text": "string" } ] }
           }
@@ -185,10 +253,22 @@ TASK:
       "libre_eleccion": {
         "rules": [
           {
+            "subred_id": "LIBRE_ELECCION",
+            "condiciones": [],
             "porcentaje": number|null,
             "clinicas": ["string"],
-            "tope_evento": { "valor": number|null, "unidad": "UF|VA|SIN_TOPE|UNKNOWN", "tipo": "TOPE_BONIFICACION|COPAGO_FIJO" },
-            "tope_anual": { "valor": number|null, "unidad": "UF|VA|SIN_TOPE|UNKNOWN" },
+            "tope_evento": { 
+                "estado": "CON_TOPE|SIN_TOPE_ITEM", 
+                "valor": number|null, 
+                "unidad": "UF|VA|SIN_TOPE|UNKNOWN", 
+                "tipo": "TOPE_BONIFICACION",
+                "sujeto_tope_general_anual": boolean 
+            },
+            "tope_anual": { 
+                "estado": "CON_TOPE|SIN_TOPE_ITEM|UNKNOWN", 
+                "valor": number|null, 
+                "unidad": "UF|VA|SIN_TOPE|UNKNOWN" 
+            },
             "copago_fijo": { "valor": number, "unidad": "UF|CLP" } | null,
             "evidence": { "page": ${page.page}, "cells": [ { "cellId": "string", "text": "string" } ] }
           }
@@ -196,8 +276,29 @@ TASK:
       }
     }
   ],
-  "warnings": []
+  "service_levels": [
+    {
+      "item": "string",
+      "valor": number,
+      "unidad": "DIAS|HORAS|PERCENT",
+      "evidence": { "page": ${page.page}, "cells": [ { "cellId": "string", "text": "string" } ] }
+    }
+  ],
+  "warnings": [
+    {
+      "type": "string",
+      "detail": "string"
+    }
+  ]
 }
+
+CRITICAL HARD CONSTRAINTS:
+1. DO NOT INVENT cellIds under any circumstances.
+2. The ONLY VALID cellIds for this page are EXACTLY: [${validCellIds.join(', ')}]. ANY cellId NOT in this list is FORBIDDEN.
+3. Search the 'text' of the cells to find the headers, then use the EXACT 'cellId' corresponding to that text.
+4. If a column header does not exist, use null.
+5. The 'warnings' array must strictly contain objects with 'type' and 'detail' string properties. Do not return arrays of characters or strings.
+6. For "ambito", use the MOST SPECIFIC value: DIA_CAMA for beds, PABELLON for surgical rooms, HONORARIOS for doctor fees, MEDICAMENTOS for drugs, MATERIALES for clinical supplies, EXAMENES for lab/imaging, PROTESIS for prosthetics, QUIMIOTERAPIA for chemo, URGENCIA for emergency, AMBULATORIO for outpatient. Use OTROS only if no specific match.
 
 SPECIAL RULES:
 - V.A / VA / Veces Arancel -> NORMALIZAR SIEMPRE A "VA".
@@ -205,6 +306,16 @@ SPECIAL RULES:
 - Empty Cells (-) -> "UNKNOWN", nunca "SIN_TOPE".
 - Merged Cells & Spatial Index -> Use "spatialIndex" to see which row range a merged cell spans. If a cell spans rows 5-10, APPLY ITS RULES TO ALL ITEMS IN ROWS 5-10.
 - Multi-Percentage Blocks -> If a preferente block contains "100% Dávila, 90% Indisa", create TWO rules in the "rules" array.
+- Rule Conditions extraction -> MUST look for text patterns in the cells:
+    * "(Médicos Staff)" or "(Staff)" -> Add "MEDICOS_STAFF" to condiciones.
+    * "(Sólo con Bonos)" or "(Bono)" -> Add "VENTA_BONO" to condiciones.
+    * "(Sólo Institucional)" or "(En Institución)" -> Add "INSTITUCIONAL" to condiciones.
+- Subred Identification -> Assign subred_id like "PREF_TIER_1" for the highest coverage group, "PREF_TIER_2" for the next, and "LIBRE_ELECCION" for LE rules.
+- "Sin Tope" Normalization ->
+    * If cell says "Sin Tope", set estado: "SIN_TOPE_ITEM", valor: null, unidad: "SIN_TOPE".
+    * If cell has a value (e.g., "5 UF"), set estado: "CON_TOPE", valor: 5, unidad: "UF".
+    * TOPE ANUAL INFERENCE (A2): If tope_evento.estado is "SIN_TOPE_ITEM" and no specific annual limit/number is shown for that item, SET tope_anual.estado: "SIN_TOPE_ITEM" and unidad: "SIN_TOPE" by default.
+    * sujeto_tope_general_anual: ALMOST ALWAYS TRUE for Isapre contracts, unless item explicitly says "No sujeto a tope general".
 - Row-Band Projection -> To find the Libre Elección limits (often on the far right), track the y0-y1 coordinates (the "Row Band") of the service item. Look for cells intersecting this Y-band on the right side.
 - DETECTED SCHEMA -> "preferente_pct_col" and "preferente_tope_evento_col" MUST NOT BE THE SAME CELL. If a merged cell contains both % and Tope, leave the column identifiers as null.
 
@@ -224,17 +335,27 @@ ${JSON.stringify(optimizedPage)}
 
       // 1. Mandatory Header Anchoring & Anti-Collapse Check
       const schema = parsed.detectedSchema || {};
-      const hasBasicCols = schema.prestacion_col && (schema.preferente_pct_col || schema.libre_pct_col);
+      const anchorCol = schema.item_col || schema.prestacion_col; // Fallback in case LLM uses the old name
+      const hasBasicCols = !!anchorCol; // We only strictly need item_col to anchor the rows. % cols can be null if merged.
       const isCollapsed = schema.preferente_pct_col && schema.preferente_pct_col === schema.preferente_tope_evento_col;
 
-      // Strict validation: Does the prestacion_col cell actually exist in the page geometry?
-      const prestacionCelExists = page.cells && page.cells.some((c: any) => c.cellId === schema.prestacion_col);
+      // Strict validation: Does the anchor cell actually exist in the page geometry?
+      const anchorCellExists = page.cells && page.cells.some((c: any) => c.cellId === anchorCol);
 
-      if (!hasBasicCols || (schema.prestacion_col && !prestacionCelExists)) {
-        this.log(`   ⚠️ Error: Cabeceras insuficientes o inválidas en página ${page.page}.`);
+      if (!hasBasicCols) {
+        this.log(`   ⚠️ Error: Falló anclaje en pág ${page.page}. El LLM no identificó 'item_col'.`);
         return {
           items: [],
-          warnings: [{ type: "MISSING_HEADERS", detail: "Falló anclaje estricto de cabeceras o la celda inventada por el LLM no existe en la geometría." }],
+          warnings: [{ type: "MISSING_HEADERS", detail: `No se identificó la celda cabecera de la columna de prestaciones. Schema devuelto: ${JSON.stringify(schema)}` }],
+          detectedSchema: null
+        };
+      }
+
+      if (anchorCol && !anchorCellExists) {
+        this.log(`   ⚠️ Error: Falló anclaje en pág ${page.page}. Celda '${anchorCol}' no existe en geometría.`);
+        return {
+          items: [],
+          warnings: [{ type: "INVALID_HEADERS", detail: `El LLM inventó un ID de celda (${anchorCol}) que no existe en el Input Topology.` }],
           detectedSchema: null
         };
       }

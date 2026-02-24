@@ -370,11 +370,14 @@ export interface AuditorBTope {
     tipo?: "TOPE_BONIFICACION" | "COPAGO_FIJO"; // Discriminator
 }
 
-export type TableType = "COVERAGE_GRID" | "FACTOR_TABLE" | "ARANCEL_CATALOG" | "WAIT_TIMES_TABLE" | "DEFINITIONS_TEXT" | "UNKNOWN";
+export type TableType = "COVERAGE_GRID" | "FACTOR_TABLE" | "ARANCEL_CATALOG" | "WAIT_TIMES_TABLE" | "DEFINITIONS_TEXT" | "SERVICE_LEVEL" | "UNKNOWN";
 
 export interface AuditorBItemRule {
     porcentaje: number | null;
     clinicas?: string[]; // Para capturar "Dávila, Vespucio", etc.
+    subred_id?: string;
+    condiciones?: string[];
+    attached_by?: "BLOCK_SPAN_BACKFILL" | string;
     tope_evento: AuditorBTope;
     tope_anual: AuditorBTope;
     copago_fijo?: { valor: number; unidad: "UF" | "CLP" } | null;
@@ -385,7 +388,7 @@ export interface AuditorBItemRule {
 }
 
 export interface AuditorBItem {
-    ambito: "HOSPITALARIO" | "AMBULATORIO" | "URGENCIA" | "OTROS";
+    ambito: "DIA_CAMA" | "PABELLON" | "HONORARIOS" | "MEDICAMENTOS" | "MATERIALES" | "EXAMENES" | "PROTESIS" | "QUIMIOTERAPIA" | "URGENCIA" | "AMBULATORIO" | "OTROS";
     item: string;
     preferente: {
         rules: AuditorBItemRule[];
@@ -402,18 +405,16 @@ export interface AuditorBResult {
         tableType?: TableType;
         [key: string]: any;
     };
-    detectedSchema: {
-        prestacion_col: string | null;
-        preferente_pct_col: string | null;
-        preferente_tope_evento_col: string | null;
-        preferente_tope_anual_col: string | null;
-        libre_pct_col: string | null;
-        libre_tope_evento_col: string | null;
-        libre_tope_anual_col: string | null;
-    };
+    detectedSchema: Record<number, any> | null;
     items: AuditorBItem[];
+    service_levels?: Array<{
+        item: string;
+        valor: number;
+        unidad: string;
+        evidence: any;
+    }>;
     warnings: Array<{
-        type: "COLUMN_AMBIGUITY" | "MISSING_HEADERS" | "MERGED_CELL";
+        type: string;
         detail: string;
     }>;
 }
